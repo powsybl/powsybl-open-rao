@@ -1,0 +1,97 @@
+{
+  "id": "CRAC_FILE_ID",
+  "name": "Example of CRAC file",
+  "sourceFormat": "JSON",
+  "description": "This is an example of CRAC file input for FARAO",
+  
+  "preContingency": {
+  "monitoredBranches": [
+      {
+        "id": "MONITORED_BRANCH_1",
+        "name": "France-Germany interconnector",
+        "branchId": "FFR2AA1  DDE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "MONITORED_BRANCH_2",
+        "name": "Germany-Netherlands interconnector",
+        "branchId": "DDE2AA1  NNL3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "MONITORED_BRANCH_3",
+        "name": "Netherlands-Belgium interconnector",
+        "branchId": "NNL2AA1  BBE3AA1  1",
+        "fmax": 2500.00
+      },
+      {
+        "id": "MONITORED_BRANCH_4",
+        "name": "Belgium-France interconnector",
+        "branchId": "BBE2AA1  FFR3AA1  1",
+        "fmax": 2500.00
+      }
+    ]
+  },
+
+  "contingencies": [
+    {
+      "id": "CONTINGENCY_1",
+      "name": "Germany-Belgium interconnector",
+      "contingencyElements": [
+        {
+          "elementId": "CONTINGENCY_ELEMENT_1",
+          "name": "contingency_name_1"
+        },
+        {
+          "elementId": "CONTINGENCY_ELEMENT_2",
+          "name": "contingency_name_2"
+        }
+      ],
+
+      "monitoredBranches": [
+        {
+          "id": "MONITORED_BRANCH_5",
+          "name": "France-Germany interconnector",
+          "branchId": "FFR3AA1  DDE4AA1  1",
+          "fmax": 3000.00
+        },
+        {
+          "id": "MONITORED_BRANCH_6",
+          "name": "Germany-Netherlands interconnector",
+          "branchId": "DDE3AA1  NNL4AA1  1",
+          "fmax": 3000.00
+        }
+      ]
+    },
+
+    {
+      "id": "CONTINGENCY_2",
+      "name": "Germany-Belgium interconnector",
+      "contingencyElements": [
+        {
+          "elementId": "CONTINGENCY_ELEMENT_3",
+          "name": "contingency_name_3"
+        },
+        {
+          "elementId": "CONTINGENCY_ELEMENT_4",
+          "name": "contingency_name_4"
+        }
+      ],
+
+      "monitoredBranches": [
+        {
+          "id": "MONITORED_BRANCH_7",
+          "name": "France-Germany interconnector",
+          "branchId": "FFR5AA1  DDE6AA1  1",
+          "fmax": 3000.00
+        },
+        {
+          "id": "MONITORED_BRANCH_8",
+          "name": "Germany-Netherlands interconnector",
+          "branchId": "DDE7AA1  NNL8AA1  1",
+          "fmax": 3000.00
+        }
+      ]
+    }
+  ]
+}

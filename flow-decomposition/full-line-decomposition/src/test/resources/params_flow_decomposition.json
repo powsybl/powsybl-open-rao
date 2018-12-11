@@ -1,0 +1,10 @@
+{
+  "extensions" : {
+    "FullLineDecompositionParameters" : {
+      "injectionStrategy": "DECOMPOSE_INJECTIONS",
+      "pexMatrixTolerance": 1e-2,
+      "threadsNumber": 10,
+      "pstStrategy": "NEUTRAL_TAP"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id" : "FLOWBASED_DATA_DOMAIN_ID",
+  "name" : "This is an example of Flow-based data domain inputs for FARAO",
+  "sourceFormat" : "JSON",
+  "description" : "This is an example of Flow-based inputs for FARAO",
+  "dataPreContingency" : {
+    "dataMonitoredBranches" : [ {
+      "id" : "FLOWBASED_DATA_DOMAIN_BRANCH_1",
+      "name" : "France-Germany interconnector",
+      "branchId" : "FFR2AA1  DDE3AA1  1",
+      "fmax" : 2300.0,
+      "fref" : 123456.0,
+      "ptdfList" : [ {
+        "country" : "France",
+        "ptdf" : 0.0
+      }, {
+        "country" : "Germany",
+        "ptdf" : 1.0
+      }, {
+        "country" : "Netherlands",
+        "ptdf" : 2.0
+      }, {
+        "country" : "Belgium",
+        "ptdf" : 3.0
+      }, {
+        "country" : "France",
+        "ptdf" : 4.0
+      } ]
+    } ]
+  }
+}

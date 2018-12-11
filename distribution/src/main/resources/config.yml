@@ -1,0 +1,52 @@
+componentDefaultConfig:
+    LoadFlowFactory: com.rte_france.powsybl.hades2.Hades2Factory
+    SensitivityComputationFactory: com.rte_france.powsybl.hades2.sensitivity.Hades2SensitivityFactory
+    FlowDecompositionFactory: com.farao_community.farao.flow_decomposition.full_line_decomposition.FullLineDecompositionFactory
+    RaoComputationFactory: com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoFactory
+
+hades2:
+    homeDir: $HOME/farao-dep/runtime/hades2
+    timeout: -1
+    debug: false
+
+hades2-default-parameters:
+    dcMode: true
+    balanceType: PROPORTIONAL_TO_GENERATION_P
+    countriesToBalance: AL,AT,BA,BE,BG,CH,CZ,DE,ES,FR,GR,HR,HU,IT,ME,MK,NL,PL,PT,RO,RS,SI,SK,TR,UA
+
+hades2-default-sensitivity-parameters:
+    computeInitialLoadflow: true
+    computeSensitivityToPsts: true
+    computeSensitivityToInjections: true
+    equationTypePst: ANGLE_SHIFT_EQ
+    resultsThreshold: -1
+    hubPtdf: -1
+
+closed-optimisation-rao-parameters:
+    solver-type: CBC_MIXED_INTEGER_PROGRAMMING
+    problem-fillers:
+        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchMarginsPositivityConstraintFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchMarginsVariablesFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.GeneratorRedispatchCostsFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.GeneratorRedispatchVariablesFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.PstAngleImpactOnBranchFlowFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.PstAngleVariablesFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchEquilibriumConstraintFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchImpactOnBranchFlowFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.RedispathCostMinimizationObjectiveFiller
+    pre-processors:
+        - com.farao_community.farao.closed_optimisation_rao.pre_processors.ReferenceFlowsPreProcessor
+        - com.farao_community.farao.closed_optimisation_rao.pre_processors.SensitivityPreProcessor
+
+load-flow-default-parameters:
+    voltageInitMode: DC_VALUES
+    transformerVoltageControlOn: false
+    specificCompatibility: true
+
+local-app-file-system:
+    drive-name: Local
+    root-dir: $HOME
+
+mapdb-app-file-system:
+    drive-name: Database
+    db-file: $HOME/farao.db

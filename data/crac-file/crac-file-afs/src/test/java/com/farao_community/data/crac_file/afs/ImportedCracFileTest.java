@@ -1,0 +1,125 @@
+/**
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.farao_community.data.crac_file.afs;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.CharStreams;
+import com.powsybl.afs.AbstractProjectFileTest;
+import com.powsybl.afs.FileExtension;
+import com.powsybl.afs.Folder;
+import com.powsybl.afs.Project;
+import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.afs.ProjectFolder;
+import com.powsybl.afs.ProjectNode;
+import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
+import com.farao_community.farao.commons.FaraoException;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+/**
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ */
+public class ImportedCracFileTest extends AbstractProjectFileTest {
+
+    @Override
+    protected AppStorage createStorage() {
+        return MapDbAppStorage.createHeap("mem");
+    }
+
+    @Override
+    protected List<FileExtension> getFileExtensions() {
+        return ImmutableList.of(new AfsCracFileExtension());
+    }
+
+    @Override
+    protected List<ProjectFileExtension> getProjectFileExtensions() {
+        return ImmutableList.of(new ImportedCracFileExtension());
+    }
+
+    @Override
+    @Before
+    public void setup() throws IOException {
+        super.setup();
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
+        NodeInfo cracNodeInfo = storage.createNode(rootFolderInfo.getId(), "cracFileExample", AfsCracFile.PSEUDO_CLASS, "CRAC format", AfsCracFile.VERSION,
+                new NodeGenericMetadata());
+        try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/cracFileExampleValid.json"));
+             Writer writer = new OutputStreamWriter(storage.writeBinaryData(cracNodeInfo.getId(), "DATA_SOURCE_FILE_NAME__" + ImportedCracFile.CRAC_FILE_JSON_NAME), StandardCharsets.UTF_8)) {
+            CharStreams.copy(reader, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        storage.flush();
+    }
+
+    @Test
+    public void test() {
+        Folder root = afs.getRootFolder();
+
+        // check AfsCracFile exists
+        assertEquals(1, root.getChildren().size());
+        assertTrue(root.getChildren().get(0) instanceof AfsCracFile);
+        AfsCracFile file = (AfsCracFile) root.getChildren().get(0);
+        assertEquals("cracFileExample", file.getName());
+        assertEquals("CRAC format", file.getDescription());
+        assertFalse(file.isFolder());
+
+        // create project
+        Project project = root.createProject("project");
+        assertNotNull(project);
+
+        // create project folder
+        ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        assertTrue(folder.getChildren().isEmpty());
+
+        // import CRAC into project
+        try {
+            folder.fileBuilder(ImportedCracFileBuilder.class)
+                    .build();
+            fail();
+        } catch (FaraoException ignored) {
+        }
+        ImportedCracFile importedCracFile = folder.fileBuilder(ImportedCracFileBuilder.class)
+                .withAfsCracFile(file)
+                .build();
+        assertNotNull(importedCracFile);
+        assertFalse(importedCracFile.isFolder());
+        assertNotNull(importedCracFile.getCracFile());
+        assertTrue(importedCracFile.getDependencies().isEmpty());
+
+        // try to reload the imported CRAC
+        assertEquals(1, folder.getChildren().size());
+        ProjectNode projectNode = folder.getChildren().get(0);
+        assertNotNull(projectNode);
+        assertTrue(projectNode instanceof ImportedCracFile);
+        ImportedCracFile importedCase2 = (ImportedCracFile) projectNode;
+
+        assertTrue(folder.getChild(ImportedCracFile.class, "cracFileExample").isPresent());
+
+        // delete imported CRAC
+        projectNode.delete();
+        assertTrue(folder.getChildren().isEmpty());
+        try {
+            projectNode.getName();
+        } catch (Exception ignored) {
+        }
+    }
+}

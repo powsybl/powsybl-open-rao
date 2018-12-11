@@ -1,0 +1,15 @@
+{
+  "version" : "1.0",
+  "load-flow-parameters" : {
+    "version" : "1.0",
+    "voltageInitMode" : "PREVIOUS_VALUES"
+  },
+  "sensitivity-parameters" : {
+    "version" : "1.0",
+    "load-flow-parameters" : {
+      "version" : "1.0",
+      "noGeneratorReactiveLimits" : false,
+      "specificCompatibility" : false
+    }
+  }
+}

@@ -1,0 +1,548 @@
+{
+  "perBranchResults" : {
+    "FFR1AA1  FFR3AA1  1" : {
+      "branchId" : "FFR1AA1  FFR3AA1  1",
+      "branchCountry1" : "FR",
+      "branchCountry2" : "FR",
+      "referenceFlows" : 333.3333435058594,
+      "maximumFlows" : 350.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 13.333325512647773,
+          "NL" : 63.88888789006948,
+          "DE" : 147.0833318774832,
+          "FR" : 62.49999813735486
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 2.77777761220932,
+          "DE" : 23.611110977331798,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : -29.861099547258178,
+          "FR" : 50.000010058283806
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "FFR2AA1  DDE3AA1  1" : {
+      "branchId" : "FFR2AA1  DDE3AA1  1",
+      "branchCountry1" : "FR",
+      "branchCountry2" : "DE",
+      "referenceFlows" : 1500.0,
+      "maximumFlows" : 2000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 39.99999665451056,
+          "NL" : 191.66666677461723,
+          "DE" : 441.2499984885055,
+          "FR" : -62.50000000000001
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 8.33333283662796,
+          "DE" : 70.83333293199536,
+          "FR" : -0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 910.4166659679678,
+          "FR" : -99.99998658895493
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "NNL2AA1  NNL3AA1  1" : {
+      "branchId" : "NNL2AA1  NNL3AA1  1",
+      "branchCountry1" : "NL",
+      "branchCountry2" : "NL",
+      "referenceFlows" : 833.3333129882812,
+      "maximumFlows" : 1000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : -26.666664436340376,
+          "NL" : 94.44444776022881,
+          "DE" : 316.9444398099758,
+          "FR" : 41.66666697710753
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : 50.000000589837626,
+          "DE" : 63.88888719032209,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 226.38888454285484,
+          "FR" : 66.66666688397527
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "BBE1AA1  BBE2AA1  1" : {
+      "branchId" : "BBE1AA1  BBE2AA1  1",
+      "branchCountry1" : "BE",
+      "branchCountry2" : "BE",
+      "referenceFlows" : 833.3333129882812,
+      "maximumFlows" : 1000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 619.9999816069605,
+          "NL" : 47.22222693187219,
+          "DE" : 25.138891715980755,
+          "FR" : 20.833333954215053
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : -2.77777761220932,
+          "DE" : -23.611111358106914,
+          "FR" : -0.0
+        },
+        "DE" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 113.19444518787378,
+          "FR" : 33.33333693444729
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "BBE1AA1  BBE3AA1  1" : {
+      "branchId" : "BBE1AA1  BBE3AA1  1",
+      "branchCountry1" : "BE",
+      "branchCountry2" : "BE",
+      "referenceFlows" : 166.6666717529297,
+      "maximumFlows" : 150.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 380.00000466012943,
+          "NL" : -47.22222693187219,
+          "DE" : -25.138889643545482,
+          "FR" : -20.833333488553766
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : 2.77777761220932,
+          "DE" : 23.611112219095233,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : 0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : -0.0,
+          "DE" : -113.19444250425806,
+          "FR" : -33.33333367481828
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "NNL1AA1  NNL2AA1  1" : {
+      "branchId" : "NNL1AA1  NNL2AA1  1",
+      "branchCountry1" : "NL",
+      "branchCountry2" : "NL",
+      "referenceFlows" : 166.6666717529297,
+      "maximumFlows" : 150.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : -13.333332218170188,
+          "NL" : 47.222223880114406,
+          "DE" : 158.4722199049879,
+          "FR" : 20.833333488553766
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : -58.33333482344945,
+          "DE" : -134.7222266415755,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 113.19444250425806,
+          "FR" : 33.33333367481828
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "NNL1AA1  NNL3AA1  1" : {
+      "branchId" : "NNL1AA1  NNL3AA1  1",
+      "branchCountry1" : "NL",
+      "branchCountry2" : "NL",
+      "referenceFlows" : 666.6666870117188,
+      "maximumFlows" : 1000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : -13.333332218170188,
+          "NL" : 47.222220154824036,
+          "DE" : 158.47222394071903,
+          "FR" : 20.83333302289248
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : 108.33333184321721,
+          "DE" : 198.61110855440302,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 113.19444405646234,
+          "FR" : 33.33333134651184
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "BBE2AA1  FFR3AA1  1" : {
+      "branchId" : "BBE2AA1  FFR3AA1  1",
+      "branchCountry1" : "BE",
+      "branchCountry2" : "FR",
+      "referenceFlows" : 500.0,
+      "maximumFlows" : 1250.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 40.00000857543923,
+          "NL" : 191.66667049990778,
+          "DE" : 441.2500045731466,
+          "FR" : 187.50000000000003
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 8.333334078391392,
+          "DE" : 70.83333417375883,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : -339.58334334525796,
+          "FR" : -100.00002384185791
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "DDE2AA1  DDE3AA1  1" : {
+      "branchId" : "DDE2AA1  DDE3AA1  1",
+      "branchCountry1" : "DE",
+      "branchCountry2" : "DE",
+      "referenceFlows" : 333.3333435058594,
+      "maximumFlows" : 350.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 26.66666685777902,
+          "NL" : 127.77777950542946,
+          "DE" : 141.38888460143215,
+          "FR" : -41.66666511446238
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 5.55555522441864,
+          "DE" : 19.444442014768747,
+          "FR" : -0.0
+        },
+        "DE" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 120.83332980331029,
+          "FR" : -66.66666269302368
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "FFR2AA1  FFR3AA1  1" : {
+      "branchId" : "FFR2AA1  FFR3AA1  1",
+      "branchCountry1" : "FR",
+      "branchCountry2" : "FR",
+      "referenceFlows" : 1666.6666259765625,
+      "maximumFlows" : 2000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 26.666678592443287,
+          "NL" : 127.77778245461766,
+          "DE" : 294.16667468248477,
+          "FR" : 125.00000000000001
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 5.55555522441864,
+          "DE" : 47.22222319642703,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 440.2777791746237,
+          "FR" : 599.9999921768904
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "DDE1AA1  DDE2AA1  1" : {
+      "branchId" : "DDE1AA1  DDE2AA1  1",
+      "branchCountry1" : "DE",
+      "branchCountry2" : "DE",
+      "referenceFlows" : 333.3333435058594,
+      "maximumFlows" : 350.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : -13.333332218170188,
+          "NL" : -63.88888975271474,
+          "DE" : 75.13888853628988,
+          "FR" : 20.83333302289248
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : -2.77777761220932,
+          "DE" : 31.944442538420365,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 252.08333490043873,
+          "FR" : 33.33333134651184
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "DDE1AA1  DDE3AA1  1" : {
+      "branchId" : "DDE1AA1  DDE3AA1  1",
+      "branchCountry1" : "DE",
+      "branchCountry2" : "DE",
+      "referenceFlows" : 666.6666870117188,
+      "maximumFlows" : 1000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 13.333332218170188,
+          "NL" : 63.888888200510394,
+          "DE" : 216.5277823500545,
+          "FR" : -20.833333954215053
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 2.77777761220932,
+          "DE" : 51.38889021873476,
+          "FR" : -0.0
+        },
+        "DE" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 372.9166808078686,
+          "FR" : -33.33333134651184
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "NNL2AA1  BBE3AA1  1" : {
+      "branchId" : "NNL2AA1  BBE3AA1  1",
+      "branchCountry1" : "NL",
+      "branchCountry2" : "BE",
+      "referenceFlows" : 1500.0,
+      "maximumFlows" : 1500.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : -40.00001155567155,
+          "NL" : 641.6666738536624,
+          "DE" : 475.4166653028992,
+          "FR" : 62.49999906867743
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : -8.333330353101093,
+          "DE" : -70.83332920670509,
+          "FR" : -0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : 0.0,
+          "DE" : 339.5833352737957,
+          "FR" : 99.9999986961484
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "BBE2AA1  BBE3AA1  1" : {
+      "branchId" : "BBE2AA1  BBE3AA1  1",
+      "branchCountry1" : "BE",
+      "branchCountry2" : "BE",
+      "referenceFlows" : 666.6666870117188,
+      "maximumFlows" : 1000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 239.99999557328232,
+          "NL" : 94.44445386374439,
+          "DE" : 50.27778454518301,
+          "FR" : 41.66666604578496
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : -5.55555522441864,
+          "DE" : -47.22222226510446,
+          "FR" : -0.0
+        },
+        "DE" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 226.38889143076136,
+          "FR" : 66.66666455566883
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "FFR1AA1  FFR2AA1  1" : {
+      "branchId" : "FFR1AA1  FFR2AA1  1",
+      "branchCountry1" : "FR",
+      "branchCountry2" : "FR",
+      "referenceFlows" : 1333.3333740234375,
+      "maximumFlows" : 1500.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : 13.333335570931395,
+          "NL" : 63.8888916153599,
+          "DE" : 147.08333672036068,
+          "FR" : 62.50000093132258
+        },
+        "NL" : {
+          "BE" : -0.0,
+          "NL" : 2.7777782330910363,
+          "DE" : 23.61111159821353,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : 0.0
+        },
+        "FR" : {
+          "BE" : 0.0,
+          "NL" : 0.0,
+          "DE" : 470.13889827965585,
+          "FR" : 550.0000063329935
+        }
+      },
+      "countryPstFlows" : { }
+    },
+    "DDE2AA1  NNL3AA1  1" : {
+      "branchId" : "DDE2AA1  NNL3AA1  1",
+      "branchCountry1" : "DE",
+      "branchCountry2" : "NL",
+      "referenceFlows" : 1000.0,
+      "maximumFlows" : 1000.0,
+      "countryExchangeFlows" : {
+        "BE" : {
+          "BE" : -40.00000336003298,
+          "NL" : -191.66667298343455,
+          "DE" : 475.416667041368,
+          "FR" : 62.49999813735486
+        },
+        "NL" : {
+          "BE" : 0.0,
+          "NL" : -8.333335320154825,
+          "DE" : 262.4999954342843,
+          "FR" : 0.0
+        },
+        "DE" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 0.0,
+          "FR" : -0.0
+        },
+        "FR" : {
+          "BE" : -0.0,
+          "NL" : -0.0,
+          "DE" : 339.5833414826129,
+          "FR" : 99.99999403953552
+        }
+      },
+      "countryPstFlows" : { }
+    }
+  }
+}

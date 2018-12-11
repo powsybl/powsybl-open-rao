@@ -1,0 +1,10 @@
+# ignore Intellij files 
+.idea
+*.iml
+
+# ignore java targets
+target
+
+# ignore installation script artifacts
+install.cfg
+farao-*.zip

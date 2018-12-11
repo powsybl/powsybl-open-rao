@@ -1,0 +1,6 @@
+{
+  "status" : "SUCCESS",
+  "extensions" : {
+    "dummy-extension" : { }
+  }
+}
