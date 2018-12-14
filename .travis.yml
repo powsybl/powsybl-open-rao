@@ -1,0 +1,12 @@
+language: java
+
+dist: trusty
+
+addons:
+    sonarcloud:
+        organization: "farao-community"
+        token:
+            secure: ${SONAR_TOKEN}
+
+script:
+- mvn clean verify sonar:sonar
