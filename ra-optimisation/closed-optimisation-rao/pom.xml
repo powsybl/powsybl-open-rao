@@ -34,10 +34,6 @@
             <artifactId>powsybl-sensitivity-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-contingency-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.github.oliviercailloux</groupId>
             <artifactId>google-or-tools</artifactId>
         </dependency>

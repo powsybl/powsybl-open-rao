@@ -12,8 +12,8 @@ package com.farao_community.farao.afs.crac_file.xlsx;
 import com.powsybl.afs.local.storage.LocalFile;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
 
@@ -94,12 +94,12 @@ public class AfsXlsxCracLocalFile implements LocalFile {
     }
 
     @Override
-    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(Set<String> set, int i) {
+    public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(Set<String> set, int i) {
         throw new AssertionError();
     }
 
     @Override
-    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(Set<String> set, int i) {
+    public Map<String, List<StringDataChunk>> getStringTimeSeriesData(Set<String> set, int i) {
         throw new AssertionError();
     }
 
