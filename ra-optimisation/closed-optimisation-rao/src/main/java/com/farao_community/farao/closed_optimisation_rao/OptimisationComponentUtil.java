@@ -81,8 +81,9 @@ public final class OptimisationComponentUtil {
         }
 
         // Only keep expected optimisation problem fillers
-        List<AbstractOptimisationProblemFiller> fillers = fillersMap.values().stream()
-                .filter(filler -> parameters.getFillersList().contains(filler.getClass().getName()))
+        List<AbstractOptimisationProblemFiller> fillers = fillersMap.entrySet().stream()
+                .filter(entry -> parameters.getFillersList().contains(entry.getKey()))
+                .map(entry -> entry.getValue())
                 .collect(Collectors.toList());
 
 
@@ -99,9 +100,9 @@ public final class OptimisationComponentUtil {
         Queue<AbstractOptimisationProblemFiller> fillersOrdered = new LinkedList<>();
         List<String> providedVariables = new ArrayList<>();
         List<String> providedConstraints = new ArrayList<>();
-        AtomicBoolean fillerPickedAtIteration = new AtomicBoolean(false);
+        AtomicBoolean fillerPickedAtIteration = new AtomicBoolean(true);
 
-        while (fillersOrdered.size() != fillers.size() && !fillerPickedAtIteration.get()) {
+        while (fillersOrdered.size() != fillers.size() && fillerPickedAtIteration.get()) {
             fillerPickedAtIteration.set(false);
             fillers.forEach(filler -> {
                 if (fillersOrdered.contains(filler)) {
