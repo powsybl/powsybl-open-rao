@@ -22,9 +22,7 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -41,7 +39,7 @@ public class ClosedOptimisationRao implements RaoComputation {
     private MPSolver createSolver(String solverType) {
         try {
             return new MPSolver("FARAO optimisation",
-                            MPSolver.OptimizationProblemType.valueOf(solverType));
+                    MPSolver.OptimizationProblemType.valueOf(solverType));
         } catch (java.lang.IllegalArgumentException e) {
             return null;
         }
@@ -62,7 +60,6 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         LoadFlowService.init(loadFlowFactory, computationManager);
-        network.getVariantManager().allowVariantMultiThreadAccess(true);
     }
 
     @Override
@@ -70,18 +67,20 @@ public class ClosedOptimisationRao implements RaoComputation {
         Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
 
+        // Check RAO computation configuration
+        List<String> configurationIssues = ConfigurationUtil.checkRaoConfiguration(parameters);
+        if (!configurationIssues.isEmpty()) {
+            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() +
+                    String.join(System.lineSeparator(), configurationIssues));
+        }
+
         // Change working variant
         network.getVariantManager().setWorkingVariant(workingVariantId);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
-        ClosedOptimisationRaoParameters parametersExtension = parameters.getExtension(ClosedOptimisationRaoParameters.class);
-        if (Objects.isNull(parametersExtension)) {
-            throw new FaraoException("Closed optimisation RAO computation parameters not available");
-        }
+        ClosedOptimisationRaoParameters parametersExtension = Objects.requireNonNull(parameters.getExtension(ClosedOptimisationRaoParameters.class)); // Should not be null, checked previously
 
-        MPSolver solver = createSolver(parametersExtension.getSolverType());
-        if (Objects.isNull(solver)) {
-            throw new FaraoException("Could not create solver " + parametersExtension.getSolverType());
-        }
+        MPSolver solver = Objects.requireNonNull(new MPSolver("FARAO optimisation", MPSolver.OptimizationProblemType.valueOf(parametersExtension.getSolverType()))); // Should not be null, checked previously
 
         Map<String, Object> data = OptimisationComponentUtil.getDataMap(network, cracFile, computationManager, parametersExtension);
 
@@ -114,6 +113,8 @@ public class ClosedOptimisationRao implements RaoComputation {
             filler.constraintsProvided().forEach(constraint -> fillConstraintInfo(resultExtension, solver, constraint));
         });
         fillObjectiveInfo(resultExtension, solver);
+        OptimisationComponentUtil.fillResults(parametersExtension, network, cracFile, solver, data, result);
+
         result.addExtension(ClosedOptimisationRaoResult.class, resultExtension);
 
         network.getVariantManager().allowVariantMultiThreadAccess(false);

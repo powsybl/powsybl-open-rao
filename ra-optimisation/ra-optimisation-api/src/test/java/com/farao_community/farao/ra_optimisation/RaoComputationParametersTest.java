@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Mohamed Zelmat {@literal <mohamed.zelmat at rte-france.com>}

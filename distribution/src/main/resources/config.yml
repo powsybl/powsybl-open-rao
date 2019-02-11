@@ -37,6 +37,10 @@ closed-optimisation-rao-parameters:
     pre-processors:
         - com.farao_community.farao.closed_optimisation_rao.pre_processors.ReferenceFlowsPreProcessor
         - com.farao_community.farao.closed_optimisation_rao.pre_processors.SensitivityPreProcessor
+    post-processors:
+        - com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor
+        - com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor
+        - com.farao_community.farao.closed_optimisation_rao.post_processors.RedispatchElementResultsPostProcessor
 
 load-flow-default-parameters:
     voltageInitMode: DC_VALUES

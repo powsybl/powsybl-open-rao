@@ -6,15 +6,19 @@
  */
 package com.farao_community.farao.ra_optimisation.json;
 
+import com.farao_community.farao.ra_optimisation.ContingencyResult;
+import com.farao_community.farao.ra_optimisation.PreContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +32,8 @@ public class RaoComputationResultDeserializer extends StdDeserializer<RaoComputa
     public RaoComputationResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         RaoComputationResult.Status status = RaoComputationResult.Status.FAILED;
+        PreContingencyResult preContingencyResult = null;
+        List<ContingencyResult> contingencyResults = Collections.emptyList();
         List<Extension<RaoComputationResult>> extensions = Collections.emptyList();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
@@ -35,6 +41,17 @@ public class RaoComputationResultDeserializer extends StdDeserializer<RaoComputa
                 case "status":
 
                     status = RaoComputationResult.Status.valueOf(jsonParser.nextTextValue());
+                    break;
+
+                case "preContingencyResult":
+                    jsonParser.nextValue();
+                    preContingencyResult = jsonParser.readValueAs(PreContingencyResult.class);
+                    break;
+
+                case "contingencyResults":
+                    jsonParser.nextToken();
+                    contingencyResults = jsonParser.readValueAs(new TypeReference<ArrayList<ContingencyResult>>() {
+                    });
                     break;
 
                 case "extensions":
@@ -47,7 +64,11 @@ public class RaoComputationResultDeserializer extends StdDeserializer<RaoComputa
             }
         }
 
-        RaoComputationResult result = new RaoComputationResult(status);
+        RaoComputationResult result = new RaoComputationResult(
+                status,
+                preContingencyResult,
+                contingencyResults
+        );
         JsonRaoComputationResult.getExtensionSerializers().addExtensions(result, extensions);
 
         return result;

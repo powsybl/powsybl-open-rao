@@ -22,7 +22,7 @@ public class AfsCracLocalFileTest {
     @Test
     public void createLocalFile() throws IOException {
         AfsCracLocalFile afsCracLocalFile = new AfsCracLocalFile(Paths.get(getClass().getResource("/20170215_xlsx_crac_fr_v01_v2.3.xlsx").getPath()));
-        
+
         assertTrue(afsCracLocalFile.readBinaryData("cracData").isPresent());
 
         assertFalse(afsCracLocalFile.getDescription().isEmpty());

@@ -23,35 +23,35 @@ public class CriticalBranchValuesTest {
 
     @Test
     public void testNullVariables() {
-        new CriticalBranchValues("","", 1.f,2.f,"");
+        new CriticalBranchValues("", "", 1.f, 2.f, "");
     }
 
 
     @Test
     public void getId() {
         String idValueRef = "idValue";
-        CriticalBranchValues criticalBranchValues = new CriticalBranchValues(idValueRef,"", 1.f,2.f,"");
-        assertEquals(idValueRef,criticalBranchValues.getId());
+        CriticalBranchValues criticalBranchValues = new CriticalBranchValues(idValueRef, "", 1.f, 2.f, "");
+        assertEquals(idValueRef, criticalBranchValues.getId());
     }
 
     @Test
     public void getName() {
         String nameValueRef = "nameValue";
-        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("",nameValueRef, 1.f,2.f,"");
+        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("", nameValueRef, 1.f, 2.f, "");
         assertEquals(nameValueRef, criticalBranchValues.getName());
     }
 
     @Test
     public void getuNominal() {
         double uNominalValueRef = 1.1;
-        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("","", uNominalValueRef,2.f,"");
+        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("", "", uNominalValueRef, 2.f, "");
         assertEquals(uNominalValueRef, criticalBranchValues.getuNominal(), EPSILON_COMPARISON);
     }
 
     @Test
     public void getiMax() {
         double iMaxValueRef = 1.2;
-        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("","", 1.f,iMaxValueRef,"");
+        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("", "", 1.f, iMaxValueRef, "");
         assertEquals(iMaxValueRef, criticalBranchValues.getiMax(), EPSILON_COMPARISON);
     }
 
@@ -60,14 +60,14 @@ public class CriticalBranchValuesTest {
         double uNominalValueRef = 1.1e6;
         double iMaxValueRef = 1.2;
         double powerFlowValueRef = uNominalValueRef * iMaxValueRef * Math.sqrt(3.0) / 1000.0;
-        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("","", uNominalValueRef,iMaxValueRef,"");
+        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("", "", uNominalValueRef, iMaxValueRef, "");
         assertEquals(powerFlowValueRef, criticalBranchValues.getPowerFlow(), EPSILON_COMPARISON);
     }
 
     @Test
     public void getDirection() {
         String directionValueRef = "directionValue";
-        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("","", 1.f,2.f,directionValueRef);
+        CriticalBranchValues criticalBranchValues = new CriticalBranchValues("", "", 1.f, 2.f, directionValueRef);
         assertEquals(directionValueRef, criticalBranchValues.getDirection());
     }
 }
