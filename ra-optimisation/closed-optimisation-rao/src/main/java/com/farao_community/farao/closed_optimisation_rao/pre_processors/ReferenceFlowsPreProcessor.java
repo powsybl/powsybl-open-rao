@@ -52,23 +52,23 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
 
 
         // Post-contingency loadflow calculation
-        // State creation and deletion not thread safe, out of parallel stream
-        String initialStateId = network.getStateManager().getWorkingStateId();
+        // Variant creation and deletion not thread safe, out of parallel stream
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
         cracFile.getContingencies().forEach(contingency -> {
 
-            // Create contingency state
-            String contingencyStateId = initialStateId + "+" + contingency.getId();
-            network.getStateManager().cloneState(initialStateId, contingencyStateId);
-            network.getStateManager().setWorkingState(contingencyStateId);
+            // Create contingency variant
+            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
+            network.getVariantManager().cloneVariant(initialVariantId, contingencyVariantId);
+            network.getVariantManager().setWorkingVariant(contingencyVariantId);
 
             // Apply contingency
             applyContingency(network, computationManager, contingency);
         });
 
         cracFile.getContingencies().parallelStream().forEach(contingency -> {
-            // Create contingency state
-            String contingencyStateId = initialStateId + "+" + contingency.getId();
-            network.getStateManager().setWorkingState(contingencyStateId);
+            // Create contingency variant
+            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
+            network.getVariantManager().setWorkingVariant(contingencyVariantId);
 
             // Run sensitivity computation
             runLoadFlow(
@@ -78,12 +78,12 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
             );
         });
 
-        network.getStateManager().setWorkingState(initialStateId);
+        network.getVariantManager().setWorkingVariant(initialVariantId);
 
         cracFile.getContingencies().forEach(contingency -> {
-            // Remove contingency state
-            String contingencyStateId = initialStateId + "+" + contingency.getId();
-            network.getStateManager().removeState(contingencyStateId);
+            // Remove contingency variant
+            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
+            network.getVariantManager().removeVariant(contingencyVariantId);
         });
 
         data.put(REFERENCE_FLOWS_DATA_NAME, referenceFlows);
@@ -94,7 +94,7 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
             List<MonitoredBranch> monitoredBranches,
             Map<String, Double> referenceFlows) {
 
-        LoadFlowResult results = LoadFlowService.runLoadFlow(network, network.getStateManager().getWorkingStateId());
+        LoadFlowResult results = LoadFlowService.runLoadFlow(network, network.getVariantManager().getWorkingVariantId());
 
         if (!results.isOk()) {
             throw new FaraoException("Divergence in loadflow computation");

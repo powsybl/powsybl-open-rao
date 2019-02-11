@@ -22,13 +22,13 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
 import com.farao_community.data.crac_file.afs.ImportedCracFile;
 import com.farao_community.data.crac_file.afs.ImportedCracFileBuilder;
 import com.farao_community.data.crac_file.afs.ImportedCracFileExtension;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.powsybl.iidm.network.VariantManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -106,9 +106,9 @@ public class FlowbasedComputationRunnerTest extends AbstractProjectFileTest {
         @Override
         public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
             Network network = Mockito.mock(Network.class);
-            StateManager stateManager = Mockito.mock(StateManager.class);
-            Mockito.when(stateManager.getWorkingStateId()).thenReturn("s1");
-            Mockito.when(network.getStateManager()).thenReturn(stateManager);
+            VariantManager variantManager = Mockito.mock(VariantManager.class);
+            Mockito.when(variantManager.getWorkingVariantId()).thenReturn("s1");
+            Mockito.when(network.getVariantManager()).thenReturn(variantManager);
             return network;
         }
 

@@ -62,16 +62,16 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         LoadFlowService.init(loadFlowFactory, computationManager);
-        network.getStateManager().allowStateMultiThreadAccess(true);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
     }
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(String workingStateId, RaoComputationParameters parameters) {
-        Objects.requireNonNull(workingStateId);
+    public CompletableFuture<RaoComputationResult> run(String workingVariantId, RaoComputationParameters parameters) {
+        Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
 
-        // Change working state
-        network.getStateManager().setWorkingState(workingStateId);
+        // Change working variant
+        network.getVariantManager().setWorkingVariant(workingVariantId);
 
         ClosedOptimisationRaoParameters parametersExtension = parameters.getExtension(ClosedOptimisationRaoParameters.class);
         if (Objects.isNull(parametersExtension)) {
@@ -116,7 +116,7 @@ public class ClosedOptimisationRao implements RaoComputation {
         fillObjectiveInfo(resultExtension, solver);
         result.addExtension(ClosedOptimisationRaoResult.class, resultExtension);
 
-        network.getStateManager().allowStateMultiThreadAccess(false);
+        network.getVariantManager().allowVariantMultiThreadAccess(false);
         return CompletableFuture.completedFuture(result);
     }
 
