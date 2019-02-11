@@ -47,8 +47,8 @@ public class FullLineDecomposition implements FlowDecomposition {
     }
 
     @Override
-    public CompletableFuture<FlowDecompositionResults> run(String workingStateId, FlowDecompositionParameters parameters, CracFile cracFile) {
-        Objects.requireNonNull(workingStateId);
+    public CompletableFuture<FlowDecompositionResults> run(String workingVariantId, FlowDecompositionParameters parameters, CracFile cracFile) {
+        Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(cracFile);
 
@@ -56,20 +56,20 @@ public class FullLineDecomposition implements FlowDecomposition {
         if (fldParameters == null) {
             throw new FaraoException("Full line decomposition extension of flow decomposition parameters not available");
         }
-        return CompletableFuture.supplyAsync(() -> compute(workingStateId, fldParameters, cracFile));
+        return CompletableFuture.supplyAsync(() -> compute(workingVariantId, fldParameters, cracFile));
     }
 
-    private FlowDecompositionResults compute(String workingStateId, FullLineDecompositionParameters parameters, CracFile cracFile) {
-        String previousStateId = network.getStateManager().getWorkingStateId();
+    private FlowDecompositionResults compute(String workingVariantId, FullLineDecompositionParameters parameters, CracFile cracFile) {
+        String previousVariantId = network.getVariantManager().getWorkingVariantId();
 
-        // Initialize computation state
-        network.getStateManager().setWorkingState(workingStateId);
+        // Initialize computation variant
+        network.getVariantManager().setWorkingVariant(workingVariantId);
 
         LOGGER.info("{} === Initial PST treatment", DateTime.now());
         initialPstTreatment(parameters);
 
         LOGGER.info("{} === Initial load flow", DateTime.now());
-        loadFlowService.compute(network, workingStateId, parameters);
+        loadFlowService.compute(network, workingVariantId, parameters);
 
         LOGGER.info("{} === Bus mapping", DateTime.now());
         Map<Bus, Integer> busMapping = NetworkIndexMapperUtil.generateBusMapping(network);
@@ -98,8 +98,8 @@ public class FullLineDecomposition implements FlowDecomposition {
 
         LOGGER.info("{} === End of computation", DateTime.now());
 
-        // Reset network computation state
-        network.getStateManager().setWorkingState(previousStateId);
+        // Reset network computation variant
+        network.getVariantManager().setWorkingVariant(previousVariantId);
 
         return results;
     }

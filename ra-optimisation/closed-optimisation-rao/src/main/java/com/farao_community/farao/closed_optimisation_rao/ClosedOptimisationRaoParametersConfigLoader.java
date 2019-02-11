@@ -13,6 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -26,8 +27,9 @@ public class ClosedOptimisationRaoParametersConfigLoader implements RaoComputati
     public ClosedOptimisationRaoParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         ClosedOptimisationRaoParameters parameters = new ClosedOptimisationRaoParameters();
-        ModuleConfig config = platformConfig.getModuleConfigIfExists(MODULE_NAME);
-        if (config != null) {
+        Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
+        if (configOptional.isPresent()) {
+            ModuleConfig config = configOptional.get();
             parameters.setSolverType(config.getStringProperty("solver-type", ClosedOptimisationRaoParameters.DEFAULT_SOLVER_TYPE));
             parameters.addAllFillers(config.getStringListProperty("problem-fillers"));
             parameters.addAllPreProcessors(config.getStringListProperty("pre-processors", Collections.emptyList()));

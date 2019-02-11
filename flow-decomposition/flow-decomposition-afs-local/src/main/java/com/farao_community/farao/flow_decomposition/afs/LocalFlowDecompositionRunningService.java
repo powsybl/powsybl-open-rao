@@ -63,7 +63,7 @@ public class LocalFlowDecompositionRunningService implements FlowDecompositionRu
 
             logger.log(RESOURCE_BUNDLE.getString("RunningFlowDecomposition"));
             FlowDecomposition flowDecomposition = factorySupplier.get().create(network, computationManager, 0);
-            flowDecomposition.run(network.getStateManager().getWorkingStateId(), parameters, cracFile)
+            flowDecomposition.run(network.getVariantManager().getWorkingVariantId(), parameters, cracFile)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
                             logger.log("Flow decomposition complete, storing results...");

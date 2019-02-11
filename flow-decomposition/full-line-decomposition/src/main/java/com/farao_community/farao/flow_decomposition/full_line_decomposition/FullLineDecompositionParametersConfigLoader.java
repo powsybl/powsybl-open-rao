@@ -14,6 +14,7 @@ import com.farao_community.farao.flow_decomposition.full_line_decomposition.Full
 import com.farao_community.farao.flow_decomposition.full_line_decomposition.FullLineDecompositionParameters.PstStrategy;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Plugin dealing with full line decomposition parameters extension loading
@@ -29,8 +30,9 @@ public class FullLineDecompositionParametersConfigLoader implements FlowDecompos
     public FullLineDecompositionParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         FullLineDecompositionParameters parameters = new FullLineDecompositionParameters();
-        ModuleConfig config = platformConfig.getModuleConfigIfExists(MODULE_NAME);
-        if (config != null) {
+        Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
+        if (configOptional.isPresent()) {
+            ModuleConfig config = configOptional.get();
             parameters.setInjectionStrategy(config.getEnumProperty("injectionStrategy", InjectionStrategy.class, FullLineDecompositionParameters.DEFAULT_INJECTION_STRATEGY));
             parameters.setPexMatrixTolerance(config.getDoubleProperty("pexMatrixTolerance", FullLineDecompositionParameters.DEFAULT_PEX_MATRIX_TOLERANCE));
             parameters.setThreadsNumber(config.getIntProperty("threadsNumber", FullLineDecompositionParameters.DEFAULT_THREADS_NUMBER));

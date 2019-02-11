@@ -132,7 +132,7 @@ public class RaoComputationTool implements Tool {
         RaoComputation raoComputation = ComponentDefaultConfig.load().newFactoryImpl(RaoComputationFactory.class)
                     .create(network, cracProvider, computationManager, 0);
 
-        String currentState = network.getStateManager().getWorkingStateId();
+        String currentState = network.getVariantManager().getWorkingVariantId();
 
         RaoComputationResult result = raoComputation.run(currentState, parameters).join();
 

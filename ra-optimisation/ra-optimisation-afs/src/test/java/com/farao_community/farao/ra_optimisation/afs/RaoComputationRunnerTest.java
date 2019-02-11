@@ -21,7 +21,8 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import com.farao_community.data.crac_file.afs.ImportedCracFile;
 import com.farao_community.data.crac_file.afs.ImportedCracFileBuilder;
 import com.farao_community.data.crac_file.afs.ImportedCracFileExtension;
@@ -101,11 +102,11 @@ public class RaoComputationRunnerTest extends AbstractProjectFileTest {
         }
 
         @Override
-        public com.powsybl.iidm.network.Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-            com.powsybl.iidm.network.Network network = Mockito.mock(com.powsybl.iidm.network.Network.class);
-            StateManager stateManager = Mockito.mock(StateManager.class);
-            Mockito.when(stateManager.getWorkingStateId()).thenReturn("s1");
-            Mockito.when(network.getStateManager()).thenReturn(stateManager);
+        public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+            Network network = Mockito.mock(Network.class);
+            VariantManager variantManager = Mockito.mock(VariantManager.class);
+            Mockito.when(variantManager.getWorkingVariantId()).thenReturn("s1");
+            Mockito.when(network.getVariantManager()).thenReturn(variantManager);
             return network;
         }
 

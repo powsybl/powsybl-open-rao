@@ -103,23 +103,23 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
         );
 
         // Post-contingency sensitivity computation analysis
-        // State creation and deletion not thread safe, out of parallel stream
-        String initialStateId = network.getStateManager().getWorkingStateId();
+        // Variant creation and deletion not thread safe, out of parallel stream
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
         cracFile.getContingencies().forEach(contingency -> {
 
-            // Create contingency state
-            String contingencyStateId = initialStateId + "+" + contingency.getId();
-            network.getStateManager().cloneState(initialStateId, contingencyStateId);
-            network.getStateManager().setWorkingState(contingencyStateId);
+            // Create contingency variant
+            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
+            network.getVariantManager().cloneVariant(initialVariantId, contingencyVariantId);
+            network.getVariantManager().setWorkingVariant(contingencyVariantId);
 
             // Apply contingency
             applyContingency(network, computationManager, contingency);
         });
 
         cracFile.getContingencies().parallelStream().forEach(contingency -> {
-            // Create contingency state
-            String contingencyStateId = initialStateId + "+" + contingency.getId();
-            network.getStateManager().setWorkingState(contingencyStateId);
+            // Create contingency variant
+            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
+            network.getVariantManager().setWorkingVariant(contingencyVariantId);
 
             // Run sensitivity computation
             runSensitivityComputation(
@@ -132,12 +132,12 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
             );
         });
 
-        network.getStateManager().setWorkingState(initialStateId);
+        network.getVariantManager().setWorkingVariant(initialVariantId);
 
         cracFile.getContingencies().forEach(contingency -> {
-            // Remove contingency state
-            String contingencyStateId = initialStateId + "+" + contingency.getId();
-            network.getStateManager().removeState(contingencyStateId);
+            // Remove contingency variant
+            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
+            network.getVariantManager().removeVariant(contingencyVariantId);
         });
 
         data.put(GEN_SENSITIVITIES_DATA_NAME, genSensitivities);
@@ -173,7 +173,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
             return factors;
         };
 
-        SensitivityComputationResults results = SensitivityComputationService.runSensitivity(network, network.getStateManager().getWorkingStateId(), factorsProvider);
+        SensitivityComputationResults results = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
 
         results.getSensitivityValues().forEach(sensitivityValue -> {
             if (sensitivityValue.getFactor() instanceof BranchFlowPerInjectionIncrease) {

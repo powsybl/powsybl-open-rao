@@ -17,13 +17,14 @@ To build farao-core, just do the following:
 
 ```
 $> git clone https://github.com/farao-community/farao-core.git
+$> cd farao-core
 $> ./install.sh
 ```
 
 FARAO also needs a loadflow engine and a sensitivity calculation engine.
 
 Hades2 tool from RTE is available as a freeware for demonstration purpose.
-Fir more information about how to get and install Hades2 lodflow, please refer to the
+For more information about how to get and install Hades2 loadflow, please refer to the
 [dedicated documentation](https://rte-france.github.io/hades2/index.html)
 
 ## Configure your itools platform
