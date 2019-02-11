@@ -33,6 +33,6 @@ public final class LoadFlowComputationService {
     public static LoadFlowResult runLoadFlow(Network network) {
 
         LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 1);
-        return loadFlow.run(network.getStateManager().getWorkingStateId(), LoadFlowParameters.load()).join();
+        return loadFlow.run(network.getVariantManager().getWorkingVariantId(), LoadFlowParameters.load()).join();
     }
 }

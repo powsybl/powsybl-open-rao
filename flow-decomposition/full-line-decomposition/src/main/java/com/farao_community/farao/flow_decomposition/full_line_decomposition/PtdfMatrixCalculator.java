@@ -59,7 +59,7 @@ public class PtdfMatrixCalculator {
     }
 
     private void fillPtdfMatrixUsingSensitivityComputation(DMatrix matrix, FullLineDecompositionParameters parameters) {
-        SensitivityComputationResults sensiResults = sensitivityComputationService.compute(new PtdfSensitivityConverter(cracFile), network, network.getStateManager().getWorkingStateId(), parameters);
+        SensitivityComputationResults sensiResults = sensitivityComputationService.compute(new PtdfSensitivityConverter(cracFile), network, network.getVariantManager().getWorkingVariantId(), parameters);
         assert sensiResults != null;
         sensiResults.getSensitivityValues().stream()
                 .forEach(sensitivityValue -> addValueInTriplet(matrix, sensitivityValue));
