@@ -59,7 +59,7 @@ public class LocalRaoComputationRunningService implements RaoComputationRunningS
 
             logger.log(RESOURCE_BUNDLE.getString("RunningRao"));
             RaoComputation raoComputation = factorySupplier.get().create(network, cracFileProvider.getCracFile(), computationManager, 0);
-            raoComputation.run(network.getStateManager().getWorkingStateId(), parameters)
+            raoComputation.run(network.getVariantManager().getWorkingVariantId(), parameters)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
                             logger.log(RESOURCE_BUNDLE.getString("RaoComplete"));

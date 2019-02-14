@@ -30,6 +30,10 @@
             <artifactId>powsybl-loadflow-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-sensitivity-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.github.oliviercailloux</groupId>
             <artifactId>google-or-tools</artifactId>
         </dependency>
@@ -65,11 +69,6 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.rte-france.powsybl</groupId>
-            <artifactId>powsybl-hades2-integration</artifactId>
-            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.jimfs</groupId>
