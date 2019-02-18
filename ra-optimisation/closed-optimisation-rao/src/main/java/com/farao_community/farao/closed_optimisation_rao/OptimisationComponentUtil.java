@@ -83,7 +83,7 @@ public final class OptimisationComponentUtil {
         // Only keep expected optimisation problem fillers
         List<AbstractOptimisationProblemFiller> fillers = fillersMap.entrySet().stream()
                 .filter(entry -> parameters.getFillersList().contains(entry.getKey()))
-                .map(entry -> entry.getValue())
+                .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
 
 
