@@ -36,15 +36,6 @@ public class ClosedOptimisationRao implements RaoComputation {
         System.loadLibrary("jniortools");
     }
 
-    private MPSolver createSolver(String solverType) {
-        try {
-            return new MPSolver("FARAO optimisation",
-                    MPSolver.OptimizationProblemType.valueOf(solverType));
-        } catch (java.lang.IllegalArgumentException e) {
-            return null;
-        }
-    }
-
     private Network network;
     private CracFile cracFile;
     private ComputationManager computationManager;
@@ -80,7 +71,7 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         ClosedOptimisationRaoParameters parametersExtension = Objects.requireNonNull(parameters.getExtension(ClosedOptimisationRaoParameters.class)); // Should not be null, checked previously
 
-        MPSolver solver = Objects.requireNonNull(new MPSolver("FARAO optimisation", MPSolver.OptimizationProblemType.valueOf(parametersExtension.getSolverType()))); // Should not be null, checked previously
+        MPSolver solver = new MPSolver("FARAO optimisation", MPSolver.OptimizationProblemType.valueOf(parametersExtension.getSolverType())); // Should not be null, checked previously
 
         Map<String, Object> data = OptimisationComponentUtil.getDataMap(network, cracFile, computationManager, parametersExtension);
 
