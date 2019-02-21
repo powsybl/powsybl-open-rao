@@ -8,6 +8,7 @@ package com.farao_community.farao.closed_optimisation_rao.pre_processors;
 
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPreProcessor;
 import com.farao_community.farao.closed_optimisation_rao.SensitivityComputationService;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.ContingencyElement;
 import com.farao_community.farao.data.crac_file.CracFile;
@@ -18,10 +19,7 @@ import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFactorsProvider;
@@ -193,9 +191,12 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
     }
 
     private void applyContingencyElement(Network network, ComputationManager computationManager, ContingencyElement contingencyElement) {
-        if (contingencyElement instanceof Branch) {
+        Identifiable element = network.getIdentifiable(contingencyElement.getElementId());
+        if (element instanceof Branch) {
             BranchContingency contingency = new BranchContingency(contingencyElement.getElementId());
             contingency.toTask().modify(network, computationManager);
+        } else {
+            throw new FaraoException("Unable to apply contingency element " + contingencyElement.getElementId());
         }
     }
 }
