@@ -28,7 +28,7 @@ public class MonitoredBranchXlsxReaderTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v01_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV01V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v01_v2.3.xlsx"))
@@ -50,7 +50,7 @@ public class MonitoredBranchXlsxReaderTest {
         assertEquals("DDE5AA1", monitoredBranch1.getUctNodeTo());
         assertEquals(null, monitoredBranch1.getUniqueCOName());
         assertEquals(AbsoluteRelativeConstraint.ABS, monitoredBranch1.getAbsoluteRelativeConstraint());
-        assertEquals(Float.valueOf(1).floatValue(), monitoredBranch1.getPenaltyCostsForviolations(), 0);
+        assertEquals(1f, monitoredBranch1.getPenaltyCostsForviolations(), 0);
 
         MonitoredBranchXlsx monitoredBranch8 = monitoredBranches.get(7);
         assertEquals("Belgium-France 2", monitoredBranch8.getUniqueCbcoName());
@@ -61,12 +61,12 @@ public class MonitoredBranchXlsxReaderTest {
         assertEquals("FFR4AA1", monitoredBranch8.getUctNodeTo());
         assertEquals(null, monitoredBranch8.getUniqueCOName());
         assertEquals(AbsoluteRelativeConstraint.ABS, monitoredBranch8.getAbsoluteRelativeConstraint());
-        assertEquals(Float.valueOf(1).floatValue(), monitoredBranch8.getPenaltyCostsForviolations(), 0);
+        assertEquals(1f, monitoredBranch8.getPenaltyCostsForviolations(), 0);
     }
 
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v02_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV02V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v02_v2.3.xlsx"))
@@ -81,7 +81,7 @@ public class MonitoredBranchXlsxReaderTest {
     }
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v03_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV03V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v03_v2.3.xlsx"))
@@ -97,7 +97,7 @@ public class MonitoredBranchXlsxReaderTest {
 
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v04_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV04V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v04_v2.3.xlsx"))
@@ -113,7 +113,7 @@ public class MonitoredBranchXlsxReaderTest {
 
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v05_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV05V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v05_v2.3.xlsx"))
@@ -129,7 +129,7 @@ public class MonitoredBranchXlsxReaderTest {
 
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v06_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV06V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v06_v2.3.xlsx"))
@@ -145,7 +145,7 @@ public class MonitoredBranchXlsxReaderTest {
     }
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v07_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV07V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v07_v2.3.xlsx"))
@@ -162,7 +162,7 @@ public class MonitoredBranchXlsxReaderTest {
 
 
     @Test
-    public void should_extract_monitoredBranch_from_file_20170215_xlsx_crac_fr_v08_v2_3() {
+    public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV08V23() {
         //Given, When and Action
         List<MonitoredBranchXlsx> monitoredBranches = ExcelReader.of(MonitoredBranchXlsx.class)
                 .from(MonitoredBranchXlsxReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v08_v2.3.xlsx"))

@@ -17,6 +17,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowResult;
 
@@ -108,9 +109,12 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
     }
 
     private void applyContingencyElement(Network network, ComputationManager computationManager, ContingencyElement contingencyElement) {
-        if (contingencyElement instanceof Branch) {
+        Identifiable element = network.getIdentifiable(contingencyElement.getElementId());
+        if (element instanceof Branch) {
             BranchContingency contingency = new BranchContingency(contingencyElement.getElementId());
             contingency.toTask().modify(network, computationManager);
+        } else {
+            throw new FaraoException("Unable to apply contingency element " + contingencyElement.getElementId());
         }
     }
 }

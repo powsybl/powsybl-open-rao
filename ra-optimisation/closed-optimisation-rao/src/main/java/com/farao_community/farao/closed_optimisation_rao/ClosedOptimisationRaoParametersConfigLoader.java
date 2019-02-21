@@ -33,7 +33,7 @@ public class ClosedOptimisationRaoParametersConfigLoader implements RaoComputati
             parameters.setSolverType(config.getStringProperty("solver-type", ClosedOptimisationRaoParameters.DEFAULT_SOLVER_TYPE));
             parameters.addAllFillers(config.getStringListProperty("problem-fillers"));
             parameters.addAllPreProcessors(config.getStringListProperty("pre-processors", Collections.emptyList()));
-            parameters.addAllPreProcessors(config.getStringListProperty("post-processors", Collections.emptyList()));
+            parameters.addAllPostProcessors(config.getStringListProperty("post-processors", Collections.emptyList()));
         }
         return parameters;
     }

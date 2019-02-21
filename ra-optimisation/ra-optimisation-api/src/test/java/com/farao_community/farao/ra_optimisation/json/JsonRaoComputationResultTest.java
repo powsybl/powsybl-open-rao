@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.ra_optimisation.json;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.ra_optimisation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,16 +26,21 @@ import static org.junit.Assert.assertNotNull;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class JsonRaoComputationResultTest extends AbstractConverterTest {
+    private RaoComputationResult result;
+
+    @Before
+    public void setUp() throws IOException {
+        super.setUp();
+        result = ResultExampleBuilder.buildExampleResult();
+    }
 
     @Test
     public void roundTrip() throws IOException {
-        RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         roundTripTest(result, JsonRaoComputationResult::write, JsonRaoComputationResult::read, "/RaoComputationResult.json");
     }
 
     @Test
     public void writeExtension() throws IOException {
-        RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         result.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(result, JsonRaoComputationResult::write, AbstractConverterTest::compareTxt, "/RaoComputationResultWithExtension.json");
     }
@@ -46,15 +51,6 @@ public class JsonRaoComputationResultTest extends AbstractConverterTest {
         assertEquals(1, result.getExtensions().size());
         assertNotNull(result.getExtension(DummyExtension.class));
         assertNotNull(result.getExtensionByName("dummy-extension"));
-    }
-
-    @Test
-    public void readError() throws IOException {
-        try {
-            JsonRaoComputationParameters.read(getClass().getResourceAsStream("/RaoComputationResultWithExtension.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
     }
 
     static class DummyExtension extends AbstractExtension<RaoComputationResult> {

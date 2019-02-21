@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.ra_optimisation.afs.RaoComputationRunnerTest;
 import com.farao_community.farao.ra_optimisation.RaoComputation;
 import com.farao_community.farao.ra_optimisation.RaoComputationFactory;
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 
 import java.util.List;
@@ -29,13 +28,7 @@ public class LocalRaoComputationRunningServiceTest extends RaoComputationRunnerT
     private static class RaoComputationFactoryMock implements RaoComputationFactory {
         @Override
         public RaoComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-            return new RaoComputation() {
-
-                @Override
-                public CompletableFuture<RaoComputationResult> run(String workingStateId, RaoComputationParameters parameters) {
-                    return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.SUCCESS));
-                }
-            };
+            return (workingStateId, parameters) -> CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.SUCCESS));
         }
     }
 

@@ -126,7 +126,9 @@ public class FlowDecompositionRunnerTest extends AbstractProjectFileTest {
     @Override
     protected AppStorage createStorage() {
         return MapDbAppStorage.createHeap("mem");
-    }@Override
+    }
+
+    @Override
     protected List<FileExtension> getFileExtensions() {
         return ImmutableList.of(new CaseExtension(importersLoader));
     }

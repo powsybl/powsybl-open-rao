@@ -31,7 +31,7 @@ public class ContingencyReaderTest {
 
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v01_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV01V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v01_v2.3.xlsx"))
@@ -46,7 +46,7 @@ public class ContingencyReaderTest {
     }
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v02_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV02V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v02_v2.3.xlsx"))
@@ -61,7 +61,7 @@ public class ContingencyReaderTest {
     }
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v03_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV03V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v03_v2.3.xlsx"))
@@ -77,7 +77,7 @@ public class ContingencyReaderTest {
 
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v04_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV04V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v04_v2.3.xlsx"))
@@ -93,7 +93,7 @@ public class ContingencyReaderTest {
 
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v05_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV05V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v05_v2.3.xlsx"))
@@ -109,7 +109,7 @@ public class ContingencyReaderTest {
 
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v06_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV06V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v06_v2.3.xlsx"))
@@ -125,7 +125,7 @@ public class ContingencyReaderTest {
     }
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v07_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV07V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v07_v2.3.xlsx"))
@@ -142,7 +142,7 @@ public class ContingencyReaderTest {
 
 
     @Test
-    public void should_extract_contingency_from_file_20170215_xlsx_crac_fr_v08_v2_3() {
+    public void shouldExtractContingencyFromFile20170215XlsxCracFrV08V23() {
         //Given, When and Action
         List<ContingencyXlsx> contingencies = ExcelReader.of(ContingencyXlsx.class)
                 .from(ContingencyReaderTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v08_v2.3.xlsx"))
@@ -159,7 +159,7 @@ public class ContingencyReaderTest {
 
 
     @Test
-    public void should_throw_on_invalid_sheetName() {
+    public void shouldThrowOnInvalidSheetName() {
         // Given
         thrown.expect(FaraoException.class);
         thrown.expectMessage("Could not find sheet INVALID_SHEET_NAME");

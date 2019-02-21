@@ -24,6 +24,8 @@ public class RaoComputationResultSerializer extends StdSerializer<RaoComputation
     public void serialize(RaoComputationResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("status", result.getStatus().name());
+        jsonGenerator.writeObjectField("preContingencyResult", result.getPreContingencyResult());
+        jsonGenerator.writeObjectField("contingencyResults", result.getContingencyResults());
         JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider, JsonRaoComputationResult.getExtensionSerializers());
         jsonGenerator.writeEndObject();
     }

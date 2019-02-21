@@ -64,7 +64,7 @@
 
         <!-- Dependencies versions -->
         <apache.commonscsv.version>1.6</apache.commonscsv.version>
-        <apache.poi.version>3.15</apache.poi.version>
+        <apache.poi.version>3.17</apache.poi.version>
         <assertj.version>3.8.0</assertj.version>
         <commonsio.version>2.5</commonsio.version>
         <ejml.version>0.32</ejml.version>
@@ -242,7 +242,7 @@
                                     <configLocation>checkstyle.xml</configLocation>
                                     <consoleOutput>true</consoleOutput>
                                     <failsOnError>true</failsOnError>
-                                    <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
+                                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 </configuration>
                             </execution>
                         </executions>

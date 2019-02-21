@@ -68,7 +68,7 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
     }
 
     public ClosedOptimisationRaoParameters addAllPostProcessors(List<String> postProcessors) {
-        this.preProcessorsList.addAll(postProcessors);
+        this.postProcessorsList.addAll(postProcessors);
         return this;
     }
 

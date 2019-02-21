@@ -13,5 +13,4 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface RaoComputation {
     CompletableFuture<RaoComputationResult> run(String workingStateId, RaoComputationParameters parameters);
-
 }

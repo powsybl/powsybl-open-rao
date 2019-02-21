@@ -18,8 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
@@ -45,7 +43,7 @@ public class AfsCracLocalFileScannerTest {
 
 
     @Test
-    public void should_be_scan_crac_file_when_crac_file_is_valid() {
+    public void shouldBeScanCracFileWhenCracFileIsValid() {
         //Given
         AfsCracLocalFileScanner fileScanner = new AfsCracLocalFileScanner();
         //Action
@@ -57,7 +55,7 @@ public class AfsCracLocalFileScannerTest {
     }
 
     @Test
-    public void should_be_not_scan_crac_file_when_crac_file_is_invalid() {
+    public void shouldBeNotScanCracFileWhenCracFileIsInvalid() {
         //Given
         AfsCracLocalFileScanner fileScanner = new AfsCracLocalFileScanner();
         //Action
@@ -67,7 +65,7 @@ public class AfsCracLocalFileScannerTest {
     }
 
     @Test
-    public void should_be_valid_crac_file_when_crac_file_is_valid() {
+    public void shouldBeValidCracFileWhenCracFileIsValid() {
         //Given
         JSONObject jsonSubject = new JSONObject(
                 new JSONTokener(AfsCracLocalFileScannerTest.class.getResourceAsStream("/cracFileExampleValid.json")));
@@ -77,7 +75,7 @@ public class AfsCracLocalFileScannerTest {
     }
 
     @Test(expected = ValidationException.class)
-    public void should_throw_exception_if_not_validated() {
+    public void shouldThrowExceptionIfNotValidated() {
         //Given
         JSONObject jsonSubject = new JSONObject(
                 new JSONTokener(AfsCracLocalFileScannerTest.class.getResourceAsStream("/cracFileExampleInvalid.json")));
