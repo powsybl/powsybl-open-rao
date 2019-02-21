@@ -46,7 +46,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v01_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV01V23() throws Exception {
         //Given, When and Action
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v01_v2.3.xlsx"), TimesSeries.TIME_0530, "/20170215_xlsx_crac_fr_v01_v2.3.xlsx");
         //Asserts
@@ -59,7 +59,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v02_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV02V23() throws Exception {
         //Given, When and Action
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v02_v2.3.xlsx"), TimesSeries.TIME_1430, "/20170215_xlsx_crac_fr_v02_v2.3.xlsx");
         //Asserts
@@ -72,7 +72,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v03_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV03V23() throws Exception {
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v03_v2.3.xlsx"), TimesSeries.TIME_1130, "/20170215_xlsx_crac_fr_v03_v2.3.xlsx");
         //Asserts
         assertEquals("Belgium-France 2", cracFile.getPreContingency().getMonitoredBranches().get(6).getName());
@@ -85,7 +85,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v04_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV04V23() throws Exception {
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v04_v2.3.xlsx"), TimesSeries.TIME_0930, "/20170215_xlsx_crac_fr_v04_v2.3.xlsx");
         //Asserts
         assertEquals("Germany-Netherlands 2", cracFile.getPreContingency().getMonitoredBranches().get(3).getName());
@@ -98,7 +98,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v05_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV05V23() throws Exception {
         //Given, When and Action
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v05_v2.3.xlsx"), TimesSeries.TIME_1830, "/20170215_xlsx_crac_fr_v05_v2.3.xlsx");
 
@@ -112,7 +112,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v06_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV06V23() throws Exception {
         //Given, When and Action
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v06_v2.3.xlsx"), TimesSeries.TIME_1830, "/20170215_xlsx_crac_fr_v06_v2.3.xlsx");
         List<ContingencyElement> ce = cracFile.getContingencies().get(1).getContingencyElements();
@@ -124,7 +124,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v07_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV07V23() throws Exception {
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v07_v2.3.xlsx"), TimesSeries.TIME_1430, "/20170215_xlsx_crac_fr_v07_v2.3.xlsx");
 /*        List<MonitoredBranch> monitoredBranches = cracFile.getContingencies().get(0).getMonitoredBranches();
 
@@ -147,7 +147,7 @@ public class ImportServiceTest {
      * @throws Exception
      */
     @Test
-    public void should_import_xlsx_crac_file_from_file_20170215_xlsx_crac_fr_v08_v2_3() throws Exception {
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV08V23() throws Exception {
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v08_v2.3.xlsx"), TimesSeries.TIME_1830, "/20170215_xlsx_crac_fr_v08_v2.3.xlsx");
         Contingency contingency = cracFile.getContingencies().get(1);
 

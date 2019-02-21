@@ -8,6 +8,8 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -75,15 +77,10 @@ public final class OptimisationComponentUtil {
             fillersMap.put(filler.getClass().getName(), filler);
         }
 
-        // Check that all expected optimisation problem fillers are available
-        if (!fillersMap.keySet().containsAll(parameters.getFillersList())) {
-            throw new FaraoException("Some expected problem fillers are not provided to the RAO engine");
-        }
-
         // Only keep expected optimisation problem fillers
-        List<AbstractOptimisationProblemFiller> fillers = fillersMap.entrySet().stream()
-                .filter(entry -> parameters.getFillersList().contains(entry.getKey()))
-                .map(Map.Entry::getValue)
+        // All should be available, checked previously
+        List<AbstractOptimisationProblemFiller> fillers = fillersMap.values().stream()
+                .filter(filler -> parameters.getFillersList().contains(filler.getClass().getName()))
                 .collect(Collectors.toList());
 
 
@@ -131,12 +128,8 @@ public final class OptimisationComponentUtil {
             preProcessorMap.put(preProcessor.getClass().getName(), preProcessor);
         }
 
-        // Check that all expected optimisation pre-processors are available
-        if (!preProcessorMap.keySet().containsAll(parameters.getPreProcessorsList())) {
-            throw new FaraoException("Some expected pre processors are not provided to the RAO engine");
-        }
-
         // Only keep expected optimisation pre-processors
+        // All should be available, checked previously
         List<OptimisationPreProcessor> preProcessors = preProcessorMap.values().stream()
                 .filter(filler -> parameters.getPreProcessorsList().contains(filler.getClass().getName()))
                 .collect(Collectors.toList());
@@ -145,5 +138,23 @@ public final class OptimisationComponentUtil {
             preProcessor.fillData(network, cracFile, computationManager, data);
         }
         return data;
+    }
+
+    public static void fillResults(ClosedOptimisationRaoParameters parameters, Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
+        // List available optimisation post-processors on the platform
+        Map<String, OptimisationPostProcessor> postProcessorMap = new HashMap<>();
+        for (OptimisationPostProcessor postProcessor : ServiceLoader.load(OptimisationPostProcessor.class)) {
+            postProcessorMap.put(postProcessor.getClass().getName(), postProcessor);
+        }
+
+        // Only keep expected optimisation post-processors
+        // All should be available, checked previously
+        List<OptimisationPostProcessor> postProcessors = postProcessorMap.values().stream()
+                .filter(postProcessor -> parameters.getPostProcessorsList().contains(postProcessor.getClass().getName()))
+                .collect(Collectors.toList());
+
+        for (OptimisationPostProcessor postProcessor : postProcessors) {
+            postProcessor.fillResults(network, cracFile, solver, data, result);
+        }
     }
 }

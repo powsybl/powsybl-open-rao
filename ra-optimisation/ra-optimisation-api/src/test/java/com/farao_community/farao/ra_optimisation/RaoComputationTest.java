@@ -6,22 +6,13 @@
  */
 package com.farao_community.farao.ra_optimisation;
 
-import com.farao_community.farao.data.crac_file.CracFile;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -1,5 +1,7 @@
 {
   "status" : "SUCCESS",
+  "preContingencyResult" : null,
+  "contingencyResults" : [ ],
   "extensions" : {
     "ClosedOptimisationRaoResult" : {
       "solverInfo" : {
