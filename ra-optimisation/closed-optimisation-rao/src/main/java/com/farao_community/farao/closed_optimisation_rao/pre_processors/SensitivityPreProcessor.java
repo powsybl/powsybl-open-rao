@@ -177,11 +177,13 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
             if (sensitivityValue.getFactor() instanceof BranchFlowPerInjectionIncrease) {
                 String genId = sensitivityValue.getFactor().getVariable().getId();
                 String monitoredBranchId = sensitivityValue.getFactor().getFunction().getId();
-                genSensitivities.put(Pair.of(monitoredBranchId, genId), sensitivityValue.getValue());
+                double genSensitivity = sensitivityValue.getValue();
+                genSensitivities.put(Pair.of(monitoredBranchId, genId), Double.isNaN(genSensitivity) ? 0. : genSensitivity);
             } else if (sensitivityValue.getFactor() instanceof BranchFlowPerPSTAngle) {
                 String pstId = sensitivityValue.getFactor().getVariable().getId();
                 String monitoredBranchId = sensitivityValue.getFactor().getFunction().getId();
-                pstSensitivities.put(Pair.of(monitoredBranchId, pstId), sensitivityValue.getValue());
+                double pstSensitivity = sensitivityValue.getValue();
+                pstSensitivities.put(Pair.of(monitoredBranchId, pstId), Double.isNaN(pstSensitivity) ? 0. : pstSensitivity);
             }
         });
     }
