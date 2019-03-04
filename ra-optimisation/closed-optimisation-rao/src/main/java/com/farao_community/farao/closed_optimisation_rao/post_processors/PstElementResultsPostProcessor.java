@@ -7,19 +7,31 @@
 package com.farao_community.farao.closed_optimisation_rao.post_processors;
 
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPostProcessor;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.data.crac_file.PstElement;
+import com.farao_community.farao.data.crac_file.RemedialAction;
+import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
-import com.powsybl.iidm.network.Network;
+import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.iidm.network.*;
 
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(OptimisationPostProcessor.class)
 public class PstElementResultsPostProcessor implements OptimisationPostProcessor {
+
+    private static final String SHIFT_VALUE_POSTFIX = "_shift_value";
+
     @Override
     public Map<String, Class> dataNeeded() {
         return null;
@@ -27,6 +39,69 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
 
     @Override
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
+        List<RemedialActionResult> remedialActionsResult = cracFile.getRemedialActions().stream()
+                .filter(this::isPstRemedialAction)
+                .filter(ra -> isApplied(ra, solver))
+                .map(remedialAction -> {
+                    PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);
+                    PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(prae.getId()).getPhaseTapChanger();
+                    double initialAngle = phaseTapChanger.getCurrentStep().getAlpha();
+                    int initialTapPosition = phaseTapChanger.getTapPosition();
+                    MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(prae.getId() + SHIFT_VALUE_POSTFIX));
+                    double finalAngle = initialAngle + angleValue.solutionValue();
+                    int finalTapPosition = computeTapPosition(finalAngle, phaseTapChanger);
+                    return new RemedialActionResult(
+                            remedialAction.getId(),
+                            remedialAction.getName(),
+                            true,
+                            Collections.singletonList(
+                                    new PstElementResult(
+                                            prae.getId(),
+                                            initialAngle,
+                                            initialTapPosition,
+                                            finalAngle,
+                                            finalTapPosition
+                                    )
+                            )
+                    );
+                })
+                .collect(Collectors.toList());
+        result.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionsResult);
+    }
 
+    private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger) {
+        Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
+        for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
+            steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));
+        }
+        double minAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).min().orElse(Double.NaN);
+        double maxAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).max().orElse(Double.NaN);
+        if (Double.isNaN(minAngle) || Double.isNaN(maxAngle)) {
+            throw new FaraoException("Phase tap changer steps may be invalid");
+        }
+        if (finalAngle < minAngle || finalAngle > maxAngle) {
+            throw new FaraoException("Angle value not is the range of minimum and maximum angle values of the phase tap changer steps");
+        }
+        AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
+        AtomicInteger approximatedTapPosition = new AtomicInteger(phaseTapChanger.getTapPosition());
+        steps.forEach((tapPosition, step) -> {
+            double diff = Math.abs(step.getAlpha() - finalAngle);
+            if (diff < angleDifference.get()) {
+                angleDifference.set(diff);
+                approximatedTapPosition.set(tapPosition);
+            }
+        });
+        return approximatedTapPosition.get();
+    }
+
+    private boolean isPstRemedialAction(RemedialAction remedialAction) {
+        return remedialAction.getRemedialActionElements().size() == 1 &&
+                remedialAction.getRemedialActionElements().get(0) instanceof PstElement;
+    }
+
+    private boolean isApplied(RemedialAction remedialAction, MPSolver solver) {
+        PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);
+        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(prae.getId() + SHIFT_VALUE_POSTFIX));
+        return redispatchActivation.solutionValue() > 0;
     }
 }

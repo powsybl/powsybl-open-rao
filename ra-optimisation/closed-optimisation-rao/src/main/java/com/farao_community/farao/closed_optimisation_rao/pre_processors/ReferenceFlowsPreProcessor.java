@@ -101,7 +101,10 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
             throw new FaraoException("Divergence in loadflow computation");
         }
 
-        monitoredBranches.forEach(branch -> referenceFlows.put(branch.getId(), network.getBranch(branch.getBranchId()).getTerminal1().getP()));
+        monitoredBranches.forEach(branch -> {
+            double flow = network.getBranch(branch.getBranchId()).getTerminal1().getP();
+            referenceFlows.put(branch.getId(), Double.isNaN(flow) ? 0. : flow);
+        });
     }
 
     private void applyContingency(Network network, ComputationManager computationManager, Contingency contingency) {
