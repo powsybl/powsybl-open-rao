@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class PstElementResultsPostProcessor implements OptimisationPostProcessor {
 
     private static final String SHIFT_VALUE_POSTFIX = "_shift_value";
+    private static double EPSILON = 1e-3;
 
     @Override
     public Map<String, Class> dataNeeded() {
@@ -49,7 +50,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
                     int initialTapPosition = phaseTapChanger.getTapPosition();
                     MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(prae.getId() + SHIFT_VALUE_POSTFIX));
                     double finalAngle = initialAngle + angleValue.solutionValue();
-                    int finalTapPosition = computeTapPosition(finalAngle, phaseTapChanger);
+                    int finalTapPosition = computeTapPosition(finalAngle, phaseTapChanger, network.getTwoWindingsTransformer(prae.getId()));
                     return new RemedialActionResult(
                             remedialAction.getId(),
                             remedialAction.getName(),
@@ -69,7 +70,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         result.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionsResult);
     }
 
-    private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger) {
+    private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger, TwoWindingsTransformer twoWindingsTransformer) {
         Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
         for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
             steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));
@@ -77,10 +78,12 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         double minAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).min().orElse(Double.NaN);
         double maxAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).max().orElse(Double.NaN);
         if (Double.isNaN(minAngle) || Double.isNaN(maxAngle)) {
-            throw new FaraoException("Phase tap changer steps may be invalid");
+            throw new FaraoException(String.format("Phase tap changer %s steps may be invalid", twoWindingsTransformer.getId()));
         }
-        if (finalAngle < minAngle || finalAngle > maxAngle) {
-            throw new FaraoException("Angle value not is the range of minimum and maximum angle values of the phase tap changer steps");
+
+        // Modification of the range limitation control allowing the final angle to exceed of an epsilon value the limitation.
+        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > EPSILON || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > EPSILON) {
+            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", finalAngle, minAngle, maxAngle, twoWindingsTransformer.getId()));
         }
         AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
         AtomicInteger approximatedTapPosition = new AtomicInteger(phaseTapChanger.getTapPosition());
