@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class PstElementResultsPostProcessor implements OptimisationPostProcessor {
 
     private static final String SHIFT_VALUE_POSTFIX = "_shift_value";
-    private static double EPSILON = 1e-3;
+    private static double epsilon = 1e-3;
 
     @Override
     public Map<String, Class> dataNeeded() {
@@ -82,7 +82,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         }
 
         // Modification of the range limitation control allowing the final angle to exceed of an epsilon value the limitation.
-        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > EPSILON || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > EPSILON) {
+        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > epsilon || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > epsilon) {
             throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", finalAngle, minAngle, maxAngle, twoWindingsTransformer.getId()));
         }
         AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
