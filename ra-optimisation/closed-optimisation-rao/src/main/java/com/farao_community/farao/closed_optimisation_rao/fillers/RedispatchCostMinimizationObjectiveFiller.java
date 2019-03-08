@@ -20,7 +20,7 @@ import java.util.Objects;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
-public class RedispathCostMinimizationObjectiveFiller extends AbstractOptimisationProblemFiller {
+public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisationProblemFiller {
     private static final String TOTAL_REDISPATCH_COST = "total_redispatch_cost";
 
     @Override
