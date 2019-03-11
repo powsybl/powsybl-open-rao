@@ -75,4 +75,13 @@ public class JsonClosedOptimisationRaoResultTest extends AbstractConverterTest {
         assertTrue(resultExtension.getObjectiveInfo().isMaximization());
         assertEquals(13., resultExtension.getObjectiveInfo().getValue(), EPSILON);
     }
+
+    @Test
+    public void roundTripInfeasible() throws IOException {
+        RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.FAILURE);
+        ClosedOptimisationRaoResult resultExtension = new ClosedOptimisationRaoResult();
+        resultExtension.setSolverInfo(2, 1, 10, 10000, "INFEASIBLE");
+        result.addExtension(ClosedOptimisationRaoResult.class, resultExtension);
+        roundTripTest(result, JsonRaoComputationResult::write, JsonRaoComputationResult::read, "/closed_optimisation_rao_result_infeasible.json");
+    }
 }
