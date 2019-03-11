@@ -85,7 +85,7 @@ public class ClosedOptimisationRao implements RaoComputation {
         // Check that the problem has an optimal solution.
         if (resultStatus != MPSolver.ResultStatus.OPTIMAL) {
             LOGGER.error("The problem does not have an optimal solution!");
-            status = RaoComputationResult.Status.FAILED;
+            status = RaoComputationResult.Status.FAILURE;
         }
 
         // Verify that the solution satisfies all constraints (when using solvers
@@ -93,7 +93,7 @@ public class ClosedOptimisationRao implements RaoComputation {
         if (status == RaoComputationResult.Status.SUCCESS && !solver.verifySolution(1e-7, true)) {
             LOGGER.error("The solution returned by the solver violated the"
                     + " problem constraints by at least 1e-7");
-            status = RaoComputationResult.Status.FAILED;
+            status = RaoComputationResult.Status.FAILURE;
         }
 
         RaoComputationResult result = new RaoComputationResult(status);

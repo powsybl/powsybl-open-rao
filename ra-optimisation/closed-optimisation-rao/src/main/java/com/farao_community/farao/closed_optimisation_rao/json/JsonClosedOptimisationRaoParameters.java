@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -39,7 +38,7 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
     public ClosedOptimisationRaoParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ClosedOptimisationRaoParameters parameters = new ClosedOptimisationRaoParameters();
 
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "solverType":
                     parameters.setSolverType(jsonParser.nextTextValue());

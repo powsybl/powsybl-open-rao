@@ -55,7 +55,7 @@ public class ClosedOptimisationRaoResult extends AbstractExtension<RaoComputatio
     @Getter
     public class ObjectiveInfo {
         private boolean maximization;
-        private double value;
+        private double value = Double.NaN;
     }
 
     public SolverInfo setSolverInfo(

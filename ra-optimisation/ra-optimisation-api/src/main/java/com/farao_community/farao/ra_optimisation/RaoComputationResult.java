@@ -18,7 +18,7 @@ import java.util.List;
 public class RaoComputationResult extends AbstractExtendable<RaoComputationResult> {
 
     public enum Status {
-        FAILED,
+        FAILURE,
         SUCCESS
     }
 
