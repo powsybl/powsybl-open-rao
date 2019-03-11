@@ -80,7 +80,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
 
         generatorsRedispatch.forEach(gen -> {
             String genId = gen.getId();
-            MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(gen.getId() + REDISPATCH_VALUE_POSTFIX));
+            MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(genId + REDISPATCH_VALUE_POSTFIX));
 
             // Redispatch activation variable
             MPVariable redispatchActivationVariable = solver.makeBoolVar(genId + REDISPATCH_ACTIVATION_POSTFIX);
@@ -100,10 +100,10 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
             // Constraint for enforcing redispatch to be 0 when not activated
             MPConstraint constraintLow = solver.makeConstraint(0, infinity);
             constraintLow.setCoefficient(redispatchValueVariable, 1);
-            constraintLow.setCoefficient(redispatchActivationVariable, -gen.getMinimumPower());
+            constraintLow.setCoefficient(redispatchActivationVariable, -redispatchValueVariable.lb());
             MPConstraint constraintUp = solver.makeConstraint(-infinity, 0);
             constraintUp.setCoefficient(redispatchValueVariable, 1);
-            constraintUp.setCoefficient(redispatchActivationVariable, -gen.getMaximumPower());
+            constraintUp.setCoefficient(redispatchActivationVariable, -redispatchValueVariable.ub());
         });
     }
 }

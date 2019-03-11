@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
@@ -39,20 +38,30 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
     public ClosedOptimisationRaoResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ClosedOptimisationRaoResult resultExtension = new ClosedOptimisationRaoResult();
 
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "solverInfo":
                     jsonParser.nextToken();
                     deserializeSolverInfo(jsonParser, deserializationContext, resultExtension);
                     break;
                 case "variableInfos":
-                    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                        deserializeVariableInfo(jsonParser, deserializationContext, resultExtension);
+                    while (!jsonParser.nextToken().isStructEnd()) {
+                        // Skip variable name for the map key, and if map is empty, return
+                        if (!jsonParser.nextValue().isStructEnd()) {
+                            deserializeVariableInfo(jsonParser, deserializationContext, resultExtension);
+                        } else {
+                            break;
+                        }
                     }
                     break;
                 case "constraintInfos":
-                    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                        deserializeConstraintInfo(jsonParser, deserializationContext, resultExtension);
+                    while (!jsonParser.nextToken().isStructEnd()) {
+                        // Skip constraint name for the map key, and if map is empty, return
+                        if (!jsonParser.nextValue().isStructEnd()) {
+                            deserializeConstraintInfo(jsonParser, deserializationContext, resultExtension);
+                        } else {
+                            break;
+                        }
                     }
                     break;
                 case "objectiveInfo":
@@ -74,7 +83,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
         Optional<Long> wallTime = Optional.empty();
         Optional<String> status = Optional.empty();
 
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "numVariables":
                     numVariables = Optional.of(jsonParser.getValueAsInt());
@@ -118,10 +127,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
         Optional<Double> lb = Optional.empty();
         Optional<Double> ub = Optional.empty();
 
-        // Skip variable name for the map key:
-        jsonParser.nextValue();
-
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "name":
                     name = Optional.of(jsonParser.getValueAsString());
@@ -150,7 +156,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
                     ub.get()
             );
         } else {
-            throw new FaraoException("Incomplete SolverInfo block");
+            throw new FaraoException("Incomplete VariableInfo block");
         }
     }
 
@@ -162,10 +168,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
         Optional<Double> ub = Optional.empty();
         Optional<String> basisStatus = Optional.empty();
 
-        // Skip constraint name for the map key:
-        jsonParser.nextValue();
-
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "name":
                     name = Optional.of(jsonParser.getValueAsString());
@@ -204,7 +207,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
                     basisStatus.get()
             );
         } else {
-            throw new FaraoException("Incomplete SolverInfo block");
+            throw new FaraoException("Incomplete ConstraintInfo block");
         }
     }
 
@@ -212,7 +215,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
         Optional<Boolean> maximization = Optional.empty();
         Optional<Double> value = Optional.empty();
 
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "maximization":
                     maximization = Optional.of(jsonParser.getValueAsBoolean());
@@ -231,7 +234,7 @@ public class JsonClosedOptimisationRaoResult implements JsonRaoComputationResult
                     value.get()
             );
         } else {
-            throw new FaraoException("Incomplete SolverInfo block");
+            throw new FaraoException("Incomplete ObjectiveInfo block");
         }
     }
 

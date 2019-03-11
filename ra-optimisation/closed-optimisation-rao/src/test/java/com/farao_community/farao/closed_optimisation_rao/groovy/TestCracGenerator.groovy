@@ -90,8 +90,8 @@ def createMonitoredBranch(Branch branch, String postfix) {
             * Math.sqrt(3) / 1000
     }
     return MonitoredBranch.builder()
-            .id(branch.id + " - " + postfix)
-            .name(branch.id + " - " + postfix)
+            .id(branch.id + " / " + postfix)
+            .name(branch.id + " / " + postfix)
             .branchId(branch.id)
             .fmax(fmax)
             .build()
@@ -109,7 +109,7 @@ def createContingency(Branch branch) {
             .id("N-1 " + branch.id)
             .name("N-1 " + branch.id)
             .contingencyElements(Collections.singletonList(createContingencyElement(branch)))
-            .monitoredBranches(keptBranches.collect{br -> createMonitoredBranch(br, "/N-1 " + branch.id)})
+            .monitoredBranches(keptBranches.collect{br -> createMonitoredBranch(br, "N-1 " + branch.id)})
             .build()
 }
 

@@ -1,0 +1,25 @@
+{
+  "status" : "FAILURE",
+  "preContingencyResult" : {
+    "monitoredBranchResults" : [ ],
+    "remedialActionResults" : [ ]
+  },
+  "contingencyResults" : [ ],
+  "extensions" : {
+    "ClosedOptimisationRaoResult" : {
+      "solverInfo" : {
+        "numVariables" : 2,
+        "numConstraints" : 1,
+        "numIterations" : 10,
+        "wallTime" : 10000,
+        "status" : "INFEASIBLE"
+      },
+      "variableInfos" : { },
+      "constraintInfos" : { },
+      "objectiveInfo" : {
+        "maximization" : false,
+        "value" : "NaN"
+      }
+    }
+  }
+}

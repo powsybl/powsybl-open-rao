@@ -31,7 +31,7 @@ public class RaoComputationResultDeserializer extends StdDeserializer<RaoComputa
     @Override
     public RaoComputationResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        RaoComputationResult.Status status = RaoComputationResult.Status.FAILED;
+        RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
         PreContingencyResult preContingencyResult = null;
         List<ContingencyResult> contingencyResults = Collections.emptyList();
         List<Extension<RaoComputationResult>> extensions = Collections.emptyList();

@@ -85,26 +85,29 @@ public class ClosedOptimisationRao implements RaoComputation {
         // Check that the problem has an optimal solution.
         if (resultStatus != MPSolver.ResultStatus.OPTIMAL) {
             LOGGER.error("The problem does not have an optimal solution!");
-            status = RaoComputationResult.Status.FAILED;
+            status = RaoComputationResult.Status.FAILURE;
         }
 
         // Verify that the solution satisfies all constraints (when using solvers
         // others than GLOP_LINEAR_PROGRAMMING, this is highly recommended!).
-        if (!solver.verifySolution(1e-7, true)) {
+        if (status == RaoComputationResult.Status.SUCCESS && !solver.verifySolution(1e-7, true)) {
             LOGGER.error("The solution returned by the solver violated the"
                     + " problem constraints by at least 1e-7");
-            status = RaoComputationResult.Status.FAILED;
+            status = RaoComputationResult.Status.FAILURE;
         }
 
         RaoComputationResult result = new RaoComputationResult(status);
         ClosedOptimisationRaoResult resultExtension = new ClosedOptimisationRaoResult();
         fillSolverInfo(resultExtension, solver, resultStatus);
-        fillers.forEach(filler -> {
-            filler.variablesProvided().forEach(var -> fillVariableInfo(resultExtension, solver, var));
-            filler.constraintsProvided().forEach(constraint -> fillConstraintInfo(resultExtension, solver, constraint));
-        });
-        fillObjectiveInfo(resultExtension, solver);
-        OptimisationComponentUtil.fillResults(parametersExtension, network, cracFile, solver, data, result);
+
+        if (status == RaoComputationResult.Status.SUCCESS) {
+            fillers.forEach(filler -> {
+                filler.variablesProvided().forEach(var -> fillVariableInfo(resultExtension, solver, var));
+                filler.constraintsProvided().forEach(constraint -> fillConstraintInfo(resultExtension, solver, constraint));
+            });
+            fillObjectiveInfo(resultExtension, solver);
+            OptimisationComponentUtil.fillResults(parametersExtension, network, cracFile, solver, data, result);
+        }
 
         result.addExtension(ClosedOptimisationRaoResult.class, resultExtension);
 
