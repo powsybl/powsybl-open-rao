@@ -4,7 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.farao_community.farao.data.crac_file.xlsx.model;
 
 import com.farao_community.farao.data.crac_file.xlsx.annotation.ExcelColumn;
@@ -17,8 +16,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-
-
 
 @Data
 public class BranchTimeSeries {
@@ -127,7 +124,6 @@ public class BranchTimeSeries {
         return this.uniqueCbcoName;
     }
 
-
     public float getCurentLimit1(TimesSeries timesSeries) {
         int ts = Integer.parseInt(timesSeries.getLabel());
 
@@ -184,5 +180,4 @@ public class BranchTimeSeries {
                 return ts;
         }
     }
-
 }

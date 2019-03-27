@@ -21,7 +21,6 @@ import com.farao_community.farao.data.crac_file.CracFile;
  */
 public interface FlowBasedComputationFactory {
 
-
     /**
      * @param criticalBranchesValuesProviderIn provider of critical branches values
      * @param glskValuesProviderIn             provider of GLSK values
@@ -29,7 +28,6 @@ public interface FlowBasedComputationFactory {
      */
     FlowBasedComputation create(CriticalBranchesValuesProvider criticalBranchesValuesProviderIn,
                                 GlskValuesProvider glskValuesProviderIn);
-
 
     FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int i);
 }

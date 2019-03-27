@@ -54,20 +54,17 @@ public class FlowBasedComputationRunner extends ProjectFile {
         return caseDependency.getFirst();
     }
 
-
     public void setCase(ProjectFile aCase) {
         Objects.requireNonNull(aCase);
         this.setDependencies("case", Collections.singletonList(aCase));
         this.caseDependency.invalidate();
     }
 
-
     public void setCracFileProvider(ProjectFile cracFile) {
         Objects.requireNonNull(cracFile);
         this.setDependencies("cracFile", Collections.singletonList(cracFile));
         this.cracFileProviderDependency.invalidate();
     }
-
 
     public Optional<CracFileProvider> getCracFileProvider() {
         return cracFileProviderDependency.getFirst();

@@ -17,5 +17,6 @@ import java.util.Map;
  */
 public interface OptimisationPreProcessor {
     Map<String, Class> dataProvided();
+
     void fillData(Network network, CracFile cracFile, ComputationManager computationManager, Map<String, Object> data);
 }

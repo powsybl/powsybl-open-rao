@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ContingencyValidation {
-
     /**
      * Method for specify how information if you want set in contingencyElement object
      * @param name
@@ -31,7 +30,6 @@ public class ContingencyValidation {
                 .build();
     }
 
-
     /** filtering before add contingency
      * @param postContingency
      * @return List<ContingencyElementXlsx>
@@ -41,6 +39,4 @@ public class ContingencyValidation {
                 .filter(postContingencyXlsx -> postContingencyXlsx.getActivation().equals(Activation.YES))
                 .collect(Collectors.toList());
     }
-
-
 }

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+
 /**
  * Float Converter class
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}

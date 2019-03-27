@@ -41,7 +41,6 @@ public class AfsCracLocalFileScannerTest {
         jsonSchema = null;
     }
 
-
     @Test
     public void shouldBeScanCracFileWhenCracFileIsValid() {
         //Given

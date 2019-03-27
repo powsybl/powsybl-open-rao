@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
@@ -60,7 +61,6 @@ public final class EntityExcelSheetHandler<T> implements CellExcelReader {
     public List<T> read(File file, String sheet) {
         return Collections.unmodifiableList(this.entities);
     }
-
 
     @Override
     public void startRow(int i) {
@@ -142,7 +142,6 @@ public final class EntityExcelSheetHandler<T> implements CellExcelReader {
             log.error(String.format("Failed to set field: %s", fieldName), e);
         }
     }
-
 
     @Override
     public void headerFooter(String text, boolean b, String tagName) {
