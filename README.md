@@ -26,16 +26,14 @@ for development and testing purposes.
 ### Prerequisites
 
 In order to build **farao-core**, you need the following environment available:
-  - Install JDK *(1.8 or greater)*
-  - Install Maven latest version
+  - Install JDK *(1.8 or greater)*,
+  - Install Maven latest version.
 
 ### Installing
 
-Before installing **farao-core**, you need to install OR-Tools, a software suite for optimisation that is
-used by FARAO remedial actions optimiser.
+Before installing **farao-core**, you need to install OR-Tools, a software suite for optimisation that is used by FARAO remedial actions optimiser.
 
-Please refer to [OR-tools website](https://developers.google.com/optimization/install/download)
-for installation instructions.
+Please refer to [OR-tools website](https://developers.google.com/optimization/install/download) for installation instructions.
 
 To build **farao-core**, enter on the command line:
 
@@ -50,7 +48,7 @@ You may use any engine integrated in [PowSyBl framework](https://www.powsybl.org
 
 Hades2 tool from RTE is available as a freeware for demonstration purpose.
 For more information about how to get and install Hades2 loadflow and sensitivity computation, please refer to the
-[dedicated documentation](https://rte-france.github.io/hades2/index.html)
+[dedicated documentation](https://rte-france.github.io/hades2/index.html).
 
 ### Running
 
