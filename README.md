@@ -10,7 +10,7 @@
 
 FARAO stands for *Fully Autonomous Remedial Actions Optimisation*. It is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation.
 
-**farao-core** repository contains the main features of FARAO. It provides command line tool to interact with these features.
+**farao-core** repository contains the main features of FARAO. It provides a command line tool to interact with these features.
 If you want to use a graphical user interface with FARAO, please consider using [**farao-gse**](https://github.com/farao-community/farao-gse).
 
 For detailed information about FARAO toolbox, please refer to the [detailed documentation](https://farao-community.github.io/docs/).
