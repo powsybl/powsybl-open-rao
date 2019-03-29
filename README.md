@@ -6,15 +6,38 @@
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/farao-community)
 
-For detailed information about FARAO toolbox, please refer to the [documentation website](https://farao-community.github.io/docs/)
+![FARAO horizontal logo](https://raw.githubusercontent.com/farao-community/.github/master/logo-farao-horizontal.svg?sanitize=true)  
 
-## Requirements
+FARAO stands for *Fully Autonomous Remedial Actions Optimisation*. It is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation.
+
+**farao-core** repository contains the main features of FARAO. It provides command line tool to interact with these features.
+If you want to use a graphical user interface with FARAO, please consider using [**farao-gse**](https://github.com/farao-community/farao-gse).
+
+For detailed information about FARAO toolbox, please refer to the [detailed documentation](https://farao-community.github.io/docs/).
+
+This project and everyone participating in it is governed by the [FARAO Code of Conduct](https://github.com/farao-community/.github/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+Please report unacceptable behavior to [contact@farao-community.com](mailto:contact@farao-community.com).
+
+## Getting started
+
+These instructions will get you a copy of the project up and running on your local machine
+for development and testing purposes.
+
+### Prerequisites
+
 In order to build **farao-core**, you need the following environment available:
   - Install JDK *(1.8 or greater)*
   - Install Maven latest version
 
-## Install
-To build farao-core, just do the following:
+### Installing
+
+Before installing **farao-core**, you need to install OR-Tools, a software suite for optimisation that is
+used by FARAO remedial actions optimiser.
+
+Please refer to [OR-tools website](https://developers.google.com/optimization/install/download)
+for installation instructions.
+
+To build **farao-core**, enter on the command line:
 
 ```
 $> git clone https://github.com/farao-community/farao-core.git
@@ -22,23 +45,34 @@ $> cd farao-core
 $> ./install.sh
 ```
 
-FARAO also needs a loadflow engine and a sensitivity calculation engine.
+FARAO also needs a loadflow engine and a sensitivity calculation engine at runtime.
+You may use any engine integrated in [PowSyBl framework](https://www.powsybl.org/).
 
 Hades2 tool from RTE is available as a freeware for demonstration purpose.
-For more information about how to get and install Hades2 loadflow, please refer to the
+For more information about how to get and install Hades2 loadflow and sensitivity computation, please refer to the
 [dedicated documentation](https://rte-france.github.io/hades2/index.html)
 
-## Configure your itools platform
-In order for farao to run without error, you will need to configure your itools platform.
+### Running
+
+In order for FARAO to run without error, you will need to configure your *itools* platform. *itools* is a command line interface
+provided by PowSyBl framework. 
 
 Two options are available:
 1.  First, you can use the one provided by FARAO. It is saved in the *etc* directory of the installation, and is called *config.yml*.
-You just have to copy-paste it in a **$HOME/.itools** directory. 
+You just have to copy-paste it in **$HOME/.itools** directory. 
 
 2.  Expert users can also adapt it to their own needs.
 
-## Using itools
+For using *itools*, enter on the command line:
+ 
 ```bash
 cd <install-prefix>/bin
 ./itools help
 ```
+
+For more information about *itools*, do not hesitate to visit [PowSyBl documentation](https://www.powsybl.org/docs/).
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE.txt](https://github.com/farao-community/farao-core/blob/master/LICENSE.txt) file for details.
+ 
