@@ -9,7 +9,6 @@
  */
 package com.farao_community.farao.afs.crac_file.xlsx;
 
-
 import com.powsybl.afs.local.storage.LocalFile;
 import com.powsybl.afs.local.storage.LocalFileScannerContext;
 import org.junit.Test;
@@ -20,7 +19,6 @@ import java.nio.file.Paths;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 
 public class AfsXlsxCracLocalFileScannerTest {
     @Test

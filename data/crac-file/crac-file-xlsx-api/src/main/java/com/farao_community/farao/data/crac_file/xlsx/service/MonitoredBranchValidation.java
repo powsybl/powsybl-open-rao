@@ -18,11 +18,6 @@ import java.util.stream.Collectors;
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 public class MonitoredBranchValidation {
-    CracTools cracTools;
-
-    public MonitoredBranchValidation() {
-        this.cracTools = new CracTools();
-    }
 
     /**
      * Parsing and check the information of the row
@@ -39,7 +34,6 @@ public class MonitoredBranchValidation {
 
             // Validation of monitored branch
             List<MonitoredBranchXlsx> monitoredBranchesPreContingencyValid = filterMonitorBranchActivation(monitoredBranches);
-
 
             monitoredBranchesPreContingencyValid.stream().forEach(monitoredBranch -> {
                 Optional<BranchTimeSeries> branchTimeSerie = branchTimeseriesValidation.get().stream().filter(branchTimeserie -> branchTimeserie.getUniqueCbcoName().equals(monitoredBranch.getUniqueCbcoName())).findAny();
@@ -68,14 +62,11 @@ public class MonitoredBranchValidation {
                 }
             });
 
-
         });
 
         // return the hashmap complet
         return monitoredBranchesHashMap;
-
     }
-
 
     /**
      * Methode for specify how information if you want set in MonitoredBranch object
@@ -84,7 +75,7 @@ public class MonitoredBranchValidation {
      * @return MonitoredBranch
      */
     private MonitoredBranch buildMonitoredBranch(MonitoredBranchXlsx moXlsx, float fmax) {
-        String id = cracTools.getOrderCodeElementName(moXlsx.getDescriptionMode(), moXlsx.getUctNodeFrom(), moXlsx.getUctNodeTo(), moXlsx.getOrderCodeElementName());
+        String id = CracTools.getOrderCodeElementName(moXlsx.getDescriptionMode(), moXlsx.getUctNodeFrom(), moXlsx.getUctNodeTo(), moXlsx.getOrderCodeElementName());
         return  MonitoredBranch.builder()
                 .branchId(id)
                 .id(moXlsx.getUniqueCbcoName())
@@ -92,7 +83,6 @@ public class MonitoredBranchValidation {
                 .fmax(fmax)
                 .build();
     }
-
 
     /**
      * Add filter condition for accepte a XlsxCrac

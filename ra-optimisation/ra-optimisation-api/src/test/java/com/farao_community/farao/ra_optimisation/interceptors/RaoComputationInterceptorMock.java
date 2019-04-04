@@ -20,13 +20,10 @@ public class RaoComputationInterceptorMock extends DefaultRaoComputationIntercep
 
     private boolean onRaoComputationResultCount = false;
 
-
     private static void assertRunningContext(RunningContext context) {
         assertNotNull(context);
         assertNotNull(context.getNetwork());
         assertEquals("sim1", context.getNetwork().getId());
         assertEquals("test", context.getNetwork().getSourceFormat());
     }
-
-
 }

@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.crac_file.xlsx.annotation;
 
-
 import com.farao_community.farao.data.crac_file.xlsx.converter.NoopConverter;
 import com.farao_community.farao.data.crac_file.xlsx.validator.NoopValidater;
 
@@ -14,6 +13,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 /**
  * A Column in the excel workbook
  *
@@ -41,7 +41,6 @@ public @interface ExcelColumn {
      * @return Converter to use to convert the string value to the field type's value
      */
     Class<?> convertorClass() default NoopConverter.class;
-
 
     /**
      * @return validater to use to validate the string value to the field type's value

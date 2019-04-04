@@ -60,6 +60,4 @@ public class CracFile {
             this.remedialActions = Collections.unmodifiableList(remedialActions);
         }
     }
-
-
 }

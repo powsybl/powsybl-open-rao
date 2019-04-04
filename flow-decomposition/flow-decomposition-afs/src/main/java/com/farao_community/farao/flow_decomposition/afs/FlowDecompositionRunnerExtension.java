@@ -32,6 +32,7 @@ public class FlowDecompositionRunnerExtension implements ProjectFileExtension<Fl
     public FlowDecompositionRunnerExtension(FlowDecompositionParameters parameters) {
         this.parameters = Objects.requireNonNull(parameters);
     }
+
     @Override
     public Class<FlowDecompositionRunner> getProjectFileClass() {
         return FlowDecompositionRunner.class;

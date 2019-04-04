@@ -26,7 +26,6 @@ public class CriticalBranchValuesTest {
         new CriticalBranchValues("", "", 1.f, 2.f, "");
     }
 
-
     @Test
     public void getId() {
         String idValueRef = "idValue";

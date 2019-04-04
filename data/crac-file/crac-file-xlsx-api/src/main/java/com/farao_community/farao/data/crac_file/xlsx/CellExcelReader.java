@@ -11,7 +11,6 @@ import java.util.List;
 
 import static org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler.SheetContentsHandler;
 
-
 /**
  * Proxy for CellReader Implementations
  */

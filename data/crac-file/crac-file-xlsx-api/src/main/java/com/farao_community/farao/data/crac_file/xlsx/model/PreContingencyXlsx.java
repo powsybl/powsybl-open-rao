@@ -8,6 +8,7 @@
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 package com.farao_community.farao.data.crac_file.xlsx.model;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,6 @@ import java.util.List;
 /**
  * Business object of pre-contingency inputs of CRAC file
  */
-
 @Builder
 @Value
 @AllArgsConstructor

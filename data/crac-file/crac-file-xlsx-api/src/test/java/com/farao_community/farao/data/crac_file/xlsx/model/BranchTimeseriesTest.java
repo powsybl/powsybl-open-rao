@@ -27,7 +27,6 @@ public class BranchTimeseriesTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV01V23() {
         //Given, When and Action
@@ -76,7 +75,6 @@ public class BranchTimeseriesTest {
         assertEquals(8, branchTimeSeries.size());
     }
 
-
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV04V23() {
         //Given, When and Action
@@ -93,7 +91,6 @@ public class BranchTimeseriesTest {
         assertEquals(8, branchTimeSeries.size());
     }
 
-
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV05V23() {
         //Given, When and Action
@@ -109,7 +106,6 @@ public class BranchTimeseriesTest {
         assertFalse(branchTimeSeries.isEmpty());
         assertEquals(8, branchTimeSeries.size());
     }
-
 
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV06V23() {
@@ -142,7 +138,6 @@ public class BranchTimeseriesTest {
         assertFalse(branchTimeSeries.isEmpty());
         assertEquals(32, branchTimeSeries.size());
     }
-
 
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV08V23() {

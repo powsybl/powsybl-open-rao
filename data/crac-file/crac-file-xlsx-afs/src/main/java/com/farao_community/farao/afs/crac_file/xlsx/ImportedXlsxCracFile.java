@@ -41,6 +41,7 @@ public class ImportedXlsxCracFile extends ProjectFile implements CracFileProvide
             throw new UncheckedIOException(e);
         }
     }
+
     @Override
     public CracFile getCracFile() {
         return read();

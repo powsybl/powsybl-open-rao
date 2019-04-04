@@ -41,6 +41,4 @@ public class ExcelColumnInfo {
         this.converterClass = converterClass;
         this.validatorClass = validatorClass;
     }
-
-
 }

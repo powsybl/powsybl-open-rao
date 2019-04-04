@@ -55,7 +55,6 @@ public class FlowbasedComputationRunnerTest extends AbstractProjectFileTest {
         }
     }
 
-
     private static class FlowbasedComputationServiceMock implements FlowBasedComputationRunningService {
 
         @Override

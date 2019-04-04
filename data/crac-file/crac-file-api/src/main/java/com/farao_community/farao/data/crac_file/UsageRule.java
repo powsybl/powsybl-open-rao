@@ -46,6 +46,7 @@ public class UsageRule {
     private final List<String> contingenciesID;
     @Valid
     private final List<String> constraintsID;
+
     @ConstructorProperties({"id", "instants", "usage", "contingenciesID", "constraintsID"})
     public UsageRule(final String id,
                      final Instant instants,

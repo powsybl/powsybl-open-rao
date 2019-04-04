@@ -74,6 +74,4 @@ public class LocalRaoComputationRunningService implements RaoComputationRunningS
             runner.stopTask(taskId);
         }
     }
-
-
 }

@@ -34,7 +34,6 @@ import lombok.Getter;
  * <p>
  * The monitored branch' Fmax value is equal to the content of the CRAC file's timestamp column and monitored branch' ID row in "Branch_Timeseries".
  */
-
 @Builder
 @Getter
 public class MonitoredBranchXlsx {
@@ -66,7 +65,6 @@ public class MonitoredBranchXlsx {
                 null, 0);
     }
 
-
     public MonitoredBranchXlsx(String branchId, String uniqueCbcoName, Tso tso, Activation activation,
                                ElementDescriptionMode descriptionMode, String uctNodeFrom, String uctNodeTo,
                                String orderCodeElementName, String uniqueCOName,
@@ -83,7 +81,6 @@ public class MonitoredBranchXlsx {
         this.absoluteRelativeConstraint = absoluteRelativeConstraint;
         this.penaltyCostsForviolations = penaltyCostsForviolations;
     }
-
 
     @Override
     public String toString() {

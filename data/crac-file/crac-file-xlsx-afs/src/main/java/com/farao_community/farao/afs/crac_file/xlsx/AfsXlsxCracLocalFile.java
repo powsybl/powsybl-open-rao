@@ -16,7 +16,6 @@ import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;

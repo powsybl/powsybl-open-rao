@@ -52,20 +52,17 @@ public class RaoComputationRunner extends ProjectFile {
         return caseDependency.getFirst();
     }
 
-
     public void setCase(ProjectFile aCase) {
         Objects.requireNonNull(aCase);
         this.setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
         this.caseDependency.invalidate();
     }
 
-
     public void setCracFileProvider(ProjectFile cracFile) {
         Objects.requireNonNull(cracFile);
         this.setDependencies(CRAC_FILE_PROVIDER_NAME, Collections.singletonList(cracFile));
         this.cracFileProviderDependency.invalidate();
     }
-
 
     public Optional<CracFileProvider> getCracFileProvider() {
         return cracFileProviderDependency.getFirst();

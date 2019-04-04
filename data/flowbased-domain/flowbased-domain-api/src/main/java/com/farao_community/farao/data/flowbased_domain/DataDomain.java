@@ -33,7 +33,6 @@ public class DataDomain {
     @Valid
     private final DataPreContingency dataPreContingency;
 
-
     @ConstructorProperties({"id", "name", "sourceFormat", "description", "dataPreContingency"})
     public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency) {
         this.id = id;
@@ -42,5 +41,4 @@ public class DataDomain {
         this.description = description;
         this.dataPreContingency = dataPreContingency;
     }
-
 }

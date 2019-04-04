@@ -19,8 +19,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
-
-
 /**
  * Business object of the CRAC file
  */

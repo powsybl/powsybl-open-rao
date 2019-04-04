@@ -6,13 +6,13 @@
  */
 package com.farao_community.farao.closed_optimisation_rao.pre_processors;
 
-import com.farao_community.farao.closed_optimisation_rao.LoadFlowService;
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPreProcessor;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.ContingencyElement;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
+import com.farao_community.farao.util.LoadFlowService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
@@ -50,7 +50,6 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
                 cracFile.getPreContingency().getMonitoredBranches(),
                 referenceFlows
         );
-
 
         // Post-contingency loadflow calculation
         // Variant creation and deletion not thread safe, out of parallel stream

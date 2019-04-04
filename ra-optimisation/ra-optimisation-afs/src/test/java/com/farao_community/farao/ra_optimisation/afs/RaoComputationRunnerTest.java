@@ -47,7 +47,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class RaoComputationRunnerTest extends AbstractProjectFileTest {
 
-
     private static RaoComputationResult createResult() {
         return new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
     }
@@ -74,13 +73,11 @@ public class RaoComputationRunnerTest extends AbstractProjectFileTest {
         }
     }
 
-
     private class CracFileMemDataSource extends ReadOnlyMemDataSource {
         public CracFileMemDataSource() {
             putData("cracData", RaoComputationRunnerTest.class.getResourceAsStream("/cracFileExample.json"));
         }
     }
-
 
     private static class ImporterMock implements Importer {
 
@@ -114,7 +111,6 @@ public class RaoComputationRunnerTest extends AbstractProjectFileTest {
         public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         }
     }
-
 
     private final ImportersLoader importersLoader = new ImportersLoaderList(Collections.singletonList(new ImporterMock()));
 

@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */

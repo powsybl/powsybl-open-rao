@@ -64,7 +64,6 @@ public class MonitoredBranchXlsxReaderTest {
         assertEquals(1f, monitoredBranch8.getPenaltyCostsForviolations(), 0);
     }
 
-
     @Test
     public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV02V23() {
         //Given, When and Action
@@ -95,7 +94,6 @@ public class MonitoredBranchXlsxReaderTest {
         assertEquals(8, monitoredBranches.size());
     }
 
-
     @Test
     public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV04V23() {
         //Given, When and Action
@@ -110,7 +108,6 @@ public class MonitoredBranchXlsxReaderTest {
         assertFalse(monitoredBranches.isEmpty());
         assertEquals(8, monitoredBranches.size());
     }
-
 
     @Test
     public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV05V23() {
@@ -127,7 +124,6 @@ public class MonitoredBranchXlsxReaderTest {
         assertEquals(8, monitoredBranches.size());
     }
 
-
     @Test
     public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV06V23() {
         //Given, When and Action
@@ -141,7 +137,6 @@ public class MonitoredBranchXlsxReaderTest {
         assertNotNull(monitoredBranches);
         assertFalse(monitoredBranches.isEmpty());
         assertEquals(32, monitoredBranches.size());
-
     }
 
     @Test
@@ -157,9 +152,7 @@ public class MonitoredBranchXlsxReaderTest {
         assertNotNull(monitoredBranches);
         assertFalse(monitoredBranches.isEmpty());
         assertEquals(32, monitoredBranches.size());
-
     }
-
 
     @Test
     public void shouldExtractMonitoredBranchFromFile20170215XlsxCracFrV08V23() {
@@ -174,8 +167,5 @@ public class MonitoredBranchXlsxReaderTest {
         assertNotNull(monitoredBranches);
         assertFalse(monitoredBranches.isEmpty());
         assertEquals(32, monitoredBranches.size());
-
     }
-
-
 }

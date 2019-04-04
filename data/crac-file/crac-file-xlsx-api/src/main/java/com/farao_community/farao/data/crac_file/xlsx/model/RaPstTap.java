@@ -109,6 +109,4 @@ public class RaPstTap {
         this.sharingDefinition = sharingDefinition;
         this.connectedCbco = connectedCbco;
     }
-
-
 }

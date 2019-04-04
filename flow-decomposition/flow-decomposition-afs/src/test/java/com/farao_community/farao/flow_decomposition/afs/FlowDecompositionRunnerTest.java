@@ -59,7 +59,6 @@ public class FlowDecompositionRunnerTest extends AbstractProjectFileTest {
         return new FlowDecompositionResults();
     }
 
-
     private static class FlowDecompositionServiceMock implements FlowDecompositionRunningService {
 
         @Override

@@ -74,6 +74,4 @@ public class LocalFlowBasedComputationRunningService implements FlowBasedComputa
             runner.stopTask(taskId);
         }
     }
-
-
 }

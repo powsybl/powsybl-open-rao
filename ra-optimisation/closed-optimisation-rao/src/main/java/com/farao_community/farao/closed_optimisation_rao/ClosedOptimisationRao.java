@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.ra_optimisation.RaoComputation;
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.util.LoadFlowService;
+import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;

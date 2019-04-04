@@ -20,7 +20,6 @@ import java.util.List;
 /**
  * Business object of pre-contingency inputs of CRAC file
  */
-
 @Builder
 @Value
 @AllArgsConstructor

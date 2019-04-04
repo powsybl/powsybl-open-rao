@@ -12,6 +12,7 @@ package com.farao_community.farao.data.crac_file.xlsx.service;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.ContingencyElement;
 import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.farao_community.farao.data.crac_file.xlsx.model.TimesSeries;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,15 +32,12 @@ public class ImportServiceTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-
     private ImportService importService;
-
 
     @Before
     public void setUp() {
         importService = new ImportService();
     }
-
 
     /**
      * Input containing only preventive monitored branches. All the information is provided, and only using node/node/order code description.
@@ -79,7 +77,6 @@ public class ImportServiceTest {
         assertEquals(2000, cracFile.getPreContingency().getMonitoredBranches().get(1).getFmax(), EPSILON);
     }
 
-
     /**
      * Input containing only preventive monitored branches. A monitored branch has relative limit and not absolute. Not treated yet, should not be imported.
      * @throws Exception
@@ -92,7 +89,6 @@ public class ImportServiceTest {
         assertEquals(1550, cracFile.getPreContingency().getMonitoredBranches().get(1).getFmax(), EPSILON);
     }
 
-
     /**
      * Input containing only preventive monitored branches. One monitored branch is referenced using element name description
      * @throws Exception
@@ -101,11 +97,7 @@ public class ImportServiceTest {
     public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV05V23() throws Exception {
         //Given, When and Action
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v05_v2.3.xlsx"), TimesSeries.TIME_1830, "/20170215_xlsx_crac_fr_v05_v2.3.xlsx");
-
-
-
     }
-
 
     /**
      * Input containing preventive and curative monitored branches. All the information is provided, and only using node/node/order code description.
@@ -141,7 +133,6 @@ public class ImportServiceTest {
   */
     }
 
-
     /**
      *  Input containing preventive and curative monitored branches. A contingency is not activated and should not be imported.
      * @throws Exception
@@ -152,5 +143,17 @@ public class ImportServiceTest {
         Contingency contingency = cracFile.getContingencies().get(1);
 
         assertEquals("FR2-DE5 / FR3-DE4 / DE5-DE1 triple trip", contingency.getName());
+    }
+
+    /**
+     *  Input containing topological remedial actions.
+     * @throws Exception
+     */
+    @Test
+    public void shouldImportXlsxCracFileFromFile20170215XlsxCracFrV09V23() throws Exception {
+        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v09_v2.3.xlsx"), TimesSeries.TIME_1830, "/20170215_xlsx_crac_fr_v09_v2.3.xlsx");
+        RemedialAction remedialAction = cracFile.getRemedialActions().get(0);
+
+        assertEquals("Topology RA 1", remedialAction.getName());
     }
 }

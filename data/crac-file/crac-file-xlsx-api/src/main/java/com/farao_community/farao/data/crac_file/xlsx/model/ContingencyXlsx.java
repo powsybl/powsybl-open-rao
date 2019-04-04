@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * Business object for a contingency in the CRAC file
  */
-
 @Builder
 @Getter
 public class ContingencyXlsx {
@@ -41,7 +40,6 @@ public class ContingencyXlsx {
         this.monitoredBranches = monitoredBranches;
         this.contingencyElements = contingencyElements;
     }
-
 
     @Override
     public String toString() {

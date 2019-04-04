@@ -51,7 +51,7 @@ public class JsonCracFileTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() {
-        List<String> filesToTest = Arrays.asList("/cracFileExample.json", "/cracFileExamplePst.json");
+        List<String> filesToTest = Arrays.asList("/cracFileExample.json", "/cracFileExamplePst.json", "/cracFileExampleTopo.json");
         filesToTest.forEach(file -> {
             try {
                 roundTripTest(create(file), JsonCracFileTest::write, JsonCracFileTest::read, file);
