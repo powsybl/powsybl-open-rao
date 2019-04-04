@@ -83,7 +83,6 @@ public final class OptimisationComponentUtil {
                 .filter(filler -> parameters.getFillersList().contains(filler.getClass().getName()))
                 .collect(Collectors.toList());
 
-
         // Initialize optimisation problem fillers
         fillers.forEach(filler -> filler.initFiller(network, cracFile, data));
 

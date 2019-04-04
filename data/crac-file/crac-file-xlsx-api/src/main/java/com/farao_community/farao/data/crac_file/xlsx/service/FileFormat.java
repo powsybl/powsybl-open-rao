@@ -34,5 +34,4 @@ public enum FileFormat {
                 .filter(e -> e.label.equalsIgnoreCase(value)).findFirst()
                 .orElse(FileFormat.UNKNOWN);
     }
-
 }

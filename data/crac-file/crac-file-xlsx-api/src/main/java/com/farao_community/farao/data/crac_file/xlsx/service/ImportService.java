@@ -9,7 +9,6 @@
  */
 package com.farao_community.farao.data.crac_file.xlsx.service;
 
-
 import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.data.crac_file.xlsx.ExcelReader;
 import com.farao_community.farao.commons.FaraoException;
@@ -18,9 +17,6 @@ import io.vavr.control.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.util.IOUtils;
 
-/**
- * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
- */
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,11 +25,11 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-
 /**
  * Import Service
+ *
+ * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
-
 @Slf4j
 public class ImportService {
 
@@ -81,9 +77,14 @@ public class ImportService {
                 .sheet("RA_PST_Tap")
                 .list());
 
-        CracTools cracTools = new CracTools();
+        Validation<FaraoException, List<RaTopologyXlsx>> raTopologyXlsx = Validation.valid(ExcelReader.of(RaTopologyXlsx.class)
+                .from(new ByteArrayInputStream(bytes))
+                .skipHeaderRow(true)
+                .sheet("RA_Topology")
+                .list());
+
         String id = XLSX_CRAC;
-//        List<RemedialAction> remedialActions =
+
         // sort monitor branch for pre and post contingency
         Map<String, List<MonitoredBranch>> monitoredBranches = new MonitoredBranchValidation().monitoredBranchValidation(monitoredBranchesValidation, branchTimeseriesValidation, timesSeries);
         // Build Post Contingency list
@@ -93,25 +94,18 @@ public class ImportService {
         // building crac file
         LocalDate date = branchTimeseriesValidation.get().get(0).getDate();
 
-        // Building Remedial Action
-        List<RemedialAction> remedialActions = new RemedialActionValidation().remdialActionValidation(redispatchingRemedialActionXlsx, radTimeSeries, timesSeries, radPstTap);
-
-        remedialActions.add(new RemedialActionValidation().remedialActionPstValidation(radPstTap));
+        List<RemedialAction> allRemedialActions = new ArrayList<>();
+        allRemedialActions.addAll(RdRemedialActionValidation.rdRemedialActionValidation(redispatchingRemedialActionXlsx, radTimeSeries, timesSeries));
+        allRemedialActions.addAll(PstRemedialActionValidation.pstRemedialActionValidation(radPstTap));
+        allRemedialActions.addAll(TopologicalRemedialActionValidation.topologicalRemedialActionValidation(raTopologyXlsx));
 
         return CracFile.builder()
-                .id(cracTools.getId(id, timesSeries, date))
-                .name(cracTools.getId(id, timesSeries, date))
+                .id(CracTools.getId(id, timesSeries, date))
+                .name(CracTools.getId(id, timesSeries, date))
                 .contingencies(postContingency)
                 .preContingency(preContingency)
-                .description(cracTools.getDescription(fileName, timesSeries, date))
-                .remedialActions(remedialActions)
+                .description(CracTools.getDescription(fileName, timesSeries, date))
+                .remedialActions(allRemedialActions)
                 .build();
     }
-
-
-
-
-
-
-
 }

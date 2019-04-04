@@ -31,6 +31,4 @@ public class DataPreContingency {
     public DataPreContingency(final List<DataMonitoredBranch> dataMonitoredBranches) {
         this.dataMonitoredBranches = Collections.unmodifiableList(dataMonitoredBranches);
     }
-
-
 }

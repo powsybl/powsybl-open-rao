@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Builder;
 import lombok.Data;
 
-
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
 
@@ -28,7 +27,6 @@ public class RedispatchRemedialActionElement extends RemedialActionElement {
     private final double maximumPower;
     private final double startupCost;
     private final double marginalCost;
-
 
     @ConstructorProperties({"id", "minimumPower", "maximumPower", "startupCost", "marginalCost"})
     @Builder

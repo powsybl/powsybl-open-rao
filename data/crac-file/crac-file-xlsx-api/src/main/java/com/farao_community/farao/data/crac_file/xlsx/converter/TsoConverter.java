@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_file.xlsx.converter;
 import com.farao_community.farao.data.crac_file.xlsx.model.Tso;
 import com.farao_community.farao.commons.FaraoException;
 import lombok.extern.slf4j.Slf4j;
+
 /**
  * Tso Converter class
  *

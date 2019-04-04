@@ -21,11 +21,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class PostContingencyValidation {
-    CracTools cracTools;
     ContingencyValidation contingencyValidation;
 
     public PostContingencyValidation() {
-        this.cracTools = new CracTools();
         this.contingencyValidation = new ContingencyValidation();
     }
 
@@ -46,17 +44,17 @@ public class PostContingencyValidation {
                 List<ContingencyElement> contingencyElementList = new ArrayList<>();
 
                 if (null != contingencyElementXlsx.getDescriptionModeTimeseries1() && contingencyElementList.isEmpty()) {
-                    String id = cracTools.getOrderCodeElementName(contingencyElementXlsx.getDescriptionModeTimeseries1(), contingencyElementXlsx.getUctNodeFromTimeseries1(), contingencyElementXlsx.getUctNodeToTimeseries1(), contingencyElementXlsx.getOrderCodeOrElementNameTimeseries1());
+                    String id = CracTools.getOrderCodeElementName(contingencyElementXlsx.getDescriptionModeTimeseries1(), contingencyElementXlsx.getUctNodeFromTimeseries1(), contingencyElementXlsx.getUctNodeToTimeseries1(), contingencyElementXlsx.getOrderCodeOrElementNameTimeseries1());
                     contingencyElementList.add(contingencyValidation.buildContingencyElement(contingencyElementXlsx.getUniqueCOName(), id));
                 }
 
                 if (null != contingencyElementXlsx.getDescriptionModeTimeseries2() && contingencyElementList.size() == 1) {
-                    String id = cracTools.getOrderCodeElementName(contingencyElementXlsx.getDescriptionModeTimeseries2(), contingencyElementXlsx.getUctNodeFromTimeseries2(), contingencyElementXlsx.getUctNodeToTimeseries2(), contingencyElementXlsx.getOrderCodeOrElementNameTimeseries2());
+                    String id = CracTools.getOrderCodeElementName(contingencyElementXlsx.getDescriptionModeTimeseries2(), contingencyElementXlsx.getUctNodeFromTimeseries2(), contingencyElementXlsx.getUctNodeToTimeseries2(), contingencyElementXlsx.getOrderCodeOrElementNameTimeseries2());
                     contingencyElementList.add(contingencyValidation.buildContingencyElement(contingencyElementXlsx.getUniqueCOName(), id));
                 }
 
                 if (null != contingencyElementXlsx.getDescriptionModeTimeseries3() && contingencyElementList.size() == 2) {
-                    String id = cracTools.getOrderCodeElementName(contingencyElementXlsx.getDescriptionModeTimeseries3(), contingencyElementXlsx.getUctNodeFromTimeseries3(), contingencyElementXlsx.getUctNodeToTimeseries3(), contingencyElementXlsx.getOrderCodeOrElementNameTimeseries3());
+                    String id = CracTools.getOrderCodeElementName(contingencyElementXlsx.getDescriptionModeTimeseries3(), contingencyElementXlsx.getUctNodeFromTimeseries3(), contingencyElementXlsx.getUctNodeToTimeseries3(), contingencyElementXlsx.getOrderCodeOrElementNameTimeseries3());
                     contingencyElementList.add(contingencyValidation.buildContingencyElement(contingencyElementXlsx.getUniqueCOName(), id));
                 }
 
@@ -72,7 +70,6 @@ public class PostContingencyValidation {
         return postContingency;
     }
 
-
     /** filtering before add contingency
      * @param postContingency
      * @return List<ContingencyElementXlsx>
@@ -82,5 +79,4 @@ public class PostContingencyValidation {
                 .filter(postContingencyXlsx -> postContingencyXlsx.getActivation().equals(Activation.YES))
                 .collect(Collectors.toList());
     }
-
 }

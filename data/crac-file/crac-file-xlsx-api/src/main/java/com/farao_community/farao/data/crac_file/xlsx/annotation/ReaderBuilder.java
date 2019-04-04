@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_file.xlsx.annotation;
 
 import java.lang.annotation.*;
+
 /**
  * Marker annotation for a class that Generates a Reader
  *

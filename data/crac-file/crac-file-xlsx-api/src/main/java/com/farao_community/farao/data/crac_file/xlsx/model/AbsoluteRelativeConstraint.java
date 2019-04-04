@@ -21,6 +21,4 @@ public enum AbsoluteRelativeConstraint {
     private AbsoluteRelativeConstraint(String label) {
         this.label = label;
     }
-
-
 }
