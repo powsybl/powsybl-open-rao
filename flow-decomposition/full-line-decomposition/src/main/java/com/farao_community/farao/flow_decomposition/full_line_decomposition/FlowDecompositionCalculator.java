@@ -64,7 +64,6 @@ public class FlowDecompositionCalculator {
         this.network = Objects.requireNonNull(network);
     }
 
-
     /**
      * Multi threaded decomposition of the flows per monitored branch
      */
@@ -129,7 +128,6 @@ public class FlowDecompositionCalculator {
             results.addPerBranchResult(branchId, perBranchResult);
             return;
         }
-
 
         int branchIndex = branchMapper.get(branch);
         for (Bus busFrom : busesOfInterest) {

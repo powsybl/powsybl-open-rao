@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.crac_file.xlsx.model;
 
-
 import com.farao_community.farao.data.crac_file.xlsx.ExcelReader;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +26,6 @@ public class ContingencyElementReaderTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
 
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV01V23() {
@@ -74,7 +72,6 @@ public class ContingencyElementReaderTest {
         assertEquals(0, contingencyElements.size());
     }
 
-
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV04V23() {
         //Given, When and Action
@@ -90,7 +87,6 @@ public class ContingencyElementReaderTest {
         assertEquals(0, contingencyElements.size());
     }
 
-
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV05V23() {
         //Given, When and Action
@@ -105,7 +101,6 @@ public class ContingencyElementReaderTest {
         assertTrue(contingencyElements.isEmpty());
         assertEquals(0, contingencyElements.size());
     }
-
 
     @Test
     public void shouldExtractContingencyElementFromFile20170215XlsxCracFrV06V23() {
@@ -135,7 +130,6 @@ public class ContingencyElementReaderTest {
         assertEquals(3, contingencyElements.size());
     }
 
-
     @Test
     public void shouldThrowExceptionWhenExtractContingencyElementFromFile20170215XlsxCracFrV08V23() {
         ////Given, When and Action
@@ -149,6 +143,4 @@ public class ContingencyElementReaderTest {
         assertFalse(contingencyElements.isEmpty());
         assertEquals(3, contingencyElements.size());
     }
-
-
 }

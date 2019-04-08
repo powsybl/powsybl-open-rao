@@ -27,7 +27,6 @@ public final class ResultExampleBuilder {
         );
     }
 
-
     private static MonitoredBranchResult buildMonitoredBranch(String id,
                                                        String name,
                                                        String branchId,

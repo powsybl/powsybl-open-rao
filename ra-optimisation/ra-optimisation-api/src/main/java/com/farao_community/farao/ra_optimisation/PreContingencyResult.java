@@ -28,7 +28,6 @@ public class PreContingencyResult {
         this.remedialActionResults = new ArrayList<>();
     }
 
-
     @ConstructorProperties({"monitoredBranchResults", "remedialActionResults"})
     public PreContingencyResult(
             final List<MonitoredBranchResult> monitoredBranchResults,

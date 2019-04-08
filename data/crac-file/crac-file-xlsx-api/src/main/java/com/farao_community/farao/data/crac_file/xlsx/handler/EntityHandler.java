@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
@@ -43,7 +44,6 @@ public class EntityHandler<T> {
         this.timesSeries = timesSeries;
         this.entitySheetHandler = createSheetHandler(clazz, null);
     }
-
 
     private EntityExcelSheetHandler<T> createSheetHandler(Class<T> clazz, ExcelColumnMapping columnMap) {
         ExcelColumnMapping columnMapping = null;
@@ -126,6 +126,4 @@ public class EntityHandler<T> {
     public void process(InputStream inputStream) throws FaraoException {
         ExcelReaderUtil.process(inputStream, sheetName, this.entitySheetHandler);
     }
-
-
 }

@@ -4,9 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-/**
- * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
- */
 package com.farao_community.farao.data.crac_file.xlsx.model;
 
 import com.farao_community.farao.data.crac_file.xlsx.annotation.ExcelColumn;
@@ -18,6 +15,9 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 
+/**
+ * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
+ */
 @Builder
 @Getter
 public class RaTimeSeries {
@@ -79,7 +79,6 @@ public class RaTimeSeries {
     public RaTimeSeries() {
         this(null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
-
 
     public RaTimeSeries(LocalDate date, String raId, TypeRaTimesSeries typeRaTimesSeries, float limit1, float limit2, float limit3, float limit4, float limit5, float limit6, float limit7, float limit8, float limit9, float limit10, float limit11, float limit12, float limit13, float limit14, float limit15, float limit16, float limit17, float limit18, float limit19, float limit20, float limit21, float limit22, float limit23, float limit24) {
         this.date = date;
@@ -167,7 +166,6 @@ public class RaTimeSeries {
                 return ts;
         }
     }
-
 
     @Override
     public String toString() {

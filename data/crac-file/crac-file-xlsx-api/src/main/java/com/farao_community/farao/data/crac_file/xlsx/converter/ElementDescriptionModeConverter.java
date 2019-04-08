@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_file.xlsx.converter;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.xlsx.model.ElementDescriptionMode;
 import lombok.extern.slf4j.Slf4j;
+
 /**
  * Activation Converter class
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}

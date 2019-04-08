@@ -35,7 +35,6 @@ public class DataMonitoredBranch {
     @NotNull(message = "dataMonitoredBranch.ptdfList.empty")
     private final List<DataPtdfPerCountry> ptdfList;
 
-
     @ConstructorProperties({"id", "name", "branchId", "fmax", "fref", "ptdfList"})
     public DataMonitoredBranch(final String id, final String name, final String branchId, final double fmax, final double fref, final List<DataPtdfPerCountry> ptdfList) {
         this.id = id;
@@ -45,6 +44,4 @@ public class DataMonitoredBranch {
         this.fref = fref;
         this.ptdfList = Collections.unmodifiableList(ptdfList);
     }
-
-
 }

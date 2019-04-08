@@ -8,6 +8,7 @@
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 package com.farao_community.farao.data.crac_file.xlsx.model;
+
 import lombok.Getter;
 
 public enum PenaltyCostsForViolations {
@@ -20,6 +21,4 @@ public enum PenaltyCostsForViolations {
     PenaltyCostsForViolations(String label) {
         this.label = label;
     }
-
-
 }

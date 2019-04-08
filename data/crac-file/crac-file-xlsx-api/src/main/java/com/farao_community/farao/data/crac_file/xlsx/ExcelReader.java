@@ -13,13 +13,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 
-
 /**
  * Main API
  */
-
 public class ExcelReader {
-
 
     protected ExcelReader() {
     }
@@ -27,7 +24,6 @@ public class ExcelReader {
     public static <T> ReaderBuilder of(Class<T> clazz) {
         return new ReaderBuilder<>(clazz);
     }
-
 
     public static final class ReaderBuilder<T> {
         private final Class<T> clazz;
@@ -67,7 +63,5 @@ public class ExcelReader {
             entityHandler.process(inputStream);
             return entityHandler.readAsList();
         }
-
-
     }
 }

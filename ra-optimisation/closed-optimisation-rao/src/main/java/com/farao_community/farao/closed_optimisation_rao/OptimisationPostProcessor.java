@@ -18,5 +18,6 @@ import java.util.Map;
  */
 public interface OptimisationPostProcessor {
     Map<String, Class> dataNeeded();
+
     void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result);
 }

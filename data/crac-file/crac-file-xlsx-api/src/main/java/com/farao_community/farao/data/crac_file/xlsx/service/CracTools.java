@@ -17,8 +17,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
-public class CracTools {
+public final class CracTools {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.XlsxCracApi");
+
+    private CracTools() {
+        throw new AssertionError("Utility class should not have constructor");
+    }
+
     /**
      * concat of order code and element name.
      *
@@ -28,7 +33,7 @@ public class CracTools {
      * @param orderCodeElementName
      * @return String
      */
-    public String getOrderCodeElementName(ElementDescriptionMode type, String utcNodeFrom, String utcNodeTo, String orderCodeElementName) {
+    public static String getOrderCodeElementName(ElementDescriptionMode type, String utcNodeFrom, String utcNodeTo, String orderCodeElementName) {
         String id = "";
         int maxChar = 8;
         String spaceNodeFrom = " ";
@@ -51,19 +56,14 @@ public class CracTools {
             }
         }
         return id;
-
     }
 
-
-
-
-
-    public String getId(String id, TimesSeries hour, LocalDate date) {
+    public static String getId(String id, TimesSeries hour, LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         return id + formatter.format(date) + "_" + hour.name().replaceFirst("TIME_", "");
     }
 
-    public String getDescription(String fileName, TimesSeries hour, LocalDate date) {
+    public static String getDescription(String fileName, TimesSeries hour, LocalDate date) {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
         LocalDateTime ldt = LocalDateTime.now();

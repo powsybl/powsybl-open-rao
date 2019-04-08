@@ -12,11 +12,9 @@ import com.farao_community.farao.data.crac_file.xlsx.converter.ElementDescriptio
 import lombok.Builder;
 import lombok.Getter;
 
-
 /**
  * Excel Contingency elements
  */
-
 @Builder
 @Getter
 public class ContingencyElementXlsx {
@@ -50,7 +48,6 @@ public class ContingencyElementXlsx {
     @ExcelColumn(name = "Order Code / Element Name", position = 13)
     private final String orderCodeOrElementNameTimeseries3;
 
-
     public ContingencyElementXlsx() {
         this(null, null, null, null,
                 null, null, null,
@@ -79,7 +76,6 @@ public class ContingencyElementXlsx {
         this.uctNodeToTimeseries3 = uctNodeToTimeseries3;
         this.orderCodeOrElementNameTimeseries3 = orderCodeOrElementNameTimeseries3;
     }
-
 
     @Override
     public String toString() {

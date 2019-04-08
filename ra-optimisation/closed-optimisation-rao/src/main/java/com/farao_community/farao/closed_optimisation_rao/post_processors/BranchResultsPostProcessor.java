@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class BranchResultsPostProcessor implements OptimisationPostProcessor {
     private static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
     private static final String ESTIMATED_FLOW_POSTFIX = "_estimated_flow";
+
     @Override
     public Map<String, Class> dataNeeded() {
         Map<String, Class> returnMap = new HashMap<>();
@@ -54,7 +55,6 @@ public class BranchResultsPostProcessor implements OptimisationPostProcessor {
             })
             .collect(Collectors.toList());
         result.getPreContingencyResult().getMonitoredBranchResults().addAll(branchResultList);
-
 
         cracFile.getContingencies().stream()
             .forEach(contingency -> {
