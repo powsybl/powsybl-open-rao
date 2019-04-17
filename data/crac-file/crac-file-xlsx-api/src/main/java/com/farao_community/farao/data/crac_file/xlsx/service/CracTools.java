@@ -31,7 +31,6 @@ public final class CracTools {
      * @param utcNodeFrom
      * @param utcNodeTo
      * @param orderCodeElementName
-     * @return String
      */
     public static String getOrderCodeElementName(ElementDescriptionMode type, String utcNodeFrom, String utcNodeTo, String orderCodeElementName) {
         String id = "";

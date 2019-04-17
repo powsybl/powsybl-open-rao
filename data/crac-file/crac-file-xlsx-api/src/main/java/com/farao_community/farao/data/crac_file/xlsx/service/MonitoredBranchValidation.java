@@ -24,7 +24,6 @@ public class MonitoredBranchValidation {
      * @param monitoredBranchesValidation
      * @param branchTimeseriesValidation
      * @param timesSeries
-     * @return HashMap<String, List<MonitoredBranch>>
      */
     public Map<String, List<MonitoredBranch>> monitoredBranchValidation(Validation<FaraoException, List<MonitoredBranchXlsx>> monitoredBranchesValidation, Validation<FaraoException, List<BranchTimeSeries>> branchTimeseriesValidation, TimesSeries timesSeries) {
         // creation hash map, String key have the Unique co name, the list of monitored branch have the same unique co name
@@ -72,7 +71,6 @@ public class MonitoredBranchValidation {
      * Methode for specify how information if you want set in MonitoredBranch object
      * @param moXlsx
      * @param fmax
-     * @return MonitoredBranch
      */
     private MonitoredBranch buildMonitoredBranch(MonitoredBranchXlsx moXlsx, float fmax) {
         String id = CracTools.getOrderCodeElementName(moXlsx.getDescriptionMode(), moXlsx.getUctNodeFrom(), moXlsx.getUctNodeTo(), moXlsx.getOrderCodeElementName());
@@ -87,7 +85,6 @@ public class MonitoredBranchValidation {
     /**
      * Add filter condition for accepte a XlsxCrac
      * @param monitoredBranches
-     * @return List<MonitoredBranchXlsx>
      */
     public List<MonitoredBranchXlsx> filterMonitorBranchActivation(List <MonitoredBranchXlsx> monitoredBranches) {
         return    monitoredBranches.stream()

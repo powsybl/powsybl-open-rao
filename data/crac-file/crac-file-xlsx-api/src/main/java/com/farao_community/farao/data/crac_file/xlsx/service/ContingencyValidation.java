@@ -21,7 +21,6 @@ public class ContingencyValidation {
      * Method for specify how information if you want set in contingencyElement object
      * @param name
      * @param elementId
-     * @return ContingencyElement
      */
     public ContingencyElement buildContingencyElement(String name, String elementId) {
         return ContingencyElement.builder()
@@ -32,7 +31,6 @@ public class ContingencyValidation {
 
     /** filtering before add contingency
      * @param postContingency
-     * @return List<ContingencyElementXlsx>
      */
     public List<ContingencyElementXlsx> filterPostContingencyActivation(List <ContingencyElementXlsx> postContingency) {
         return postContingency.stream()
