@@ -28,7 +28,7 @@ import lombok.Getter;
  * There are two possibilities:
  * <p>
  * If "Element Description Mode" column content is "Element Name" then the monitored branch "branchId" will be equal to the content of "Order Code / Element Name" column.
- * If "Element Description Mode" column content is "Order Code" then themonitored branch "branchId" will be equal to "<XXXXXXXX> <YYYYYYYY> <Z>" where <XXXXXXXX> is the exactly 8 character long content of "UCT Node From" column, <YYYYYYYY> is the exactly 8 character long content of "UCT Node To" column and <Z> is the content of "Order Code / Element Name" column.
+ * If "Element Description Mode" column content is "Order Code" then themonitored branch "branchId" will be equal to "{@literal <XXXXXXXX> <YYYYYYYY> <Z>}" where {@literal <XXXXXXXX>} is the exactly 8 character long content of "UCT Node From" column, {@literal <YYYYYYYY>} is the exactly 8 character long content of "UCT Node To" column and {@literal <Z>} is the content of "Order Code / Element Name" column.
  * <p>
  * 3.4.5. Fmax
  * <p>
