@@ -31,7 +31,6 @@ public class PostContingencyValidation {
      * Validation of postContingency
      * @param contingencyElementsValidation
      * @param monitoredBranchesHashMap
-     * @return List<Contingency>
      */
     public List<Contingency> postContingencyElementValidation(Validation<FaraoException, List<ContingencyElementXlsx>> contingencyElementsValidation, Map<String, List<MonitoredBranch>> monitoredBranchesHashMap) {
         List<Contingency> postContingency = new ArrayList<>();
@@ -72,7 +71,6 @@ public class PostContingencyValidation {
 
     /** filtering before add contingency
      * @param postContingency
-     * @return List<ContingencyElementXlsx>
      */
     public List<ContingencyElementXlsx> filterPostContingencyActivation(List <ContingencyElementXlsx> postContingency) {
         return postContingency.stream()

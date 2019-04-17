@@ -18,7 +18,6 @@ public class PreContingencyValidation {
     /**
      * Methode for specify how information if you want set in PreContingency object
      * @param monitoredBranches
-     * @return PreContingency
      */
     public PreContingency preContingencyValidation(List<MonitoredBranch> monitoredBranches) {
         return PreContingency.builder()
