@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.commons.data.generatorloadshiftkeys;
+package com.farao_community.farao.commons.data.glsk_file;
 
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
@@ -19,6 +19,7 @@ import java.util.Objects;
 /**
  * GlskPoint: contain a Generator Shift Key and/or a Load Shift Key
  * for a certain Interval and a certain Country
+ *  @author RTE International {@literal <contact@rte-international.com>}
  */
 public class GlskPoint {
     /**

@@ -1,15 +1,15 @@
 /**
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.commons.data.generatorloadshiftkeys.actors;
+package com.farao_community.farao.commons.data.glsk_file.actors;
 
 import com.farao_community.farao.commons.chronology.DataChronology;
 import com.farao_community.farao.commons.chronology.DataChronologyImpl;
-import com.farao_community.farao.commons.data.generatorloadshiftkeys.GlskDocument;
-import com.farao_community.farao.commons.data.generatorloadshiftkeys.GlskPoint;
+import com.farao_community.farao.commons.data.glsk_file.GlskDocument;
+import com.farao_community.farao.commons.data.glsk_file.GlskPoint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.xml.sax.SAXException;
@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * Import and Convert a CIM type GlskDocument to a map:
  * Key: country, Value: DataChronology of LinearGlsk
+ * @author RTE International {@literal <contact@rte-international.com>}
  */
 public class GlskDocumentLinearGlskConverter {
 
