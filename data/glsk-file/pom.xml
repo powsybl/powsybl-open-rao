@@ -17,7 +17,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-action-util</artifactId>
-            <version>${powsybl.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -43,7 +42,6 @@
         <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threeten-extra</artifactId>
-            <version>${threeten.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
