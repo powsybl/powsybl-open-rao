@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.FaraoException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -65,7 +66,7 @@ public class GlskShiftKey {
         this.businessType = Objects.requireNonNull(element).getElementsByTagName("businessType").item(0).getTextContent();
         List<String> supportedBusinessType = Arrays.asList("B42", "B43", "B45");
         if (!supportedBusinessType.contains(businessType)) {
-            throw new GlskException("BusinessType not supported: " + businessType);
+            throw new FaraoException("BusinessType not supported: " + businessType);
         }
         this.psrType = Objects.requireNonNull(element).getElementsByTagName("mktPSRType.psrType").item(0).getTextContent();
         if (element.getElementsByTagName("quantity.quantity").getLength() > 0) {
@@ -104,7 +105,7 @@ public class GlskShiftKey {
         } else if (ucteBusinessType.equals("Z05")) {
             this.psrType = "A05";
         } else {
-            throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + ucteBusinessType);
+            throw new FaraoException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + ucteBusinessType);
         }
 
         this.quantity = shareFactor / 100;

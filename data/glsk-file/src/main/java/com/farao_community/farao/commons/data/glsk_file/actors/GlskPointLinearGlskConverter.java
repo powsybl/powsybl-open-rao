@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file.actors;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.data.glsk_file.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
@@ -44,7 +45,7 @@ public class GlskPointLinearGlskConverter {
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
 
         if (glskPoint.getGlskShiftKeys().size() > 2) {
-            throw new GlskException("Multi (GSK+LSK) shift keys not supported yet...");
+            throw new FaraoException("Multi (GSK+LSK) shift keys not supported yet...");
         }
 
         for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
@@ -57,12 +58,12 @@ public class GlskPointLinearGlskConverter {
             } else if (glskShiftKey.getBusinessType().equals("B43")) {
                 LOGGER.debug("GLSK Type B43 --> participation factor proportional GSK");
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                    throw new GlskException("Empty Registered Resources List in B43 type shift key.");
+                    throw new FaraoException("Empty Registered Resources List in B43 type shift key.");
                 } else {
                     convertParticipationFactorGlskPointToLinearGlskMap(network, glskShiftKey, linearGlskMap);
                 }
             } else {
-                throw new GlskException("convertGlskPointToLinearGlsk not supported");
+                throw new FaraoException("convertGlskPointToLinearGlsk not supported");
             }
         }
 
@@ -95,7 +96,7 @@ public class GlskPointLinearGlskConverter {
                     .forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalCountryLoad));
         } else {
             //unknown PsrType
-            throw new GlskException("convertCountryProportionalGlskPointToLinearGlskMap PsrType not supported");
+            throw new FaraoException("convertCountryProportionalGlskPointToLinearGlskMap PsrType not supported");
         }
 
     }
@@ -125,7 +126,7 @@ public class GlskPointLinearGlskConverter {
                     .forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalLoad));
         } else {
             //unknown PsrType
-            throw new GlskException("convertExplicitProportionalGlskPointToLinearGlskMap PsrType not supported");
+            throw new FaraoException("convertExplicitProportionalGlskPointToLinearGlskMap PsrType not supported");
         }
 
     }
@@ -157,7 +158,7 @@ public class GlskPointLinearGlskConverter {
                     .forEach(loadResource -> linearGlskMap.put(loadResource.getmRID(), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
         } else {
             //unknown PsrType
-            throw new GlskException("convertParticipationFactorGlskPointToLinearGlskMap PsrType not supported");
+            throw new FaraoException("convertParticipationFactorGlskPointToLinearGlskMap PsrType not supported");
         }
     }
 }

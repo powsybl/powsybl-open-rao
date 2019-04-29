@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.FaraoException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -48,7 +49,7 @@ public class GlskTimeSeries {
         this.curveType = Objects.requireNonNull(element).getElementsByTagName("curveType").getLength() == 0 ? "A03" :
                 Objects.requireNonNull(element).getElementsByTagName("curveType").item(0).getTextContent();
         if (!this.curveType.equals("A03") && !this.curveType.equals("A01")) {
-            throw new GlskException("CurveType not supported: " + this.curveType);
+            throw new FaraoException("CurveType not supported: " + this.curveType);
         }
 
         this.glskPeriods = new ArrayList<>();

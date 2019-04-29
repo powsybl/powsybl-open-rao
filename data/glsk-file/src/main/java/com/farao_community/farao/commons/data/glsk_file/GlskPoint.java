@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.FaraoException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -133,7 +134,7 @@ public class GlskPoint {
                     break;
                 }
                 default:
-                    throw new GlskException("Unknown UCTE Block type");
+                    throw new FaraoException("Unknown UCTE Block type");
             }
         }
     }
