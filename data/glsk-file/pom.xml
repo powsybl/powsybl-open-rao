@@ -25,11 +25,6 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-ucte-network</artifactId>
-            <version>${powsybl.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
         </dependency>
         <dependency>
