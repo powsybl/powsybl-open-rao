@@ -36,37 +36,37 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-action-util</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-network</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-sensitivity-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
         </dependency>
         <dependency>
             <groupId>com.farao-community.farao</groupId>
@@ -97,20 +97,20 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsybl.core.version-dev}</version>
             <scope>test</scope>
         </dependency>
 
