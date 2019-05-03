@@ -28,7 +28,7 @@ import java.util.Map;
  * return a map:
  * Key: country
  * Value: DataChronology of Scalable
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class UcteGlskDocumentScalableConverter {
 

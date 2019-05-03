@@ -27,7 +27,7 @@ import java.util.Map;
  * Import and Convert a CIM type GlskDocument to Scalable
  * create a map:
  * Key: country, Value: DataChronology of Scalable
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskDocumentScalableConverter {
 

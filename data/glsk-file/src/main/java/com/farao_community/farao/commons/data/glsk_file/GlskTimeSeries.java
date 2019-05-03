@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  * CIM type GLSK internal object: contains a list of GlskPeriod
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskTimeSeries {
 

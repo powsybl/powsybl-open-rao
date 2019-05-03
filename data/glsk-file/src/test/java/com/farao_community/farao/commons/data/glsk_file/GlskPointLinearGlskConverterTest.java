@@ -24,7 +24,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskPointLinearGlskConverterTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverterTest.class);

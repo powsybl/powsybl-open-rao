@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Import and Convert a CIM type GlskDocument to a map:
  * Key: country, Value: DataChronology of LinearGlsk
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskDocumentLinearGlskConverter {
 

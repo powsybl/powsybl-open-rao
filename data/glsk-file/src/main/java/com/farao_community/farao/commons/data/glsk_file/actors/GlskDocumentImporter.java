@@ -19,7 +19,7 @@ import java.nio.file.Path;
 /**
  * Importer for CIM type GlskDocument
  * Create a GlskDocument object
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskDocumentImporter {
 

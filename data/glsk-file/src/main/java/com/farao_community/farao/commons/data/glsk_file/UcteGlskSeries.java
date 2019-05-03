@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  * UCTE type GLSK document internal object
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class UcteGlskSeries {
 

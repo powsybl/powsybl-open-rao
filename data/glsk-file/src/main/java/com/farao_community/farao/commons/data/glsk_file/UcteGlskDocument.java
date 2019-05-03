@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * Ucte type GLSK document object: contains a list of GlskPoint
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class UcteGlskDocument {
     /**

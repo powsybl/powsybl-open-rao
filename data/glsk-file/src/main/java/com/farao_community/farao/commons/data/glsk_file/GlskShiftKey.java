@@ -19,7 +19,7 @@ import java.util.Objects;
 
 /**
  * Shift Key
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskShiftKey {
 

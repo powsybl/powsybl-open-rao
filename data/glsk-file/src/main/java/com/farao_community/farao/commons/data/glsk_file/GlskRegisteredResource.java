@@ -13,7 +13,7 @@ import java.util.Optional;
 
 /**
  * Registered Resource: a generator or a load, with its participation factor
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskRegisteredResource {
     /**

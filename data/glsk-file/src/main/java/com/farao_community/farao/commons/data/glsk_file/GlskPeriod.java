@@ -17,7 +17,7 @@ import java.util.Objects;
 
 /**
  * CIM type glsk internal object: a period contains a list of GlskPoint
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskPeriod {
 

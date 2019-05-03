@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * CIM type GlskDocument
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskDocument {
 

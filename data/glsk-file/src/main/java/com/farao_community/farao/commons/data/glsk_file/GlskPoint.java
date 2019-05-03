@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * GlskPoint: contain a Generator Shift Key and/or a Load Shift Key
  * for a certain Interval and a certain Country
- *  @author RTE International {@literal <contact@rte-international.com>}
+ *  @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskPoint {
     /**

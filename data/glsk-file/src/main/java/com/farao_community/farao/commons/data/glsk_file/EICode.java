@@ -9,7 +9,7 @@ package com.farao_community.farao.commons.data.glsk_file;
 import com.powsybl.iidm.network.Country;
 
 /**
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * EIC = Energy Identification Code
  */
 public class EICode {

@@ -22,7 +22,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 /**
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class UcteGlskDocumentImporterTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteGlskDocumentImporterTest.class);

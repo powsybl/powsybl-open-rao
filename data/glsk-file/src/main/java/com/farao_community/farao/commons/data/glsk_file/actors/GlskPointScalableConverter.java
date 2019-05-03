@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * Convert a single GlskPoint to Scalable
- * @author RTE International {@literal <contact@rte-international.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskPointScalableConverter {
 
