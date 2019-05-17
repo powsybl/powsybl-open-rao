@@ -48,6 +48,8 @@ public class UcteGlskDocument {
      */
     public UcteGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
         Document document = documentBuilder.parse(data);

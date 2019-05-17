@@ -42,6 +42,8 @@ public class GlskDocument {
      */
     public GlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
         Document document = documentBuilder.parse(data);
