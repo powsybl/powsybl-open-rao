@@ -132,17 +132,19 @@ public class FlowDecompositionCalculator {
         int branchIndex = branchMapper.get(branch);
         for (Bus busFrom : busesOfInterest) {
             for (Bus busTo : busesOfInterest) {
-                Country countryFrom = busFrom.getVoltageLevel().getSubstation().getCountry();
-                Country countryTo = busTo.getVoltageLevel().getSubstation().getCountry();
+                Country countryFrom = busFrom.getVoltageLevel().getSubstation().getCountry().orElse(null);
+                Country countryTo = busTo.getVoltageLevel().getSubstation().getCountry().orElse(null);
                 int busFromIndex = busMapper.get(busFrom);
                 int busToIndex = busMapper.get(busTo);
 
                 double increase = directionFactor * (ptdfMatrix.get(branchIndex, busFromIndex) - ptdfMatrix.get(branchIndex, busToIndex)) * pexMatrix.get(busFromIndex, busToIndex);
 
-                if (!countryExchangeFlows.contains(countryFrom.name(), countryTo.name())) {
-                    countryExchangeFlows.put(countryFrom.name(), countryTo.name(), increase);
-                } else {
-                    countryExchangeFlows.put(countryFrom.name(), countryTo.name(), countryExchangeFlows.get(countryFrom.name(), countryTo.name()) + increase);
+                if (countryFrom != null && countryTo != null) {
+                    if (!countryExchangeFlows.contains(countryFrom.name(), countryTo.name())) {
+                        countryExchangeFlows.put(countryFrom.name(), countryTo.name(), increase);
+                    } else {
+                        countryExchangeFlows.put(countryFrom.name(), countryTo.name(), countryExchangeFlows.get(countryFrom.name(), countryTo.name()) + increase);
+                    }
                 }
             }
         }

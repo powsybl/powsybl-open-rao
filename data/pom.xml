@@ -19,5 +19,6 @@
         <module>flowbased-domain</module>
         <module>flow-decomposition-results</module>
         <module>crac-file</module>
+        <module>glsk-file</module>
     </modules>
 </project>

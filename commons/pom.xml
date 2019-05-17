@@ -9,10 +9,10 @@
         <artifactId>farao-core</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>farao-commons</artifactId>
     <packaging>jar</packaging>
     <name>Commons</name>
+
     <description>A set of miscellaneous utility classes</description>
 
     <build>
@@ -33,6 +33,10 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-tools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threeten-extra</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
