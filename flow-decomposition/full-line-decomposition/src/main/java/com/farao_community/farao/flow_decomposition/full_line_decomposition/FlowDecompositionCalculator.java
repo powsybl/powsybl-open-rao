@@ -139,10 +139,12 @@ public class FlowDecompositionCalculator {
 
                 double increase = directionFactor * (ptdfMatrix.get(branchIndex, busFromIndex) - ptdfMatrix.get(branchIndex, busToIndex)) * pexMatrix.get(busFromIndex, busToIndex);
 
-                if (!countryExchangeFlows.contains(countryFrom.name(), countryTo.name())) {
-                    countryExchangeFlows.put(countryFrom.name(), countryTo.name(), increase);
-                } else {
-                    countryExchangeFlows.put(countryFrom.name(), countryTo.name(), countryExchangeFlows.get(countryFrom.name(), countryTo.name()) + increase);
+                if (countryFrom != null && countryTo != null) {
+                    if (!countryExchangeFlows.contains(countryFrom.name(), countryTo.name())) {
+                        countryExchangeFlows.put(countryFrom.name(), countryTo.name(), increase);
+                    } else {
+                        countryExchangeFlows.put(countryFrom.name(), countryTo.name(), countryExchangeFlows.get(countryFrom.name(), countryTo.name()) + increase);
+                    }
                 }
             }
         }
