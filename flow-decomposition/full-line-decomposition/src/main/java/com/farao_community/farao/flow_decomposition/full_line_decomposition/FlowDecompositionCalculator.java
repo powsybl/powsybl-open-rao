@@ -132,8 +132,8 @@ public class FlowDecompositionCalculator {
         int branchIndex = branchMapper.get(branch);
         for (Bus busFrom : busesOfInterest) {
             for (Bus busTo : busesOfInterest) {
-                Country countryFrom = busFrom.getVoltageLevel().getSubstation().getCountry();
-                Country countryTo = busTo.getVoltageLevel().getSubstation().getCountry();
+                Country countryFrom = busFrom.getVoltageLevel().getSubstation().getCountry().get();
+                Country countryTo = busTo.getVoltageLevel().getSubstation().getCountry().get();
                 int busFromIndex = busMapper.get(busFrom);
                 int busToIndex = busMapper.get(busTo);
 
