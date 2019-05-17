@@ -60,13 +60,13 @@ public class UcteGlskDocumentLinearGlskConverterTest {
 
     @Test
     public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString() throws ParserConfigurationException, SAXException, IOException {
-        String filepathstring = "src/test/resources/20170322_1844_SN3_FR2_GLSK_test.xml";
+        String filepathstring = getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath();
         assertTrue(!new UcteGlskDocumentLinearGlskConverter().convertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, testNetwork).isEmpty());
     }
 
     @Test
     public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath() throws ParserConfigurationException, SAXException, IOException {
-        Path pathtest = Paths.get("src/test/resources/20170322_1844_SN3_FR2_GLSK_test.xml");
+        Path pathtest = Paths.get(getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath());
         assertTrue(!new UcteGlskDocumentLinearGlskConverter().convertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
     }
 }

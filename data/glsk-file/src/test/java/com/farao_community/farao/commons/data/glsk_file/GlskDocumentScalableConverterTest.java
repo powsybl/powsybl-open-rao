@@ -73,13 +73,13 @@ public class GlskDocumentScalableConverterTest {
 
     @Test
     public void testConvertGlskDocumentToScalableDataChronologyFromFilePathString() throws ParserConfigurationException, SAXException, IOException {
-        String filepathstring = "src/test/resources/GlskB42CountryIIDM.xml";
+        String filepathstring = getClass().getResource("/GlskB42CountryIIDM.xml").getPath();
         assertTrue(!new GlskDocumentScalableConverter().convertGlskDocumentToScalableDataChronologyFromFilePathString(filepathstring, testNetwork).isEmpty());
     }
 
     @Test
     public void testConvertGlskDocumentToScalableDataChronologyFromFilePath() throws ParserConfigurationException, SAXException, IOException {
-        Path pathtest = Paths.get("src/test/resources/GlskB42CountryIIDM.xml");
+        Path pathtest = Paths.get(getClass().getResource("/GlskB42CountryIIDM.xml").getPath());
         assertTrue(!new GlskDocumentScalableConverter().convertGlskDocumentToScalableDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
     }
 }

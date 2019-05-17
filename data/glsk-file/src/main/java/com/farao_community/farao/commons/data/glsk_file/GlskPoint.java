@@ -52,7 +52,8 @@ public class GlskPoint {
      * @param curveType curvetype A01 or A03
      */
     public GlskPoint(Element element, Interval periodInterval, String resolution, String subjectDomainmRID, String curveType) {
-        this.position = Integer.valueOf(Objects.requireNonNull(element).getElementsByTagName("position").item(0).getTextContent());
+        Objects.requireNonNull(element);
+        this.position = Integer.valueOf(element.getElementsByTagName("position").item(0).getTextContent());
 
         /*
         A01: all time interval in a period is described
@@ -74,7 +75,7 @@ public class GlskPoint {
         this.curveType = curveType;
 
         this.glskShiftKeys = new ArrayList<>();
-        NodeList glskShiftKeyNodes = Objects.requireNonNull(element).getElementsByTagName("SKBlock_TimeSeries");
+        NodeList glskShiftKeyNodes = element.getElementsByTagName("SKBlock_TimeSeries");
         for (int i = 0; i < glskShiftKeyNodes.getLength(); i++) {
             GlskShiftKey glskShiftKey = new GlskShiftKey((Element) glskShiftKeyNodes.item(i), this.pointInterval, subjectDomainmRID);
             glskShiftKeys.add(glskShiftKey);
@@ -90,6 +91,7 @@ public class GlskPoint {
      * @param shareFactor shareFactor for generator or load
      */
     public GlskPoint(boolean ucteformat, Element element, String ucteBlockType, String area, String ucteBusinessType, Double shareFactor) {
+        Objects.requireNonNull(element);
         if (ucteformat) {
             this.position = 1;
             this.pointInterval = Interval.parse(((Element) element.getElementsByTagName("TimeInterval").item(0)).getAttribute("v"));

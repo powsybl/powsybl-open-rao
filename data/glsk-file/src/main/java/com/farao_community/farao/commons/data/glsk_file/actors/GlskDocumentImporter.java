@@ -44,7 +44,7 @@ public class GlskDocumentImporter {
      */
     public GlskDocument importGlskDocumentWithFilePathString(String filepathstring) throws IOException, ParserConfigurationException, SAXException {
         InputStream data = new FileInputStream(filepathstring);
-        return this.importGlskDocumentFromInputStream(data);
+        return importGlskDocumentFromInputStream(data);
     }
 
     /**
@@ -56,7 +56,7 @@ public class GlskDocumentImporter {
      */
     public GlskDocument importGlskDocumentWithFilePath(Path filepath) throws IOException, ParserConfigurationException, SAXException {
         InputStream data = new FileInputStream(filepath.toFile());
-        return this.importGlskDocumentFromInputStream(data);
+        return importGlskDocumentFromInputStream(data);
     }
 
     /**

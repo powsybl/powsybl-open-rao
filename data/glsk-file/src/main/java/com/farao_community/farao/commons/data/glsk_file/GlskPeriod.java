@@ -44,13 +44,14 @@ public class GlskPeriod {
      * @param curveType curveType
      */
     public GlskPeriod(Element element, String subjectDomainmRID, String curveType) {
-        String intervalStart = Objects.requireNonNull(element).getElementsByTagName("start").item(0).getTextContent();
-        String intervalEnd = Objects.requireNonNull(element).getElementsByTagName("end").item(0).getTextContent();
+        Objects.requireNonNull(element);
+        String intervalStart = element.getElementsByTagName("start").item(0).getTextContent();
+        String intervalEnd = element.getElementsByTagName("end").item(0).getTextContent();
         this.periodInterval = Interval.parse(intervalStart + "/" + intervalEnd);
-        this.resolution = Objects.requireNonNull(element).getElementsByTagName("resolution").item(0).getTextContent();
+        this.resolution = element.getElementsByTagName("resolution").item(0).getTextContent();
         this.curveType = curveType;
         this.glskPoints = new ArrayList<>();
-        NodeList glskPointsNodes = Objects.requireNonNull(element).getElementsByTagName("Point");
+        NodeList glskPointsNodes = element.getElementsByTagName("Point");
         for (int i = 0; i < glskPointsNodes.getLength(); i++) {
             GlskPoint glskPoint = new GlskPoint((Element) glskPointsNodes.item(i), this.periodInterval, this.resolution, subjectDomainmRID, curveType);
             glskPoints.add(glskPoint);

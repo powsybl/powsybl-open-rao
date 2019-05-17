@@ -63,14 +63,15 @@ public class GlskShiftKey {
      * @param subjectDomainmRID country mrid
      */
     public GlskShiftKey(Element element, Interval pointInterval, String subjectDomainmRID) {
-        this.businessType = Objects.requireNonNull(element).getElementsByTagName("businessType").item(0).getTextContent();
+        Objects.requireNonNull(element);
+        this.businessType = element.getElementsByTagName("businessType").item(0).getTextContent();
         List<String> supportedBusinessType = Arrays.asList("B42", "B43", "B45");
         if (!supportedBusinessType.contains(businessType)) {
             throw new FaraoException("BusinessType not supported: " + businessType);
         }
-        this.psrType = Objects.requireNonNull(element).getElementsByTagName("mktPSRType.psrType").item(0).getTextContent();
+        this.psrType = element.getElementsByTagName("mktPSRType.psrType").item(0).getTextContent();
         if (element.getElementsByTagName("quantity.quantity").getLength() > 0) {
-            this.quantity = Double.valueOf(Objects.requireNonNull(element).getElementsByTagName("quantity.quantity").item(0).getTextContent());
+            this.quantity = Double.valueOf(element.getElementsByTagName("quantity.quantity").item(0).getTextContent());
         } else {
             this.quantity = 1.0;
         }
@@ -81,7 +82,7 @@ public class GlskShiftKey {
                 element.getElementsByTagName("flowDirection.direction").item(0).getTextContent();
         //registeredResources
         this.registeredResourceArrayList = new ArrayList<>();
-        NodeList glskRegisteredResourcesElements = Objects.requireNonNull(element).getElementsByTagName("RegisteredResource");
+        NodeList glskRegisteredResourcesElements = element.getElementsByTagName("RegisteredResource");
         for (int i = 0; i < glskRegisteredResourcesElements.getLength(); i++) {
             registeredResourceArrayList.add(new GlskRegisteredResource((Element) glskRegisteredResourcesElements.item(i)));
         }

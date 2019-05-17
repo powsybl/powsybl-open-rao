@@ -63,12 +63,6 @@ public class GlskDocumentLinearGlskConverterTest {
         GlskDocumentLinearGlskConverter mapper = new GlskDocumentLinearGlskConverter();
         Map<String, DataChronology<GlskPoint>> map = mapper.convertGlskDocumentToGlskPointDataChronologyFromFileName("/GlskB42test.xml");
 
-//        for (String country : map.keySet()) {
-//            LOGGER.info("Country: " + country);
-//            LOGGER.info("   DataChronology: Interval: " + map.get(country).getDataForInstant(Instant.parse("2018-08-28T23:00:00Z")).get().getUcteGlskNodes().get(0).getSubjectDomainmRID());
-//            LOGGER.info("   DataChronology: Interval: " + map.get(country).getDataForInstant(Instant.parse("2018-08-28T23:00:00Z")).get().getPointInterval().toString());
-//        }
-
     }
 
     @Test

@@ -41,19 +41,20 @@ public class GlskTimeSeries {
      * @param element Time series element
      */
     public GlskTimeSeries(Element element) {
-        this.mRID = Objects.requireNonNull(element).getElementsByTagName("mRID").item(0).getTextContent();
+        Objects.requireNonNull(element);
+        this.mRID = element.getElementsByTagName("mRID").item(0).getTextContent();
         this.subjectDomainmRID = Objects.requireNonNull(element)
                 .getElementsByTagName("subject_Domain.mRID")
                 .item(0)
                 .getTextContent();
-        this.curveType = Objects.requireNonNull(element).getElementsByTagName("curveType").getLength() == 0 ? "A03" :
-                Objects.requireNonNull(element).getElementsByTagName("curveType").item(0).getTextContent();
+        this.curveType = element.getElementsByTagName("curveType").getLength() == 0 ? "A03" :
+                element.getElementsByTagName("curveType").item(0).getTextContent();
         if (!this.curveType.equals("A03") && !this.curveType.equals("A01")) {
             throw new FaraoException("CurveType not supported: " + this.curveType);
         }
 
         this.glskPeriods = new ArrayList<>();
-        NodeList glskPeriodsElements = Objects.requireNonNull(element).getElementsByTagName("Period");
+        NodeList glskPeriodsElements = element.getElementsByTagName("Period");
         for (int i = 0; i < glskPeriodsElements.getLength(); i++) {
             glskPeriods.add(new GlskPeriod((Element) glskPeriodsElements.item(i), subjectDomainmRID, this.curveType));
         }

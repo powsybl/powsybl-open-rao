@@ -53,13 +53,13 @@ public class UcteGlskDocumentScalableConverterTest {
 
     @Test
     public void testConvertUcteGlskDocumentToScalableDataChronologyFromFilePathString() throws ParserConfigurationException, SAXException, IOException {
-        String filepathstring = "src/test/resources/20170322_1844_SN3_FR2_GLSK_test.xml";
+        String filepathstring = getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath();
         assertTrue(!new UcteGlskDocumentScalableConverter().convertUcteGlskDocumentToScalableDataChronologyFromFilePathString(filepathstring, testNetwork).isEmpty());
     }
 
     @Test
     public void testConvertUcteGlskDocumentToScalableDataChronologyFromFilePath() throws ParserConfigurationException, SAXException, IOException {
-        Path pathtest = Paths.get("src/test/resources/20170322_1844_SN3_FR2_GLSK_test.xml");
+        Path pathtest = Paths.get(getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath());
         assertTrue(!new UcteGlskDocumentScalableConverter().convertUcteGlskDocumentToScalableDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
     }
 }
