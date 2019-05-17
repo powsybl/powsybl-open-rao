@@ -116,21 +116,21 @@ public class GlskPointScalableConverter {
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GSK");
             //calculate sum P of country's generators
-            double totalCountryP = network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().equals(country))
+            double totalCountryP = network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
                     .mapToDouble(Generator::getTargetP).sum();
             //calculate factor of each generator
-            network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().equals(country))
+            network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
                     .forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) generator.getTargetP() / (float) totalCountryP));
-            network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().equals(country))
+            network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
                     .forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) LSK");
             //calculate sum P of country's loads
-            double totalCountryP = network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().equals(country))
+            double totalCountryP = network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
                     .mapToDouble(Load::getP0).sum();
-            network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().equals(country))
+            network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
                     .forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalCountryP));
-            network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().equals(country))
+            network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
                     .forEach(load -> scalables.add(Scalable.onLoad(load.getId())));
         }
 
