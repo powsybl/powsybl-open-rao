@@ -82,16 +82,16 @@ public class GlskPointLinearGlskConverter {
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             //calculate sum P of country's generators
-            double totalCountryP = network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
+            double totalCountryP = network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null).equals(country))
                     .mapToDouble(Generator::getTargetP).sum();
             //calculate factor of each generator
-            network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
+            network.getGeneratorStream().filter(generator -> generator.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null).equals(country))
                     .forEach(generator -> linearGlskMap.put(generator.getId(), glskShiftKey.getQuantity().floatValue() * (float) generator.getTargetP() / (float) totalCountryP));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
-            double totalCountryLoad = network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
+            double totalCountryLoad = network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null).equals(country))
                     .mapToDouble(Load::getP0).sum();
-            network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().get().equals(country))
+            network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null).equals(country))
                     .forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalCountryLoad));
         } else {
             //unknown PsrType
