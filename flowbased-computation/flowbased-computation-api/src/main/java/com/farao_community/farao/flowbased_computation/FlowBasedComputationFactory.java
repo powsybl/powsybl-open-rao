@@ -23,14 +23,11 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
  */
 public class FlowBasedComputationFactory {
 
-
     //todo add LinearGLSK or GlksFile... ? or getLinearGLSK from a File string File Path?
-
     public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
         return new FlowBasedComputation(network, cracFile, computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
-
 
 }
