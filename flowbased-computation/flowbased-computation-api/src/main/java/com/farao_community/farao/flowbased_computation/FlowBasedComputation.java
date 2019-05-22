@@ -6,9 +6,6 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.powsybl.commons.Versionable;
-import com.powsybl.iidm.network.Network;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -16,15 +13,6 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
-public interface FlowBasedComputation extends Versionable {
-
-    /**
-     * Interface to run the flowbased computation
-     *
-     * @return FlowBasedComputationResults results of the flowbased computation
-     */
-    CompletableFuture<FlowBasedComputationResult> run(Network networkIn);
-
+public interface FlowBasedComputation {
     CompletableFuture<FlowBasedComputationResult> run(String workingStateId, FlowBasedComputationParameters parameters);
-
 }
