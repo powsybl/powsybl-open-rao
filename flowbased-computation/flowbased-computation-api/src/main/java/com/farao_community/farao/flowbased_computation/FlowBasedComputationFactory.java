@@ -6,12 +6,9 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_file.CracFile;
-import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.sensitivity.SensitivityComputationFactory;
 
 /**
  * FlowBased computation factory
@@ -20,17 +17,17 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
  * </p>
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
+ * @see FlowBasedComputation
  */
-public class FlowBasedComputationFactory {
+public interface FlowBasedComputationFactory {
 
+    /**
+     * @param criticalBranchesValuesProviderIn provider of critical branches values
+     * @param glskValuesProviderIn             provider of GLSK values
+     * @return an Interface of the Flowbased computation
+     */
+    FlowBasedComputation create(CriticalBranchesValuesProvider criticalBranchesValuesProviderIn,
+                                GlskValuesProvider glskValuesProviderIn);
 
-    //todo add LinearGLSK or GlksFile... ? or getLinearGLSK from a File string File Path?
-
-    public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-        LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
-        SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputation(network, cracFile, computationManager, loadFlowFactory, sensitivityComputationFactory);
-    }
-
-
+    FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int i);
 }
