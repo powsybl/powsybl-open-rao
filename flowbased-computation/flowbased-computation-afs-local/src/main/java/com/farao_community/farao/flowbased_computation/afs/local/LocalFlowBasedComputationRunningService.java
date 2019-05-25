@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.afs.local;
 
+import com.farao_community.farao.flowbased_computation.FlowBasedGlskValuesProvider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.afs.AppLogger;
@@ -45,6 +46,7 @@ public class LocalFlowBasedComputationRunningService implements FlowBasedComputa
 
         ProjectCase aCase = runner.getCase().orElseThrow(() -> new FaraoException("Invalide case"));
         CracFileProvider cracFileProvider = runner.getCracFileProvider().orElseThrow(() -> new FaraoException("Invalide case"));
+        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = runner.getGlskProvider().orElseThrow(() -> new FaraoException("Invalide case"));
 
         FlowBasedComputationParameters parameters = runner.readParameters();
         ComputationManager computationManager = runner.getFileSystem().getData().getLongTimeExecutionComputationManager();
@@ -58,7 +60,11 @@ public class LocalFlowBasedComputationRunningService implements FlowBasedComputa
             Network network = aCase.getNetwork();
 
             logger.log(RESOURCE_BUNDLE.getString("RunningFlowBased"));
-            FlowBasedComputation raoComputation = factorySupplier.get().create(network, cracFileProvider.getCracFile(), computationManager, 0);
+            FlowBasedComputation raoComputation = factorySupplier.get().create(network,
+                    cracFileProvider.getCracFile(),
+                    flowBasedGlskValuesProvider,
+                    computationManager,
+                    0);
             raoComputation.run(network.getVariantManager().getWorkingVariantId(), parameters)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {

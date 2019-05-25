@@ -19,15 +19,18 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     private Network network;
     private CracFile cracFile;
+    private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
     private ComputationManager computationManager;
 
     public FlowBasedComputationImpl(Network network,
                                     CracFile cracFile,
+                                    FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
                                     ComputationManager computationManager,
                                     LoadFlowFactory loadFlowFactory,
                                     SensitivityComputationFactory sensitivityComputationFactory) {
         this.network = network;
         this.cracFile = cracFile;
+        this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
         this.computationManager = computationManager;
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);

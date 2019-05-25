@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.afs;
 
+import com.farao_community.farao.flowbased_computation.FlowBasedGlskValuesProvider;
 import com.powsybl.afs.DependencyCache;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
@@ -38,6 +39,7 @@ public class FlowBasedComputationRunner extends ProjectFile {
     static final int VERSION = 0;
     static final String CASE_DEPENDENCY_NAME = "case";
     static final String CRAC_FILE_PROVIDER_NAME = "cracFileProvider";
+    static final String GLSK_PROVIDER_NAME = "glskProvider";
 
     private static final String PARAMETERS_JSON_NAME = "parametersJson";
     private static final String RESULT_JSON_NAME = "resultJson";
@@ -45,6 +47,8 @@ public class FlowBasedComputationRunner extends ProjectFile {
     private final DependencyCache<ProjectCase> caseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
 
     private final DependencyCache<CracFileProvider> cracFileProviderDependency = new DependencyCache<>(this, CRAC_FILE_PROVIDER_NAME, CracFileProvider.class);
+
+    private final DependencyCache<FlowBasedGlskValuesProvider> flowBasedGlskValuesProviderDependency = new DependencyCache<>(this, GLSK_PROVIDER_NAME, FlowBasedGlskValuesProvider.class);
 
     public FlowBasedComputationRunner(ProjectFileCreationContext context) {
         super(context, VERSION);
@@ -68,6 +72,10 @@ public class FlowBasedComputationRunner extends ProjectFile {
 
     public Optional<CracFileProvider> getCracFileProvider() {
         return cracFileProviderDependency.getFirst();
+    }
+
+    public Optional<FlowBasedGlskValuesProvider> getGlskProvider() {
+        return flowBasedGlskValuesProviderDependency.getFirst();
     }
 
     public void run() {

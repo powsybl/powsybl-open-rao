@@ -19,10 +19,10 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
 public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFactory {
 
     @Override
-    public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
+    public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
 
 }
