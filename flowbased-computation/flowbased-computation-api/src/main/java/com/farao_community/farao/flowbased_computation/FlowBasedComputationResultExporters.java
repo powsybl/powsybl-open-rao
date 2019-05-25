@@ -20,9 +20,9 @@ import java.util.Objects;
  *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public final class FlowBasedComputationExporters {
+public final class FlowBasedComputationResultExporters {
 
-    private FlowBasedComputationExporters() {
+    private FlowBasedComputationResultExporters() {
     }
 
     public static void export(FlowBasedComputationResult result, Path path) {

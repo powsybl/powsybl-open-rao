@@ -125,7 +125,7 @@ public class FlowBasedComputationTool implements Tool {
         } else {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                FlowBasedComputationExporters.export(result, outputFile);
+                FlowBasedComputationResultExporters.export(result, outputFile);
             }
         }
     }

@@ -21,9 +21,9 @@ import java.util.Map;
 
 /**
  */
-public class GlskValuesProvider {
+public class FlowBasedGlskValuesProvider {
 
-    public GlskValuesProvider() {
+    public FlowBasedGlskValuesProvider() {
     }
 
     Map<String, LinearGlsk> getLinearGlskMap(Network network, String filepathstring, Instant instant) throws IOException, SAXException, ParserConfigurationException {

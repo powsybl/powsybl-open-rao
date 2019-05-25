@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
-public class GlskValuesProviderTest {
+public class FlowBasedGlskValuesProviderTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlskValuesProviderTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedGlskValuesProviderTest.class);
 
     private Network testNetwork;
     private Instant instant;
@@ -26,16 +26,16 @@ public class GlskValuesProviderTest {
     public void run() throws ParserConfigurationException, SAXException, IOException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2018-08-29T21:00:00Z");
-        GlskValuesProvider glskValuesProvider = new GlskValuesProvider();
-        Map<String, DataChronology<LinearGlsk> > map = glskValuesProvider.getDataChronologyLinearGlskMap(testNetwork,
+        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider();
+        Map<String, DataChronology<LinearGlsk> > map = flowBasedGlskValuesProvider.getDataChronologyLinearGlskMap(testNetwork,
                 getClass().getResource("/GlskB43ParticipationFactorIIDM.xml").getPath());
         Assert.assertFalse(map.isEmpty());
 
-        LinearGlsk linearGlsk = glskValuesProvider.getCountryLinearGlsk(testNetwork,
+        LinearGlsk linearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlsk(testNetwork,
                 getClass().getResource("/GlskB43ParticipationFactorIIDM.xml").getPath(), instant, "10YFR-RTE------C");
         Assert.assertFalse(linearGlsk.getGLSKs().isEmpty());
 
-        Map<String, LinearGlsk> linearGlskMap = glskValuesProvider.getLinearGlskMap(testNetwork, getClass().getResource("/GlskB43ParticipationFactorIIDM.xml").getPath(), instant);
+        Map<String, LinearGlsk> linearGlskMap = flowBasedGlskValuesProvider.getLinearGlskMap(testNetwork, getClass().getResource("/GlskB43ParticipationFactorIIDM.xml").getPath(), instant);
         Assert.assertFalse(linearGlskMap.isEmpty());
     }
 }
