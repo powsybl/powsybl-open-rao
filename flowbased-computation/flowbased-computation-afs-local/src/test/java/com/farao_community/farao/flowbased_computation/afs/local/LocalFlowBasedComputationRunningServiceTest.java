@@ -24,35 +24,10 @@ import java.util.concurrent.CompletableFuture;
 public class LocalFlowBasedComputationRunningServiceTest extends FlowbasedComputationRunnerTest {
 
     private static class FlowbasedComputationFactoryMock implements FlowBasedComputationFactory {
-        @Override
-        public FlowBasedComputation create(CriticalBranchesValuesProvider criticalBranchesValuesProviderIn, GlskValuesProvider glskValuesProviderIn) {
-            return null;
-        }
 
         @Override
         public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-            return new FlowBasedComputation() {
-
-                @Override
-                public String getName() {
-                    return null;
-                }
-
-                @Override
-                public String getVersion() {
-                    return null;
-                }
-
-                @Override
-                public CompletableFuture<FlowBasedComputationResult> run(Network networkIn) {
-                    return CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
-                }
-
-                @Override
-                public CompletableFuture<FlowBasedComputationResult> run(String workingStateId, FlowBasedComputationParameters parameters) {
-                    return CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
-                }
-            };
+            return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
         }
     }
 
