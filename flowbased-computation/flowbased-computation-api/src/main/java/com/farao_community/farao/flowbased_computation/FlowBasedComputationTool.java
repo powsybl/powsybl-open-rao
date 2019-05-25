@@ -34,9 +34,7 @@ public class FlowBasedComputationTool implements Tool {
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String CRAC_FILE_OPTION = "crac-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
-    private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String PARAMETERS_FILE = "parameters-file";
-    private static final String SKIP_POSTPROC_OPTION = "skip-postproc";
 
     @Override
     public Command getCommand() {
