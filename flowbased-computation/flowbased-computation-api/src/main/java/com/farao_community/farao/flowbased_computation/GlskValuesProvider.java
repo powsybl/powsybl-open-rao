@@ -6,18 +6,57 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.chronology.DataChronology;
+import com.farao_community.farao.commons.data.glsk_file.actors.GlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.xml.sax.SAXException;
 
-import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
  */
-public interface GlskValuesProvider {
-    /**
-     * @param network network description
-     * @return a list of LinearGLSK
-     */
-    List<LinearGlsk> getGlskValues(Network network);
+public class GlskValuesProvider {
+
+    public GlskValuesProvider() {
+    }
+
+    Map<String, LinearGlsk> getLinearGlskMap(Network network, String filepathstring, Instant instant) throws IOException, SAXException, ParserConfigurationException {
+
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
+
+        Map<String, LinearGlsk> linearGlskMap = new HashMap<>();
+        for (String country : mapGlskDocLinearGlsk.keySet()) {
+            DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
+            LinearGlsk linearGlsk = dataChronology.getDataForInstant(instant).get();
+//                    () -> new FaraoException("No LinearGlsk found for instant " + instant.toString() + "in " + filepathstring));
+            linearGlskMap.put(country, linearGlsk);
+        }
+
+        return linearGlskMap;
+    }
+
+    Map<String, DataChronology<LinearGlsk>> getDataChronologyLinearGlskMap(Network network, String filepathstring) throws IOException, SAXException, ParserConfigurationException {
+        return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
+    }
+
+    LinearGlsk getCountryLinearGlsk(Network network, String filepathstring, Instant instant, String country) throws IOException, SAXException, ParserConfigurationException {
+
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
+
+        if (!mapGlskDocLinearGlsk.containsKey(country)) {
+            throw new FaraoException("No LinearGlsk found for country " + country + " in " + filepathstring);
+        } else {
+            DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
+            return dataChronology.getDataForInstant(instant).get();
+//                    () -> new FaraoException("No LinearGlsk found for instant " + instant.toString() + " in " + filepathstring));
+        }
+
+    }
+
 }
