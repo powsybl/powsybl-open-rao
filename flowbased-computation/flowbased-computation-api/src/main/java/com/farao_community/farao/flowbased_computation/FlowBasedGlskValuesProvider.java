@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class FlowBasedGlskValuesProvider {
 
