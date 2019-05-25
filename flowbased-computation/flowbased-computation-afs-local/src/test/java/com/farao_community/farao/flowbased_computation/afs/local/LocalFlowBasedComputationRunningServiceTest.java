@@ -29,6 +29,11 @@ public class LocalFlowBasedComputationRunningServiceTest extends FlowbasedComput
         public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
             return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
         }
+
+        @Override
+        public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority) {
+            return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
+        }
     }
 
     @Override

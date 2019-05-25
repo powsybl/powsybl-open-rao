@@ -114,7 +114,11 @@ public class FlowBasedComputationTool implements Tool {
 
         FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load()
                 .newFactoryImpl(FlowBasedComputationFactory.class)
-                .create(network, cracProvider, computationManager, 0);
+                .create(network,
+                        cracProvider,
+                        new FlowBasedGlskValuesProvider(),
+                        computationManager,
+                        0);
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 

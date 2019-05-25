@@ -17,5 +17,8 @@ import com.farao_community.farao.data.crac_file.CracFile;
  * </p>
  */
 public interface FlowBasedComputationFactory {
+
+    FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority);
+
     FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority);
 }
