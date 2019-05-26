@@ -19,17 +19,18 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
 public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFactory {
 
     @Override
-    public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-        LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
-        SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, new FlowBasedGlskValuesProvider(), computationManager, loadFlowFactory, sensitivityComputationFactory);
-    }
-
-    @Override
     public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
         return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, computationManager, loadFlowFactory, sensitivityComputationFactory);
+    }
+
+    @Override
+    public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
+        //todo remove this create(., ., ., .), need to change in afs-local.
+        LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
+        SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
+        return new FlowBasedComputationImpl(network, cracFile, new FlowBasedGlskValuesProvider(), computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
 
 }

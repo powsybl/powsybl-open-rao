@@ -3,6 +3,7 @@ componentDefaultConfig:
     SensitivityComputationFactory: com.rte_france.powsybl.hades2.sensitivity.Hades2SensitivityFactory
     FlowDecompositionFactory: com.farao_community.farao.flow_decomposition.full_line_decomposition.FullLineDecompositionFactory
     RaoComputationFactory: com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoFactory
+    FlowBasedComputationFactory: com.farao_community.farao.flowbased_computation.FlowBasedComputationFactoryImpl
 
 hades2:
     homeDir: $HOME/farao-dep/runtime/hades2

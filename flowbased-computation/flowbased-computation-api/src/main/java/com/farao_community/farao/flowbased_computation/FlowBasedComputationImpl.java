@@ -46,6 +46,9 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         network.getVariantManager().setWorkingVariant(workingVariantId);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
+        // Flowbased parameters extension if necessary. todo
+        // ...
+
         //todo implementation
 
         FlowBasedComputationResult.Status status = FlowBasedComputationResult.Status.SUCCESS;
