@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.chronology.DataChronology;
 import com.farao_community.farao.commons.data.glsk_file.actors.GlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,25 +20,45 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class FlowBasedGlskValuesProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedGlskValuesProvider.class);
+
+    private Network network;
+    private String filepathstring;
+    private Map<String, DataChronology<LinearGlsk> > mapGlskDocLinearGlsk;
 
     public FlowBasedGlskValuesProvider() {
+        network = null;
+        filepathstring = "";
+        mapGlskDocLinearGlsk = null;
     }
 
-    Map<String, LinearGlsk> getLinearGlskMap(Network network, String filepathstring, Instant instant) throws IOException, SAXException, ParserConfigurationException {
+    public FlowBasedGlskValuesProvider(Network network, String filepathstring) {
+        this.network = network;
+        this.filepathstring = filepathstring;
+        try {
+            mapGlskDocLinearGlsk = new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
 
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
+    Map<String, LinearGlsk> getLinearGlskMap(Instant instant) {
 
         Map<String, LinearGlsk> linearGlskMap = new HashMap<>();
-        for (String country : mapGlskDocLinearGlsk.keySet()) {
-            DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
-            LinearGlsk linearGlsk = dataChronology.getDataForInstant(instant).get();
-//                    () -> new FaraoException("No LinearGlsk found for instant " + instant.toString() + "in " + filepathstring));
-            linearGlskMap.put(country, linearGlsk);
+        for (Map.Entry<String, DataChronology<LinearGlsk> > entry: mapGlskDocLinearGlsk.entrySet()) {
+            DataChronology<LinearGlsk> dataChronology = entry.getValue();
+            Optional<LinearGlsk> linearGlskOptional = dataChronology.getDataForInstant(instant);
+            if (linearGlskOptional.isPresent()) {
+                linearGlskMap.put(entry.getKey(), linearGlskOptional.get());
+            } else {
+                throw new FaraoException("No LinearGlsk found for instant " + instant.toString() + "in " + filepathstring);
+            }
         }
 
         return linearGlskMap;
@@ -46,18 +68,27 @@ public class FlowBasedGlskValuesProvider {
         return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
     }
 
-    LinearGlsk getCountryLinearGlsk(Network network, String filepathstring, Instant instant, String country) throws IOException, SAXException, ParserConfigurationException {
-
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, network);
+    LinearGlsk getCountryLinearGlsk(Instant instant, String country) {
 
         if (!mapGlskDocLinearGlsk.containsKey(country)) {
             throw new FaraoException("No LinearGlsk found for country " + country + " in " + filepathstring);
         } else {
             DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
-            return dataChronology.getDataForInstant(instant).get();
-//                    () -> new FaraoException("No LinearGlsk found for instant " + instant.toString() + " in " + filepathstring));
+            Optional<LinearGlsk> linearGlskOptional = dataChronology.getDataForInstant(instant);
+            if (linearGlskOptional.isPresent()) {
+                return linearGlskOptional.get();
+            } else {
+                throw new FaraoException("No LinearGlsk found for instant " + instant.toString() + "in " + filepathstring);
+            }
         }
+    }
 
+    public Network getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(Network network) {
+        this.network = network;
     }
 
 }
