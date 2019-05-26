@@ -33,6 +33,7 @@ public class FlowBasedComputationTool implements Tool {
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String CRAC_FILE_OPTION = "crac-file";
+    private static final String GLSK_FILE_OPTION = "glsk-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String PARAMETERS_FILE = "parameters-file";
 
@@ -69,6 +70,12 @@ public class FlowBasedComputationTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
+                options.addOption(Option.builder().longOpt(GLSK_FILE_OPTION)
+                        .desc("the GlSK file path")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
                         .desc("the FlowBased computation parameters as JSON file")
                         .hasArg()
@@ -93,6 +100,7 @@ public class FlowBasedComputationTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path cracFile = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
+        Path glskFile = context.getFileSystem().getPath(line.getOptionValue(GLSK_FILE_OPTION));
 
         //Output file
         Path outputFile = null;
@@ -104,6 +112,7 @@ public class FlowBasedComputationTool implements Tool {
         Network network = Importers.loadNetwork(caseFile);
 
         CracFile cracProvider = JsonCracFile.read(Files.newInputStream(cracFile));
+        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(network, glskFile.toString());
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
 
         FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load();
@@ -116,7 +125,7 @@ public class FlowBasedComputationTool implements Tool {
                 .newFactoryImpl(FlowBasedComputationFactory.class)
                 .create(network,
                         cracProvider,
-                        new FlowBasedGlskValuesProvider(),
+                        flowBasedGlskValuesProvider,
                         computationManager,
                         0);
 
