@@ -8,7 +8,8 @@ package com.farao_community.farao.flowbased_computation;
 
 import lombok.Data;
 
-import java.beans.ConstructorProperties;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Mohamed Zelmat {@literal <mohamed.zelmat at rte-france.com>}
@@ -22,9 +23,23 @@ public class FlowBasedComputationResult {
     }
 
     private final Status status;
+    private final List<FlowBasedMonitoredBranchResult> flowBasedMonitoredBranchResultList;
 
-    @ConstructorProperties("status")
     public FlowBasedComputationResult(Status status) {
         this.status = status;
+        flowBasedMonitoredBranchResultList = new ArrayList<>();
+    }
+
+    public FlowBasedComputationResult(Status status, List<FlowBasedMonitoredBranchResult> flowBasedMonitoredBranchResultList) {
+        this.status = status;
+        this.flowBasedMonitoredBranchResultList = flowBasedMonitoredBranchResultList;
+    }
+
+    public List<FlowBasedMonitoredBranchResult> getFlowBasedMonitoredBranchResultList() {
+        return flowBasedMonitoredBranchResultList;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 }
