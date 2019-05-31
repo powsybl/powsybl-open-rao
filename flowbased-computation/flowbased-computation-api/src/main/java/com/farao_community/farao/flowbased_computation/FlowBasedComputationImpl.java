@@ -10,6 +10,7 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,17 +20,20 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     private Network network;
     private CracFile cracFile;
+    private Instant instant;
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
     private ComputationManager computationManager;
 
     public FlowBasedComputationImpl(Network network,
                                     CracFile cracFile,
                                     FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
+                                    Instant instant,
                                     ComputationManager computationManager,
                                     LoadFlowFactory loadFlowFactory,
                                     SensitivityComputationFactory sensitivityComputationFactory) {
         this.network = network;
         this.cracFile = cracFile;
+        this.instant = instant;
         this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
         this.computationManager = computationManager;
 

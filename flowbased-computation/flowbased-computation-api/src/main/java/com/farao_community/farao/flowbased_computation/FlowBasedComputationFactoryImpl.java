@@ -29,7 +29,13 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
                                        int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new FlowBasedComputationImpl(network,
+                cracFile,
+                flowBasedGlskValuesProvider,
+                instant,
+                computationManager,
+                loadFlowFactory,
+                sensitivityComputationFactory);
     }
 
     @Override
@@ -37,7 +43,7 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
         //todo remove this create(., ., ., .), need to change in afs-local.
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, new FlowBasedGlskValuesProvider(), computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new FlowBasedComputationImpl(network, cracFile, new FlowBasedGlskValuesProvider(), Instant.now(), computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
 
 }
