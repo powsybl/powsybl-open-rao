@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.flowbased_computation.afs.FlowbasedComputationRunnerTest;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,7 +32,7 @@ public class LocalFlowBasedComputationRunningServiceTest extends FlowbasedComput
         }
 
         @Override
-        public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority) {
+        public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, Instant instant, ComputationManager computationManager, int priority) {
             return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
         }
     }

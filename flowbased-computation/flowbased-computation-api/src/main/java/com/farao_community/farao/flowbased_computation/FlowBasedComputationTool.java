@@ -23,6 +23,7 @@ import org.apache.commons.cli.Options;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -126,8 +127,8 @@ public class FlowBasedComputationTool implements Tool {
                 .create(network,
                         cracProvider,
                         flowBasedGlskValuesProvider,
-                        computationManager,
-                        0);
+                        Instant.now(),
+                        computationManager, 0);
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 

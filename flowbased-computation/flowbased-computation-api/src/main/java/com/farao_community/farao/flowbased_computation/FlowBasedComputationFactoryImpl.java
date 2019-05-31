@@ -13,13 +13,20 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 
+import java.time.Instant;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFactory {
 
     @Override
-    public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority) {
+    public FlowBasedComputation create(Network network,
+                                       CracFile cracFile,
+                                       FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
+                                       Instant instant,
+                                       ComputationManager computationManager,
+                                       int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
         return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, computationManager, loadFlowFactory, sensitivityComputationFactory);

@@ -10,6 +10,8 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_file.CracFile;
 
+import java.time.Instant;
+
 /**
  * FlowBased computation factory
  * <p>
@@ -18,7 +20,12 @@ import com.farao_community.farao.data.crac_file.CracFile;
  */
 public interface FlowBasedComputationFactory {
 
-    FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, ComputationManager computationManager, int priority);
+    FlowBasedComputation create(Network network,
+                                CracFile cracFile,
+                                FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
+                                Instant instant,
+                                ComputationManager computationManager,
+                                int priority);
 
     //todo remove this create(., ., ., .), need to change in afs-local.
     FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority);
