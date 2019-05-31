@@ -74,6 +74,7 @@ public class GlskDocumentLinearGlskConverterTest {
             DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
             assertTrue(dataChronology.getDataForInstant(Instant.parse("2018-08-29T21:00:00Z")).isPresent());
             assertFalse(dataChronology.getDataForInstant(Instant.parse("2018-08-26T21:00:00Z")).isPresent());
+            assertTrue(dataChronology.getDataForInstant(Instant.parse("2018-08-29T21:00:00Z")).get().getName().equals(country));
         }
     }
 
