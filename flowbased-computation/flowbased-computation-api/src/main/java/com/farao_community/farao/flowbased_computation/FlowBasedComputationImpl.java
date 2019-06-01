@@ -24,8 +24,6 @@ import com.powsybl.sensitivity.SensitivityFactorsProvider;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.*;
@@ -37,8 +35,6 @@ import java.util.concurrent.CompletableFuture;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedComputationImpl implements FlowBasedComputation {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
 
     private Network network;
     private CracFile cracFile;
@@ -111,13 +107,12 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         });
 
         //fill in FlowBasedComputationResult
-        fillFlowBasedComputationResult(network, cracFile, referenceFlows, sensiResults, flowBasedComputationResult);
+        fillFlowBasedComputationResult(cracFile, referenceFlows, sensiResults, flowBasedComputationResult);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private void fillFlowBasedComputationResult(Network network,
-                                                CracFile cracFile,
+    private void fillFlowBasedComputationResult(CracFile cracFile,
                                                 Map<String, Double> referenceFlows,
                                                 SensitivityComputationResults sensitivityComputationResults,
                                                 FlowBasedComputationResult flowBasedComputationResult) {

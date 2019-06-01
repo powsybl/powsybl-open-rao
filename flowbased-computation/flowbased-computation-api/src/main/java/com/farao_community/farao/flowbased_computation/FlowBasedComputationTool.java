@@ -132,7 +132,8 @@ public class FlowBasedComputationTool implements Tool {
         }
 
         String instantString = line.getOptionValue(INSTANT);
-        Instant instant = Instant.parse(instantString); //Instant instant = Instant.parse("2018-08-28T22:00:00Z");
+        Instant instant = Instant.parse(instantString);
+        //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug
 
         FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load()
                 .newFactoryImpl(FlowBasedComputationFactory.class)
