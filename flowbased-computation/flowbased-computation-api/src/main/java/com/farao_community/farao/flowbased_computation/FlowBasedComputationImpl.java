@@ -86,7 +86,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
             throw new FaraoException("Failure in sensitivity computation during Flow based computation.");
         }
 
-        //get SensitivityComputation status
         FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
 
         //calculate reference flow value by load flow => save in Map<String, Double> referenceFlows
