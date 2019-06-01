@@ -38,6 +38,7 @@ public class FlowBasedComputationTool implements Tool {
     private static final String GLSK_FILE_OPTION = "glsk-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String PARAMETERS_FILE = "parameters-file";
+    private static final String INSTANT = "instant";
 
     @Override
     public Command getCommand() {
@@ -83,6 +84,11 @@ public class FlowBasedComputationTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(Option.builder().longOpt(INSTANT)
+                        .desc("the instant of FlowBased computation")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
                         .desc("the FlowBased computation results output path")
                         .hasArg()
@@ -123,12 +129,15 @@ public class FlowBasedComputationTool implements Tool {
             JsonFlowBasedComputationParameters.update(parameters, parametersFile);
         }
 
+        String instantString = line.getOptionValue(INSTANT);
+        Instant instant = Instant.parse(instantString); //Instant instant = Instant.parse("2018-08-28T22:00:00Z");
+
         FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load()
                 .newFactoryImpl(FlowBasedComputationFactory.class)
                 .create(network,
                         cracProvider,
                         flowBasedGlskValuesProvider,
-                        Instant.now(),
+                        instant,
                         computationManager, 0);
 
         String currentState = network.getVariantManager().getWorkingVariantId();

@@ -1,0 +1,108 @@
+{
+  "id": "CRAC_FILE_TEST_FLD_1",
+  "name": "FLD test CRAC file n°1",
+  "sourceFormat": "JSON",
+  "description": "It is a basic test CRAC file for Full Line Decomposition test.\nIt contains all lines from test network.",
+  "preContingency": {
+    "monitoredBranches": [
+      {
+        "id": "BELGIUM_1_2",
+        "name": "Belgium line 1-2",
+        "branchId": "BBE1AA1  BBE2AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "BELGIUM_1_3",
+        "name": "Belgium line 1-3",
+        "branchId": "BBE1AA1  BBE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "BELGIUM_2_3",
+        "name": "Belgium line 2-3",
+        "branchId": "BBE2AA1  BBE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "FRANCE_1_2",
+        "name": "France line 1-2",
+        "branchId": "FFR1AA1  FFR2AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "FRANCE_1_3",
+        "name": "France line 1-3",
+        "branchId": "FFR1AA1  FFR3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "FRANCE_2_3",
+        "name": "France line 2-3",
+        "branchId": "FFR2AA1  FFR3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "GERMANY_1_2",
+        "name": "Germany line 1-2",
+        "branchId": "DDE1AA1  DDE2AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "GERMANY_1_3",
+        "name": "Germany line 1-3",
+        "branchId": "DDE1AA1  DDE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "GERMANY_2_3",
+        "name": "Germany line 2-3",
+        "branchId": "DDE2AA1  DDE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "NETHERLANDS_1_2",
+        "name": "Netherlands line 1-2",
+        "branchId": "NNL1AA1  NNL2AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "NETHERLANDS_1_3",
+        "name": "Netherlands line 1-3",
+        "branchId": "NNL1AA1  NNL3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "NETHERLANDS_2_3",
+        "name": "Netherlands line 2-3",
+        "branchId": "NNL2AA1  NNL3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "FRANCE_GERMANY",
+        "name": "France-Germany interconnector",
+        "branchId": "FFR2AA1  DDE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "GERMANY_NETHERLANDS",
+        "name": "Germany-Netherlands interconnector",
+        "branchId": "DDE2AA1  NNL3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "NETHERLANDS_BELGIUM",
+        "name": "Netherlands-Belgium interconnector",
+        "branchId": "NNL2AA1  BBE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "BELGIUM_FRANCE",
+        "name": "Belgium-France interconnector",
+        "branchId": "BBE2AA1  FFR3AA1  1",
+        "fmax": 3000.00
+      }
+    ]
+  },
+  "contingencies": [],
+  "remedialActions": []
+}

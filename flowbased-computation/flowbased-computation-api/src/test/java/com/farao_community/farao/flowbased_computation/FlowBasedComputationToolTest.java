@@ -7,7 +7,7 @@ public class FlowBasedComputationToolTest {
 
     @Test
     public void run() {
-        // /home/pengbo/farao/bin/itools flowbased-computation --case-file /home/pengbo/farao/tmp/testCase.xiidm --crac-file /home/pengbo/farao/tmp/cracData --glsk-file /home/pengbo/farao/tmp/GlskB43ParticipationFactorIIDM.xml --output-file /home/pengbo/farao/tmp/outputflowbased
+        // /home/pengbo/farao/bin/itools flowbased-computation --case-file /home/pengbo/farao/tmp/testCase.xiidm --crac-file /home/pengbo/farao/tmp/cracData --glsk-file /home/pengbo/farao/tmp/GlskB43ParticipationFactorIIDM.xml --instant 2018-08-28T22:00:00Z --output-file /home/pengbo/farao/tmp/outputflowbased
         Assert.assertTrue(true);
     }
 }
