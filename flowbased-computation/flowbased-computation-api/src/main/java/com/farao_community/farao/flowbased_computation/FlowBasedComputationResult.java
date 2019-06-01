@@ -6,6 +6,10 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.data.flowbased_domain.DataDomain;
+import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
+import com.farao_community.farao.data.flowbased_domain.DataPreContingency;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +22,12 @@ public class FlowBasedComputationResult {
         FAILURE,
         SUCCESS
     }
-
     private final Status status;
-    private final List<FlowBasedMonitoredBranchResult> ptdflist;
+    private final List<DataMonitoredBranch> ptdflist;
+
+    public Status getStatus() {
+        return status;
+    }
 
     public FlowBasedComputationResult(final Status status) {
         this.status = status;
@@ -29,16 +36,33 @@ public class FlowBasedComputationResult {
 
     public FlowBasedComputationResult(
             final Status status,
-            final List<FlowBasedMonitoredBranchResult> ptdflist) {
+            final List<DataMonitoredBranch> ptdflist) {
         this.status = status;
         this.ptdflist = ptdflist;
     }
 
-    public List<FlowBasedMonitoredBranchResult> getPtdflist() {
+    public List<DataMonitoredBranch> getPtdflist() {
         return ptdflist;
     }
 
-    public Status getStatus() {
-        return status;
+    public DataPreContingency createDataPreContingency() {
+        return new DataPreContingency(ptdflist);
     }
+
+    public DataDomain createDataDomain() {
+        return new DataDomain("",
+                "",
+                "",
+                "",
+                createDataPreContingency());
+    }
+
+    public DataDomain createDataDomain(String id, String name, String sourceFormat, String description) {
+        return new DataDomain(id,
+                name,
+                sourceFormat,
+                description,
+                createDataPreContingency());
+    }
+
 }

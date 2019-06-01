@@ -8,6 +8,7 @@ package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
+import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowBasedComputationParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ComponentDefaultConfig;
@@ -139,7 +140,7 @@ public class FlowBasedComputationTool implements Tool {
         } else {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                FlowBasedComputationResultExporters.export(result, outputFile);
+                JsonFlowbasedDomain.write(result.createDataDomain(), Files.newOutputStream(outputFile));
             }
         }
     }

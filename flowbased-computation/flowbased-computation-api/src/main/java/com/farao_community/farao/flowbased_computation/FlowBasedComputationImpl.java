@@ -2,6 +2,8 @@ package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
+import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
+import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.computation.ComputationManager;
@@ -24,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
+    private static final double UNDEFINED_VALUE = Double.MIN_VALUE;
 
     private Network network;
     private CracFile cracFile;
@@ -99,22 +102,16 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         // get list of Monitored Branch
         List<MonitoredBranch> branches = cracFile.getPreContingency().getMonitoredBranches();
 
-        List<FlowBasedMonitoredBranchResult> branchResultList = new ArrayList<>();
+        List<DataMonitoredBranch> branchResultList = new ArrayList<>();
         for (MonitoredBranch branch : branches) {
-            FlowBasedMonitoredBranchResult branchResult = new FlowBasedMonitoredBranchResult(
-                    branch.getId(),
-                    branch.getName(),
-                    branch.getBranchId(),
-                    branch.getFmax()
-            );
 
-            List<FlowBasedBranchPtdfPerCountry> ptdfPerCountryList = new ArrayList<>();
+            List<DataPtdfPerCountry> ptdfPerCountryList = new ArrayList<>();
             sensitivityComputationResults.getSensitivityValues().forEach(
                 sensitivityValue -> {
                     // find BranchFlow's ID = branch's ID
                     if (sensitivityValue.getFactor().getFunction().getId().equals(branch.getId())) {
                         double linearGlskSensitivity = sensitivityValue.getValue(); //sensi result
-                        FlowBasedBranchPtdfPerCountry ptdfPerCountry = new FlowBasedBranchPtdfPerCountry(
+                        DataPtdfPerCountry ptdfPerCountry = new DataPtdfPerCountry(
                                 sensitivityValue.getFactor().getVariable().getName(), // LinearGlsk country id
                                 Double.isNaN(linearGlskSensitivity) ? 0. : linearGlskSensitivity
                         );
@@ -122,11 +119,18 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                     }
                 });
 
-            branchResult.getPtdfList().addAll(ptdfPerCountryList);
+            DataMonitoredBranch branchResult = new DataMonitoredBranch(
+                    branch.getId(),
+                    branch.getName(),
+                    branch.getBranchId(),
+                    branch.getFmax(),
+                    UNDEFINED_VALUE, // TODO : add reference flow result for monitored branches
+                    ptdfPerCountryList
+            );
+
             branchResultList.add(branchResult);
         }
 
-        // TODO : add reference flow result for monitored branches
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
     }
 }
