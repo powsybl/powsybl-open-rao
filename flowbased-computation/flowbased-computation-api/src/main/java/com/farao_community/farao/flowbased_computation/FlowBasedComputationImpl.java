@@ -1,5 +1,6 @@
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
@@ -9,6 +10,7 @@ import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -81,30 +83,41 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                 network.getVariantManager().getWorkingVariantId(),
                 factorsProvider);
 
-        //get SensitivityComputation status
-        FlowBasedComputationResult flowBasedComputationResult;
-        if (sensiResults.isOk()) {
-            //Sensi computation success => fill FlowBased computation result
-            flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
-            fillFlowBasedComputationResult(network, cracFile, sensiResults, flowBasedComputationResult);
-        } else {
-            //Sensi computation fail
-            flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.FAILURE);
+        if (!sensiResults.isOk()) {
+            throw new FaraoException("Failure in sensitivity computation during Flow based computation.");
         }
+
+        //get SensitivityComputation status
+        FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
+
+        //calculate reference flow value by load flow => save in Map<String, Double> referenceFlows
+        Map<String, Double> referenceFlows = new HashMap<>();
+        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, network.getVariantManager().getWorkingVariantId());
+        if (!loadFlowResult.isOk()) {
+            throw new FaraoException("Divergence in loadflow computation during calculation of reference flow of Flow based computation.");
+        }
+        monitoredBranchList.forEach(branch -> {
+            double flow = network.getBranch(branch.getBranchId()).getTerminal1().getP();
+            referenceFlows.put(branch.getId(), Double.isNaN(flow) ? 0. : flow);
+        });
+
+        //fill in FlowBasedComputationResult
+        fillFlowBasedComputationResult(network, cracFile, referenceFlows, sensiResults, flowBasedComputationResult);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
     private void fillFlowBasedComputationResult(Network network,
-                                               CracFile cracFile,
-                                               SensitivityComputationResults sensitivityComputationResults,
-                                               FlowBasedComputationResult flowBasedComputationResult) {
+                                                CracFile cracFile,
+                                                Map<String, Double> referenceFlows,
+                                                SensitivityComputationResults sensitivityComputationResults,
+                                                FlowBasedComputationResult flowBasedComputationResult) {
         // get list of Monitored Branch
         List<MonitoredBranch> branches = cracFile.getPreContingency().getMonitoredBranches();
 
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
         for (MonitoredBranch branch : branches) {
-
+            //get DataMonitoredBranch's ptdfPerCountryList from sensitivityComputationResults
             List<DataPtdfPerCountry> ptdfPerCountryList = new ArrayList<>();
             sensitivityComputationResults.getSensitivityValues().forEach(
                 sensitivityValue -> {
@@ -119,12 +132,13 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                     }
                 });
 
+            //fill in DataMonitoredBranch
             DataMonitoredBranch branchResult = new DataMonitoredBranch(
                     branch.getId(),
                     branch.getName(),
                     branch.getBranchId(),
                     branch.getFmax(),
-                    UNDEFINED_VALUE, // TODO : add reference flow result for monitored branches
+                    referenceFlows.get(branch.getId()),
                     ptdfPerCountryList
             );
 
@@ -133,4 +147,5 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
     }
+
 }
