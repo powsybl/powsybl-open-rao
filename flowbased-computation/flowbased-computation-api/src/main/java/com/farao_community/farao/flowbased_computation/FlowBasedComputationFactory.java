@@ -14,9 +14,8 @@ import java.time.Instant;
 
 /**
  * FlowBased computation factory
- * <p>
  * Factory class for FlowBased computation instances
- * </p>
+ * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public interface FlowBasedComputationFactory {
 
