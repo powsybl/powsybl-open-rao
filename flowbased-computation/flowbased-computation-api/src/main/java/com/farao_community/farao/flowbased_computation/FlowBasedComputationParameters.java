@@ -30,7 +30,7 @@ public class FlowBasedComputationParameters extends AbstractExtendable<FlowBased
      *
      * @param <E> The extension class
      */
-    public static interface ConfigLoader<E extends Extension<FlowBasedComputationParameters>> extends ExtensionConfigLoader<FlowBasedComputationParameters, E> {
+    public interface ConfigLoader<E extends Extension<FlowBasedComputationParameters>> extends ExtensionConfigLoader<FlowBasedComputationParameters, E> {
     }
 
     public static final String VERSION = "1.0";

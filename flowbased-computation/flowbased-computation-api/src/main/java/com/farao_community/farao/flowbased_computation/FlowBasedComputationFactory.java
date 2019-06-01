@@ -19,6 +19,15 @@ import java.time.Instant;
  */
 public interface FlowBasedComputationFactory {
 
+    /**
+     * @param network
+     * @param cracFile
+     * @param flowBasedGlskValuesProvider
+     * @param instant
+     * @param computationManager
+     * @param priority
+     * @return
+     */
     FlowBasedComputation create(Network network,
                                 CracFile cracFile,
                                 FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
@@ -26,6 +35,13 @@ public interface FlowBasedComputationFactory {
                                 ComputationManager computationManager,
                                 int priority);
 
+    /**
+     * @param network
+     * @param cracFile
+     * @param computationManager
+     * @param priority
+     * @return
+     */
     //Remove this create(., ., ., .), after updating in afs-local.
     FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority);
 }

@@ -28,18 +28,38 @@ import java.util.Optional;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedGlskValuesProvider {
+    /**
+     * LOGGER
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedGlskValuesProvider.class);
 
+    /**
+     * Network
+     */
     private Network network;
+    /**
+     * Glsk file path in String
+     */
     private String filePathString;
+    /**
+     * map of country code and DataChronology of LinearGlsk created from GlskFile
+     */
     private Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk;
 
+    /**
+     * Vide constructor
+     */
     public FlowBasedGlskValuesProvider() {
         network = null;
         filePathString = "";
         mapCountryDataChronologyLinearGlsk = null;
     }
 
+    /**
+     * Constructor
+     * @param network network
+     * @param filePathString glsk file name
+     */
     public FlowBasedGlskValuesProvider(Network network, String filePathString) {
         this.network = network;
         this.filePathString = filePathString;
@@ -50,14 +70,23 @@ public class FlowBasedGlskValuesProvider {
         }
     }
 
+    /**
+     * Create map from Glsk file
+     * @param network Network
+     * @param filePathString Glsk File name
+     * @return map of data chronology of linear Glsk
+     * @throws IOException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     */
     Map<String, DataChronology<LinearGlsk> > createDataChronologyLinearGlskMap(Network network, String filePathString) throws IOException, SAXException, ParserConfigurationException {
         return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filePathString, network);
     }
 
-    Map<String, DataChronology<LinearGlsk> > getCountryDataChronologyLinearGlskMap() {
-        return mapCountryDataChronologyLinearGlsk;
-    }
-
+    /**
+     * @param instant instant
+     * @return LinearGlsk map of instant
+     */
     Map<String, LinearGlsk> getCountryLinearGlskMap(Instant instant) {
 
         Map<String, LinearGlsk> linearGlskMap = new HashMap<>();
@@ -74,6 +103,11 @@ public class FlowBasedGlskValuesProvider {
         return linearGlskMap;
     }
 
+    /**
+     * @param instant Instant
+     * @param country country EIC code
+     * @return Linear Glsk
+     */
     LinearGlsk getCountryLinearGlsk(Instant instant, String country) {
 
         if (!mapCountryDataChronologyLinearGlsk.containsKey(country)) {
@@ -89,10 +123,16 @@ public class FlowBasedGlskValuesProvider {
         }
     }
 
+    /**
+     * @return Network
+     */
     public Network getNetwork() {
         return network;
     }
 
+    /**
+     * @param network setter
+     */
     public void setNetwork(Network network) {
         this.network = network;
     }

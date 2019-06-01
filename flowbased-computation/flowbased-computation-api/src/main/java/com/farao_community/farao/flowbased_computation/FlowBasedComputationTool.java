@@ -42,6 +42,9 @@ public class FlowBasedComputationTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String INSTANT = "instant";
 
+    /**
+     * @return Command
+     */
     @Override
     public Command getCommand() {
         return new Command() {
@@ -106,6 +109,11 @@ public class FlowBasedComputationTool implements Tool {
         };
     }
 
+    /**
+     * @param line comman line
+     * @param context running environment
+     * @throws Exception
+     */
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));

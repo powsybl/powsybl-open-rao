@@ -22,6 +22,15 @@ import java.time.Instant;
  */
 public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFactory {
 
+    /**
+     * @param network
+     * @param cracFile
+     * @param flowBasedGlskValuesProvider
+     * @param instant
+     * @param computationManager
+     * @param priority
+     * @return
+     */
     @Override
     public FlowBasedComputation create(Network network,
                                        CracFile cracFile,
@@ -40,6 +49,13 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
                 sensitivityComputationFactory);
     }
 
+    /**
+     * @param network
+     * @param cracFile
+     * @param computationManager
+     * @param priority
+     * @return
+     */
     @Override
     public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);

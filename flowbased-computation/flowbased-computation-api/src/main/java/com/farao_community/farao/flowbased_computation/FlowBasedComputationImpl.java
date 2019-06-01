@@ -36,12 +36,37 @@ import java.util.concurrent.CompletableFuture;
  */
 public class FlowBasedComputationImpl implements FlowBasedComputation {
 
+    /**
+     * Network
+     */
     private Network network;
+    /**
+     * Crac file
+     */
     private CracFile cracFile;
+    /**
+     * Instant of FlowBased domain to be calculated
+     */
     private Instant instant;
+    /**
+     * Glsk file provider
+     */
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
+    /**
+     * For load flow computation manager
+     */
     private ComputationManager computationManager;
 
+    /**
+     * Constructor
+     * @param network
+     * @param cracFile
+     * @param flowBasedGlskValuesProvider
+     * @param instant
+     * @param computationManager
+     * @param loadFlowFactory load flow for reference flow calculation
+     * @param sensitivityComputationFactory sensitivity calculation
+     */
     public FlowBasedComputationImpl(Network network,
                                     CracFile cracFile,
                                     FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
@@ -59,6 +84,12 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         LoadFlowService.init(loadFlowFactory, this.computationManager);
     }
 
+    /**
+     * Run Flowbased calculation
+     * @param workingVariantId
+     * @param parameters
+     * @return
+     */
     @Override
     public CompletableFuture<FlowBasedComputationResult> run(String workingVariantId,
                                                              FlowBasedComputationParameters parameters) {
@@ -112,6 +143,13 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
+    /**
+     * Internal post processing to fill in FlowBased Computation Result
+     * @param cracFile
+     * @param referenceFlows
+     * @param sensitivityComputationResults
+     * @param flowBasedComputationResult
+     */
     private void fillFlowBasedComputationResult(CracFile cracFile,
                                                 Map<String, Double> referenceFlows,
                                                 SensitivityComputationResults sensitivityComputationResults,

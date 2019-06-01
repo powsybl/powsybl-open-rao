@@ -14,5 +14,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public interface FlowBasedComputation {
+    /**
+     * @param workingStateId
+     * @param parameters
+     * @return
+     */
     CompletableFuture<FlowBasedComputationResult> run(String workingStateId, FlowBasedComputationParameters parameters);
 }

@@ -14,41 +14,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * FlowBased Computation Result
  * @author Mohamed Zelmat {@literal <mohamed.zelmat at rte-france.com>}
  */
 public class FlowBasedComputationResult {
 
+    /**
+     * FlowBased Computation status
+     */
     public enum Status {
         FAILURE,
         SUCCESS
     }
+
+    /**
+     * status
+     */
     private final Status status;
+    /**
+     * List of DataMonitoredBranch
+     */
     private final List<DataMonitoredBranch> ptdflist;
 
-    public Status getStatus() {
-        return status;
-    }
-
+    /**
+     * Constructor
+     * @param status status
+     */
     public FlowBasedComputationResult(final Status status) {
         this.status = status;
         this.ptdflist = new ArrayList<>();
     }
 
-    public FlowBasedComputationResult(
-            final Status status,
-            final List<DataMonitoredBranch> ptdflist) {
-        this.status = status;
-        this.ptdflist = ptdflist;
-    }
-
+    /**
+     * @return get list of DataMonitoredBranch
+     */
     public List<DataMonitoredBranch> getPtdflist() {
         return ptdflist;
     }
 
+    /**
+     * @return create DataPreContingency object from ptdflist
+     */
     public DataPreContingency createDataPreContingency() {
         return new DataPreContingency(ptdflist);
     }
 
+    /**
+     * @return create empty DataDomain
+     */
     public DataDomain createDataDomain() {
         return new DataDomain("",
                 "",
@@ -57,6 +70,13 @@ public class FlowBasedComputationResult {
                 createDataPreContingency());
     }
 
+    /**
+     * @param id
+     * @param name
+     * @param sourceFormat
+     * @param description
+     * @return DataDomain
+     */
     public DataDomain createDataDomain(String id, String name, String sourceFormat, String description) {
         return new DataDomain(id,
                 name,
