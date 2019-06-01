@@ -6,32 +6,36 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Mohamed Zelmat {@literal <mohamed.zelmat at rte-france.com>}
  */
-@Data
 public class FlowBasedComputationResult {
 
     public enum Status {
-        FAILED,
+        FAILURE,
         SUCCESS
     }
 
     private final Status status;
-    private final List<FlowBasedMonitoredBranchResult> branchResultList;
+    private final List<FlowBasedMonitoredBranchResult> ptdflist;
 
-    public FlowBasedComputationResult(Status status) {
+    public FlowBasedComputationResult(final Status status) {
         this.status = status;
-        branchResultList = new ArrayList<>();
+        this.ptdflist = new ArrayList<>();
     }
 
-    public List<FlowBasedMonitoredBranchResult> getBranchResultList() {
-        return branchResultList;
+    public FlowBasedComputationResult(
+            final Status status,
+            final List<FlowBasedMonitoredBranchResult> ptdflist) {
+        this.status = status;
+        this.ptdflist = ptdflist;
+    }
+
+    public List<FlowBasedMonitoredBranchResult> getPtdflist() {
+        return ptdflist;
     }
 
     public Status getStatus() {

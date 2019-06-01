@@ -86,7 +86,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
             fillFlowBasedComputationResult(network, cracFile, sensiResults, flowBasedComputationResult);
         } else {
             //Sensi computation fail
-            flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.FAILED);
+            flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.FAILURE);
         }
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
@@ -127,6 +127,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         }
 
         // TODO : add reference flow result for monitored branches
-        flowBasedComputationResult.getBranchResultList().addAll(branchResultList);
+        flowBasedComputationResult.getPtdflist().addAll(branchResultList);
     }
 }
