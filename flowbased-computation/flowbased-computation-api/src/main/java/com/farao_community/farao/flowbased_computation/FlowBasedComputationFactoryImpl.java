@@ -16,7 +16,9 @@ import com.powsybl.sensitivity.SensitivityComputationFactory;
 import java.time.Instant;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * Flowbased computation Factory implementation
+ *
+ * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFactory {
 
@@ -40,7 +42,6 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
 
     @Override
     public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-        //todo remove this create(., ., ., .), need to change in afs-local.
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
         return new FlowBasedComputationImpl(network, cracFile, new FlowBasedGlskValuesProvider(), Instant.now(), computationManager, loadFlowFactory, sensitivityComputationFactory);

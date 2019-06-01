@@ -28,7 +28,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * FlowBased Computation Tool
+ *
+ * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class FlowBasedComputationTool implements Tool {

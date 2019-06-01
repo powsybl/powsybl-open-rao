@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * FlowBased Glsk Values Provider
+ *
+ * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedGlskValuesProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedGlskValuesProvider.class);

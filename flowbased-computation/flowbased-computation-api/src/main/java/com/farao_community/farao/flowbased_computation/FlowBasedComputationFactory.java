@@ -27,6 +27,6 @@ public interface FlowBasedComputationFactory {
                                 ComputationManager computationManager,
                                 int priority);
 
-    //todo remove this create(., ., ., .), need to change in afs-local.
+    //Remove this create(., ., ., .), after updating in afs-local.
     FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority);
 }
