@@ -28,7 +28,6 @@ import java.util.concurrent.CompletableFuture;
 public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
-    private static final double UNDEFINED_VALUE = Double.MIN_VALUE;
 
     private Network network;
     private CracFile cracFile;
@@ -50,7 +49,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         this.computationManager = computationManager;
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        LoadFlowService.init(loadFlowFactory, computationManager);
+        LoadFlowService.init(loadFlowFactory, this.computationManager);
     }
 
     @Override
