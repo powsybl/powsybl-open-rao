@@ -23,20 +23,15 @@ public class FlowBasedComputationResult {
     }
 
     private final Status status;
-    private final List<FlowBasedMonitoredBranchResult> flowBasedMonitoredBranchResultList;
+    private final List<FlowBasedMonitoredBranchResult> branchResultList;
 
     public FlowBasedComputationResult(Status status) {
         this.status = status;
-        flowBasedMonitoredBranchResultList = new ArrayList<>();
+        branchResultList = new ArrayList<>();
     }
 
-    public FlowBasedComputationResult(Status status, List<FlowBasedMonitoredBranchResult> flowBasedMonitoredBranchResultList) {
-        this.status = status;
-        this.flowBasedMonitoredBranchResultList = flowBasedMonitoredBranchResultList;
-    }
-
-    public List<FlowBasedMonitoredBranchResult> getFlowBasedMonitoredBranchResultList() {
-        return flowBasedMonitoredBranchResultList;
+    public List<FlowBasedMonitoredBranchResult> getBranchResultList() {
+        return branchResultList;
     }
 
     public Status getStatus() {

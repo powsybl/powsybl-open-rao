@@ -49,7 +49,8 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     }
 
     @Override
-    public CompletableFuture<FlowBasedComputationResult> run(String workingVariantId, FlowBasedComputationParameters parameters) {
+    public CompletableFuture<FlowBasedComputationResult> run(String workingVariantId,
+                                                             FlowBasedComputationParameters parameters) {
         Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
 
@@ -59,7 +60,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         //get Map<country, LinearGLSK> for Instant instant from FlowBasedGlskValuesProvider
         Map<String, LinearGlsk> mapCountryLinearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlskMap(instant);
 
-        //for each Monitored branches in monitoredBranchList, calculate Sensi : BranchFlowPerLinearGlsk
+        // Fill SensitivityFactor List: BranchFlowPerLinearGlsk = SensitivityFactor<BranchFlow, LinearGlsk>
         SensitivityFactorsProvider factorsProvider = net -> {
             List<SensitivityFactor> factors = new ArrayList<>();
             monitoredBranchList.forEach(branch -> mapCountryLinearGlsk.values()
@@ -73,13 +74,20 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
             return factors;
         };
 
-        SensitivityComputationResults sensitivityComputationResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+        SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network,
+                network.getVariantManager().getWorkingVariantId(),
+                factorsProvider);
 
-        //fill FlowBasedComputationResult
-        //todo : case fail
-        FlowBasedComputationResult.Status status = FlowBasedComputationResult.Status.SUCCESS;
-        FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResult(status);
-        fillFlowBasedComputationResult(network, cracFile, sensitivityComputationResults, flowBasedComputationResult);
+        //get SensitivityComputation status
+        FlowBasedComputationResult flowBasedComputationResult;
+        if (sensiResults.isOk()) {
+            //Sensi computation success => fill FlowBased computation result
+            flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
+            fillFlowBasedComputationResult(network, cracFile, sensiResults, flowBasedComputationResult);
+        } else {
+            //Sensi computation fail
+            flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.FAILED);
+        }
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
@@ -88,34 +96,37 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                                                CracFile cracFile,
                                                SensitivityComputationResults sensitivityComputationResults,
                                                FlowBasedComputationResult flowBasedComputationResult) {
+        // get list of Monitored Branch
+        List<MonitoredBranch> branches = cracFile.getPreContingency().getMonitoredBranches();
 
-        List<FlowBasedMonitoredBranchResult> flowBasedMonitoredBranchResultList = new ArrayList<>();
-        List<MonitoredBranch> monitoredBranchList = cracFile.getPreContingency().getMonitoredBranches();
-        for (MonitoredBranch monitoredBranch : monitoredBranchList) {
-            FlowBasedMonitoredBranchResult flowBasedMonitoredBranchResult = new FlowBasedMonitoredBranchResult(
-                    monitoredBranch.getId(),
-                    monitoredBranch.getName(),
-                    monitoredBranch.getBranchId(),
-                    monitoredBranch.getFmax()
+        List<FlowBasedMonitoredBranchResult> branchResultList = new ArrayList<>();
+        for (MonitoredBranch branch : branches) {
+            FlowBasedMonitoredBranchResult branchResult = new FlowBasedMonitoredBranchResult(
+                    branch.getId(),
+                    branch.getName(),
+                    branch.getBranchId(),
+                    branch.getFmax()
             );
-            List<FlowBasedBranchPtdfPerCountry> ptdfPerCountryList = new ArrayList<>();
 
+            List<FlowBasedBranchPtdfPerCountry> ptdfPerCountryList = new ArrayList<>();
             sensitivityComputationResults.getSensitivityValues().forEach(
                 sensitivityValue -> {
-                    if (sensitivityValue.getFactor().getFunction().getId().equals(monitoredBranch.getId())) {
+                    // find BranchFlow's ID = branch's ID
+                    if (sensitivityValue.getFactor().getFunction().getId().equals(branch.getId())) {
                         double linearGlskSensitivity = sensitivityValue.getValue(); //sensi result
-                        FlowBasedBranchPtdfPerCountry flowBasedBranchPtdfPerCountry = new FlowBasedBranchPtdfPerCountry(
+                        FlowBasedBranchPtdfPerCountry ptdfPerCountry = new FlowBasedBranchPtdfPerCountry(
                                 sensitivityValue.getFactor().getVariable().getName(), // LinearGlsk country id
                                 Double.isNaN(linearGlskSensitivity) ? 0. : linearGlskSensitivity
                         );
-                        ptdfPerCountryList.add(flowBasedBranchPtdfPerCountry);
+                        ptdfPerCountryList.add(ptdfPerCountry);
                     }
                 });
 
-            flowBasedMonitoredBranchResult.getPtdfList().addAll(ptdfPerCountryList);
-            flowBasedMonitoredBranchResultList.add(flowBasedMonitoredBranchResult);
+            branchResult.getPtdfList().addAll(ptdfPerCountryList);
+            branchResultList.add(branchResult);
         }
 
-        flowBasedComputationResult.getFlowBasedMonitoredBranchResultList().addAll(flowBasedMonitoredBranchResultList);
+        // TODO : add reference flow result for monitored branches
+        flowBasedComputationResult.getBranchResultList().addAll(branchResultList);
     }
 }

@@ -29,16 +29,8 @@ public class FlowBasedMonitoredBranchResult {
         ptdfList = new ArrayList<>();
     }
 
-    public FlowBasedMonitoredBranchResult(final String id,
-                                           final String name,
-                                           final String branchId,
-                                           final double maximumFlow,
-                                           final List<FlowBasedBranchPtdfPerCountry> ptdfList) {
-        this.id = Objects.requireNonNull(id);
-        this.name = Objects.requireNonNull(name);
-        this.branchId = Objects.requireNonNull(branchId);
-        this.maximumFlow = maximumFlow;
-        this.ptdfList = ptdfList;
+    public List<FlowBasedBranchPtdfPerCountry> getPtdfList() {
+        return ptdfList;
     }
 
     public String getId() {
@@ -49,8 +41,11 @@ public class FlowBasedMonitoredBranchResult {
         return name;
     }
 
-    public List<FlowBasedBranchPtdfPerCountry> getPtdfList() {
-        return ptdfList;
+    public String getBranchId() {
+        return branchId;
     }
 
+    public double getMaximumFlow() {
+        return maximumFlow;
+    }
 }
