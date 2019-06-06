@@ -71,22 +71,6 @@ public class FlowBasedComputationResult {
     }
 
     /**
-     * @param id
-     * @param name
-     * @param sourceFormat
-     * @param description
-     * @return DataDomain
-     */
-    public DataDomain createDataDomain(String id, String name, String sourceFormat, String description) {
-        return new DataDomain(id,
-                name,
-                sourceFormat,
-                description,
-                createDataPreContingency());
-    }
-
-
-    /**
      * @return get status
      */
     public Status getStatus() {
