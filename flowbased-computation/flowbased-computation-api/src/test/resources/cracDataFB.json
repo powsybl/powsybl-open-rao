@@ -1,0 +1,24 @@
+{
+  "id": "CRAC_FILE_TEST_FLD_1",
+  "name": "FLD test CRAC file n°1",
+  "sourceFormat": "JSON",
+  "description": "It is a basic test CRAC file for Full Line Decomposition test.\nIt contains all lines from test network.",
+  "preContingency": {
+    "monitoredBranches": [
+      {
+        "id": "BBE1AA1  BBE3AA1  1",
+        "name": "Belgium line 1-3",
+        "branchId": "BBE1AA1  BBE3AA1  1",
+        "fmax": 3000.00
+      },
+      {
+        "id": "FFR2AA1  FFR3AA1  1",
+        "name": "Belgium line 1-3",
+        "branchId": "FFR2AA1  FFR3AA1  1",
+        "fmax": 3001.00
+      }
+    ]
+  },
+  "contingencies": [],
+  "remedialActions": []
+}

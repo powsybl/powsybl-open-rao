@@ -37,9 +37,9 @@ public class FlowBasedGlskValuesProviderTest {
     public void run() throws ParserConfigurationException, SAXException, IOException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2018-08-29T21:00:00Z");
-        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(testNetwork, getClass().getResource("/GlskB43ParticipationFactorIIDM.xml").getPath());
+        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(testNetwork, getClass().getResource("/GlskCountry.xml").getPath());
         Map<String, DataChronology<LinearGlsk> > map = flowBasedGlskValuesProvider.createDataChronologyLinearGlskMap(testNetwork,
-                getClass().getResource("/GlskB43ParticipationFactorIIDM.xml").getPath());
+                getClass().getResource("/GlskCountry.xml").getPath());
         Assert.assertFalse(map.isEmpty());
 
         LinearGlsk linearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YFR-RTE------C");
