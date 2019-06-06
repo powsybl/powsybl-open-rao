@@ -85,4 +85,12 @@ public class FlowBasedComputationResult {
                 createDataPreContingency());
     }
 
+
+    /**
+     * @return get status
+     */
+    public Status getStatus() {
+        return status;
+    }
+
 }
