@@ -36,15 +36,14 @@ public class FlowBasedGlskValuesProviderTest {
     @Test
     public void run() throws ParserConfigurationException, SAXException, IOException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        instant = Instant.parse("2018-08-29T21:00:00Z");
+        instant = Instant.parse("2018-08-28T22:00:00Z");
         FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(testNetwork, getClass().getResource("/GlskCountry.xml").getPath());
         Map<String, DataChronology<LinearGlsk> > map = flowBasedGlskValuesProvider.createDataChronologyLinearGlskMap(testNetwork,
                 getClass().getResource("/GlskCountry.xml").getPath());
         Assert.assertFalse(map.isEmpty());
 
-        LinearGlsk linearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YFR-RTE------C");
+        LinearGlsk linearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YBE----------2");
         Assert.assertFalse(linearGlsk.getGLSKs().isEmpty());
-
         Map<String, LinearGlsk> linearGlskMap = flowBasedGlskValuesProvider.getCountryLinearGlskMap(instant);
         Assert.assertFalse(linearGlskMap.isEmpty());
     }
