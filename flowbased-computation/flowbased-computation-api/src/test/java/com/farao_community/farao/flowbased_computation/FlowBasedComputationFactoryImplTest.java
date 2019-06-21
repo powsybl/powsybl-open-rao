@@ -22,31 +22,30 @@ import java.time.Instant;
  */
 public class FlowBasedComputationFactoryImplTest {
 
-    private FlowBasedComputationFactoryImpl flowBasedComputationFactoryMock;
     private Network network;
     private CracFile cracFile;
+    private Instant instant;
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
     private ComputationManager computationManager;
 
     @Before
     public void setup() {
-        flowBasedComputationFactoryMock = Mockito.mock(FlowBasedComputationFactoryImpl.class);
         network = Mockito.mock(Network.class);
         cracFile = Mockito.mock(CracFile.class);
+        instant = Instant.parse("2018-08-28T22:00:00Z");
         flowBasedGlskValuesProvider = Mockito.mock(FlowBasedGlskValuesProvider.class);
         computationManager = Mockito.mock(ComputationManager.class);
     }
 
-    @Test
+    @Test (expected = com.powsybl.commons.PowsyblException.class)
     public void runTest() {
-        Instant instant = Instant.parse("2018-08-28T22:00:00Z");
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        flowBasedComputationFactoryMock.create(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
+        new FlowBasedComputationFactoryImpl().create(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
     }
 
-    @Test
+    @Test (expected = com.powsybl.commons.PowsyblException.class)
     public void runTestBis() {
-        flowBasedComputationFactoryMock.create(network, cracFile, computationManager, 0);
+        new FlowBasedComputationFactoryImpl().create(network, cracFile, computationManager, 0);
     }
 
 }
