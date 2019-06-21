@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowbasedComputationParametersTest {
+public class FlowBasedComputationParametersTest {
 
     protected PlatformConfig config;
 

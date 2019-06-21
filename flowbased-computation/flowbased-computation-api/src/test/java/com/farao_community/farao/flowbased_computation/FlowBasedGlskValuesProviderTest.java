@@ -49,7 +49,6 @@ public class FlowBasedGlskValuesProviderTest {
         Assert.assertFalse(linearGlskMap.isEmpty());
     }
 
-
     @Test (expected = FaraoException.class)
     public void runBis() throws ParserConfigurationException, SAXException, IOException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
@@ -63,6 +62,5 @@ public class FlowBasedGlskValuesProviderTest {
         flowBasedGlskValuesProvider.setMapCountryDataChronologyLinearGlsk(map);
         Assert.assertFalse(flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YBE----------2").getGLSKs().isEmpty());
         flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, ""); //(expected = FaraoException.class)
-
     }
 }
