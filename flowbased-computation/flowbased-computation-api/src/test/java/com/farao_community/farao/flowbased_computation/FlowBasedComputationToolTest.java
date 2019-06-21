@@ -19,6 +19,10 @@ import org.mockito.Mockito;
  */
 public class FlowBasedComputationToolTest {
 
+    //how to use itools to test flowbased-computation:
+    //command line example, from git farao root directory:
+    // ~/farao/bin/itools flowbased-computation --case-file flowbased-computation/flowbased-computation-api/src/test/resources/testCase.xiidm --crac-file flowbased-computation/flowbased-computation-api/src/test/resources/cracDataFlowBased.json --glsk-file flowbased-computation/flowbased-computation-api/src/test/resources/GlskCountry.xml --instant 2018-08-28T22:00:00Z --output-file /tmp/outputflowbased
+    
     private CommandLine line;
     private ToolRunningContext context;
     private FlowBasedComputationTool flowBasedComputationTool;
