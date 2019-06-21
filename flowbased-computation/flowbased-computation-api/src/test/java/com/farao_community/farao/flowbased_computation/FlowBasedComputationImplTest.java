@@ -6,9 +6,16 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.data.crac_file.CracFile;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.time.Instant;
 
 /**
  * FlowBased Computation Impl Test
@@ -17,17 +24,38 @@ import org.mockito.Mockito;
  */
 public class FlowBasedComputationImplTest {
 
-    private FlowBasedComputationImpl flowBasedComputationMock;
+    private FlowBasedComputationImpl flowBasedComputationImplMock;
+    private Network network;
+    private CracFile cracFile;
+    private Instant instant;
+    private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
+    private ComputationManager computationManager;
+    private LoadFlowFactory loadFlowFactory;
+    private SensitivityComputationFactory sensitivityComputationFactory;
 
     @Before
     public void setup() {
-        flowBasedComputationMock = Mockito.mock(FlowBasedComputationImpl.class);
+        network = Mockito.mock(Network.class);
+        cracFile = Mockito.mock(CracFile.class);
+        instant = Instant.parse("2018-08-28T22:00:00Z");
+        flowBasedGlskValuesProvider = Mockito.mock(FlowBasedGlskValuesProvider.class);
+        computationManager = Mockito.mock(ComputationManager.class);
+        loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
+        sensitivityComputationFactory = Mockito.mock(SensitivityComputationFactory.class);
     }
 
     @Test
     public void runTest() {
+        flowBasedComputationImplMock = new FlowBasedComputationImpl(network,
+                cracFile,
+                flowBasedGlskValuesProvider,
+                instant,
+                computationManager,
+                loadFlowFactory,
+                sensitivityComputationFactory
+                );
         FlowBasedComputationParameters parameters = Mockito.mock(FlowBasedComputationParameters.class);
         String workingStateId = "1";
-        flowBasedComputationMock.run(workingStateId, parameters);
+        flowBasedComputationImplMock.run(workingStateId, parameters);
     }
 }
