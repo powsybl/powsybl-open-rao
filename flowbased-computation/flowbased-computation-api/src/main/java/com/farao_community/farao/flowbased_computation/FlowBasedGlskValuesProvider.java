@@ -137,4 +137,14 @@ public class FlowBasedGlskValuesProvider {
         this.network = network;
     }
 
+    /**
+     * @param filePathString
+     */
+    public void setFilePathString(String filePathString) {
+        this.filePathString = filePathString;
+    }
+
+    public void setMapCountryDataChronologyLinearGlsk(Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk) {
+        this.mapCountryDataChronologyLinearGlsk = mapCountryDataChronologyLinearGlsk;
+    }
 }

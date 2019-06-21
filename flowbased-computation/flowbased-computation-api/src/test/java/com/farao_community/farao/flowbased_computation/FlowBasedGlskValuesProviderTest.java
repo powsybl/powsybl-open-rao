@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.chronology.DataChronology;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -46,5 +47,22 @@ public class FlowBasedGlskValuesProviderTest {
         Assert.assertFalse(linearGlsk.getGLSKs().isEmpty());
         Map<String, LinearGlsk> linearGlskMap = flowBasedGlskValuesProvider.getCountryLinearGlskMap(instant);
         Assert.assertFalse(linearGlskMap.isEmpty());
+    }
+
+
+    @Test (expected = FaraoException.class)
+    public void runBis() throws ParserConfigurationException, SAXException, IOException {
+        testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        instant = Instant.parse("2018-08-28T22:00:00Z");
+        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider();
+        flowBasedGlskValuesProvider.setNetwork(testNetwork);
+        flowBasedGlskValuesProvider.setFilePathString(getClass().getResource("/GlskCountry.xml").getPath());
+        Map<String, DataChronology<LinearGlsk> > map = flowBasedGlskValuesProvider.createDataChronologyLinearGlskMap(testNetwork,
+                getClass().getResource("/GlskCountry.xml").getPath());
+
+        flowBasedGlskValuesProvider.setMapCountryDataChronologyLinearGlsk(map);
+        Assert.assertFalse(flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YBE----------2").getGLSKs().isEmpty());
+        flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, ""); //(expected = FaraoException.class)
+
     }
 }

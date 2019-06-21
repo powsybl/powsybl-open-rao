@@ -14,6 +14,7 @@ public class FlowBasedComputationResultTest {
         Assert.assertTrue(result.getPtdflist().isEmpty());
         Assert.assertTrue(result.createDataPreContingency() instanceof DataPreContingency);
         Assert.assertTrue(result.createDataDomain() instanceof DataDomain);
+        Assert.assertEquals(result.getStatus(), FlowBasedComputationResult.Status.FAILURE);
     }
 
 }
