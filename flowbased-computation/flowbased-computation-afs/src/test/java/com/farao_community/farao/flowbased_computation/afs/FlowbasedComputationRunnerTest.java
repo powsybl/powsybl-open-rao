@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.afs;
 
+import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
@@ -180,6 +181,9 @@ public class FlowbasedComputationRunnerTest extends AbstractProjectFileTest {
         // check there is no results
         assertFalse(runner.hasResult());
         assertNull(runner.readResult());
+        assertFalse(runner.getGlskProvider().isPresent());
+        assertTrue(runner.getCase().isPresent());
+        assertTrue(runner.getCracFileProvider().isPresent());
 
         // check default parameters can be changed
         FlowBasedComputationParameters parameters = runner.readParameters();
@@ -194,5 +198,6 @@ public class FlowbasedComputationRunnerTest extends AbstractProjectFileTest {
 
         // check results
         assertTrue(runner.hasResult());
+        runner.writeResult(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
     }
 }

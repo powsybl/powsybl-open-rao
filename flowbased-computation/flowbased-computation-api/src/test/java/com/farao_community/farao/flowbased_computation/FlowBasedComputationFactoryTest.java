@@ -1,15 +1,12 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_file.CracFile;
-import com.farao_community.farao.data.crac_file.UsageRule;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.configuration.injection.MockInjection;
 
-import javax.validation.constraints.AssertTrue;
 import java.time.Instant;
 
 public class FlowBasedComputationFactoryTest {
