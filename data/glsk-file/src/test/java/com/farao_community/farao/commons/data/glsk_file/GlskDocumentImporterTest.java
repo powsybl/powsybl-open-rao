@@ -37,6 +37,8 @@ public class GlskDocumentImporterTest {
     public void testGlskDocumentImporterWithFilePathString() throws ParserConfigurationException, SAXException, IOException {
         GlskDocumentImporter importer = new GlskDocumentImporter();
         GlskDocument glskDocument = importer.importGlskDocumentWithFilePathString("src/test/resources/GlskB42CountryIIDM.xml");
+        assertTrue(glskDocument.getInstantStart().toString().equals("2018-08-28T22:00:00Z"));
+        assertTrue(glskDocument.getInstantEnd().toString().equals("2018-08-29T22:00:00Z"));
         assertTrue(!glskDocument.getCountries().isEmpty());
     }
 

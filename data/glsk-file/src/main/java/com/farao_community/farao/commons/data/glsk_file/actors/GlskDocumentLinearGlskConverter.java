@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,5 +144,12 @@ public class GlskDocumentLinearGlskConverter {
         }
 
         return countryGlskDataChronologyMap;
+    }
+
+    public Instant getInstantStart(String filePathString) throws IOException, ParserConfigurationException, SAXException {
+        InputStream data = new FileInputStream(filePathString);
+        GlskDocument glskDocument = new GlskDocumentImporter().importGlskDocumentFromInputStream(data);
+        return glskDocument.getInstantStart();
+
     }
 }

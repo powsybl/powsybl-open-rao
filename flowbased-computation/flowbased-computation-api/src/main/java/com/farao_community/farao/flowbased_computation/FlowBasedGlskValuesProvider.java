@@ -83,6 +83,10 @@ public class FlowBasedGlskValuesProvider {
         return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filePathString, network);
     }
 
+    Instant getInstantStart(String filePathString) throws IOException, SAXException, ParserConfigurationException {
+        return new GlskDocumentLinearGlskConverter().getInstantStart(filePathString);
+    }
+
     /**
      * @param instant instant
      * @return LinearGlsk map of instant

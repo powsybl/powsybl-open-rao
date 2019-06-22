@@ -139,9 +139,15 @@ public class FlowBasedComputationTool implements Tool {
             JsonFlowBasedComputationParameters.update(parameters, parametersFile);
         }
 
-        String instantString = line.getOptionValue(INSTANT);
-        Instant instant = Instant.parse(instantString);
-        //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug
+        Instant instant;
+        if (line.hasOption(INSTANT)) {
+            String instantString = line.getOptionValue(INSTANT);
+            instant = Instant.parse(instantString);
+            //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug
+        } else {
+            //if instant is not defined, use interval start instant as default
+            instant = flowBasedGlskValuesProvider.getInstantStart(glskFile.toString());
+        }
 
         FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load()
                 .newFactoryImpl(FlowBasedComputationFactory.class)
