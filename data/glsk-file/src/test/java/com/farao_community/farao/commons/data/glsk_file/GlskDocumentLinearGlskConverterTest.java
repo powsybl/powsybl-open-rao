@@ -89,4 +89,10 @@ public class GlskDocumentLinearGlskConverterTest {
         Path pathtest = Paths.get("src/test/resources/GlskB42CountryIIDM.xml");
         assertTrue(!new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
     }
+
+    @Test
+    public void testGetStartPoint() throws ParserConfigurationException, SAXException, IOException {
+        Path pathtest = Paths.get("src/test/resources/GlskB42CountryIIDM.xml");
+        assertTrue((new GlskDocumentLinearGlskConverter().getInstantStart(pathtest.toString())).toString().equals("2018-08-28T22:00:00Z"));
+    }
 }
