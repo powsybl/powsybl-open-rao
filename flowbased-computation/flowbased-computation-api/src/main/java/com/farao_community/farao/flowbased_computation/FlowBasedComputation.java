@@ -15,8 +15,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface FlowBasedComputation {
     /**
-     * @param workingStateId
-     * @param parameters
+     * @param workingStateId working state id of completable future
+     * @param parameters flow based computation parameters
      * @return
      */
     CompletableFuture<FlowBasedComputationResult> run(String workingStateId, FlowBasedComputationParameters parameters);

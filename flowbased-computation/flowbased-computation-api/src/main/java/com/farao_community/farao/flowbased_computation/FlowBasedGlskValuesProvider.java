@@ -29,12 +29,12 @@ import java.util.Optional;
  */
 public class FlowBasedGlskValuesProvider {
     /**
-     * LOGGER
+     * LOGGER logger
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedGlskValuesProvider.class);
 
     /**
-     * Network
+     * Network we need a network to import Glsk document
      */
     private Network network;
     /**
@@ -47,7 +47,7 @@ public class FlowBasedGlskValuesProvider {
     private Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk;
 
     /**
-     * Vide constructor
+     * constructor
      */
     public FlowBasedGlskValuesProvider() {
         network = null;
@@ -83,12 +83,20 @@ public class FlowBasedGlskValuesProvider {
         return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filePathString, network);
     }
 
+    /**
+     * Get default instant of Glsk Document: Instant of Start of Interval
+     * @param filePathString glsk file path
+     * @return
+     * @throws IOException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     */
     Instant getInstantStart(String filePathString) throws IOException, SAXException, ParserConfigurationException {
         return new GlskDocumentLinearGlskConverter().getInstantStart(filePathString);
     }
 
     /**
-     * @param instant instant
+     * @param instant Flowbased domain is time dependent. Instant give the time stamp t of the flowbased domain
      * @return LinearGlsk map of instant
      */
     Map<String, LinearGlsk> getCountryLinearGlskMap(Instant instant) {
@@ -108,9 +116,9 @@ public class FlowBasedGlskValuesProvider {
     }
 
     /**
-     * @param instant Instant
+     * @param instant Instant time stamp t of the flowbased domain
      * @param country country EIC code
-     * @return Linear Glsk
+     * @return Linear Glsk: linear Glsk of country of instant t
      */
     LinearGlsk getCountryLinearGlsk(Instant instant, String country) {
 
@@ -128,7 +136,7 @@ public class FlowBasedGlskValuesProvider {
     }
 
     /**
-     * @return Network
+     * @return Network reference network
      */
     public Network getNetwork() {
         return network;
@@ -142,12 +150,15 @@ public class FlowBasedGlskValuesProvider {
     }
 
     /**
-     * @param filePathString
+     * @param filePathString set glsk document file path
      */
     public void setFilePathString(String filePathString) {
         this.filePathString = filePathString;
     }
 
+    /**
+     * @param mapCountryDataChronologyLinearGlsk set linear glsk 's data chronology map
+     */
     public void setMapCountryDataChronologyLinearGlsk(Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk) {
         this.mapCountryDataChronologyLinearGlsk = mapCountryDataChronologyLinearGlsk;
     }

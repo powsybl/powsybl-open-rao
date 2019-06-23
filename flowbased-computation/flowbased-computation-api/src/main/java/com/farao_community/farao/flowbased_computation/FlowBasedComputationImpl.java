@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
-     * Network
+     * Network reference network
      */
     private Network network;
     /**
@@ -59,11 +59,11 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
      * Constructor
-     * @param network
-     * @param cracFile
-     * @param flowBasedGlskValuesProvider
-     * @param instant
-     * @param computationManager
+     * @param network reference network: we need a network to construct the linear glsk map from the glsk document
+     * @param cracFile crac file
+     * @param flowBasedGlskValuesProvider get linear glsk map from a glsk document
+     * @param instant flow based domaine is time dependent
+     * @param computationManager computation manager
      * @param loadFlowFactory load flow for reference flow calculation
      * @param sensitivityComputationFactory sensitivity calculation
      */
@@ -86,8 +86,8 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
      * Run Flowbased calculation
-     * @param workingVariantId
-     * @param parameters
+     * @param workingVariantId network working variant id
+     * @param parameters flowbased computation parameters
      * @return
      */
     @Override
@@ -145,10 +145,10 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
      * Internal post processing to fill in FlowBased Computation Result
-     * @param cracFile
-     * @param referenceFlows
-     * @param sensitivityComputationResults
-     * @param flowBasedComputationResult
+     * @param cracFile crac file
+     * @param referenceFlows reference flow for critical branches
+     * @param sensitivityComputationResults sensitivity computation results
+     * @param flowBasedComputationResult flow based computation result
      */
     private void fillFlowBasedComputationResult(CracFile cracFile,
                                                 Map<String, Double> referenceFlows,

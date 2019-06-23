@@ -43,7 +43,7 @@ public class FlowBasedComputationTool implements Tool {
     private static final String INSTANT = "instant";
 
     /**
-     * @return Command
+     * @return Command to run a flow based computation
      */
     @Override
     public Command getCommand() {

@@ -23,12 +23,12 @@ import java.time.Instant;
 public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFactory {
 
     /**
-     * @param network
-     * @param cracFile
-     * @param flowBasedGlskValuesProvider
-     * @param instant
-     * @param computationManager
-     * @param priority
+     * @param network reference network: we need a network to construct the linear glsk map from the glsk document
+     * @param cracFile crac file
+     * @param flowBasedGlskValuesProvider get linear glsk map from a glsk document
+     * @param instant flow based domaine is time dependent
+     * @param computationManager computation manager
+     * @param priority priority
      * @return
      */
     @Override
@@ -50,10 +50,10 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
     }
 
     /**
-     * @param network
-     * @param cracFile
-     * @param computationManager
-     * @param priority
+     * @param network reference network: we need a network to construct the linear glsk map from the glsk document
+     * @param cracFile crac file
+     * @param computationManager computation manager
+     * @param priority priority
      * @return
      */
     @Override
