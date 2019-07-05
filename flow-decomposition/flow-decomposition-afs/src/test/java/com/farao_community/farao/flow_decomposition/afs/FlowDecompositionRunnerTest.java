@@ -171,7 +171,7 @@ public class FlowDecompositionRunnerTest extends AbstractProjectFileTest {
         // create crac file
         ImportedCracFile importedCracFile = project.getRootFolder().fileBuilder(ImportedCracFileBuilder.class)
                 .withName("importedCracFile")
-                .withDataSource(new CracFileMemDataSource())
+                .withDataSource(new CracFileMemDataSource(), "cracData")
                 .build();
 
         // create a flow decomposition runner that point to imported case

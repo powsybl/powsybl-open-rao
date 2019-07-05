@@ -23,7 +23,7 @@ import java.util.Objects;
 
 /**
  * JSON CRAC project file builder
- *
+ * <p>
  * The CRAC file object is stored as a JSON blob in AFS
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -35,6 +35,8 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
     private String name;
 
     private ReadOnlyDataSource dataSource;
+
+    private String baseName;
 
     public ImportedCracFileBuilder(ProjectFileBuildContext context) {
         this.context = context;
@@ -59,10 +61,19 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
         return this;
     }
 
+    public ImportedCracFileBuilder withDataSource(ReadOnlyDataSource dataSource, String baseName) {
+        this.dataSource = Objects.requireNonNull(dataSource);
+        this.baseName = baseName;
+        return this;
+    }
+
     @Override
     public ImportedCracFile build() {
         if (dataSource == null) {
             throw new FaraoException("CRAC file is not set");
+        }
+        if (null == this.baseName || this.baseName.isEmpty()) {
+            this.baseName = dataSource.getBaseName();
         }
         if (name == null) {
             throw new FaraoException("Name is not set");
@@ -77,7 +88,7 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
                 "", ImportedCracFile.VERSION, new NodeGenericMetadata());
 
         // store parameters
-        try (InputStream is = dataSource.newInputStream(ImportedCracFile.CRAC_FILE_JSON_NAME);
+        try (InputStream is = dataSource.newInputStream(baseName);
              OutputStream os = context.getStorage().writeBinaryData(info.getId(), ImportedCracFile.CRAC_FILE_JSON_NAME)) {
             ByteStreams.copy(is, os);
         } catch (IOException e) {

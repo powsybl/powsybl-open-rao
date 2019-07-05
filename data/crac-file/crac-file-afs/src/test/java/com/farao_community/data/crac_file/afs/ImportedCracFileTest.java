@@ -20,15 +20,11 @@ import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.farao_community.farao.commons.FaraoException;
+import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -54,6 +50,8 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
         return ImmutableList.of(new ImportedCracFileExtension());
     }
 
+    InputStream cracFileTest;
+
     @Override
     @Before
     public void setup() throws IOException {
@@ -63,6 +61,7 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
                 new NodeGenericMetadata());
         try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/cracFileExampleValid.json"));
              Writer writer = new OutputStreamWriter(storage.writeBinaryData(cracNodeInfo.getId(), "DATA_SOURCE_FILE_NAME__" + ImportedCracFile.CRAC_FILE_JSON_NAME), StandardCharsets.UTF_8)) {
+            cracFileTest = ImportedCracFileTest.class.getResourceAsStream("/cracFileExampleValid.json");
             CharStreams.copy(reader, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -75,12 +74,9 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
         Folder root = afs.getRootFolder();
 
         // check AfsCracFile exists
-        assertEquals(1, root.getChildren().size());
-        assertTrue(root.getChildren().get(0) instanceof AfsCracFile);
-        AfsCracFile file = (AfsCracFile) root.getChildren().get(0);
-        assertEquals("cracFileExample", file.getName());
-        assertEquals("CRAC format", file.getDescription());
-        assertFalse(file.isFolder());
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("/cracFileExampleValid.json");
+        dataSource.putData("/cracFileExampleValid.json", cracFileTest);
+        assertTrue(!dataSource.getBaseName().isEmpty());
 
         // create project
         Project project = root.createProject("project");
@@ -98,7 +94,8 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
         } catch (FaraoException ignored) {
         }
         ImportedCracFile importedCracFile = folder.fileBuilder(ImportedCracFileBuilder.class)
-                .withAfsCracFile(file)
+                .withName("cracFileExample")
+                .withDataSource(dataSource)
                 .build();
         assertNotNull(importedCracFile);
         assertFalse(importedCracFile.isFolder());
