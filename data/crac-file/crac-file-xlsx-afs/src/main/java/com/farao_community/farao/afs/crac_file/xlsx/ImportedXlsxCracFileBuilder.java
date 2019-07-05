@@ -33,6 +33,8 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
 
     private String hour;
 
+    private String baseName;
+
     public ImportedXlsxCracFileBuilder(ProjectFileBuildContext context) {
         this.context = context;
     }
@@ -56,6 +58,12 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
         return this;
     }
 
+    public ImportedXlsxCracFileBuilder withDataSource(ReadOnlyDataSource dataSource, String baseName) {
+        this.dataSource = Objects.requireNonNull(dataSource);
+        this.baseName = baseName;
+        return this;
+    }
+
     public ImportedXlsxCracFileBuilder withHour(String hour) {
         this.hour = Objects.requireNonNull(hour);
         return this;
@@ -76,6 +84,9 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new FaraoException("Parent folder already contains a '" + name + "' node");
         }
+        if (null == this.baseName || this.baseName.isEmpty()) {
+            this.baseName = dataSource.getBaseName();
+        }
 
         NodeGenericMetadata metadata = new NodeGenericMetadata();
         metadata.setString("OriginalFileName", name);
@@ -89,7 +100,7 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
                 "", ImportedXlsxCracFile.VERSION, metadata);
 
         // store parameters
-        try (InputStream is = dataSource.newInputStream(ImportedXlsxCracFile.CRAC_FILE_XLSX_NAME);
+        try (InputStream is = dataSource.newInputStream(this.baseName);
              OutputStream os = context.getStorage().writeBinaryData(info.getId(), ImportedXlsxCracFile.CRAC_FILE_XLSX_NAME)) {
             ByteStreams.copy(is, os);
         } catch (IOException e) {
