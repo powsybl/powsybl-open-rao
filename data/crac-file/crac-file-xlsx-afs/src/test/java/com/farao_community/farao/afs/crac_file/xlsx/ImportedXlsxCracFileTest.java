@@ -64,6 +64,7 @@ public class ImportedXlsxCracFileTest extends AbstractProjectFileTest {
                     .build();
             fail();
         } catch (FaraoException ignored) {
+            //expected
         }
         ImportedXlsxCracFile importedCracFile = folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
                 .withName("cracFileExample")
@@ -114,6 +115,7 @@ public class ImportedXlsxCracFileTest extends AbstractProjectFileTest {
                     .build();
             fail();
         } catch (FaraoException expected) {
+            //expected
         }
         ImportedXlsxCracFile importedCracFile = folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
                 .withName("cracFileExample")

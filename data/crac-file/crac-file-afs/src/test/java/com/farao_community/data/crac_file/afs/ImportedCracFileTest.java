@@ -116,6 +116,7 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
                     .build();
             fail();
         } catch (FaraoException expected) {
+            //expected
         }
         ImportedCracFile importedCracFile = folder.fileBuilder(ImportedCracFileBuilder.class)
                 .withName("cracFileExample")
