@@ -76,7 +76,7 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
         if (name == null) {
             throw new FaraoException("Name is not set");
         }
-        if (baseName == null || baseName.isEmpty()) {
+        if (baseName == null) {
             baseName = dataSource.getBaseName();
         }
         if (hour == null) {

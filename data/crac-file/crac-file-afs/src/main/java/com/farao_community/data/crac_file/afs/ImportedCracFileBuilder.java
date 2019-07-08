@@ -71,7 +71,7 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
         if (dataSource == null) {
             throw new FaraoException("CRAC file is not set");
         }
-        if (baseName == null || baseName.isEmpty()) {
+        if (baseName == null) {
             baseName = dataSource.getBaseName();
         }
         if (name == null) {
