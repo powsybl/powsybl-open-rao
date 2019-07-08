@@ -168,6 +168,7 @@ public class FlowbasedComputationRunnerTest extends AbstractProjectFileTest {
         ImportedCracFile importedCracFile = project.getRootFolder().fileBuilder(ImportedCracFileBuilder.class)
                 .withName("importedCracFile")
                 .withDataSource(new CracFileMemDataSource())
+                .withBaseName("cracData")
                 .build();
 
         // create a flowbased computation runner that point to imported case

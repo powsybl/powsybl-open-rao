@@ -21,7 +21,7 @@ public class TypeRaTimesSeriesConverter implements Converter<TypeRaTimesSeries> 
             return TypeRaTimesSeries.fromLabel(value);
         } catch (Exception e) {
             log.error(String.format("Failed to parse '%s' at row='%s' ", value, row));
-            throw new FaraoException(String.format("Faildsfdsed to parse '%s' at row='%s' ", value, row), e);
+            throw new FaraoException(String.format("Failed to parse '%s' at row='%s' ", value, row), e);
         }
     }
 }

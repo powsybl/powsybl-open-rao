@@ -33,12 +33,19 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
 
     private String hour;
 
+    private String baseName;
+
     public ImportedXlsxCracFileBuilder(ProjectFileBuildContext context) {
         this.context = context;
     }
 
     public ImportedXlsxCracFileBuilder withName(String name) {
         this.name = Objects.requireNonNull(name);
+        return this;
+    }
+
+    public ImportedXlsxCracFileBuilder withBaseName(String baseName) {
+        this.baseName = Objects.requireNonNull(baseName);
         return this;
     }
 
@@ -69,12 +76,21 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
         if (name == null) {
             throw new FaraoException("Name is not set");
         }
+        if (baseName == null) {
+            baseName = dataSource.getBaseName();
+        }
         if (hour == null) {
             throw new FaraoException("Hour is not set");
         }
-
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new FaraoException("Parent folder already contains a '" + name + "' node");
+        }
+        try {
+            if (!dataSource.exists(baseName)) {
+                throw new FaraoException("Source with basename '" + baseName + "' does not exist in datasource");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
 
         NodeGenericMetadata metadata = new NodeGenericMetadata();
@@ -89,7 +105,7 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
                 "", ImportedXlsxCracFile.VERSION, metadata);
 
         // store parameters
-        try (InputStream is = dataSource.newInputStream(ImportedXlsxCracFile.CRAC_FILE_XLSX_NAME);
+        try (InputStream is = dataSource.newInputStream(baseName);
              OutputStream os = context.getStorage().writeBinaryData(info.getId(), ImportedXlsxCracFile.CRAC_FILE_XLSX_NAME)) {
             ByteStreams.copy(is, os);
         } catch (IOException e) {

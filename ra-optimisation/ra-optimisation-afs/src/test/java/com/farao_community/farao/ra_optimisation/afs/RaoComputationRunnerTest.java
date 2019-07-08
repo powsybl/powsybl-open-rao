@@ -164,6 +164,7 @@ public class RaoComputationRunnerTest extends AbstractProjectFileTest {
         ImportedCracFile importedCracFile = project.getRootFolder().fileBuilder(ImportedCracFileBuilder.class)
                 .withName("cracFileExample")
                 .withDataSource(new CracFileMemDataSource())
+                .withBaseName("cracData")
                 .build();
 
         // create a security analysis runner that point to imported case
