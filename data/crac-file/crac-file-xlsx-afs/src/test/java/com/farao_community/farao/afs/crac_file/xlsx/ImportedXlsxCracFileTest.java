@@ -140,4 +140,33 @@ public class ImportedXlsxCracFileTest extends AbstractProjectFileTest {
         projectNode.delete();
         assertTrue(folder.getChildren().isEmpty());
     }
+
+    @Test
+    public void throwsWhenLackingName() {
+        Folder root = afs.getRootFolder();
+
+        // check AfsXlsxCracFile exists
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("/20170215_xlsx_crac_fr_v01_v2.3.xlsx");
+        dataSource.putData("/20170215_xlsx_crac_fr_v01_v2.3.xlsx", ImportedXlsxCracFileTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v01_v2.3.xlsx"));
+        assertTrue(!dataSource.getBaseName().isEmpty());
+
+        // create project
+        Project project = root.createProject("project");
+        assertNotNull(project);
+
+        // create project folder
+        ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        assertTrue(folder.getChildren().isEmpty());
+
+        // import CRAC into project
+        try {
+            folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
+                    .withDataSource(dataSource)
+                    .withHour("TIME_1030")
+                    .build();
+            fail();
+        } catch (FaraoException expected) {
+            //expected
+        }
+    }
 }

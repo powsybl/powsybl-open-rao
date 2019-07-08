@@ -141,4 +141,32 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
         projectNode.delete();
         assertTrue(folder.getChildren().isEmpty());
     }
+
+    @Test
+    public void throwsWhenLackingName() {
+        Folder root = afs.getRootFolder();
+
+        // check AfsCracFile exists
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("/cracFileExampleValid.json");
+        dataSource.putData("/cracFileExampleValid.json", ImportedCracFileTest.class.getResourceAsStream("/cracFileExampleValid.json"));
+        assertTrue(!dataSource.getBaseName().isEmpty());
+
+        // create project
+        Project project = root.createProject("project");
+        assertNotNull(project);
+
+        // create project folder
+        ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        assertTrue(folder.getChildren().isEmpty());
+
+        // Try without baseName, should not work
+        try {
+            folder.fileBuilder(ImportedCracFileBuilder.class)
+                    .withDataSource(dataSource)
+                    .build();
+            fail();
+        } catch (FaraoException expected) {
+            //expected
+        }
+    }
 }
