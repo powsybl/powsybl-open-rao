@@ -44,5 +44,10 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-afs-mapdb-storage</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

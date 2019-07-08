@@ -23,7 +23,7 @@ import java.util.Objects;
 
 /**
  * JSON CRAC project file builder
- *
+ * <p>
  * The CRAC file object is stored as a JSON blob in AFS
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -36,12 +36,19 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
 
     private ReadOnlyDataSource dataSource;
 
+    private String baseName;
+
     public ImportedCracFileBuilder(ProjectFileBuildContext context) {
         this.context = context;
     }
 
     public ImportedCracFileBuilder withName(String name) {
         this.name = Objects.requireNonNull(name);
+        return this;
+    }
+
+    public ImportedCracFileBuilder withBaseName(String baseName) {
+        this.baseName = Objects.requireNonNull(baseName);
         return this;
     }
 
@@ -64,12 +71,21 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
         if (dataSource == null) {
             throw new FaraoException("CRAC file is not set");
         }
+        if (baseName == null) {
+            baseName = dataSource.getBaseName();
+        }
         if (name == null) {
             throw new FaraoException("Name is not set");
         }
-
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new FaraoException("Parent folder already contains a '" + name + "' node");
+        }
+        try {
+            if (!dataSource.exists(baseName)) {
+                throw new FaraoException("Source with basename '" + baseName + "' does not exist in datasource");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
 
         // create project file
@@ -77,7 +93,7 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
                 "", ImportedCracFile.VERSION, new NodeGenericMetadata());
 
         // store parameters
-        try (InputStream is = dataSource.newInputStream(ImportedCracFile.CRAC_FILE_JSON_NAME);
+        try (InputStream is = dataSource.newInputStream(baseName);
              OutputStream os = context.getStorage().writeBinaryData(info.getId(), ImportedCracFile.CRAC_FILE_JSON_NAME)) {
             ByteStreams.copy(is, os);
         } catch (IOException e) {
