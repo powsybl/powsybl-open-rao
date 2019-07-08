@@ -35,6 +35,8 @@ import static org.junit.Assert.*;
  */
 public class ImportedCracFileTest extends AbstractProjectFileTest {
 
+    InputStream cracFileTest;
+
     @Override
     protected AppStorage createStorage() {
         return MapDbAppStorage.createHeap("mem");
@@ -49,8 +51,6 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
     protected List<ProjectFileExtension> getProjectFileExtensions() {
         return ImmutableList.of(new ImportedCracFileExtension());
     }
-
-    InputStream cracFileTest;
 
     @Override
     @Before
@@ -114,9 +114,5 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
         // delete imported CRAC
         projectNode.delete();
         assertTrue(folder.getChildren().isEmpty());
-        try {
-            projectNode.getName();
-        } catch (Exception ignored) {
-        }
     }
 }

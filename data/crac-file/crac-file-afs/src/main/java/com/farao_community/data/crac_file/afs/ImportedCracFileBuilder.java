@@ -47,6 +47,11 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
         return this;
     }
 
+    public ImportedCracFileBuilder withBaseName(String baseName) {
+        this.baseName = Objects.requireNonNull(baseName);
+        return this;
+    }
+
     public ImportedCracFileBuilder withAfsCracFile(AfsCracFile file) {
         Objects.requireNonNull(file);
         if (name == null) {
@@ -61,24 +66,17 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
         return this;
     }
 
-    public ImportedCracFileBuilder withDataSource(ReadOnlyDataSource dataSource, String baseName) {
-        this.dataSource = Objects.requireNonNull(dataSource);
-        this.baseName = baseName;
-        return this;
-    }
-
     @Override
     public ImportedCracFile build() {
         if (dataSource == null) {
             throw new FaraoException("CRAC file is not set");
         }
-        if (null == this.baseName || this.baseName.isEmpty()) {
-            this.baseName = dataSource.getBaseName();
+        if (baseName == null || baseName.isEmpty()) {
+            baseName = dataSource.getBaseName();
         }
         if (name == null) {
             throw new FaraoException("Name is not set");
         }
-
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new FaraoException("Parent folder already contains a '" + name + "' node");
         }
