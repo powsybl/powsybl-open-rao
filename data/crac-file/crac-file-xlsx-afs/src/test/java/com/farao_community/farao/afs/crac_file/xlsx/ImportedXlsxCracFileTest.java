@@ -87,4 +87,55 @@ public class ImportedXlsxCracFileTest extends AbstractProjectFileTest {
         projectNode.delete();
         assertTrue(folder.getChildren().isEmpty());
     }
+
+    @Test
+    public void testImportWithBaseName() {
+        Folder root = afs.getRootFolder();
+
+        // check AfsXlsxCracFile exists
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("/20170215_xlsx_crac_fr_v01_v2.3.xlsx");
+        dataSource.putData("otherBaseName.file", ImportedXlsxCracFileTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v01_v2.3.xlsx"));
+        assertTrue(!dataSource.getBaseName().isEmpty());
+
+        // create project
+        Project project = root.createProject("project");
+        assertNotNull(project);
+
+        // create project folder
+        ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        assertTrue(folder.getChildren().isEmpty());
+
+        // import CRAC into project
+        try {
+            folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
+                    .withName("cracFileExample")
+                    .withDataSource(dataSource)
+                    .withHour("TIME_1030")
+                    .build();
+            fail();
+        } catch (FaraoException expected) {
+        }
+        ImportedXlsxCracFile importedCracFile = folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
+                .withName("cracFileExample")
+                .withDataSource(dataSource)
+                .withHour("TIME_1030")
+                .withBaseName("otherBaseName.file")
+                .build();
+        assertNotNull(importedCracFile);
+        assertFalse(importedCracFile.isFolder());
+        assertNotNull(importedCracFile.getCracFile());
+        assertTrue(importedCracFile.getDependencies().isEmpty());
+
+        // try to reload the imported CRAC
+        assertEquals(1, folder.getChildren().size());
+        ProjectNode projectNode = folder.getChildren().get(0);
+        assertNotNull(projectNode);
+        assertTrue(projectNode instanceof ImportedXlsxCracFile);
+
+        assertTrue(folder.getChild(ImportedXlsxCracFile.class, "cracFileExample_1030").isPresent());
+
+        // delete imported CRAC
+        projectNode.delete();
+        assertTrue(folder.getChildren().isEmpty());
+    }
 }

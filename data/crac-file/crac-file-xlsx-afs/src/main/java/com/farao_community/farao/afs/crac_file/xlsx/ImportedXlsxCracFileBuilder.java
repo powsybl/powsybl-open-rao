@@ -85,6 +85,13 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new FaraoException("Parent folder already contains a '" + name + "' node");
         }
+        try {
+            if (!dataSource.exists(baseName)) {
+                throw new FaraoException("Source with basename '" + baseName + "' does not exist in datasource");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         NodeGenericMetadata metadata = new NodeGenericMetadata();
         metadata.setString("OriginalFileName", name);

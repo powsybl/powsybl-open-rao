@@ -80,6 +80,13 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
         if (context.getStorage().getChildNode(context.getFolderInfo().getId(), name).isPresent()) {
             throw new FaraoException("Parent folder already contains a '" + name + "' node");
         }
+        try {
+            if (!dataSource.exists(baseName)) {
+                throw new FaraoException("Source with basename '" + baseName + "' does not exist in datasource");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCracFile.PSEUDO_CLASS,
