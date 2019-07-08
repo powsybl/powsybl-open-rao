@@ -4,22 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.data.crac_file.afs;
+package com.farao_community.farao.afs.crac_file.xlsx;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.afs.AbstractProjectFileTest;
-import com.powsybl.afs.FileExtension;
-import com.powsybl.afs.Folder;
-import com.powsybl.afs.Project;
-import com.powsybl.afs.ProjectFileExtension;
-import com.powsybl.afs.ProjectFolder;
-import com.powsybl.afs.ProjectNode;
+import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import org.junit.Test;
 
+import java.io.*;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -27,7 +22,9 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class ImportedCracFileTest extends AbstractProjectFileTest {
+public class ImportedXlsxCracFileTest extends AbstractProjectFileTest {
+
+    InputStream cracFileTest;
 
     @Override
     protected AppStorage createStorage() {
@@ -36,21 +33,21 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
 
     @Override
     protected List<FileExtension> getFileExtensions() {
-        return ImmutableList.of(new AfsCracFileExtension());
+        return ImmutableList.of(new AfsXlsxCracFileExtension());
     }
 
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
-        return ImmutableList.of(new ImportedCracFileExtension());
+        return ImmutableList.of(new ImportedXlsxCracFileExtension());
     }
 
     @Test
     public void test() {
         Folder root = afs.getRootFolder();
 
-        // check AfsCracFile exists
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("/cracFileExampleValid.json");
-        dataSource.putData("/cracFileExampleValid.json", ImportedCracFileTest.class.getResourceAsStream("/cracFileExampleValid.json"));
+        // check AfsXlsxCracFile exists
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource("/20170215_xlsx_crac_fr_v01_v2.3.xlsx");
+        dataSource.putData("/20170215_xlsx_crac_fr_v01_v2.3.xlsx", ImportedXlsxCracFileTest.class.getResourceAsStream("/20170215_xlsx_crac_fr_v01_v2.3.xlsx"));
         assertTrue(!dataSource.getBaseName().isEmpty());
 
         // create project
@@ -63,14 +60,15 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
 
         // import CRAC into project
         try {
-            folder.fileBuilder(ImportedCracFileBuilder.class)
+            folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
                     .build();
             fail();
         } catch (FaraoException ignored) {
         }
-        ImportedCracFile importedCracFile = folder.fileBuilder(ImportedCracFileBuilder.class)
+        ImportedXlsxCracFile importedCracFile = folder.fileBuilder(ImportedXlsxCracFileBuilder.class)
                 .withName("cracFileExample")
                 .withDataSource(dataSource)
+                .withHour("TIME_1030")
                 .build();
         assertNotNull(importedCracFile);
         assertFalse(importedCracFile.isFolder());
@@ -81,10 +79,9 @@ public class ImportedCracFileTest extends AbstractProjectFileTest {
         assertEquals(1, folder.getChildren().size());
         ProjectNode projectNode = folder.getChildren().get(0);
         assertNotNull(projectNode);
-        assertTrue(projectNode instanceof ImportedCracFile);
-        ImportedCracFile importedCase2 = (ImportedCracFile) projectNode;
+        assertTrue(projectNode instanceof ImportedXlsxCracFile);
 
-        assertTrue(folder.getChild(ImportedCracFile.class, "cracFileExample").isPresent());
+        assertTrue(folder.getChild(ImportedXlsxCracFile.class, "cracFileExample_1030").isPresent());
 
         // delete imported CRAC
         projectNode.delete();
