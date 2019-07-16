@@ -153,8 +153,10 @@ public class GlskPointScalableConverter {
             //calculate factor of each generator
             network.getGeneratorStream().filter(generator -> genenratorsList.contains(generator.getId()))
                     .forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) generator.getTargetP() / (float) totalP));
+            System.out.println(percentages.size());
             network.getGeneratorStream().filter(generator -> genenratorsList.contains(generator.getId()))
                     .forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
+            System.out.println(scalables.size());
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<String> loadsList = glskShiftKey.getRegisteredResourceArrayList().stream().map(GlskRegisteredResource::getmRID).collect(Collectors.toList());
