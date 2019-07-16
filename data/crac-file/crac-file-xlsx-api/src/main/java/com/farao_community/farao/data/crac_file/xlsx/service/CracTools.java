@@ -47,7 +47,7 @@ public final class CracTools {
         }
         if (null != type) {
             if (type.equals(ElementDescriptionMode.ORDER_CODE)) {
-                id = utcNodeFrom + spaceNodeFrom + utcNodeTo + " " + orderCodeElementName;
+                id = utcNodeFrom + spaceNodeFrom + utcNodeTo + spaceNodeTo + orderCodeElementName;
             } else if (type.equals(ElementDescriptionMode.ELEMENT_NAME)) {
                 id = orderCodeElementName;
             } else {

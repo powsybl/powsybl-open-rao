@@ -111,7 +111,13 @@ public final class RdRemedialActionValidation {
 
     private static RemedialActionElement buildRemedialActionElements(RedispatchingRemedialActionXlsx ra) {
         //TODO make the verification of GSK element later
-        String id = ra.getUctNodeOrGsk() + "_generator";
+        int maxChar = 8;
+        String spaceNode = "";
+        int nodeSpace = maxChar - ra.getUctNodeOrGsk().length();
+        for (int i = 0; i < nodeSpace; i++) {
+            spaceNode = spaceNode + " ";
+        }
+        String id = ra.getUctNodeOrGsk() + spaceNode + "_generator";
         return RedispatchRemedialActionElement.builder()
                 .id(id)
                 .startupCost(ra.getStartupCosts())
