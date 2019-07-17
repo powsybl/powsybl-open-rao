@@ -53,6 +53,7 @@ public class UcteGlskSeries {
         Node node = Objects.requireNonNull(element).getElementsByTagName("Area").item(0);
         Element nodeElement = (Element) node;
         this.area = nodeElement.getAttribute("v");
+        //todo verifier conversion EIcode
         this.ucteBusinessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
         this.timeSeriesID = ((Element) element.getElementsByTagName("TimeSeriesIdentification").item(0)).getAttribute("v");
         this.shareFactor = Double.parseDouble(((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("share"));

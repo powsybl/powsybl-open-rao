@@ -12,7 +12,7 @@
   <Domain v="10YDOM-REGION-1V" codingScheme="A01"/>
   <GSKSeries>
     <TimeSeriesIdentification v="1"/>
-    <BusinessType v="Z02"/>
+    <BusinessType v="Z02" share="100"/>
     <Area v="10YAT-APG------L" codingScheme="A01"/>
     <ManualGSK_Block>
       <GSK_Name v="AT"/>
@@ -293,7 +293,7 @@
   </GSKSeries>
   <GSKSeries>
     <TimeSeriesIdentification v="2"/>
-    <BusinessType v="Z02"/>
+    <BusinessType v="Z02" share="100"/>
     <Area v="10YBE----------2" codingScheme="A01"/>
     <ManualGSK_Block>
       <GSK_Name v="BE"/>
@@ -682,7 +682,7 @@
   </GSKSeries>
   <GSKSeries>
     <TimeSeriesIdentification v="3"/>
-    <BusinessType v="Z02"/>
+    <BusinessType v="Z02" share="100"/>
     <Area v="10YCB-GERMANY--8" codingScheme="A01"/>
     <ManualGSK_Block>
       <GSK_Name v="DE"/>
@@ -1719,7 +1719,7 @@
   </GSKSeries>
   <GSKSeries>
     <TimeSeriesIdentification v="4"/>
-    <BusinessType v="Z02"/>
+    <BusinessType v="Z02" share="100"/>
     <Area v="10YFR-RTE------C" codingScheme="A01"/>
     <CountryGSK_Block>
       <GSK_Name v="FR"/>
@@ -1736,7 +1736,7 @@
   </GSKSeries>
   <GSKSeries>
     <TimeSeriesIdentification v="5"/>
-    <BusinessType v="Z02"/>
+    <BusinessType v="Z02" share="100"/>
     <Area v="10YNL----------L" codingScheme="A01"/>
     <ManualGSK_Block>
       <GSK_Name v="NL"/>

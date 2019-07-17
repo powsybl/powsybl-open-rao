@@ -29,8 +29,7 @@ public class UcteGlskDocumentImporterTest {
 
     private static final String COUNTRYFULL = "/20160729_0000_GSK_allday_full.xml";
     private static final String COUNTRYTEST = "/20160729_0000_GSK_allday_test.xml";
-    private static final String COUNTRYTESTAMENI = "/GLSK_CWE_30_06_2019.xml";
-
+    private static final String COUNTRYTESTCWE = "/GLSK_CWE_30_06_2019.xml";
 
     @Test
     public void testUcteGlskDocumentImporterTest() throws ParserConfigurationException, SAXException, IOException {
@@ -44,10 +43,11 @@ public class UcteGlskDocumentImporterTest {
         assertFalse(ucteGlskDocument.getListGlskSeries().get(0).getUcteGlskBlocks().get(0).glskPointToString().isEmpty());
     }
 
+    //todo
     @Test
-    public void testUcteGlskDocumentImporterTestAmeni() throws ParserConfigurationException, SAXException, IOException {
+    public void testUcteGlskDocumentImporterTestCWE() throws ParserConfigurationException, SAXException, IOException {
         UcteGlskDocumentImporter importer = new UcteGlskDocumentImporter();
-        UcteGlskDocument ucteGlskDocument = importer.importUcteGlskDocumentWithFilename(COUNTRYTESTAMENI);
+        UcteGlskDocument ucteGlskDocument = importer.importUcteGlskDocumentWithFilename(COUNTRYTESTCWE);
 
         List<UcteGlskSeries> list = ucteGlskDocument.getListGlskSeries();
         assertFalse(list.isEmpty());

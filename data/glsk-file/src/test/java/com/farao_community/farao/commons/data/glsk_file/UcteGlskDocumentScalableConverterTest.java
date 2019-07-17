@@ -13,6 +13,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -36,7 +37,6 @@ public class UcteGlskDocumentScalableConverterTest {
     private static final String UCTETEST = "/20170322_1844_SN3_FR2_GLSK_test.xml";
     private static final String COUNTRYFULL = "/20160729_0000_GSK_allday_full.xml";
     private static final String COUNTRYTEST = "/20160729_0000_GSK_allday_test.xml";
-    private static final String COUNTRYTESTAMENI = "/GLSK_CWE_30_06_2019.xml";
 
     private Network testNetwork;
 
@@ -69,7 +69,7 @@ public class UcteGlskDocumentScalableConverterTest {
         assertTrue(!new UcteGlskDocumentScalableConverter().convertUcteGlskDocumentToScalableDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
     }
 
-    //Ameni todo verifier tests
+    @Ignore //todo debug
     @Test
     public void testConvertUcteGlskDocumentToScalableDataChronologyCountryFull() throws ParserConfigurationException, SAXException, IOException {
         List<Country> generators = testNetwork.getGeneratorStream().map(g -> g.getTerminal().getVoltageLevel().getSubstation().getCountry().get()).collect(Collectors.toList());
