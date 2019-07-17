@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
  */
 public final class RdRemedialActionValidation {
 
+    private static final int MAX_NODEID_LENGTH = 8;
+
     private RdRemedialActionValidation() {
         throw new AssertionError("Utility class should not have constructor");
     }
@@ -110,10 +112,9 @@ public final class RdRemedialActionValidation {
     }
 
     private static RemedialActionElement buildRemedialActionElements(RedispatchingRemedialActionXlsx ra) {
-        //TODO make the verification of GSK element later
-        int maxChar = 8;
+
         String spaceNode = "";
-        int nodeSpace = maxChar - ra.getUctNodeOrGsk().length();
+        int nodeSpace = MAX_NODEID_LENGTH - ra.getUctNodeOrGsk().length();
         for (int i = 0; i < nodeSpace; i++) {
             spaceNode = spaceNode + " ";
         }

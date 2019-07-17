@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 
 public final class CracTools {
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.XlsxCracApi");
+    private static final int MAX_NODEID_LENGTH = 8;
 
     private CracTools() {
         throw new AssertionError("Utility class should not have constructor");
@@ -34,11 +35,10 @@ public final class CracTools {
      */
     public static String getOrderCodeElementName(ElementDescriptionMode type, String utcNodeFrom, String utcNodeTo, String orderCodeElementName) {
         String id = "";
-        int maxChar = 8;
         String spaceNodeFrom = " ";
         String spaceNodeTo = " ";
-        int nodeFromSpace = maxChar - utcNodeFrom.length();
-        int nodeToSpace = maxChar - utcNodeTo.length();
+        int nodeFromSpace = MAX_NODEID_LENGTH - utcNodeFrom.length();
+        int nodeToSpace = MAX_NODEID_LENGTH - utcNodeTo.length();
         for (int i = 0; i < nodeFromSpace; i++) {
             spaceNodeFrom = spaceNodeFrom + " ";
         }

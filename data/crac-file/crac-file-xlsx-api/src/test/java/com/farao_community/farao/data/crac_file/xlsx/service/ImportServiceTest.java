@@ -158,8 +158,8 @@ public class ImportServiceTest {
     }
 
     @Test
-    public void shouldImportDsaraFile() throws Exception {
-        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/exemple_crac_dsaara.xlsx"), TimesSeries.TIME_1830, "/exemple_crac_dsaara.xlsx");
+    public void shouldImportCorrectIdFromXlsxCracFile() throws Exception {
+        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/test_crac_simple.xlsx"), TimesSeries.TIME_1830, "/test_crac_simple.xlsx");
         assertEquals(3, cracFile.getRemedialActions().size());
         assertEquals(2, cracFile.getPreContingency().getMonitoredBranches().size());
 
