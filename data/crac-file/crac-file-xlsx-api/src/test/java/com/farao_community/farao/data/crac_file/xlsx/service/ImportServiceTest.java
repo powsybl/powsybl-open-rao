@@ -3,6 +3,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
+ * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
@@ -159,13 +162,19 @@ public class ImportServiceTest {
 
     @Test
     public void shouldImportDsaraFile() throws Exception {
-        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/exemple_crac_dsaara.xlsx"), TimesSeries.TIME_1830, "/exemple_crac_dsaara.xlsx");
+        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/exemple_crac_xlsx.xlsx"), TimesSeries.TIME_1830, "/exemple_crac_xlsx.xlsx");
         assertEquals(3, cracFile.getRemedialActions().size());
         assertEquals(2, cracFile.getPreContingency().getMonitoredBranches().size());
 
         assertEquals("FFR1AA1  BBE1AA1  1", cracFile.getPreContingency().getMonitoredBranches().get(0).getBranchId());
         assertEquals("FFR1AA1  BBE2AA1  1", cracFile.getPreContingency().getMonitoredBranches().get(1).getBranchId());
         assertEquals("FFR1AA1 _generator", cracFile.getRemedialActions().get(0).getRemedialActionElements().get(0).getId());
+    }
+
+    @Test
+    public void shouldImportXlsxCracFileWithPstRemedialAction() throws Exception {
+        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/exemple_crac_xlsx.xlsx"), TimesSeries.TIME_1830, "/exemple_crac_xlsx.xlsx");
         assertEquals("BBE1AA1  BBE2AA1  1", cracFile.getRemedialActions().get(2).getId());
+        assertEquals("Pst element", cracFile.getRemedialActions().get(2).getName());
     }
 }
