@@ -19,6 +19,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.data.crac_file.xlsx.service.CracTools.getOrderCodeElementName;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -34,11 +36,16 @@ public final class PstRemedialActionValidation {
                 .map(raPstTap -> {
                     List<UsageRule> usageRuleList = usageRulesPstValidation(raPstTap);
                     List<RemedialActionElement> rae = pstElementsValidation(raPstTap);
+                    String id = getOrderCodeElementName(raPstTap.getElementDescriptionMode(),
+                            raPstTap.getUctNodeFrom(),
+                            raPstTap.getUctNodeTo(),
+                            raPstTap.getOrdercodeElementName());
+
                     return RemedialAction.builder()
                             .name(raPstTap.getUniqueRaPstTab())
                             .usageRules(usageRuleList)
                             .remedialActionElements(rae)
-                            .id(raPstTap.getUniqueRaPstTab())
+                            .id(id)
                             .build();
                 }).collect(Collectors.toList());
     }
