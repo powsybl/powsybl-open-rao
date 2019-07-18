@@ -112,7 +112,6 @@ public final class RdRemedialActionValidation {
     }
 
     private static RemedialActionElement buildRemedialActionElements(RedispatchingRemedialActionXlsx ra) {
-
         String spaceNode = "";
         int nodeSpace = MAX_NODEID_LENGTH - ra.getUctNodeOrGsk().length();
         for (int i = 0; i < nodeSpace; i++) {
