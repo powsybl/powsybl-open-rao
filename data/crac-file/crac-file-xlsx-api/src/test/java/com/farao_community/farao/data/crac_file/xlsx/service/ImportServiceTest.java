@@ -156,4 +156,15 @@ public class ImportServiceTest {
 
         assertEquals("Topology RA 1", remedialAction.getName());
     }
+
+    @Test
+    public void shouldImportCorrectIdFromXlsxCracFile() throws Exception {
+        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/test_crac_simple.xlsx"), TimesSeries.TIME_1830, "/test_crac_simple.xlsx");
+        assertEquals(3, cracFile.getRemedialActions().size());
+        assertEquals(2, cracFile.getPreContingency().getMonitoredBranches().size());
+
+        assertEquals("FFR1AA1  BBE1AA1  1", cracFile.getPreContingency().getMonitoredBranches().get(0).getBranchId());
+        assertEquals("FFR1AA1  BBE2AA1  1", cracFile.getPreContingency().getMonitoredBranches().get(1).getBranchId());
+        assertEquals("FFR1AA1 _generator", cracFile.getRemedialActions().get(0).getRemedialActionElements().get(0).getId());
+    }
 }
