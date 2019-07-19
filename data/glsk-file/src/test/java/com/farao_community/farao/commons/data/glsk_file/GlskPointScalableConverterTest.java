@@ -48,6 +48,8 @@ public class GlskPointScalableConverterTest {
     private GlskPoint glskPointParticipationFactorGskLsk;
     private GlskPoint glskMeritOrder;
 
+    private static final String TYPE_GLSK_FILE = "CIM";
+
     @Before
     public void setUp() throws ParserConfigurationException, SAXException, IOException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
@@ -69,49 +71,49 @@ public class GlskPointScalableConverterTest {
      */
     @Test
     public void testConvertGlskPointToScalableB45MeritOrder() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskMeritOrder);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskMeritOrder, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(6, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42Country() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointCountry);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointCountry, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42CountryGskLsk() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointCountryGskLsk);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointCountryGskLsk, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42ExplicitGskLsk() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointExplicitGskLsk);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointExplicitGskLsk, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB43GskLsk() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointParticipationFactorGskLsk);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointParticipationFactorGskLsk, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42Explicit() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointExplicit);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointExplicit, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB43() {
-        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointParticipationFactor);
+        Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(testNetwork, glskPointParticipationFactor, TYPE_GLSK_FILE);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }

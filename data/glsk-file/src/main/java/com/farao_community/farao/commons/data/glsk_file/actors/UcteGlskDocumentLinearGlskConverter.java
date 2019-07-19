@@ -32,6 +32,8 @@ import java.util.Map;
  */
 public class UcteGlskDocumentLinearGlskConverter {
 
+    private static final String TYPE_GLSK_FILE = "UCTE";
+
     /**
      * @param filepath file path as Path
      * @param network iidm network
@@ -97,7 +99,7 @@ public class UcteGlskDocumentLinearGlskConverter {
             DataChronology<LinearGlsk> dataChronology = DataChronologyImpl.create();
             List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
             for (GlskPoint point : glskPointList) {
-                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point);
+                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point, TYPE_GLSK_FILE);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
             }
             chronologyLinearGlskMap.put(country, dataChronology);

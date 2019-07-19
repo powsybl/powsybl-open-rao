@@ -30,6 +30,8 @@ import java.util.Map;
  */
 public class GlskDocumentLinearGlskConverter {
 
+    private static final String TYPE_GLSK_FILE = "CIM";
+
     /**
      * @param filepath file path in Path
      * @param network iidm network
@@ -98,7 +100,7 @@ public class GlskDocumentLinearGlskConverter {
             //mapping with DataChronology
             List<GlskPoint> glskPointList = glskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point);
+                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point, TYPE_GLSK_FILE);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
             }
             countryLinearGlskDataChronologyMap.put(country, dataChronology);

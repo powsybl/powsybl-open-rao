@@ -32,6 +32,8 @@ import java.util.Map;
  */
 public class UcteGlskDocumentScalableConverter {
 
+    private static final String TYPE_GLSK_FILE = "UCTE";
+
     /**
      * @param filepath file path as Path
      * @param network iidm network
@@ -97,7 +99,7 @@ public class UcteGlskDocumentScalableConverter {
             DataChronology<Scalable> dataChronology = DataChronologyImpl.create();
             List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point);
+                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TYPE_GLSK_FILE);
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             chronologyScalableMap.put(country, dataChronology);
