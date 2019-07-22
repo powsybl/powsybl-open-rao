@@ -158,6 +158,13 @@ public class ImportServiceTest {
     }
 
     @Test
+    public void shouldImportXlsxCracFileWithPstRemedialAction() throws Exception {
+        CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/exemple_crac_xlsx.xlsx"), TimesSeries.TIME_1830, "/exemple_crac_xlsx.xlsx");
+        assertEquals("BBE1AA1  BBE2AA1  1", cracFile.getRemedialActions().get(2).getId());
+        assertEquals("Pst element", cracFile.getRemedialActions().get(2).getName());
+    }
+
+    @Test
     public void shouldImportCorrectIdFromXlsxCracFile() throws Exception {
         CracFile cracFile = importService.importContacts(ImportServiceTest.class.getResourceAsStream("/test_crac_simple.xlsx"), TimesSeries.TIME_1830, "/test_crac_simple.xlsx");
         assertEquals(3, cracFile.getRemedialActions().size());
