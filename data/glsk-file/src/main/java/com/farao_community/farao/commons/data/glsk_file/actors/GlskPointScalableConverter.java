@@ -33,7 +33,7 @@ public class GlskPointScalableConverter {
      * @param glskPoint GLSK Point
      * @return powsybl-core Scalable
      */
-    public Scalable convertGlskPointToScalable(Network network, GlskPoint glskPoint, String typeGlskFile) {
+    public Scalable convertGlskPointToScalable(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
         if (!glskPoint.getGlskShiftKeys().get(0).getBusinessType().equals("B45")) {
             //B42 and B43 proportional
@@ -72,7 +72,7 @@ public class GlskPointScalableConverter {
      * @param glskPoint glsk point merit order
      * @return stack scalable
      */
-    private Scalable convertMeritOrderGlskPointToScalable(Network network, GlskPoint glskPoint, String typeGlskFile) {
+    private Scalable convertMeritOrderGlskPointToScalable(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
         Objects.requireNonNull(network);
 
         Map<Integer, String> orders = new HashMap<>(); //Merit order position
@@ -143,7 +143,7 @@ public class GlskPointScalableConverter {
      * @param percentages list of percentage factor of scalable
      * @param scalables list of scalable
      */
-    private void convertExplicitProportionalGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, String typeGlskFile) {
+    private void convertExplicitProportionalGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, TypeGlskFile typeGlskFile) {
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
             List<String> genenratorsList =  glskShiftKey.getRegisteredResourceArrayList().stream().map(generatorResource -> getGeneratorId(generatorResource, typeGlskFile)).collect(Collectors.toList());
@@ -171,7 +171,7 @@ public class GlskPointScalableConverter {
      * @param percentages list of percentage factor of scalable
      * @param scalables list of scalable
      */
-    private void convertParticipationFactorGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, String typeGlskFile) {
+    private void convertParticipationFactorGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, TypeGlskFile typeGlskFile) {
         List<GlskRegisteredResource> resourceList =  glskShiftKey.getRegisteredResourceArrayList();
 
         if (glskShiftKey.getPsrType().equals("A04")) {
@@ -197,16 +197,16 @@ public class GlskPointScalableConverter {
         }
     }
 
-    private String getLoadId(GlskRegisteredResource loadResource, String typeGlskFile) {
-        if (typeGlskFile.equals("UCTE")) {
+    private String getLoadId(GlskRegisteredResource loadResource, TypeGlskFile typeGlskFile) {
+        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
             return loadResource.getmRID() + "_load";
         } else {
             return loadResource.getmRID();
         }
     }
 
-    private String getGeneratorId(GlskRegisteredResource generatorResource, String typeGlskFile) {
-        if (typeGlskFile.equals("UCTE")) {
+    private String getGeneratorId(GlskRegisteredResource generatorResource, TypeGlskFile typeGlskFile) {
+        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
             return generatorResource.getmRID() + "_generator";
         } else {
             return generatorResource.getmRID();

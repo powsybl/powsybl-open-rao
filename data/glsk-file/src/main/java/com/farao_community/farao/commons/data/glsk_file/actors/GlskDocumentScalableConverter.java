@@ -99,7 +99,7 @@ public class GlskDocumentScalableConverter {
             //mapping with DataChronology
             List<GlskPoint> glskPointList = glskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TypeGlskFile.CIM.getValue());
+                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TypeGlskFile.CIM);
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             countryScalableDataChronologyMap.put(country, dataChronology);

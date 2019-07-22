@@ -97,7 +97,7 @@ public class UcteGlskDocumentScalableConverter {
             DataChronology<Scalable> dataChronology = DataChronologyImpl.create();
             List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TypeGlskFile.UCTE.getValue());
+                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TypeGlskFile.UCTE);
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             chronologyScalableMap.put(country, dataChronology);

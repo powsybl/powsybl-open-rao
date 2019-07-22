@@ -36,7 +36,7 @@ public class GlskPointLinearGlskConverter {
      * @param glskPoint GLSK Point
      * @return farao-core LinearGlsk
      */
-    public LinearGlsk convertGlskPointToLinearGlsk(Network network, GlskPoint glskPoint, String typeGlskFile) {
+    public LinearGlsk convertGlskPointToLinearGlsk(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
 
         Map<String, Float> linearGlskMap = new HashMap<>();
         String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
@@ -105,7 +105,7 @@ public class GlskPointLinearGlskConverter {
      * @param glskShiftKey explicit type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
-    private void convertExplicitProportionalGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, String typeGlskFile) {
+    private void convertExplicitProportionalGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -135,7 +135,7 @@ public class GlskPointLinearGlskConverter {
      * @param glskShiftKey parcitipation factor type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
-    private void convertParticipationFactorGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, String typeGlskFile) {
+    private void convertParticipationFactorGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -161,16 +161,16 @@ public class GlskPointLinearGlskConverter {
         }
     }
 
-    private String getLoadId(GlskRegisteredResource loadResource, String typeGlskFile) {
-        if (typeGlskFile.equals("UCTE")) {
+    private String getLoadId(GlskRegisteredResource loadResource, TypeGlskFile typeGlskFile) {
+        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
             return loadResource.getmRID() + "_load";
         } else {
             return loadResource.getmRID();
         }
     }
 
-    private String getGeneratorId(GlskRegisteredResource generatorResource, String typeGlskFile) {
-        if (typeGlskFile.equals("UCTE")) {
+    private String getGeneratorId(GlskRegisteredResource generatorResource, TypeGlskFile typeGlskFile) {
+        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
             return generatorResource.getmRID() + "_generator";
         } else {
             return generatorResource.getmRID();
