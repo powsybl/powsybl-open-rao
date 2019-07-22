@@ -31,8 +31,6 @@ import java.util.Map;
  */
 public class GlskDocumentScalableConverter {
 
-    private static final String TYPE_GLSK_FILE = "CIM";
-
     /**
      * @param filepath file path in Path
      * @param network iidm network
@@ -101,7 +99,7 @@ public class GlskDocumentScalableConverter {
             //mapping with DataChronology
             List<GlskPoint> glskPointList = glskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TYPE_GLSK_FILE);
+                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TypeGlskFile.CIM.getValue());
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             countryScalableDataChronologyMap.put(country, dataChronology);
