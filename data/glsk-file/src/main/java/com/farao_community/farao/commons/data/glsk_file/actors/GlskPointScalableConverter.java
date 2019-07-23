@@ -199,17 +199,21 @@ public class GlskPointScalableConverter {
 
     private String getLoadId(GlskRegisteredResource loadResource, TypeGlskFile typeGlskFile) {
         if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
-            return loadResource.getmRID() + "_load";
+            return getResourceId(loadResource) + "_load";
         } else {
-            return loadResource.getmRID();
+            return getResourceId(loadResource);
         }
+    }
+
+    private String getResourceId(GlskRegisteredResource resource) {
+        return resource.getmRID();
     }
 
     private String getGeneratorId(GlskRegisteredResource generatorResource, TypeGlskFile typeGlskFile) {
         if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
-            return generatorResource.getmRID() + "_generator";
+            return getResourceId(generatorResource) + "_generator";
         } else {
-            return generatorResource.getmRID();
+            return getResourceId(generatorResource);
         }
     }
 
