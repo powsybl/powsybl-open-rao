@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+
 /**
  * @author Mohamed Zelmat {@literal <mohamed.zelmat at rte-france.com>}
  */
