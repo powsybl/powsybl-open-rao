@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 /**
  * Convert a single GlskPoint to LinearGlsk
- *
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class GlskPointLinearGlskConverter {
@@ -33,7 +32,7 @@ public class GlskPointLinearGlskConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverter.class);
 
     /**
-     * @param network   IIDM network
+     * @param network IIDM network
      * @param glskPoint GLSK Point
      * @return farao-core LinearGlsk
      */
@@ -71,10 +70,9 @@ public class GlskPointLinearGlskConverter {
         return new LinearGlsk(linearGlskId, linearGlskName, linearGlskMap);
     }
 
-
     /**
-     * @param network       iidm network
-     * @param glskShiftKey  country type shiftkey
+     * @param network iidm network
+     * @param glskShiftKey country type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
     private void convertCountryProportionalGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
@@ -102,8 +100,8 @@ public class GlskPointLinearGlskConverter {
     }
 
     /**
-     * @param network       iidm network
-     * @param glskShiftKey  explicit type shiftkey
+     * @param network iidm network
+     * @param glskShiftKey explicit type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
     private void convertExplicitProportionalGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
@@ -132,8 +130,8 @@ public class GlskPointLinearGlskConverter {
     }
 
     /**
-     * @param network       iidm network
-     * @param glskShiftKey  parcitipation factor type shiftkey
+     * @param network iidm network
+     * @param glskShiftKey parcitipation factor type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
     private void convertParticipationFactorGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
