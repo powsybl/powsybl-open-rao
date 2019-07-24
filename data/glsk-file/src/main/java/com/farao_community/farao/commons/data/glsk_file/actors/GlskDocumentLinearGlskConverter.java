@@ -98,7 +98,7 @@ public class GlskDocumentLinearGlskConverter {
             //mapping with DataChronology
             List<GlskPoint> glskPointList = glskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point);
+                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point, TypeGlskFile.CIM);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
             }
             countryLinearGlskDataChronologyMap.put(country, dataChronology);

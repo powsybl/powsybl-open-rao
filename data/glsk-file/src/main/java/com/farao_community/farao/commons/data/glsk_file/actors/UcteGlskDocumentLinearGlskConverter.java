@@ -97,7 +97,7 @@ public class UcteGlskDocumentLinearGlskConverter {
             DataChronology<LinearGlsk> dataChronology = DataChronologyImpl.create();
             List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
             for (GlskPoint point : glskPointList) {
-                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point);
+                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point, TypeGlskFile.UCTE);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
             }
             chronologyLinearGlskMap.put(country, dataChronology);
