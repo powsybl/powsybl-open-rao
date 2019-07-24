@@ -55,8 +55,8 @@ public class UcteGlskSeries {
         this.area = nodeElement.getAttribute("v");
         this.ucteBusinessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
         this.timeSeriesID = ((Element) element.getElementsByTagName("TimeSeriesIdentification").item(0)).getAttribute("v");
-        if (!getShare(element, "BusinessType", "share").isEmpty()) {
-            this.shareFactor = Double.parseDouble(getShare(element, "BusinessType", "share"));
+        if (!getShare(element).isEmpty()) {
+            this.shareFactor = Double.parseDouble(getShare(element));
         } else {
             this.shareFactor = 100;
         }
@@ -80,12 +80,12 @@ public class UcteGlskSeries {
 
     }
 
-    private String getShare(Element element, String tagName, String attribute) {
-        return ((Element) element.getElementsByTagName(tagName).item(0)).getAttribute(attribute);
+    private String getShare(Element element) {
+        return ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("share");
     }
 
     /**
-     * @return gette area
+     * @return getter area
      */
     public String getArea() {
         return area;
