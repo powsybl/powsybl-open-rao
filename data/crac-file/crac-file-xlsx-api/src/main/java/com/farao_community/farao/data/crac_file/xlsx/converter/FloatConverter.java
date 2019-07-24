@@ -28,7 +28,7 @@ public final class FloatConverter implements Converter<Float> {
             symbols.setDecimalSeparator('.');
             DecimalFormat format = new DecimalFormat("0.#");
             format.setDecimalFormatSymbols(symbols);
-            return format.parse(value).floatValue();
+            return format.parse(value.trim()).floatValue();
         } catch (Exception e) {
             log.error(String.format("Failed to parse '%s' as float at row='%s' ", value, row));
             throw new FaraoException(String.format("Failed to parse '%s' as float at row='%s' ", value, row), e);

@@ -30,7 +30,7 @@ public final class DateConverter implements Converter<LocalDate> {
         Optional<LocalDate> test =  Arrays.stream(VALID_FORMAT_PATTERNS).map(DateTimeFormatter::ofPattern)
                 .map(formatter -> {
                     try {
-                        return LocalDate.parse(value, formatter);
+                        return LocalDate.parse(value.trim(), formatter);
                     } catch (Exception e) {
                         // Incorrect pattern : return null
                         return null;
