@@ -166,5 +166,8 @@ public class ImportServiceTest {
         assertEquals("FFR1AA1  BBE1AA1  1", cracFile.getPreContingency().getMonitoredBranches().get(0).getBranchId());
         assertEquals("FFR1AA1  BBE2AA1  1", cracFile.getPreContingency().getMonitoredBranches().get(1).getBranchId());
         assertEquals("FFR1AA1 _generator", cracFile.getRemedialActions().get(0).getRemedialActionElements().get(0).getId());
+        assertEquals("BBE1AA1  BBE2AA1  1", cracFile.getRemedialActions().get(2).getId());
+        assertEquals("BBE1AA1  BBE2AA1  1", cracFile.getRemedialActions().get(2).getId());
+        assertEquals("pstExample", cracFile.getRemedialActions().get(2).getName());
     }
 }
