@@ -96,7 +96,6 @@ public class GlskPointLinearGlskConverter {
             //unknown PsrType
             throw new FaraoException("convertCountryProportionalGlskPointToLinearGlskMap PsrType not supported");
         }
-
     }
 
     /**
@@ -109,7 +108,7 @@ public class GlskPointLinearGlskConverter {
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             List<String> generatorsList = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .map(generatorResource -> getGeneratorId(generatorResource, typeGlskFile)).collect(Collectors.toList());
+                    .map(generatorResource -> generatorResource.getGeneratorId(typeGlskFile)).collect(Collectors.toList());
             double totalP = network.getGeneratorStream().filter(generator -> generatorsList.contains(generator.getId()))
                     .mapToDouble(Generator::getTargetP).sum();
             network.getGeneratorStream().filter(generator -> generatorsList.contains(generator.getId()))
@@ -117,7 +116,7 @@ public class GlskPointLinearGlskConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<String> loadsList = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .map(loadResource -> getLoadId(loadResource, typeGlskFile)).collect(Collectors.toList());
+                    .map(loadResource -> loadResource.getLoadId(typeGlskFile)).collect(Collectors.toList());
             double totalLoad = network.getLoadStream().filter(load -> loadsList.contains(load.getId()))
                     .mapToDouble(Load::getP0).sum();
             network.getLoadStream().filter(load -> loadsList.contains(load.getId()))
@@ -126,7 +125,6 @@ public class GlskPointLinearGlskConverter {
             //unknown PsrType
             throw new FaraoException("convertExplicitProportionalGlskPointToLinearGlskMap PsrType not supported");
         }
-
     }
 
     /**
@@ -140,43 +138,23 @@ public class GlskPointLinearGlskConverter {
             //Generator A04
             List<GlskRegisteredResource> generatorsResourceList = glskShiftKey.getRegisteredResourceArrayList();
             double totalFactor = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(generatorResource -> network.getGenerator(getGeneratorId(generatorResource, typeGlskFile)) != null)
+                    .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId(typeGlskFile)) != null)
                     .mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
-            generatorsResourceList.stream().filter(generatorResource -> network.getGenerator(getGeneratorId(generatorResource, typeGlskFile)) != null)
-                    .forEach(generatorResource -> linearGlskMap.put(getResourceId(generatorResource), glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
+            generatorsResourceList.stream().filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId(typeGlskFile)) != null)
+                    .forEach(generatorResource -> linearGlskMap.put(generatorResource.getmRID(), glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<GlskRegisteredResource> loadsResourceList = glskShiftKey.getRegisteredResourceArrayList();
             double totalFactor = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> network.getLoad(getLoadId(loadResource, typeGlskFile)) != null)
+                    .filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)) != null)
                     .mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
-            loadsResourceList.stream().filter(loadResource -> network.getLoad(getLoadId(loadResource, typeGlskFile)) != null)
-                    .forEach(loadResource -> linearGlskMap.put(getResourceId(loadResource), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
+            loadsResourceList.stream().filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)) != null)
+                    .forEach(loadResource -> linearGlskMap.put(loadResource.getmRID(), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
         } else {
             //unknown PsrType
             throw new FaraoException("convertParticipationFactorGlskPointToLinearGlskMap PsrType not supported");
         }
-    }
-
-    private String getLoadId(GlskRegisteredResource loadResource, TypeGlskFile typeGlskFile) {
-        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
-            return getResourceId(loadResource) + "_load";
-        } else {
-            return getResourceId(loadResource);
-        }
-    }
-
-    private String getGeneratorId(GlskRegisteredResource generatorResource, TypeGlskFile typeGlskFile) {
-        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
-            return getResourceId(generatorResource) + "_generator";
-        } else {
-            return getResourceId(generatorResource);
-        }
-    }
-
-    private String getResourceId(GlskRegisteredResource resource) {
-        return resource.getmRID();
     }
 }
