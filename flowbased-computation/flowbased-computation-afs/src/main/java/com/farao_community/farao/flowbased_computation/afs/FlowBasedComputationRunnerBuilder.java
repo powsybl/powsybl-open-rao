@@ -93,6 +93,7 @@ public class FlowBasedComputationRunnerBuilder implements ProjectFileBuilder<Flo
         // write parameters using default one
         FlowBasedComputationRunner.writeParameters(context.getStorage(), info, parameters);
 
+        context.getStorage().setConsistent(info.getId());
         context.getStorage().flush();
 
         return new FlowBasedComputationRunner(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));

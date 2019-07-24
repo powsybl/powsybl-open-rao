@@ -99,6 +99,7 @@ public class RaoComputationRunnerBuilder implements ProjectFileBuilder<RaoComput
         // write parameters using default one
         RaoComputationRunner.writeParameters(context.getStorage(), info, parameters);
 
+        context.getStorage().setConsistent(info.getId());
         context.getStorage().flush();
 
         return new RaoComputationRunner(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
