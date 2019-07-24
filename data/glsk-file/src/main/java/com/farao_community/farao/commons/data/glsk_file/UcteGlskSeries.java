@@ -55,8 +55,11 @@ public class UcteGlskSeries {
         this.area = nodeElement.getAttribute("v");
         this.ucteBusinessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
         this.timeSeriesID = ((Element) element.getElementsByTagName("TimeSeriesIdentification").item(0)).getAttribute("v");
-        this.shareFactor = Double.parseDouble(((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("share"));
-
+        if (!getShare(element, "BusinessType", "share").isEmpty()) {
+            this.shareFactor = Double.parseDouble(getShare(element, "BusinessType", "share"));
+        } else {
+            this.shareFactor = 100;
+        }
         if (Objects.requireNonNull(element).getElementsByTagName("CountryGSK_Block").getLength() > 0) {
             this.ucteGlskBlockType = "CountryGSK_Block";
         } else if (Objects.requireNonNull(element).getElementsByTagName("ManualGSK_Block").getLength() > 0) {
@@ -75,6 +78,10 @@ public class UcteGlskSeries {
             ucteGlskBlocks.add(glskPoint);
         }
 
+    }
+
+    private String getShare(Element element, String tagName, String attribute) {
+        return ((Element) element.getElementsByTagName(tagName).item(0)).getAttribute(attribute);
     }
 
     /**
