@@ -100,6 +100,7 @@ public class ImportedCracFileBuilder implements ProjectFileBuilder<ImportedCracF
             throw new UncheckedIOException(e);
         }
 
+        context.getStorage().setConsistent(info.getId());
         context.getStorage().flush();
 
         return new ImportedCracFile(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));

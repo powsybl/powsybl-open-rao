@@ -106,6 +106,7 @@ public class FlowDecompositionRunnerBuilder implements ProjectFileBuilder<FlowDe
         // write parameters using default one
         FlowDecompositionRunner.writeParameters(context.getStorage(), info, parameters);
 
+        context.getStorage().setConsistent(info.getId());
         context.getStorage().flush();
 
         return new FlowDecompositionRunner(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));

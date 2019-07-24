@@ -111,6 +111,8 @@ public class ImportedXlsxCracFileBuilder implements ProjectFileBuilder<ImportedX
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        context.getStorage().setConsistent(info.getId());
         context.getStorage().flush();
         return new ImportedXlsxCracFile(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
     }
