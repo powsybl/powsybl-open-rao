@@ -22,8 +22,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
@@ -31,7 +30,6 @@ import static org.junit.Assert.assertTrue;
 public class UcteGlskDocumentScalableConverterTest {
 
     private static final String UCTETEST = "/20170322_1844_SN3_FR2_GLSK_test.xml";
-
     private Network testNetwork;
 
     @Before
@@ -49,6 +47,12 @@ public class UcteGlskDocumentScalableConverterTest {
             assertTrue(dataChronology.getDataForInstant(Instant.parse("2016-07-28T22:00:00Z")).isPresent());
             assertFalse(dataChronology.getDataForInstant(Instant.parse("2018-08-26T21:00:00Z")).isPresent());
         }
+
+        DataChronology<Scalable> dataChronolog = mapGlskDocScalable.get("10YFR-RTE------C");
+        Scalable scalable =  dataChronolog.getDataForInstant(Instant.parse("2016-07-28T22:00:00Z")).get();
+        assertEquals("FFR1AA1 _generator", scalable.filterInjections(testNetwork).get(0).getId());
+        assertEquals("FFR1AA1 _load", scalable.filterInjections(testNetwork).get(1).getId());
+        assertEquals("FFR2AA1 _load", scalable.filterInjections(testNetwork).get(2).getId());
     }
 
     @Test
@@ -62,4 +66,5 @@ public class UcteGlskDocumentScalableConverterTest {
         Path pathtest = Paths.get(getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath());
         assertTrue(!new UcteGlskDocumentScalableConverter().convertUcteGlskDocumentToScalableDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
     }
+
 }

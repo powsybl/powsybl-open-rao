@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.data.glsk_file.actors.TypeGlskFile;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
@@ -117,4 +118,25 @@ public class GlskRegisteredResource {
         return minimumCapacity;
     }
 
+    /**
+     * @return the genrator Id according to type of Glsk File
+     */
+    public String getGeneratorId(TypeGlskFile typeGlskFile) {
+        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
+            return mRID + "_generator";
+        } else {
+            return mRID;
+        }
+    }
+
+    /**
+     * @return the load Id according to the type of Glsk File
+     */
+    public String getLoadId(TypeGlskFile typeGlskFile) {
+        if (typeGlskFile.equals(TypeGlskFile.UCTE)) {
+            return mRID + "_load";
+        } else {
+            return mRID;
+        }
+    }
 }
