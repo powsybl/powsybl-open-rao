@@ -16,46 +16,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProblemFiller {
-    private static final String REDISPATCH_VALUE_POSTFIX = "_redispatch_value";
 
     private List<RedispatchRemedialActionElement> generatorsRedispatchN;
     private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
-
-    /**
-     * Check if the remedial action is a Redispatch remedial action (i.e. with only
-     * one remedial action element and redispatch)
-     */
-    private boolean isRedispatchRemedialAction(RemedialAction remedialAction) {
-        return remedialAction.getRemedialActionElements().size() == 1 &&
-                remedialAction.getRemedialActionElements().get(0) instanceof RedispatchRemedialActionElement;
-    }
-
-    private boolean isRemedialActionPreventiveFreeToUse(RemedialAction remedialAction) {
-        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.N)
-        && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE));
-    }
-
-    private boolean isRemedialActionCurativeFreeToUse(RemedialAction remedialAction) {
-        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
-                && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE));
-    }
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
         this.generatorsRedispatchN = cracFile.getRemedialActions().stream()
-                .filter(this::isRedispatchRemedialAction).filter(this::isRemedialActionPreventiveFreeToUse)
+                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
                 .collect(Collectors.toList());
 
         this.generatorsRedispatchCurative = cracFile.getRemedialActions().stream()
-                .filter(this::isRedispatchRemedialAction).filter(this::isRemedialActionCurativeFreeToUse)
+                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionCurativeFreeToUse(ra))
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
                 .collect(Collectors.toList());
@@ -88,7 +70,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
 
         cracFile.getContingencies().stream().forEach(cont -> {
             variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> cont.getId() + gen.getId() + REDISPATCH_VALUE_POSTFIX)
-            .collect(Collectors.toList()));
+                    .collect(Collectors.toList()));
         });
 
         return variablesList;
