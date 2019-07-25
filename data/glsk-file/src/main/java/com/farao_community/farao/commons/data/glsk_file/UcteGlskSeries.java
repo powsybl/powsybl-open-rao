@@ -44,10 +44,6 @@ public class UcteGlskSeries {
      * List of block in time series
      */
     private List<GlskPoint> ucteGlskBlocks;
-    /**
-     * Constant business type
-     */
-    private static final String BUSINESS_TYPE = "BusinessType";
 
     /**
      * @param element element of Series
@@ -57,10 +53,10 @@ public class UcteGlskSeries {
         Node node = Objects.requireNonNull(element).getElementsByTagName("Area").item(0);
         Element nodeElement = (Element) node;
         this.area = nodeElement.getAttribute("v");
-        this.ucteBusinessType = ((Element) element.getElementsByTagName(BUSINESS_TYPE).item(0)).getAttribute("v");
+        this.ucteBusinessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
         this.timeSeriesID = ((Element) element.getElementsByTagName("TimeSeriesIdentification").item(0)).getAttribute("v");
-        if (((Element) element.getElementsByTagName(BUSINESS_TYPE).item(0)).hasAttribute("share")) {
-            this.shareFactor = Double.parseDouble(((Element) element.getElementsByTagName(BUSINESS_TYPE).item(0)).getAttribute("share"));
+        if (((Element) element.getElementsByTagName("BusinessType").item(0)).hasAttribute("share")) {
+            this.shareFactor = Double.parseDouble(((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("share"));
         } else {
             this.shareFactor = 100;
         }
