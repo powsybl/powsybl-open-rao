@@ -10,8 +10,9 @@ public final class FillersTools {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-    public static final String REDISPATCH_VALUE_POSTFIX = "_redispatch_value";
-
+    public static final String REDISPATCH_VALUE_N_POSTFIX = "_redispatch_value";
+    public static final String REDISPATCH_VALUE_CURATIVE_POSTFIX = "_redispatch_value";
+    public static final String BLANK_CHARACTER = "_";
 
     /**
      * Check if the remedial action is a Redispatch remedial action (i.e. with only

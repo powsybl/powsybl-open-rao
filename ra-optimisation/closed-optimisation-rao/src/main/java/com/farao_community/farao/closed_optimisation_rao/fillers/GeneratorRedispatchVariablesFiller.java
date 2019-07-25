@@ -49,7 +49,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
             double pmin = gen.getMinimumPower();
             double pmax = gen.getMaximumPower();
             double pinit = -network.getGenerator(gen.getId()).getTerminal().getP();
-            solver.makeNumVar(pmin - pinit, pmax - pinit, gen.getId() + REDISPATCH_VALUE_POSTFIX);
+            solver.makeNumVar(pmin - pinit, pmax - pinit, gen.getId() + REDISPATCH_VALUE_N_POSTFIX);
         });
 
         cracFile.getContingencies().stream().forEach(contingency -> {
@@ -57,7 +57,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
                 double pmin = gen.getMinimumPower();
                 double pmax = gen.getMaximumPower();
                 double pinit = -network.getGenerator(gen.getId()).getTerminal().getP();
-                solver.makeNumVar(pmin - pinit, pmax - pinit, contingency.getId() + gen.getId() + REDISPATCH_VALUE_POSTFIX);
+                solver.makeNumVar(pmin - pinit, pmax - pinit, contingency.getId() + BLANK_CHARACTER + gen.getId() + REDISPATCH_VALUE_CURATIVE_POSTFIX);
             });
 
         });
@@ -65,11 +65,11 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
 
     @Override
     public List<String> variablesProvided() {
-        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> gen.getId() + REDISPATCH_VALUE_POSTFIX)
+        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> gen.getId() + REDISPATCH_VALUE_N_POSTFIX)
                 .collect(Collectors.toList());
 
         cracFile.getContingencies().stream().forEach(cont -> {
-            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> cont.getId() + gen.getId() + REDISPATCH_VALUE_POSTFIX)
+            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> cont.getId() + BLANK_CHARACTER + gen.getId() + REDISPATCH_VALUE_CURATIVE_POSTFIX)
                     .collect(Collectors.toList()));
         });
 
