@@ -21,29 +21,29 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationProblemFiller {
-    private static final String REDISPATCH_VALUE_POSTFIX = "_redispatch_value";
 
-    private List<RedispatchRemedialActionElement> generatorsRedispatch;
+    private List<RedispatchRemedialActionElement> generatorsRedispatchN;
+    private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
 
-    /**
-     * Check if the remedial action is a Redispatch remedial action (i.e. with only
-     * one remedial action element and redispatch)
-     */
-    private boolean isRedispatchRemedialAction(RemedialAction remedialAction) {
-        return remedialAction.getRemedialActionElements().size() == 1 &&
-                remedialAction.getRemedialActionElements().get(0) instanceof RedispatchRemedialActionElement;
-    }
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.generatorsRedispatch = cracFile.getRemedialActions().stream()
-                .filter(this::isRedispatchRemedialAction)
+        this.generatorsRedispatchN = cracFile.getRemedialActions().stream()
+                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
+                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
+                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
+                .collect(Collectors.toList());
+
+        this.generatorsRedispatchCurative = cracFile.getRemedialActions().stream()
+                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionCurativeFreeToUse(ra))
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
                 .collect(Collectors.toList());
@@ -51,16 +51,33 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
 
     @Override
     public List<String> variablesExpected() {
-        return generatorsRedispatch.stream().map(gen -> gen.getId() + REDISPATCH_VALUE_POSTFIX)
+        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> gen.getId() + REDISPATCH_VALUE_N_POSTFIX)
                 .collect(Collectors.toList());
+
+        cracFile.getContingencies().forEach(cont -> {
+            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> cont.getId() + BLANK_CHARACTER + gen.getId() + REDISPATCH_VALUE_CURATIVE_POSTFIX)
+                    .collect(Collectors.toList()));
+        });
+
+        return variablesList;
     }
 
     @Override
     public void fillProblem(MPSolver solver) {
-        MPConstraint equilibrium = solver.makeConstraint(0, 0);
-        generatorsRedispatch.forEach(gen -> {
-            MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(gen.getId() + REDISPATCH_VALUE_POSTFIX));
-            equilibrium.setCoefficient(redispatchValueVariable, 1);
+        MPConstraint equilibriumN = solver.makeConstraint(0, 0);
+        generatorsRedispatchN.forEach(gen -> {
+            MPVariable redispatchValueVariable = Objects.requireNonNull(
+                    solver.lookupVariableOrNull(gen.getId() + REDISPATCH_VALUE_N_POSTFIX));
+            equilibriumN.setCoefficient(redispatchValueVariable, 1);
+        });
+
+        cracFile.getContingencies().forEach( cont -> {
+            MPConstraint equilibriumCurative = solver.makeConstraint(0,0);
+            generatorsRedispatchCurative.forEach(gen -> {
+                MPVariable redispatchValueVariable = Objects.requireNonNull(
+                        solver.lookupVariableOrNull(cont.getId() + BLANK_CHARACTER + gen.getId() + REDISPATCH_VALUE_CURATIVE_POSTFIX));
+                equilibriumCurative.setCoefficient(redispatchValueVariable, 1);
+            });
         });
     }
 }
