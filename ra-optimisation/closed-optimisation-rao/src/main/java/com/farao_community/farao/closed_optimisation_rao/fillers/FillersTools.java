@@ -12,6 +12,8 @@ public final class FillersTools {
 
     private static final String REDISPATCH_VALUE_N_POSTFIX = "_redispatch_value";
     private static final String REDISPATCH_VALUE_CURATIVE_POSTFIX = "_redispatch_value";
+    private static final String ESTIMATED_FLOW_EQUATION_POSTFIX = "_estimated_flow_equation";
+    public static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
     private static final String BLANK_CHARACTER = "_";
 
     /**
@@ -45,6 +47,14 @@ public final class FillersTools {
     public static String nameRedispatchValueVariableN(String remedialActionId)
     {
         return remedialActionId + REDISPATCH_VALUE_N_POSTFIX;
+    }
+
+    /**
+     * Get standard name of flow definition constraint
+     */
+    public static String nameEstimatedFlowConstraint(String branchId)
+    {
+        return branchId + ESTIMATED_FLOW_EQUATION_POSTFIX;
     }
 
     /**
