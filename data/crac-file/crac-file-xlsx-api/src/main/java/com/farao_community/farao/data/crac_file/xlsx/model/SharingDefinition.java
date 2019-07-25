@@ -21,7 +21,8 @@ public enum SharingDefinition {
     CSRA_CONTROL_BLOCK("CSRA - Shared for the CBCOs within the TSO's Control Block"),
     CSRA_CBCO_GROUP("CSRA - Shared for the CBCOs within the CBCO Group"),
     CSRA_CBCO("CSRA - Shared for the CBCOs within the CBCO Single"),
-    SRA("SRA - Shared RA");
+    SRA("SRA - Shared RA"),
+    SRA_WITHOUT_RA("SRA - Shared");
 
     private static final Map<String, SharingDefinition> ENUM_MAP = new HashMap<>();
 
