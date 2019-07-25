@@ -55,8 +55,8 @@ public class UcteGlskSeries {
         this.area = nodeElement.getAttribute("v");
         this.ucteBusinessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
         this.timeSeriesID = ((Element) element.getElementsByTagName("TimeSeriesIdentification").item(0)).getAttribute("v");
-        if (!getShare(element).isEmpty()) {
-            this.shareFactor = Double.parseDouble(getShare(element));
+        if (((Element) element.getElementsByTagName("BusinessType").item(0)).hasAttribute("share")) {
+            this.shareFactor = Double.parseDouble(((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("share"));
         } else {
             this.shareFactor = 100;
         }
@@ -78,10 +78,6 @@ public class UcteGlskSeries {
             ucteGlskBlocks.add(glskPoint);
         }
 
-    }
-
-    private String getShare(Element element) {
-        return ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("share");
     }
 
     /**
