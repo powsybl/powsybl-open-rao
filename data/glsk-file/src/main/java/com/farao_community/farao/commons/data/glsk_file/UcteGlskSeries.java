@@ -49,7 +49,6 @@ public class UcteGlskSeries {
      * @param element element of Series
      */
     public UcteGlskSeries(Element element) {
-
         Node node = Objects.requireNonNull(element).getElementsByTagName("Area").item(0);
         Element nodeElement = (Element) node;
         this.area = nodeElement.getAttribute("v");
