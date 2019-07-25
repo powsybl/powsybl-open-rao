@@ -51,11 +51,11 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
 
     @Override
     public List<String> variablesExpected() {
-        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> gen.getId() + REDISPATCH_VALUE_N_POSTFIX)
+        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> nameRedispatchValueVariableN(gen.getId()))
                 .collect(Collectors.toList());
 
         cracFile.getContingencies().forEach(cont -> {
-            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> cont.getId() + BLANK_CHARACTER + gen.getId() + REDISPATCH_VALUE_CURATIVE_POSTFIX)
+            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchValueVariableCurative(cont.getId(), gen.getId()))
                     .collect(Collectors.toList()));
         });
 
@@ -67,7 +67,7 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
         MPConstraint equilibriumN = solver.makeConstraint(0, 0);
         generatorsRedispatchN.forEach(gen -> {
             MPVariable redispatchValueVariable = Objects.requireNonNull(
-                    solver.lookupVariableOrNull(gen.getId() + REDISPATCH_VALUE_N_POSTFIX));
+                    solver.lookupVariableOrNull(nameRedispatchValueVariableN(gen.getId())));
             equilibriumN.setCoefficient(redispatchValueVariable, 1);
         });
 
@@ -75,7 +75,7 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
             MPConstraint equilibriumCurative = solver.makeConstraint(0,0);
             generatorsRedispatchCurative.forEach(gen -> {
                 MPVariable redispatchValueVariable = Objects.requireNonNull(
-                        solver.lookupVariableOrNull(cont.getId() + BLANK_CHARACTER + gen.getId() + REDISPATCH_VALUE_CURATIVE_POSTFIX));
+                        solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(cont.getId(), gen.getId())));
                 equilibriumCurative.setCoefficient(redispatchValueVariable, 1);
             });
         });

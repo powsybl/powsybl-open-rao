@@ -10,9 +10,9 @@ public final class FillersTools {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-    public static final String REDISPATCH_VALUE_N_POSTFIX = "_redispatch_value";
-    public static final String REDISPATCH_VALUE_CURATIVE_POSTFIX = "_redispatch_value";
-    public static final String BLANK_CHARACTER = "_";
+    private static final String REDISPATCH_VALUE_N_POSTFIX = "_redispatch_value";
+    private static final String REDISPATCH_VALUE_CURATIVE_POSTFIX = "_redispatch_value";
+    private static final String BLANK_CHARACTER = "_";
 
     /**
      * Check if the remedial action is a Redispatch remedial action (i.e. with only
@@ -37,5 +37,21 @@ public final class FillersTools {
     public static boolean isRemedialActionCurativeFreeToUse(RemedialAction remedialAction) {
         return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
                 && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE));
+    }
+
+    /**
+     * Get standard name of redispatch value variable for preventive remedial actions
+     */
+    public static String nameRedispatchValueVariableN(String remedialActionId)
+    {
+        return remedialActionId + REDISPATCH_VALUE_N_POSTFIX;
+    }
+
+    /**
+     * Get standard name of redispatch value variable for curative remedial actions
+     */
+    public static String nameRedispatchValueVariableCurative(String contingencyId, String remedialActionId)
+    {
+        return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_VALUE_CURATIVE_POSTFIX;
     }
 }
