@@ -105,7 +105,7 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
                     flowEquation.setCoefficient(redispatchVariable, -sensitivity);
                 });
                 generatorsRedispatchCurative.forEach(gen -> {
-                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(branch.getId(), gen.getId())));
+                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contingency.getId(), gen.getId())));
                     double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
                     flowEquation.setCoefficient(redispatchVariable, -sensitivity);
                 });
