@@ -7,6 +7,7 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.powsybl.tools.Tool;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,6 +58,9 @@ public class FlowBasedComputationToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
         assertOption(tool.getCommand().getOptions(), "instant", false, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
+
+        Assert.assertEquals(tool.getCommand().getTheme(), "Computation");
+        Assert.assertEquals(tool.getCommand().getDescription(), "Run modular FlowBased computation");
     }
 
     @Test
