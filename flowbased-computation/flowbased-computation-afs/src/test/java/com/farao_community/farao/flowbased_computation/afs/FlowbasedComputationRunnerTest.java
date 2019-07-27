@@ -148,8 +148,10 @@ public class FlowbasedComputationRunnerTest extends AbstractProjectFileTest {
 
         // create network.net
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
+        NodeInfo networkNodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
+        storage.setConsistent(networkNodeInfo.getId());
+        storage.flush();
     }
 
     @Test
