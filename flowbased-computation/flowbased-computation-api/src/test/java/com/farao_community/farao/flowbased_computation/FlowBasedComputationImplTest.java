@@ -64,19 +64,4 @@ public class FlowBasedComputationImplTest {
         String workingStateId = "0";
         flowBasedComputationImplMock.run(workingStateId, parameters);
     }
-
-    @Test
-    public void runTestTre() {
-        flowBasedComputationImplMock = new FlowBasedComputationImpl(network,
-                cracFile,
-                flowBasedGlskValuesProvider,
-                instant,
-                computationManager,
-                loadFlowFactory,
-                sensitivityComputationFactory
-        );
-        FlowBasedComputationParameters parameters = Mockito.mock(FlowBasedComputationParameters.class);
-        String workingStateId = "0";
-        flowBasedComputationImplMock.run(workingStateId, parameters);
-    }
 }
