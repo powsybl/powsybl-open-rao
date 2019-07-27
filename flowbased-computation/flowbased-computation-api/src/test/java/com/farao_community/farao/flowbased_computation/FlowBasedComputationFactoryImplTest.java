@@ -15,6 +15,10 @@ import org.mockito.Mockito;
 
 import java.time.Instant;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
 /**
  * FlowBased Computation Factory Impl Test
  *
@@ -28,6 +32,9 @@ public class FlowBasedComputationFactoryImplTest {
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
     private ComputationManager computationManager;
 
+    private FlowBasedComputationFactoryImpl flowBasedComputationFactoryImpl;
+    private FlowBasedComputation flowBasedComputation;
+
     @Before
     public void setup() {
         network = Mockito.mock(Network.class);
@@ -35,6 +42,11 @@ public class FlowBasedComputationFactoryImplTest {
         instant = Instant.parse("2018-08-28T22:00:00Z");
         flowBasedGlskValuesProvider = Mockito.mock(FlowBasedGlskValuesProvider.class);
         computationManager = Mockito.mock(ComputationManager.class);
+
+        flowBasedComputationFactoryImpl = Mockito.mock(FlowBasedComputationFactoryImpl.class);
+        flowBasedComputation = Mockito.mock(FlowBasedComputation.class);
+        when(flowBasedComputationFactoryImpl.create(any(), any(), any(), any(), any(), anyInt()))
+                .thenReturn(flowBasedComputation);
     }
 
     @Test (expected = com.powsybl.commons.PowsyblException.class)
@@ -46,6 +58,11 @@ public class FlowBasedComputationFactoryImplTest {
     @Test (expected = com.powsybl.commons.PowsyblException.class)
     public void runTestBis() {
         new FlowBasedComputationFactoryImpl().create(network, cracFile, computationManager, 0);
+    }
+
+    @Test
+    public void runTestTre() {
+        flowBasedComputation = flowBasedComputationFactoryImpl.create(network, cracFile, computationManager, 0);
     }
 
 }
