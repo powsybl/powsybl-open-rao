@@ -30,6 +30,9 @@ import java.time.Instant;
 import java.util.*;
 
 import com.powsybl.sensitivity.SensitivityFactor;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * FlowBased Computation Impl Test
@@ -53,7 +56,7 @@ public class FlowBasedComputationImplTest {
     private SensitivityComputationFactory sensitivityComputationFactory;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, ParserConfigurationException, SAXException {
         network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         cracFile = JsonCracFile.read(Files.newInputStream(Paths.get("src/test/resources/cracDataFlowBased.json")));
 
