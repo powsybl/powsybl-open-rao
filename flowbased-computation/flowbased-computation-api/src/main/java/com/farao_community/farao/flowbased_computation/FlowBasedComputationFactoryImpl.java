@@ -40,7 +40,7 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
                                        int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class), sensitivityComputationFactory);
+        return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
 
     /**
