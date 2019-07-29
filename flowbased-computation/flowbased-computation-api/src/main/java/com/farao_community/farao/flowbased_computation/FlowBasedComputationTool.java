@@ -65,40 +65,55 @@ public class FlowBasedComputationTool implements Tool {
 
             @Override
             public Options getOptions() {
+
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
+
+                options.addOption(Option.builder()
+                        .longOpt(CASE_FILE_OPTION)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt(CRAC_FILE_OPTION)
+
+                options.addOption(Option.builder()
+                        .longOpt(CRAC_FILE_OPTION)
                         .desc("the CRAC file path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt(GLSK_FILE_OPTION)
+
+                options.addOption(Option.builder()
+                        .longOpt(GLSK_FILE_OPTION)
                         .desc("the GlSK file path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+
+                options.addOption(Option.builder()
+                        .longOpt(PARAMETERS_FILE)
                         .desc("the FlowBased computation parameters as JSON file")
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(Option.builder().longOpt(INSTANT)
+
+                options.addOption(Option.builder()
+                        .longOpt(INSTANT)
                         .desc("the instant of FlowBased computation")
                         .hasArg()
                         .argName("FILE")
+                        .required()
                         .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
+
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_FILE_OPTION)
                         .desc("the FlowBased computation results output path")
                         .hasArg()
                         .argName("FILE")
                         .build());
+
                 return options;
             }
 
@@ -135,27 +150,12 @@ public class FlowBasedComputationTool implements Tool {
 
         FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            JsonFlowBasedComputationParameters.update(parameters, parametersFile);
+            JsonFlowBasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        Instant instant;
-        if (line.hasOption(INSTANT)) {
-            String instantString = line.getOptionValue(INSTANT);
-            instant = Instant.parse(instantString);
-            //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug
-        } else {
-            //if instant is not defined, use interval start instant as default
-            instant = flowBasedGlskValuesProvider.getInstantStart(glskFile.toString());
-        }
+        Instant instant = Instant.parse(line.getOptionValue(INSTANT)); //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug //instant = flowBasedGlskValuesProvider.getInstantStart(glskFile.toString()); //if instant is not defined, use interval start instant as default
 
-        FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load()
-                .newFactoryImpl(FlowBasedComputationFactory.class)
-                .create(network,
-                        cracProvider,
-                        flowBasedGlskValuesProvider,
-                        instant,
-                        computationManager, 0);
+        FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load().newFactoryImpl(FlowBasedComputationFactory.class).create(network, cracProvider, flowBasedGlskValuesProvider, instant, computationManager, 0);
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 

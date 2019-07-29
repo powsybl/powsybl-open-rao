@@ -51,12 +51,12 @@ public class FlowBasedComputationToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), COMMAND_NAME, 6, 3);
+        assertCommand(tool.getCommand(), COMMAND_NAME, 6, 4);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "crac-file", true, true);
         assertOption(tool.getCommand().getOptions(), "glsk-file", true, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "instant", false, true);
+        assertOption(tool.getCommand().getOptions(), "instant", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
 
         Assert.assertEquals(tool.getCommand().getTheme(), "Computation");
@@ -75,7 +75,7 @@ public class FlowBasedComputationToolTest extends AbstractToolTest {
             "--case-file", "testCase.xiidm",
             "--crac-file", "cracDataFlowBased.json",
             "--glsk-file", "GlskCountry.xml"
-        }, 3, "", "");
+        }, 2, "", "");
     }
 
     @Test

@@ -36,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedComputationImpl implements FlowBasedComputation {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
 
     /**
@@ -160,7 +161,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                         ptdfPerCountryList.add(ptdfPerCountry);
                     }
                 });
-//            LOGGER.info("### : " + branch.getId());
+
             //fill in DataMonitoredBranch
             DataMonitoredBranch branchResult = new DataMonitoredBranch(
                     branch.getId(),
