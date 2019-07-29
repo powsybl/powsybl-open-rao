@@ -25,10 +25,10 @@ import org.apache.commons.cli.Options;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Objects;
 
 /**
  * FlowBased Computation Tool
+ * providing an example to use FlowBased computation API
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
@@ -161,13 +161,9 @@ public class FlowBasedComputationTool implements Tool {
 
         FlowBasedComputationResult result = flowBasedComputation.run(currentState, parameters).join();
 
-        if (Objects.isNull(result)) {
-            context.getErrorStream().println("Error occured during computation, result not provided");
-        } else {
-            if (outputFile != null) {
-                context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                JsonFlowbasedDomain.write(result.createDataDomain(), Files.newOutputStream(outputFile));
-            }
+        if (outputFile != null) {
+            context.getOutputStream().println("Writing results to '" + outputFile + "'");
+            JsonFlowbasedDomain.write(result.createDataDomain(), Files.newOutputStream(outputFile));
         }
     }
 }
