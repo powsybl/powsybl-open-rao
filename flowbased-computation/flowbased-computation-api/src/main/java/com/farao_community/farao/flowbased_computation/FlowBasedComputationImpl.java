@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
@@ -108,14 +107,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         // Fill SensitivityFactor List: BranchFlowPerLinearGlsk = SensitivityFactor<BranchFlow, LinearGlsk>
         SensitivityFactorsProvider factorsProvider = net -> {
             List<SensitivityFactor> factors = new ArrayList<>();
-            monitoredBranchList.forEach(branch -> mapCountryLinearGlsk.values()
-                    .stream()
-                    .map(linearGlsk -> new BranchFlowPerLinearGlsk(
-                            new BranchFlow(branch.getId(),
-                                    branch.getName(),
-                                    branch.getBranchId()),
-                            linearGlsk))
-                    .forEach(factors::add));
+            monitoredBranchList.forEach(branch -> mapCountryLinearGlsk.values().stream().map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(branch.getId(), branch.getName(), branch.getBranchId()), linearGlsk)).forEach(factors::add));
             return factors;
         };
 
@@ -123,21 +115,13 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                 network.getVariantManager().getWorkingVariantId(),
                 factorsProvider);
 
-        if (!sensiResults.isOk()) {
-            throw new FaraoException("Failure in sensitivity computation during Flow based computation.");
-        }
-
         FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
 
         //calculate reference flow value by load flow => save in Map<String, Double> referenceFlows
         Map<String, Double> referenceFlows = new HashMap<>();
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, network.getVariantManager().getWorkingVariantId());
-        if (!loadFlowResult.isOk()) {
-            throw new FaraoException("Divergence in loadflow computation during calculation of reference flow of Flow based computation.");
-        }
         monitoredBranchList.forEach(branch -> {
-            double flow = network.getBranch(branch.getBranchId()).getTerminal1().getP();
-            referenceFlows.put(branch.getId(), Double.isNaN(flow) ? 0. : flow);
+            double flow = network.getBranch(branch.getBranchId()).getTerminal1().getP(); referenceFlows.put(branch.getId(), Double.isNaN(flow) ? 0. : flow);
         });
 
         //fill in FlowBasedComputationResult
