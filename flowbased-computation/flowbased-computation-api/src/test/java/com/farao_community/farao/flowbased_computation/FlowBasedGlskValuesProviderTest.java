@@ -45,6 +45,8 @@ public class FlowBasedGlskValuesProviderTest {
 
         LinearGlsk linearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YBE----------2");
         Assert.assertFalse(linearGlsk.getGLSKs().isEmpty());
+        Assert.assertFalse(flowBasedGlskValuesProvider.getFilePathString().isEmpty());
+        Assert.assertFalse(flowBasedGlskValuesProvider.getMapCountryDataChronologyLinearGlsk().isEmpty());
         Map<String, LinearGlsk> linearGlskMap = flowBasedGlskValuesProvider.getCountryLinearGlskMap(instant);
         Assert.assertFalse(linearGlskMap.isEmpty());
     }

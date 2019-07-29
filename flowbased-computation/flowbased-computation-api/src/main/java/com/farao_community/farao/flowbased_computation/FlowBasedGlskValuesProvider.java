@@ -37,10 +37,12 @@ public class FlowBasedGlskValuesProvider {
      * Network we need a network to import Glsk document
      */
     private Network network;
+
     /**
      * Glsk file path in String
      */
     private String filePathString;
+
     /**
      * map of country code and DataChronology of LinearGlsk created from GlskFile
      */
@@ -150,6 +152,13 @@ public class FlowBasedGlskValuesProvider {
     }
 
     /**
+     * @return getter file path string
+     */
+    public String getFilePathString() {
+        return filePathString;
+    }
+
+    /**
      * @param filePathString set glsk document file path
      */
     public void setFilePathString(String filePathString) {
@@ -162,4 +171,12 @@ public class FlowBasedGlskValuesProvider {
     public void setMapCountryDataChronologyLinearGlsk(Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk) {
         this.mapCountryDataChronologyLinearGlsk = mapCountryDataChronologyLinearGlsk;
     }
+
+    /**
+     * @return getter mapCountryDataChronologyLinearGlsk
+     */
+    public Map<String, DataChronology<LinearGlsk>> getMapCountryDataChronologyLinearGlsk() {
+        return mapCountryDataChronologyLinearGlsk;
+    }
+
 }
