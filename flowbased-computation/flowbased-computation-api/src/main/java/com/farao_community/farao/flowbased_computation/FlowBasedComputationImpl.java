@@ -178,42 +178,81 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
     }
 
+    /**
+     * @return network getter
+     */
     public Network getNetwork() {
         return network;
     }
 
+    /**
+     * Network setter
+     * @param network network
+     */
     public void setNetwork(Network network) {
         this.network = network;
     }
 
+    /**
+     * getter crac file
+     * @return crac file
+     */
     public CracFile getCracFile() {
         return cracFile;
     }
 
+    /**
+     * setter crac file
+     * @param cracFile
+     */
     public void setCracFile(CracFile cracFile) {
         this.cracFile = cracFile;
     }
 
+    /**
+     * getter instant
+     * @return instant
+     */
     public Instant getInstant() {
         return instant;
     }
 
+    /**
+     * setter instant
+     * @param instant
+     */
     public void setInstant(Instant instant) {
         this.instant = instant;
     }
 
+    /**
+     * getter flowbased glsk values provider
+     * @return
+     */
     public FlowBasedGlskValuesProvider getFlowBasedGlskValuesProvider() {
         return flowBasedGlskValuesProvider;
     }
 
+    /**
+     * setter flowbased glsk values provider
+     * @param flowBasedGlskValuesProvider
+     */
     public void setFlowBasedGlskValuesProvider(FlowBasedGlskValuesProvider flowBasedGlskValuesProvider) {
         this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
     }
 
+    /**
+     * getter computation manager
+     * @return
+     */
     public ComputationManager getComputationManager() {
         return computationManager;
     }
 
+    /**
+     * setter computation manager
+     * @param computationManager
+     */
     public void setComputationManager(ComputationManager computationManager) {
         this.computationManager = computationManager;
     }

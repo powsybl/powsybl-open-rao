@@ -62,14 +62,11 @@ public class FlowBasedGlskValuesProvider {
      * @param network network
      * @param filePathString glsk file name
      */
-    public FlowBasedGlskValuesProvider(Network network, String filePathString) {
+    public FlowBasedGlskValuesProvider(Network network, String filePathString) throws ParserConfigurationException, SAXException, IOException {
         this.network = network;
         this.filePathString = filePathString;
-        try {
-            mapCountryDataChronologyLinearGlsk = createDataChronologyLinearGlskMap(network, filePathString);
-        } catch (IOException | SAXException | ParserConfigurationException e) {
-            LOGGER.error(String.valueOf(e));
-        }
+
+        mapCountryDataChronologyLinearGlsk = createDataChronologyLinearGlskMap(network, filePathString);
     }
 
     /**

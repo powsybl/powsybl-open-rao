@@ -43,5 +43,8 @@ public interface FlowBasedComputationFactory {
      * @return
      */
     //Remove this create(., ., ., .), after updating in afs-local.
-    FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority);
+    FlowBasedComputation create(Network network,
+                                CracFile cracFile,
+                                ComputationManager computationManager,
+                                int priority);
 }

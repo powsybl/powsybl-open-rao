@@ -33,11 +33,20 @@ public class FlowBasedComputationParameters extends AbstractExtendable<FlowBased
     public interface ConfigLoader<E extends Extension<FlowBasedComputationParameters>> extends ExtensionConfigLoader<FlowBasedComputationParameters, E> {
     }
 
+    /**
+     * parameter version
+     */
     public static final String VERSION = "1.0";
 
+    /**
+     * Supplier
+     */
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "fb-computation-parameters"));
 
+    /**
+     * Load Flow parameters
+     */
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
     /**
@@ -61,16 +70,27 @@ public class FlowBasedComputationParameters extends AbstractExtendable<FlowBased
         return parameters;
     }
 
+    /**
+     * read extension of parmameter file
+     * @param platformConfig
+     */
     private void readExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
     }
 
+    /**
+     * @return load flow parameters getter
+     */
     public LoadFlowParameters getLoadFlowParameters() {
         return loadFlowParameters;
     }
 
+    /**
+     * @param loadFlowParameters setter LoadFlowParameters for flow based computation
+     * @return FlowBasedComputationParameters
+     */
     public FlowBasedComputationParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
         return this;

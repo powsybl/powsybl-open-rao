@@ -48,6 +48,7 @@ public class FlowBasedComputationTool implements Tool {
     @Override
     public Command getCommand() {
         return new Command() {
+
             @Override
             public String getName() {
                 return "flowbased-computation";
@@ -162,7 +163,6 @@ public class FlowBasedComputationTool implements Tool {
         FlowBasedComputationResult result = flowBasedComputation.run(currentState, parameters).join();
 
         if (outputFile != null) {
-            context.getOutputStream().println("Writing results to '" + outputFile + "'");
             JsonFlowbasedDomain.write(result.createDataDomain(), Files.newOutputStream(outputFile));
         }
     }
