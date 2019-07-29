@@ -1,6 +1,5 @@
 package com.farao_community.farao.flowbased_computation;
 
-import com.farao_community.farao.flow_decomposition.full_line_decomposition.NetworkUtil;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.junit.Before;

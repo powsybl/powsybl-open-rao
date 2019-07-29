@@ -9,12 +9,14 @@ package com.farao_community.farao.flowbased_computation;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
-import com.farao_community.farao.flow_decomposition.full_line_decomposition.PtdfSensitivityConverter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
+import com.powsybl.sensitivity.factors.functions.BranchFlow;
+import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -49,35 +51,6 @@ public class FlowBasedComputationImplTest {
     private ComputationManager computationManager;
     private LoadFlowFactory loadFlowFactory;
     private SensitivityComputationFactory sensitivityComputationFactory;
-
-//    class MockSensitivityComputationFactory implements SensitivityComputationFactory {
-//
-//        @Override
-//        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
-//            return new MockSensitivityComputation();
-//        }
-//    }
-
-//    class MockSensitivityComputation implements SensitivityComputation {
-//
-//        @Override
-//        public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String stateId, SensitivityComputationParameters parameters) {
-//            List<SensitivityValue> values = factorsProvider.getFactors(testNetwork).stream()
-//                    .map(factor -> new SensitivityValue(factor, 1, 2, 3))
-//                    .collect(Collectors.toList());
-//            return CompletableFuture.completedFuture(new SensitivityComputationResults(true, new HashMap<>(), "", values));
-//        }
-//
-//        @Override
-//        public String getName() {
-//            return "Mock";
-//        }
-//
-//        @Override
-//        public String getVersion() {
-//            return "0.0";
-//        }
-//    }
 
     @Before
     public void setup() throws IOException {
@@ -134,8 +107,13 @@ public class FlowBasedComputationImplTest {
         referenceFlows.put("BBE1AA1  BBE3AA1  1", 999.);
         referenceFlows.put("FFR2AA1  FFR3AA1  1", 999.);
 
-        PtdfSensitivityConverter ptdfSensitivityConverter = new PtdfSensitivityConverter(testCracFile);
-        List<SensitivityFactor> factors = ptdfSensitivityConverter.getFactors(testNetwork);
+        List<SensitivityFactor> factors = new ArrayList<>();
+        cracFile.getPreContingency().getMonitoredBranches().stream()
+                .map(monitoredBranch -> network.getBranch(monitoredBranch.getBranchId()))
+                .filter(Objects::nonNull)
+                .filter(NetworkUtil::isConnectedAndInMainSynchronous)
+                .forEach(itBranch -> addFactorsForBranch(network, factors, itBranch));
+
         for (SensitivityFactor factor : factors) {
             sensitivityValues.add(new SensitivityValue(factor, 1, 2, 3));
         }
@@ -149,23 +127,20 @@ public class FlowBasedComputationImplTest {
 
     @Test
     public void testGetterSetter() {
-        flowBasedComputationImplMock = new FlowBasedComputationImpl(network,
-                cracFile,
-                flowBasedGlskValuesProvider,
-                instant,
-                computationManager,
-                loadFlowFactory,
-                sensitivityComputationFactory
-        );
-        flowBasedComputationImplMock.getNetwork();
-        flowBasedComputationImplMock.getCracFile();
-        flowBasedComputationImplMock.getComputationManager();
-        flowBasedComputationImplMock.getFlowBasedGlskValuesProvider();
-        flowBasedComputationImplMock.getInstant();
+        flowBasedComputationImplMock = new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, loadFlowFactory, sensitivityComputationFactory);
         flowBasedComputationImplMock.setNetwork(flowBasedComputationImplMock.getNetwork());
         flowBasedComputationImplMock.setCracFile(flowBasedComputationImplMock.getCracFile());
         flowBasedComputationImplMock.setComputationManager(flowBasedComputationImplMock.getComputationManager());
         flowBasedComputationImplMock.setFlowBasedGlskValuesProvider(flowBasedComputationImplMock.getFlowBasedGlskValuesProvider());
         flowBasedComputationImplMock.setInstant(flowBasedComputationImplMock.getInstant());
+    }
+
+    private void addFactorsForBranch(Network network, List<SensitivityFactor> appendee, Branch branch) {
+        NetworkUtil.getInjectionStream(network)
+            .filter(NetworkUtil::isConnectedAndInMainSynchronous)
+            .forEach(injection -> appendee.add(new BranchFlowPerInjectionIncrease(
+                    new BranchFlow(branch.getId(), branch.getName(), branch.getId()),
+                    new InjectionIncrease(injection.getId(), injection.getName(), injection.getId())))
+            );
     }
 }
