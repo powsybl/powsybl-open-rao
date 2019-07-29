@@ -24,6 +24,8 @@ import com.powsybl.sensitivity.SensitivityFactorsProvider;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.*;
@@ -35,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedComputationImpl implements FlowBasedComputation {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
 
     /**
      * Network reference network
@@ -150,7 +153,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * @param sensitivityComputationResults sensitivity computation results
      * @param flowBasedComputationResult flow based computation result
      */
-    private void fillFlowBasedComputationResult(CracFile cracFile,
+    public void fillFlowBasedComputationResult(CracFile cracFile,
                                                 Map<String, Double> referenceFlows,
                                                 SensitivityComputationResults sensitivityComputationResults,
                                                 FlowBasedComputationResult flowBasedComputationResult) {
@@ -173,7 +176,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                         ptdfPerCountryList.add(ptdfPerCountry);
                     }
                 });
-
+//            LOGGER.info("### : " + branch.getId());
             //fill in DataMonitoredBranch
             DataMonitoredBranch branchResult = new DataMonitoredBranch(
                     branch.getId(),
@@ -190,4 +193,43 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
     }
 
+    public Network getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+
+    public CracFile getCracFile() {
+        return cracFile;
+    }
+
+    public void setCracFile(CracFile cracFile) {
+        this.cracFile = cracFile;
+    }
+
+    public Instant getInstant() {
+        return instant;
+    }
+
+    public void setInstant(Instant instant) {
+        this.instant = instant;
+    }
+
+    public FlowBasedGlskValuesProvider getFlowBasedGlskValuesProvider() {
+        return flowBasedGlskValuesProvider;
+    }
+
+    public void setFlowBasedGlskValuesProvider(FlowBasedGlskValuesProvider flowBasedGlskValuesProvider) {
+        this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
+    }
+
+    public ComputationManager getComputationManager() {
+        return computationManager;
+    }
+
+    public void setComputationManager(ComputationManager computationManager) {
+        this.computationManager = computationManager;
+    }
 }
