@@ -1,0 +1,159 @@
+{
+  "id" : "CRAC_FILE_ID",
+  "name" : "Example of CRAC file",
+  "sourceFormat" : "JSON",
+  "description" : "This is an example of CRAC file input for FARAO",
+  "preContingency" : {
+    "monitoredBranches" : [ {
+      "id" : "MONITORED_BRANCH_1",
+      "name" : "France-Germany interconnector",
+      "branchId" : "FFR2AA1  DDE3AA1  1",
+      "fmax" : 3000.0
+    }, {
+      "id" : "MONITORED_BRANCH_2",
+      "name" : "Germany-Netherlands interconnector",
+      "branchId" : "DDE2AA1  NNL3AA1  1",
+      "fmax" : 3000.0
+    }, {
+      "id" : "MONITORED_BRANCH_3",
+      "name" : "Netherlands-Belgium interconnector",
+      "branchId" : "NNL2AA1  BBE3AA1  1",
+      "fmax" : 2500.0
+    }, {
+      "id" : "MONITORED_BRANCH_4",
+      "name" : "Belgium-France interconnector",
+      "branchId" : "BBE2AA1  FFR3AA1  1",
+      "fmax" : 2500.0
+    } ]
+  },
+  "contingencies" : [ {
+    "id" : "CONTINGENCY_1",
+    "name" : "Germany-Belgium interconnector",
+    "monitoredBranches" : [ {
+      "id" : "MONITORED_BRANCH_5",
+      "name" : "France-Germany interconnector",
+      "branchId" : "FFR3AA1  DDE4AA1  1",
+      "fmax" : 3000.0
+    }, {
+      "id" : "MONITORED_BRANCH_6",
+      "name" : "Germany-Netherlands interconnector",
+      "branchId" : "DDE3AA1  NNL4AA1  1",
+      "fmax" : 3000.0
+    } ],
+    "contingencyElements" : [ {
+      "elementId" : "CONTINGENCY_ELEMENT_1",
+      "name" : "contingency_name_1"
+    }, {
+      "elementId" : "CONTINGENCY_ELEMENT_2",
+      "name" : "contingency_name_2"
+    } ]
+  }, {
+    "id" : "CONTINGENCY_2",
+    "name" : "Germany-Belgium interconnector",
+    "monitoredBranches" : [ {
+      "id" : "MONITORED_BRANCH_7",
+      "name" : "France-Germany interconnector",
+      "branchId" : "FFR5AA1  DDE6AA1  1",
+      "fmax" : 3000.0
+    }, {
+      "id" : "MONITORED_BRANCH_8",
+      "name" : "Germany-Netherlands interconnector",
+      "branchId" : "DDE7AA1  NNL8AA1  1",
+      "fmax" : 3000.0
+    } ],
+    "contingencyElements" : [ {
+      "elementId" : "CONTINGENCY_ELEMENT_3",
+      "name" : "contingency_name_3"
+    }, {
+      "elementId" : "CONTINGENCY_ELEMENT_4",
+      "name" : "contingency_name_4"
+    } ]
+  } ],
+  "remedialActions" : [ {
+    "id" : "RemedialAction_1",
+    "name" : "Remedial Action 1",
+    "remedialActionElements" : [ {
+      "@c" : ".RedispatchRemedialActionElement",
+      "id" : "GENERATOR_1",
+      "minimumPower" : 100.0,
+      "maximumPower" : 1000.0,
+      "startupCost" : 100000.0,
+      "marginalCost" : 10.0
+    }, {
+      "@c" : ".RedispatchRemedialActionElement",
+      "id" : "GENERATOR_24",
+      "minimumPower" : 200.0,
+      "maximumPower" : 2000.0,
+      "startupCost" : 200000.0,
+      "marginalCost" : 20.0
+    }, {
+      "@c" : ".PstElement",
+      "id" : "GENERATOR_10",
+      "typeOfLimit" : "RELATIVE",
+      "minStepRange" : 0,
+      "maxStepRange" : 40
+    }, {
+      "@c" : ".PstElement",
+      "id" : "GENERATOR_20",
+      "typeOfLimit" : "ABSOLUTE",
+      "minStepRange" : -10,
+      "maxStepRange" : 10
+    } ],
+    "usageRules" : [ {
+      "id" : "RULE1",
+      "instants" : "OUTAGE",
+      "usage" : "ON_OUTAGE",
+      "contingenciesID" : [ "CONTINGENCY_1", "CONTINGENCY_2" ],
+      "constraintsID" : [ ]
+    }, {
+      "id" : "RULE2",
+      "instants" : "AUTO",
+      "usage" : "ON_CONSTRAINT",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ "CONSTRAINT_1", "CONSTRAINT_2" ]
+    }, {
+      "id" : "RULE3",
+      "instants" : "CURATIVE",
+      "usage" : "FREE_TO_USE",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ ]
+    } ]
+  }, {
+    "id" : "RemedialAction_2",
+    "name" : "Remedial Action 2",
+    "remedialActionElements" : [ {
+      "@c" : ".RedispatchRemedialActionElement",
+      "id" : "GENERATOR_3",
+      "minimumPower" : 100.0,
+      "maximumPower" : 1000.0,
+      "startupCost" : 100000.0,
+      "marginalCost" : 10.0
+    }, {
+      "@c" : ".RedispatchRemedialActionElement",
+      "id" : "GENERATOR_4",
+      "minimumPower" : 200.0,
+      "maximumPower" : 2000.0,
+      "startupCost" : 200000.0,
+      "marginalCost" : 20.0
+    } ],
+    "usageRules" : [ {
+      "id" : "RULE4",
+      "instants" : "OUTAGE",
+      "usage" : "ON_OUTAGE",
+      "contingenciesID" : [ "CONTINGENCY_3", "CONTINGENCY_4" ],
+      "constraintsID" : [ ]
+    }, {
+      "id" : "RULE5",
+      "instants" : "AUTO",
+      "usage" : "ON_CONSTRAINT",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ "CONSTRAINT_3", "CONSTRAINT_4" ]
+    }, {
+      "id" : "RULE6",
+      "instants" : "CURATIVE",
+      "usage" : "FREE_TO_USE",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ ]
+    } ]
+  } ]
+}
