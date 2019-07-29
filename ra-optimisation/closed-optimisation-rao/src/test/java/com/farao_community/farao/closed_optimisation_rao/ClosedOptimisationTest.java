@@ -8,8 +8,11 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Test;
 
 import java.io.InputStream;
+
+import static junit.framework.TestCase.assertEquals;
 
 public class ClosedOptimisationTest {
     // ? : To put in this folder or in ra-optimisation/ra-optimisation-api ?
@@ -27,19 +30,19 @@ public class ClosedOptimisationTest {
         RaoComputationParameters parameters = RaoComputationParameters.load(PlatformConfig.defaultConfig());
         return rao.run(net.getVariantManager().getWorkingVariantId(), parameters).join();
     }
-/*
+
     @Test
     public void simpleCaseWithPrecontingencyAndRDPreventiveRA() {
 
         /*
             Simple case with two nodes, precontingencies and preventive redispatching remedial actions
          */
-/*
+
         String testName = "/1_2nodes_preContingency_RD_N";
         RaoComputationResult result = runRaoComputation(testName + ".xiidm", testName + ".json");
 
-        assertEquals(-800, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow() , tolerance);
-        assertEquals(-500, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow() , tolerance);
+        assertEquals(-800, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow(), tolerance);
+        assertEquals(-500, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow(), tolerance);
         assertEquals(1300, result.getPreContingencyResult().getRemedialActionResults().stream()
                 .filter(remedialActionResult -> remedialActionResult.getId().equals("BELGIAN_GENERATOR_RA")).findFirst().get().getRemedialActionElementResults()
                 .stream().map(remedialActionElementResult -> (RedispatchElementResult) remedialActionElementResult).findFirst()
@@ -49,5 +52,5 @@ public class ClosedOptimisationTest {
                 .stream().map(remedialActionElementResult -> (RedispatchElementResult) remedialActionElementResult).findFirst()
                 .get().getPostOptimisationTargetP(), tolerance);
     }
-*/
+
 }
