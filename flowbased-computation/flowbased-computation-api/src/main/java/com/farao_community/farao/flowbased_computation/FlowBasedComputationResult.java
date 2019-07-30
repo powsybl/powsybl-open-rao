@@ -31,6 +31,7 @@ public class FlowBasedComputationResult {
      * status
      */
     private final Status status;
+
     /**
      * List of DataMonitoredBranch
      */

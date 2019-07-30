@@ -15,7 +15,6 @@ import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -43,18 +42,22 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * Network reference network
      */
     private Network network;
+
     /**
      * Crac file
      */
     private CracFile cracFile;
+
     /**
      * Instant of FlowBased domain to be calculated
      */
     private Instant instant;
+
     /**
      * Glsk file provider
      */
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
+
     /**
      * For load flow computation manager
      */
@@ -84,6 +87,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         this.computationManager = computationManager;
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+
         LoadFlowService.init(loadFlowFactory, this.computationManager);
     }
 
@@ -91,7 +95,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * Run Flowbased calculation
      * @param workingVariantId network working variant id
      * @param parameters flowbased computation parameters
-     * @return
+     * @return FlowBasedComputationResult
      */
     @Override
     public CompletableFuture<FlowBasedComputationResult> run(String workingVariantId,
@@ -112,15 +116,15 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
             return factors;
         };
 
-        SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network,
-                network.getVariantManager().getWorkingVariantId(),
-                factorsProvider);
+        SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
 
         FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
 
         //calculate reference flow value by load flow => save in Map<String, Double> referenceFlows
         Map<String, Double> referenceFlows = new HashMap<>();
-        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, network.getVariantManager().getWorkingVariantId());
+
+        LoadFlowService.runLoadFlow(network, network.getVariantManager().getWorkingVariantId());
+
         monitoredBranchList.forEach(branch -> {
             double flow = network.getBranch(branch.getBranchId()).getTerminal1().getP(); referenceFlows.put(branch.getId(), Double.isNaN(flow) ? 0. : flow);
         });
@@ -129,6 +133,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         fillFlowBasedComputationResult(cracFile, referenceFlows, sensiResults, flowBasedComputationResult);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
+
     }
 
     /**
@@ -176,6 +181,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         }
 
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
+
     }
 
     /**
@@ -227,7 +233,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
      * getter flowbased glsk values provider
-     * @return
+     * @return FlowBasedGlskValuesProvider
      */
     public FlowBasedGlskValuesProvider getFlowBasedGlskValuesProvider() {
         return flowBasedGlskValuesProvider;
@@ -243,7 +249,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
      * getter computation manager
-     * @return
+     * @return ComputationManager
      */
     public ComputationManager getComputationManager() {
         return computationManager;

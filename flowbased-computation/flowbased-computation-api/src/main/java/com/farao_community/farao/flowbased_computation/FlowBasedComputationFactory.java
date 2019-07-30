@@ -42,7 +42,6 @@ public interface FlowBasedComputationFactory {
      * @param priority priority
      * @return
      */
-    //Remove this create(., ., ., .), after updating in afs-local.
     FlowBasedComputation create(Network network,
                                 CracFile cracFile,
                                 ComputationManager computationManager,
