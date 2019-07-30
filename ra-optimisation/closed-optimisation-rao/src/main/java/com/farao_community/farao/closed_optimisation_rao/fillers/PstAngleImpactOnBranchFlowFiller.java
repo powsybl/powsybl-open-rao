@@ -24,31 +24,32 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.isPstRemedialAction;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProblemFiller {
-    private static final String ESTIMATED_FLOW_EQUATION_POSTFIX = "_estimated_flow_equation";
-    private static final String SHIFT_VALUE_POSTFIX = "_shift_value";
-    private static final String PST_SENSITIVITIES_DATA_NAME = "pst_branch_sensitivities";
 
-    private List<PstElement> pstElement;
+    private List<PstElement> pstElementN;
+    private List<PstElement> pstElementCurative;
 
-    /**
-     * Check if the remedial action is a PST remedial action (i.e. with only
-     * one remedial action element and PST)
-     */
-    private boolean isPstRemedialAction(RemedialAction remedialAction) {
-        return remedialAction.getRemedialActionElements().size() == 1 &&
-                remedialAction.getRemedialActionElements().get(0) instanceof PstElement;
-    }
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.pstElement = cracFile.getRemedialActions().stream()
-                .filter(this::isPstRemedialAction)
+        this.pstElementN = cracFile.getRemedialActions().stream()
+                .filter(ra -> isPstRemedialAction(ra))
+                .filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
+                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
+                .map(remedialActionElement -> (PstElement) remedialActionElement)
+                .collect(Collectors.toList());
+
+        this.pstElementCurative = cracFile.getRemedialActions().stream()
+                .filter(ra -> isPstRemedialAction(ra))
+                .filter(ra -> isRemedialActionCurativeFreeToUse(ra))
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (PstElement) remedialActionElement)
                 .collect(Collectors.toList());
@@ -56,18 +57,23 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
 
     @Override
     public List<String> variablesExpected() {
-        return pstElement.stream().map(rae -> rae.getId() + SHIFT_VALUE_POSTFIX)
+        List<String> variablesList = pstElementN.stream().map(gen -> nameShiftValueVariableN(gen.getId()))
                 .collect(Collectors.toList());
+        cracFile.getContingencies().forEach(cont -> {
+            variablesList.addAll(pstElementCurative.stream().map(gen -> nameShiftValueVariableCurative(cont.getId(), gen.getId()))
+                    .collect(Collectors.toList()));
+        });
+        return variablesList;
     }
 
     @Override
     public List<String> constraintsExpected() {
         List<String> constraintsExpected = new ArrayList<>();
         constraintsExpected.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
         constraintsExpected.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
         return constraintsExpected;
     }
 
@@ -82,19 +88,28 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
     public void fillProblem(MPSolver solver) {
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(PST_SENSITIVITIES_DATA_NAME);
 
-        cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> pstElement.forEach(pst -> {
-            MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(pst.getId() + SHIFT_VALUE_POSTFIX));
-            MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX));
+        cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> pstElementN.forEach(pst -> {
+            MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableN((pst.getId()))));
+            MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
             double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
             flowEquation.setCoefficient(pstVariable, -sensitivity);
         }));
-        cracFile.getContingencies().stream()
-                .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .forEach(branch -> pstElement.forEach(pst -> {
-                    MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(pst.getId() + SHIFT_VALUE_POSTFIX));
-                    MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX));
+
+        cracFile.getContingencies().forEach(contingency -> {
+            contingency.getMonitoredBranches().forEach(branch -> {
+                MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
+                pstElementN.forEach(pst -> {
+                    MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableN(pst.getId())));
                     double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
                     flowEquation.setCoefficient(pstVariable, -sensitivity);
-                }));
+                });
+                pstElementCurative.forEach(pst -> {
+                    MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(),pst.getId())));
+                    double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
+                    flowEquation.setCoefficient(pstVariable, -sensitivity);
+                });
+
+            });
+        });
     }
 }
