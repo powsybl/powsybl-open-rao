@@ -33,7 +33,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
     /**
      * add PST shift value variable into MPSolver with appropriate bounds
      */
-    private void buildPstShitValueVariable(String varName, PstElement pst, MPSolver solver){
+    private void buildPstShitValueVariable(String varName, PstElement pst, MPSolver solver) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst.getId()).getPhaseTapChanger();
         int lowTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMinStepRange() : pst.getMinStepRange() + phaseTapChanger.getTapPosition();
         int highTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMaxStepRange() : pst.getMaxStepRange() + phaseTapChanger.getTapPosition();
@@ -43,7 +43,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
         double alphaMin = Math.min(alphaLowStep, alphaHighStep);
         double alphaMax = Math.max(alphaLowStep, alphaHighStep);
         double alphaInit = phaseTapChanger.getCurrentStep().getAlpha();
-        solver.makeNumVar(alphaMin - alphaInit, alphaMax - alphaInit, varName );
+        solver.makeNumVar(alphaMin - alphaInit, alphaMax - alphaInit, varName);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
         });
 
         // fill problem with curative PST variables
-        cracFile.getContingencies().forEach( cont ->{
+        cracFile.getContingencies().forEach(cont -> {
             pstElementCurative.forEach(pst -> {
                 buildPstShitValueVariable(nameShiftValueVariableCurative(cont.getId(), pst.getId()), pst, solver);
             });

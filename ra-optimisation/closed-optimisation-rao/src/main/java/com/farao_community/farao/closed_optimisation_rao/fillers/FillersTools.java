@@ -64,72 +64,63 @@ public final class FillersTools {
     /**
      * Get standard name of redispatch value variable for preventive remedial actions
      */
-    public static String nameRedispatchValueVariableN(String remedialActionId)
-    {
+    public static String nameRedispatchValueVariableN(String remedialActionId) {
         return remedialActionId + REDISPATCH_VALUE_N_POSTFIX;
     }
 
     /**
      * Get standard name of redispatch value variable for curative remedial actions
      */
-    public static String nameRedispatchValueVariableCurative(String contingencyId, String remedialActionId)
-    {
+    public static String nameRedispatchValueVariableCurative(String contingencyId, String remedialActionId) {
         return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_VALUE_CURATIVE_POSTFIX;
     }
 
     /**
      * Get standard name of flow definition constraint
      */
-    public static String nameEstimatedFlowConstraint(String branchId)
-    {
+    public static String nameEstimatedFlowConstraint(String branchId) {
         return branchId + ESTIMATED_FLOW_EQUATION_POSTFIX;
     }
 
     /**
      * Get standard name of redispatch activation variables for preventive remedial actions
      */
-    public static String nameRedispatchActivationVariableN(String remedialActionId)
-    {
+    public static String nameRedispatchActivationVariableN(String remedialActionId) {
         return remedialActionId + REDISPATCH_ACTIVATION_N_POSTFIX;
     }
 
     /**
      * Get standard name of redispatch activation variables for curative remedial actions
      */
-    public static String nameRedispatchActivationVariableCurative(String contingencyId, String remedialActionId)
-    {
+    public static String nameRedispatchActivationVariableCurative(String contingencyId, String remedialActionId) {
         return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_ACTIVATION_CURATIVE_POSTFIX;
     }
 
     /**
      * Get standard name of redispatch cost variables for preventive remedial actions
      */
-    public static String nameRedispatchCostVariableN(String remedialActionId)
-    {
+    public static String nameRedispatchCostVariableN(String remedialActionId) {
         return remedialActionId + REDISPATCH_COST_N_POSTFIX;
     }
 
     /**
      * Get standard name of redispatch cost variables for curative remedial actions
      */
-    public static String nameRedispatchCostVariableCurative(String contingencyId, String remedialActionId)
-    {
+    public static String nameRedispatchCostVariableCurative(String contingencyId, String remedialActionId) {
         return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_COST_CURATIVE_POSTFIX;
     }
 
     /**
      * Get standard name of PST's shift value variables for preventive remedial actions
      */
-    public static String nameShiftValueVariableN(String remedialActionId)
-    {
+    public static String nameShiftValueVariableN(String remedialActionId) {
         return remedialActionId + SHIFT_VALUE_N_POSTFIX;
     }
 
     /**
      * Get standard name of PST's shift value variables for curative remedial actions
      */
-    public static String nameShiftValueVariableCurative(String contingencyId, String remedialActionId)
-    {
+    public static String nameShiftValueVariableCurative(String contingencyId, String remedialActionId) {
         return contingencyId + BLANK_CHARACTER + remedialActionId + SHIFT_VALUE_CURATIVE_POSTFIX;
     }
 }

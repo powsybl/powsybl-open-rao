@@ -7,11 +7,9 @@
 package com.farao_community.farao.closed_optimisation_rao.post_processors;
 
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPostProcessor;
-import com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.PstElement;
-import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
@@ -74,7 +72,6 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
                 .collect(Collectors.toList());
         result.getPreContingencyResult().getRemedialActionResults().addAll(preventiveRemedialActionsResult);
 
-
         result.getContingencyResults().forEach(contingency -> {
             List<RemedialActionResult> curativeRemedialActionsResult = cracFile.getRemedialActions().stream()
                     .filter(this::isPstRemedialAction)
@@ -85,7 +82,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
                         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(prae.getId()).getPhaseTapChanger();
                         double initialAngle = phaseTapChanger.getCurrentStep().getAlpha();
                         int initialTapPosition = phaseTapChanger.getTapPosition();
-                        MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(),prae.getId())));
+                        MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(), prae.getId())));
                         double finalAngle = initialAngle + angleValue.solutionValue();
                         int finalTapPosition = computeTapPosition(finalAngle, phaseTapChanger, network.getTwoWindingsTransformer(prae.getId()));
                         return new RemedialActionResult(
@@ -139,7 +136,6 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         return remedialAction.getRemedialActionElements().size() == 1 &&
                 remedialAction.getRemedialActionElements().get(0) instanceof PstElement;
     }
-
 
     private boolean isPreventiveRemedialActionActivated(RemedialAction remedialAction, MPSolver solver) {
         PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);

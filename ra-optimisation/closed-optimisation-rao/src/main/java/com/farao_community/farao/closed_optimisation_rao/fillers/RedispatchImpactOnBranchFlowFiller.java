@@ -9,7 +9,6 @@ package com.farao_community.farao.closed_optimisation_rao.fillers;
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
-import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
@@ -35,7 +34,6 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
 
     private List<RedispatchRemedialActionElement> generatorsRedispatchN;
     private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
-
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
@@ -96,7 +94,7 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
             flowEquation.setCoefficient(redispatchVariable, -sensitivity);
         }));
 
-        cracFile.getContingencies().forEach( contingency -> {
+        cracFile.getContingencies().forEach(contingency -> {
             contingency.getMonitoredBranches().forEach(branch -> {
                 MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
                 generatorsRedispatchN.forEach(gen -> {
