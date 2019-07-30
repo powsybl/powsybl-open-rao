@@ -9,7 +9,6 @@ package com.farao_community.farao.closed_optimisation_rao.fillers;
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.PstElement;
-import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
@@ -35,7 +34,6 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
 
     private List<PstElement> pstElementN;
     private List<PstElement> pstElementCurative;
-
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
@@ -89,7 +87,7 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(PST_SENSITIVITIES_DATA_NAME);
 
         cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> pstElementN.forEach(pst -> {
-            MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableN((pst.getId()))));
+            MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableN(pst.getId())));
             MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
             double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
             flowEquation.setCoefficient(pstVariable, -sensitivity);
@@ -104,7 +102,7 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
                     flowEquation.setCoefficient(pstVariable, -sensitivity);
                 });
                 pstElementCurative.forEach(pst -> {
-                    MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(),pst.getId())));
+                    MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(), pst.getId())));
                     double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
                     flowEquation.setCoefficient(pstVariable, -sensitivity);
                 });

@@ -10,10 +10,9 @@ public class MPConstraintMock extends MPConstraint {
     private String name;
     private double lb;
     private double ub;
-    private HashMap<String, Double> coefficients ;
+    private HashMap<String, Double> coefficients;
 
-    protected MPConstraintMock (String pName, double pLb, double pUb)
-    {
+    protected MPConstraintMock(String pName, double pLb, double pUb) {
         super(0, false);
         this.name = pName;
         this.lb = pLb;
@@ -45,6 +44,4 @@ public class MPConstraintMock extends MPConstraint {
     public double getCoefficient(MPVariable var) {
         return coefficients.get(var.name());
     }
-
-
 }

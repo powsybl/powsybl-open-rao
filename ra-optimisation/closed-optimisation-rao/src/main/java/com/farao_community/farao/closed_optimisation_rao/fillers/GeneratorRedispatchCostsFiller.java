@@ -9,7 +9,6 @@ package com.farao_community.farao.closed_optimisation_rao.fillers;
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
-import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
@@ -30,11 +29,8 @@ import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersT
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemFiller {
 
-
     private List<RedispatchRemedialActionElement> generatorsRedispatchN;
     private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
-
-
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
@@ -55,7 +51,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
     @Override
     public List<String> variablesProvided() {
         List<String> variables = new ArrayList<>();
-        variables.addAll(generatorsRedispatchN.stream().map(gen -> nameRedispatchActivationVariableN((gen.getId())))
+        variables.addAll(generatorsRedispatchN.stream().map(gen -> nameRedispatchActivationVariableN(gen.getId()))
                 .collect(Collectors.toList()));
         variables.addAll(generatorsRedispatchN.stream().map(gen -> nameRedispatchCostVariableN(gen.getId()))
                 .collect(Collectors.toList()));
@@ -122,16 +118,16 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
 
         cracFile.getContingencies().forEach(cont -> {
             String contId = cont.getId();
-            generatorsRedispatchCurative.forEach( gen -> {
+            generatorsRedispatchCurative.forEach(gen -> {
 
                 String genId = gen.getId();
-                MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contId,genId)));
+                MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contId, genId)));
 
                 // Redispatch activation variable
-                MPVariable redispatchActivationVariable = solver.makeBoolVar(nameRedispatchActivationVariableCurative(contId,genId));
+                MPVariable redispatchActivationVariable = solver.makeBoolVar(nameRedispatchActivationVariableCurative(contId, genId));
 
                 // Redispatch cost variable
-                MPVariable redispatchCostVariable = solver.makeNumVar(-infinity, infinity, nameRedispatchCostVariableCurative(contId,genId));
+                MPVariable redispatchCostVariable = solver.makeNumVar(-infinity, infinity, nameRedispatchCostVariableCurative(contId, genId));
 
                 // Redispatch cost equation
                 MPConstraint costEquation = solver.makeConstraint(0, 0);
