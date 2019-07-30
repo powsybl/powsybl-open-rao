@@ -71,13 +71,15 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
             equilibriumN.setCoefficient(redispatchValueVariable, 1);
         });
 
-        cracFile.getContingencies().forEach( cont -> {
-            MPConstraint equilibriumCurative = solver.makeConstraint(0,0);
-            generatorsRedispatchCurative.forEach(gen -> {
-                MPVariable redispatchValueVariable = Objects.requireNonNull(
-                        solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(cont.getId(), gen.getId())));
-                equilibriumCurative.setCoefficient(redispatchValueVariable, 1);
+        if (!generatorsRedispatchCurative.isEmpty()) {
+            cracFile.getContingencies().forEach(cont -> {
+                MPConstraint equilibriumCurative = solver.makeConstraint(0, 0);
+                generatorsRedispatchCurative.forEach(gen -> {
+                    MPVariable redispatchValueVariable = Objects.requireNonNull(
+                            solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(cont.getId(), gen.getId())));
+                    equilibriumCurative.setCoefficient(redispatchValueVariable, 1);
+                });
             });
-        });
+        }
     }
 }
