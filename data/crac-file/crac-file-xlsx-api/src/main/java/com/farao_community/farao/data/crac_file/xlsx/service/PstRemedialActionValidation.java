@@ -82,8 +82,8 @@ public final class PstRemedialActionValidation {
         return PstElement.builder()
                 .id(pstExcel.getUniqueRaPstTab())
                 .typeOfLimit(TypeOfLimit.ABSOLUTE)
-                .minStepRange(Integer.parseInt(ranges[0]))
-                .maxStepRange(Integer.parseInt(ranges[1]))
+                .minStepRange(Integer.parseInt(ranges[0].trim()))
+                .maxStepRange(Integer.parseInt(ranges[1].trim()))
                 .build();
     }
 
