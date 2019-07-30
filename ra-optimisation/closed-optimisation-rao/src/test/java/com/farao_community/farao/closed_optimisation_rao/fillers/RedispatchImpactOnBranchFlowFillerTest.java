@@ -10,7 +10,10 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 public class RedispatchImpactOnBranchFlowFillerTest {
 
@@ -29,7 +32,10 @@ public class RedispatchImpactOnBranchFlowFillerTest {
 
     @Test
     public void test() {
-        redispatchImpactOnBranchFlowFiller.constraintsExpected();
-        redispatchImpactOnBranchFlowFiller.dataExpected();
+        List<String> constraintsExpected = redispatchImpactOnBranchFlowFiller.constraintsExpected();
+        assertNotNull(constraintsExpected);
+
+        Map<String, Class> dataExpected = redispatchImpactOnBranchFlowFiller.dataExpected();
+        assertNotNull(dataExpected);
     }
 }

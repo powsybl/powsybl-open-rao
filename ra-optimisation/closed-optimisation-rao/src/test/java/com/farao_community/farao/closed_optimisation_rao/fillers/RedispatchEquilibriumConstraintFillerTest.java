@@ -10,7 +10,10 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 public class RedispatchEquilibriumConstraintFillerTest {
 
@@ -29,6 +32,8 @@ public class RedispatchEquilibriumConstraintFillerTest {
 
     @Test
     public void test() {
-        redispatchEquilibriumConstraintFiller.variablesExpected();
+        List<String> variablesExpected = redispatchEquilibriumConstraintFiller.variablesExpected();
+        assertNotNull(variablesExpected);
+        //TODO fillProblem()
     }
 }

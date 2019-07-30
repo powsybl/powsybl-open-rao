@@ -10,7 +10,10 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 public class PstAngleImpactOnBranchFlowFillerTest {
 
@@ -29,8 +32,14 @@ public class PstAngleImpactOnBranchFlowFillerTest {
 
     @Test
     public void test() {
-        pstAngleImpactOnBranchFlowFiller.constraintsExpected();
-        pstAngleImpactOnBranchFlowFiller.dataExpected();
-        pstAngleImpactOnBranchFlowFiller.variablesExpected();
+        List<String> constraintsExpected = pstAngleImpactOnBranchFlowFiller.constraintsExpected();
+        assertNotNull(constraintsExpected);
+
+        Map<String, Class> dataExpected = pstAngleImpactOnBranchFlowFiller.dataExpected();
+        assertNotNull(dataExpected);
+
+        List<String> variablesExpected = pstAngleImpactOnBranchFlowFiller.variablesExpected();
+        assertNotNull(variablesExpected);
+        //TODO fillProblem()
     }
 }

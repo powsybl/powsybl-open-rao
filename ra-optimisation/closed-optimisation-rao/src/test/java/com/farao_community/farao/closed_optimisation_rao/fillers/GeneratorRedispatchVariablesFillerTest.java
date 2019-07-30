@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertNotNull;
+
 
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
@@ -35,7 +37,8 @@ public class GeneratorRedispatchVariablesFillerTest {
 
     @Test
     public void test() {
-        List<String> result = generatorRedispatchVariablesFiller.variablesProvided();
+        List<String> variablesProvided = generatorRedispatchVariablesFiller.variablesProvided();
+        assertNotNull(variablesProvided);
         //TODO fillProblem()
     }
 

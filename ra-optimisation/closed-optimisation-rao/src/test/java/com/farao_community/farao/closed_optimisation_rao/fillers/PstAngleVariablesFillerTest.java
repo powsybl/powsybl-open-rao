@@ -10,7 +10,10 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 public class PstAngleVariablesFillerTest {
 
@@ -29,7 +32,9 @@ public class PstAngleVariablesFillerTest {
 
     @Test
     public void test() {
-        pstAngleVariablesFiller.variablesProvided();
+        List<String> variablesProvided = pstAngleVariablesFiller.variablesProvided();
+        assertNotNull(variablesProvided);
+        //TODO fillProblem()
     }
 
 }

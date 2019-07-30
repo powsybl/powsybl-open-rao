@@ -10,7 +10,10 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 public class RedispatchCostMinimizationObjectiveFillerTest {
 
@@ -29,7 +32,10 @@ public class RedispatchCostMinimizationObjectiveFillerTest {
 
     @Test
     public void test() {
-        redispatchCostMinimizationObjectiveFiller.objectiveFunctionsProvided();
-        redispatchCostMinimizationObjectiveFiller.variablesExpected();
+        List<String> objectiveFunctionsProvided = redispatchCostMinimizationObjectiveFiller.objectiveFunctionsProvided();
+        assertNotNull(objectiveFunctionsProvided);
+        List<String> variablesExpected = redispatchCostMinimizationObjectiveFiller.variablesExpected();
+        assertNotNull(variablesExpected);
+        //TODO fillProblem()
     }
 }
