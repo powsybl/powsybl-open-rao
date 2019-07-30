@@ -53,6 +53,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * For load flow computation manager
      */
     private ComputationManager computationManager;
+
     /**
      * Constructor
      * @param network reference network: we need a network to construct the linear glsk map from the glsk document
@@ -155,12 +156,14 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         }
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
     }
+
     /**
      * @return network getter
      */
     public Network getNetwork() {
         return network;
     }
+
     /**
      * Network setter
      * @param network network
@@ -168,6 +171,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setNetwork(Network network) {
         this.network = network;
     }
+
     /**
      * getter crac file
      * @return crac file
@@ -175,6 +179,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public CracFile getCracFile() {
         return cracFile;
     }
+
     /**
      * setter crac file
      * @param cracFile
@@ -182,6 +187,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setCracFile(CracFile cracFile) {
         this.cracFile = cracFile;
     }
+
     /**
      * getter instant
      * @return instant
@@ -189,6 +195,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public Instant getInstant() {
         return instant;
     }
+
     /**
      * setter instant
      * @param instant
@@ -196,6 +203,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setInstant(Instant instant) {
         this.instant = instant;
     }
+
     /**
      * getter flowbased glsk values provider
      * @return FlowBasedGlskValuesProvider
@@ -203,6 +211,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public FlowBasedGlskValuesProvider getFlowBasedGlskValuesProvider() {
         return flowBasedGlskValuesProvider;
     }
+
     /**
      * setter flowbased glsk values provider
      * @param flowBasedGlskValuesProvider
@@ -210,6 +219,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setFlowBasedGlskValuesProvider(FlowBasedGlskValuesProvider flowBasedGlskValuesProvider) {
         this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
     }
+
     /**
      * getter computation manager
      * @return ComputationManager
@@ -217,6 +227,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public ComputationManager getComputationManager() {
         return computationManager;
     }
+
     /**
      * setter computation manager
      * @param computationManager
