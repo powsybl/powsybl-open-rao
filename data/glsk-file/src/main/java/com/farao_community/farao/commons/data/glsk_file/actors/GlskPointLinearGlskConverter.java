@@ -41,6 +41,12 @@ public class GlskPointLinearGlskConverter {
         Map<String, Float> linearGlskMap = new HashMap<>();
         String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
 
+        //LinearGlsk is used as SensitivityFactor.sensitivityVariable in FlowBasedComputation;
+        //When it is added into sensivitityFactors, we should be able to find out LinearGlsk's country or NetWorkArea;
+        //For the moment, LinearGlsk's name is used to trace LinearGlsk's country or NetworkArea.
+        //We could also added another attribute in LinearGlsk to mark this information,
+        //but this change need to be in Powsybl-core
+
         String linearGlskName = glskPoint.getSubjectDomainmRID(); //name of LinearGlsk is country's EIC code; or NetworkArea's ID in the future
 
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());

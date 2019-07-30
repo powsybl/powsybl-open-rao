@@ -79,7 +79,6 @@ public class FlowBasedComputationTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-
                 options.addOption(Option.builder()
                         .longOpt(CRAC_FILE_OPTION)
                         .desc("the CRAC file path")
@@ -87,7 +86,6 @@ public class FlowBasedComputationTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-
                 options.addOption(Option.builder()
                         .longOpt(GLSK_FILE_OPTION)
                         .desc("the GlSK file path")
@@ -95,14 +93,12 @@ public class FlowBasedComputationTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-
                 options.addOption(Option.builder()
                         .longOpt(PARAMETERS_FILE)
                         .desc("the FlowBased computation parameters as JSON file")
                         .hasArg()
                         .argName("FILE")
                         .build());
-
                 options.addOption(Option.builder()
                         .longOpt(INSTANT)
                         .desc("the instant of FlowBased computation")
@@ -110,14 +106,12 @@ public class FlowBasedComputationTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-
                 options.addOption(Option.builder()
                         .longOpt(OUTPUT_FILE_OPTION)
                         .desc("the FlowBased computation results output path")
                         .hasArg()
                         .argName("FILE")
                         .build());
-
                 return options;
             }
 
@@ -135,45 +129,26 @@ public class FlowBasedComputationTool implements Tool {
      */
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path cracFile = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
         Path glskFile = context.getFileSystem().getPath(line.getOptionValue(GLSK_FILE_OPTION));
-
-        //Output file
         Path outputFile = null;
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         }
-
-        //get network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
-
-        //get cracfile
         CracFile cracProvider = JsonCracFile.read(Files.newInputStream(cracFile));
-
-        //get glsk
         FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(network, glskFile.toString());
-
-        //get computation manager
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
-
-        //load parameters
         FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowBasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
-
         Instant instant = Instant.parse(line.getOptionValue(INSTANT)); //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug //instant = flowBasedGlskValuesProvider.getInstantStart(glskFile.toString()); //if instant is not defined, use interval start instant as default
-
-        //create flowbased computation
         FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load().newFactoryImpl(FlowBasedComputationFactory.class).create(network, cracProvider, flowBasedGlskValuesProvider, instant, computationManager, 0);
-
         String currentState = network.getVariantManager().getWorkingVariantId();
-
         FlowBasedComputationResult result = flowBasedComputation.run(currentState, parameters).join();
-
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.createDataDomain(), Files.newOutputStream(outputFile));
         }

@@ -543,12 +543,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-tools</artifactId>
-                <version>${powsybl.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
