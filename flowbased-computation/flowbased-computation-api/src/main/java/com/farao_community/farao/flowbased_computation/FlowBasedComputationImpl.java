@@ -22,8 +22,6 @@ import com.powsybl.sensitivity.SensitivityFactorsProvider;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.*;
@@ -35,34 +33,26 @@ import java.util.concurrent.CompletableFuture;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedComputationImpl implements FlowBasedComputation {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
-
     /**
      * Network reference network
      */
     private Network network;
-
     /**
      * Crac file
      */
     private CracFile cracFile;
-
     /**
      * Instant of FlowBased domain to be calculated
      */
     private Instant instant;
-
     /**
      * Glsk file provider
      */
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
-
     /**
      * For load flow computation manager
      */
     private ComputationManager computationManager;
-
     /**
      * Constructor
      * @param network reference network: we need a network to construct the linear glsk map from the glsk document
@@ -85,9 +75,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         this.instant = instant;
         this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
         this.computationManager = computationManager;
-
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-
         LoadFlowService.init(loadFlowFactory, this.computationManager);
     }
 
@@ -102,38 +90,27 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                                                              FlowBasedComputationParameters parameters) {
         Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
-
         //get list of Monitored branches from CRAC file
         List<MonitoredBranch> monitoredBranchList = cracFile.getPreContingency().getMonitoredBranches();
-
         //get Map<country, LinearGLSK> for Instant instant from FlowBasedGlskValuesProvider
         Map<String, LinearGlsk> mapCountryLinearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlskMap(instant);
-
         // Fill SensitivityFactor List: BranchFlowPerLinearGlsk = SensitivityFactor<BranchFlow, LinearGlsk>
         SensitivityFactorsProvider factorsProvider = net -> {
             List<SensitivityFactor> factors = new ArrayList<>();
             monitoredBranchList.forEach(branch -> mapCountryLinearGlsk.values().stream().map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(branch.getId(), branch.getName(), branch.getBranchId()), linearGlsk)).forEach(factors::add));
             return factors;
         };
-
         SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
-
         FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS);
-
         //calculate reference flow value by load flow => save in Map<String, Double> referenceFlows
         Map<String, Double> referenceFlows = new HashMap<>();
-
         LoadFlowService.runLoadFlow(network, network.getVariantManager().getWorkingVariantId());
-
         monitoredBranchList.forEach(branch -> {
             double flow = network.getBranch(branch.getBranchId()).getTerminal1().getP(); referenceFlows.put(branch.getId(), Double.isNaN(flow) ? 0. : flow);
         });
-
         //fill in FlowBasedComputationResult
         fillFlowBasedComputationResult(cracFile, referenceFlows, sensiResults, flowBasedComputationResult);
-
         return CompletableFuture.completedFuture(flowBasedComputationResult);
-
     }
 
     /**
@@ -149,7 +126,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                                                 FlowBasedComputationResult flowBasedComputationResult) {
         // get list of Monitored Branch
         List<MonitoredBranch> branches = cracFile.getPreContingency().getMonitoredBranches();
-
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
         for (MonitoredBranch branch : branches) {
             //get DataMonitoredBranch's ptdfPerCountryList from sensitivityComputationResults
@@ -166,7 +142,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                         ptdfPerCountryList.add(ptdfPerCountry);
                     }
                 });
-
             //fill in DataMonitoredBranch
             DataMonitoredBranch branchResult = new DataMonitoredBranch(
                     branch.getId(),
@@ -176,21 +151,16 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
                     referenceFlows.get(branch.getId()),
                     ptdfPerCountryList
             );
-
             branchResultList.add(branchResult);
         }
-
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
-
     }
-
     /**
      * @return network getter
      */
     public Network getNetwork() {
         return network;
     }
-
     /**
      * Network setter
      * @param network network
@@ -198,7 +168,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setNetwork(Network network) {
         this.network = network;
     }
-
     /**
      * getter crac file
      * @return crac file
@@ -206,7 +175,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public CracFile getCracFile() {
         return cracFile;
     }
-
     /**
      * setter crac file
      * @param cracFile
@@ -214,7 +182,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setCracFile(CracFile cracFile) {
         this.cracFile = cracFile;
     }
-
     /**
      * getter instant
      * @return instant
@@ -222,7 +189,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public Instant getInstant() {
         return instant;
     }
-
     /**
      * setter instant
      * @param instant
@@ -230,7 +196,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setInstant(Instant instant) {
         this.instant = instant;
     }
-
     /**
      * getter flowbased glsk values provider
      * @return FlowBasedGlskValuesProvider
@@ -238,7 +203,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public FlowBasedGlskValuesProvider getFlowBasedGlskValuesProvider() {
         return flowBasedGlskValuesProvider;
     }
-
     /**
      * setter flowbased glsk values provider
      * @param flowBasedGlskValuesProvider
@@ -246,7 +210,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public void setFlowBasedGlskValuesProvider(FlowBasedGlskValuesProvider flowBasedGlskValuesProvider) {
         this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
     }
-
     /**
      * getter computation manager
      * @return ComputationManager
@@ -254,7 +217,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     public ComputationManager getComputationManager() {
         return computationManager;
     }
-
     /**
      * setter computation manager
      * @param computationManager
