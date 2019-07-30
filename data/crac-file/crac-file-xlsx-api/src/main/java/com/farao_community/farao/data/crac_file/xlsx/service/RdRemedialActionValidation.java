@@ -77,7 +77,7 @@ public final class RdRemedialActionValidation {
     }
 
     public static List<RemedialAction> rdRemedialActionValidation(Validation<FaraoException, List<RedispatchingRemedialActionXlsx>> redispatchingRemedialActionXlsx, Validation<FaraoException, List<RaTimeSeries>> radTimeSeries, TimesSeries timesSeries) {
-        List<RemedialAction>  remedialActionList = new ArrayList<>();
+        List<RemedialAction> remedialActionList = new ArrayList<>();
         HashMap<String, List<UsageRule>> usageRuleHashMap = usageRulesRedispatchingValidation(redispatchingRemedialActionXlsx);
         redispatchingRemedialActionXlsx.forEach(ras -> {
             List<Float> valueTs = new ArrayList<Float>();
@@ -113,7 +113,10 @@ public final class RdRemedialActionValidation {
 
     private static RemedialActionElement buildRemedialActionElements(RedispatchingRemedialActionXlsx ra) {
         String spaceNode = "";
-        int nodeSpace = MAX_NODEID_LENGTH - ra.getUctNodeOrGsk().length();
+        int nodeSpace = 0;
+        if (ra.getUctNodeOrGsk() != null && ra.getUctNodeOrGsk().length() != 0) {
+            nodeSpace = MAX_NODEID_LENGTH - ra.getUctNodeOrGsk().length();
+        }
         for (int i = 0; i < nodeSpace; i++) {
             spaceNode = spaceNode + " ";
         }

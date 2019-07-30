@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 @Slf4j
 public final class DateConverter implements Converter<LocalDate> {
-    private static final String[] VALID_FORMAT_PATTERNS = {"dd/MM/yyyy", "dd-MM-yyyy", "dd.MM.yyyy", "d/MM/yyyy", "d-MM-yyyy", "d.MM.yyyy", "d/MM/yy", "d-MM-yy", "d.MM.yy"
+    private static final String[] VALID_FORMAT_PATTERNS = {"dd/MM/yyyy", "M/dd/yy", "M/d/yy", "yyyy.MM.dd", "dd-MM-yyyy", "dd.MM.yyyy", "d/MM/yyyy", "d-MM-yyyy", "d.MM.yyyy", "d/MM/yy", "d-MM-yy", "d.MM.yy"
     };
 
     @Override
@@ -30,7 +30,7 @@ public final class DateConverter implements Converter<LocalDate> {
         Optional<LocalDate> test =  Arrays.stream(VALID_FORMAT_PATTERNS).map(DateTimeFormatter::ofPattern)
                 .map(formatter -> {
                     try {
-                        return LocalDate.parse(value, formatter);
+                        return LocalDate.parse(value.trim(), formatter);
                     } catch (Exception e) {
                         // Incorrect pattern : return null
                         return null;
