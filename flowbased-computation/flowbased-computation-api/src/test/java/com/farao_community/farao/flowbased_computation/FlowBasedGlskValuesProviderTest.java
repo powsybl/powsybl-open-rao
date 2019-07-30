@@ -57,6 +57,7 @@ public class FlowBasedGlskValuesProviderTest {
         instant = Instant.parse("2018-08-28T22:00:00Z");
         FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider();
         flowBasedGlskValuesProvider.setNetwork(testNetwork);
+        Network testgetnetwork = flowBasedGlskValuesProvider.getNetwork();
         flowBasedGlskValuesProvider.setFilePathString(getClass().getResource("/GlskCountry.xml").getPath());
         Map<String, DataChronology<LinearGlsk> > map = flowBasedGlskValuesProvider.createDataChronologyLinearGlskMap(testNetwork,
                 getClass().getResource("/GlskCountry.xml").getPath());
@@ -64,5 +65,17 @@ public class FlowBasedGlskValuesProviderTest {
         flowBasedGlskValuesProvider.setMapCountryDataChronologyLinearGlsk(map);
         Assert.assertFalse(flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YBE----------2").getGLSKs().isEmpty());
         flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, ""); //(expected = FaraoException.class)
+    }
+
+    @Test (expected = FaraoException.class)
+    public void runTre() throws ParserConfigurationException, SAXException, IOException {
+        testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        instant = Instant.parse("2020-08-28T22:00:00Z");
+        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(testNetwork, getClass().getResource("/GlskCountry.xml").getPath());
+        Map<String, DataChronology<LinearGlsk> > map = flowBasedGlskValuesProvider.createDataChronologyLinearGlskMap(testNetwork,
+                getClass().getResource("/GlskCountry.xml").getPath());
+        Assert.assertFalse(map.isEmpty());
+
+        LinearGlsk linearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlsk(instant, "10YBE----------2"); //(expected = FaraoException.class)
     }
 }

@@ -11,8 +11,6 @@ import com.farao_community.farao.commons.chronology.DataChronology;
 import com.farao_community.farao.commons.data.glsk_file.actors.GlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,11 +26,6 @@ import java.util.Optional;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 public class FlowBasedGlskValuesProvider {
-    /**
-     * LOGGER logger
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedGlskValuesProvider.class);
-
     /**
      * Network we need a network to import Glsk document
      */
@@ -80,18 +73,6 @@ public class FlowBasedGlskValuesProvider {
      */
     Map<String, DataChronology<LinearGlsk> > createDataChronologyLinearGlskMap(Network network, String filePathString) throws IOException, SAXException, ParserConfigurationException {
         return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filePathString, network);
-    }
-
-    /**
-     * Get default instant of Glsk Document: Instant of Start of Interval
-     * @param filePathString glsk file path
-     * @return
-     * @throws IOException
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     */
-    Instant getInstantStart(String filePathString) throws IOException, SAXException, ParserConfigurationException {
-        return new GlskDocumentLinearGlskConverter().getInstantStart(filePathString);
     }
 
     /**
