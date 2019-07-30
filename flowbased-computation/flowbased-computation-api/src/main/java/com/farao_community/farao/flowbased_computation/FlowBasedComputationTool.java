@@ -72,41 +72,47 @@ public class FlowBasedComputationTool implements Tool {
 
                 Options options = new Options();
 
-                options.addOption(Option.builder()
+                options.addOption(Option
+                        .builder()
                         .longOpt(CASE_FILE_OPTION)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder()
+                options.addOption(Option
+                        .builder()
                         .longOpt(CRAC_FILE_OPTION)
                         .desc("the CRAC file path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder()
+                options.addOption(Option
+                        .builder()
                         .longOpt(GLSK_FILE_OPTION)
                         .desc("the GlSK file path")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder()
+                options.addOption(Option
+                        .builder()
                         .longOpt(PARAMETERS_FILE)
                         .desc("the FlowBased computation parameters as JSON file")
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(Option.builder()
+                options.addOption(Option
+                        .builder()
                         .longOpt(INSTANT)
                         .desc("the instant of FlowBased computation")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder()
+                options.addOption(Option
+                        .builder()
                         .longOpt(OUTPUT_FILE_OPTION)
                         .desc("the FlowBased computation results output path")
                         .hasArg()
