@@ -24,11 +24,12 @@ public final class FloatConverter implements Converter<Float> {
             return Float.valueOf(0);
         }
         try {
+            String result = value.trim();
             DecimalFormatSymbols symbols = new DecimalFormatSymbols();
             symbols.setDecimalSeparator('.');
             DecimalFormat format = new DecimalFormat("0.#");
             format.setDecimalFormatSymbols(symbols);
-            return format.parse(value).floatValue();
+            return format.parse(result).floatValue();
         } catch (Exception e) {
             log.error(String.format("Failed to parse '%s' as float at row='%s' ", value, row));
             throw new FaraoException(String.format("Failed to parse '%s' as float at row='%s' ", value, row), e);

@@ -19,6 +19,6 @@ public final class IntConverter implements Converter<Integer> {
         if (value == null) {
             return Integer.valueOf(0);
         }
-        return Integer.valueOf(value);
+        return Integer.valueOf(value.trim());
     }
 }
