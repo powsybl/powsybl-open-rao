@@ -33,7 +33,7 @@ public class GlskDocumentLinearGlskConverter {
     /**
      * @param filepath file path in Path
      * @param network iidm network
-     * @return map <country, LinearGlsk's datachronology>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -46,7 +46,7 @@ public class GlskDocumentLinearGlskConverter {
     /**
      * @param filepathstring file full path in string
      * @param network iidm network
-     * @return map <country, LinearGlsk's datachronology>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -59,7 +59,7 @@ public class GlskDocumentLinearGlskConverter {
     /**
      * @param filename file name in src..resources
      * @param network iidm network
-     * @return map <country, LinearGlsk's datachronology>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -72,7 +72,7 @@ public class GlskDocumentLinearGlskConverter {
     /**
      * @param data InputStream
      * @param network iidm network
-     * @return map <country, LinearGlsk's datachronology>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -84,7 +84,7 @@ public class GlskDocumentLinearGlskConverter {
     /**
      * @param glskDocument glsk document object
      * @param network iidm network
-     * @return map <country, LinearGlsk's datachronology>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      */
     public Map<String, DataChronology<LinearGlsk>> convertGlskDocumentToLinearGlskDataChronology(GlskDocument glskDocument, Network network) {
 
@@ -109,9 +109,9 @@ public class GlskDocumentLinearGlskConverter {
 
 
     /**
-     * Converter a glsk document to map < country, datachronology<glskpoint>>
+     * Converter a glsk document to a map associating a DataChronology of GlskPoint for each country
      * @param filename GLSK document filename
-     * @return Map Key: country, Value: DataChronology of GLSK Point
+     * @return A map associating a DataChronology of GlskPoint for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -124,7 +124,7 @@ public class GlskDocumentLinearGlskConverter {
 
     /**
      * @param glskDocument GlskDocument object
-     * @return Map Key: country, Value: DataChronology of GLSK Point
+     * @return A map associating a DataChronology of GlskPoint for each country
      */
     public Map<String, DataChronology<GlskPoint>> convertGlskDocumentToGlskPointDataChronology(GlskDocument glskDocument) {
         List<String> countries = glskDocument.getCountries();

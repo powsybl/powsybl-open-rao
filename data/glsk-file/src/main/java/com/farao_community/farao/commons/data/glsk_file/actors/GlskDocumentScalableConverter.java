@@ -34,7 +34,7 @@ public class GlskDocumentScalableConverter {
     /**
      * @param filepath file path in Path
      * @param network iidm network
-     * @return map <country, Scalable's datachronology>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -47,7 +47,7 @@ public class GlskDocumentScalableConverter {
     /**
      * @param filepathstring file full path in string
      * @param network iidm network
-     * @return map <country, Scalable's datachronology>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -60,7 +60,7 @@ public class GlskDocumentScalableConverter {
     /**
      * @param filename file name in src..resources
      * @param network iidm network
-     * @return map <country, Scalable's datachronology>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -73,7 +73,7 @@ public class GlskDocumentScalableConverter {
     /**
      * @param data InputStream
      * @param network iidm network
-     * @return map <country, Scalable's datachronology>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -85,7 +85,7 @@ public class GlskDocumentScalableConverter {
     /**
      * @param glskDocument glsk document object
      * @param network iidm network
-     * @return map <country, Scalable's datachronology>
+     * @return A map associating a DataChronology of Scalable for each country
      */
     public Map<String, DataChronology<Scalable>> convertGlskDocumentToScalableDataChronology(GlskDocument glskDocument, Network network) {
 

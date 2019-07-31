@@ -35,7 +35,7 @@ public class UcteGlskDocumentScalableConverter {
     /**
      * @param filepath file path as Path
      * @param network iidm network
-     * @return map <country, Datachronology's Scalable>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -48,7 +48,7 @@ public class UcteGlskDocumentScalableConverter {
     /**
      * @param filepathstring file full path in string
      * @param network iidm network
-     * @return map <country, Datachronology's Scalable>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -61,7 +61,7 @@ public class UcteGlskDocumentScalableConverter {
     /**
      * @param filename file name in src..resources
      * @param network iidm network
-     * @return map <country, Datachronology's Scalable>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -74,7 +74,7 @@ public class UcteGlskDocumentScalableConverter {
     /**
      * @param data InputStream
      * @param network iidm network
-     * @return map <country, Datachronology's Scalable>
+     * @return A map associating a DataChronology of Scalable for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -86,7 +86,7 @@ public class UcteGlskDocumentScalableConverter {
     /**
      * @param ucteGlskDocument UcteGlskDocument object
      * @param network iidm network
-     * @return map <country, Datachronology's Scalable>
+     * @return A map associating a DataChronology of Scalable for each country
      */
     public Map<String, DataChronology<Scalable>> convertUcteGlskDocuementToScalableDataChronology(UcteGlskDocument ucteGlskDocument, Network network) {
         Map<String, DataChronology<Scalable>> chronologyScalableMap = new HashMap<>();
