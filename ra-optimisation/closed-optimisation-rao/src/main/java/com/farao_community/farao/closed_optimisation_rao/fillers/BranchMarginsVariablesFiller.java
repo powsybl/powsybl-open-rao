@@ -18,14 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFiller {
-    private static final String ESTIMATED_FLOW_POSTFIX = "_estimated_flow";
-    private static final String ESTIMATED_FLOW_EQUATION_POSTFIX = "_estimated_flow_equation";
-    private static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
 
     @Override
     public Map<String, Class> dataExpected() {
@@ -38,10 +37,10 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
     public List<String> variablesProvided() {
         List<String> returnList = new ArrayList<>();
         returnList.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> (branch.getId())).collect(Collectors.toList()));
         returnList.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowVariable(branch.getId())).collect(Collectors.toList()));
         return returnList;
     }
 
@@ -49,10 +48,10 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
     public List<String> constraintsProvided() {
         List<String> returnList = new ArrayList<>();
         returnList.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
         returnList.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
         return returnList;
     }
 
@@ -63,18 +62,18 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
         Map<String, Double> referenceFlows = (Map<String, Double>) data.get(REFERENCE_FLOWS_DATA_NAME);
 
         cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> {
-            MPVariable branchFlowVariable = solver.makeNumVar(-infinity, infinity, branch.getId() + ESTIMATED_FLOW_POSTFIX);
+            MPVariable branchFlowVariable = solver.makeNumVar(-infinity, infinity, nameEstimatedFlowVariable(branch.getId()));
             double referenceFlow = referenceFlows.get(branch.getId());
-            MPConstraint branchFlowEquation = solver.makeConstraint(referenceFlow, referenceFlow, branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX);
+            MPConstraint branchFlowEquation = solver.makeConstraint(referenceFlow, referenceFlow, nameEstimatedFlowConstraint(branch.getId()));
             branchFlowEquation.setCoefficient(branchFlowVariable, 1);
         });
 
         cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
                 .forEach(branch -> {
-                    MPVariable branchFlowVariable = solver.makeNumVar(-infinity, infinity, branch.getId() + ESTIMATED_FLOW_POSTFIX);
+                    MPVariable branchFlowVariable = solver.makeNumVar(-infinity, infinity, nameEstimatedFlowVariable(branch.getId()));
                     double referenceFlow = referenceFlows.get(branch.getId());
-                    MPConstraint branchFlowEquation = solver.makeConstraint(referenceFlow, referenceFlow, branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX);
+                    MPConstraint branchFlowEquation = solver.makeConstraint(referenceFlow, referenceFlow, nameEstimatedFlowConstraint(branch.getId()));
                     branchFlowEquation.setCoefficient(branchFlowVariable, 1);
                 });
     }

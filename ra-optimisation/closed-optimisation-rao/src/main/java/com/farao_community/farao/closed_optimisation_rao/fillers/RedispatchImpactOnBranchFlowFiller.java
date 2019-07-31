@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
-import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.nameEstimatedFlowConstraint;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
