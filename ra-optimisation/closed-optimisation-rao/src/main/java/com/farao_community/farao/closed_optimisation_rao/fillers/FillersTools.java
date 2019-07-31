@@ -10,9 +10,18 @@ public final class FillersTools {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-    public static final String REDISPATCH_VALUE_N_POSTFIX = "_redispatch_value";
-    public static final String REDISPATCH_VALUE_CURATIVE_POSTFIX = "_redispatch_value";
-    public static final String BLANK_CHARACTER = "_";
+    private static final String REDISPATCH_VALUE_N_POSTFIX = "_redispatch_value_n";
+    private static final String REDISPATCH_VALUE_CURATIVE_POSTFIX = "_redispatch_value_curative";
+    private static final String ESTIMATED_FLOW_EQUATION_POSTFIX = "_estimated_flow_equation";
+    private static final String BLANK_CHARACTER = "_";
+    private static final String REDISPATCH_ACTIVATION_N_POSTFIX = "_redispatch_activation_n";
+    private static final String REDISPATCH_ACTIVATION_CURATIVE_POSTFIX = "_redispatch_activation_curative";
+    private static final String REDISPATCH_COST_N_POSTFIX = "_redispatch_cost_n";
+    private static final String REDISPATCH_COST_CURATIVE_POSTFIX = "_redispatch_cost_curative";
+
+    public static final String TOTAL_REDISPATCH_COST = "total_redispatch_cost";
+    public static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
+
 
     /**
      * Check if the remedial action is a Redispatch remedial action (i.e. with only
@@ -37,5 +46,61 @@ public final class FillersTools {
     public static boolean isRemedialActionCurativeFreeToUse(RemedialAction remedialAction) {
         return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
                 && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE));
+    }
+
+    /**
+     * Get standard name of redispatch value variable for preventive remedial actions
+     */
+    public static String nameRedispatchValueVariableN(String remedialActionId)
+    {
+        return remedialActionId + REDISPATCH_VALUE_N_POSTFIX;
+    }
+
+    /**
+     * Get standard name of redispatch value variable for curative remedial actions
+     */
+    public static String nameRedispatchValueVariableCurative(String contingencyId, String remedialActionId)
+    {
+        return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_VALUE_CURATIVE_POSTFIX;
+    }
+
+    /**
+     * Get standard name of flow definition constraint
+     */
+    public static String nameEstimatedFlowConstraint(String branchId)
+    {
+        return branchId + ESTIMATED_FLOW_EQUATION_POSTFIX;
+    }
+
+    /**
+     * Get standard name of redispatch activation variables for preventive remedial actions
+     */
+    public static String nameRedispatchActivationVariableN(String remedialActionId)
+    {
+        return remedialActionId + REDISPATCH_ACTIVATION_N_POSTFIX;
+    }
+
+    /**
+     * Get standard name of redispatch activation variables for curative remedial actions
+     */
+    public static String nameRedispatchActivationVariableCurative(String contingencyId, String remedialActionId)
+    {
+        return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_ACTIVATION_CURATIVE_POSTFIX;
+    }
+
+    /**
+     * Get standard name of redispatch cost variables for preventive remedial actions
+     */
+    public static String nameRedispatchCostVariableN(String remedialActionId)
+    {
+        return remedialActionId + REDISPATCH_COST_N_POSTFIX;
+    }
+
+    /**
+     * Get standard name of redispatch cost variables for curative remedial actions
+     */
+    public static String nameRedispatchCostVariableCurative(String contingencyId, String remedialActionId)
+    {
+        return contingencyId + BLANK_CHARACTER + remedialActionId + REDISPATCH_COST_CURATIVE_POSTFIX;
     }
 }

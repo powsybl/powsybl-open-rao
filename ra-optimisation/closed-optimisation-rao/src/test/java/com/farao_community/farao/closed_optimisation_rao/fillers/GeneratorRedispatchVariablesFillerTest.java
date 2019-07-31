@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,12 +22,17 @@ public class GeneratorRedispatchVariablesFillerTest {
 
     GeneratorRedispatchVariablesFiller generatorRedispatchVariablesFiller;
 
+    FilersUtilsTest filersUtilsTest;
+
+    CracFile cracFile;
+
     @Before
     public void setup() {
-        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/1_2nodes_preContingency_RD_N.xiidm");
-        Network net = Importers.loadNetwork("1_2nodes_preContingency_RD_N.xiidm", is);
-        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/1_2nodes_preContingency_RD_N.json"));
-        Map<String, Object> data = new HashMap<>();
+        filersUtilsTest = new FilersUtilsTest();
+        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.xiidm");
+        Network net = Importers.loadNetwork("4_2nodes_preContingency_RD_N-1.xiidm", is);
+        cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.json"));
+        Map<String, Object> data = filersUtilsTest.getData();
 
         generatorRedispatchVariablesFiller = new GeneratorRedispatchVariablesFiller();
         generatorRedispatchVariablesFiller

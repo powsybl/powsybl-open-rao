@@ -24,31 +24,30 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.nameEstimatedFlowConstraint;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProblemFiller {
-    private static final String ESTIMATED_FLOW_EQUATION_POSTFIX = "_estimated_flow_equation";
-    private static final String REDISPATCH_VALUE_POSTFIX = "_redispatch_value";
-    private static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
 
-    private List<RedispatchRemedialActionElement> generatorsRedispatch;
+    private List<RedispatchRemedialActionElement> generatorsRedispatchN;
+    private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
 
-    /**
-     * Check if the remedial action is a Redispatch remedial action (i.e. with only
-     * one remedial action element and redispatch)
-     */
-    private boolean isRedispatchRemedialAction(RemedialAction remedialAction) {
-        return remedialAction.getRemedialActionElements().size() == 1 &&
-                remedialAction.getRemedialActionElements().get(0) instanceof RedispatchRemedialActionElement;
-    }
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.generatorsRedispatch = cracFile.getRemedialActions().stream()
-                .filter(this::isRedispatchRemedialAction)
+        this.generatorsRedispatchN = cracFile.getRemedialActions().stream()
+                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
+                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
+                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
+                .collect(Collectors.toList());
+
+        this.generatorsRedispatchCurative = cracFile.getRemedialActions().stream()
+                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionCurativeFreeToUse(ra))
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
                 .collect(Collectors.toList());
@@ -56,18 +55,26 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
 
     @Override
     public List<String> variablesExpected() {
-        return generatorsRedispatch.stream().map(rae -> rae.getId() + REDISPATCH_VALUE_POSTFIX)
+        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> nameRedispatchValueVariableN(gen.getId()))
                 .collect(Collectors.toList());
+
+        cracFile.getContingencies().forEach(cont -> {
+            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchValueVariableCurative(cont.getId(), gen.getId()))
+                    .collect(Collectors.toList()));
+        });
+
+        return variablesList;
+
     }
 
     @Override
     public List<String> constraintsExpected() {
         List<String> constraintsExpected = new ArrayList<>();
         constraintsExpected.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
         constraintsExpected.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
         return constraintsExpected;
     }
 
@@ -82,19 +89,27 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     public void fillProblem(MPSolver solver) {
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(GEN_SENSITIVITIES_DATA_NAME);
 
-        cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> generatorsRedispatch.forEach(gen -> {
-            MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(gen.getId() + REDISPATCH_VALUE_POSTFIX));
-            MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX));
+        cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> generatorsRedispatchN.forEach(gen -> {
+            MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableN(gen.getId())));
+            MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
             double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
             flowEquation.setCoefficient(redispatchVariable, -sensitivity);
         }));
-        cracFile.getContingencies().stream()
-                .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .forEach(branch -> generatorsRedispatch.forEach(gen -> {
-                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(gen.getId() + REDISPATCH_VALUE_POSTFIX));
-                    MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(branch.getId() + ESTIMATED_FLOW_EQUATION_POSTFIX));
+
+        cracFile.getContingencies().forEach( contingency -> {
+            contingency.getMonitoredBranches().forEach(branch -> {
+                MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
+                generatorsRedispatchN.forEach(gen -> {
+                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableN(gen.getId())));
                     double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
                     flowEquation.setCoefficient(redispatchVariable, -sensitivity);
-                }));
+                });
+                generatorsRedispatchCurative.forEach(gen -> {
+                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contingency.getId(), gen.getId())));
+                    double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
+                    flowEquation.setCoefficient(redispatchVariable, -sensitivity);
+                });
+            });
+        });
     }
 }

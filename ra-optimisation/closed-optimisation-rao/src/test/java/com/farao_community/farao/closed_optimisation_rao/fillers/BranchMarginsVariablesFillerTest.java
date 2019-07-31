@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,14 +19,17 @@ public class BranchMarginsVariablesFillerTest {
 
     BranchMarginsVariablesFiller branchMarginsVariablesFiller;
 
+    FilersUtilsTest filersUtilsTest;
+
     CracFile cracFile;
 
     @Before
-    public void setUp() {
-        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/1_2nodes_preContingency_RD_N.xiidm");
-        Network net = Importers.loadNetwork("1_2nodes_preContingency_RD_N.xiidm", is);
-        cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/1_2nodes_preContingency_RD_N.json"));
-        Map<String, Object> data = new HashMap<>();
+    public void setup() {
+        filersUtilsTest = new FilersUtilsTest();
+        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.xiidm");
+        Network net = Importers.loadNetwork("4_2nodes_preContingency_RD_N-1.xiidm", is);
+        cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.json"));
+        Map<String, Object> data = filersUtilsTest.getData();
 
         branchMarginsVariablesFiller = new BranchMarginsVariablesFiller();
         branchMarginsVariablesFiller.initFiller(net, cracFile, data);
@@ -47,8 +49,6 @@ public class BranchMarginsVariablesFillerTest {
         cracFile.getPreContingency().getMonitoredBranches().forEach(monitoredBranch -> {
             assertTrue(variablesProvided.contains(monitoredBranch.getId() + "_estimated_flow"));
             assertTrue(constraintProvided.contains(monitoredBranch.getId() + "_estimated_flow_equation"));
-            dataExcepted.containsKey(monitoredBranch.getId() + "_estimated_flow_equation");
-            // variablesProvided.contains(monitoredBranch.getId() + "_estimated_flow");
         });
         //TODO fillProblem()
     }

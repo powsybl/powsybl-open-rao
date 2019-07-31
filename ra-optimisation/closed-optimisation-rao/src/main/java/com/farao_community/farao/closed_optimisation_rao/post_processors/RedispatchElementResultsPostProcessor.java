@@ -10,6 +10,7 @@ import com.farao_community.farao.closed_optimisation_rao.OptimisationPostProcess
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
+import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -41,40 +44,73 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
 
     @Override
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
-        List<RemedialActionResult> remedialActionsResult = cracFile.getRemedialActions().stream()
-            .filter(this::isRedispatchRemedialAction)
-            .filter(ra -> isApplied(ra, solver))
-            .map(remedialAction -> {
-                RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
-                double initialTargetP = network.getGenerator(rrae.getId()).getTargetP();
-                MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(rrae.getId() + REDISPATCH_COST_POSTFIX));
-                MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(rrae.getId() + REDISPATCH_VALUE_POSTFIX));
-                return new RemedialActionResult(
-                    remedialAction.getId(),
-                    remedialAction.getName(),
-                    true,
-                    Collections.singletonList(
-                        new RedispatchElementResult(
-                            rrae.getId(),
-                            initialTargetP,
-                            initialTargetP + redispatchValue.solutionValue(),
-                            redispatchCost.solutionValue()
-                        )
-                    )
-                );
-            })
-            .collect(Collectors.toList());
-        result.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionsResult);
+
+        List<RemedialActionResult> preventiveRemedialActionsResult = cracFile.getRemedialActions().stream()
+                .filter(ra -> isRedispatchRemedialAction(ra))
+                .filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
+                .filter(ra -> isPreventiveRemedialActionActivated(ra, solver))
+                .map(remedialAction -> {
+                    RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
+                    double initialTargetP = network.getGenerator(rrae.getId()).getTargetP();
+                    MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchCostVariableN(rrae.getId())));
+                    MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableN(rrae.getId())));
+                    return new RemedialActionResult(
+                            remedialAction.getId(),
+                            remedialAction.getName(),
+                            true,
+                            Collections.singletonList(
+                                    new RedispatchElementResult(
+                                            rrae.getId(),
+                                            initialTargetP,
+                                            initialTargetP + redispatchValue.solutionValue(),
+                                            redispatchCost.solutionValue()
+                                    )
+                            )
+                    );
+                })
+                .collect(Collectors.toList());
+        result.getPreContingencyResult().getRemedialActionResults().addAll(preventiveRemedialActionsResult);
+
+        result.getContingencyResults().forEach(contingency -> {
+            List<RemedialActionResult> curativeRemedialActionsResult = cracFile.getRemedialActions().stream()
+                    .filter(ra -> isRedispatchRemedialAction(ra))
+                    .filter(ra -> isRemedialActionCurativeFreeToUse(ra))
+                    .filter(ra -> isCurativeRemedialActionActivated(contingency, ra, solver))
+                    .map(remedialAction -> {
+                        RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
+                        double initialTargetP = network.getGenerator(rrae.getId()).getTargetP();
+                        MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchCostVariableCurative(contingency.getId(), rrae.getId())));
+                        MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contingency.getId(), rrae.getId())));
+                        return new RemedialActionResult(
+                                remedialAction.getId(),
+                                remedialAction.getName(),
+                                true,
+                                Collections.singletonList(
+                                        new RedispatchElementResult(
+                                                rrae.getId(),
+                                                initialTargetP,
+                                                initialTargetP + redispatchValue.solutionValue(),
+                                                redispatchCost.solutionValue()
+                                        )
+                                )
+                        );
+                    })
+                    .collect(Collectors.toList());
+            contingency.getRemedialActionResults().addAll(curativeRemedialActionsResult);
+
+        });
     }
 
-    private boolean isRedispatchRemedialAction(RemedialAction remedialAction) {
-        return remedialAction.getRemedialActionElements().size() == 1 &&
-                remedialAction.getRemedialActionElements().get(0) instanceof RedispatchRemedialActionElement;
-    }
 
-    private boolean isApplied(RemedialAction remedialAction, MPSolver solver) {
+    private boolean isPreventiveRemedialActionActivated(RemedialAction remedialAction, MPSolver solver) {
         RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
-        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(rrae.getId() + REDISPATCH_ACTIVATION_POSTFIX));
+        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchActivationVariableN(rrae.getId())));
+        return redispatchActivation.solutionValue() > 0;
+    }
+
+    private boolean isCurativeRemedialActionActivated(ContingencyResult contingency, RemedialAction remedialAction, MPSolver solver) {
+        RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
+        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchActivationVariableCurative(contingency.getId(), rrae.getId())));
         return redispatchActivation.solutionValue() > 0;
     }
 }
