@@ -16,12 +16,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.TOTAL_REDISPATCH_COST;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisationProblemFiller {
-    private static final String TOTAL_REDISPATCH_COST = "total_redispatch_cost";
 
     @Override
     public List<String> objectiveFunctionsProvided() {

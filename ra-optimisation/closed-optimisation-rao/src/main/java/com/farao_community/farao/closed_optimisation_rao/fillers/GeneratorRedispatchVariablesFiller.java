@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameRedispatchValueVariableN;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameRedispatchValueVariableCurative;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
