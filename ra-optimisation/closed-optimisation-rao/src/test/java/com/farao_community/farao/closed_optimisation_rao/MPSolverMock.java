@@ -1,6 +1,8 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.linearsolver.operations_research_linear_solverJNI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,7 @@ public class MPSolverMock extends MPSolver {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
-        MPVariableMock newVariable = new MPVariableMock(name, lb, ub);
+        MPVariableMock newVariable = new MPVariableMock(name, lb, ub, false);
         variables.add(newVariable);
         return newVariable;
     }
@@ -40,12 +42,34 @@ public class MPSolverMock extends MPSolver {
     }
 
     @Override
+    public MPVariable makeBoolVar(String name) {
+        // check that variable does not already exists
+        assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
+
+        MPVariableMock newVariable = new MPVariableMock(name, 0, 1, true);
+        variables.add(newVariable);
+        return newVariable;
+    }
+
+    @Override
+    public MPConstraintMock makeConstraint(double lb, double ub) {
+        MPConstraintMock newConstraint = new MPConstraintMock("", lb, ub);
+        constraints.add(newConstraint);
+        return newConstraint;
+    }
+
+    @Override
     public MPVariableMock lookupVariableOrNull(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
         if (variablesWithSameName.size() == 0) {
             return null;
         }
         return variablesWithSameName.get(0);
+    }
+
+    @Override
+    public MPObjectiveMock objective() {
+        return new MPObjectiveMock();
     }
 
     @Override

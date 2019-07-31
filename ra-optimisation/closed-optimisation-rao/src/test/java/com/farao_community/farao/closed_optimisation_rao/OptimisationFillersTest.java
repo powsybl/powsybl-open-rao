@@ -1,6 +1,6 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
-import com.farao_community.farao.closed_optimisation_rao.fillers.BranchMarginsVariablesFiller;
+import com.farao_community.farao.closed_optimisation_rao.fillers.*;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
 import com.google.ortools.linearsolver.MPSolver;
@@ -10,40 +10,27 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.assertTrue;
 
 public class OptimisationFillersTest {
 
-    private static double tolerance = 1e-6;
-
-    private boolean areVariablesPresent(List<String> variablesNames, MPSolver solver) {
-        return variablesNames.stream().allMatch(v ->
-            solver.lookupVariableOrNull(v) != null);
-    }
-
-    private boolean areConstraintsPresent(List<String> constraintsNames, MPSolver solver) {
-        return constraintsNames.stream().allMatch(v ->
-                solver.lookupConstraintOrNull(v) != null);
-    }
-
     @Test
-    public void curativeAndPreventiveFreeToUseRedispatching() {
+    public void testCase1() {
         /*
         Files : 4_2nodes_preContingency_RD_N-1
           - Test case with two nodes
           - preContingency and N-1 contingencies
           - 4 redispatching remedial actions, all free-to-use : 2 preventive, 2 curative
          */
-
         CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.json"));
         InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.xiidm");
         Network network = Importers.loadNetwork("/4_2nodes_preContingency_RD_N-1.xiidm", is);
 
-        // build manually the required data Map to bypass the load-flow computation and test independently the fillers
         HashMap<String, Object> data = new HashMap<>();
         HashMap<String, Double> pstSensitivities = new HashMap<>();
         HashMap<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
@@ -67,31 +54,30 @@ public class OptimisationFillersTest {
         referenceFlows.put("C1_MONITORED_FRANCE_BELGIUM_1", -800.000);
 
         data.put("pst_branch_sensitivities", pstSensitivities);
-        data.put("generator_branch_sensitivities", generatorSensitivities);
+        data.put("generators_branch_sensitivities", generatorSensitivities);
         data.put("reference_flows", referenceFlows);
 
-        MPSolver solver = new MPSolverMock();
+        List<String> fillersToTest = new ArrayList<>();
 
-        // BranchMarginVariablesFiller
-        BranchMarginsVariablesFiller filler1 = new BranchMarginsVariablesFiller();
-        filler1.initFiller(network, cracFile, data);
+        fillersToTest.add(BranchMarginsPositivityConstraintFiller.class.getName());
+        fillersToTest.add(BranchMarginsVariablesFiller.class.getName());
+        fillersToTest.add(GeneratorRedispatchCostsFiller.class.getName());
+        fillersToTest.add(GeneratorRedispatchVariablesFiller.class.getName());
+        fillersToTest.add(PstAngleImpactOnBranchFlowFiller.class.getName());
+        fillersToTest.add(PstAngleVariablesFiller.class.getName());
+        fillersToTest.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
+        fillersToTest.add(RedispatchEquilibriumConstraintFiller.class.getName());
+        fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
+        FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
-        List<String> variablesProvided = filler1.variablesProvided();
-        List<String> constraintsProvided = filler1.constraintsProvided();
-
-        assertTrue(variablesProvided.contains("MONITORED_FRANCE_BELGIUM_1_estimated_flow"));
-        assertTrue(variablesProvided.contains("C1_MONITORED_FRANCE_BELGIUM_1_estimated_flow"));
-        assertTrue(constraintsProvided.contains("MONITORED_FRANCE_BELGIUM_1_estimated_flow_equation"));
-        assertTrue(constraintsProvided.contains("C1_MONITORED_FRANCE_BELGIUM_1_estimated_flow_equation"));
-
-        filler1.fillProblem(solver);
-        assertTrue(areVariablesPresent(variablesProvided, solver));
-        assertTrue(areConstraintsPresent(constraintsProvided, solver));
-        assertEquals(-266.667, solver.lookupConstraintOrNull("MONITORED_FRANCE_BELGIUM_1_estimated_flow_equation").lb(), tolerance);
-        assertEquals(-266.667, solver.lookupConstraintOrNull("MONITORED_FRANCE_BELGIUM_1_estimated_flow_equation").ub(), tolerance);
-        assertEquals(1, solver.lookupConstraintOrNull("MONITORED_FRANCE_BELGIUM_1_estimated_flow_equation").
-                getCoefficient(solver.lookupVariableOrNull("MONITORED_FRANCE_BELGIUM_1_estimated_flow")), tolerance);
+        fillersTestCase.fillersTest();
 
     }
 
+
+    @Test
+    public void test() {
+
+
+    }
 }

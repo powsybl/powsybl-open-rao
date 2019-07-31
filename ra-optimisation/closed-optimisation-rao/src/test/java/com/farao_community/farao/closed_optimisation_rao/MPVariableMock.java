@@ -7,16 +7,18 @@ public class MPVariableMock extends MPVariable {
     private String name;
     private double lb;
     private double ub;
+    private boolean isBoolVariable;
 
     protected MPVariableMock() {
         super(0, false);
     }
 
-    protected MPVariableMock(String pName, double pLb, double pUb) {
+    protected MPVariableMock(String pName, double pLb, double pUb, boolean pIsBoolVariable) {
         super(0, false);
         this.name = pName;
         this.lb = pLb;
         this.ub = pUb;
+        this.isBoolVariable = pIsBoolVariable;
     }
 
     @Override

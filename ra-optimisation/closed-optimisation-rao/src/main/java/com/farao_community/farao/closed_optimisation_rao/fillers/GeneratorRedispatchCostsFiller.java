@@ -82,7 +82,8 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
 
     @Override
     public void fillProblem(MPSolver solver) {
-        double infinity = MPSolver.infinity();
+        //TODO : find a way to use solver.infinity() which work with the tests
+        double infinity = Double.POSITIVE_INFINITY;
         // Create total redispatch cost and its equation
         MPVariable totalRedispatchCostVariable = solver.makeNumVar(-infinity, infinity, TOTAL_REDISPATCH_COST);
         MPConstraint totalRedispatchCostEquation = solver.makeConstraint(0, 0);
