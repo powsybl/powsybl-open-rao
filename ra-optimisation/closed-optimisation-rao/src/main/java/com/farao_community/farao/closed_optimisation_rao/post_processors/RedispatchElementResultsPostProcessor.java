@@ -101,7 +101,6 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
         });
     }
 
-
     private boolean isPreventiveRemedialActionActivated(RemedialAction remedialAction, MPSolver solver) {
         RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
         MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchActivationVariableN(rrae.getId())));

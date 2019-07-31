@@ -9,7 +9,6 @@ package com.farao_community.farao.closed_optimisation_rao.fillers;
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
-import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
@@ -31,7 +30,6 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
 
     private List<RedispatchRemedialActionElement> generatorsRedispatchN;
     private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
-
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
@@ -71,13 +69,15 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
             equilibriumN.setCoefficient(redispatchValueVariable, 1);
         });
 
-        cracFile.getContingencies().forEach( cont -> {
-            MPConstraint equilibriumCurative = solver.makeConstraint(0,0);
-            generatorsRedispatchCurative.forEach(gen -> {
-                MPVariable redispatchValueVariable = Objects.requireNonNull(
-                        solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(cont.getId(), gen.getId())));
-                equilibriumCurative.setCoefficient(redispatchValueVariable, 1);
+        if (!generatorsRedispatchCurative.isEmpty()) {
+            cracFile.getContingencies().forEach(cont -> {
+                MPConstraint equilibriumCurative = solver.makeConstraint(0, 0);
+                generatorsRedispatchCurative.forEach(gen -> {
+                    MPVariable redispatchValueVariable = Objects.requireNonNull(
+                            solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(cont.getId(), gen.getId())));
+                    equilibriumCurative.setCoefficient(redispatchValueVariable, 1);
+                });
             });
-        });
+        }
     }
 }

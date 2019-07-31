@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.PstElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
+import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
@@ -24,13 +25,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(OptimisationPostProcessor.class)
 public class PstElementResultsPostProcessor implements OptimisationPostProcessor {
 
-    private static final String SHIFT_VALUE_POSTFIX = "_shift_value";
     private static final double EPSILON = 1e-3;
 
     @Override
@@ -40,15 +42,16 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
 
     @Override
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
-        List<RemedialActionResult> remedialActionsResult = cracFile.getRemedialActions().stream()
+        List<RemedialActionResult> preventiveRemedialActionsResult = cracFile.getRemedialActions().stream()
                 .filter(this::isPstRemedialAction)
-                .filter(ra -> isApplied(ra, solver))
+                .filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
+                .filter(ra -> isPreventiveRemedialActionActivated(ra, solver))
                 .map(remedialAction -> {
                     PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);
                     PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(prae.getId()).getPhaseTapChanger();
                     double initialAngle = phaseTapChanger.getCurrentStep().getAlpha();
                     int initialTapPosition = phaseTapChanger.getTapPosition();
-                    MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(prae.getId() + SHIFT_VALUE_POSTFIX));
+                    MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableN(prae.getId())));
                     double finalAngle = initialAngle + angleValue.solutionValue();
                     int finalTapPosition = computeTapPosition(finalAngle, phaseTapChanger, network.getTwoWindingsTransformer(prae.getId()));
                     return new RemedialActionResult(
@@ -67,7 +70,39 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
                     );
                 })
                 .collect(Collectors.toList());
-        result.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionsResult);
+        result.getPreContingencyResult().getRemedialActionResults().addAll(preventiveRemedialActionsResult);
+
+        result.getContingencyResults().forEach(contingency -> {
+            List<RemedialActionResult> curativeRemedialActionsResult = cracFile.getRemedialActions().stream()
+                    .filter(this::isPstRemedialAction)
+                    .filter(ra -> isRemedialActionCurativeFreeToUse(ra))
+                    .filter(ra -> isCurativeRemedialActionActivated(contingency, ra, solver))
+                    .map(remedialAction -> {
+                        PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);
+                        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(prae.getId()).getPhaseTapChanger();
+                        double initialAngle = phaseTapChanger.getCurrentStep().getAlpha();
+                        int initialTapPosition = phaseTapChanger.getTapPosition();
+                        MPVariable angleValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(), prae.getId())));
+                        double finalAngle = initialAngle + angleValue.solutionValue();
+                        int finalTapPosition = computeTapPosition(finalAngle, phaseTapChanger, network.getTwoWindingsTransformer(prae.getId()));
+                        return new RemedialActionResult(
+                                remedialAction.getId(),
+                                remedialAction.getName(),
+                                true,
+                                Collections.singletonList(
+                                        new PstElementResult(
+                                                prae.getId(),
+                                                initialAngle,
+                                                initialTapPosition,
+                                                finalAngle,
+                                                finalTapPosition
+                                        )
+                                )
+                        );
+                    })
+                    .collect(Collectors.toList());
+            contingency.getRemedialActionResults().addAll(curativeRemedialActionsResult);
+        });
     }
 
     private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger, TwoWindingsTransformer twoWindingsTransformer) {
@@ -102,9 +137,15 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
                 remedialAction.getRemedialActionElements().get(0) instanceof PstElement;
     }
 
-    private boolean isApplied(RemedialAction remedialAction, MPSolver solver) {
+    private boolean isPreventiveRemedialActionActivated(RemedialAction remedialAction, MPSolver solver) {
         PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);
-        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(prae.getId() + SHIFT_VALUE_POSTFIX));
+        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableN(prae.getId())));
+        return redispatchActivation.solutionValue() > 0;
+    }
+
+    private boolean isCurativeRemedialActionActivated(ContingencyResult contingency, RemedialAction remedialAction, MPSolver solver) {
+        PstElement prae = (PstElement) remedialAction.getRemedialActionElements().get(0);
+        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariableCurative(contingency.getId(), prae.getId())));
         return redispatchActivation.solutionValue() > 0;
     }
 }

@@ -8,12 +8,10 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,17 +20,18 @@ public class OptimisationFillersTest {
 
     private static double tolerance = 1e-6;
 
-    private boolean areVariablesPresent(List<String> variablesNames, MPSolver solver){
+    private boolean areVariablesPresent(List<String> variablesNames, MPSolver solver) {
         return variablesNames.stream().allMatch(v ->
             solver.lookupVariableOrNull(v) != null);
     }
 
-    private boolean areConstraintsPresent(List<String> constraintsNames, MPSolver solver){
+    private boolean areConstraintsPresent(List<String> constraintsNames, MPSolver solver) {
         return constraintsNames.stream().allMatch(v ->
                 solver.lookupConstraintOrNull(v) != null);
     }
+
     @Test
-    public void curativeAndPreventiveFreeToUseRedispatching(){
+    public void curativeAndPreventiveFreeToUseRedispatching() {
         /*
         Files : 4_2nodes_preContingency_RD_N-1
           - Test case with two nodes
