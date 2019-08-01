@@ -10,6 +10,7 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.HashMap;
+
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
