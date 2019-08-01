@@ -7,8 +7,12 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.closed_optimisation_rao.fillers.*;
+import com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor;
+import com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor;
+import com.farao_community.farao.closed_optimisation_rao.post_processors.RedispatchElementResultsPostProcessor;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
+import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
@@ -76,7 +80,9 @@ public class OptimisationFillersTest {
         fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
         FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
+
         fillersTestCase.fillersTest();
+
 
     }
 
@@ -90,6 +96,7 @@ public class OptimisationFillersTest {
         HashMap<Pair<String, String>, Double> pstSensitivities = new HashMap<>();
         HashMap<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
         HashMap<String, Double> referenceFlows = new HashMap<>();
+        List<String> postProcessors = new ArrayList<>();
 
         pstSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_1", "PST"), -69.81317138671875);
         pstSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_3", "PST"), -139.6263427734375);
@@ -138,6 +145,12 @@ public class OptimisationFillersTest {
         fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
         FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
+        postProcessors.add(BranchResultsPostProcessor.class.getName());
+        postProcessors.add(PstElementResultsPostProcessor.class.getName());
+        postProcessors.add(RedispatchElementResultsPostProcessor.class.getName());
+
         fillersTestCase.fillersTest();
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        fillersTestCase.postProcessorsTest(postProcessors, raoComputationResult);
     }
 }
