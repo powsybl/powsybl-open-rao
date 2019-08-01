@@ -34,46 +34,50 @@ public final class ClosedOptimisationRaoNames {
     public static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
     public static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
 
-
     /**
      * Get standard name of redispatch value variables
      */
     public static String nameRedispatchValueVariable(Optional<Contingency> contingency, RedispatchRemedialActionElement remedialAction) {
-        if(contingency.isPresent()) {
+        if (contingency.isPresent()) {
             return contingency.get().getId() + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_VALUE_POSTFIX;
+        } else {
+            return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_VALUE_POSTFIX;
         }
-       else{return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_VALUE_POSTFIX;}
     }
 
     /**
      * Get standard name of redispatch activation variables
      */
     public static String nameRedispatchActivationVariable(Optional<Contingency> contingency, RedispatchRemedialActionElement remedialAction) {
-        if(contingency.isPresent()) {
+        if (contingency.isPresent()) {
             return contingency.get().getId() + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_ACTIVATION_POSTFIX;
+        } else {
+            return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_ACTIVATION_POSTFIX;
         }
-        else{return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_ACTIVATION_POSTFIX;}
     }
 
     /**
      * Get standard name of redispatch cost variables
      */
     public static String nameRedispatchCostVariable(Optional<Contingency> contingency, RedispatchRemedialActionElement remedialAction) {
-        if(contingency.isPresent()) {
+        if (contingency.isPresent()) {
             return contingency.get().getId() + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_COST_POSTFIX;
+        } else {
+            return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_COST_POSTFIX;
         }
-        else{return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + REDISPATCH_COST_POSTFIX;}
     }
 
     /**
      * Get standard name of PST's shift value variables
      */
     public static String nameShiftValueVariable(Optional<Contingency> contingency, PstElement remedialAction) {
-        if(contingency.isPresent()) {
+        if (contingency.isPresent()) {
             return contingency.get().getId() + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + SHIFT_VALUE_POSTFIX;
+        } else {
+            return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + SHIFT_VALUE_POSTFIX;
         }
-        else{return PRECONTINGENCY + CONTIGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + SHIFT_VALUE_POSTFIX;}
     }
+
     /**
      * Get standard name of estimated flow variable
      */

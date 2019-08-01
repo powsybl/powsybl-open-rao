@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.closed_optimisation_rao.post_processors;
 
-import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames;
 import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil;
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPostProcessor;
 import com.farao_community.farao.commons.FaraoException;
@@ -14,7 +13,6 @@ import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.PstElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
-import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
@@ -54,8 +52,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
                 .filter(ClosedOptimisationRaoUtil::isPstRemedialAction).collect(Collectors.toList()));
         cracFile.getContingencies().forEach(contingency -> pstRemedialActions.put(Optional.of(contingency),
                 getCurativeRemedialActions(cracFile, contingency).filter(ClosedOptimisationRaoUtil::isPstRemedialAction)
-        .collect(Collectors.toList())));
-
+                        .collect(Collectors.toList())));
 
         pstRemedialActions.forEach((contingency, raList) -> {
             //build result list for each contingency and its associated remedial actions
@@ -120,7 +117,6 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         });
         return approximatedTapPosition.get();
     }
-
 
     private boolean isPstRemedialActionActivated(Optional<Contingency> contingency, RemedialAction ra, MPSolver solver) {
         PstElement pst = (PstElement) ra.getRemedialActionElements().get(0);

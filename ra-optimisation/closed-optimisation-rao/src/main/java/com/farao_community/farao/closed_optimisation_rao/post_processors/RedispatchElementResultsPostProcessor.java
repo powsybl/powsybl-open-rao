@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
-import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
@@ -25,7 +24,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
-import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getCurativeRemedialActions;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getPreventiveRemedialActions;
+
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -34,10 +35,6 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(OptimisationPostProcessor.class)
 public class RedispatchElementResultsPostProcessor implements OptimisationPostProcessor {
 
-    private static final String REDISPATCH_VALUE_POSTFIX = "_redispatch_value";
-    private static final String REDISPATCH_ACTIVATION_POSTFIX = "_redispatch_activation";
-    private static final String REDISPATCH_COST_POSTFIX = "_redispatch_cost";
-
     @Override
     public Map<String, Class> dataNeeded() {
         return null;
@@ -45,7 +42,6 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
 
     @Override
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
-
 
         //make map of redispatching remedial actions
         HashMap<Optional<Contingency>, List<RemedialAction>> redispatchRemedialActions = new HashMap<>();

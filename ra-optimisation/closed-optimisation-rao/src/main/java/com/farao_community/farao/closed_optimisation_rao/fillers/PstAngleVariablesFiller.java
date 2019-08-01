@@ -44,7 +44,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
     @Override
     public void fillProblem(MPSolver solver) {
-        pstRemedialActions.forEach(((contingency, raList) -> {
+        pstRemedialActions.forEach((contingency, raList) -> {
             raList.forEach(pst -> {
                 PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst.getId()).getPhaseTapChanger();
 
@@ -60,7 +60,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
                 solver.makeNumVar(alphaMin - alphaInit, alphaMax - alphaInit, nameShiftValueVariable(contingency, pst));
             });
-        }));
+        });
     }
 
     @Override

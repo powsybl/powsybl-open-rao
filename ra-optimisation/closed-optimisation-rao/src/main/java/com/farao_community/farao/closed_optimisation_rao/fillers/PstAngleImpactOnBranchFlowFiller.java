@@ -33,7 +33,6 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
 
     private HashMap<Optional<Contingency>, List<PstElement>> pstRemedialActions;
 
-
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
@@ -99,7 +98,7 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
         });
     }
 
-    private void fillImpactOfPstRemedialActionOnBranch(Optional<Contingency> contingency, PstElement pst, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities){
+    private void fillImpactOfPstRemedialActionOnBranch(Optional<Contingency> contingency, PstElement pst, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities) {
         MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariable(contingency, pst)));
         MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
         double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
