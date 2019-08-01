@@ -19,8 +19,7 @@ public final class ClosedOptimisationRaoUtil {
 
     public static Stream<RemedialAction> getCurativeRemedialActions(CracFile cracFile, Contingency contingency){
         return cracFile.getRemedialActions().stream()
-                .filter(ra -> isRemedialActionCurativeAndApplicable(ra, contingency))
-                .filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction);
+                .filter(ra -> isRemedialActionCurativeAndApplicable(ra, contingency));
     }
 
 
@@ -62,14 +61,6 @@ public final class ClosedOptimisationRaoUtil {
      */
     public static boolean isRemedialActionPreventiveFreeToUse(RemedialAction remedialAction) {
         return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.N)
-                && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE));
-    }
-
-    /**
-     * Check if the remedial action is curative (Instant = CURATIVE) and free-to-use (Usage = FREE_TO_USE)
-     */
-    public static boolean isRemedialActionCurativeFreeToUse(RemedialAction remedialAction) {
-        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
                 && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE));
     }
 
