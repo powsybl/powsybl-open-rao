@@ -63,22 +63,25 @@ public class FillersTestCase {
         ClosedOptimisationRaoParameters parameters = new ClosedOptimisationRaoParameters();
         parameters.addAllPostProcessors(postProcesors);
 
+        // load processor <String = class name, OptimisationPostProcessor = proccessor object>
         HashMap<String, OptimisationPostProcessor> proccessorsMap = new HashMap<>();
         for (OptimisationPostProcessor postProcesor : ServiceLoader.load(OptimisationPostProcessor.class)) {
             proccessorsMap.put(postProcesor.getClass().getName(), postProcesor);
         }
 
-        List<OptimisationPostProcessor> proc = proccessorsMap.values().stream()
+        // list of proccesor you want test
+        List<OptimisationPostProcessor> processorsList = proccessorsMap.values().stream()
                 .filter(filler -> parameters.getPostProcessorsList().contains(filler.getClass().getName()))
                 .collect(Collectors.toList());
 
-        System.out.println("ici");
-        proc.stream().forEach(pro -> {
-            System.out.println("start");
-            pro.fillResults(network, cracFile, solver, data, raoComputationResult);
-            System.out.println(pro.getClass().getName());
-        });
+        MPSolverMock solver2 = (MPSolverMock) solver;
+        //TODO
+        solver2.randomSolve();
 
+        // start fileResultsMethods
+        processorsList.stream().forEach(processor -> {
+            processor.fillResults(network, cracFile, solver2, data, raoComputationResult);
+        });
 
     }
 

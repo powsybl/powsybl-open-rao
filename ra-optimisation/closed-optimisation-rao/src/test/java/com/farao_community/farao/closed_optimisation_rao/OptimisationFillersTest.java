@@ -80,9 +80,7 @@ public class OptimisationFillersTest {
         fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
         FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
-
         fillersTestCase.fillersTest();
-
 
     }
 

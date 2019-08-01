@@ -47,7 +47,11 @@ public class MPVariableMock extends MPVariable {
     }
 
     @Override
-    public double solutionValue() { return solutionValue; }
+    public double solutionValue() {
+        return solutionValue;
+    }
 
-    public double setRandomSolutionValue() { return Math.random() * (ub - lb) + lb; }
+    public double setRandomSolutionValue() {
+        return Math.random();
+    }
 }
