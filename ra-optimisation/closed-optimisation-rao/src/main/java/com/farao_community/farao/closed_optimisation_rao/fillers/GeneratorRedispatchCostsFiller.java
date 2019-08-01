@@ -7,6 +7,7 @@
 package com.farao_community.farao.closed_optimisation_rao.fillers;
 
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
+import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.google.auto.service.AutoService;
@@ -15,13 +16,11 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameRedispatchActivationVariableCurative;
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
 
 /**
@@ -31,22 +30,15 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemFiller {
 
     private List<RedispatchRemedialActionElement> generatorsRedispatchN;
-    private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
+    private HashMap<Contingency, List<RedispatchRemedialActionElement>> generatorsRedispatchCurative;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.generatorsRedispatchN = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
-                .collect(Collectors.toList());
-
-        this.generatorsRedispatchCurative = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionCurativeFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
-                .collect(Collectors.toList());
+        this.generatorsRedispatchN = getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile));
+        this.generatorsRedispatchCurative = new HashMap<>();
+        cracFile.getContingencies().forEach(contingency -> this.generatorsRedispatchCurative.put(contingency,
+                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
     }
 
     @Override
@@ -56,29 +48,29 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
                 .collect(Collectors.toList()));
         variables.addAll(generatorsRedispatchN.stream().map(gen -> nameRedispatchCostVariableN(gen.getId()))
                 .collect(Collectors.toList()));
-        cracFile.getContingencies().forEach(cont -> {
-            variables.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchActivationVariableCurative(cont.getId(), gen.getId()))
+        generatorsRedispatchCurative.forEach((contingency, raList) -> {
+            variables.addAll(raList.stream()
+                    .map(gen -> nameRedispatchActivationVariableCurative(contingency.getId(), gen.getId()))
+                    .collect(Collectors.toList()));
+            variables.addAll(raList.stream()
+                    .map(gen -> nameRedispatchCostVariableCurative(contingency.getId(), gen.getId()))
                     .collect(Collectors.toList()));
         });
-        cracFile.getContingencies().forEach(cont -> {
-            variables.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchCostVariableCurative(cont.getId(), gen.getId()))
-                    .collect(Collectors.toList()));
-        });
-
         variables.add(TOTAL_REDISPATCH_COST);
-
         return variables;
     }
 
     @Override
     public List<String> variablesExpected() {
-        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> nameRedispatchValueVariableN(gen.getId()))
-                .collect(Collectors.toList());
-        cracFile.getContingencies().forEach(cont -> {
-            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchValueVariableCurative(cont.getId(), gen.getId()))
+        List<String> variables = new ArrayList<>();
+        variables.addAll(generatorsRedispatchN.stream().map(gen -> nameRedispatchValueVariableN(gen.getId()))
+                .collect(Collectors.toList()));
+        generatorsRedispatchCurative.forEach((contingency, raList) -> {
+            variables.addAll(raList.stream()
+                    .map(gen -> nameRedispatchValueVariableCurative(contingency.getId(), gen.getId()))
                     .collect(Collectors.toList()));
         });
-        return variablesList;
+        return variables;
     }
 
     @Override
@@ -149,5 +141,37 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
                 constraintUp.setCoefficient(redispatchActivationVariable, -redispatchValueVariable.ub());
             });
         });
+    }
+
+    private void fillProblemForOneRedispatchingRemedialAction(MPSolver solver, RedispatchRemedialActionElement generator, Optional<Contingency> contingency) {
+
+        double infinity = MPSolver.infinity();
+
+        String genId = generator.getId();
+        MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(generator, contingency)));
+
+        // Redispatch activation variable
+        MPVariable redispatchActivationVariable = solver.makeBoolVar(nameRedispatchActivationVariable(generator, contingency));
+
+        // Redispatch cost variable
+        MPVariable redispatchCostVariable = solver.makeNumVar(-infinity, infinity, nameRedispatchCostVariableN(genId));
+
+        // Redispatch cost equation
+        MPConstraint costEquation = solver.makeConstraint(0, 0);
+        costEquation.setCoefficient(redispatchCostVariable, 1);
+        costEquation.setCoefficient(redispatchActivationVariable, -gen.getStartupCost());
+        costEquation.setCoefficient(redispatchValueVariable, -gen.getMarginalCost());
+
+        // Total redispatch cost participation
+        totalRedispatchCostEquation.setCoefficient(redispatchCostVariable, -1);
+
+        // Constraint for enforcing redispatch to be 0 when not activated
+        MPConstraint constraintLow = solver.makeConstraint(0, infinity);
+        constraintLow.setCoefficient(redispatchValueVariable, 1);
+        constraintLow.setCoefficient(redispatchActivationVariable, -redispatchValueVariable.lb());
+        MPConstraint constraintUp = solver.makeConstraint(-infinity, 0);
+        constraintUp.setCoefficient(redispatchValueVariable, 1);
+        constraintUp.setCoefficient(redispatchActivationVariable, -redispatchValueVariable.ub());
+
     }
 }
