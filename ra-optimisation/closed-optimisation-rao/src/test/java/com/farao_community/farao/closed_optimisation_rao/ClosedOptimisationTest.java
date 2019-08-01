@@ -38,7 +38,7 @@ public class ClosedOptimisationTest {
             Simple case with two nodes, precontingencies and preventive redispatching remedial actions
          */
 
-        String testName = "/1_2nodes_preContingency_RD_N";
+        String testName = "/5_3nodes_preContingency_PSTandRD_N-1";
         RaoComputationResult result = runRaoComputation(testName + ".xiidm", testName + ".json");
 
         assertEquals(-800, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow(), tolerance);
