@@ -37,7 +37,7 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
     public List<String> variablesProvided() {
         List<String> returnList = new ArrayList<>();
         returnList.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> (branch.getId())).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowVariable(branch.getId())).collect(Collectors.toList()));
         returnList.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
                 .map(branch -> nameEstimatedFlowVariable(branch.getId())).collect(Collectors.toList()));

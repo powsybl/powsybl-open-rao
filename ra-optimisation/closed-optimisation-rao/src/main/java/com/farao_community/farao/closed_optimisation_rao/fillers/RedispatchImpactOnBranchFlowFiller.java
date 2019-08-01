@@ -7,7 +7,9 @@
 package com.farao_community.farao.closed_optimisation_rao.fillers;
 
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
+import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -16,11 +18,7 @@ import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
@@ -32,37 +30,28 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProblemFiller {
 
-    private List<RedispatchRemedialActionElement> generatorsRedispatchN;
-    private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
+    private HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.generatorsRedispatchN = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
-                .collect(Collectors.toList());
-
-        this.generatorsRedispatchCurative = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionCurativeFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
-                .collect(Collectors.toList());
+        this.redispatchingRemedialActions = new HashMap<>();
+        // add preventive redispatching remedial actions
+        this.redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
+        // add curative redispatching remedial actions
+        cracFile.getContingencies().forEach(contingency -> this.redispatchingRemedialActions.put(Optional.of(contingency),
+                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
     }
 
     @Override
     public List<String> variablesExpected() {
-        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> nameRedispatchValueVariableN(gen.getId()))
-                .collect(Collectors.toList());
-
-        cracFile.getContingencies().forEach(cont -> {
-            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchValueVariableCurative(cont.getId(), gen.getId()))
+        List<String> variables = new ArrayList<>();
+        redispatchingRemedialActions.forEach((contingency, raList) -> {
+            variables.addAll(raList.stream()
+                    .map(gen -> nameRedispatchValueVariable(contingency, gen))
                     .collect(Collectors.toList()));
         });
-
-        return variablesList;
-
+        return variables;
     }
 
     @Override
@@ -87,27 +76,31 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     public void fillProblem(MPSolver solver) {
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(GEN_SENSITIVITIES_DATA_NAME);
 
-        cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> generatorsRedispatchN.forEach(gen -> {
-            MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableN(gen.getId())));
-            MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
-            double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
-            flowEquation.setCoefficient(redispatchVariable, -sensitivity);
-        }));
-
-        cracFile.getContingencies().forEach(contingency -> {
-            contingency.getMonitoredBranches().forEach(branch -> {
-                MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
-                generatorsRedispatchN.forEach(gen -> {
-                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableN(gen.getId())));
-                    double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
-                    flowEquation.setCoefficient(redispatchVariable, -sensitivity);
+        redispatchingRemedialActions.forEach((contingency, raList) -> {
+            if (!contingency.isPresent()) {
+                // impact of preventive remedial actions on preContingency flows
+                cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> raList.forEach(rrae -> {
+                    fillImpactOfRedispatchingRemedialActionOnBranch(contingency, rrae, branch, solver, sensitivities);
+                }));
+                // impact of preventive remedial actions on all N-1 flows
+                cracFile.getContingencies().forEach(cont -> {
+                    cont.getMonitoredBranches().forEach(branch -> raList.forEach(rrae -> {
+                        fillImpactOfRedispatchingRemedialActionOnBranch(contingency, rrae, branch, solver, sensitivities);
+                    }));
                 });
-                generatorsRedispatchCurative.forEach(gen -> {
-                    MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contingency.getId(), gen.getId())));
-                    double sensitivity = sensitivities.get(Pair.of(branch.getId(), gen.getId()));
-                    flowEquation.setCoefficient(redispatchVariable, -sensitivity);
-                });
-            });
+            } else {
+                // impact of curative remedial actions on associated N-1 flows
+                contingency.get().getMonitoredBranches().forEach(branch -> raList.forEach(rrae -> {
+                    fillImpactOfRedispatchingRemedialActionOnBranch(contingency, rrae, branch, solver, sensitivities);
+                }));
+            }
         });
+    }
+
+    public void fillImpactOfRedispatchingRemedialActionOnBranch(Optional<Contingency> contingency, RedispatchRemedialActionElement rrae, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities) {
+        MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, rrae)));
+        MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
+        double sensitivity = sensitivities.get(Pair.of(branch.getId(), rrae.getId()));
+        flowEquation.setCoefficient(redispatchVariable, -sensitivity);
     }
 }
