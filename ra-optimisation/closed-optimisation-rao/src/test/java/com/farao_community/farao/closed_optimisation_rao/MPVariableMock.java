@@ -2,6 +2,9 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.google.ortools.linearsolver.MPVariable;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class MPVariableMock extends MPVariable {
 
     private String name;

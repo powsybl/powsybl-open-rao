@@ -6,6 +6,12 @@ import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 
 import java.util.Optional;
 
+/**
+ *  Utility class designed to build parameters, variables and constraints names
+ *  of the optimisation RAO problem.
+ *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public final class ClosedOptimisationRaoNames {
 
     private ClosedOptimisationRaoNames() {

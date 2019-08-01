@@ -5,24 +5,37 @@ import com.farao_community.farao.data.crac_file.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+/**
+ * Utility class designed to manipulate the remedial actions of a Crac File
+ *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public final class ClosedOptimisationRaoUtil {
 
     private ClosedOptimisationRaoUtil() {
         throw new AssertionError("Utility class should not have constructor");
     }
 
+    /**
+     * Get all preventive remedial actions of a cracFile
+     */
     public static Stream<RemedialAction> getPreventiveRemedialActions(CracFile cracFile){
         return cracFile.getRemedialActions().stream()
                 .filter(ClosedOptimisationRaoUtil::isRemedialActionPreventiveFreeToUse);
     }
 
+    /**
+     * Get curative remedial actions applicable on a given N-1 contingency
+     */
     public static Stream<RemedialAction> getCurativeRemedialActions(CracFile cracFile, Contingency contingency){
         return cracFile.getRemedialActions().stream()
                 .filter(ra -> isRemedialActionCurativeAndApplicable(ra, contingency));
     }
 
-
+    /**
+     * Get redispatching remedial action from a stream of RemedialAction and convert
+     * them into a list of RedispatchingRemedialActionElement
+     */
     public static List<RedispatchRemedialActionElement> getRedispatchRemedialActionElement(Stream<RemedialAction> RaList) {
         return RaList
                 .filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction)
@@ -31,6 +44,10 @@ public final class ClosedOptimisationRaoUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get Pst remedial action from a stream of RemedialAction and convert
+     * them into a list of PstElement
+     */
     public static List<PstElement> getPstElement(Stream<RemedialAction> RaList) {
         return RaList
                 .filter(ClosedOptimisationRaoUtil::isPstRemedialAction)
@@ -38,6 +55,7 @@ public final class ClosedOptimisationRaoUtil {
                 .map(remedialActionElement -> (PstElement) remedialActionElement)
                 .collect(Collectors.toList());
     }
+
     /**
      * Check if the remedial action is a Redispatch remedial action (i.e. with only
      * one remedial action element and redispatch)

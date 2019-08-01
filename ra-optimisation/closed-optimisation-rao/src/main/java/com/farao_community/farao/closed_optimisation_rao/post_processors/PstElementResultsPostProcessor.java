@@ -33,6 +33,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(OptimisationPostProcessor.class)
 public class PstElementResultsPostProcessor implements OptimisationPostProcessor {
