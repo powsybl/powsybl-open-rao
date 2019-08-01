@@ -1,20 +1,25 @@
+/**
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.closed_optimisation_rao;
 
-import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
-import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoParameters;
-import com.farao_community.farao.closed_optimisation_rao.MPSolverMock;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 
 import static com.farao_community.farao.closed_optimisation_rao.OptimisationComponentUtil.getFillersStack;
 import static junit.framework.TestCase.assertTrue;
+/**
+ * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 
 public class FillersTestCase {
 
@@ -58,7 +63,5 @@ public class FillersTestCase {
         return constraintsNames.stream().allMatch(v ->
                 solver.lookupConstraintOrNull(v) != null);
     }
-
-
 
 }

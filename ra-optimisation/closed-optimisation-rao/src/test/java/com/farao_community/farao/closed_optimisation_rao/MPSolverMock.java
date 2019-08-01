@@ -2,7 +2,6 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
-import com.google.ortools.linearsolver.operations_research_linear_solverJNI;
 
 import java.util.ArrayList;
 import java.util.List;

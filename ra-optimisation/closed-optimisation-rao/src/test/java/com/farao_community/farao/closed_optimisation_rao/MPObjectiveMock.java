@@ -2,7 +2,6 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
-import com.google.ortools.linearsolver.operations_research_linear_solverJNI;
 
 import java.util.HashMap;
 
@@ -33,5 +32,7 @@ public class MPObjectiveMock extends MPObjective {
     }
 
     @Override
-    public void setMinimization(){isMinimization = true;}
+    public void setMinimization() {
+        isMinimization = true;
+    }
 }
