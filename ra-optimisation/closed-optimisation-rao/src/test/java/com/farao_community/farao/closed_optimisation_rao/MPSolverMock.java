@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class MPSolverMock extends MPSolver {
 
     private List<MPConstraintMock> constraints;

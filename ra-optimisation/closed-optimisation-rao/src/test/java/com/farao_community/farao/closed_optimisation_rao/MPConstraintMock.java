@@ -5,6 +5,9 @@ import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.HashMap;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class MPConstraintMock extends MPConstraint {
 
     private String name;

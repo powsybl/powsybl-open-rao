@@ -8,7 +8,7 @@
       "id" : "MONITORED_FRANCE_BELGIUM_1",
       "name" : "France-Belgium interconnection n°1 monitored",
       "branchId" : "FRANCE_BELGIUM_1",
-      "fmax" : 300.0
+      "fmax" : 500.0
     }, {
       "id" : "MONITORED_FRANCE_BELGIUM_2",
       "name" : "France-Belgium interconnection n°2 monitored",
@@ -18,7 +18,7 @@
       "id" : "MONITORED_FRANCE_BELGIUM_3",
       "name" : "France-Belgium interconnection n°3 monitored",
       "branchId" : "FRANCE_BELGIUM_2",
-      "fmax" : 250.0
+      "fmax" : 500.0
     } ]
   },
   "contingencies" : [ {
@@ -28,12 +28,12 @@
       "id" : "C1_MONITORED_FRANCE_BELGIUM_1",
       "name" : "France-Belgium interconnection n°1 monitored",
       "branchId" : "FRANCE_BELGIUM_1",
-      "fmax" : 300.0
+      "fmax" : 500.0
     }, {
       "id" : "C1_MONITORED_FRANCE_BELGIUM_3",
       "name" : "France-Belgium interconnection n°3 monitored",
       "branchId" : "FRANCE_BELGIUM_1",
-      "fmax" : 250.0
+      "fmax" : 500.0
     } ],
     "contingencyElements" : [ {
       "elementId" : "FRANCE_BELGIUM_2",
@@ -51,7 +51,7 @@
       "id" : "C2_MONITORED_FRANCE_BELGIUM_3",
       "name" : "France-Belgium interconnection n°3 monitored",
       "branchId" : "FRANCE_BELGIUM_3",
-      "fmax" : 250.0
+      "fmax" : 500.0
     } ],
     "contingencyElements" : [ {
       "elementId" : "FRANCE_BELGIUM_1",

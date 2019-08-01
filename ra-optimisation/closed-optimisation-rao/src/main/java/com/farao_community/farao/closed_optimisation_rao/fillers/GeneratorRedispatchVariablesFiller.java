@@ -12,67 +12,52 @@ import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameRedispatchValueVariable;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProblemFiller {
 
-    private List<RedispatchRemedialActionElement> generatorsRedispatchN;
-    private List<RedispatchRemedialActionElement> generatorsRedispatchCurative;
+    private HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.generatorsRedispatchN = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
-                .collect(Collectors.toList());
-
-        this.generatorsRedispatchCurative = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra)).filter(ra -> isRemedialActionCurativeFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
-                .collect(Collectors.toList());
+        this.redispatchingRemedialActions = new HashMap<>();
+        // add preventive redispatching remedial actions
+        this.redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
+        // add curative redispatching remedial actions
+        cracFile.getContingencies().forEach(contingency -> this.redispatchingRemedialActions.put(Optional.of(contingency),
+                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
     }
 
     @Override
     public void fillProblem(MPSolver solver) {
-        generatorsRedispatchN.forEach(gen -> {
-            double pmin = gen.getMinimumPower();
-            double pmax = gen.getMaximumPower();
-            double pinit = -network.getGenerator(gen.getId()).getTerminal().getP();
-            solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariableN(gen.getId()));
-        });
-
-        cracFile.getContingencies().forEach(contingency -> {
-            generatorsRedispatchCurative.forEach(gen -> {
-                double pmin = gen.getMinimumPower();
-                double pmax = gen.getMaximumPower();
-                double pinit = -network.getGenerator(gen.getId()).getTerminal().getP();
-                solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariableCurative(contingency.getId(), gen.getId()));
+        redispatchingRemedialActions.forEach((contingency, raList)  -> {
+            raList.forEach(rrae -> {
+                double pmin = rrae.getMinimumPower();
+                double pmax = rrae.getMaximumPower();
+                double pinit = -network.getGenerator(rrae.getId()).getTerminal().getP();
+                solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, rrae));
             });
-
         });
     }
 
     @Override
     public List<String> variablesProvided() {
-        List<String> variablesList = generatorsRedispatchN.stream().map(gen -> nameRedispatchValueVariableN(gen.getId()))
-                .collect(Collectors.toList());
-
-        cracFile.getContingencies().forEach(cont -> {
-            variablesList.addAll(generatorsRedispatchCurative.stream().map(gen -> nameRedispatchValueVariableCurative(cont.getId(), gen.getId()))
+        List<String> variables = new ArrayList<>();
+        redispatchingRemedialActions.forEach((contingency, raList) -> {
+            variables.addAll(raList.stream()
+                    .map(gen -> nameRedispatchValueVariable(contingency, gen))
                     .collect(Collectors.toList()));
         });
-
-        return variablesList;
+        return variables;
     }
 }

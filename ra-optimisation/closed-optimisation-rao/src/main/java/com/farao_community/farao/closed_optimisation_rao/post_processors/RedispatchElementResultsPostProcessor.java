@@ -6,11 +6,12 @@
  */
 package com.farao_community.farao.closed_optimisation_rao.post_processors;
 
+import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil;
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPostProcessor;
+import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
-import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
@@ -19,23 +20,25 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
-import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getCurativeRemedialActions;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getPreventiveRemedialActions;
+
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(OptimisationPostProcessor.class)
 public class RedispatchElementResultsPostProcessor implements OptimisationPostProcessor {
-
-    private static final String REDISPATCH_VALUE_POSTFIX = "_redispatch_value";
-    private static final String REDISPATCH_ACTIVATION_POSTFIX = "_redispatch_activation";
-    private static final String REDISPATCH_COST_POSTFIX = "_redispatch_cost";
 
     @Override
     public Map<String, Class> dataNeeded() {
@@ -45,15 +48,23 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
     @Override
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
 
-        List<RemedialActionResult> preventiveRemedialActionsResult = cracFile.getRemedialActions().stream()
-                .filter(ra -> isRedispatchRemedialAction(ra))
-                .filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
-                .filter(ra -> isPreventiveRemedialActionActivated(ra, solver))
+        //make map of redispatching remedial actions
+        HashMap<Optional<Contingency>, List<RemedialAction>> redispatchRemedialActions = new HashMap<>();
+        redispatchRemedialActions.put(Optional.empty(), getPreventiveRemedialActions(cracFile)
+                .filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction).collect(Collectors.toList()));
+        cracFile.getContingencies().forEach(contingency -> redispatchRemedialActions.put(Optional.of(contingency),
+                getCurativeRemedialActions(cracFile, contingency).filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction)
+                        .collect(Collectors.toList())));
+
+        redispatchRemedialActions.forEach((contingency, raList) -> {
+            //build result list for each contingency and its associated remedial actions
+            List<RemedialActionResult> resultList = raList.stream()
+                .filter(ra -> isRedispatchRemedialActionActivated(contingency, ra, solver))
                 .map(remedialAction -> {
                     RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
                     double initialTargetP = network.getGenerator(rrae.getId()).getTargetP();
-                    MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchCostVariableN(rrae.getId())));
-                    MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableN(rrae.getId())));
+                    MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchCostVariable(contingency, rrae)));
+                    MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, rrae)));
                     return new RemedialActionResult(
                             remedialAction.getId(),
                             remedialAction.getName(),
@@ -67,49 +78,21 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
                                     )
                             )
                     );
-                })
-                .collect(Collectors.toList());
-        result.getPreContingencyResult().getRemedialActionResults().addAll(preventiveRemedialActionsResult);
+                }).collect(Collectors.toList());
 
-        result.getContingencyResults().forEach(contingency -> {
-            List<RemedialActionResult> curativeRemedialActionsResult = cracFile.getRemedialActions().stream()
-                    .filter(ra -> isRedispatchRemedialAction(ra))
-                    .filter(ra -> isRemedialActionCurativeFreeToUse(ra))
-                    .filter(ra -> isCurativeRemedialActionActivated(contingency, ra, solver))
-                    .map(remedialAction -> {
-                        RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
-                        double initialTargetP = network.getGenerator(rrae.getId()).getTargetP();
-                        MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchCostVariableCurative(contingency.getId(), rrae.getId())));
-                        MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariableCurative(contingency.getId(), rrae.getId())));
-                        return new RemedialActionResult(
-                                remedialAction.getId(),
-                                remedialAction.getName(),
-                                true,
-                                Collections.singletonList(
-                                        new RedispatchElementResult(
-                                                rrae.getId(),
-                                                initialTargetP,
-                                                initialTargetP + redispatchValue.solutionValue(),
-                                                redispatchCost.solutionValue()
-                                        )
-                                )
-                        );
-                    })
-                    .collect(Collectors.toList());
-            contingency.getRemedialActionResults().addAll(curativeRemedialActionsResult);
-
+            // add result list into result object
+            if (!contingency.isPresent()) { // preventive
+                result.getPreContingencyResult().getRemedialActionResults().addAll(resultList);
+            } else { //curative
+                result.getContingencyResults().stream().filter(c -> c.getId().equals(contingency.get().getId()))
+                        .findFirst().ifPresent(contingencyResult -> contingencyResult.getRemedialActionResults().addAll(resultList));
+            }
         });
     }
 
-    private boolean isPreventiveRemedialActionActivated(RemedialAction remedialAction, MPSolver solver) {
+    private boolean isRedispatchRemedialActionActivated(Optional<Contingency> contingency, RemedialAction remedialAction, MPSolver solver) {
         RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
-        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchActivationVariableN(rrae.getId())));
-        return redispatchActivation.solutionValue() > 0;
-    }
-
-    private boolean isCurativeRemedialActionActivated(ContingencyResult contingency, RemedialAction remedialAction, MPSolver solver) {
-        RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
-        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchActivationVariableCurative(contingency.getId(), rrae.getId())));
+        MPVariable redispatchActivation = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchActivationVariable(contingency, rrae)));
         return redispatchActivation.solutionValue() > 0;
     }
 }

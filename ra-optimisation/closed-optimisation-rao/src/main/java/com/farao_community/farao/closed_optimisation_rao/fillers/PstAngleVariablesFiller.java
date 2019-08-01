@@ -7,6 +7,7 @@
 package com.farao_community.farao.closed_optimisation_rao.fillers;
 
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
+import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.PstElement;
 import com.farao_community.farao.data.crac_file.TypeOfLimit;
@@ -16,78 +17,64 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.closed_optimisation_rao.fillers.FillersTools.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
-    private List<PstElement> pstElementN;
-    private List<PstElement> pstElementCurative;
-
-    /**
-     * add PST shift value variable into MPSolver with appropriate bounds
-     */
-    private void buildPstShitValueVariable(String varName, PstElement pst, MPSolver solver) {
-        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst.getId()).getPhaseTapChanger();
-        int lowTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMinStepRange() : pst.getMinStepRange() + phaseTapChanger.getTapPosition();
-        int highTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMaxStepRange() : pst.getMaxStepRange() + phaseTapChanger.getTapPosition();
-        // Considering alpha is always between alpha low and alpha high
-        double alphaLowStep = phaseTapChanger.getStep(lowTapPosition).getAlpha();
-        double alphaHighStep = phaseTapChanger.getStep(highTapPosition).getAlpha();
-        double alphaMin = Math.min(alphaLowStep, alphaHighStep);
-        double alphaMax = Math.max(alphaLowStep, alphaHighStep);
-        double alphaInit = phaseTapChanger.getCurrentStep().getAlpha();
-        solver.makeNumVar(alphaMin - alphaInit, alphaMax - alphaInit, varName);
-    }
+    private HashMap<Optional<Contingency>, List<PstElement>> pstRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.pstElementN = cracFile.getRemedialActions().stream()
-                .filter(ra -> isPstRemedialAction(ra))
-                .filter(ra -> isRemedialActionPreventiveFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (PstElement) remedialActionElement)
-                .collect(Collectors.toList());
-
-        this.pstElementCurative = cracFile.getRemedialActions().stream()
-                .filter(ra -> isPstRemedialAction(ra))
-                .filter(ra -> isRemedialActionCurativeFreeToUse(ra))
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (PstElement) remedialActionElement)
-                .collect(Collectors.toList());
+        this.pstRemedialActions = new HashMap<>();
+        // add preventive pst remedial actions
+        this.pstRemedialActions.put(Optional.empty(), getPstElement(getPreventiveRemedialActions(cracFile)));
+        // add curative pst remedial actions
+        cracFile.getContingencies().forEach(contingency -> this.pstRemedialActions.put(Optional.of(contingency),
+                getPstElement(getCurativeRemedialActions(cracFile, contingency))));
     }
 
     @Override
     public void fillProblem(MPSolver solver) {
-        // fill problem with preventive PST variables
-        pstElementN.forEach(pst -> {
-            buildPstShitValueVariable(nameShiftValueVariableN(pst.getId()), pst, solver);
-        });
+        pstRemedialActions.forEach((contingency, raList) -> {
+            raList.forEach(pst -> {
+                PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst.getId()).getPhaseTapChanger();
 
-        // fill problem with curative PST variables
-        cracFile.getContingencies().forEach(cont -> {
-            pstElementCurative.forEach(pst -> {
-                buildPstShitValueVariable(nameShiftValueVariableCurative(cont.getId(), pst.getId()), pst, solver);
+                int lowTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMinStepRange() : pst.getMinStepRange() + phaseTapChanger.getTapPosition();
+                int highTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMaxStepRange() : pst.getMaxStepRange() + phaseTapChanger.getTapPosition();
+
+                // Considering alpha is always between alpha low and alpha high
+                double alphaLowStep = phaseTapChanger.getStep(lowTapPosition).getAlpha();
+                double alphaHighStep = phaseTapChanger.getStep(highTapPosition).getAlpha();
+                double alphaMin = Math.min(alphaLowStep, alphaHighStep);
+                double alphaMax = Math.max(alphaLowStep, alphaHighStep);
+                double alphaInit = phaseTapChanger.getCurrentStep().getAlpha();
+
+                solver.makeNumVar(alphaMin - alphaInit, alphaMax - alphaInit, nameShiftValueVariable(contingency, pst));
             });
-
         });
     }
 
     @Override
     public List<String> variablesProvided() {
-        List<String> variablesList = pstElementN.stream().map(gen -> nameShiftValueVariableN(gen.getId()))
-                .collect(Collectors.toList());
-        cracFile.getContingencies().forEach(cont -> {
-            variablesList.addAll(pstElementCurative.stream().map(gen -> nameShiftValueVariableCurative(cont.getId(), gen.getId()))
+        List<String> variables = new ArrayList<>();
+        pstRemedialActions.forEach((contingency, raList) -> {
+            variables.addAll(raList.stream()
+                    .map(gen -> nameShiftValueVariable(contingency, gen))
                     .collect(Collectors.toList()));
         });
-        return variablesList;
+        return variables;
     }
 }
