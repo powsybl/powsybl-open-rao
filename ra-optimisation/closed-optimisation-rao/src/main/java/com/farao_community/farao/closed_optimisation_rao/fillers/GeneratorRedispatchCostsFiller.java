@@ -17,8 +17,13 @@ import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;

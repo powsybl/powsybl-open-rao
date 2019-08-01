@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
 
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFiller {
