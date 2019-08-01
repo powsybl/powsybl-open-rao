@@ -1,5 +1,10 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
+import com.farao_community.farao.data.crac_file.Contingency;
+import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
+
+import java.util.Optional;
+
 public final class ClosedOptimisationRaoNames {
 
     private ClosedOptimisationRaoNames() {
@@ -31,6 +36,15 @@ public final class ClosedOptimisationRaoNames {
         return remedialActionId + BLANK_CHARACTER + REDISPATCH_VALUE_N_POSTFIX;
     }
 
+    /**
+     * Get standard name of redispatch value variable for preventive remedial actions
+     */
+    public static String nameRedispatchValueVariable(RedispatchRemedialActionElement remedialAction, Optional<Contingency> contingency) {
+        if(contingency.isPresent()) {
+            return contingency.get().getId() + BLANK_CHARACTER + remedialAction.getId() + BLANK_CHARACTER + REDISPATCH_VALUE_CURATIVE_POSTFIX;
+        }
+       else{return remedialAction.getId() + BLANK_CHARACTER + REDISPATCH_VALUE_N_POSTFIX;}
+    }
     /**
      * Get standard name of redispatch value variable for curative remedial actions
      */
