@@ -14,7 +14,6 @@ import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashMap;
@@ -36,17 +35,11 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemFiller {
 
     private HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
-    private List<Generator> redispatchableGenerators;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.redispatchingRemedialActions = new HashMap<>();
-        // add preventive redispatching remedial actions
-        this.redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
-        // add curative redispatching remedial actions
-        cracFile.getContingencies().forEach(contingency -> this.redispatchingRemedialActions.put(Optional.of(contingency),
-                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
+        this.redispatchingRemedialActions = buildRedispatchRemedialActionMap(cracFile);
     }
 
     @Override

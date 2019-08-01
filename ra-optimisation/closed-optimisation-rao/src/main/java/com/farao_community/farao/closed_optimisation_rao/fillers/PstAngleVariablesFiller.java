@@ -38,12 +38,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.pstRemedialActions = new HashMap<>();
-        // add preventive pst remedial actions
-        this.pstRemedialActions.put(Optional.empty(), getPstElement(getPreventiveRemedialActions(cracFile)));
-        // add curative pst remedial actions
-        cracFile.getContingencies().forEach(contingency -> this.pstRemedialActions.put(Optional.of(contingency),
-                getPstElement(getCurativeRemedialActions(cracFile, contingency))));
+        this.pstRemedialActions = buildPstRemedialActionMap(cracFile);
     }
 
     @Override

@@ -41,12 +41,7 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
-        this.redispatchingRemedialActions = new HashMap<>();
-        // add preventive redispatching remedial actions
-        this.redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
-        // add curative redispatching remedial actions
-        cracFile.getContingencies().forEach(contingency -> this.redispatchingRemedialActions.put(Optional.of(contingency),
-                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
+        this.redispatchingRemedialActions = buildRedispatchRemedialActionMap(cracFile);
     }
 
     @Override

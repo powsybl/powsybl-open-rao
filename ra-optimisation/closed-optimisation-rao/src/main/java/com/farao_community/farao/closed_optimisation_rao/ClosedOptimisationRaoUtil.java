@@ -8,7 +8,9 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.data.crac_file.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +23,34 @@ public final class ClosedOptimisationRaoUtil {
 
     private ClosedOptimisationRaoUtil() {
         throw new AssertionError("Utility class should not have constructor");
+    }
+
+    /**
+     * Build Hashmap of RedispatchingRemedialActionElements with their associated contingency
+     * Required for the initialisation of all fillers which invokes redispatching remedial action
+     */
+    public static HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> buildRedispatchRemedialActionMap(CracFile cracFile) {
+        HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions = new HashMap<>();
+        // add preventive redispatching remedial actions (in that case, the Hashmap key is empty)
+        redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
+        // add curative redispatching remedial actions
+        cracFile.getContingencies().forEach(contingency -> redispatchingRemedialActions.put(Optional.of(contingency),
+                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
+        return redispatchingRemedialActions;
+    }
+
+    /**
+     * Build Hashmap of PstElement with their associated contingency
+     * Required for the initialisation of all fillers which invokes PST remedial action
+     */
+    public static HashMap<Optional<Contingency>, List<PstElement>> buildPstRemedialActionMap(CracFile cracFile) {
+        HashMap<Optional<Contingency>, List<PstElement>> pstRemedialActions = new HashMap<>();
+        // add preventive pst remedial actions (in that case, the Hashmap key is empty)
+        pstRemedialActions.put(Optional.empty(), getPstElement(getPreventiveRemedialActions(cracFile)));
+        // add curative pst remedial actions
+        cracFile.getContingencies().forEach(contingency -> pstRemedialActions.put(Optional.of(contingency),
+                getPstElement(getCurativeRemedialActions(cracFile, contingency))));
+        return pstRemedialActions;
     }
 
     /**
