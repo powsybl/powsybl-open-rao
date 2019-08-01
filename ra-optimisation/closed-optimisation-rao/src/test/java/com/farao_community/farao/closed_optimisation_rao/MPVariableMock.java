@@ -17,6 +17,7 @@ public class MPVariableMock extends MPVariable {
     private double lb;
     private double ub;
     private boolean isBoolVariable;
+    private double solutionValue;
 
     protected MPVariableMock() {
         super(0, false);
@@ -45,4 +46,8 @@ public class MPVariableMock extends MPVariable {
         return name;
     }
 
+    @Override
+    public double solutionValue() { return solutionValue; }
+
+    public double setRandomSolutionValue() { return Math.random() * (ub - lb) + lb; }
 }
