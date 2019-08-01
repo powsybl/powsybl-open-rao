@@ -88,4 +88,8 @@ public class MPSolverMock extends MPSolver {
         }
         return constraintsWithSameName.get(0);
     }
+
+    public void randomSolve() {
+        variables.forEach(MPVariableMock::setRandomSolutionValue);
+    }
 }
