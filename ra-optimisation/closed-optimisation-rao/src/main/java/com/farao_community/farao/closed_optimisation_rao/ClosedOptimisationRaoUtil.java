@@ -5,6 +5,7 @@ import com.farao_community.farao.data.crac_file.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 /**
  * Utility class designed to manipulate the remedial actions of a Crac File
  *
@@ -19,7 +20,7 @@ public final class ClosedOptimisationRaoUtil {
     /**
      * Get all preventive remedial actions of a cracFile
      */
-    public static Stream<RemedialAction> getPreventiveRemedialActions(CracFile cracFile){
+    public static Stream<RemedialAction> getPreventiveRemedialActions(CracFile cracFile) {
         return cracFile.getRemedialActions().stream()
                 .filter(ClosedOptimisationRaoUtil::isRemedialActionPreventiveFreeToUse);
     }
@@ -27,7 +28,7 @@ public final class ClosedOptimisationRaoUtil {
     /**
      * Get curative remedial actions applicable on a given N-1 contingency
      */
-    public static Stream<RemedialAction> getCurativeRemedialActions(CracFile cracFile, Contingency contingency){
+    public static Stream<RemedialAction> getCurativeRemedialActions(CracFile cracFile, Contingency contingency) {
         return cracFile.getRemedialActions().stream()
                 .filter(ra -> isRemedialActionCurativeAndApplicable(ra, contingency));
     }
@@ -36,8 +37,8 @@ public final class ClosedOptimisationRaoUtil {
      * Get redispatching remedial action from a stream of RemedialAction and convert
      * them into a list of RedispatchingRemedialActionElement
      */
-    public static List<RedispatchRemedialActionElement> getRedispatchRemedialActionElement(Stream<RemedialAction> RaList) {
-        return RaList
+    public static List<RedispatchRemedialActionElement> getRedispatchRemedialActionElement(Stream<RemedialAction> raList) {
+        return raList
                 .filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction)
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
@@ -48,8 +49,8 @@ public final class ClosedOptimisationRaoUtil {
      * Get Pst remedial action from a stream of RemedialAction and convert
      * them into a list of PstElement
      */
-    public static List<PstElement> getPstElement(Stream<RemedialAction> RaList) {
-        return RaList
+    public static List<PstElement> getPstElement(Stream<RemedialAction> raList) {
+        return raList
                 .filter(ClosedOptimisationRaoUtil::isPstRemedialAction)
                 .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
                 .map(remedialActionElement -> (PstElement) remedialActionElement)
@@ -89,12 +90,12 @@ public final class ClosedOptimisationRaoUtil {
      */
     public static boolean isRemedialActionCurativeAndApplicable(RemedialAction remedialAction, Contingency contingency) {
         // is remedial action curative and free to use ?
-        if(remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
+        if (remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
                 && usageRule.getUsage().equals(UsageRule.Usage.FREE_TO_USE))) {
             return true;
         }
         // is remedial action curative, on constraint for the given contingency ?
-        if(remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
+        if (remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
                 && usageRule.getUsage().equals(UsageRule.Usage.ON_CONSTRAINT) && usageRule.getContingenciesID().contains(contingency.getId()))) {
             return true;
         }
