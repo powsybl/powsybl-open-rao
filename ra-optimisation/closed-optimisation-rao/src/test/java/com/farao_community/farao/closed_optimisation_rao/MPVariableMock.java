@@ -51,7 +51,11 @@ public class MPVariableMock extends MPVariable {
         return solutionValue;
     }
 
-    public double setRandomSolutionValue() {
-        return Math.random();
+    public void setRandomSolutionValue() {
+        if (isBoolVariable) {
+            this.solutionValue = 1;
+        } else {
+            this.solutionValue = Math.random() * (ub - lb) + lb;
+        }
     }
 }

@@ -12,7 +12,10 @@ import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameRedispatchValueVariable;
@@ -25,7 +28,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProblemFiller {
 
-    private HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
+    private Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {

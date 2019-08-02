@@ -36,7 +36,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProblemFiller {
 
-    private HashMap<Optional<Contingency>, List<PstElement>> pstRemedialActions;
+    private Map<Optional<Contingency>, List<PstElement>> pstRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -27,6 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -58,10 +59,10 @@ public class OptimisationFillersTest {
         InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.xiidm");
         Network network = Importers.loadNetwork("/4_2nodes_preContingency_RD_N-1.xiidm", is);
 
-        HashMap<String, Object> data = new HashMap<>();
-        HashMap<String, Double> pstSensitivities = new HashMap<>();
-        HashMap<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
-        HashMap<String, Double> referenceFlows = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Double> pstSensitivities = new HashMap<>();
+        Map<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
+        Map<String, Double> referenceFlows = new HashMap<>();
 
         generatorSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_2", "GENERATOR_BE_1.1"), 0.3786);
         generatorSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_2", "GENERATOR_BE_1.2"), 0.3786);
@@ -85,6 +86,7 @@ public class OptimisationFillersTest {
         data.put("reference_flows", referenceFlows);
 
         List<String> fillersToTest = new ArrayList<>();
+        List<String> postProcessorsToTest = new ArrayList<>();
 
         fillersToTest.add(BranchMarginsPositivityConstraintFiller.class.getName());
         fillersToTest.add(BranchMarginsVariablesFiller.class.getName());
@@ -95,15 +97,20 @@ public class OptimisationFillersTest {
         fillersToTest.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
         fillersToTest.add(RedispatchEquilibriumConstraintFiller.class.getName());
         fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
-        FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
+        postProcessorsToTest.add(BranchResultsPostProcessor.class.getName());
+        postProcessorsToTest.add(PstElementResultsPostProcessor.class.getName());
+        postProcessorsToTest.add(RedispatchElementResultsPostProcessor.class.getName());
 
-        fillersTestCase.fillersTest();
+        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
 
+        testCase.fillersTest();
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        testCase.postProcessorsTest(raoComputationResult);
     }
 
     @Test
-    public void testcase2() {
+    public void testCase2() {
          /*
         Files : 5_3nodes_preContingency_PSTandRD_N-1
           - Test case with three nodes
@@ -115,11 +122,10 @@ public class OptimisationFillersTest {
         InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.xiidm");
         Network network = Importers.loadNetwork("/5_3nodes_preContingency_PSTandRD_N-1.xiidm", is);
 
-        HashMap<String, Object> data = new HashMap<>();
-        HashMap<Pair<String, String>, Double> pstSensitivities = new HashMap<>();
-        HashMap<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
-        HashMap<String, Double> referenceFlows = new HashMap<>();
-        List<String> postProcessors = new ArrayList<>();
+        Map<String, Object> data = new HashMap<>();
+        Map<Pair<String, String>, Double> pstSensitivities = new HashMap<>();
+        Map<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
+        Map<String, Double> referenceFlows = new HashMap<>();
 
         pstSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_1", "PST"), -69.81317138671875);
         pstSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_3", "PST"), -139.6263427734375);
@@ -156,6 +162,7 @@ public class OptimisationFillersTest {
         data.put("reference_flows", referenceFlows);
 
         List<String> fillersToTest = new ArrayList<>();
+        List<String> postProcessorsToTest = new ArrayList<>();
 
         fillersToTest.add(BranchMarginsPositivityConstraintFiller.class.getName());
         fillersToTest.add(BranchMarginsVariablesFiller.class.getName());
@@ -166,14 +173,15 @@ public class OptimisationFillersTest {
         fillersToTest.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
         fillersToTest.add(RedispatchEquilibriumConstraintFiller.class.getName());
         fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
-        FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
-        postProcessors.add(BranchResultsPostProcessor.class.getName());
-        postProcessors.add(PstElementResultsPostProcessor.class.getName());
-        postProcessors.add(RedispatchElementResultsPostProcessor.class.getName());
+        postProcessorsToTest.add(BranchResultsPostProcessor.class.getName());
+        postProcessorsToTest.add(PstElementResultsPostProcessor.class.getName());
+        postProcessorsToTest.add(RedispatchElementResultsPostProcessor.class.getName());
 
-        fillersTestCase.fillersTest();
+        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
+
+        testCase.fillersTest();
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
-        fillersTestCase.postProcessorsTest(postProcessors, raoComputationResult);
+        testCase.postProcessorsTest(raoComputationResult);
     }
 }

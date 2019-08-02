@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
-    private HashMap<Optional<Contingency>, List<PstElement>> pstRemedialActions;
+    private Map<Optional<Contingency>, List<PstElement>> pstRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
