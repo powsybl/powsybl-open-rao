@@ -58,8 +58,8 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
 
     @Override
     public void fillProblem(MPSolver solver) {
-        //TODO : find a way to use solver.infinity() which work with the tests
-        double infinity = Double.POSITIVE_INFINITY;
+        double infinity = solver.infinity();
+
         Map<String, Double> referenceFlows = (Map<String, Double>) data.get(REFERENCE_FLOWS_DATA_NAME);
 
         cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> {

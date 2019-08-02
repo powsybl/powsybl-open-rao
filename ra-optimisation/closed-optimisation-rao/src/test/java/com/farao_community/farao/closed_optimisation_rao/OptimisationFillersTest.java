@@ -13,21 +13,38 @@ import com.farao_community.farao.closed_optimisation_rao.post_processors.Redispa
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
+
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MPSolver.class)
 public class OptimisationFillersTest {
+
+    @Before
+    public void setUp() {
+        PowerMockito.mockStatic(MPSolver.class);
+        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
+    }
 
     @Test
     public void testCase1() {
@@ -80,12 +97,20 @@ public class OptimisationFillersTest {
         fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
         FillersTestCase fillersTestCase = new FillersTestCase(cracFile, network, data, fillersToTest);
 
+
         fillersTestCase.fillersTest();
 
     }
 
     @Test
     public void testcase2() {
+         /*
+        Files : 5_3nodes_preContingency_PSTandRD_N-1
+          - Test case with three nodes
+          - preContingency and N-1 contingencies
+          - 2 preventive redispatching remedial actions, all free-to-use
+          - 1 curative PST remedial action, free-to-use
+         */
         CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.json"));
         InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.xiidm");
         Network network = Importers.loadNetwork("/5_3nodes_preContingency_PSTandRD_N-1.xiidm", is);
