@@ -54,7 +54,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
 
         //make map of pst remedial actions
-        HashMap<Optional<Contingency>, List<RemedialAction>> pstRemedialActions = new HashMap<>();
+        Map<Optional<Contingency>, List<RemedialAction>> pstRemedialActions = new HashMap<>();
         pstRemedialActions.put(Optional.empty(), getPreventiveRemedialActions(cracFile)
                 .filter(ClosedOptimisationRaoUtil::isPstRemedialAction).collect(Collectors.toList()));
         cracFile.getContingencies().forEach(contingency -> pstRemedialActions.put(Optional.of(contingency),

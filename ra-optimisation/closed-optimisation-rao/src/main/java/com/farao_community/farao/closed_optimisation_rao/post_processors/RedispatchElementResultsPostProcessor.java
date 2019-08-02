@@ -49,7 +49,7 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
     public void fillResults(Network network, CracFile cracFile, MPSolver solver, Map<String, Object> data, RaoComputationResult result) {
 
         //make map of redispatching remedial actions
-        HashMap<Optional<Contingency>, List<RemedialAction>> redispatchRemedialActions = new HashMap<>();
+        Map<Optional<Contingency>, List<RemedialAction>> redispatchRemedialActions = new HashMap<>();
         redispatchRemedialActions.put(Optional.empty(), getPreventiveRemedialActions(cracFile)
                 .filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction).collect(Collectors.toList()));
         cracFile.getContingencies().forEach(contingency -> redispatchRemedialActions.put(Optional.of(contingency),
