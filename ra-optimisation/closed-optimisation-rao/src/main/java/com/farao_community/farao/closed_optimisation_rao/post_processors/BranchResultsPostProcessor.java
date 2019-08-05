@@ -22,13 +22,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.REFERENCE_FLOWS_DATA_NAME;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameEstimatedFlowVariable;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(OptimisationPostProcessor.class)
 public class BranchResultsPostProcessor implements OptimisationPostProcessor {
-    private static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
-    private static final String ESTIMATED_FLOW_POSTFIX = "_estimated_flow";
 
     @Override
     public Map<String, Class> dataNeeded() {
@@ -43,7 +44,7 @@ public class BranchResultsPostProcessor implements OptimisationPostProcessor {
 
         List<MonitoredBranchResult> branchResultList = cracFile.getPreContingency().getMonitoredBranches().stream()
             .map(branch -> {
-                MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(branch.getId() + ESTIMATED_FLOW_POSTFIX));
+                MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
                 return new MonitoredBranchResult(
                     branch.getId(),
                     branch.getName(),
@@ -64,7 +65,7 @@ public class BranchResultsPostProcessor implements OptimisationPostProcessor {
                 );
                 List<MonitoredBranchResult> contingencyBranchesResultList = contingency.getMonitoredBranches().stream()
                     .map(branch -> {
-                        MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(branch.getId() + ESTIMATED_FLOW_POSTFIX));
+                        MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
                         return new MonitoredBranchResult(
                             branch.getId(),
                             branch.getName(),
