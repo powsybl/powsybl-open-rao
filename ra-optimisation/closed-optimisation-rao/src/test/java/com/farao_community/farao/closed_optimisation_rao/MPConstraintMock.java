@@ -10,6 +10,7 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -19,7 +20,7 @@ public class MPConstraintMock extends MPConstraint {
     private String name;
     private double lb;
     private double ub;
-    private HashMap<String, Double> coefficients;
+    private Map<String, Double> coefficients;
 
     protected MPConstraintMock(String pName, double pLb, double pUb) {
         super(0, false);

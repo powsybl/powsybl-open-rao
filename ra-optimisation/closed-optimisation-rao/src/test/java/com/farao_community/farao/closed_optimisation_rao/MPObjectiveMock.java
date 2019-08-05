@@ -10,13 +10,14 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 public class MPObjectiveMock extends MPObjective {
 
-    private HashMap<String, Double> coefficients;
+    private Map<String, Double> coefficients;
     private boolean isMinimization;
 
     protected MPObjectiveMock() {

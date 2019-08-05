@@ -9,6 +9,7 @@ package com.farao_community.farao.closed_optimisation_rao;
 import com.farao_community.farao.data.crac_file.*;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,11 +27,11 @@ public final class ClosedOptimisationRaoUtil {
     }
 
     /**
-     * Build Hashmap of RedispatchingRemedialActionElements with their associated contingency
+     * Build map of RedispatchingRemedialActionElements with their associated contingency
      * Required for the initialisation of all fillers which invokes redispatching remedial action
      */
-    public static HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> buildRedispatchRemedialActionMap(CracFile cracFile) {
-        HashMap<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions = new HashMap<>();
+    public static Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> buildRedispatchRemedialActionMap(CracFile cracFile) {
+        Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions = new HashMap<>();
         // add preventive redispatching remedial actions (in that case, the Hashmap key is empty)
         redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
         // add curative redispatching remedial actions
@@ -40,11 +41,11 @@ public final class ClosedOptimisationRaoUtil {
     }
 
     /**
-     * Build Hashmap of PstElement with their associated contingency
+     * Build map of PstElement with their associated contingency
      * Required for the initialisation of all fillers which invokes PST remedial action
      */
-    public static HashMap<Optional<Contingency>, List<PstElement>> buildPstRemedialActionMap(CracFile cracFile) {
-        HashMap<Optional<Contingency>, List<PstElement>> pstRemedialActions = new HashMap<>();
+    public static Map<Optional<Contingency>, List<PstElement>> buildPstRemedialActionMap(CracFile cracFile) {
+        Map<Optional<Contingency>, List<PstElement>> pstRemedialActions = new HashMap<>();
         // add preventive pst remedial actions (in that case, the Hashmap key is empty)
         pstRemedialActions.put(Optional.empty(), getPstElement(getPreventiveRemedialActions(cracFile)));
         // add curative pst remedial actions
