@@ -79,8 +79,13 @@ public final class PstRemedialActionValidation {
         } else {
             return null;
         }
+        String id = getOrderCodeElementName(pstExcel.getElementDescriptionMode(),
+                pstExcel.getUctNodeFrom(),
+                pstExcel.getUctNodeTo(),
+                pstExcel.getOrdercodeElementName());
+
         return PstElement.builder()
-                .id(pstExcel.getUniqueRaPstTab())
+                .id(id)
                 .typeOfLimit(TypeOfLimit.ABSOLUTE)
                 .minStepRange(Integer.parseInt(ranges[0].trim()))
                 .maxStepRange(Integer.parseInt(ranges[1].trim()))
