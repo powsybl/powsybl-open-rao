@@ -28,14 +28,14 @@
 
     <developers>
         <developer>
-            <name>Luc DI-GALLO</name>
-            <email>luc.di-gallo@rte-france.com</email>
+            <name>Sebastien MURGEY</name>
+            <email>sebastien.murgey@rte-france.com</email>
             <organization>RTE</organization>
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
-            <name>Sebastien MURGEY</name>
-            <email>sebastien.murgey@rte-france.com</email>
+            <name>Baptiste SEGUINOT</name>
+            <email>baptiste.seguinot@rte-france.com</email>
             <organization>RTE</organization>
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
@@ -134,19 +134,6 @@
                         </goals>
                         <configuration>
                             <ignoreNonCompile>true</ignoreNonCompile>
-                            <!--
-                                Ignore false positive due to dependency transitivity in Springboot
-                                not well treated by maven-dependency-plugin
-
-                            <ignoredDependencies>
-                                <ignoredDependency>com.fasterxml*</ignoredDependency>
-                                <ignoredDependency>io.springfox*</ignoredDependency>
-                                <ignoredDependency>io.swagger*</ignoredDependency>
-                                <ignoredDependency>org.springframework*</ignoredDependency>
-                                <ignoredDependency>org.apache.tomcat.embed</ignoredDependency>
-                                <ignoredDependency>com.google.guava</ignoredDependency>
-                            </ignoredDependencies>
-                            -->
                         </configuration>
                     </execution>
                 </executions>
