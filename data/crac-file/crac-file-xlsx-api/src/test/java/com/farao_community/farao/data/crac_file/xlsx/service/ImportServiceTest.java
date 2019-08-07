@@ -168,5 +168,6 @@ public class ImportServiceTest {
         assertEquals("FFR1AA1 _generator", cracFile.getRemedialActions().get(0).getRemedialActionElements().get(0).getId());
         assertEquals("pstExample", cracFile.getRemedialActions().get(2).getId());
         assertEquals("pstExample", cracFile.getRemedialActions().get(2).getName());
+        assertEquals("BBE1AA1  BBE2AA1  1", cracFile.getRemedialActions().get(2).getRemedialActionElements().get(0).getId());
     }
 }
