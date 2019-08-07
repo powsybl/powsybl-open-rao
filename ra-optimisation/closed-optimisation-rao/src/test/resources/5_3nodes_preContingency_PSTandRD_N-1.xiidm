@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="Network" caseDate="2019-07-30T16:27:36.539+02:00" forecastDistance="0" sourceFormat="code">
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="Network" caseDate="2019-08-05T11:38:52.126+02:00" forecastDistance="0" sourceFormat="code">
     <iidm:substation id="SUBSTATION_FR" name="French substation" country="FR">
         <iidm:voltageLevel id="VOLTAGE_LEVEL_FR" name="French voltage level" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
