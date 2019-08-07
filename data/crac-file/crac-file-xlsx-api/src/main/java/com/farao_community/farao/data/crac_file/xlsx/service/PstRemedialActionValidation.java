@@ -36,16 +36,12 @@ public final class PstRemedialActionValidation {
                 .map(raPstTap -> {
                     List<UsageRule> usageRuleList = usageRulesPstValidation(raPstTap);
                     List<RemedialActionElement> rae = pstElementsValidation(raPstTap);
-                    String id = getOrderCodeElementName(raPstTap.getElementDescriptionMode(),
-                            raPstTap.getUctNodeFrom(),
-                            raPstTap.getUctNodeTo(),
-                            raPstTap.getOrdercodeElementName());
 
                     return RemedialAction.builder()
                             .name(raPstTap.getUniqueRaPstTab())
                             .usageRules(usageRuleList)
                             .remedialActionElements(rae)
-                            .id(id)
+                            .id(raPstTap.getUniqueRaPstTab())
                             .build();
                 }).collect(Collectors.toList());
     }
