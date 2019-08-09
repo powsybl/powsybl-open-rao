@@ -32,7 +32,7 @@
     }, {
       "id" : "C1_MONITORED_FRANCE_BELGIUM_3",
       "name" : "France-Belgium interconnection n°3 monitored",
-      "branchId" : "FRANCE_BELGIUM_1",
+      "branchId" : "FRANCE_BELGIUM_3",
       "fmax" : 500.0
     } ],
     "contingencyElements" : [ {
