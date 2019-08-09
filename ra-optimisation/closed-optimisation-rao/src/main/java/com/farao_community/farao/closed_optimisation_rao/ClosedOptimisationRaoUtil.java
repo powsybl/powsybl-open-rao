@@ -133,7 +133,7 @@ public final class ClosedOptimisationRaoUtil {
         }
         // is remedial action curative, on constraint for the given contingency ?
         if (remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstants().equals(UsageRule.Instant.CURATIVE)
-                && usageRule.getUsage().equals(UsageRule.Usage.ON_CONSTRAINT) && usageRule.getContingenciesID().contains(contingency.getId()))) {
+                && usageRule.getUsage().equals(UsageRule.Usage.ON_OUTAGE) && usageRule.getContingenciesID().contains(contingency.getId()))) {
             return true;
         }
         return false;
