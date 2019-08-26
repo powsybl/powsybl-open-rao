@@ -32,16 +32,17 @@ public final class CracMerging {
 
     private static void addContingency(List<Contingency> list, Contingency contingency) {
 
-        List<MonitoredBranch> contingencyMonitoredBranches  = new ArrayList<>();
-
         if (!list.contains(contingency)) {
-            list.add(contingency);
+            Contingency contingencyCopy = Contingency.builder()
+                .id(contingency.getId())
+                .name(contingency.getName())
+                .monitoredBranches(contingency.getMonitoredBranches().stream().collect(Collectors.toList()))
+                .contingencyElements(contingency.getContingencyElements().stream().collect(Collectors.toList()))
+                .build();
+            list.add(contingencyCopy);
         } else {
             int indexCont = list.indexOf(contingency);
-            list.get(indexCont).getMonitoredBranches().forEach(mbFromList -> addMonitoredBranch(contingencyMonitoredBranches, mbFromList));
-            list.remove(indexCont);
-            contingency.getMonitoredBranches().forEach(monitoredBranch -> addMonitoredBranch(contingencyMonitoredBranches, monitoredBranch));
-            list.add(indexCont, Contingency.builder().id(contingency.getId()).name(contingency.getName()).contingencyElements(contingency.getContingencyElements()).monitoredBranches(contingencyMonitoredBranches).build());
+            contingency.getMonitoredBranches().forEach(monitoredBranch -> addMonitoredBranch(list.get(indexCont).getMonitoredBranches(), monitoredBranch));
         }
     }
 

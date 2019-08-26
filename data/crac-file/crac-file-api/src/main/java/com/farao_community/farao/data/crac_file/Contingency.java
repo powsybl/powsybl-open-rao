@@ -13,7 +13,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,8 +39,8 @@ public class Contingency {
                        final List<ContingencyElement> contingencyElements) {
         this.id = id;
         this.name = name;
-        this.monitoredBranches = Collections.unmodifiableList(monitoredBranches);
-        this.contingencyElements = Collections.unmodifiableList(contingencyElements);
+        this.monitoredBranches = monitoredBranches;
+        this.contingencyElements = contingencyElements;
     }
 
     @Override

@@ -18,8 +18,8 @@
     <modules>
         <module>crac-file-afs</module>
         <module>crac-file-api</module>
-        <module>crac-merging</module>
         <module>crac-file-xlsx-afs</module>
         <module>crac-file-xlsx-api</module>
+        <module>crac-merging</module>
     </modules>
 </project>
