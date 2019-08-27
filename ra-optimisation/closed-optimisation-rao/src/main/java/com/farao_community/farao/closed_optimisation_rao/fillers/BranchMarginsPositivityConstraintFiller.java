@@ -17,28 +17,29 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameEstimatedFlowVariable;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class BranchMarginsPositivityConstraintFiller extends AbstractOptimisationProblemFiller {
-    private static final String ESTIMATED_FLOW_POSTFIX = "_estimated_flow";
 
     @Override
     public List<String> variablesExpected() {
         List<String> returnList = new ArrayList<>();
         returnList.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowVariable(branch.getId())).collect(Collectors.toList()));
         returnList.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> branch.getId() + ESTIMATED_FLOW_POSTFIX).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowVariable(branch.getId())).collect(Collectors.toList()));
         return returnList;
     }
 
     @Override
     public void fillProblem(MPSolver solver) {
         cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> {
-            MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(branch.getId() + ESTIMATED_FLOW_POSTFIX));
+            MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
             double maximumFlow = branch.getFmax();
             MPConstraint branchMarginPositivityConstraint = solver.makeConstraint(-maximumFlow, maximumFlow);
             branchMarginPositivityConstraint.setCoefficient(branchFlowVariable, 1);
@@ -47,7 +48,7 @@ public class BranchMarginsPositivityConstraintFiller extends AbstractOptimisatio
         cracFile.getContingencies().stream()
             .flatMap(contingency -> contingency.getMonitoredBranches().stream())
             .forEach(branch -> {
-                MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(branch.getId() + ESTIMATED_FLOW_POSTFIX));
+                MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
                 double maximumFlow = branch.getFmax();
                 MPConstraint branchMarginPositivityConstraint = solver.makeConstraint(-maximumFlow, maximumFlow);
                 branchMarginPositivityConstraint.setCoefficient(branchFlowVariable, 1);

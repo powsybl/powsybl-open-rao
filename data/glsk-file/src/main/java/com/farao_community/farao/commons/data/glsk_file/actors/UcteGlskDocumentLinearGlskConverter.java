@@ -35,7 +35,7 @@ public class UcteGlskDocumentLinearGlskConverter {
     /**
      * @param filepath file path as Path
      * @param network iidm network
-     * @return map <country, Datachronology's LinearGlsk>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -48,7 +48,7 @@ public class UcteGlskDocumentLinearGlskConverter {
     /**
      * @param filepathstring file full path in string
      * @param network iidm network
-     * @return map <country, Datachronology's LinearGlsk>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -61,7 +61,7 @@ public class UcteGlskDocumentLinearGlskConverter {
     /**
      * @param filename file name in src..resources
      * @param network iidm network
-     * @return map <country, Datachronology's LinearGlsk>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -74,7 +74,7 @@ public class UcteGlskDocumentLinearGlskConverter {
     /**
      * @param data InputStream
      * @param network iidm network
-     * @return map <country, Datachronology's LinearGlsk>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
@@ -86,7 +86,7 @@ public class UcteGlskDocumentLinearGlskConverter {
     /**
      * @param ucteGlskDocument UcteGlskDocument object
      * @param network iidm network
-     * @return map <country, Datachronology's LinearGlsk>
+     * @return A map associating a DataChronology of LinearGlsk for each country
      */
     public Map<String, DataChronology<LinearGlsk>> convertUcteGlskDocuementToLinearGlskDataChronology(UcteGlskDocument ucteGlskDocument, Network network) {
         Map<String, DataChronology<LinearGlsk>> chronologyLinearGlskMap = new HashMap<>();
@@ -109,7 +109,7 @@ public class UcteGlskDocumentLinearGlskConverter {
 
     /**
      * @param glskFilename file name in src..resources
-     * @return map < country, datachronology<glskpoint>>
+     * @return A map associating a DataChronology of GlskPoint for each country
      * @throws IOException
      * @throws ParserConfigurationException
      * @throws SAXException

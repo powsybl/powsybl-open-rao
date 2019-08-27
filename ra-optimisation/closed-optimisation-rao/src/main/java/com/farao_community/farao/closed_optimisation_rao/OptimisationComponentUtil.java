@@ -148,12 +148,8 @@ public final class OptimisationComponentUtil {
 
         // Only keep expected optimisation post-processors
         // All should be available, checked previously
-        List<OptimisationPostProcessor> postProcessors = postProcessorMap.values().stream()
-                .filter(postProcessor -> parameters.getPostProcessorsList().contains(postProcessor.getClass().getName()))
-                .collect(Collectors.toList());
-
-        for (OptimisationPostProcessor postProcessor : postProcessors) {
-            postProcessor.fillResults(network, cracFile, solver, data, result);
-        }
+        parameters.getPostProcessorsList().forEach(postProcessorName -> {
+            postProcessorMap.get(postProcessorName).fillResults(network, cracFile, solver, data, result);
+        });
     }
 }

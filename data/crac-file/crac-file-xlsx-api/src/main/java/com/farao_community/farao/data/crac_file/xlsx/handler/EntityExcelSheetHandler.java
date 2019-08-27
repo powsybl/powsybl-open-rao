@@ -111,7 +111,7 @@ public final class EntityExcelSheetHandler<T> implements CellExcelReader {
 
         ExcelColumnInfo currentColumnInfo = columns[column];
 
-        if (Objects.isNull(entity) || Objects.isNull(formattedValue)) {
+        if (Objects.isNull(entity) || Objects.isNull(formattedValue) || formattedValue.isEmpty()) {
             return;
         }
         writeColumnField(entity, formattedValue, currentColumnInfo, timesSeries, currentRow);
