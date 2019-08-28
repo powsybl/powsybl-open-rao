@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_file;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
@@ -31,4 +32,30 @@ public class ContingencyElement {
         this.name = name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+
+        ContingencyElement other = (ContingencyElement) o;
+        return this.elementId.equals(other.elementId) && this.name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 31).
+            append(elementId).
+            append(name).
+            toHashCode();
+    }
 }

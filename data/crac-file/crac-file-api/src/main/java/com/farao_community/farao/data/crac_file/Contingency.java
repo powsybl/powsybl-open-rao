@@ -8,11 +8,11 @@ package com.farao_community.farao.data.crac_file;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,8 +39,39 @@ public class Contingency {
                        final List<ContingencyElement> contingencyElements) {
         this.id = id;
         this.name = name;
-        this.monitoredBranches = Collections.unmodifiableList(monitoredBranches);
-        this.contingencyElements = Collections.unmodifiableList(contingencyElements);
+        this.monitoredBranches = monitoredBranches;
+        this.contingencyElements = contingencyElements;
     }
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+
+        Contingency other = (Contingency) o;
+
+        // The contingencies are equal if the id, name, and all contingencyElements are the same.
+        return this.id.equals(other.id) &&
+                this.name.equals(other.name) &&
+                this.contingencyElements.equals(other.getContingencyElements());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 31).
+            append(id).
+            append(name).
+            append(contingencyElements).
+            toHashCode();
+    }
 }

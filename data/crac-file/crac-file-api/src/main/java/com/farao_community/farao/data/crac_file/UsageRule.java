@@ -59,12 +59,12 @@ public class UsageRule {
         if (contingenciesID == null) {
             this.contingenciesID = Collections.emptyList();
         } else {
-            this.contingenciesID = Collections.unmodifiableList(contingenciesID);
+            this.contingenciesID = contingenciesID;
         }
         if (constraintsID == null) {
             this.constraintsID = Collections.emptyList();
         } else {
-            this.constraintsID = Collections.unmodifiableList(constraintsID);
+            this.constraintsID = constraintsID;
         }
     }
 

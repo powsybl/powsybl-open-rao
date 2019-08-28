@@ -52,12 +52,12 @@ public class CracFile {
         if (contingencies == null) {
             this.contingencies = Collections.emptyList();
         } else {
-            this.contingencies = Collections.unmodifiableList(contingencies);
+            this.contingencies = contingencies;
         }
         if (remedialActions == null) {
             this.remedialActions = Collections.emptyList();
         } else {
-            this.remedialActions = Collections.unmodifiableList(remedialActions);
+            this.remedialActions = remedialActions;
         }
     }
 }

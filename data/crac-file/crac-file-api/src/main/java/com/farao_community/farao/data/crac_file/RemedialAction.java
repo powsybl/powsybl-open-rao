@@ -44,12 +44,12 @@ public class RemedialAction {
         if (remedialActionElements == null) {
             this.remedialActionElements = Collections.emptyList();
         } else {
-            this.remedialActionElements = Collections.unmodifiableList(remedialActionElements);
+            this.remedialActionElements = remedialActionElements;
         }
         if (usageRules == null) {
             this.usageRules = Collections.emptyList();
         } else {
-            this.usageRules = Collections.unmodifiableList(usageRules);
+            this.usageRules = usageRules;
         }
     }
 

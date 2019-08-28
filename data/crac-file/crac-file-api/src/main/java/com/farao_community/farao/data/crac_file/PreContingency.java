@@ -12,7 +12,6 @@ import lombok.Data;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +29,7 @@ public class PreContingency {
 
     @ConstructorProperties({"monitoredBranches"})
     public PreContingency(final List<MonitoredBranch> monitoredBranches) {
-        this.monitoredBranches = Collections.unmodifiableList(monitoredBranches);
+        this.monitoredBranches = monitoredBranches;
     }
 
 }
