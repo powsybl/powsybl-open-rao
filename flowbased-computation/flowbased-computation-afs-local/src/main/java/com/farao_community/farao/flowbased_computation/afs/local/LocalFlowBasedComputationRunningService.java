@@ -58,10 +58,7 @@ public class LocalFlowBasedComputationRunningService implements FlowBasedComputa
             Network network = aCase.getNetwork();
 
             logger.log(RESOURCE_BUNDLE.getString("RunningFlowBased"));
-            FlowBasedComputation raoComputation = factorySupplier.get().create(network,
-                    cracFileProvider.getCracFile(),
-                    computationManager,
-                    0);
+            FlowBasedComputation raoComputation = factorySupplier.get().create(network, cracFileProvider.getCracFile(), computationManager, 0);
             raoComputation.run(network.getVariantManager().getWorkingVariantId(), parameters)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
