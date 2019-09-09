@@ -8,10 +8,7 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.data.crac_file.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,16 +24,26 @@ public final class ClosedOptimisationRaoUtil {
     }
 
     /**
+     * Build list of all generators subject to one or several redispatching remedial action
+     */
+    public static List<String> buildRedispatchGeneratorList(CracFile cracFile) {
+        List<RemedialAction> allRaRd = getRedispatchRemedialActions(cracFile.getRemedialActions().stream());
+        return allRaRd.stream()
+                .map(ra -> Objects.requireNonNull(getRedispatchElement(ra)).getId())
+                .distinct().collect(Collectors.toList());
+    }
+
+    /**
      * Build map of RedispatchingRemedialActionElements with their associated contingency
      * Required for the initialisation of all fillers which invokes redispatching remedial action
      */
-    public static Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> buildRedispatchRemedialActionMap(CracFile cracFile) {
-        Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions = new HashMap<>();
+    public static Map<Optional<Contingency>, List<RemedialAction>> buildRedispatchRemedialActionMap(CracFile cracFile) {
+        Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions = new HashMap<>();
         // add preventive redispatching remedial actions (in that case, the Hashmap key is empty)
-        redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActionElement(getPreventiveRemedialActions(cracFile)));
+        redispatchingRemedialActions.put(Optional.empty(), getRedispatchRemedialActions(getPreventiveRemedialActions(cracFile)));
         // add curative redispatching remedial actions
         cracFile.getContingencies().forEach(contingency -> redispatchingRemedialActions.put(Optional.of(contingency),
-                getRedispatchRemedialActionElement(getCurativeRemedialActions(cracFile, contingency))));
+                getRedispatchRemedialActions(getCurativeRemedialActions(cracFile, contingency))));
         return redispatchingRemedialActions;
     }
 
@@ -74,11 +81,9 @@ public final class ClosedOptimisationRaoUtil {
      * Get redispatching remedial action from a stream of RemedialAction and convert
      * them into a list of RedispatchingRemedialActionElement
      */
-    public static List<RedispatchRemedialActionElement> getRedispatchRemedialActionElement(Stream<RemedialAction> raList) {
+    public static List<RemedialAction> getRedispatchRemedialActions(Stream<RemedialAction> raList) {
         return raList
                 .filter(ClosedOptimisationRaoUtil::isRedispatchRemedialAction)
-                .flatMap(remedialAction -> remedialAction.getRemedialActionElements().stream())
-                .map(remedialActionElement -> (RedispatchRemedialActionElement) remedialActionElement)
                 .collect(Collectors.toList());
     }
 
@@ -137,6 +142,23 @@ public final class ClosedOptimisationRaoUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get redispatchRemedialActionElement from remedialAction
+     * Or, return null if :
+     *    - the remedialAction includes several RemedialActionElement
+     *    - the remedialActionElement is not a redispatchRemedialActionElement
+     */
+    public static RedispatchRemedialActionElement getRedispatchElement(RemedialAction remedialAction) {
+        List<RemedialActionElement> raeList = remedialAction.getRemedialActionElements();
+        if (raeList.size() != 1) {
+            return null;
+        }
+        if (!(raeList.get(0) instanceof RedispatchRemedialActionElement)) {
+            return null;
+        }
+        return (RedispatchRemedialActionElement) raeList.get(0);
     }
 
 }

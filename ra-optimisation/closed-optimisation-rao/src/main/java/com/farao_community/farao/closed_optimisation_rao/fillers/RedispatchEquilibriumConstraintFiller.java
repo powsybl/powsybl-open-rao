@@ -9,7 +9,7 @@ package com.farao_community.farao.closed_optimisation_rao.fillers;
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
-import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
+import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
@@ -33,7 +33,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationProblemFiller {
 
-    private Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
+    private Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
@@ -46,7 +46,7 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
         List<String> variables = new ArrayList<>();
         redispatchingRemedialActions.forEach((contingency, raList) -> {
             variables.addAll(raList.stream()
-                    .map(gen -> nameRedispatchValueVariable(contingency, gen))
+                    .map(ra -> nameRedispatchValueVariable(contingency, ra))
                     .collect(Collectors.toList()));
         });
         return variables;
@@ -56,9 +56,9 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
     public void fillProblem(MPSolver solver) {
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             MPConstraint equilibrium = solver.makeConstraint(0, 0);
-            raList.forEach(rrae -> {
+            raList.forEach(ra -> {
                 MPVariable redispatchValueVariable = Objects.requireNonNull(
-                        solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, rrae)));
+                        solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, ra)));
                 equilibrium.setCoefficient(redispatchValueVariable, 1);
             });
         });

@@ -10,15 +10,13 @@ import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationPro
 import com.farao_community.farao.data.crac_file.*;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.nameRedispatchValueVariable;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.*;
 
 /**
@@ -28,22 +26,33 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProblemFiller {
 
-    private Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
+    private Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions;
+    private List<String> generatorList;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
         this.redispatchingRemedialActions = buildRedispatchRemedialActionMap(cracFile);
+        this.generatorList = buildRedispatchGeneratorList(cracFile);
+    }
+
+    @Override
+    public List<String> variablesExpected() {
+        return Collections.emptyList();
+        //return generatorList.stream().map(ClosedOptimisationRaoNames::nameGeneratorProductionVariable).collect(Collectors.toList());
     }
 
     @Override
     public void fillProblem(MPSolver solver) {
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
-            raList.forEach(rrae -> {
+            raList.forEach(ra -> {
+                RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
                 double pmin = rrae.getMinimumPower();
                 double pmax = rrae.getMaximumPower();
                 double pinit = -network.getGenerator(rrae.getId()).getTerminal().getP();
-                solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, rrae));
+                MPVariable redispatchVariable = solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, ra));
+                //MPConstraint generatorEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameGeneratorProductionEquation(ra)));
+                //generatorEquation.setCoefficient(redispatchVariable, -1.0);
             });
         });
     }
@@ -53,7 +62,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
         List<String> variables = new ArrayList<>();
         redispatchingRemedialActions.forEach((contingency, raList) -> {
             variables.addAll(raList.stream()
-                    .map(gen -> nameRedispatchValueVariable(contingency, gen))
+                    .map(ra -> nameRedispatchValueVariable(contingency, ra))
                     .collect(Collectors.toList()));
         });
         return variables;
