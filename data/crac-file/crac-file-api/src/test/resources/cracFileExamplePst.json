@@ -128,15 +128,19 @@
       "id" : "GENERATOR_3",
       "minimumPower" : 100.0,
       "maximumPower" : 1000.0,
+      "targetPower" : 200.0,
       "startupCost" : 100000.0,
-      "marginalCost" : 10.0
+      "marginalCost" : 10.0,
+      "generatorName" : "GENERATOR_3_name"
     }, {
       "@c" : ".RedispatchRemedialActionElement",
       "id" : "GENERATOR_4",
       "minimumPower" : 200.0,
       "maximumPower" : 2000.0,
+      "targetPower" : 200.0,
       "startupCost" : 200000.0,
-      "marginalCost" : 20.0
+      "marginalCost" : 20.0,
+      "generatorName" : "GENERATOR_4_name"
     } ],
     "usageRules" : [ {
       "id" : "RULE4",
