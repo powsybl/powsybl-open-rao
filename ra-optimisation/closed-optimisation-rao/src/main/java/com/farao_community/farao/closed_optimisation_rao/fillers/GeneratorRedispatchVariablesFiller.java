@@ -10,7 +10,6 @@ import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationPro
 import com.farao_community.farao.data.crac_file.*;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
