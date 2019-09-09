@@ -37,12 +37,6 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
     }
 
     @Override
-    public List<String> variablesExpected() {
-        return Collections.emptyList();
-        //return generatorList.stream().map(ClosedOptimisationRaoNames::nameGeneratorProductionVariable).collect(Collectors.toList());
-    }
-
-    @Override
     public void fillProblem(MPSolver solver) {
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             raList.forEach(ra -> {
@@ -50,9 +44,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
                 double pmin = rrae.getMinimumPower();
                 double pmax = rrae.getMaximumPower();
                 double pinit = -network.getGenerator(rrae.getId()).getTerminal().getP();
-                MPVariable redispatchVariable = solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, ra));
-                //MPConstraint generatorEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameGeneratorProductionEquation(ra)));
-                //generatorEquation.setCoefficient(redispatchVariable, -1.0);
+                solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, ra));
             });
         });
     }
