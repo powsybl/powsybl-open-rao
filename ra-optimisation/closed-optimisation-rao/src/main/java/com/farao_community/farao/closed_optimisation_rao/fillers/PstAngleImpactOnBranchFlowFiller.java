@@ -78,7 +78,7 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(PST_SENSITIVITIES_DATA_NAME);
 
         pstRemedialActions.forEach((contingency, raList) -> {

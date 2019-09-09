@@ -41,7 +41,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             raList.forEach(rrae -> {
                 double pmin = rrae.getMinimumPower();

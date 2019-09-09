@@ -41,7 +41,7 @@ public class BranchMarginsPositivityConstraintFiller extends AbstractOptimisatio
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> {
             MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
             double maximumFlow = branch.getFmax();

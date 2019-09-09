@@ -45,7 +45,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         pstRemedialActions.forEach((contingency, raList) -> {
             raList.forEach(pst -> {
                 PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst.getId()).getPhaseTapChanger();

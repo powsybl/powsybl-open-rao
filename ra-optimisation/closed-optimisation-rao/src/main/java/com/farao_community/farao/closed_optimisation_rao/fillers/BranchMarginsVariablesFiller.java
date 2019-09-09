@@ -61,7 +61,7 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         double infinity = solver.infinity();
 
         Map<String, Double> referenceFlows = (Map<String, Double>) data.get(REFERENCE_FLOWS_DATA_NAME);

@@ -113,29 +113,30 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
         FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId, poolSize);
 
         try {
-            executorService.submit(() -> {
-                cracFile.getContingencies().parallelStream().forEach(contingency -> {
-                    try {
-                        LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
-                        String workingVariant = variantsPool.getAvailableVariant();
-                        network.getVariantManager().setWorkingVariant(workingVariant);
+            executorService.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
+                try {
+                    LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
+                    String workingVariant = variantsPool.getAvailableVariant();
+                    network.getVariantManager().setWorkingVariant(workingVariant);
+                    applyContingency(network, computationManager,contingency);
 
-                        runSensitivityComputation(
-                                network,
-                                contingency.getMonitoredBranches(),
-                                generators,
-                                twoWindingsTransformers,
-                                genSensitivities,
-                                pstSensitivities
-                        );
-                        variantsPool.releaseUsedVariant(workingVariant);
-                    } catch (InterruptedException e) {
-                        throw new FaraoException(e);
-                    }
-                });
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new FaraoException("Exception during sensitivity calculation pre-processor");
+                    runSensitivityComputation(
+                            network,
+                            contingency.getMonitoredBranches(),
+                            generators,
+                            twoWindingsTransformers,
+                            genSensitivities,
+                            pstSensitivities
+                    );
+                    variantsPool.releaseUsedVariant(workingVariant);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            })).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new FaraoException(e);
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 

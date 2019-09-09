@@ -78,7 +78,7 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(GEN_SENSITIVITIES_DATA_NAME);
 
         redispatchingRemedialActions.forEach((contingency, raList) -> {

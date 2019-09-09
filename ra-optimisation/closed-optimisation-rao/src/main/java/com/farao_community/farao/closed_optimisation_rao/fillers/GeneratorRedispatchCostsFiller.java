@@ -72,7 +72,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         double infinity = solver.infinity();
         // Create total redispatch cost and its equation
         MPVariable totalRedispatchCostVariable = solver.makeNumVar(-infinity, infinity, TOTAL_REDISPATCH_COST);

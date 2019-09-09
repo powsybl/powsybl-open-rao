@@ -61,27 +61,28 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
         FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId, poolSize);
 
         try {
-            executorService.submit(() -> {
-                cracFile.getContingencies().parallelStream().forEach(contingency -> {
-                    // Create contingency variant
-                    try {
-                        LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
-                        String workingVariant = variantsPool.getAvailableVariant();
-                        network.getVariantManager().setWorkingVariant(workingVariant);
+            executorService.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
+                // Create contingency variant
+                try {
+                    LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
+                    String workingVariant = variantsPool.getAvailableVariant();
+                    network.getVariantManager().setWorkingVariant(workingVariant);
+                    applyContingency(network, computationManager, contingency);
 
-                        runLoadFlow(
-                                network,
-                                contingency.getMonitoredBranches(),
-                                referenceFlows
-                        );
-                        variantsPool.releaseUsedVariant(workingVariant);
-                    } catch (InterruptedException e) {
-                        throw new FaraoException(e);
-                    }
-                });
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new FaraoException("Exception during reference flows calculation pre-processor");
+                    runLoadFlow(
+                            network,
+                            contingency.getMonitoredBranches(),
+                            referenceFlows
+                    );
+                    variantsPool.releaseUsedVariant(workingVariant);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            })).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new FaraoException(e);
         }
 
         network.getVariantManager().setWorkingVariant(initialVariantId);

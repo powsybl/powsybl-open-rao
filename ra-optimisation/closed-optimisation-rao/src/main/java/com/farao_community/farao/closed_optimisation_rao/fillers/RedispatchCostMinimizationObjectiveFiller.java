@@ -40,7 +40,7 @@ public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisat
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         MPVariable totalRedispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(TOTAL_REDISPATCH_COST));
         MPObjective objective = solver.objective();
         // In case previous objective has been set, clear

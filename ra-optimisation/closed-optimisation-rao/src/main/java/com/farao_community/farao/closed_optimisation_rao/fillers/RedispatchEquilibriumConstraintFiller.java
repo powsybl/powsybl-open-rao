@@ -57,7 +57,7 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
 
     @Override
     public void fillProblem(MPSolver solver) {
-        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             MPConstraint equilibrium = solver.makeConstraint(0, 0);
             raList.forEach(rrae -> {
