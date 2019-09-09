@@ -197,6 +197,10 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
         if (element instanceof Branch) {
             BranchContingency contingency = new BranchContingency(contingencyElement.getElementId());
             contingency.toTask().modify(network, computationManager);
+        } else if (element instanceof Switch) {
+            // TODO: convert into a PowSyBl ContingencyElement ?
+            Switch switchElement = (Switch) element;
+            switchElement.setOpen(true);
         } else {
             throw new FaraoException("Unable to apply contingency element " + contingencyElement.getElementId());
         }
