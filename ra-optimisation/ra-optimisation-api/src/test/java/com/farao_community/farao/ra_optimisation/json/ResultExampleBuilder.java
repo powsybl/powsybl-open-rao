@@ -11,6 +11,9 @@ import com.farao_community.farao.ra_optimisation.*;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.farao_community.farao.ra_optimisation.TopologicalActionElementResult.TopologicalState.CLOSE;
+import static com.farao_community.farao.ra_optimisation.TopologicalActionElementResult.TopologicalState.OPEN;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -69,6 +72,10 @@ public final class ResultExampleBuilder {
         );
     }
 
+    private static TopologicalActionElementResult buildTopologicalAction(String id, TopologicalActionElementResult.TopologicalState state) {
+        return new TopologicalActionElementResult(id, state);
+    }
+
     private static List<MonitoredBranchResult> buildContingency1MonitoredBranches() {
         return Arrays.asList(
                 buildMonitoredBranch("MONITORED_BRANCH_1_CO_1", "Monitored branch 1 after CO 1", "BRANCH_1", 100.0, 115.0, 98.0),
@@ -122,6 +129,15 @@ public final class ResultExampleBuilder {
                         Arrays.asList(
                                 buildRedispatchRemedialAction("REDISPATCH_GEN_1", 150.0, 175.0, 120.0),
                                 buildRedispatchRemedialAction("REDISPATCH_GEN_2", 150.0, 125.0, -10.0)
+                        )
+                ),
+                new RemedialActionResult(
+                        "TOPOL_1",
+                        "Topol n°1",
+                        true,
+                        Arrays.asList(
+                                buildTopologicalAction("Switch_1", OPEN),
+                                buildTopologicalAction("Switch_2", CLOSE)
                         )
                 )
         );

@@ -52,6 +52,19 @@
         "postOptimisationTargetP" : 125.0,
         "redispatchCost" : -10.0
       } ]
+    }, {
+      "id" : "TOPOL_1",
+      "name" : "Topol n°1",
+      "applied" : true,
+      "remedialActionElementResults" : [ {
+        "@c" : ".TopologicalActionElementResult",
+        "id" : "Switch_1",
+        "topologicalState" : "OPEN"
+      }, {
+        "@c" : ".TopologicalActionElementResult",
+        "id" : "Switch_2",
+        "topologicalState" : "CLOSE"
+      } ]
     } ]
   },
   "contingencyResults" : [ {
