@@ -15,6 +15,8 @@ import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +33,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PstAngleVariablesFiller.class);
 
     private Map<Optional<Contingency>, List<PstElement>> pstRemedialActions;
 
@@ -42,6 +45,7 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
         pstRemedialActions.forEach((contingency, raList) -> {
             raList.forEach(pst -> {
                 PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst.getId()).getPhaseTapChanger();

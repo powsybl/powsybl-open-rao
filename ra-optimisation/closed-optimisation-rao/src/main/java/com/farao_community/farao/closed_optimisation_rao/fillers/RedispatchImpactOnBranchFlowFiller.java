@@ -17,6 +17,8 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedispatchImpactOnBranchFlowFiller.class);
 
     private Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
 
@@ -75,6 +78,7 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(GEN_SENSITIVITIES_DATA_NAME);
 
         redispatchingRemedialActions.forEach((contingency, raList) -> {

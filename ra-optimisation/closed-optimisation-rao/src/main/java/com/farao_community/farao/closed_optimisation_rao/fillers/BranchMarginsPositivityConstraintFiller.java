@@ -11,6 +11,8 @@ import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class BranchMarginsPositivityConstraintFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BranchMarginsPositivityConstraintFiller.class);
 
     @Override
     public List<String> variablesExpected() {
@@ -38,6 +41,7 @@ public class BranchMarginsPositivityConstraintFiller extends AbstractOptimisatio
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using with plugin '{}'", getClass().getSimpleName());
         cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> {
             MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
             double maximumFlow = branch.getFmax();

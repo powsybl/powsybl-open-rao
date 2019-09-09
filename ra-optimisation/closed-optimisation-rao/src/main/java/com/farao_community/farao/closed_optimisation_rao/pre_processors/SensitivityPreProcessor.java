@@ -29,12 +29,17 @@ import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +47,7 @@ import java.util.stream.Collectors;
  */
 @AutoService(OptimisationPreProcessor.class)
 public class SensitivityPreProcessor implements OptimisationPreProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityPreProcessor.class);
     private static final String PST_SENSITIVITIES_DATA_NAME = "pst_branch_sensitivities";
     private static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
 
@@ -91,6 +97,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                 .collect(Collectors.toList());
 
         // Pre-contingency sensitivity computation analysis
+        LOGGER.info("Running pre contingency sensitivity computation");
         runSensitivityComputation(
                 network,
                 cracFile.getPreContingency().getMonitoredBranches(),
@@ -100,43 +107,37 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                 pstSensitivities
         );
 
-        // Post-contingency sensitivity computation analysis
-        // Variant creation and deletion not thread safe, out of parallel stream
+        int poolSize = Runtime.getRuntime().availableProcessors();
+        ExecutorService executorService = new ForkJoinPool(poolSize);
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        cracFile.getContingencies().forEach(contingency -> {
+        FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId, poolSize);
 
-            // Create contingency variant
-            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
-            network.getVariantManager().cloneVariant(initialVariantId, contingencyVariantId);
-            network.getVariantManager().setWorkingVariant(contingencyVariantId);
+        try {
+            executorService.submit(() -> {
+                cracFile.getContingencies().parallelStream().forEach(contingency -> {
+                    try {
+                        LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
+                        String workingVariant = variantsPool.getAvailableVariant();
+                        network.getVariantManager().setWorkingVariant(workingVariant);
 
-            // Apply contingency
-            applyContingency(network, computationManager, contingency);
-        });
-
-        cracFile.getContingencies().parallelStream().forEach(contingency -> {
-            // Create contingency variant
-            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
-            network.getVariantManager().setWorkingVariant(contingencyVariantId);
-
-            // Run sensitivity computation
-            runSensitivityComputation(
-                    network,
-                    contingency.getMonitoredBranches(),
-                    generators,
-                    twoWindingsTransformers,
-                    genSensitivities,
-                    pstSensitivities
-            );
-        });
-
+                        runSensitivityComputation(
+                                network,
+                                contingency.getMonitoredBranches(),
+                                generators,
+                                twoWindingsTransformers,
+                                genSensitivities,
+                                pstSensitivities
+                        );
+                        variantsPool.releaseUsedVariant(workingVariant);
+                    } catch (InterruptedException e) {
+                        throw new FaraoException(e);
+                    }
+                });
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new FaraoException("Exception during sensitivity calculation pre-processor");
+        }
         network.getVariantManager().setWorkingVariant(initialVariantId);
-
-        cracFile.getContingencies().forEach(contingency -> {
-            // Remove contingency variant
-            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
-            network.getVariantManager().removeVariant(contingencyVariantId);
-        });
 
         data.put(GEN_SENSITIVITIES_DATA_NAME, genSensitivities);
         data.put(PST_SENSITIVITIES_DATA_NAME, pstSensitivities);
