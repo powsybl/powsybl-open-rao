@@ -118,7 +118,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                     LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
-                    applyContingency(network, computationManager,contingency);
+                    applyContingency(network, computationManager, contingency);
 
                     runSensitivityComputation(
                             network,
