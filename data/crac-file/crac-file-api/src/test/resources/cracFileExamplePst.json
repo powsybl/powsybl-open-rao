@@ -77,25 +77,29 @@
       "id" : "GENERATOR_1540",
       "typeOfLimit" : "RELATIVE",
       "minStepRange" : 0,
-      "maxStepRange" : 40
+      "maxStepRange" : 40,
+      "penaltyCost" : 0.0
     }, {
       "@c" : ".PstElement",
       "id" : "GENERATOR_1054",
       "typeOfLimit" : "RELATIVE",
       "minStepRange" : 0,
-      "maxStepRange" : 40
+      "maxStepRange" : 40,
+      "penaltyCost" : 0.0
     }, {
       "@c" : ".PstElement",
       "id" : "GENERATOR_10",
       "typeOfLimit" : "RELATIVE",
       "minStepRange" : 0,
-      "maxStepRange" : 40
+      "maxStepRange" : 40,
+      "penaltyCost" : 0.0
     }, {
       "@c" : ".PstElement",
       "id" : "GENERATOR_20",
       "typeOfLimit" : "ABSOLUTE",
       "minStepRange" : -10,
-      "maxStepRange" : 10
+      "maxStepRange" : 10,
+      "penaltyCost" : 0.0
     } ],
     "usageRules" : [ {
       "id" : "RULE1",

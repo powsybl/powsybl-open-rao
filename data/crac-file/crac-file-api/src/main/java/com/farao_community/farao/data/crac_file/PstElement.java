@@ -24,14 +24,16 @@ public class PstElement extends RemedialActionElement {
     private final TypeOfLimit typeOfLimit;
     private final int minStepRange;
     private final int maxStepRange;
+    private final double penaltyCost;
 
-    @ConstructorProperties({"id", "typeOfLimit", "minStepRange", "maxStepRange"})
+    @ConstructorProperties({"id", "typeOfLimit", "minStepRange", "maxStepRange", "penaltyCost"})
     @Builder
-    public PstElement(String id, TypeOfLimit typeOfLimit, int minStepRange, int maxStepRange) {
+    public PstElement(String id, TypeOfLimit typeOfLimit, int minStepRange, int maxStepRange, double penaltyCost) {
         super(id);
         this.typeOfLimit = typeOfLimit;
         this.minStepRange = checkMin(minStepRange, maxStepRange);
         this.maxStepRange = checkMax(minStepRange, maxStepRange);
+        this.penaltyCost = penaltyCost;
     }
 
     private int checkMin(int min, int max) {
