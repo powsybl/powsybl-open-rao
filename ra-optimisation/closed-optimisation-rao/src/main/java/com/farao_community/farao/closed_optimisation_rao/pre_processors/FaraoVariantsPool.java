@@ -15,17 +15,22 @@ import java.util.concurrent.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FaraoVariantsPool {
+public class FaraoVariantsPool extends ForkJoinPool {
     private static final Logger LOGGER = LoggerFactory.getLogger(FaraoVariantsPool.class);
     private final BlockingQueue<String> variantsQueue;
     private final Network network;
     private final String initialVariant;
 
     public FaraoVariantsPool(Network network, String initialVariant, int numberOfAvailableVariants) {
+        super(numberOfAvailableVariants);
         this.network = network;
         this.initialVariant = initialVariant;
         this.variantsQueue = new ArrayBlockingQueue<>(numberOfAvailableVariants);
         initAvailableVariants(numberOfAvailableVariants);
+    }
+
+    public FaraoVariantsPool(Network network, String initialVariant) {
+        this(network, initialVariant, Runtime.getRuntime().availableProcessors());
     }
 
     private void initAvailableVariants(int numberOfAvailableVariants) {
@@ -36,7 +41,7 @@ public class FaraoVariantsPool {
             boolean isSuccess = variantsQueue.offer(variantId);
             if (!isSuccess) {
                 LOGGER.error("Cannot offer variant '{}' in pool. Should not happen", variantId);
-                throw new AssertionError(String.format("Cannot offer variant '{}' in pool. Should not happen", variantId));
+                throw new AssertionError(String.format("Cannot offer variant '%s' in pool. Should not happen", variantId));
             }
         }
         network.getVariantManager().allowVariantMultiThreadAccess(true);

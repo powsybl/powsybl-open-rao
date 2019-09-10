@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -107,13 +105,11 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                 pstSensitivities
         );
 
-        int poolSize = Runtime.getRuntime().availableProcessors();
-        ExecutorService executorService = new ForkJoinPool(poolSize);
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId, poolSize);
+        FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId);
 
         try {
-            executorService.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
+            variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 try {
                     LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();

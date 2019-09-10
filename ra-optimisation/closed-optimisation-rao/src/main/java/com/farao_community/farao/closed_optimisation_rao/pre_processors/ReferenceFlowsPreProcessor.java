@@ -55,13 +55,10 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
                 referenceFlows
         );
 
-        int poolSize = Runtime.getRuntime().availableProcessors();
-        ExecutorService executorService = new ForkJoinPool(poolSize);
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId, poolSize);
-
+        FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId);
         try {
-            executorService.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
+            variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 // Create contingency variant
                 try {
                     LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
