@@ -42,7 +42,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
                 RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
                 double pmin = rrae.getMinimumPower();
                 double pmax = rrae.getMaximumPower();
-                double pinit = -network.getGenerator(rrae.getId()).getTerminal().getP();
+                double pinit = rrae.getTargetPower();
                 solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, ra));
             });
         });

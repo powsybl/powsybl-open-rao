@@ -7,6 +7,7 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.data.crac_file.*;
+import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -160,5 +161,4 @@ public final class ClosedOptimisationRaoUtil {
         }
         return (RedispatchRemedialActionElement) raeList.get(0);
     }
-
 }
