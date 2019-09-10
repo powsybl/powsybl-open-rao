@@ -54,7 +54,6 @@ public class JsonCracFileTest extends AbstractConverterTest {
         List<String> filesToTest = Arrays.asList("/cracFileExample.json", "/cracFileExamplePst.json", "/cracFileExampleTopo.json");
         filesToTest.forEach(file -> {
             try {
-                System.out.println(file);
                 roundTripTest(create(file), JsonCracFileTest::write, JsonCracFileTest::read, file);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
