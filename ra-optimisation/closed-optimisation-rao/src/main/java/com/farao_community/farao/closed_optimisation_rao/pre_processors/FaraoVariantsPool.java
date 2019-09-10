@@ -36,7 +36,7 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
     private void initAvailableVariants() {
         for (int i = 0; i < getParallelism(); i++) {
             String variantId = getVariantByIndex(i);
-            LOGGER.info("Initializing variants pool with variant '{}'", variantId);
+            LOGGER.info("Filling variants pool with variant '{}'", variantId);
             network.getVariantManager().cloneVariant(initialVariant, variantId);
             boolean isSuccess = variantsQueue.offer(variantId);
             if (!isSuccess) {
