@@ -56,8 +56,7 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
         );
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId);
-        try {
+        try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 // Create contingency variant
                 try {
