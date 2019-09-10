@@ -7,7 +7,6 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.data.crac_file.*;
-import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,17 +23,7 @@ public final class ClosedOptimisationRaoUtil {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-    /**
-     * Build list of all generators subject to one or several redispatching remedial action
-     */
-    public static List<String> buildRedispatchGeneratorList(CracFile cracFile) {
-        List<RemedialAction> allRaRd = getRedispatchRemedialActions(cracFile.getRemedialActions().stream());
-        return allRaRd.stream()
-                .map(ra -> Objects.requireNonNull(getRedispatchElement(ra)).getId())
-                .distinct().collect(Collectors.toList());
-    }
-
-    /**
+     /**
      * Build map of RedispatchingRemedialActionElements with their associated contingency
      * Required for the initialisation of all fillers which invokes redispatching remedial action
      */

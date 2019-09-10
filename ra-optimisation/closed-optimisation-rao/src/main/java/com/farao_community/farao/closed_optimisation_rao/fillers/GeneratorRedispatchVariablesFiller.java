@@ -26,13 +26,11 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProblemFiller {
 
     private Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions;
-    private List<String> generatorList;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
         super.initFiller(network, cracFile, data);
         this.redispatchingRemedialActions = buildRedispatchRemedialActionMap(cracFile);
-        this.generatorList = buildRedispatchGeneratorList(cracFile);
     }
 
     @Override
