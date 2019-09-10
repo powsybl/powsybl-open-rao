@@ -54,7 +54,7 @@ public class RedispatchElementResultsPostProcessor implements OptimisationPostPr
                 .filter(ra -> isRedispatchRemedialActionActivated(contingency, ra, solver))
                 .map(remedialAction -> {
                     RedispatchRemedialActionElement rrae = (RedispatchRemedialActionElement) remedialAction.getRemedialActionElements().get(0);
-                    double initialTargetP = network.getGenerator(rrae.getId()).getTargetP();
+                    double initialTargetP = rrae.getTargetPower();
                     MPVariable redispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchCostVariable(contingency, remedialAction)));
                     MPVariable redispatchValue = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, remedialAction)));
                     return new RemedialActionResult(
