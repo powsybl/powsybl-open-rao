@@ -40,9 +40,25 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             raList.forEach(ra -> {
                 RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
-                double pmin = rrae.getMinimumPower();
-                double pmax = rrae.getMaximumPower();
                 double pinit = rrae.getTargetPower();
+                double pmin = Math.min(pinit, rrae.getMinimumPower());
+                double pmax = Math.max(pinit, rrae.getMaximumPower());
+
+                /*
+                    - if pmin < pinjt < pmax, the production of the generator must be in [pmin, pmax], therefore
+                      a started generator cannot be switched off by farao
+
+                    - if pinit < pmin, the production of the generator must be in [pinit, pmax], thus the generator
+                      which are off can :
+                         - stay off
+                         - or be switched on by farao (note that in this case, farao can - for now - starts the generator
+                           below its pmin)
+
+                    - if pinit > pmax, the production of the generation must be in [pmin, pinit]. This case usually
+                      indicates an inconsistency in the input data. Yes, to avoid any infeasibility in the optimisation
+                      problem the range [pmin, pmax] is extended so as to include the initial value pinit.
+                 */
+
                 solver.makeNumVar(pmin - pinit, pmax - pinit, nameRedispatchValueVariable(contingency, ra));
             });
         });
