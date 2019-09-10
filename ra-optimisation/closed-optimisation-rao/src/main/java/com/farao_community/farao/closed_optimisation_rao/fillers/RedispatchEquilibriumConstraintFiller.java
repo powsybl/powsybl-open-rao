@@ -15,6 +15,8 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +34,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedispatchEquilibriumConstraintFiller.class);
 
     private Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
 
@@ -54,6 +57,7 @@ public class RedispatchEquilibriumConstraintFiller extends AbstractOptimisationP
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             MPConstraint equilibrium = solver.makeConstraint(0, 0);
             raList.forEach(rrae -> {
