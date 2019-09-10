@@ -48,17 +48,127 @@ public class OptimisationFillersTest {
     }
 
     @Test
-    public void testCase1() {
+    public void testCase4() {
         /*
         Files : 4_2nodes_preContingency_RD_N-1
           - Test case with two nodes
           - preContingency and N-1 contingencies
           - 4 redispatching remedial actions, all free-to-use : 2 preventive, 2 curative
          */
-        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.json"));
-        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/4_2nodes_preContingency_RD_N-1.xiidm");
-        Network network = Importers.loadNetwork("/4_2nodes_preContingency_RD_N-1.xiidm", is);
+        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/4_2nodes_RD_N-1.json"));
+        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/4_2nodes_RD_N-1.xiidm");
+        Network network = Importers.loadNetwork("4_2nodes_RD_N-1.xiidm", is);
 
+        Map<String, Object> data = getDataCase4And7();
+
+        List<String> fillersToTest = getAllFillers();
+        List<String> postProcessorsToTest = getAllPostProcessors();
+
+        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
+
+        testCase.fillersTest();
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        testCase.postProcessorsTest(raoComputationResult);
+    }
+
+    @Test
+    public void testCase5() {
+         /*
+        Files : 5_3nodes_preContingency_PSTandRD_N-1
+          - Test case with three nodes
+          - preContingency and N-1 contingencies
+          - 2 preventive redispatching remedial actions, all free-to-use
+          - 1 curative PST remedial action, free-to-use
+         */
+        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/5_3nodes_PSTandRD_N-1.json"));
+        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/5_3nodes_PSTandRD_N-1.xiidm");
+        Network network = Importers.loadNetwork("5_3nodes_PSTandRD_N-1.xiidm", is);
+
+        Map<String, Object> data = getDataCase5And6();
+
+        List<String> fillersToTest = getAllFillers();
+        List<String> postProcessorsToTest = getAllPostProcessors();
+
+        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
+
+        testCase.fillersTest();
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        testCase.postProcessorsTest(raoComputationResult);
+    }
+
+    @Test
+    public void testCase6() {
+         /*
+        Files : 5_3nodes_preContingency_PSTandRD_N-1
+          - Test case with three nodes
+          - preContingency and N-1 contingencies
+          - 2 preventive redispatching remedial actions, all free-to-use
+          - 1 curative PST remedial action, free-to-use
+         */
+        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/6_3nodes_PSTandRD_N-1_ONOUTAGE.json"));
+        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/6_3nodes_PSTandRD_N-1_ONOUTAGE.xiidm");
+        Network network = Importers.loadNetwork("6_3nodes_PSTandRD_N-1_ONOUTAGE.xiidm", is);
+
+        Map<String, Object> data = getDataCase5And6();
+
+        List<String> fillersToTest = getAllFillers();
+        List<String> postProcessorsToTest = getAllPostProcessors();
+
+        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
+
+        testCase.fillersTest();
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        testCase.postProcessorsTest(raoComputationResult);
+    }
+
+    @Test
+    public void testCase7() {
+         /*
+        Files : 7_2nodes_contingency_RDonSameGen_N-1
+          - Test case with two nodes
+          - preContingency and N-1 contingencies
+          - 5 redispatching remedial actions
+          - some remedial actions on the same generator (rrae.getId())
+         */
+        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/7_2nodes_RDonSameGen_N-1.json"));
+        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/7_2nodes_RDonSameGen_N-1.xiidm");
+        Network network = Importers.loadNetwork("7_2nodes_RDonSameGen_N-1.xiidm", is);
+
+        Map<String, Object> data = getDataCase4And7();
+
+        List<String> fillersToTest = getAllFillers();
+        List<String> postProcessorsToTest = getAllPostProcessors();
+
+        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
+
+        testCase.fillersTest();
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        testCase.postProcessorsTest(raoComputationResult);
+    }
+
+    private List<String> getAllFillers() {
+        List<String> fillerList = new ArrayList<>();
+        fillerList.add(BranchMarginsPositivityConstraintFiller.class.getName());
+        fillerList.add(BranchMarginsVariablesFiller.class.getName());
+        fillerList.add(GeneratorRedispatchCostsFiller.class.getName());
+        fillerList.add(GeneratorRedispatchVariablesFiller.class.getName());
+        fillerList.add(PstAngleImpactOnBranchFlowFiller.class.getName());
+        fillerList.add(PstAngleVariablesFiller.class.getName());
+        fillerList.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
+        fillerList.add(RedispatchEquilibriumConstraintFiller.class.getName());
+        fillerList.add(RedispatchImpactOnBranchFlowFiller.class.getName());
+        return fillerList;
+    }
+
+    private List<String> getAllPostProcessors() {
+        List<String> postProcessorsList = new ArrayList<>();
+        postProcessorsList.add(BranchResultsPostProcessor.class.getName());
+        postProcessorsList.add(PstElementResultsPostProcessor.class.getName());
+        postProcessorsList.add(RedispatchElementResultsPostProcessor.class.getName());
+        return postProcessorsList;
+    }
+
+    private Map<String, Object> getDataCase4And7() {
         Map<String, Object> data = new HashMap<>();
         Map<String, Double> pstSensitivities = new HashMap<>();
         Map<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
@@ -84,44 +194,11 @@ public class OptimisationFillersTest {
         data.put("pst_branch_sensitivities", pstSensitivities);
         data.put("generators_branch_sensitivities", generatorSensitivities);
         data.put("reference_flows", referenceFlows);
-
-        List<String> fillersToTest = new ArrayList<>();
-        List<String> postProcessorsToTest = new ArrayList<>();
-
-        fillersToTest.add(BranchMarginsPositivityConstraintFiller.class.getName());
-        fillersToTest.add(BranchMarginsVariablesFiller.class.getName());
-        fillersToTest.add(GeneratorRedispatchCostsFiller.class.getName());
-        fillersToTest.add(GeneratorRedispatchVariablesFiller.class.getName());
-        fillersToTest.add(PstAngleImpactOnBranchFlowFiller.class.getName());
-        fillersToTest.add(PstAngleVariablesFiller.class.getName());
-        fillersToTest.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
-        fillersToTest.add(RedispatchEquilibriumConstraintFiller.class.getName());
-        fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
-
-        postProcessorsToTest.add(BranchResultsPostProcessor.class.getName());
-        postProcessorsToTest.add(PstElementResultsPostProcessor.class.getName());
-        postProcessorsToTest.add(RedispatchElementResultsPostProcessor.class.getName());
-
-        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
-
-        testCase.fillersTest();
-        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
-        testCase.postProcessorsTest(raoComputationResult);
+        return data;
     }
 
-    @Test
-    public void testCase2() {
-         /*
-        Files : 5_3nodes_preContingency_PSTandRD_N-1
-          - Test case with three nodes
-          - preContingency and N-1 contingencies
-          - 2 preventive redispatching remedial actions, all free-to-use
-          - 1 curative PST remedial action, free-to-use
-         */
-        CracFile cracFile = JsonCracFile.read(CracFile.class.getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.json"));
-        InputStream is = JsonClosedOptimisationRaoResultTest.class.getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.xiidm");
-        Network network = Importers.loadNetwork("/5_3nodes_preContingency_PSTandRD_N-1.xiidm", is);
 
+    private Map<String, Object> getDataCase5And6() {
         Map<String, Object> data = new HashMap<>();
         Map<Pair<String, String>, Double> pstSensitivities = new HashMap<>();
         Map<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
@@ -161,27 +238,7 @@ public class OptimisationFillersTest {
         data.put("generators_branch_sensitivities", generatorSensitivities);
         data.put("reference_flows", referenceFlows);
 
-        List<String> fillersToTest = new ArrayList<>();
-        List<String> postProcessorsToTest = new ArrayList<>();
-
-        fillersToTest.add(BranchMarginsPositivityConstraintFiller.class.getName());
-        fillersToTest.add(BranchMarginsVariablesFiller.class.getName());
-        fillersToTest.add(GeneratorRedispatchCostsFiller.class.getName());
-        fillersToTest.add(GeneratorRedispatchVariablesFiller.class.getName());
-        fillersToTest.add(PstAngleImpactOnBranchFlowFiller.class.getName());
-        fillersToTest.add(PstAngleVariablesFiller.class.getName());
-        fillersToTest.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
-        fillersToTest.add(RedispatchEquilibriumConstraintFiller.class.getName());
-        fillersToTest.add(RedispatchImpactOnBranchFlowFiller.class.getName());
-
-        postProcessorsToTest.add(BranchResultsPostProcessor.class.getName());
-        postProcessorsToTest.add(PstElementResultsPostProcessor.class.getName());
-        postProcessorsToTest.add(RedispatchElementResultsPostProcessor.class.getName());
-
-        FillersTestCase testCase = new FillersTestCase(cracFile, network, data, fillersToTest, postProcessorsToTest);
-
-        testCase.fillersTest();
-        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
-        testCase.postProcessorsTest(raoComputationResult);
+        return data;
     }
+
 }
