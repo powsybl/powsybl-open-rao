@@ -33,7 +33,11 @@ public class FaraoVariantsPool {
             String variantId = initialVariant + " variant modified " + i;
             LOGGER.info("Initializing variants pool with variant '{}'", variantId);
             network.getVariantManager().cloneVariant(initialVariant, variantId, true);
-            variantsQueue.offer(variantId);
+            boolean isSuccess = variantsQueue.offer(variantId);
+            if (!isSuccess) {
+                LOGGER.error("Cannot offer variant '{}' in pool. Should not happen", variantId);
+                throw new AssertionError(String.format("Cannot offer variant '{}' in pool. Should not happen", variantId));
+            }
         }
         network.getVariantManager().allowVariantMultiThreadAccess(true);
     }
