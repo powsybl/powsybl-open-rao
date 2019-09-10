@@ -197,7 +197,6 @@ public class OptimisationFillersTest {
         return data;
     }
 
-
     private Map<String, Object> getDataCase5And6() {
         Map<String, Object> data = new HashMap<>();
         Map<Pair<String, String>, Double> pstSensitivities = new HashMap<>();
