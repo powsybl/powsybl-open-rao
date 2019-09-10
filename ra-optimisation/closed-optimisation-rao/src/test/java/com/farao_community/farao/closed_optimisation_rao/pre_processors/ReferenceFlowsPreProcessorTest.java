@@ -46,8 +46,8 @@ public class ReferenceFlowsPreProcessorTest {
 
     @Test
     public void checkProvidedDataContent() throws Exception {
-        Network network = Importers.loadNetwork("5_3nodes_preContingency_PSTandRD_N-1.xiidm", getClass().getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.xiidm"));
-        CracFile cracFile = JsonCracFile.read(getClass().getResourceAsStream("/5_3nodes_preContingency_PSTandRD_N-1.json"));
+        Network network = Importers.loadNetwork("5_3nodes_PSTandRD_N-1.xiidm", getClass().getResourceAsStream("/5_3nodes_PSTandRD_N-1.xiidm"));
+        CracFile cracFile = JsonCracFile.read(getClass().getResourceAsStream("/5_3nodes_PSTandRD_N-1.json"));
         ComputationManager computationManager = new LocalComputationManager();
         Map<String, Object> dataToFeed = new HashMap<>();
 
