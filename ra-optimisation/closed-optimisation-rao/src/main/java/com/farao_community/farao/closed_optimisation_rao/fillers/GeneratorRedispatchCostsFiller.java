@@ -16,6 +16,8 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorRedispatchCostsFiller.class);
 
     private Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions;
 
@@ -70,6 +73,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         double infinity = solver.infinity();
         // Create total redispatch cost and its equation
         MPVariable totalRedispatchCostVariable = solver.makeNumVar(-infinity, infinity, TOTAL_REDISPATCH_COST);

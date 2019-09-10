@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_file.*;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorRedispatchVariablesFiller.class);
 
     private Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions;
 
@@ -35,6 +38,7 @@ public class GeneratorRedispatchVariablesFiller extends AbstractOptimisationProb
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
             raList.forEach(ra -> {
                 RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));

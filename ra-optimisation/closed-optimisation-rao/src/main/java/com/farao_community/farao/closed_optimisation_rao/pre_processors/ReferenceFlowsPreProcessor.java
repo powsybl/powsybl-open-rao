@@ -21,17 +21,20 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.loadflow.LoadFlowResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(OptimisationPreProcessor.class)
 public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceFlowsPreProcessor.class);
     private static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
 
     @Override
@@ -45,47 +48,40 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
     public void fillData(Network network, CracFile cracFile, ComputationManager computationManager, Map<String, Object> data) {
         Map<String, Double> referenceFlows = new ConcurrentHashMap<>();
 
-        // Pre-contingency load-flow
+        LOGGER.info("Running pre contingency loadflow");
         runLoadFlow(
                 network,
                 cracFile.getPreContingency().getMonitoredBranches(),
                 referenceFlows
         );
 
-        // Post-contingency loadflow calculation
-        // Variant creation and deletion not thread safe, out of parallel stream
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        cracFile.getContingencies().forEach(contingency -> {
+        try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
+            variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
+                // Create contingency variant
+                try {
+                    LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
+                    String workingVariant = variantsPool.getAvailableVariant();
+                    network.getVariantManager().setWorkingVariant(workingVariant);
+                    applyContingency(network, computationManager, contingency);
 
-            // Create contingency variant
-            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
-            network.getVariantManager().cloneVariant(initialVariantId, contingencyVariantId);
-            network.getVariantManager().setWorkingVariant(contingencyVariantId);
-
-            // Apply contingency
-            applyContingency(network, computationManager, contingency);
-        });
-
-        cracFile.getContingencies().parallelStream().forEach(contingency -> {
-            // Create contingency variant
-            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
-            network.getVariantManager().setWorkingVariant(contingencyVariantId);
-
-            // Run sensitivity computation
-            runLoadFlow(
-                    network,
-                    contingency.getMonitoredBranches(),
-                    referenceFlows
-            );
-        });
+                    runLoadFlow(
+                            network,
+                            contingency.getMonitoredBranches(),
+                            referenceFlows
+                    );
+                    variantsPool.releaseUsedVariant(workingVariant);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            })).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new FaraoException(e);
+        }
 
         network.getVariantManager().setWorkingVariant(initialVariantId);
-
-        cracFile.getContingencies().forEach(contingency -> {
-            // Remove contingency variant
-            String contingencyVariantId = initialVariantId + "+" + contingency.getId();
-            network.getVariantManager().removeVariant(contingencyVariantId);
-        });
 
         data.put(REFERENCE_FLOWS_DATA_NAME, referenceFlows);
     }
