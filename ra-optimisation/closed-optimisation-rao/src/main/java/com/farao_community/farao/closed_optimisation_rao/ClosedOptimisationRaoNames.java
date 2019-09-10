@@ -48,29 +48,6 @@ public final class ClosedOptimisationRaoNames {
     public static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
 
     /**
-     * Get standard name of generator production value variables
-     */
-    public static String nameGeneratorProductionVariable(Optional<Contingency> contingency, String generator) {
-        if (contingency.isPresent()) {
-            return contingency.get().getId() + CONTINGENCY_SEPERATOR + generator + POSTFIX_SEPERATOR + GENERATION_VALUE_POSTFIX;
-        } else {
-            return PRECONTINGENCY + CONTINGENCY_SEPERATOR + generator + POSTFIX_SEPERATOR + GENERATION_VALUE_POSTFIX;
-        }
-    }
-
-    /**
-     * Get standard name of generator production constraint
-     */
-    public static String nameGeneratorProductionEquation(Optional<Contingency> contingency, String generator) {
-        if (contingency.isPresent()) {
-            return contingency.get().getId() + CONTINGENCY_SEPERATOR + generator + POSTFIX_SEPERATOR + GENERATION_CONSTRAINT_POSTFIX;
-        } else {
-            return PRECONTINGENCY + CONTINGENCY_SEPERATOR + generator + POSTFIX_SEPERATOR + GENERATION_CONSTRAINT_POSTFIX;
-        }
-    }
-
-
-    /**
      * Get standard name of redispatch value variables
      */
     public static String nameRedispatchValueVariable(Optional<Contingency> contingency, RemedialAction ra) {
