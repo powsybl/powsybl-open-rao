@@ -28,13 +28,11 @@ public final class ClosedOptimisationRaoNames {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-    private static final String CONTINGENCY_SEPERATOR = "@";
+    private static final String CONTINGENCY_SEPARATOR = "@";
     private static final String GENERATOR_SEPARATOR = "@";
-    private static final String POSTFIX_SEPERATOR = "#";
+    private static final String POSTFIX_SEPARATOR = "#";
     private static final String PRECONTINGENCY = "precontingency";
 
-    private static final String GENERATION_VALUE_POSTFIX = "generation_value";
-    private static final String GENERATION_CONSTRAINT_POSTFIX = "generation_equation";
     private static final String REDISPATCH_VALUE_POSTFIX = "redispatch_value";
     private static final String REDISPATCH_ACTIVATION_POSTFIX = "redispatch_activation";
     private static final String ESTIMATED_FLOW_POSTFIX = "estimated_flow";
@@ -53,9 +51,9 @@ public final class ClosedOptimisationRaoNames {
     public static String nameRedispatchValueVariable(Optional<Contingency> contingency, RemedialAction ra) {
         RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
         if (contingency.isPresent()) {
-            return contingency.get().getId() + CONTINGENCY_SEPERATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPERATOR + REDISPATCH_VALUE_POSTFIX;
+            return contingency.get().getId() + CONTINGENCY_SEPARATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPARATOR + REDISPATCH_VALUE_POSTFIX;
         } else {
-            return PRECONTINGENCY + CONTINGENCY_SEPERATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPERATOR + REDISPATCH_VALUE_POSTFIX;
+            return PRECONTINGENCY + CONTINGENCY_SEPARATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPARATOR + REDISPATCH_VALUE_POSTFIX;
         }
     }
 
@@ -65,9 +63,9 @@ public final class ClosedOptimisationRaoNames {
     public static String nameRedispatchActivationVariable(Optional<Contingency> contingency, RemedialAction ra) {
         RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
         if (contingency.isPresent()) {
-            return contingency.get().getId() + CONTINGENCY_SEPERATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPERATOR + REDISPATCH_ACTIVATION_POSTFIX;
+            return contingency.get().getId() + CONTINGENCY_SEPARATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPARATOR + REDISPATCH_ACTIVATION_POSTFIX;
         } else {
-            return PRECONTINGENCY + CONTINGENCY_SEPERATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPERATOR + REDISPATCH_ACTIVATION_POSTFIX;
+            return PRECONTINGENCY + CONTINGENCY_SEPARATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPARATOR + REDISPATCH_ACTIVATION_POSTFIX;
         }
     }
 
@@ -77,9 +75,9 @@ public final class ClosedOptimisationRaoNames {
     public static String nameRedispatchCostVariable(Optional<Contingency> contingency, RemedialAction ra) {
         RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
         if (contingency.isPresent()) {
-            return contingency.get().getId() + CONTINGENCY_SEPERATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPERATOR + REDISPATCH_COST_POSTFIX;
+            return contingency.get().getId() + CONTINGENCY_SEPARATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPARATOR + REDISPATCH_COST_POSTFIX;
         } else {
-            return PRECONTINGENCY + CONTINGENCY_SEPERATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPERATOR + REDISPATCH_COST_POSTFIX;
+            return PRECONTINGENCY + CONTINGENCY_SEPARATOR + ra.getId() + GENERATOR_SEPARATOR + rrae.getId() + POSTFIX_SEPARATOR + REDISPATCH_COST_POSTFIX;
         }
     }
 
@@ -88,9 +86,9 @@ public final class ClosedOptimisationRaoNames {
      */
     public static String nameShiftValueVariable(Optional<Contingency> contingency, PstElement remedialAction) {
         if (contingency.isPresent()) {
-            return contingency.get().getId() + CONTINGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + SHIFT_VALUE_POSTFIX;
+            return contingency.get().getId() + CONTINGENCY_SEPARATOR + remedialAction.getId() + POSTFIX_SEPARATOR + SHIFT_VALUE_POSTFIX;
         } else {
-            return PRECONTINGENCY + CONTINGENCY_SEPERATOR + remedialAction.getId() + POSTFIX_SEPERATOR + SHIFT_VALUE_POSTFIX;
+            return PRECONTINGENCY + CONTINGENCY_SEPARATOR + remedialAction.getId() + POSTFIX_SEPARATOR + SHIFT_VALUE_POSTFIX;
         }
     }
 
@@ -98,13 +96,13 @@ public final class ClosedOptimisationRaoNames {
      * Get standard name of estimated flow variable
      */
     public static String nameEstimatedFlowVariable(String branchId) {
-        return branchId + POSTFIX_SEPERATOR + ESTIMATED_FLOW_POSTFIX;
+        return branchId + POSTFIX_SEPARATOR + ESTIMATED_FLOW_POSTFIX;
     }
 
     /**
      * Get standard name of flow definition constraint
      */
     public static String nameEstimatedFlowConstraint(String branchId) {
-        return branchId + POSTFIX_SEPERATOR + ESTIMATED_FLOW_EQUATION_POSTFIX;
+        return branchId + POSTFIX_SEPARATOR + ESTIMATED_FLOW_EQUATION_POSTFIX;
     }
 }
