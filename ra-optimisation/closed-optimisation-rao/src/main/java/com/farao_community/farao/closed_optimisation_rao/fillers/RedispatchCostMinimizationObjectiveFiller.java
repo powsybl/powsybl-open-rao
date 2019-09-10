@@ -11,6 +11,8 @@ import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +26,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedispatchCostMinimizationObjectiveFiller.class);
 
     @Override
     public List<String> objectiveFunctionsProvided() {
@@ -37,6 +40,7 @@ public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisat
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         MPVariable totalRedispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(TOTAL_REDISPATCH_COST));
         MPObjective objective = solver.objective();
         // In case previous objective has been set, clear
