@@ -10,11 +10,14 @@ import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationPro
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
+import com.farao_community.farao.data.crac_file.RemedialAction;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -32,8 +35,9 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemFiller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorRedispatchCostsFiller.class);
 
-    private Map<Optional<Contingency>, List<RedispatchRemedialActionElement>> redispatchingRemedialActions;
+    private Map<Optional<Contingency>, List<RemedialAction>> redispatchingRemedialActions;
 
     @Override
     public void initFiller(Network network, CracFile cracFile, Map<String, Object> data) {
@@ -46,10 +50,10 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
         List<String> variables = new ArrayList<>();
         redispatchingRemedialActions.forEach((contingency, raList) -> {
             variables.addAll(raList.stream()
-                    .map(gen -> nameRedispatchActivationVariable(contingency, gen))
+                    .map(ra -> nameRedispatchActivationVariable(contingency, ra))
                     .collect(Collectors.toList()));
             variables.addAll(raList.stream()
-                    .map(gen -> nameRedispatchCostVariable(contingency, gen))
+                    .map(ra -> nameRedispatchCostVariable(contingency, ra))
                     .collect(Collectors.toList()));
         });
         variables.add(TOTAL_REDISPATCH_COST);
@@ -61,7 +65,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
         List<String> variables = new ArrayList<>();
         redispatchingRemedialActions.forEach((contingency, raList) -> {
             variables.addAll(raList.stream()
-                    .map(gen -> nameRedispatchValueVariable(contingency, gen))
+                    .map(ra -> nameRedispatchValueVariable(contingency, ra))
                     .collect(Collectors.toList()));
         });
         return variables;
@@ -69,6 +73,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
 
     @Override
     public void fillProblem(MPSolver solver) {
+        LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         double infinity = solver.infinity();
         // Create total redispatch cost and its equation
         MPVariable totalRedispatchCostVariable = solver.makeNumVar(-infinity, infinity, TOTAL_REDISPATCH_COST);
@@ -76,14 +81,15 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
         totalRedispatchCostEquation.setCoefficient(totalRedispatchCostVariable, 1);
 
         redispatchingRemedialActions.forEach((contingency, raList)  -> {
-            raList.forEach(rrae -> {
-                MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, rrae)));
+            raList.forEach(ra -> {
+                RedispatchRemedialActionElement rrae = Objects.requireNonNull(getRedispatchElement(ra));
+                MPVariable redispatchValueVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, ra)));
 
                 // Redispatch activation variable
-                MPVariable redispatchActivationVariable = solver.makeBoolVar(nameRedispatchActivationVariable(contingency, rrae));
+                MPVariable redispatchActivationVariable = solver.makeBoolVar(nameRedispatchActivationVariable(contingency, ra));
 
                 // Redispatch cost variable
-                MPVariable redispatchCostVariable = solver.makeNumVar(-infinity, infinity, nameRedispatchCostVariable(contingency, rrae));
+                MPVariable redispatchCostVariable = solver.makeNumVar(-infinity, infinity, nameRedispatchCostVariable(contingency, ra));
 
                 // Redispatch cost equation
                 MPConstraint costEquation = solver.makeConstraint(0, 0);

@@ -25,21 +25,26 @@ public class RedispatchRemedialActionElement extends RemedialActionElement {
     private final double minimumPower;
     @NotNull(message = "maximumPower")
     private final double maximumPower;
+    private final double targetPower;
     private final double startupCost;
     private final double marginalCost;
+    private final String generatorName;
 
-    @ConstructorProperties({"id", "minimumPower", "maximumPower", "startupCost", "marginalCost"})
+    @ConstructorProperties({"id", "minimumPower", "maximumPower", "targetPower", "startupCost", "marginalCost", "generatorName"})
     @Builder
     public RedispatchRemedialActionElement(final String id,
                                            final double minimumPower,
                                            final double maximumPower,
+                                           final double targetPower,
                                            final double startupCost,
-                                           final double marginalCost) {
+                                           final double marginalCost,
+                                           final String generatorName) {
         super(id);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
+        this.targetPower = targetPower;
         this.startupCost = startupCost;
         this.marginalCost = marginalCost;
+        this.generatorName = generatorName;
     }
-
 }
