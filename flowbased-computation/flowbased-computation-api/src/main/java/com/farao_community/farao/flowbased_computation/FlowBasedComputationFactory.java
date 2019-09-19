@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskValuesProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_file.CracFile;
@@ -22,15 +23,16 @@ public interface FlowBasedComputationFactory {
     /**
      * @param network reference network: we need a network to construct the linear glsk map from the glsk document
      * @param cracFile crac file
-     * @param flowBasedGlskValuesProvider get linear glsk map from a glsk document
+     * @param GlskValuesProvider get linear glsk map from a glsk document
      * @param instant flow based domaine is time dependent
      * @param computationManager computation manager
      * @param priority priority
      * @return
      */
+
     FlowBasedComputation create(Network network,
                                 CracFile cracFile,
-                                FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
+                                GlskValuesProvider GlskValuesProvider,
                                 Instant instant,
                                 ComputationManager computationManager,
                                 int priority);

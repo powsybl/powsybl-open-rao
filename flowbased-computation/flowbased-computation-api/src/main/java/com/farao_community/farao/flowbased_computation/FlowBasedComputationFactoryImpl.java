@@ -7,6 +7,8 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.flowbased_computation.glsk_provider.CimGlskValuesProvider;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskValuesProvider;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -25,7 +27,7 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
     /**
      * @param network reference network: we need a network to construct the linear glsk map from the glsk document
      * @param cracFile crac file
-     * @param flowBasedGlskValuesProvider get linear glsk map from a glsk document
+     * @param cimGlskValuesProvider get linear glsk map from a glsk document
      * @param instant flow based domaine is time dependent
      * @param computationManager computation manager
      * @param priority priority
@@ -34,13 +36,13 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
     @Override
     public FlowBasedComputation create(Network network,
                                        CracFile cracFile,
-                                       FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
+                                       GlskValuesProvider cimGlskValuesProvider,
                                        Instant instant,
                                        ComputationManager computationManager,
                                        int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new FlowBasedComputationImpl(network, cracFile, cimGlskValuesProvider, instant, computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
 
     /**
@@ -54,7 +56,7 @@ public class FlowBasedComputationFactoryImpl implements FlowBasedComputationFact
     public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
         LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new FlowBasedComputationImpl(network, cracFile, new FlowBasedGlskValuesProvider(), Instant.now(), computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new FlowBasedComputationImpl(network, cracFile, new CimGlskValuesProvider(), Instant.now(), computationManager, loadFlowFactory, sensitivityComputationFactory);
     }
 
 }

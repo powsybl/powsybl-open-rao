@@ -7,6 +7,7 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.flowbased_computation.glsk_provider.CimGlskValuesProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -29,7 +30,7 @@ public class FlowBasedComputationFactoryImplTest {
     private Network network;
     private CracFile cracFile;
     private Instant instant;
-    private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
+    private CimGlskValuesProvider cimGlskValuesProvider;
     private ComputationManager computationManager;
 
     private FlowBasedComputationFactoryImpl flowBasedComputationFactoryImpl;
@@ -40,7 +41,7 @@ public class FlowBasedComputationFactoryImplTest {
         network = Mockito.mock(Network.class);
         cracFile = Mockito.mock(CracFile.class);
         instant = Instant.parse("2018-08-28T22:00:00Z");
-        flowBasedGlskValuesProvider = Mockito.mock(FlowBasedGlskValuesProvider.class);
+        cimGlskValuesProvider = Mockito.mock(CimGlskValuesProvider.class);
         computationManager = Mockito.mock(ComputationManager.class);
 
         flowBasedComputationFactoryImpl = Mockito.mock(FlowBasedComputationFactoryImpl.class);
@@ -52,7 +53,7 @@ public class FlowBasedComputationFactoryImplTest {
     @Test (expected = com.powsybl.commons.PowsyblException.class)
     public void runTest() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        new FlowBasedComputationFactoryImpl().create(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
+        new FlowBasedComputationFactoryImpl().create(network, cracFile, cimGlskValuesProvider, instant, computationManager, 0);
     }
 
     @Test (expected = com.powsybl.commons.PowsyblException.class)

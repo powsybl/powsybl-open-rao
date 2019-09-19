@@ -4,47 +4,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.flowbased_computation;
+package com.farao_community.farao.flowbased_computation.glsk_provider;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.chronology.DataChronology;
-import com.farao_community.farao.commons.data.glsk_file.actors.GlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * FlowBased Glsk Values Provider
+ * Abstract FlowBased Glsk Values Provider
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FlowBasedGlskValuesProvider {
-    /**
-     * Network we need a network to import Glsk document
-     */
+abstract public class GlskValuesProvider {
+
+
     private Network network;
-
-    /**
-     * Glsk file path in String
-     */
     private String filePathString;
+    private Map<String, DataChronology<LinearGlsk>> mapCountryDataChronologyLinearGlsk;
+
 
     /**
-     * map of country code and DataChronology of LinearGlsk created from GlskFile
+     * Empty constructor
      */
-    private Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk;
-
-    /**
-     * constructor
-     */
-    public FlowBasedGlskValuesProvider() {
+    public GlskValuesProvider() {
         network = null;
         filePathString = "";
         mapCountryDataChronologyLinearGlsk = null;
@@ -55,31 +45,28 @@ public class FlowBasedGlskValuesProvider {
      * @param network network
      * @param filePathString glsk file name
      */
-    public FlowBasedGlskValuesProvider(Network network, String filePathString) throws ParserConfigurationException, SAXException, IOException {
+    public GlskValuesProvider(Network network, String filePathString) throws FaraoException {
         this.network = network;
         this.filePathString = filePathString;
-
         mapCountryDataChronologyLinearGlsk = createDataChronologyLinearGlskMap(network, filePathString);
     }
 
+
     /**
-     * Create map from Glsk file
+     * Create map of LinearGlsk from Glsk file
      * @param network Network
      * @param filePathString Glsk File name
      * @return map of data chronology of linear Glsk
-     * @throws IOException
-     * @throws SAXException
-     * @throws ParserConfigurationException
+     * @throws FaraoException
      */
-    Map<String, DataChronology<LinearGlsk> > createDataChronologyLinearGlskMap(Network network, String filePathString) throws IOException, SAXException, ParserConfigurationException {
-        return new GlskDocumentLinearGlskConverter().convertGlskDocumentToLinearGlskDataChronologyFromFilePathString(filePathString, network);
-    }
+    abstract Map<String, DataChronology<LinearGlsk> > createDataChronologyLinearGlskMap(Network network, String filePathString) throws FaraoException ;
+
 
     /**
      * @param instant Flowbased domain is time dependent. Instant give the time stamp t of the flowbased domain
      * @return LinearGlsk map of instant
      */
-    Map<String, LinearGlsk> getCountryLinearGlskMap(Instant instant) {
+    public final Map<String, LinearGlsk> getCountryLinearGlskMap(Instant instant) {
 
         Map<String, LinearGlsk> linearGlskMap = new HashMap<>();
         for (Map.Entry<String, DataChronology<LinearGlsk> > entry: mapCountryDataChronologyLinearGlsk.entrySet()) {
@@ -100,7 +87,7 @@ public class FlowBasedGlskValuesProvider {
      * @param country country EIC code
      * @return Linear Glsk: linear Glsk of country of instant t
      */
-    LinearGlsk getCountryLinearGlsk(Instant instant, String country) {
+    public final LinearGlsk getCountryLinearGlsk(Instant instant, String country) {
 
         if (!mapCountryDataChronologyLinearGlsk.containsKey(country)) {
             throw new FaraoException("No LinearGlsk found for country " + country + " in " + filePathString);
@@ -118,43 +105,45 @@ public class FlowBasedGlskValuesProvider {
     /**
      * @return Network reference network
      */
-    public Network getNetwork() {
+    public final Network getNetwork() {
         return network;
     }
 
     /**
      * @param network setter
      */
-    public void setNetwork(Network network) {
+    public final void setNetwork(Network network) {
         this.network = network;
     }
 
     /**
      * @return getter file path string
      */
-    public String getFilePathString() {
+    public final String getFilePathString() {
         return filePathString;
     }
 
     /**
      * @param filePathString set glsk document file path
      */
-    public void setFilePathString(String filePathString) {
+    public final void setFilePathString(String filePathString) {
         this.filePathString = filePathString;
     }
 
     /**
      * @param mapCountryDataChronologyLinearGlsk set linear glsk 's data chronology map
      */
-    public void setMapCountryDataChronologyLinearGlsk(Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk) {
+    public final void setMapCountryDataChronologyLinearGlsk(Map<String, DataChronology<LinearGlsk> > mapCountryDataChronologyLinearGlsk) {
         this.mapCountryDataChronologyLinearGlsk = mapCountryDataChronologyLinearGlsk;
     }
 
     /**
      * @return getter mapCountryDataChronologyLinearGlsk
      */
-    public Map<String, DataChronology<LinearGlsk>> getMapCountryDataChronologyLinearGlsk() {
+    public final Map<String, DataChronology<LinearGlsk>> getMapCountryDataChronologyLinearGlsk() {
         return mapCountryDataChronologyLinearGlsk;
     }
-
 }
+
+
+

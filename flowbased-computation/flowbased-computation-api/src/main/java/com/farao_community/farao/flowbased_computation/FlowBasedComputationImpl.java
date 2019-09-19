@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskValuesProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.computation.ComputationManager;
@@ -48,7 +49,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
     /**
      * Glsk file provider
      */
-    private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
+    private GlskValuesProvider glskValuesProvider;
     /**
      * For load flow computation manager
      */
@@ -58,7 +59,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * Constructor
      * @param network reference network: we need a network to construct the linear glsk map from the glsk document
      * @param cracFile crac file
-     * @param flowBasedGlskValuesProvider get linear glsk map from a glsk document
+     * @param glskValuesProvider get linear glsk map from a glsk document
      * @param instant flow based domaine is time dependent
      * @param computationManager computation manager
      * @param loadFlowFactory load flow for reference flow calculation
@@ -66,7 +67,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      */
     public FlowBasedComputationImpl(Network network,
                                     CracFile cracFile,
-                                    FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
+                                    GlskValuesProvider glskValuesProvider,
                                     Instant instant,
                                     ComputationManager computationManager,
                                     LoadFlowFactory loadFlowFactory,
@@ -74,7 +75,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         this.network = network;
         this.cracFile = cracFile;
         this.instant = instant;
-        this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
+        this.glskValuesProvider = glskValuesProvider;
         this.computationManager = computationManager;
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         LoadFlowService.init(loadFlowFactory, this.computationManager);
@@ -93,8 +94,8 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
         Objects.requireNonNull(parameters);
         //get list of Monitored branches from CRAC file
         List<MonitoredBranch> monitoredBranchList = cracFile.getPreContingency().getMonitoredBranches();
-        //get Map<country, LinearGLSK> for Instant instant from FlowBasedGlskValuesProvider
-        Map<String, LinearGlsk> mapCountryLinearGlsk = flowBasedGlskValuesProvider.getCountryLinearGlskMap(instant);
+        //get Map<country, LinearGLSK> for Instant instant from CimGlskValuesProvider
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glskValuesProvider.getCountryLinearGlskMap(instant);
         // Fill SensitivityFactor List: BranchFlowPerLinearGlsk = SensitivityFactor<BranchFlow, LinearGlsk>
         SensitivityFactorsProvider factorsProvider = net -> {
             List<SensitivityFactor> factors = new ArrayList<>();
@@ -206,18 +207,18 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
 
     /**
      * getter flowbased glsk values provider
-     * @return FlowBasedGlskValuesProvider
+     * @return GlskValuesProvider
      */
-    public FlowBasedGlskValuesProvider getFlowBasedGlskValuesProvider() {
-        return flowBasedGlskValuesProvider;
+    public GlskValuesProvider getGlskValuesProvider() {
+        return glskValuesProvider;
     }
 
     /**
      * setter flowbased glsk values provider
-     * @param flowBasedGlskValuesProvider
+     * @param glskValuesProvider
      */
-    public void setFlowBasedGlskValuesProvider(FlowBasedGlskValuesProvider flowBasedGlskValuesProvider) {
-        this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
+    public void setGlskValuesProvider(GlskValuesProvider glskValuesProvider) {
+        this.glskValuesProvider = glskValuesProvider;
     }
 
     /**

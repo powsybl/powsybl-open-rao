@@ -9,6 +9,7 @@ package com.farao_community.farao.flowbased_computation;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
+import com.farao_community.farao.flowbased_computation.glsk_provider.CimGlskValuesProvider;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowBasedComputationParameters;
 
 import com.google.auto.service.AutoService;
@@ -91,7 +92,7 @@ public class FlowBasedComputationTool implements Tool {
                 options.addOption(Option
                         .builder()
                         .longOpt(GLSK_FILE_OPTION)
-                        .desc("the GlSK file path")
+                        .desc("the CIM GlSK file path")
                         .hasArg()
                         .argName("FILE")
                         .required()
@@ -145,14 +146,15 @@ public class FlowBasedComputationTool implements Tool {
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
         CracFile cracProvider = JsonCracFile.read(Files.newInputStream(cracFile));
-        FlowBasedGlskValuesProvider flowBasedGlskValuesProvider = new FlowBasedGlskValuesProvider(network, glskFile.toString());
+        //TODO : handling also Ucte format
+        CimGlskValuesProvider cimGlskValuesProvider = new CimGlskValuesProvider(network, glskFile.toString());
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
         FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowBasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
-        Instant instant = Instant.parse(line.getOptionValue(INSTANT)); //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug //instant = flowBasedGlskValuesProvider.getInstantStart(glskFile.toString()); //if instant is not defined, use interval start instant as default
-        FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load().newFactoryImpl(FlowBasedComputationFactory.class).create(network, cracProvider, flowBasedGlskValuesProvider, instant, computationManager, 0);
+        Instant instant = Instant.parse(line.getOptionValue(INSTANT)); //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug //instant = cimGlskValuesProvider.getInstantStart(glskFile.toString()); //if instant is not defined, use interval start instant as default
+        FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load().newFactoryImpl(FlowBasedComputationFactory.class).create(network, cracProvider, cimGlskValuesProvider, instant, computationManager, 0);
         String currentState = network.getVariantManager().getWorkingVariantId();
         FlowBasedComputationResult result = flowBasedComputation.run(currentState, parameters).join();
         if (outputFile != null) {

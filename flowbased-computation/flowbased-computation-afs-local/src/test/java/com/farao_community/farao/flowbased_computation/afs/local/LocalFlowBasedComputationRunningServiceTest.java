@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.flowbased_computation.afs.local;
 
+import com.farao_community.farao.flowbased_computation.glsk_provider.CimGlskValuesProvider;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskValuesProvider;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.ServiceExtension;
 import com.powsybl.afs.ext.base.LocalNetworkCacheServiceExtension;
@@ -32,7 +34,7 @@ public class LocalFlowBasedComputationRunningServiceTest extends FlowbasedComput
         }
 
         @Override
-        public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, Instant instant, ComputationManager computationManager, int priority) {
+        public FlowBasedComputation create(Network network, CracFile cracFile, GlskValuesProvider glskValuesProvider, Instant instant, ComputationManager computationManager, int priority) {
             return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
         }
     }
