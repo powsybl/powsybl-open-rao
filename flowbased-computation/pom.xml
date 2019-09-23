@@ -17,8 +17,7 @@
 
     <modules>
         <module>flowbased-computation-api</module>
-        <module>flowbased-computation-afs</module>
-        <module>flowbased-computation-afs-local</module>
+        <module>flowbased-computation-impl</module>
     </modules>
 
 </project>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,8 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
@@ -35,9 +34,9 @@ public class FlowBasedComputationParametersTest {
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensions().contains(dummyExtension));
-        assertEquals(true, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertEquals(true, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertTrue(parameters.getExtensions().contains(dummyExtension));
+        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -45,9 +44,9 @@ public class FlowBasedComputationParametersTest {
         FlowBasedComputationParameters parameters = new FlowBasedComputationParameters();
 
         assertEquals(0, parameters.getExtensions().size());
-        assertEquals(false, parameters.getExtensions().contains(new DummyExtension()));
-        assertEquals(false, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertEquals(false, parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertFalse(parameters.getExtensions().contains(new DummyExtension()));
+        assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -55,7 +54,7 @@ public class FlowBasedComputationParametersTest {
         FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertEquals(true, parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 

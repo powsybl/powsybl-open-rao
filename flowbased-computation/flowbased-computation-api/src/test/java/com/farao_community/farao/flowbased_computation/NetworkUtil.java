@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,6 +10,9 @@ import com.powsybl.iidm.network.*;
 
 import java.util.stream.Stream;
 
+/**
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ */
 public final class NetworkUtil {
     private NetworkUtil() {
     }

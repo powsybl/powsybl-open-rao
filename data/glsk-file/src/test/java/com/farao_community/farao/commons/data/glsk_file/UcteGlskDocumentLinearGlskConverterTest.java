@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,10 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -39,17 +36,18 @@ public class UcteGlskDocumentLinearGlskConverterTest {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
     }
 
-    @Test
-    public void testMappingUcteGlskDocumentToDataChronology() throws ParserConfigurationException, SAXException, IOException {
-        UcteGlskDocumentLinearGlskConverter mapper = new UcteGlskDocumentLinearGlskConverter();
-        Map<String, DataChronology<GlskPoint>> map = mapper.convertUcteGlskDocuementToGlskPointDataChronology(UCTETEST);
-        assertTrue(!map.isEmpty());
+    private Path getResourceAsPath(String resource) {
+        return Paths.get(getResourceAsPathString(resource));
+    }
+
+    private String getResourceAsPathString(String resource) {
+        return getClass().getResource(resource).getPath();
     }
 
     @Test
-    public void testConvertUcteGlskDocumentToLinearGlskDataChronology() throws ParserConfigurationException, SAXException, IOException {
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = new UcteGlskDocumentLinearGlskConverter().convertUcteGlskDocumentToLinearGlskDataChronologyFromFileName(UCTETEST, testNetwork);
-        assertTrue(!mapGlskDocLinearGlsk.isEmpty());
+    public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString() {
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = UcteGlskDocumentLinearGlskConverter.convert(getResourceAsPathString(UCTETEST), testNetwork);
+        assertFalse(mapGlskDocLinearGlsk.isEmpty());
 
         for (String country : mapGlskDocLinearGlsk.keySet()) {
             DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
@@ -59,14 +57,14 @@ public class UcteGlskDocumentLinearGlskConverterTest {
     }
 
     @Test
-    public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString() throws ParserConfigurationException, SAXException, IOException {
-        String filepathstring = getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath();
-        assertTrue(!new UcteGlskDocumentLinearGlskConverter().convertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString(filepathstring, testNetwork).isEmpty());
-    }
+    public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath() {
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = UcteGlskDocumentLinearGlskConverter.convert(getResourceAsPath(UCTETEST), testNetwork);
+        assertFalse(mapGlskDocLinearGlsk.isEmpty());
 
-    @Test
-    public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath() throws ParserConfigurationException, SAXException, IOException {
-        Path pathtest = Paths.get(getClass().getResource("/20170322_1844_SN3_FR2_GLSK_test.xml").getPath());
-        assertTrue(!new UcteGlskDocumentLinearGlskConverter().convertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath(pathtest, testNetwork).isEmpty());
+        for (String country : mapGlskDocLinearGlsk.keySet()) {
+            DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
+            assertTrue(dataChronology.getDataForInstant(Instant.parse("2016-07-28T22:00:00Z")).isPresent());
+            assertFalse(dataChronology.getDataForInstant(Instant.parse("2018-08-26T21:00:00Z")).isPresent());
+        }
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -27,16 +27,19 @@ import java.util.stream.Collectors;
  * Convert a single GlskPoint to LinearGlsk
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskPointLinearGlskConverter {
-
+public final class GlskPointLinearGlskConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverter.class);
+
+    private GlskPointLinearGlskConverter() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
 
     /**
      * @param network IIDM network
      * @param glskPoint GLSK Point
      * @return farao-core LinearGlsk
      */
-    public LinearGlsk convertGlskPointToLinearGlsk(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
+    public static LinearGlsk convert(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
 
         Map<String, Float> linearGlskMap = new HashMap<>();
         String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
@@ -58,19 +61,19 @@ public class GlskPointLinearGlskConverter {
         for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
             if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                 LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
-                convertCountryProportionalGlskPointToLinearGlskMap(network, glskShiftKey, linearGlskMap);
+                convertCountryProportional(network, glskShiftKey, linearGlskMap);
             } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                 LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
-                convertExplicitProportionalGlskPointToLinearGlskMap(network, glskShiftKey, linearGlskMap, typeGlskFile);
+                convertExplicitProportional(network, glskShiftKey, linearGlskMap, typeGlskFile);
             } else if (glskShiftKey.getBusinessType().equals("B43")) {
                 LOGGER.debug("GLSK Type B43 --> participation factor proportional GSK");
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     throw new FaraoException("Empty Registered Resources List in B43 type shift key.");
                 } else {
-                    convertParticipationFactorGlskPointToLinearGlskMap(network, glskShiftKey, linearGlskMap, typeGlskFile);
+                    convertParticipationFactor(network, glskShiftKey, linearGlskMap, typeGlskFile);
                 }
             } else {
-                throw new FaraoException("convertGlskPointToLinearGlsk not supported");
+                throw new FaraoException("convert not supported");
             }
         }
 
@@ -82,7 +85,7 @@ public class GlskPointLinearGlskConverter {
      * @param glskShiftKey country type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
-    private void convertCountryProportionalGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
+    private static void convertCountryProportional(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
         Country country = new EICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
@@ -101,7 +104,7 @@ public class GlskPointLinearGlskConverter {
                     .forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalCountryLoad));
         } else {
             //unknown PsrType
-            throw new FaraoException("convertCountryProportionalGlskPointToLinearGlskMap PsrType not supported");
+            throw new FaraoException("convertCountryProportional PsrType not supported");
         }
     }
 
@@ -110,7 +113,7 @@ public class GlskPointLinearGlskConverter {
      * @param glskShiftKey explicit type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
-    private void convertExplicitProportionalGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
+    private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -130,7 +133,7 @@ public class GlskPointLinearGlskConverter {
                     .forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalLoad));
         } else {
             //unknown PsrType
-            throw new FaraoException("convertExplicitProportionalGlskPointToLinearGlskMap PsrType not supported");
+            throw new FaraoException("convertExplicitProportional PsrType not supported");
         }
     }
 
@@ -139,7 +142,7 @@ public class GlskPointLinearGlskConverter {
      * @param glskShiftKey parcitipation factor type shiftkey
      * @param linearGlskMap linearGlsk to be filled
      */
-    private void convertParticipationFactorGlskPointToLinearGlskMap(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
+    private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap, TypeGlskFile typeGlskFile) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -161,7 +164,7 @@ public class GlskPointLinearGlskConverter {
                     .forEach(loadResource -> linearGlskMap.put(loadResource.getmRID(), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
         } else {
             //unknown PsrType
-            throw new FaraoException("convertParticipationFactorGlskPointToLinearGlskMap PsrType not supported");
+            throw new FaraoException("convertParticipationFactor PsrType not supported");
         }
     }
 }

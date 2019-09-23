@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,12 +9,9 @@ package com.farao_community.farao.commons.data.glsk_file;
 import com.farao_community.farao.commons.data.glsk_file.actors.UcteGlskDocumentImporter;
 import com.google.common.math.DoubleMath;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -25,15 +22,25 @@ import static org.junit.Assert.*;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public class UcteGlskDocumentImporterTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UcteGlskDocumentImporterTest.class);
 
     private static final String COUNTRYFULL = "/20160729_0000_GSK_allday_full.xml";
     private static final String COUNTRYTEST = "/20160729_0000_GSK_allday_test.xml";
 
+    private Path getResourceAsPath(String resource) {
+        return Paths.get(getResourceAsPathString(resource));
+    }
+
+    private String getResourceAsPathString(String resource) {
+        return getClass().getResource(resource).getPath();
+    }
+
+    private InputStream getResourceAsInputStream(String resource) {
+        return getClass().getResourceAsStream(resource);
+    }
+
     @Test
-    public void testUcteGlskDocumentImporterTest() throws ParserConfigurationException, SAXException, IOException {
-        UcteGlskDocumentImporter importer = new UcteGlskDocumentImporter();
-        UcteGlskDocument ucteGlskDocument = importer.importUcteGlskDocumentWithFilename(COUNTRYTEST);
+    public void testUcteGlskDocumentImporterTest() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
 
         List<UcteGlskSeries> list = ucteGlskDocument.getListGlskSeries();
         assertFalse(list.isEmpty());
@@ -43,19 +50,18 @@ public class UcteGlskDocumentImporterTest {
     }
 
     @Test
-    public void testImportUcteGlskDocumentWithFilePathString() throws ParserConfigurationException, SAXException, IOException {
-        assertFalse(new UcteGlskDocumentImporter().importUcteGlskDocumentWithFilePathString("src/test/resources/20160729_0000_GSK_allday_test.xml").getListGlskSeries().isEmpty());
+    public void testImportUcteGlskDocumentWithFilePathString() {
+        assertFalse(UcteGlskDocumentImporter.importGlsk(getResourceAsPathString(COUNTRYTEST)).getListGlskSeries().isEmpty());
     }
 
     @Test
-    public void testImportUcteGlskDocumentWithFilePath() throws ParserConfigurationException, SAXException, IOException {
-        assertFalse(new UcteGlskDocumentImporter().importUcteGlskDocumentWithFilePath(Paths.get("src/test/resources/20160729_0000_GSK_allday_test.xml")).getListGlskSeries().isEmpty());
+    public void testImportUcteGlskDocumentWithFilePath() {
+        assertFalse(UcteGlskDocumentImporter.importGlsk(getResourceAsPath(COUNTRYTEST)).getListGlskSeries().isEmpty());
     }
 
     @Test
-    public void testUcteGlskDocumentImporterFull() throws ParserConfigurationException, SAXException, IOException {
-        UcteGlskDocumentImporter importer = new UcteGlskDocumentImporter();
-        UcteGlskDocument ucteGlskDocument = importer.importUcteGlskDocumentWithFilename(COUNTRYFULL);
+    public void testUcteGlskDocumentImporterFull() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
 
         //test Merged List GlskSeries
         assertEquals(12, ucteGlskDocument.getListGlskSeries().size());
@@ -68,7 +74,6 @@ public class UcteGlskDocumentImporterTest {
                 assertTrue(DoubleMath.fuzzyEquals(1.0,
                         ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().get(j).getGlskShiftKeys().stream().mapToDouble(GlskShiftKey::getQuantity).sum(),
                         1e-5));
-//                LOGGER.info(ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().get(j).glskPointToString());
             }
         }
 
