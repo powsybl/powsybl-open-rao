@@ -18,7 +18,7 @@ import java.time.Instant;
 /**
  * FlowBased Computation Factory Test
  *
- * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class FlowBasedComputationFactoryTest {
 

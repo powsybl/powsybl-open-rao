@@ -10,6 +10,9 @@ import com.powsybl.iidm.network.*;
 
 import java.util.stream.Stream;
 
+/**
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ */
 public final class NetworkUtil {
     private NetworkUtil() {
     }

@@ -8,6 +8,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNull;
 
+/*
+* @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+*/
 public class NetworkUtilTest {
     private Network testNetwork;
 

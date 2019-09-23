@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class FlowBasedComputationParametersTest {
 

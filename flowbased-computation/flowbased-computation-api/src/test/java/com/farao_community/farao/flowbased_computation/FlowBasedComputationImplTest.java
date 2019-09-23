@@ -37,7 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * FlowBased Computation Impl Test
  *
- * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class FlowBasedComputationImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImplTest.class);

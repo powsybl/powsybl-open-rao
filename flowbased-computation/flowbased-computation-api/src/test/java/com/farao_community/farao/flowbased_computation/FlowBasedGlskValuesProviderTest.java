@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * FlowBased Glsk Values Provider Test
  *
- * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class FlowBasedGlskValuesProviderTest {
 
