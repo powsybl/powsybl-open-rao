@@ -41,12 +41,12 @@ public class FlowBasedComputationFactoryTest {
     public void runTest() {
         Instant instant = Instant.parse("2018-08-28T22:00:00Z");
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        flowBasedComputationFactoryMock.create(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
+        flowBasedComputationFactoryMock.create(cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
     }
 
     @Test
     public void runTestBis() {
-        flowBasedComputationFactoryMock.create(network, cracFile, computationManager, 0);
+        flowBasedComputationFactoryMock.create(cracFile, computationManager, 0);
     }
 
 }

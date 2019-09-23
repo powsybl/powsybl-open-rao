@@ -74,8 +74,7 @@ public class FlowBasedComputationImplTest {
 
     @Test (expected = NullPointerException.class)
     public void runTest() {
-        flowBasedComputationImplMock = new FlowBasedComputationImpl(network,
-                cracFile,
+        flowBasedComputationImplMock = new FlowBasedComputationImpl(cracFile,
                 flowBasedGlskValuesProvider,
                 instant,
                 computationManager,
@@ -84,13 +83,12 @@ public class FlowBasedComputationImplTest {
                 );
         FlowBasedComputationParameters parameters = Mockito.mock(FlowBasedComputationParameters.class);
         String workingStateId = "0";
-        flowBasedComputationImplMock.run(workingStateId, parameters);
+        flowBasedComputationImplMock.run(network, workingStateId, parameters);
     }
 
     @Test
     public void testFillFlowBasedComputationResult() {
-        flowBasedComputationImplMock = new FlowBasedComputationImpl(network,
-                cracFile,
+        flowBasedComputationImplMock = new FlowBasedComputationImpl(cracFile,
                 flowBasedGlskValuesProvider,
                 instant,
                 computationManager,
@@ -130,8 +128,7 @@ public class FlowBasedComputationImplTest {
 
     @Test
     public void testGetterSetter() {
-        flowBasedComputationImplMock = new FlowBasedComputationImpl(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, loadFlowFactory, sensitivityComputationFactory);
-        flowBasedComputationImplMock.setNetwork(flowBasedComputationImplMock.getNetwork());
+        flowBasedComputationImplMock = new FlowBasedComputationImpl(cracFile, flowBasedGlskValuesProvider, instant, computationManager, loadFlowFactory, sensitivityComputationFactory);
         flowBasedComputationImplMock.setCracFile(flowBasedComputationImplMock.getCracFile());
         flowBasedComputationImplMock.setComputationManager(flowBasedComputationImplMock.getComputationManager());
         flowBasedComputationImplMock.setFlowBasedGlskValuesProvider(flowBasedComputationImplMock.getFlowBasedGlskValuesProvider());

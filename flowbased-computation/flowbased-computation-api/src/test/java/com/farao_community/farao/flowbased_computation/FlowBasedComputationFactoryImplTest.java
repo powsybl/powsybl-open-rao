@@ -8,7 +8,6 @@ package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,7 +25,6 @@ import static org.mockito.Mockito.when;
  */
 public class FlowBasedComputationFactoryImplTest {
 
-    private Network network;
     private CracFile cracFile;
     private Instant instant;
     private FlowBasedGlskValuesProvider flowBasedGlskValuesProvider;
@@ -37,7 +35,6 @@ public class FlowBasedComputationFactoryImplTest {
 
     @Before
     public void setup() {
-        network = Mockito.mock(Network.class);
         cracFile = Mockito.mock(CracFile.class);
         instant = Instant.parse("2018-08-28T22:00:00Z");
         flowBasedGlskValuesProvider = Mockito.mock(FlowBasedGlskValuesProvider.class);
@@ -45,24 +42,24 @@ public class FlowBasedComputationFactoryImplTest {
 
         flowBasedComputationFactoryImpl = Mockito.mock(FlowBasedComputationFactoryImpl.class);
         flowBasedComputation = Mockito.mock(FlowBasedComputation.class);
-        when(flowBasedComputationFactoryImpl.create(any(), any(), any(), any(), any(), anyInt()))
+        when(flowBasedComputationFactoryImpl.create(any(), any(), any(), any(), anyInt()))
                 .thenReturn(flowBasedComputation);
     }
 
     @Test (expected = com.powsybl.commons.PowsyblException.class)
     public void runTest() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        new FlowBasedComputationFactoryImpl().create(network, cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
+        new FlowBasedComputationFactoryImpl().create(cracFile, flowBasedGlskValuesProvider, instant, computationManager, 0);
     }
 
     @Test (expected = com.powsybl.commons.PowsyblException.class)
     public void runTestBis() {
-        new FlowBasedComputationFactoryImpl().create(network, cracFile, computationManager, 0);
+        new FlowBasedComputationFactoryImpl().create(cracFile, computationManager, 0);
     }
 
     @Test
     public void runTestTre() {
-        flowBasedComputation = flowBasedComputationFactoryImpl.create(network, cracFile, computationManager, 0);
+        flowBasedComputation = flowBasedComputationFactoryImpl.create(cracFile, computationManager, 0);
     }
 
 }

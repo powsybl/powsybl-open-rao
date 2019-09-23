@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.ServiceExtension;
 import com.powsybl.afs.ext.base.LocalNetworkCacheServiceExtension;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.flowbased_computation.afs.FlowbasedComputationRunnerTest;
@@ -27,13 +26,13 @@ public class LocalFlowBasedComputationRunningServiceTest extends FlowbasedComput
     private static class FlowbasedComputationFactoryMock implements FlowBasedComputationFactory {
 
         @Override
-        public FlowBasedComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-            return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
+        public FlowBasedComputation create(CracFile cracFile, ComputationManager computationManager, int priority) {
+            return (network, workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
         }
 
         @Override
-        public FlowBasedComputation create(Network network, CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, Instant instant, ComputationManager computationManager, int priority) {
-            return (workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
+        public FlowBasedComputation create(CracFile cracFile, FlowBasedGlskValuesProvider flowBasedGlskValuesProvider, Instant instant, ComputationManager computationManager, int priority) {
+            return (network, workingStateId, parameters) -> CompletableFuture.completedFuture(new FlowBasedComputationResult(FlowBasedComputationResult.Status.SUCCESS));
         }
     }
 

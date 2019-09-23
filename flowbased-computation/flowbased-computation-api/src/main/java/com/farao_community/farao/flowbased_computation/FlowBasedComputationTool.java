@@ -152,9 +152,9 @@ public class FlowBasedComputationTool implements Tool {
             JsonFlowBasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
         Instant instant = Instant.parse(line.getOptionValue(INSTANT)); //Instant instant = Instant.parse("2018-08-28T22:00:00Z"); //debug //instant = flowBasedGlskValuesProvider.getInstantStart(glskFile.toString()); //if instant is not defined, use interval start instant as default
-        FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load().newFactoryImpl(FlowBasedComputationFactory.class).create(network, cracProvider, flowBasedGlskValuesProvider, instant, computationManager, 0);
+        FlowBasedComputation flowBasedComputation = ComponentDefaultConfig.load().newFactoryImpl(FlowBasedComputationFactory.class).create(cracProvider, flowBasedGlskValuesProvider, instant, computationManager, 0);
         String currentState = network.getVariantManager().getWorkingVariantId();
-        FlowBasedComputationResult result = flowBasedComputation.run(currentState, parameters).join();
+        FlowBasedComputationResult result = flowBasedComputation.run(network, currentState, parameters).join();
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.createDataDomain(), Files.newOutputStream(outputFile));
         }

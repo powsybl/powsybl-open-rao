@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,8 +27,9 @@ public class FlowBasedComputationTest {
 
     @Test
     public void runTest() {
+        Network network = Mockito.mock(Network.class);
         FlowBasedComputationParameters parameters = Mockito.mock(FlowBasedComputationParameters.class);
         String workingStateId = "1";
-        flowBasedComputationMock.run(workingStateId, parameters);
+        flowBasedComputationMock.run(network, workingStateId, parameters);
     }
 }

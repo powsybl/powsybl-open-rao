@@ -34,10 +34,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public class FlowBasedComputationImpl implements FlowBasedComputation {
     /**
-     * Network reference network
-     */
-    private Network network;
-    /**
      * Crac file
      */
     private CracFile cracFile;
@@ -64,14 +60,12 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * @param loadFlowFactory load flow for reference flow calculation
      * @param sensitivityComputationFactory sensitivity calculation
      */
-    public FlowBasedComputationImpl(Network network,
-                                    CracFile cracFile,
+    public FlowBasedComputationImpl(CracFile cracFile,
                                     FlowBasedGlskValuesProvider flowBasedGlskValuesProvider,
                                     Instant instant,
                                     ComputationManager computationManager,
                                     LoadFlowFactory loadFlowFactory,
                                     SensitivityComputationFactory sensitivityComputationFactory) {
-        this.network = network;
         this.cracFile = cracFile;
         this.instant = instant;
         this.flowBasedGlskValuesProvider = flowBasedGlskValuesProvider;
@@ -87,8 +81,9 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
      * @return FlowBasedComputationResult
      */
     @Override
-    public CompletableFuture<FlowBasedComputationResult> run(String workingVariantId,
+    public CompletableFuture<FlowBasedComputationResult> run(Network network, String workingVariantId,
                                                              FlowBasedComputationParameters parameters) {
+        Objects.requireNonNull(network);
         Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
         //get list of Monitored branches from CRAC file
@@ -155,21 +150,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputation {
             branchResultList.add(branchResult);
         }
         flowBasedComputationResult.getPtdflist().addAll(branchResultList);
-    }
-
-    /**
-     * @return network getter
-     */
-    public Network getNetwork() {
-        return network;
-    }
-
-    /**
-     * Network setter
-     * @param network network
-     */
-    public void setNetwork(Network network) {
-        this.network = network;
     }
 
     /**

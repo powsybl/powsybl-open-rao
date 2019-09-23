@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.powsybl.iidm.network.Network;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -19,5 +21,5 @@ public interface FlowBasedComputation {
      * @param parameters flow based computation parameters
      * @return
      */
-    CompletableFuture<FlowBasedComputationResult> run(String workingStateId, FlowBasedComputationParameters parameters);
+    CompletableFuture<FlowBasedComputationResult> run(Network network, String workingStateId, FlowBasedComputationParameters parameters);
 }
