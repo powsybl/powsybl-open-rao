@@ -35,5 +35,4 @@ public class MonitoredBranch {
         this.branchId = branchId;
         this.fmax = fmax;
     }
-
 }

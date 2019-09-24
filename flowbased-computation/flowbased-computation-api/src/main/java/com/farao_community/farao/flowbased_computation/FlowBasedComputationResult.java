@@ -7,6 +7,7 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

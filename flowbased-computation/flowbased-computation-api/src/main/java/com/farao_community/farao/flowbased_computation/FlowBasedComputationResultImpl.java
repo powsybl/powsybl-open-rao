@@ -16,6 +16,11 @@ public class FlowBasedComputationResultImpl implements FlowBasedComputationResul
     private final Status status;
     private final DataDomain flowBasedDomain;
 
+    public FlowBasedComputationResultImpl() {
+        status = null;
+        flowBasedDomain = null;
+    }
+
     public FlowBasedComputationResultImpl(final Status status, final DataDomain flowBasedDomain) {
         this.status = status;
         this.flowBasedDomain = flowBasedDomain;
