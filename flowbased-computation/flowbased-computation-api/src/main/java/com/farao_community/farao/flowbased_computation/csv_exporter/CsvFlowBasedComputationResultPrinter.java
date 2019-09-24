@@ -1,5 +1,6 @@
 package com.farao_community.farao.flowbased_computation.csv_exporter;
 
+import com.farao_community.farao.commons.data.glsk_file.EICode;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
@@ -58,14 +59,15 @@ public class CsvFlowBasedComputationResultPrinter {
 
     private List<String> getResultsForBranch(Contingency contingency, MonitoredBranch branch, Direction direction) {
         List<String> branchResultList = new ArrayList<>();
-        DataMonitoredBranch branchResults = Objects.requireNonNull(flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchbyId(branch.getBranchId()));
+        System.out.println(branch.getId());
+        DataMonitoredBranch branchResults = Objects.requireNonNull(flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchbyId(branch.getId()));
 
         double fmax = branch.getFmax();
         double fref = direction.getSign() * branchResults.getFref();
         double margin = fmax - fref;
         double relativeMargin = margin / branchResults.getPtdfList().stream().map(DataPtdfPerCountry::getPtdf).mapToDouble(Math::abs).sum();
 
-        branchResultList.add(branch.getId());
+        branchResultList.add(branch.getName());
         branchResultList.add(branch.getBranchId());
         branchResultList.add((contingency == null) ? PRECONTINGENCY_NAME : contingency.getName());
         branchResultList.add((contingency == null) ? PRECONTINGENCY_STATUS : CONTINGENCY_STATUS);
@@ -91,7 +93,9 @@ public class CsvFlowBasedComputationResultPrinter {
         headerList.add("Fref");
         headerList.add("Margin");
         headerList.add("RelativeMargin");
-        headerList.addAll(countryList);
+        headerList.addAll(countryList.stream()
+                .map(this::convertEICodeToCountryNameIfPossible)
+                .collect(Collectors.toList()));
         return headerList;
     }
 
@@ -99,6 +103,14 @@ public class CsvFlowBasedComputationResultPrinter {
         return flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
                 .flatMap(monitoredBranch -> monitoredBranch.getPtdfList().stream().map(DataPtdfPerCountry::getCountry))
                 .distinct().collect(Collectors.toList());
+    }
+
+    private String convertEICodeToCountryNameIfPossible(String countryEICode) {
+        try {
+            return new EICode(countryEICode).getCountry().getName();
+        } catch (IllegalArgumentException e) {
+            return countryEICode;
+        }
     }
 
     private List<Pair<Contingency, MonitoredBranch>> getCbcoList() {
