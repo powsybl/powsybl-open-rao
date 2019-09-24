@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVPrinter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 
 public final class CsvFlowBasedComputationResult {
 
@@ -23,7 +24,7 @@ public final class CsvFlowBasedComputationResult {
             csvFlowBasedComputationResultPrinter.export(csvPrinter);
             csvPrinter.flush();
         } catch (IOException e) {
-
+            throw new UncheckedIOException(e);
         }
 
 
