@@ -13,10 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 public class CsvFlowBasedComputationResultPrinter {
 
@@ -35,7 +32,7 @@ public class CsvFlowBasedComputationResultPrinter {
         this.countryList = getCountryList();
     }
 
-    public void export(CSVPrinter csvPrinter) throws IOException{
+    public void export(CSVPrinter csvPrinter) throws IOException {
         exportHeaders(csvPrinter);
         exportRows(csvPrinter);
     }
@@ -47,7 +44,7 @@ public class CsvFlowBasedComputationResultPrinter {
     private void exportRows(CSVPrinter csvPrinter) throws IOException {
 
         List<Pair<Contingency, MonitoredBranch>> cbcoList = getCbcoList();
-        for(Pair<Contingency, MonitoredBranch> cbco : cbcoList) {
+        for (Pair<Contingency, MonitoredBranch> cbco : cbcoList) {
             csvPrinter.printRecord(getResultsForBranch(cbco.getKey(), cbco.getValue(), Direction.DIRECT));
             csvPrinter.printRecord(getResultsForBranch(cbco.getKey(), cbco.getValue(), Direction.OPPOSITE));
         }
@@ -129,7 +126,7 @@ public class CsvFlowBasedComputationResultPrinter {
         throw new IllegalArgumentException(String.format("Branch with id '%s' not found in flow-based computation results", branch.getId()));
     }
 
-    private double findPtdf(DataMonitoredBranch branch, String country){
+    private double findPtdf(DataMonitoredBranch branch, String country) {
         DataPtdfPerCountry ptdf = branch.findPtdfByCountry(country);
         if (ptdf != null) {
             return ptdf.getPtdf();
