@@ -35,13 +35,9 @@ public class CsvFlowBasedComputationResultPrinter {
         this.countryList = getCountryList();
     }
 
-    public void export(CSVPrinter csvPrinter) {
-        try {
-            exportHeaders(csvPrinter);
-            exportRows(csvPrinter);
-        } catch (IOException e) {
-
-        }
+    public void export(CSVPrinter csvPrinter) throws IOException{
+        exportHeaders(csvPrinter);
+        exportRows(csvPrinter);
     }
 
     private void exportHeaders(CSVPrinter csvPrinter) throws IOException {
@@ -59,8 +55,7 @@ public class CsvFlowBasedComputationResultPrinter {
 
     private List<String> getResultsForBranch(Contingency contingency, MonitoredBranch branch, Direction direction) {
         List<String> branchResultList = new ArrayList<>();
-        System.out.println(branch.getId());
-        DataMonitoredBranch branchResults = Objects.requireNonNull(flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchbyId(branch.getId()));
+        DataMonitoredBranch branchResults = findDataMonitoredBranch(branch);
 
         double fmax = branch.getFmax();
         double fref = direction.getSign() * branchResults.getFref();
@@ -77,7 +72,7 @@ public class CsvFlowBasedComputationResultPrinter {
         branchResultList.add(String.valueOf(margin));
         branchResultList.add(String.valueOf(relativeMargin));
         branchResultList.addAll(countryList.stream()
-                .map(country -> String.valueOf(Objects.requireNonNull(branchResults.findPtdfByCountry(country)).getPtdf() * direction.getSign()))
+                .map(country -> String.valueOf(findPtdf(branchResults, country) * direction.getSign()))
                 .collect(Collectors.toList()));
         return branchResultList;
     }
@@ -126,4 +121,19 @@ public class CsvFlowBasedComputationResultPrinter {
         return cbcoList;
     }
 
+    private DataMonitoredBranch findDataMonitoredBranch(MonitoredBranch branch) {
+        DataMonitoredBranch out = flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchbyId(branch.getId());
+        if (out != null) {
+            return out;
+        }
+        throw new IllegalArgumentException(String.format("Branch with id '%s' not found in flow-based computation results", branch.getId()));
+    }
+
+    private double findPtdf(DataMonitoredBranch branch, String country){
+        DataPtdfPerCountry ptdf = branch.findPtdfByCountry(country);
+        if (ptdf != null) {
+            return ptdf.getPtdf();
+        }
+        throw new IllegalArgumentException(String.format("PTDF '%s' not found for branch '%s' in flow-based computation results", country, branch.getId()));
+    }
 }

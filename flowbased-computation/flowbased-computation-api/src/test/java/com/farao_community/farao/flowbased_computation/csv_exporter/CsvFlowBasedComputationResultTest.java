@@ -11,32 +11,62 @@ import org.junit.Test;
 import java.io.*;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.fail;
 
 public class CsvFlowBasedComputationResultTest {
 
-    private FlowBasedComputationResult results;
     private CracFile cracFile;
-    private String expectedResult;
 
     @Before
-    public void setUp() throws IOException {
-        // get results
-        InputStream isRes = getClass().getResourceAsStream("/CsvExportTestOutputFlowBased.json");
-        results = JsonFlowBasedComputationResult.read(isRes);
-
+    public void setUp()  {
         // get cracFile
         InputStream isCrac = getClass().getResourceAsStream("/CsvExportTestCracDataFlowBased.json");
         cracFile = JsonCracFile.read(isCrac);
-
-        //get expected result
-        expectedResult = new String(Files.toByteArray(new File(getClass().getResource("/CsvExportTestExpectedResults.csv").getFile())));
     }
 
     @Test
-    public void testExportCsvOk() {
+    public void testExportCsvOk() throws IOException {
+
+        // get flow-based computation results
+        InputStream isRes = getClass().getResourceAsStream("/CsvExportTestOutputFlowBased.json");
+        FlowBasedComputationResult results = JsonFlowBasedComputationResult.read(isRes);
+
+        //get expected csv export
+        String expectedResult = new String(Files.toByteArray(new File(getClass().getResource("/CsvExportTestExpectedResults.csv").getFile())));
+
         OutputStream os = new ByteArrayOutputStream();
         CsvFlowBasedComputationResult.write(results, cracFile, os);
         assertEquals(normalizeLineEnds(expectedResult), normalizeLineEnds(os.toString()));
+    }
+
+    @Test
+    public void testExportCsvBranchNotFound() {
+        // get flow-based computation results
+        InputStream isRes = getClass().getResourceAsStream("/CsvExportTestOutputFlowBasedMissingBranch.json");
+        FlowBasedComputationResult results = JsonFlowBasedComputationResult.read(isRes);
+
+        OutputStream os = new ByteArrayOutputStream();
+        try {
+            CsvFlowBasedComputationResult.write(results, cracFile, os);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // should throw
+        }
+    }
+
+    @Test
+    public void testExportCsvPtdfNotFound() {
+        // get flow-based computation results
+        InputStream isRes = getClass().getResourceAsStream("/CsvExportTestOutputFlowBasedMissingPtdf.json");
+        FlowBasedComputationResult results = JsonFlowBasedComputationResult.read(isRes);
+
+        OutputStream os = new ByteArrayOutputStream();
+        try {
+            CsvFlowBasedComputationResult.write(results, cracFile, os);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // should throw
+        }
     }
 
     private String normalizeLineEnds(String s) {
