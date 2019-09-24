@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.json;
 
+import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationResultImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -32,7 +33,7 @@ public final class JsonFlowBasedComputationResult {
         }
     }
 
-    public static FlowBasedComputationResultImpl read(InputStream is) {
+    public static FlowBasedComputationResult read(InputStream is) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readValue(is, FlowBasedComputationResultImpl.class);

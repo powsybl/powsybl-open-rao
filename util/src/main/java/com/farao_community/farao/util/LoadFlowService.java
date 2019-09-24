@@ -6,7 +6,9 @@
  */
 package com.farao_community.farao.util;
 
+import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -31,7 +33,14 @@ public final class LoadFlowService {
 
     public static LoadFlowResult runLoadFlow(Network network,
                                                 String workingStateId) {
+        if (!initialised()) {
+            init(ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+        }
         LoadFlow computation = loadFlowFactory.create(network, computationManager, 1);
         return computation.run(workingStateId, LoadFlowParameters.load()).join();
+    }
+
+    private static boolean initialised() {
+        return loadFlowFactory != null && computationManager != null;
     }
 }
