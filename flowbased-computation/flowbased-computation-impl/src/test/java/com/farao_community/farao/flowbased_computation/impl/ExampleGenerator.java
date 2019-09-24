@@ -373,8 +373,8 @@ public final class ExampleGenerator {
         };
     }
 
-    static LoadFlowFactory loadFlowFactory() {
-        return new LoadFlowFactoryMock();
+    static LoadFlowProvider loadFlowProvider() {
+        return new LoadFlowProviderMock();
     }
 
     static SensitivityComputationFactory sensitivityComputationFactory() {
@@ -385,40 +385,35 @@ public final class ExampleGenerator {
      * Load flow provider dedicated for this test case.
      * It ** ONLY ** works in basecase and in N-1 FR-BE.
      */
-    @AutoService(LoadFlowFactory.class)
-    public static class LoadFlowFactoryMock implements LoadFlowFactory {
+    @AutoService(LoadFlowProvider.class)
+    public static class LoadFlowProviderMock implements LoadFlowProvider {
         private final Map<String, Double> expectedFref;
 
-        public LoadFlowFactoryMock() {
+        public LoadFlowProviderMock() {
             expectedFref = getExpectedFref();
         }
 
         @Override
-        public LoadFlow create(Network network, ComputationManager computationManager, int i) {
-            return new LoadFlow() {
-                @Override
-                public CompletableFuture<LoadFlowResult> run(String workingVariantId, LoadFlowParameters loadFlowParameters) {
-                    String initialVariantId = network.getVariantManager().getWorkingVariantId();
-                    network.getVariantManager().setWorkingVariant(workingVariantId);
-                    if (network.getLine("FR-BE").getTerminal1().isConnected() && network.getLine("FR-BE").getTerminal2().isConnected()) {
-                        fillPreContingencyResult(network);
-                    } else {
-                        fillPostContingencyResult(network);
-                    }
-                    network.getVariantManager().setWorkingVariant(initialVariantId);
-                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
-                }
+        public String getName() {
+            return "MockLoadflow";
+        }
 
-                @Override
-                public String getName() {
-                    return "MockLoadflow";
-                }
+        @Override
+        public String getVersion() {
+            return "1.0.0";
+        }
 
-                @Override
-                public String getVersion() {
-                    return "1.0.0";
-                }
-            };
+        @Override
+        public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters loadFlowParameters) {
+            String initialVariantId = network.getVariantManager().getWorkingVariantId();
+            network.getVariantManager().setWorkingVariant(workingVariantId);
+            if (network.getLine("FR-BE").getTerminal1().isConnected() && network.getLine("FR-BE").getTerminal2().isConnected()) {
+                fillPreContingencyResult(network);
+            } else {
+                fillPostContingencyResult(network);
+            }
+            network.getVariantManager().setWorkingVariant(initialVariantId);
+            return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
         }
 
         private void fillPreContingencyResult(Network network) {
