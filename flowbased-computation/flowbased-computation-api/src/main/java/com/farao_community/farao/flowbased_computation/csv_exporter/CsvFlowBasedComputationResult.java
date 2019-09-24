@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 
 public final class CsvFlowBasedComputationResult {
 
@@ -26,8 +29,14 @@ public final class CsvFlowBasedComputationResult {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
 
-
-
+    public static void write(FlowBasedComputationResult result, CracFile cracFile, Path csvFile) {
+        Objects.requireNonNull(csvFile);
+        try (OutputStream outputStream = Files.newOutputStream(csvFile)) {
+            write(result, cracFile, outputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
