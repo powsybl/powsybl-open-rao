@@ -57,6 +57,10 @@
             <artifactId>farao-flowbased-domain-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+        </dependency>
 
         <!-- Provided dependencies -->
         <dependency>
@@ -103,6 +107,7 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 </project>
