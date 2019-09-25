@@ -50,12 +50,12 @@ public final class ConfigurationUtil {
         }
 
         // Check that relativeMipGap is in [0,1]
-        if (parametersExtension.getRelativeMipGap() >= 0 || parametersExtension.getRelativeMipGap() <= 1) {
+        if (parametersExtension.getRelativeMipGap() < 0 || parametersExtension.getRelativeMipGap() > 1) {
             errors.add("Relative MIP gap must be in [0;1] ( " + parametersExtension.getRelativeMipGap() + " not valid)");
         }
 
         // Check that maxTimeInSeconds is strictly positive
-        if (parametersExtension.getMaxTimeInSeconds() > 0 ) {
+        if (parametersExtension.getMaxTimeInSeconds() <= 0 ) {
             errors.add("Max time must be strictly positive ( " + parametersExtension.getMaxTimeInSeconds() + " not valid)");
         }
 
