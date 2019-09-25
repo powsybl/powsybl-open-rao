@@ -65,8 +65,11 @@ public class FlowBasedComputationTest {
         // case with only one provider, no need for config
         FlowBasedComputation.Runner defaultFlowBased = FlowBasedComputation.find(null, ImmutableList.of(new FlowBasedComputationProviderMock()), platformConfig);
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());
+        assertEquals("1.0", defaultFlowBased.getVersion());
         FlowBasedComputationResult result = defaultFlowBased.run(network, cracFile, glskProvider, computationManager, new FlowBasedComputationParameters());
         assertNotNull(result);
+        FlowBasedComputationResult resultAsync = defaultFlowBased.runAsync(network, cracFile, glskProvider, computationManager, new FlowBasedComputationParameters()).join();
+        assertNotNull(resultAsync);
     }
 
     @Test(expected = FaraoException.class)

@@ -216,8 +216,12 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
                 .map(entry ->
                         new DataPtdfPerCountry(
                                 entry.getKey(),
-                                entry.getValue()
+                                zeroIfNaN(entry.getValue())
                         )
                 ).collect(Collectors.toList());
+    }
+
+    private double zeroIfNaN(double value) {
+        return Double.isNaN(value) ? 0 : value;
     }
 }
