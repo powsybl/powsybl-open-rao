@@ -74,21 +74,14 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         MPSolver solver = new MPSolver("FARAO optimisation", MPSolver.OptimizationProblemType.valueOf(parametersExtension.getSolverType())); // Should not be null, checked previously
 
-        //MPSolverParameters parameters1 = new MPSolverParameters();
-        //parameters1.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, 0.001);
-
-
-        System.out.println(parametersExtension.getRelativeMipGap());
-        System.out.println(parametersExtension.getMaxTimeInSeconds());
-
         Map<String, Object> data = OptimisationComponentUtil.getDataMap(network, cracFile, computationManager, parametersExtension);
 
         Queue<AbstractOptimisationProblemFiller> fillers = OptimisationComponentUtil.getFillersStack(network, cracFile, data, parametersExtension);
-        
 
         fillers.forEach(filler -> filler.fillProblem(solver));
 
-        final MPSolver.ResultStatus resultStatus = solver.solve();
+        MPSolverParameters solverParameters = parametersExtension.buildSolverParameters(solver);
+        final MPSolver.ResultStatus resultStatus = solver.solve(solverParameters);
 
         RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
         // Check that the problem has an optimal solution.

@@ -7,6 +7,8 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.ArrayList;
@@ -92,6 +94,23 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
     public ClosedOptimisationRaoParameters addAllPostProcessors(List<String> postProcessors) {
         this.postProcessorsList.addAll(postProcessors);
         return this;
+    }
+
+    public MPSolverParameters buildSolverParameters(MPSolver solver) {
+        // in or-tools, some parameters are defined in the MPSolver object...
+        addParametersToSolver(solver);
+        // ... while some other must be passed as a MPSolverParameters during the solve()
+        return buildMPSolverParameters();
+    }
+
+    private MPSolverParameters buildMPSolverParameters() {
+        MPSolverParameters solverParameters = new MPSolverParameters();
+        solverParameters.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
+        return solverParameters;
+    }
+
+    private void addParametersToSolver(MPSolver solver) {
+        solver.setTimeLimit((int) maxTimeInSeconds*1000); // read in milliseconds by setTimeLimit
     }
 
     @Override
