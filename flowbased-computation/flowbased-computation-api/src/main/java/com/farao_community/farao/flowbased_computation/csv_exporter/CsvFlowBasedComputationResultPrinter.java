@@ -145,9 +145,9 @@ public class CsvFlowBasedComputationResultPrinter {
 
     private Double getRelativeMargin(double margin, DataMonitoredBranch branchResults) {
         double sumOfAbsPtdf = branchResults.getPtdfList().stream().map(DataPtdfPerCountry::getPtdf).mapToDouble(Math::abs).sum();
-        if (sumOfAbsPtdf == 0) {
-            return Double.POSITIVE_INFINITY;
+        if (sumOfAbsPtdf > 0) {
+            return margin / sumOfAbsPtdf;
         }
-        return margin/sumOfAbsPtdf;
+        return Double.POSITIVE_INFINITY;
     }
 }
