@@ -66,7 +66,7 @@ public class CsvFlowBasedComputationResultPrinter {
         double fmax = branch.getFmax();
         double fref = direction.getSign() * branchResults.getFref();
         double margin = fmax - fref;
-        double relativeMargin = margin / branchResults.getPtdfList().stream().map(DataPtdfPerCountry::getPtdf).mapToDouble(Math::abs).sum();
+        Double relativeMargin = getRelativeMargin(margin, branchResults);
 
         branchResultList.add(branch.getName());
         branchResultList.add(branch.getBranchId());
@@ -141,5 +141,13 @@ public class CsvFlowBasedComputationResultPrinter {
             return ptdf.getPtdf();
         }
         throw new IllegalArgumentException(String.format("PTDF '%s' not found for branch '%s' in flow-based computation results", country, branch.getId()));
+    }
+
+    private Double getRelativeMargin(double margin, DataMonitoredBranch branchResults) {
+        double sumOfAbsPtdf = branchResults.getPtdfList().stream().map(DataPtdfPerCountry::getPtdf).mapToDouble(Math::abs).sum();
+        if (sumOfAbsPtdf == 0) {
+            return Double.POSITIVE_INFINITY;
+        }
+        return margin/sumOfAbsPtdf;
     }
 }
