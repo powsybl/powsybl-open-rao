@@ -95,7 +95,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
             variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 // Create contingency variant
                 try {
-                    LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
+                    LOGGER.info("Running post contingency loadflow for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingency(network, computationManager, contingency);
@@ -135,7 +135,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
             variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 // Create contingency variant
                 try {
-                    LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
+                    LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingency(network, computationManager, contingency);

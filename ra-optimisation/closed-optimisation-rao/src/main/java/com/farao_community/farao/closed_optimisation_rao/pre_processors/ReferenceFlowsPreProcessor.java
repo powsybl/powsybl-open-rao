@@ -57,7 +57,7 @@ public class ReferenceFlowsPreProcessor implements OptimisationPreProcessor {
             variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 // Create contingency variant
                 try {
-                    LOGGER.info("Running post contingency loadflow for contingency'{}'", contingency.getId());
+                    LOGGER.info("Running post contingency loadflow for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingency(network, computationManager, contingency);

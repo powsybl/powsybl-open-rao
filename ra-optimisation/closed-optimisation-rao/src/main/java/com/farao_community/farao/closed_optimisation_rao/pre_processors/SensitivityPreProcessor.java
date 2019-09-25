@@ -109,7 +109,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 try {
-                    LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
+                    LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingency(network, computationManager, contingency);
