@@ -14,12 +14,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComputationParameters> {
     static final String DEFAULT_SOLVER_TYPE = "GLOP_LINEAR_PROGRAMMING";
     private String solverType = DEFAULT_SOLVER_TYPE;
+    private double relativeMipGap = 0.0;
+    private double maxTimeInSeconds = Double.POSITIVE_INFINITY;
     private List<String> fillersList = new ArrayList<>();
     List<String> preProcessorsList = new ArrayList<>();
     List<String> postProcessorsList = new ArrayList<>();
@@ -31,6 +34,8 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
         Objects.requireNonNull(other);
 
         this.solverType = other.solverType;
+        this.relativeMipGap = other.relativeMipGap;
+        this.maxTimeInSeconds = other.maxTimeInSeconds;
         this.fillersList.addAll(other.fillersList);
         this.preProcessorsList.addAll(other.preProcessorsList);
         this.postProcessorsList.addAll(other.postProcessorsList);
@@ -42,6 +47,23 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
 
     public ClosedOptimisationRaoParameters setSolverType(String solverType) {
         this.solverType = solverType;
+        return this;
+    }
+
+    public double getRelativeMipGap() {
+        return this.relativeMipGap;
+    }
+
+    public ClosedOptimisationRaoParameters setRelativeMipGap(double relativeMipGap) {
+        this.relativeMipGap = relativeMipGap;
+        return this;
+    }
+    public double getMaxTimeInSeconds() {
+        return this.maxTimeInSeconds;
+    }
+
+    public ClosedOptimisationRaoParameters setMaxTimeInSeconds(double maxTimeInSeconds) {
+        this.maxTimeInSeconds = maxTimeInSeconds;
         return this;
     }
 

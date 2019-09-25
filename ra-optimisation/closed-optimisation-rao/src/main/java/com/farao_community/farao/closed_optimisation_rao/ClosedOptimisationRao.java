@@ -13,10 +13,9 @@ import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.constraintsolver.Solver;
+import com.google.ortools.constraintsolver.SolverParameters;
+import com.google.ortools.linearsolver.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -75,9 +74,17 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         MPSolver solver = new MPSolver("FARAO optimisation", MPSolver.OptimizationProblemType.valueOf(parametersExtension.getSolverType())); // Should not be null, checked previously
 
+        //MPSolverParameters parameters1 = new MPSolverParameters();
+        //parameters1.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, 0.001);
+
+
+        System.out.println(parametersExtension.getRelativeMipGap());
+        System.out.println(parametersExtension.getMaxTimeInSeconds());
+
         Map<String, Object> data = OptimisationComponentUtil.getDataMap(network, cracFile, computationManager, parametersExtension);
 
         Queue<AbstractOptimisationProblemFiller> fillers = OptimisationComponentUtil.getFillersStack(network, cracFile, data, parametersExtension);
+        
 
         fillers.forEach(filler -> filler.fillProblem(solver));
 
