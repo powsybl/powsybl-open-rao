@@ -6,10 +6,12 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.data.glsk_file.actors.UcteGlskDocumentImporter;
 import com.google.common.math.DoubleMath;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -88,5 +90,30 @@ public class UcteGlskDocumentImporterTest {
         //test countries list
         List<String> countries = ucteGlskDocument.getCountries();
         assertEquals(12, countries.size());
+    }
+
+    @Test
+    public void testExceptionCases() {
+        try {
+            UcteGlskDocumentImporter.importGlsk("/nonExistingFile.xml");
+            fail();
+        } catch (FaraoException e) {
+            // Should throw FaraoException
+        }
+
+        try {
+            UcteGlskDocumentImporter.importGlsk(Paths.get("/nonExistingFile.xml"));
+            fail();
+        } catch (FaraoException e) {
+            // Should throw FaraoException
+        }
+
+        try {
+            byte[] nonXmlBytes = "{ should not be imported }".getBytes();
+            UcteGlskDocumentImporter.importGlsk(new ByteArrayInputStream(nonXmlBytes));
+            fail();
+        } catch (FaraoException e) {
+            // Should throw FaraoException
+        }
     }
 }

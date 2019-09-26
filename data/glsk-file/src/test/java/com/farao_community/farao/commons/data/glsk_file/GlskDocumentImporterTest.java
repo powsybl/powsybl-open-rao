@@ -6,12 +6,14 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.data.glsk_file.actors.GlskDocumentImporter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -92,6 +94,31 @@ public class GlskDocumentImporterTest {
         List<GlskPoint> glskPointList = glskDocument.getGlskPoints();
         for (GlskPoint point : glskPointList) {
             LOGGER.info("Position: " + point.getPosition() + "; PointInterval: " + point.getPointInterval().toString());
+        }
+    }
+
+    @Test
+    public void testExceptionCases() {
+        try {
+            GlskDocumentImporter.importGlsk("/nonExistingFile.xml");
+            fail();
+        } catch (FaraoException e) {
+            // Should throw FaraoException
+        }
+
+        try {
+            GlskDocumentImporter.importGlsk(Paths.get("/nonExistingFile.xml"));
+            fail();
+        } catch (FaraoException e) {
+            // Should throw FaraoException
+        }
+
+        try {
+            byte[] nonXmlBytes = "{ should not be imported }".getBytes();
+            GlskDocumentImporter.importGlsk(new ByteArrayInputStream(nonXmlBytes));
+            fail();
+        } catch (FaraoException e) {
+            // Should throw FaraoException
         }
     }
 }
