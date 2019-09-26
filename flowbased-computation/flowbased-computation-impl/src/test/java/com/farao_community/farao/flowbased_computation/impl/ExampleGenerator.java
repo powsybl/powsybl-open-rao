@@ -507,10 +507,10 @@ public final class ExampleGenerator {
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.),
-                            entry("BE GLSK", 0.),
-                            entry("DE GLSK", 0.),
-                            entry("NL GLSK", 0.)
+                            entry("FR GLSK", Double.NaN),
+                            entry("BE GLSK", Double.NaN),
+                            entry("DE GLSK", Double.NaN),
+                            entry("NL GLSK", Double.NaN)
                     )
                             .collect(entriesToMap())
             ));
