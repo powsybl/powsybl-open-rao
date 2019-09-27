@@ -90,6 +90,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-computation-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-flowbased-domain-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
