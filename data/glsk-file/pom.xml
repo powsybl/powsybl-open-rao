@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>farao-glsk-file</artifactId>
+    <packaging>jar</packaging>
     <name>GLSK file</name>
     <description>Module that regroups all features related to GLSK file</description>
 

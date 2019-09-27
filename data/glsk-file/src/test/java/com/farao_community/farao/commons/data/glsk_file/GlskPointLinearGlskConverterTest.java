@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,19 +17,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
 public class GlskPointLinearGlskConverterTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverterTest.class);
-    private static final String GLSKB42TEST = "/GlskB42test.xml";
     private static final String GLSKB42COUNTRYIIDM = "/GlskB42CountryIIDM.xml";
     private static final String GLSKB42COUNTRYQUANTITY = "/GlskB42CountryQuantity.xml";
     private static final String GLSKB42EXPLICITIIDM = "/GlskB42ExplicitIIDM.xml";
@@ -40,23 +38,21 @@ public class GlskPointLinearGlskConverterTest {
     private Network testNetwork;
     private GlskPoint glskPointCountry;
     private GlskPoint glskPointCountryQuantity;
-    private GlskPoint glskPointExplicit;
     private GlskPoint glskPointExplicitGskLsk;
-    private GlskPoint glskPointParticipationFactor;
     private GlskPoint glskPointParticipationFactorGskLsk;
 
+    private InputStream getResourceAsStream(String resource) {
+        return getClass().getResourceAsStream(resource);
+    }
+
     @Before
-    public void setUp() throws ParserConfigurationException, SAXException, IOException {
+    public void setUp() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        GlskDocumentImporter importer = new GlskDocumentImporter();
-        glskPointCountry = importer.importGlskDocumentWithFilename(GLSKB42COUNTRYIIDM).getGlskPoints().get(0);
-        glskPointCountryQuantity = importer.importGlskDocumentWithFilename(GLSKB42COUNTRYQUANTITY).getGlskPoints().get(0);
-        glskPointExplicit = importer.importGlskDocumentWithFilename(GLSKB42EXPLICITIIDM).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = importer.importGlskDocumentWithFilename(GLSKB42EXPLICITGSKLSK).getGlskPoints().get(0);
-        glskPointParticipationFactor = importer.importGlskDocumentWithFilename(GLSKB43).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = importer.importGlskDocumentWithFilename(GLSKB43GSKLSK).getGlskPoints().get(0);
-
+        glskPointCountry = GlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
+        glskPointCountryQuantity = GlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = GlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = GlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
     }
 
     /**
@@ -65,7 +61,7 @@ public class GlskPointLinearGlskConverterTest {
     @Test
     public void testConvertGlskPointToLinearGlskB42Country() {
 
-        LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(testNetwork, glskPointCountry, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry, TypeGlskFile.CIM);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("GenCountry: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
@@ -74,7 +70,7 @@ public class GlskPointLinearGlskConverterTest {
     @Test
     public void testConvertGlskPointToLinearGlskB42CountryQuantity() {
 
-        LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(testNetwork, glskPointCountryQuantity, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity, TypeGlskFile.CIM);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Country: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
@@ -82,7 +78,7 @@ public class GlskPointLinearGlskConverterTest {
 
     @Test
     public void testConvertGlskPointToLinearGlskB42Explicit() {
-        LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(testNetwork, glskPointExplicitGskLsk, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk, TypeGlskFile.CIM);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Explicit: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
@@ -90,7 +86,7 @@ public class GlskPointLinearGlskConverterTest {
 
     @Test
     public void testConvertGlskPointToLinearGlskB43() {
-        LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(testNetwork, glskPointParticipationFactorGskLsk, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk, TypeGlskFile.CIM);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Factor: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));

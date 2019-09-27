@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24,16 +24,19 @@ import java.util.stream.Collectors;
  * Convert a single GlskPoint to Scalable
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskPointScalableConverter {
-
+public final class GlskPointScalableConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointScalableConverter.class);
+
+    private GlskPointScalableConverter() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
 
     /**
      * @param network IIDM network
      * @param glskPoint GLSK Point
      * @return powsybl-core Scalable
      */
-    public Scalable convertGlskPointToScalable(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
+    public static Scalable convert(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
         if (!glskPoint.getGlskShiftKeys().get(0).getBusinessType().equals("B45")) {
             //B42 and B43 proportional
@@ -47,21 +50,21 @@ public class GlskPointScalableConverter {
             for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
                 if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     //B42 country
-                    convertCountryProportionalGlskPointToScalable(network, glskShiftKey, percentages, scalables);
+                    convertCountryProportional(network, glskShiftKey, percentages, scalables);
                 } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     //B42 explicit
-                    convertExplicitProportionalGlskPointToScalable(network, glskShiftKey, percentages, scalables, typeGlskFile);
+                    convertExplicitProportional(network, glskShiftKey, percentages, scalables, typeGlskFile);
                 } else if (glskShiftKey.getBusinessType().equals("B43") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     //B43 participation factor
-                    convertParticipationFactorGlskPointToScalable(network, glskShiftKey, percentages, scalables, typeGlskFile);
+                    convertParticipationFactor(network, glskShiftKey, percentages, scalables, typeGlskFile);
                 } else {
-                    throw new FaraoException("In convertGlskPointToScalable glskShiftKey business type not supported");
+                    throw new FaraoException("In convert glskShiftKey business type not supported");
                 }
             }
             return Scalable.proportional(percentages, scalables);
         } else {
             //B45 merit order
-            return convertMeritOrderGlskPointToScalable(network, glskPoint, typeGlskFile);
+            return convertMeritOrder(network, glskPoint, typeGlskFile);
         }
     }
 
@@ -71,7 +74,7 @@ public class GlskPointScalableConverter {
      * @param glskPoint glsk point merit order
      * @return stack scalable
      */
-    private Scalable convertMeritOrderGlskPointToScalable(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
+    private static Scalable convertMeritOrder(Network network, GlskPoint glskPoint, TypeGlskFile typeGlskFile) {
         Objects.requireNonNull(network);
 
         Map<Integer, String> orders = new HashMap<>(); //Merit order position
@@ -109,7 +112,7 @@ public class GlskPointScalableConverter {
      * @param percentages list of percentage factor of scalable
      * @param scalables list of scalable
      */
-    private void convertCountryProportionalGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
+    private static void convertCountryProportional(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
         Country country = new EICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
 
         if (glskShiftKey.getPsrType().equals("A04")) {
@@ -141,7 +144,7 @@ public class GlskPointScalableConverter {
      * @param percentages list of percentage factor of scalable
      * @param scalables list of scalable
      */
-    private void convertExplicitProportionalGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, TypeGlskFile typeGlskFile) {
+    private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, TypeGlskFile typeGlskFile) {
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
             List<String> genenratorsList = glskShiftKey.getRegisteredResourceArrayList().stream().map(generatorResource -> generatorResource.getGeneratorId(typeGlskFile)).collect(Collectors.toList());
@@ -169,7 +172,7 @@ public class GlskPointScalableConverter {
      * @param percentages list of percentage factor of scalable
      * @param scalables list of scalable
      */
-    private void convertParticipationFactorGlskPointToScalable(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, TypeGlskFile typeGlskFile) {
+    private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables, TypeGlskFile typeGlskFile) {
         List<GlskRegisteredResource> resourceList = glskShiftKey.getRegisteredResourceArrayList();
 
         if (glskShiftKey.getPsrType().equals("A04")) {

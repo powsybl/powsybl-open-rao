@@ -8,17 +8,15 @@ package com.farao_community.farao.closed_optimisation_rao.pre_processors;
 
 import com.farao_community.farao.closed_optimisation_rao.OptimisationPreProcessor;
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_file.Contingency;
-import com.farao_community.farao.data.crac_file.ContingencyElement;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.data.crac_file.PstElement;
 import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
 import com.farao_community.farao.data.crac_file.RemedialAction;
+import com.farao_community.farao.util.FaraoVariantsPool;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.BranchContingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -39,6 +37,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.util.ContingencyUtil.applyContingency;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -109,7 +109,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
                 try {
-                    LOGGER.info("Running post contingency sensitivity computation for contingency'{}'", contingency.getId());
+                    LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingency(network, computationManager, contingency);
@@ -182,23 +182,5 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                 pstSensitivities.put(Pair.of(monitoredBranchId, pstId), Double.isNaN(pstSensitivity) ? 0. : pstSensitivity);
             }
         });
-    }
-
-    private void applyContingency(Network network, ComputationManager computationManager, Contingency contingency) {
-        contingency.getContingencyElements().forEach(contingencyElement -> applyContingencyElement(network, computationManager, contingencyElement));
-    }
-
-    private void applyContingencyElement(Network network, ComputationManager computationManager, ContingencyElement contingencyElement) {
-        Identifiable element = network.getIdentifiable(contingencyElement.getElementId());
-        if (element instanceof Branch) {
-            BranchContingency contingency = new BranchContingency(contingencyElement.getElementId());
-            contingency.toTask().modify(network, computationManager);
-        } else if (element instanceof Switch) {
-            // TODO: convert into a PowSyBl ContingencyElement ?
-            Switch switchElement = (Switch) element;
-            switchElement.setOpen(true);
-        } else {
-            throw new FaraoException("Unable to apply contingency element " + contingencyElement.getElementId());
-        }
     }
 }

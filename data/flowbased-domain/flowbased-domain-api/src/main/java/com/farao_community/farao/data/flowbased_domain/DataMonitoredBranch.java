@@ -44,4 +44,11 @@ public class DataMonitoredBranch {
         this.fref = fref;
         this.ptdfList = Collections.unmodifiableList(ptdfList);
     }
+
+    public DataPtdfPerCountry findPtdfByCountry(String country) {
+        return ptdfList.stream()
+                .filter(ptdf -> ptdf.getCountry().equals(country))
+                .findAny()
+                .orElse(null);
+    }
 }

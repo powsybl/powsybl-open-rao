@@ -1,0 +1,64 @@
+{
+  "status" : "SUCCESS",
+  "flowBasedDomain" : {
+      "id" : "",
+      "name" : "",
+      "sourceFormat" : "",
+      "description" : "",
+      "dataPreContingency" : {
+        "dataMonitoredBranches" : [ {
+          "id" : "BBE1AA1  BBE3AA1  1",
+          "name" : "Belgium line 1-3",
+          "branchId" : "BBE1AA1  BBE3AA1  1",
+          "fmax" : 3000.0,
+          "fref" : -593.217529296875,
+          "ptdfList" : [ {
+            "country" : "10YBE----------2",
+            "ptdf" : -0.1546129733324051
+          }, {
+            "country" : "10YFR-RTE------C",
+            "ptdf" : -0.1111111111111
+          } ]
+        }, {
+          "id" : "FFR2AA1  FFR3AA1  1",
+          "name" : "Belgium line 1-3",
+          "branchId" : "FFR2AA1  FFR3AA1  1",
+          "fmax" : 3001.0,
+          "fref" : -1642.841796875,
+          "ptdfList" : [ {
+            "country" : "10YFR-RTE------C",
+            "ptdf" : 0.356556512123
+          }, {
+            "country" : "10YBE----------2",
+            "ptdf" : 0.11502911150455475
+          } ]
+        }, {
+          "id" : "FFR2AA1  FFR3AA1  1  1 @ N-1 BBE1AA1  BBE3AA1  1",
+          "name" : "French line 1-3 @ N-1 Belgium line 1-3",
+          "branchId" : "FFR2AA1  FFR3AA1  1",
+          "fmax" : 3001.0,
+          "fref" : 93.145456,
+          "ptdfList" : [ {
+            "country" : "10YBE----------2",
+            "ptdf" : -0.165578974456
+          }, {
+            "country" : "10YFR-RTE------C",
+            "ptdf" : -0.265612
+          } ]
+        }, {
+          "id" : "BBE2AA1  BBE3AA1  1  1 @ N-1 BBE1AA1  BBE3AA1  1",
+          "name" : "Belgium line 2-3 @ N-1 Belgium line 1-3",
+          "branchId" : "BBE2AA1  BBE3AA1  1  1",
+          "fmax" : 1500.0,
+          "fref" : 456.231487894,
+          "ptdfList" : [ {
+            "country" : "10YBE----------2",
+            "ptdf" : 0.324051
+          }, {
+            "country" : "10YFR-RTE------C",
+            "ptdf" : 0.1546129733324051
+          } ]
+        } ]
+      }
+  }
+}

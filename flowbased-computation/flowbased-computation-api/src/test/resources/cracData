@@ -1,0 +1,74 @@
+{
+  "id" : "TEST_CRAC_FILE",
+  "name" : "Test CRAC file",
+  "sourceFormat" : "code",
+  "description" : null,
+  "preContingency" : {
+    "monitoredBranches" : [ {
+      "id" : "MONITORED_FRANCE_BELGIUM_1",
+      "name" : "France-Belgium interconnection n°1 monitored",
+      "branchId" : "FRANCE_BELGIUM_1",
+      "fmax" : 500.0
+    }, {
+      "id" : "MONITORED_FRANCE_BELGIUM_2",
+      "name" : "France-Belgium interconnection n°2 monitored",
+      "branchId" : "FRANCE_BELGIUM_2",
+      "fmax" : 500.0
+    } ]
+  },
+  "contingencies" : [ ],
+  "remedialActions" : [ {
+    "id" : "PST_RA",
+    "name" : "Belgian PST remedial action",
+    "remedialActionElements" : [ {
+      "@c" : ".PstElement",
+      "id" : "PST_BE",
+      "typeOfLimit" : "ABSOLUTE",
+      "minStepRange" : -6,
+      "maxStepRange" : 6
+    } ],
+    "usageRules" : [ {
+      "id" : "PST_FREE_TO_USE",
+      "instants" : "N",
+      "usage" : "FREE_TO_USE",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ ]
+    } ]
+  }, {
+    "id" : "FRENCH_GENERATOR_RA",
+    "name" : "French generator remedial action",
+    "remedialActionElements" : [ {
+      "@c" : ".RedispatchRemedialActionElement",
+      "id" : "GENERATOR_FR",
+      "minimumPower" : 100.0,
+      "maximumPower" : 5000.0,
+      "startupCost" : 1000.0,
+      "marginalCost" : 45.0
+    } ],
+    "usageRules" : [ {
+      "id" : "FRENCH_GENERATOR_FREE_TO_USE",
+      "instants" : "N",
+      "usage" : "FREE_TO_USE",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ ]
+    } ]
+  }, {
+    "id" : "BELGIAN_GENERATOR_RA",
+    "name" : "Belgian generator remedial action",
+    "remedialActionElements" : [ {
+      "@c" : ".RedispatchRemedialActionElement",
+      "id" : "GENERATOR_BE",
+      "minimumPower" : 100.0,
+      "maximumPower" : 5000.0,
+      "startupCost" : 1000.0,
+      "marginalCost" : 50.0
+    } ],
+    "usageRules" : [ {
+      "id" : "BELGIAN_GENERATOR_FREE_TO_USE",
+      "instants" : "N",
+      "usage" : "FREE_TO_USE",
+      "contingenciesID" : [ ],
+      "constraintsID" : [ ]
+    } ]
+  } ]
+}

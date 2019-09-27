@@ -31,4 +31,11 @@ public class DataPreContingency {
     public DataPreContingency(final List<DataMonitoredBranch> dataMonitoredBranches) {
         this.dataMonitoredBranches = Collections.unmodifiableList(dataMonitoredBranches);
     }
+
+    public DataMonitoredBranch findMonitoredBranchbyId(String monitoredBranchId) {
+        return dataMonitoredBranches.stream()
+                .filter(dataMonitoredBranch -> dataMonitoredBranch.getId().equals(monitoredBranchId))
+                .findAny()
+                .orElse(null);
+    }
 }

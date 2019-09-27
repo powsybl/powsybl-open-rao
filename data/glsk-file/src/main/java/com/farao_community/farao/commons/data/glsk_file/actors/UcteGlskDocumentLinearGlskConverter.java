@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6,17 +6,16 @@
  */
 package com.farao_community.farao.commons.data.glsk_file.actors;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.chronology.DataChronology;
 import com.farao_community.farao.commons.chronology.DataChronologyImpl;
 import com.farao_community.farao.commons.data.glsk_file.GlskPoint;
 import com.farao_community.farao.commons.data.glsk_file.UcteGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -29,58 +28,50 @@ import java.util.Map;
  * return a map :
  * Key: country, Value: DataChronology of LinearGlsk
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class UcteGlskDocumentLinearGlskConverter {
+public final class UcteGlskDocumentLinearGlskConverter {
+    private static final String ERROR_MESSAGE = "Error while converting GLSK document to LinearGlsk sensitivity computation input";
+
+    private UcteGlskDocumentLinearGlskConverter() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
 
     /**
      * @param filepath file path as Path
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public Map<String, DataChronology<LinearGlsk>> convertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath(Path filepath, Network network) throws ParserConfigurationException, SAXException, IOException {
-        InputStream data = new FileInputStream(filepath.toFile());
-        return convertUcteGlskDocumentToLinearGlskDataChronologyFromInputStream(data, network);
+    public static Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network) {
+        try {
+            InputStream data = new FileInputStream(filepath.toFile());
+            return convert(data, network);
+        } catch (FileNotFoundException e) {
+            throw new FaraoException(ERROR_MESSAGE, e);
+        }
     }
 
     /**
      * @param filepathstring file full path in string
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public Map<String, DataChronology<LinearGlsk>> convertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString(String filepathstring, Network network) throws ParserConfigurationException, SAXException, IOException {
-        InputStream data = new FileInputStream(filepathstring);
-        return convertUcteGlskDocumentToLinearGlskDataChronologyFromInputStream(data, network);
-    }
-
-    /**
-     * @param filename file name in src..resources
-     * @param network iidm network
-     * @return A map associating a DataChronology of LinearGlsk for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     */
-    public Map<String, DataChronology<LinearGlsk>> convertUcteGlskDocumentToLinearGlskDataChronologyFromFileName(String filename, Network network) throws ParserConfigurationException, SAXException, IOException {
-        InputStream data = getClass().getResourceAsStream(filename);
-        return convertUcteGlskDocumentToLinearGlskDataChronologyFromInputStream(data, network);
+    public static Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network) {
+        try {
+            InputStream data = new FileInputStream(filepathstring);
+            return convert(data, network);
+        } catch (FileNotFoundException e) {
+            throw new FaraoException(ERROR_MESSAGE, e);
+        }
     }
 
     /**
      * @param data InputStream
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public Map<String, DataChronology<LinearGlsk>> convertUcteGlskDocumentToLinearGlskDataChronologyFromInputStream(InputStream data, Network network) throws ParserConfigurationException, SAXException, IOException {
-        return convertUcteGlskDocuementToLinearGlskDataChronology(new UcteGlskDocumentImporter().importUcteGlskDocumentFromInputStream(data), network);
+    public static Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
+        return convert(UcteGlskDocumentImporter.importGlsk(data), network);
     }
 
     /**
@@ -88,7 +79,7 @@ public class UcteGlskDocumentLinearGlskConverter {
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public Map<String, DataChronology<LinearGlsk>> convertUcteGlskDocuementToLinearGlskDataChronology(UcteGlskDocument ucteGlskDocument, Network network) {
+    public static Map<String, DataChronology<LinearGlsk>> convert(UcteGlskDocument ucteGlskDocument, Network network) {
         Map<String, DataChronology<LinearGlsk>> chronologyLinearGlskMap = new HashMap<>();
 
         List<String> countries = ucteGlskDocument.getCountries();
@@ -97,7 +88,7 @@ public class UcteGlskDocumentLinearGlskConverter {
             DataChronology<LinearGlsk> dataChronology = DataChronologyImpl.create();
             List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
             for (GlskPoint point : glskPointList) {
-                LinearGlsk linearGlsk = new GlskPointLinearGlskConverter().convertGlskPointToLinearGlsk(network, point, TypeGlskFile.UCTE);
+                LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(network, point, TypeGlskFile.UCTE);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
             }
             chronologyLinearGlskMap.put(country, dataChronology);
@@ -106,33 +97,4 @@ public class UcteGlskDocumentLinearGlskConverter {
         return chronologyLinearGlskMap;
 
     }
-
-    /**
-     * @param glskFilename file name in src..resources
-     * @return A map associating a DataChronology of GlskPoint for each country
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     */
-    public Map<String, DataChronology<GlskPoint>> convertUcteGlskDocuementToGlskPointDataChronology(String glskFilename) throws IOException, ParserConfigurationException, SAXException {
-
-        UcteGlskDocument ucteGlskDocument = new UcteGlskDocumentImporter().importUcteGlskDocumentWithFilename(glskFilename);
-
-        Map<String, DataChronology<GlskPoint>> chronologyGlskPointMap = new HashMap<>();
-
-        List<String> countries = ucteGlskDocument.getCountries();
-
-        for (String country : countries) {
-            DataChronology<GlskPoint> dataChronology = DataChronologyImpl.create();
-            List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
-            for (GlskPoint point : glskPointList) {
-                dataChronology.storeDataOnInterval(point, point.getPointInterval());
-            }
-            chronologyGlskPointMap.put(country, dataChronology);
-        }
-
-        return chronologyGlskPointMap;
-
-    }
-
 }
