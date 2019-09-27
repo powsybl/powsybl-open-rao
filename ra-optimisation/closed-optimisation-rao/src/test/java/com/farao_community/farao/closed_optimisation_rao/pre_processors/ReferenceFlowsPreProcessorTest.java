@@ -6,18 +6,23 @@
  */
 package com.farao_community.farao.closed_optimisation_rao.pre_processors;
 
-import com.farao_community.farao.closed_optimisation_rao.mocks.MockLoadFlowFactory;
+import com.farao_community.farao.closed_optimisation_rao.mocks.MockLoadFlowProvider;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
 import com.farao_community.farao.util.LoadFlowService;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlow;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.FileSystem;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,14 +32,19 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class ReferenceFlowsPreProcessorTest {
+    private FileSystem fileSystem;
+    private InMemoryPlatformConfig platformConfig;
     private ReferenceFlowsPreProcessor referenceFlowsPreProcessor;
 
     @Before
     public void setUp() throws Exception {
         referenceFlowsPreProcessor = new ReferenceFlowsPreProcessor();
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "Mock");
         ComputationManager computationManager = new LocalComputationManager();
-        LoadFlowFactory loadFlowFactory = new MockLoadFlowFactory();
-        LoadFlowService.init(loadFlowFactory, computationManager);
+        LoadFlow.Runner loadFlowRunner = LoadFlow.find("Mock", Collections.singletonList(new MockLoadFlowProvider()), platformConfig);
+        LoadFlowService.init(loadFlowRunner, computationManager);
     }
 
     @Test

@@ -21,7 +21,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,9 +56,9 @@ public class FlowBasedComputationImplTest {
         glskProvider = ExampleGenerator.glskProvider();
         computationManager = LocalComputationManager.getDefault();
         parameters = FlowBasedComputationParameters.load(platformConfig);
-        LoadFlowFactory loadFlowFactory = ExampleGenerator.loadFlowFactory();
+        LoadFlow.Runner loadFlowRunner = ExampleGenerator.loadFlowRunner(platformConfig);
         SensitivityComputationFactory sensitivityComputationFactory = ExampleGenerator.sensitivityComputationFactory();
-        LoadFlowService.init(loadFlowFactory, computationManager);
+        LoadFlowService.init(loadFlowRunner, computationManager);
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
