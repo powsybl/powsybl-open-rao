@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -51,5 +53,26 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
     @Test
     public void roundTripTest() throws IOException {
         roundTripTest(create(), JsonFlowbasedDomainTest::write, JsonFlowbasedDomainTest::read, "/dataDomain.json");
+    }
+
+    @Test
+    public void testUtilityMethods() {
+        DataDomain flowbasedDomain = JsonFlowbasedDomainTest.create();
+
+        assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_1"));
+        assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_2"));
+
+        assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("France"));
+        assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("Austria"));
+    }
+
+    @Test
+    public void testExceptionCases() {
+        try {
+            JsonFlowbasedDomain.read(getClass().getResourceAsStream("/notExistingFile.json"));
+            fail();
+        } catch (UncheckedIOException e) {
+            // Should throw
+        }
     }
 }

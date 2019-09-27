@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6,17 +6,16 @@
  */
 package com.farao_community.farao.commons.data.glsk_file.actors;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.chronology.DataChronology;
 import com.farao_community.farao.commons.chronology.DataChronologyImpl;
 import com.farao_community.farao.commons.data.glsk_file.GlskDocument;
 import com.farao_community.farao.commons.data.glsk_file.GlskPoint;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -28,58 +27,50 @@ import java.util.Map;
  * create a map:
  * Key: country, Value: DataChronology of Scalable
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class GlskDocumentScalableConverter {
+public final class GlskDocumentScalableConverter {
+    private static final String ERROR_MESSAGE = "Error while converting GLSK document to scalables";
+
+    private GlskDocumentScalableConverter() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
 
     /**
      * @param filepath file path in Path
      * @param network iidm network
      * @return A map associating a DataChronology of Scalable for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public Map<String, DataChronology<Scalable>> convertGlskDocumentToScalableDataChronologyFromFilePath(Path filepath, Network network) throws ParserConfigurationException, SAXException, IOException {
-        InputStream data = new FileInputStream(filepath.toFile());
-        return convertGlskDocumentToScalableDataChronologyFromInputStream(data, network);
+    public static Map<String, DataChronology<Scalable>> convert(Path filepath, Network network) {
+        try {
+            InputStream data = new FileInputStream(filepath.toFile());
+            return convert(data, network);
+        } catch (FileNotFoundException e) {
+            throw new FaraoException(ERROR_MESSAGE, e);
+        }
     }
 
     /**
      * @param filepathstring file full path in string
      * @param network iidm network
      * @return A map associating a DataChronology of Scalable for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public Map<String, DataChronology<Scalable>> convertGlskDocumentToScalableDataChronologyFromFilePathString(String filepathstring, Network network) throws ParserConfigurationException, SAXException, IOException {
-        InputStream data = new FileInputStream(filepathstring);
-        return convertGlskDocumentToScalableDataChronologyFromInputStream(data, network);
-    }
-
-    /**
-     * @param filename file name in src..resources
-     * @param network iidm network
-     * @return A map associating a DataChronology of Scalable for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     */
-    public Map<String, DataChronology<Scalable>> convertGlskDocumentToScalableDataChronologyFromFileName(String filename, Network network) throws ParserConfigurationException, SAXException, IOException {
-        InputStream data = getClass().getResourceAsStream(filename);
-        return convertGlskDocumentToScalableDataChronologyFromInputStream(data, network);
+    public static Map<String, DataChronology<Scalable>> convert(String filepathstring, Network network) {
+        try {
+            InputStream data = new FileInputStream(filepathstring);
+            return convert(data, network);
+        } catch (FileNotFoundException e) {
+            throw new FaraoException(ERROR_MESSAGE, e);
+        }
     }
 
     /**
      * @param data InputStream
      * @param network iidm network
      * @return A map associating a DataChronology of Scalable for each country
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
      */
-    public Map<String, DataChronology<Scalable>> convertGlskDocumentToScalableDataChronologyFromInputStream(InputStream data, Network network) throws ParserConfigurationException, SAXException, IOException {
-        return convertGlskDocumentToScalableDataChronology(new GlskDocumentImporter().importGlskDocumentFromInputStream(data), network);
+    public static Map<String, DataChronology<Scalable>> convert(InputStream data, Network network) {
+        return convert(GlskDocumentImporter.importGlsk(data), network);
     }
 
     /**
@@ -87,7 +78,7 @@ public class GlskDocumentScalableConverter {
      * @param network iidm network
      * @return A map associating a DataChronology of Scalable for each country
      */
-    public Map<String, DataChronology<Scalable>> convertGlskDocumentToScalableDataChronology(GlskDocument glskDocument, Network network) {
+    public static Map<String, DataChronology<Scalable>> convert(GlskDocument glskDocument, Network network) {
 
         List<String> countries = glskDocument.getCountries();
 
@@ -99,7 +90,7 @@ public class GlskDocumentScalableConverter {
             //mapping with DataChronology
             List<GlskPoint> glskPointList = glskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = new GlskPointScalableConverter().convertGlskPointToScalable(network, point, TypeGlskFile.CIM);
+                Scalable scalable = GlskPointScalableConverter.convert(network, point, TypeGlskFile.CIM);
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             countryScalableDataChronologyMap.put(country, dataChronology);

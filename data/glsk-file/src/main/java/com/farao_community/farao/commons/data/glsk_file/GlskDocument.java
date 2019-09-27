@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,6 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,16 @@ public class GlskDocument {
     //We consider there are one timeSeries per country. Otherwise: Map<Country, List<GlskTimesSeries>>. but do we have a use case?
 
     /**
+     * Interval start instant
+     */
+    private Instant instantStart;
+
+    /**
+     * Interval end instant
+     */
+    private Instant instantEnd;
+
+    /**
      * @param data input file stream
      * @throws ParserConfigurationException
      * @throws IOException
@@ -51,6 +63,15 @@ public class GlskDocument {
         Document document = documentBuilder.parse(data);
         document.getDocumentElement().normalize();
 
+        //get interval start and end
+        NodeList intervalNodeList = document.getElementsByTagName("time_Period.timeInterval");
+        String intervalStart = ((Element) intervalNodeList.item(0)).getElementsByTagName("start").item(0).getTextContent();
+        String intervalEnd = ((Element) intervalNodeList.item(0)).getElementsByTagName("end").item(0).getTextContent();
+        Interval periodInterval = Interval.parse(intervalStart + "/" + intervalEnd);
+        instantStart = periodInterval.getStart();
+        instantEnd = periodInterval.getEnd();
+
+        //get map GlskTimeSeries
         mapGlskTimeSeries = new HashMap<>();
 
         NodeList timeSeriesNodeList = document.getElementsByTagName("TimeSeries");
@@ -92,4 +113,19 @@ public class GlskDocument {
     public List<String> getCountries() {
         return new ArrayList<>(getMapGlskTimeSeries().keySet());
     }
+
+    /**
+     * @return Instant start of interval
+     */
+    public Instant getInstantStart() {
+        return instantStart;
+    }
+
+    /**
+     * @return Instant end of interval
+     */
+    public Instant getInstantEnd() {
+        return instantEnd;
+    }
+
 }
