@@ -49,6 +49,28 @@ public class LoopFlowExtension {
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
 
+    /**
+     * Initialization
+     * @param network
+     * @param cracFile
+     * @param glskProviderCore
+     * @param glskProviderAll
+     * @param frmById
+     * @param ramrById
+     */
+    public void init(Network network,
+                CracFile cracFile,
+                GlskProvider glskProviderCore,
+                GlskProvider glskProviderAll,
+                Map<String, Double> frmById,
+                Map<String, Double> ramrById) {
+        this.network = network;
+        this.cracFile = cracFile;
+        this.glskProviderCore = glskProviderCore;
+        this.glskProviderAll = glskProviderAll;
+        this.frmById = frmById;
+        this.ramrById = ramrById;
+    }
 
     /**
      * @return main function to calculate AMR
