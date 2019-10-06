@@ -58,7 +58,7 @@ public class LoopFlowExtension {
      * @param frmById
      * @param ramrById
      */
-    public void init(Network network,
+    public LoopFlowExtension(Network network,
                 CracFile cracFile,
                 GlskProvider glskProviderCore,
                 GlskProvider glskProviderAll,
