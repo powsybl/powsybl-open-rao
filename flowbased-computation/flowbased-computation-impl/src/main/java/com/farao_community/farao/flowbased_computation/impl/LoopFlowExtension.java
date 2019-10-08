@@ -16,9 +16,10 @@ import com.farao_community.farao.flowbased_computation.FlowBasedComputationResul
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +38,8 @@ import java.util.stream.Collectors;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LoopFlowExtension {
+
+//    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowExtension.class);
 
     //input parameters
     private Network network; //CGM
@@ -57,19 +60,25 @@ public class LoopFlowExtension {
      * @param glskProviderAll
      * @param frmById
      * @param ramrById
+     * @param computationManager
+     * @param parameters
      */
     public LoopFlowExtension(Network network,
-                CracFile cracFile,
-                GlskProvider glskProviderCore,
-                GlskProvider glskProviderAll,
-                Map<String, Double> frmById,
-                Map<String, Double> ramrById) {
+                    CracFile cracFile,
+                    GlskProvider glskProviderCore,
+                    GlskProvider glskProviderAll,
+                    Map<String, Double> frmById,
+                    Map<String, Double> ramrById,
+                    ComputationManager computationManager,
+                    FlowBasedComputationParameters parameters) {
         this.network = network;
         this.cracFile = cracFile;
         this.glskProviderCore = glskProviderCore;
         this.glskProviderAll = glskProviderAll;
         this.frmById = frmById;
         this.ramrById = ramrById;
+        this.computationManager = computationManager;
+        this.parameters = parameters;
     }
 
     /**
@@ -113,7 +122,9 @@ public class LoopFlowExtension {
 
         Map<String, Double> frefResults = frefResultById(flowBasedComputationResult); //get reference flow
         Map<String, Map<String, Double>> ptdfResults = ptdfResultById(flowBasedComputationResult); // get ptdf
-        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
+
+        Set<String> countries = getCountries(flowBasedComputationResult);
+        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network, countries); // get Net positions
 
         //calculate equation 10 and equation 11 in Article 17
         Map<String, Double> fzeroNpResults = new HashMap<>();
@@ -122,6 +133,8 @@ public class LoopFlowExtension {
             Double sum = 0.0;
             // calculate PTDF * NP(ref)
             for (String country : ptdfBranch.keySet()) {
+//                LOGGER.info("Country:" + country + "; ptdfBranch.get(country) = " + ptdfBranch.get(country));
+//                LOGGER.info("       :" + country + "; referenceNetPositionByCountry.get(country) = " + referenceNetPositionByCountry.get(country));
                 sum += ptdfBranch.get(country) * referenceNetPositionByCountry.get(country);
             }
 
@@ -135,10 +148,31 @@ public class LoopFlowExtension {
      * @param network get net position of countries in network
      * @return net positions
      */
-    private Map<String, Double> getRefNetPositionByCountry(Network network) {
+    private Map<String, Double> getRefNetPositionByCountry(Network network, Set<String> countries) {
         //todo get Net Position of each country from Network
         Map<String, Double> refNpCountry = new HashMap<>();
+
+        for (String country : countries) {
+            refNpCountry.put(country, Double.valueOf(0.0));
+        }
+
         return refNpCountry;
+    }
+
+    /**
+     * @param flowBasedComputationResult
+     * @return set of countries
+     */
+    private Set<String> getCountries(FlowBasedComputationResult flowBasedComputationResult) {
+        Set<String> countries = new HashSet<>();
+        for (DataMonitoredBranch dataMonitoredBranch : flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches()) {
+            Map<String, Double> map = dataMonitoredBranch.getPtdfList().stream().collect(Collectors.toMap(
+                    DataPtdfPerCountry::getCountry,
+                    DataPtdfPerCountry::getPtdf
+            ));
+            countries.addAll(map.keySet());
+        }
+        return countries;
     }
 
     /**
