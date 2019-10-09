@@ -34,6 +34,10 @@
             <artifactId>log4j-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-balances-adjustment</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.google.jimfs</groupId>

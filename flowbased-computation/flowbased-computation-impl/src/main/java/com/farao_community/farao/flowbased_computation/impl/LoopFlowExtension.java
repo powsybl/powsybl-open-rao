@@ -14,10 +14,12 @@ import com.farao_community.farao.flowbased_computation.FlowBasedComputationParam
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.powsybl.balances_adjustment.util.CountryArea;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,12 +36,13 @@ import java.util.stream.Collectors;
  * Glsk All: Glsk described in Article 17.3 to calculate F(0,all)
  * frmById: FRM (Flow Reliability Margin) for each CNE
  * ramrById: Ramr (minimum RAM factor) by default 0.7 (see Article 17.8)
+ * countries: list of countries for CC calculation; not all countries in Network are included in CCR
  *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LoopFlowExtension {
 
-//    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowExtension.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowExtension.class);
 
     //input parameters
     private Network network; //CGM
@@ -48,27 +51,18 @@ public class LoopFlowExtension {
     private GlskProvider glskProviderAll; // to calculate F(0,all) see Article 17.3
     private Map<String, Double> frmById; //input: FRM (Flow Reliability Margin) for each branch
     private Map<String, Double> ramrById; //input: Ramr (minimum RAM factor) by default 0.7 (see Article 17.8)
+    private List<String> countries; //list of countries for CC calculation; not all countries in Network are included in CCR
 
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
 
-    /**
-     * Initialization
-     * @param network
-     * @param cracFile
-     * @param glskProviderCore
-     * @param glskProviderAll
-     * @param frmById
-     * @param ramrById
-     * @param computationManager
-     * @param parameters
-     */
     public LoopFlowExtension(Network network,
                     CracFile cracFile,
                     GlskProvider glskProviderCore,
                     GlskProvider glskProviderAll,
                     Map<String, Double> frmById,
                     Map<String, Double> ramrById,
+                    List<String> countries,
                     ComputationManager computationManager,
                     FlowBasedComputationParameters parameters) {
         this.network = network;
@@ -77,6 +71,7 @@ public class LoopFlowExtension {
         this.glskProviderAll = glskProviderAll;
         this.frmById = frmById;
         this.ramrById = ramrById;
+        this.countries = countries;
         this.computationManager = computationManager;
         this.parameters = parameters;
     }
@@ -123,8 +118,7 @@ public class LoopFlowExtension {
         Map<String, Double> frefResults = frefResultById(flowBasedComputationResult); //get reference flow
         Map<String, Map<String, Double>> ptdfResults = ptdfResultById(flowBasedComputationResult); // get ptdf
 
-        Set<String> countries = getCountries(flowBasedComputationResult);
-        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network, countries); // get Net positions
+        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network, this.countries); // get Net positions
 
         //calculate equation 10 and equation 11 in Article 17
         Map<String, Double> fzeroNpResults = new HashMap<>();
@@ -133,8 +127,6 @@ public class LoopFlowExtension {
             Double sum = 0.0;
             // calculate PTDF * NP(ref)
             for (String country : ptdfBranch.keySet()) {
-//                LOGGER.info("Country:" + country + "; ptdfBranch.get(country) = " + ptdfBranch.get(country));
-//                LOGGER.info("       :" + country + "; referenceNetPositionByCountry.get(country) = " + referenceNetPositionByCountry.get(country));
                 sum += ptdfBranch.get(country) * referenceNetPositionByCountry.get(country);
             }
 
@@ -148,31 +140,18 @@ public class LoopFlowExtension {
      * @param network get net position of countries in network
      * @return net positions
      */
-    private Map<String, Double> getRefNetPositionByCountry(Network network, Set<String> countries) {
-        //todo get Net Position of each country from Network
+    private Map<String, Double> getRefNetPositionByCountry(Network network, List<String> countries) {
+        //get Net Position of each country from Network
+
         Map<String, Double> refNpCountry = new HashMap<>();
 
         for (String country : countries) {
-            refNpCountry.put(country, Double.valueOf(0.0));
+            CountryArea countryArea = new CountryArea(Country.valueOf(country));
+            double countryNetPositionValue = countryArea.getNetPosition(network);
+            refNpCountry.put(country, countryNetPositionValue);
         }
 
         return refNpCountry;
-    }
-
-    /**
-     * @param flowBasedComputationResult
-     * @return set of countries
-     */
-    private Set<String> getCountries(FlowBasedComputationResult flowBasedComputationResult) {
-        Set<String> countries = new HashSet<>();
-        for (DataMonitoredBranch dataMonitoredBranch : flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches()) {
-            Map<String, Double> map = dataMonitoredBranch.getPtdfList().stream().collect(Collectors.toMap(
-                    DataPtdfPerCountry::getCountry,
-                    DataPtdfPerCountry::getPtdf
-            ));
-            countries.addAll(map.keySet());
-        }
-        return countries;
     }
 
     /**

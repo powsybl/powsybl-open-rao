@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.FileSystem;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,7 @@ import static org.junit.Assert.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LoopFlowExtensionTest {
+
     private static final double FRM_DEFAULT_ON_FMAX = 0.1;
     private static final double RAMR_DEFAULT = 0.7;
 
@@ -42,6 +45,7 @@ public class LoopFlowExtensionTest {
     private GlskProvider glskProviderCore;
     private Map<String, Double> frmById;
     private Map<String, Double> ramrById;
+    private List<String> countries;
 
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
@@ -54,10 +58,11 @@ public class LoopFlowExtensionTest {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
 
-        network = ExampleGenerator.network();
-        cracFile = ExampleGenerator.cracFile();
-        glskProviderCore = ExampleGenerator.glskProvider();
-        glskProviderAll = ExampleGenerator.glskProvider();
+        network = LoopFlowExampleGenerator.network();
+        cracFile = LoopFlowExampleGenerator.cracFile();
+        glskProviderCore = LoopFlowExampleGenerator.glskProviderCore();
+        glskProviderAll = LoopFlowExampleGenerator.glskProviderAll();
+        countries = Arrays.asList("FR", "BE", "DE", "NL");
         computationManager = LocalComputationManager.getDefault();
         parameters = FlowBasedComputationParameters.load(platformConfig);
 
@@ -67,17 +72,21 @@ public class LoopFlowExtensionTest {
         ramrById = cracFile.getPreContingency().getMonitoredBranches().stream()
                 .collect(Collectors.toMap(MonitoredBranch::getBranchId, monitoredBranch -> RAMR_DEFAULT));
 
-        LoadFlowFactory loadFlowFactory = ExampleGenerator.loadFlowFactory();
-        SensitivityComputationFactory sensitivityComputationFactory = ExampleGenerator.sensitivityComputationFactory();
+        LoadFlowFactory loadFlowFactory = LoopFlowExampleGenerator.loadFlowFactory();
+        SensitivityComputationFactory sensitivityComputationFactory = LoopFlowExampleGenerator.sensitivityComputationFactory();
         LoadFlowService.init(loadFlowFactory, computationManager);
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
 
-        loopFlowExtension = new LoopFlowExtension(network, cracFile, glskProviderCore, glskProviderAll, frmById, ramrById, computationManager, parameters);
+        loopFlowExtension = new LoopFlowExtension(network, cracFile, glskProviderCore, glskProviderAll, frmById, ramrById, countries, computationManager, parameters);
     }
 
     @Test
     public void testRun() {
         Map<String, Double> resultAmr = loopFlowExtension.calculateAMR();
+
         assertTrue(!resultAmr.isEmpty());
+        for (String branch : resultAmr.keySet()) {
+            assertTrue(resultAmr.get(branch) == 0.0);
+        }
     }
 }
