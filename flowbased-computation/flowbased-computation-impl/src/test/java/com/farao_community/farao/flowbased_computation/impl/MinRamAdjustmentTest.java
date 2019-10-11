@@ -35,9 +35,11 @@ import static org.junit.Assert.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MinRamAdjustmentTest {
+    private static final double EPSILON = 1e-3;
 
     private static final double FRM_DEFAULT_ON_FMAX = 0.1;
     private static final double RAMR_DEFAULT = 0.7;
+    private static final double RAMR_DEFAULT_BIS = 1.1;
 
     private GlskProvider glskProviderAll;
     private Network network;
@@ -45,12 +47,14 @@ public class MinRamAdjustmentTest {
     private GlskProvider glskProviderCore;
     private Map<String, Double> frmById;
     private Map<String, Double> ramrById;
+    private Map<String, Double> ramrByIdBis;
     private List<String> countries;
 
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
 
     private MinRamAdjustment minRamAdjustment;
+    private MinRamAdjustment minRamAdjustmentBis;
 
     @Before
     public void setUp() {
@@ -72,21 +76,31 @@ public class MinRamAdjustmentTest {
         ramrById = cracFile.getPreContingency().getMonitoredBranches().stream()
                 .collect(Collectors.toMap(MonitoredBranch::getBranchId, monitoredBranch -> RAMR_DEFAULT));
 
+        ramrByIdBis = cracFile.getPreContingency().getMonitoredBranches().stream()
+                .collect(Collectors.toMap(MonitoredBranch::getBranchId, monitoredBranch -> RAMR_DEFAULT_BIS));
+
         LoadFlowFactory loadFlowFactory = MinRamAdjustmentExampleGenerator.loadFlowFactory();
         SensitivityComputationFactory sensitivityComputationFactory = MinRamAdjustmentExampleGenerator.sensitivityComputationFactory();
         LoadFlowService.init(loadFlowFactory, computationManager);
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
 
         minRamAdjustment = new MinRamAdjustment(network, cracFile, glskProviderCore, glskProviderAll, frmById, ramrById, countries, computationManager, parameters);
+        minRamAdjustmentBis = new MinRamAdjustment(network, cracFile, glskProviderCore, glskProviderAll, frmById, ramrByIdBis, countries, computationManager, parameters);
+
     }
 
     @Test
     public void testRun() {
         Map<String, Double> resultAmr = minRamAdjustment.calculateAMR();
-
         assertTrue(!resultAmr.isEmpty());
         for (String branch : resultAmr.keySet()) {
-            assertTrue(resultAmr.get(branch) == 0.0);
+            assertEquals(resultAmr.get(branch), 0.0, EPSILON);
+        }
+
+        Map<String, Double> resultAmrBis = minRamAdjustmentBis.calculateAMR();
+        assertTrue(!resultAmrBis.isEmpty());
+        for (String branch : resultAmrBis.keySet()) {
+            assertEquals(resultAmrBis.get(branch), 20.0, EPSILON);
         }
     }
 }
