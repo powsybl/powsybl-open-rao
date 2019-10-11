@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * "Adjustment of Minimum RAM" (AMR a.k.a "LoopFlow") calculation
+ * "Adjustment of Minimum RAM" calculation
  * Detailed requirement is in Article 17 of "Decision on Core CCM - Annex I"
  * We use flowbased computation API to get different flows required in doc
  *
@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
  *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class LoopFlowExtension {
+public class MinRamAdjustment {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowExtension.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MinRamAdjustment.class);
 
     //input parameters
     private Network network; //CGM
@@ -56,15 +56,15 @@ public class LoopFlowExtension {
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
 
-    public LoopFlowExtension(Network network,
-                    CracFile cracFile,
-                    GlskProvider glskProviderCore,
-                    GlskProvider glskProviderAll,
-                    Map<String, Double> frmById,
-                    Map<String, Double> ramrById,
-                    List<String> countries,
-                    ComputationManager computationManager,
-                    FlowBasedComputationParameters parameters) {
+    public MinRamAdjustment(Network network,
+                            CracFile cracFile,
+                            GlskProvider glskProviderCore,
+                            GlskProvider glskProviderAll,
+                            Map<String, Double> frmById,
+                            Map<String, Double> ramrById,
+                            List<String> countries,
+                            ComputationManager computationManager,
+                            FlowBasedComputationParameters parameters) {
         this.network = network;
         this.cracFile = cracFile;
         this.glskProviderCore = glskProviderCore;

@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class LoopFlowExtensionTest {
+public class MinRamAdjustmentTest {
 
     private static final double FRM_DEFAULT_ON_FMAX = 0.1;
     private static final double RAMR_DEFAULT = 0.7;
@@ -50,7 +50,7 @@ public class LoopFlowExtensionTest {
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
 
-    private LoopFlowExtension loopFlowExtension;
+    private MinRamAdjustment minRamAdjustment;
 
     @Before
     public void setUp() {
@@ -58,10 +58,10 @@ public class LoopFlowExtensionTest {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
 
-        network = LoopFlowExampleGenerator.network();
-        cracFile = LoopFlowExampleGenerator.cracFile();
-        glskProviderCore = LoopFlowExampleGenerator.glskProviderCore();
-        glskProviderAll = LoopFlowExampleGenerator.glskProviderAll();
+        network = MinRamAdjustmentExampleGenerator.network();
+        cracFile = MinRamAdjustmentExampleGenerator.cracFile();
+        glskProviderCore = MinRamAdjustmentExampleGenerator.glskProviderCore();
+        glskProviderAll = MinRamAdjustmentExampleGenerator.glskProviderAll();
         countries = Arrays.asList("FR", "BE", "DE", "NL");
         computationManager = LocalComputationManager.getDefault();
         parameters = FlowBasedComputationParameters.load(platformConfig);
@@ -72,17 +72,17 @@ public class LoopFlowExtensionTest {
         ramrById = cracFile.getPreContingency().getMonitoredBranches().stream()
                 .collect(Collectors.toMap(MonitoredBranch::getBranchId, monitoredBranch -> RAMR_DEFAULT));
 
-        LoadFlowFactory loadFlowFactory = LoopFlowExampleGenerator.loadFlowFactory();
-        SensitivityComputationFactory sensitivityComputationFactory = LoopFlowExampleGenerator.sensitivityComputationFactory();
+        LoadFlowFactory loadFlowFactory = MinRamAdjustmentExampleGenerator.loadFlowFactory();
+        SensitivityComputationFactory sensitivityComputationFactory = MinRamAdjustmentExampleGenerator.sensitivityComputationFactory();
         LoadFlowService.init(loadFlowFactory, computationManager);
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
 
-        loopFlowExtension = new LoopFlowExtension(network, cracFile, glskProviderCore, glskProviderAll, frmById, ramrById, countries, computationManager, parameters);
+        minRamAdjustment = new MinRamAdjustment(network, cracFile, glskProviderCore, glskProviderAll, frmById, ramrById, countries, computationManager, parameters);
     }
 
     @Test
     public void testRun() {
-        Map<String, Double> resultAmr = loopFlowExtension.calculateAMR();
+        Map<String, Double> resultAmr = minRamAdjustment.calculateAMR();
 
         assertTrue(!resultAmr.isEmpty());
         for (String branch : resultAmr.keySet()) {

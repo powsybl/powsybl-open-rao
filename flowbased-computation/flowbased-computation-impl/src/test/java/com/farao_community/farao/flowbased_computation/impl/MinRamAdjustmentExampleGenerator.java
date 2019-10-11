@@ -40,9 +40,9 @@ import java.util.stream.Stream;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 
-public final class LoopFlowExampleGenerator {
+public final class MinRamAdjustmentExampleGenerator {
 
-    private LoopFlowExampleGenerator() {
+    private MinRamAdjustmentExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
