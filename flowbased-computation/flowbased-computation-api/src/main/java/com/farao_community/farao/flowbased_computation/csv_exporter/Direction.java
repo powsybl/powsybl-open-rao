@@ -9,7 +9,7 @@ package com.farao_community.farao.flowbased_computation.csv_exporter;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public enum Direction {
+enum Direction {
     DIRECT("DIRECT", 1),
     OPPOSITE("OPPOSITE", -1);
 
@@ -24,7 +24,7 @@ public enum Direction {
         return  sign;
     }
 
-    private Direction(String name, int sign) {
+    Direction(String name, int sign) {
         this.name = name;
         this.sign = sign;
     }
