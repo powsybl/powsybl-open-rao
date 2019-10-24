@@ -33,6 +33,7 @@ final class NeighbouringCountryPairsInCore {
         ncpl.add(Pair.of(Country.DE.getName(), Country.PL.getName()));
         ncpl.add(Pair.of(Country.CZ.getName(), Country.PL.getName()));
         ncpl.add(Pair.of(Country.CZ.getName(), Country.DE.getName()));
+        ncpl.add(Pair.of(Country.PL.getName(), Country.SK.getName()));
         ncpl.add(Pair.of(Country.AT.getName(), Country.DE.getName()));
         ncpl.add(Pair.of(Country.AT.getName(), Country.CZ.getName()));
         ncpl.add(Pair.of(Country.AT.getName(), Country.SI.getName()));
