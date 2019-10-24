@@ -108,15 +108,15 @@ public class CsvFlowBasedComputationResultPrinter {
                 .distinct().map(FlowBasedCountry::new).collect(Collectors.toList());
     }
 
-    private List<Pair<FlowBasedCountry, FlowBasedCountry>> getCountryPairList(List<FlowBasedCountry> countryNameList) {
+    private List<Pair<FlowBasedCountry, FlowBasedCountry>> getCountryPairList(List<FlowBasedCountry> countryList) {
 
         List<Pair<FlowBasedCountry, FlowBasedCountry>> countryPairs = new ArrayList<>();
 
-        if (countryNameList.size() >= 2) {
-            for (int i = 0; i < countryNameList.size(); i++) {
-                for (int j = i + 1; j < countryNameList.size(); j++) {
-                    if (NeighbouringCountryPairsInCore.belongs(countryNameList.get(i).getName(), countryNameList.get(j).getName())) {
-                        countryPairs.add(Pair.of(countryNameList.get(i), countryNameList.get(j)));
+        if (countryList.size() >= 2) {
+            for (int i = 0; i < countryList.size(); i++) {
+                for (int j = i + 1; j < countryList.size(); j++) {
+                    if (NeighbouringCountryPairsInCore.belongs(countryList.get(i).getName(), countryList.get(j).getName())) {
+                        countryPairs.add(Pair.of(countryList.get(i), countryList.get(j)));
                     }
                 }
             }
