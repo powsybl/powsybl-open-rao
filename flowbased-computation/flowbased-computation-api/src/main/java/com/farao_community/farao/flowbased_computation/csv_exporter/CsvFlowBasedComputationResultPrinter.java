@@ -157,10 +157,12 @@ public class CsvFlowBasedComputationResultPrinter {
     }
 
     private Double getRelativeMargin(double margin, DataMonitoredBranch branchResults) {
-        double sumOfAbsZoneToZonePtdf = neighbouringCountryPairs.stream()
-                .map(p -> findPtdf(branchResults, p.getLeft()) - findPtdf(branchResults, p.getRight()))
-                .mapToDouble(Math::abs).sum();
-
+        double sumOfAbsZoneToZonePtdf = 0;
+        if (neighbouringCountryPairs.size() > 0) {
+            sumOfAbsZoneToZonePtdf = neighbouringCountryPairs.stream()
+                    .map(p -> findPtdf(branchResults, p.getLeft()) - findPtdf(branchResults, p.getRight()))
+                    .mapToDouble(Math::abs).sum();
+        }
         if (sumOfAbsZoneToZonePtdf > 0) {
             return margin / sumOfAbsZoneToZonePtdf;
         }
