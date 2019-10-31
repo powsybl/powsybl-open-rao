@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.OPTIMISATION_CONSTANTS_DATA_NAME;
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.OVERLOAD_PENALTY_COST_NAME;
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getAllMonitoredBranches;
 
 /**
@@ -59,7 +60,7 @@ public class OverloadPenaltyCostFiller extends AbstractOptimisationProblemFiller
     @Override
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
-        double overloadPenaltyCost = 5000.0;
+        double overloadPenaltyCost = ((Map<String, Double>) data.get(OPTIMISATION_CONSTANTS_DATA_NAME)).get(OVERLOAD_PENALTY_COST_NAME);
         MPObjective objective = solver.objective();
         monitoredBranches.forEach(branch -> {
             MPVariable overload = Objects.requireNonNull(solver.lookupVariableOrNull(ClosedOptimisationRaoNames.nameOverloadVariable(branch)));

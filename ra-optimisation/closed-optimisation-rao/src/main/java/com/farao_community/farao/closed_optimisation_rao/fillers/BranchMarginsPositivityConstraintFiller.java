@@ -75,7 +75,7 @@ public class BranchMarginsPositivityConstraintFiller extends AbstractOptimisatio
         ubConstraint.setUb(maximumFlow);
         ubConstraint.setCoefficient(branchFlowVariable, 1.0);
 
-        lbConstraint.setLb(maximumFlow);
+        lbConstraint.setLb(-maximumFlow);
         lbConstraint.setCoefficient(branchFlowVariable, 1.0);
     }
 }

@@ -48,7 +48,6 @@ public final class ConfigurationUtil {
         try {
             MPSolver.OptimizationProblemType.valueOf(parametersExtension.getSolverType());
         } catch (IllegalArgumentException e) {
-            // Ici je prefere mon propre message.
             errors.add("Solver " + parametersExtension.getSolverType() + " not available");
         }
 
