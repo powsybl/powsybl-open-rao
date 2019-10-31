@@ -59,13 +59,8 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
 
     @Override
     public List<String> constraintsExpected() {
-        List<String> constraintsExpected = new ArrayList<>();
-        constraintsExpected.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList()));
-        constraintsExpected.addAll(cracFile.getContingencies().stream()
-                .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList()));
-        return constraintsExpected;
+        List<MonitoredBranch> monitoredBranches = getAllMonitoredBranches(cracFile);
+        return monitoredBranches.stream().map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList());
     }
 
     @Override

@@ -7,6 +7,7 @@
 package com.farao_community.farao.closed_optimisation_rao.fillers;
 
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
+import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
@@ -60,13 +61,8 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
 
     @Override
     public List<String> constraintsExpected() {
-        List<String> constraintsExpected = new ArrayList<>();
-        constraintsExpected.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> nameEstimatedFlowConstraint(branch)).collect(Collectors.toList()));
-        constraintsExpected.addAll(cracFile.getContingencies().stream()
-                .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> nameEstimatedFlowConstraint(branch)).collect(Collectors.toList()));
-        return constraintsExpected;
+        List<MonitoredBranch> monitoredBranches = getAllMonitoredBranches(cracFile);
+        return monitoredBranches.stream().map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList());
     }
 
     @Override
