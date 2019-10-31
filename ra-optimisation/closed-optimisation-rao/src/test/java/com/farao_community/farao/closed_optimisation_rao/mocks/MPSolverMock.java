@@ -73,7 +73,6 @@ public class MPSolverMock extends MPSolver {
         return newConstraint;
     }
 
-
     @Override
     public MPVariableMock lookupVariableOrNull(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
