@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -55,7 +55,7 @@ public final class ConfigurationUtil {
         }
 
         // Check that maxTimeInSeconds is strictly positive
-        if (parametersExtension.getMaxTimeInSeconds() <= 0 ) {
+        if (parametersExtension.getMaxTimeInSeconds() <= 0) {
             errors.add("Max time must be strictly positive ( " + parametersExtension.getMaxTimeInSeconds() + " not valid)");
         }
 

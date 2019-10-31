@@ -35,10 +35,10 @@ public final class ClosedOptimisationRaoParametersUtil {
     }
 
     private static void addParametersToSolver(ClosedOptimisationRaoParameters parameters, MPSolver solver) {
-        solver.setTimeLimit((int) parameters.getMaxTimeInSeconds()*1000); // read in milliseconds by setTimeLimit
+        solver.setTimeLimit((int) parameters.getMaxTimeInSeconds() * 1000); // read in milliseconds by setTimeLimit
     }
 
-    public static Map<String, Double> getOptimisationConstants (ClosedOptimisationRaoParameters parameters) {
+    public static Map<String, Double> getOptimisationConstants(ClosedOptimisationRaoParameters parameters) {
         Map<String, Double> constants = new HashMap<>();
         constants.put(ClosedOptimisationRaoNames.OVERLOAD_PENALTY_COST, parameters.getOverloadPenaltyCost());
         return constants;

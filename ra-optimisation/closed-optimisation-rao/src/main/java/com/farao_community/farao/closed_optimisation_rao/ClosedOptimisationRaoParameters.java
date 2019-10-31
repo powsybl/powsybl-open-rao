@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,8 +7,6 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.ArrayList;

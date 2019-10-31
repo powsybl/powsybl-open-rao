@@ -57,8 +57,8 @@ public class OverloadPenaltyCostFiller extends AbstractOptimisationProblemFiller
         double overloadPenaltyCost = 5000.0;
         MPObjective objective = solver.objective();
         monitoredBranches.forEach(branch -> {
-                    MPVariable overload = Objects.requireNonNull(solver.lookupVariableOrNull(ClosedOptimisationRaoNames.nameOverloadVariable(branch)));
-                    objective.setCoefficient(overload, overloadPenaltyCost);
-                });
+            MPVariable overload = Objects.requireNonNull(solver.lookupVariableOrNull(ClosedOptimisationRaoNames.nameOverloadVariable(branch)));
+            objective.setCoefficient(overload, overloadPenaltyCost);
+        });
     }
 }
