@@ -44,6 +44,7 @@ public final class ClosedOptimisationRaoNames {
     public static final String TOTAL_REDISPATCH_COST = "total_redispatch_cost";
     public static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
     public static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
+    public static final String OVERLOAD_PENALTY_COST = "overload_penalty_cost";
 
     /**
      * Get standard name of redispatch value variables

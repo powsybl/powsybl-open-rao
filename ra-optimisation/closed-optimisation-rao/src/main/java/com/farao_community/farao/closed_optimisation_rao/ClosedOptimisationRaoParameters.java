@@ -22,22 +22,27 @@ import java.util.Objects;
  */
 public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComputationParameters> {
     static final String DEFAULT_SOLVER_TYPE = "GLOP_LINEAR_PROGRAMMING";
+    static final double DEFAULT_RELATIVE_MIP_GAP = 0.0;
+    static final double DEFAULT_MAX_TIME = Double.POSITIVE_INFINITY;
+    static final double DEFAULT_OVERLOAD_PENALTY_COST = 5000.0;
+
     private String solverType = DEFAULT_SOLVER_TYPE;
-    private double relativeMipGap = 0.0;
-    private double maxTimeInSeconds = Double.POSITIVE_INFINITY;
+    private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
+    private double maxTimeInSeconds = DEFAULT_MAX_TIME;
+    private double overloadPenaltyCost = DEFAULT_OVERLOAD_PENALTY_COST;
     private List<String> fillersList = new ArrayList<>();
-    List<String> preProcessorsList = new ArrayList<>();
-    List<String> postProcessorsList = new ArrayList<>();
+    private List<String> preProcessorsList = new ArrayList<>();
+    private List<String> postProcessorsList = new ArrayList<>();
 
     public ClosedOptimisationRaoParameters() {
     }
 
     public ClosedOptimisationRaoParameters(ClosedOptimisationRaoParameters other) {
         Objects.requireNonNull(other);
-
         this.solverType = other.solverType;
         this.relativeMipGap = other.relativeMipGap;
         this.maxTimeInSeconds = other.maxTimeInSeconds;
+        this.overloadPenaltyCost = other.overloadPenaltyCost;
         this.fillersList.addAll(other.fillersList);
         this.preProcessorsList.addAll(other.preProcessorsList);
         this.postProcessorsList.addAll(other.postProcessorsList);
@@ -60,12 +65,22 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
         this.relativeMipGap = relativeMipGap;
         return this;
     }
+
     public double getMaxTimeInSeconds() {
         return this.maxTimeInSeconds;
     }
 
     public ClosedOptimisationRaoParameters setMaxTimeInSeconds(double maxTimeInSeconds) {
         this.maxTimeInSeconds = maxTimeInSeconds;
+        return this;
+    }
+
+    public double getOverloadPenaltyCost() {
+        return this.overloadPenaltyCost;
+    }
+
+    public ClosedOptimisationRaoParameters setOverloadPenaltyCost(double overloadPenaltyCost) {
+        this.overloadPenaltyCost = overloadPenaltyCost;
         return this;
     }
 
@@ -94,23 +109,6 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
     public ClosedOptimisationRaoParameters addAllPostProcessors(List<String> postProcessors) {
         this.postProcessorsList.addAll(postProcessors);
         return this;
-    }
-
-    public MPSolverParameters buildSolverParameters(MPSolver solver) {
-        // in or-tools, some parameters are defined in the MPSolver object...
-        addParametersToSolver(solver);
-        // ... while some other must be passed as a MPSolverParameters during the solve()
-        return buildMPSolverParameters();
-    }
-
-    private MPSolverParameters buildMPSolverParameters() {
-        MPSolverParameters solverParameters = new MPSolverParameters();
-        solverParameters.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
-        return solverParameters;
-    }
-
-    private void addParametersToSolver(MPSolver solver) {
-        solver.setTimeLimit((int) maxTimeInSeconds*1000); // read in milliseconds by setTimeLimit
     }
 
     @Override

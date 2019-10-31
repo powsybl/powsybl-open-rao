@@ -136,6 +136,9 @@ public final class OptimisationComponentUtil {
         for (OptimisationPreProcessor preProcessor : preProcessors) {
             preProcessor.fillData(network, cracFile, computationManager, data);
         }
+
+        // add rao closed-optimisation parameters in data
+        data.put("constants", ClosedOptimisationRaoParametersUtil.getOptimisationConstants(parameters));
         return data;
     }
 

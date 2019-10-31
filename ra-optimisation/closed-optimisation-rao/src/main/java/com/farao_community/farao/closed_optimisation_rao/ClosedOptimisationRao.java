@@ -80,7 +80,7 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         fillers.forEach(filler -> filler.fillProblem(solver));
 
-        MPSolverParameters solverParameters = parametersExtension.buildSolverParameters(solver);
+        MPSolverParameters solverParameters = ClosedOptimisationRaoParametersUtil.getSolverParameters(parametersExtension, solver);
         final MPSolver.ResultStatus resultStatus = solver.solve(solverParameters);
 
         RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;

@@ -28,6 +28,9 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
     public void serialize(ClosedOptimisationRaoParameters closedOptimisationRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("solverType", closedOptimisationRaoParameters.getSolverType());
+        jsonGenerator.writeNumberField("relativeMipGap", closedOptimisationRaoParameters.getRelativeMipGap());
+        jsonGenerator.writeNumberField("maxTimeInSeconds", closedOptimisationRaoParameters.getMaxTimeInSeconds());
+        jsonGenerator.writeNumberField("overloadPenaltyCost", closedOptimisationRaoParameters.getOverloadPenaltyCost());
         jsonGenerator.writeObjectField("problemFillers", closedOptimisationRaoParameters.getFillersList());
         jsonGenerator.writeObjectField("preProcessors", closedOptimisationRaoParameters.getPreProcessorsList());
         jsonGenerator.writeObjectField("postProcessors", closedOptimisationRaoParameters.getPostProcessorsList());
@@ -50,6 +53,10 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
                 case "maxTimeInSeconds":
                     jsonParser.nextToken();
                     parameters.setMaxTimeInSeconds(jsonParser.getDoubleValue());
+                    break;
+                case "overloadPenaltyCost":
+                    jsonParser.nextToken();
+                    parameters.setOverloadPenaltyCost(jsonParser.getDoubleValue());
                     break;
                 case "problemFillers":
                     jsonParser.nextToken();
