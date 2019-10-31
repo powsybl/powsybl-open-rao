@@ -6,10 +6,7 @@
  */
 package com.farao_community.farao.closed_optimisation_rao;
 
-import com.farao_community.farao.data.crac_file.Contingency;
-import com.farao_community.farao.data.crac_file.PstElement;
-import com.farao_community.farao.data.crac_file.RedispatchRemedialActionElement;
-import com.farao_community.farao.data.crac_file.RemedialAction;
+import com.farao_community.farao.data.crac_file.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -39,6 +36,9 @@ public final class ClosedOptimisationRaoNames {
     private static final String ESTIMATED_FLOW_EQUATION_POSTFIX = "estimated_flow_equation";
     private static final String REDISPATCH_COST_POSTFIX = "redispatch_cost";
     private static final String SHIFT_VALUE_POSTFIX = "shift_value";
+    private static final String OVERLOAD_VARIABLE = "overload";
+    private static final String POSITIVE_MAXFLOW_CONSTRAINT = "ub_flow_constraint";
+    private static final String NEGATIVE_MAXFLOW_CONSTRAINT = "lb_flow_constraint";
 
     public static final String PST_SENSITIVITIES_DATA_NAME = "pst_branch_sensitivities";
     public static final String TOTAL_REDISPATCH_COST = "total_redispatch_cost";
@@ -95,14 +95,35 @@ public final class ClosedOptimisationRaoNames {
     /**
      * Get standard name of estimated flow variable
      */
-    public static String nameEstimatedFlowVariable(String branchId) {
-        return branchId + POSTFIX_SEPARATOR + ESTIMATED_FLOW_POSTFIX;
+    public static String nameEstimatedFlowVariable(MonitoredBranch branch) {
+        return branch.getId() + POSTFIX_SEPARATOR + ESTIMATED_FLOW_POSTFIX;
     }
 
     /**
      * Get standard name of flow definition constraint
      */
-    public static String nameEstimatedFlowConstraint(String branchId) {
-        return branchId + POSTFIX_SEPARATOR + ESTIMATED_FLOW_EQUATION_POSTFIX;
+    public static String nameEstimatedFlowConstraint(MonitoredBranch branch) {
+        return branch.getId() + POSTFIX_SEPARATOR + ESTIMATED_FLOW_EQUATION_POSTFIX;
+    }
+
+    /**
+     * Get standard name of overload variable
+     */
+    public static String nameOverloadVariable(MonitoredBranch branch) {
+        return branch.getId() + POSTFIX_SEPARATOR + OVERLOAD_VARIABLE;
+    }
+
+    /**
+     * Get standard name of maximum positive flow constraint
+     */
+    public static String namePositiveMaximumFlowConstraint(MonitoredBranch branch) {
+        return branch.getId() + POSTFIX_SEPARATOR + POSITIVE_MAXFLOW_CONSTRAINT;
+    }
+
+    /**
+     * Get standard name of maximum negative flow constraint
+     */
+    public static String nameNegativeMaximumFlowConstraint(MonitoredBranch branch) {
+        return branch.getId() + POSTFIX_SEPARATOR + NEGATIVE_MAXFLOW_CONSTRAINT;
     }
 }

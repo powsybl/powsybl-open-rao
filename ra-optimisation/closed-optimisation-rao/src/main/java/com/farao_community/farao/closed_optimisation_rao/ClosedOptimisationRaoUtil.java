@@ -150,4 +150,17 @@ public final class ClosedOptimisationRaoUtil {
         }
         return (RedispatchRemedialActionElement) raeList.get(0);
     }
+
+    /**
+     * Get all monitored branch (pre and post contingency) from a CracFile
+     */
+    public static List<MonitoredBranch> getAllMonitoredBranches(CracFile cracFile) {
+        // add pre-contingency monitored branches
+        List<MonitoredBranch> allMonitoredBranches = cracFile.getPreContingency().getMonitoredBranches();
+        // add post-contingency monitored branches
+        allMonitoredBranches.addAll(cracFile.getContingencies().stream()
+                .flatMap(contingency -> contingency.getMonitoredBranches().stream())
+                .collect(Collectors.toList()));
+        return allMonitoredBranches;
+    }
 }

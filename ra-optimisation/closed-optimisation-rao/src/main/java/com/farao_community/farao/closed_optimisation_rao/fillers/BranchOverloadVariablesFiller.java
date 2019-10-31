@@ -18,20 +18,22 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.*;
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getAllMonitoredBranches;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(AbstractOptimisationProblemFiller.class)
-public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFiller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BranchMarginsVariablesFiller.class);
+public class BranchOverloadVariablesFiller extends AbstractOptimisationProblemFiller {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BranchMarginsPositivityConstraintFiller.class);
     private List<MonitoredBranch> monitoredBranches;
 
     @Override
@@ -41,36 +43,40 @@ public class BranchMarginsVariablesFiller extends AbstractOptimisationProblemFil
     }
 
     @Override
-    public Map<String, Class> dataExpected() {
-        Map<String, Class> returnMap = new HashMap<>();
-        returnMap.put(REFERENCE_FLOWS_DATA_NAME, Map.class);
-        return returnMap;
-    }
-
-    @Override
-    public List<String> variablesProvided() {
+    public List<String> variablesExpected() {
         return monitoredBranches.stream()
                 .map(ClosedOptimisationRaoNames::nameEstimatedFlowVariable).collect(Collectors.toList());
     }
 
     @Override
-    public List<String> constraintsProvided() {
-        return monitoredBranches.stream()
-                .map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList());
+    public List<String> constraintsExpected() {
+        List<String> flowConstraints = new ArrayList<>();
+        monitoredBranches.forEach(branch -> {
+            flowConstraints.add(namePositiveMaximumFlowConstraint(branch));
+            flowConstraints.add(nameNegativeMaximumFlowConstraint(branch));
+        });
+        return flowConstraints;
     }
 
     @Override
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
-        double infinity = MPSolver.infinity();
-
-        Map<String, Double> referenceFlows = (Map<String, Double>) data.get(REFERENCE_FLOWS_DATA_NAME);
 
         monitoredBranches.forEach(branch -> {
-            MPVariable branchFlowVariable = solver.makeNumVar(-infinity, infinity, nameEstimatedFlowVariable(branch));
-            double referenceFlow = referenceFlows.get(branch.getId());
-            MPConstraint branchFlowEquation = solver.makeConstraint(referenceFlow, referenceFlow, nameEstimatedFlowConstraint(branch));
-            branchFlowEquation.setCoefficient(branchFlowVariable, 1);
+            addOverloadVariable(solver, branch);
         });
     }
+
+    private void addOverloadVariable(MPSolver solver, MonitoredBranch branch) {
+        double infinity = MPSolver.infinity();
+
+        MPVariable overloadVariable = solver.makeNumVar(0, infinity, nameOverloadVariable(branch));
+
+        MPConstraint ubConstraint = Objects.requireNonNull(solver.lookupConstraintOrNull(namePositiveMaximumFlowConstraint(branch)));
+        MPConstraint lbConstraint = Objects.requireNonNull(solver.lookupConstraintOrNull(nameNegativeMaximumFlowConstraint(branch)));
+
+        ubConstraint.setCoefficient(overloadVariable, -1.0);
+        lbConstraint.setCoefficient(overloadVariable, 1.0);
+    }
+
 }
