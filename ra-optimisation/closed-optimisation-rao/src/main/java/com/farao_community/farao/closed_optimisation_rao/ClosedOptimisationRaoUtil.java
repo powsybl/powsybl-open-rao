@@ -155,8 +155,9 @@ public final class ClosedOptimisationRaoUtil {
      * Get all monitored branch (pre and post contingency) from a CracFile
      */
     public static List<MonitoredBranch> getAllMonitoredBranches(CracFile cracFile) {
+        List<MonitoredBranch> allMonitoredBranches = new ArrayList<>();
         // add pre-contingency monitored branches
-        List<MonitoredBranch> allMonitoredBranches = cracFile.getPreContingency().getMonitoredBranches();
+        allMonitoredBranches.addAll(cracFile.getPreContingency().getMonitoredBranches());
         // add post-contingency monitored branches
         allMonitoredBranches.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())

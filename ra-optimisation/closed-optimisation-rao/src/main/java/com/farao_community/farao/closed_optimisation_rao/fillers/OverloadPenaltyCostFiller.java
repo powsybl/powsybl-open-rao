@@ -18,12 +18,10 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.OPTIMISATION_CONSTANTS_DATA_NAME;
 import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil.getAllMonitoredBranches;
 
 /**
@@ -44,6 +42,13 @@ public class OverloadPenaltyCostFiller extends AbstractOptimisationProblemFiller
     public List<String> variablesExpected() {
         return monitoredBranches.stream()
                 .map(ClosedOptimisationRaoNames::nameOverloadVariable).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Class>  dataExpected() {
+        Map<String, Class> returnMap = new HashMap<>();
+        returnMap.put(OPTIMISATION_CONSTANTS_DATA_NAME, Map.class);
+        return returnMap;
     }
 
     @Override

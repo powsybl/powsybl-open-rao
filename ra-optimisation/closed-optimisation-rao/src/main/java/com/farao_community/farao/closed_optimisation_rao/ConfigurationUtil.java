@@ -8,14 +8,17 @@ package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
 
 import java.util.*;
 
 /**
  * Utility class designed to check availability of all plugins listed in the
- * RAO parameters.
+ * RAO parameters, and to interpret them in different contexts of the closed
+ * optimisation RAO.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class ConfigurationUtil {
 
@@ -86,5 +89,36 @@ public final class ConfigurationUtil {
             }
         });
         return errors;
+    }
+
+    /**
+     * Get the optimisation constants given in the RAO parameters as a map readable
+     * by the optimisation problem fillers
+     */
+    public static Map<String, Double> getOptimisationConstants(ClosedOptimisationRaoParameters parameters) {
+        Map<String, Double> constants = new HashMap<>();
+        constants.put(ClosedOptimisationRaoNames.OVERLOAD_PENALTY_COST_NAME, parameters.getOverloadPenaltyCost());
+        return constants;
+    }
+
+    /**
+     * Update the or-tools object MPSolver, and get a MPSolverParameters aligned with
+     * the configuration given in the RAO parameters
+     */
+    public static MPSolverParameters getSolverParameters(ClosedOptimisationRaoParameters parameters, MPSolver solver) {
+        // in or-tools, some parameters are defined in the MPSolver object...
+        addParametersToSolver(parameters, solver);
+        // ... while some other must be passed as a MPSolverParameters during the solve()
+        return buildMPSolverParameters(parameters);
+    }
+
+    private static MPSolverParameters buildMPSolverParameters(ClosedOptimisationRaoParameters parameters) {
+        MPSolverParameters solverParameters = new MPSolverParameters();
+        solverParameters.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, parameters.getRelativeMipGap());
+        return solverParameters;
+    }
+
+    private static void addParametersToSolver(ClosedOptimisationRaoParameters parameters, MPSolver solver) {
+        solver.setTimeLimit((int) parameters.getMaxTimeInSeconds() * 1000); // read in milliseconds by setTimeLimit
     }
 }

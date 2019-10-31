@@ -25,6 +25,8 @@ import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.OPTIMISATION_CONSTANTS_DATA_NAME;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -138,7 +140,7 @@ public final class OptimisationComponentUtil {
         }
 
         // add rao closed-optimisation parameters in data
-        data.put("constants", ClosedOptimisationRaoParametersUtil.getOptimisationConstants(parameters));
+        data.put(OPTIMISATION_CONSTANTS_DATA_NAME, ConfigurationUtil.getOptimisationConstants(parameters));
         return data;
     }
 

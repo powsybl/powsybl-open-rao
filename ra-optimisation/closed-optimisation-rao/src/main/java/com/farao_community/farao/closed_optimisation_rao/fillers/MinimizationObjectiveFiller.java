@@ -32,6 +32,6 @@ public class MinimizationObjectiveFiller extends AbstractOptimisationProblemFill
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         MPObjective objective = solver.objective();
-        objective.minimization();
+        objective.setMinimization();
     }
 }

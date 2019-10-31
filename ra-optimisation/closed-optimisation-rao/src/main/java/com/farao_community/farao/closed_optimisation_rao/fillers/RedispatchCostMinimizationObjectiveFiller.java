@@ -45,12 +45,12 @@ public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisat
         MPObjective objective = solver.objective();
         objective.setCoefficient(totalRedispatchCost, 1);
         /*
-         objective.minimization() is now set by MinimizationObjectiveFiller,
+         objective.setMinimization() is now set by MinimizationObjectiveFiller,
          it has yet been kept in this filler to ensure the non-regression of
          "old" configs which did not use the MinimizationObjectiveFiller.
-         objective.minimization() is not disturbing in this filler as long as there is no
+         objective.setMinimization() is not disturbing in this filler as long as there is no
          need for an optimisation problem which aims at maximizing the redispatching costs
          */
-        objective.minimization();
+        objective.setMinimization();
     }
 }

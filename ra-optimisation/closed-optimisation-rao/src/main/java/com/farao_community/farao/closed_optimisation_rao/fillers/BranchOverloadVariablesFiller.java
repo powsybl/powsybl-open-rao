@@ -59,6 +59,12 @@ public class BranchOverloadVariablesFiller extends AbstractOptimisationProblemFi
     }
 
     @Override
+    public List<String> variablesProvided() {
+        return monitoredBranches.stream()
+                .map(ClosedOptimisationRaoNames::nameOverloadVariable).collect(Collectors.toList());
+    }
+
+    @Override
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
 

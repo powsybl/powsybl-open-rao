@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.closed_optimisation_rao;
+package com.farao_community.farao.closed_optimisation_rao.mocks;
 
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
@@ -23,7 +23,7 @@ public class MPSolverMock extends MPSolver {
     private List<MPConstraintMock> constraints;
     private List<MPVariableMock> variables;
 
-    protected MPSolverMock() {
+    public MPSolverMock() {
         super(0, false);
         constraints = new ArrayList<>();
         variables = new ArrayList<>();
@@ -65,6 +65,14 @@ public class MPSolverMock extends MPSolver {
         constraints.add(newConstraint);
         return newConstraint;
     }
+
+    @Override
+    public MPConstraintMock makeConstraint(String name) {
+        MPConstraintMock newConstraint = new MPConstraintMock(name, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        constraints.add(newConstraint);
+        return newConstraint;
+    }
+
 
     @Override
     public MPVariableMock lookupVariableOrNull(String varName) {
