@@ -33,7 +33,7 @@ import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisati
 @AutoService(AbstractOptimisationProblemFiller.class)
 public class BranchOverloadVariablesFiller extends AbstractOptimisationProblemFiller {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BranchMarginsPositivityConstraintFiller.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BranchOverloadVariablesFiller.class);
     private List<MonitoredBranch> monitoredBranches;
 
     @Override

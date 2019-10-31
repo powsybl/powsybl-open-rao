@@ -7,6 +7,8 @@
 package com.farao_community.farao.closed_optimisation_rao.fillers;
 
 import com.farao_community.farao.closed_optimisation_rao.AbstractOptimisationProblemFiller;
+import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames;
+import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoUtil;
 import com.farao_community.farao.data.crac_file.*;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -59,10 +61,10 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     public List<String> constraintsExpected() {
         List<String> constraintsExpected = new ArrayList<>();
         constraintsExpected.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
+                .map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList()));
         constraintsExpected.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
+                .map(ClosedOptimisationRaoNames::nameEstimatedFlowConstraint).collect(Collectors.toList()));
         return constraintsExpected;
     }
 
@@ -101,7 +103,7 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
 
     public void fillImpactOfRedispatchingRemedialActionOnBranch(Optional<Contingency> contingency, RemedialAction ra, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities) {
         MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, ra)));
-        MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
+        MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch)));
         double sensitivity = sensitivities.get(Pair.of(branch.getId(), Objects.requireNonNull(getRedispatchElement(ra)).getId()));
         flowEquation.setCoefficient(redispatchVariable, -sensitivity);
     }

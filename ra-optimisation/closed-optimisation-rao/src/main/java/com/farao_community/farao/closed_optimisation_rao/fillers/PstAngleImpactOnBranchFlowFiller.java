@@ -62,10 +62,10 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
     public List<String> constraintsExpected() {
         List<String> constraintsExpected = new ArrayList<>();
         constraintsExpected.addAll(cracFile.getPreContingency().getMonitoredBranches().stream()
-                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch)).collect(Collectors.toList()));
         constraintsExpected.addAll(cracFile.getContingencies().stream()
                 .flatMap(contingency -> contingency.getMonitoredBranches().stream())
-                .map(branch -> nameEstimatedFlowConstraint(branch.getId())).collect(Collectors.toList()));
+                .map(branch -> nameEstimatedFlowConstraint(branch)).collect(Collectors.toList()));
         return constraintsExpected;
     }
 
@@ -104,7 +104,7 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
 
     private void fillImpactOfPstRemedialActionOnBranch(Optional<Contingency> contingency, PstElement pst, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities) {
         MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariable(contingency, pst)));
-        MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch.getId())));
+        MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch)));
         double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
         flowEquation.setCoefficient(pstVariable, -sensitivity);
     }
