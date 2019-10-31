@@ -43,6 +43,14 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
                 case "solverType":
                     parameters.setSolverType(jsonParser.nextTextValue());
                     break;
+                case "relativeMipGap":
+                    jsonParser.nextToken();
+                    parameters.setRelativeMipGap(jsonParser.getDoubleValue());
+                    break;
+                case "maxTimeInSeconds":
+                    jsonParser.nextToken();
+                    parameters.setMaxTimeInSeconds(jsonParser.getDoubleValue());
+                    break;
                 case "problemFillers":
                     jsonParser.nextToken();
                     parameters.addAllFillers(jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {

@@ -13,10 +13,9 @@ import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.constraintsolver.Solver;
+import com.google.ortools.constraintsolver.SolverParameters;
+import com.google.ortools.linearsolver.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -81,7 +80,8 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         fillers.forEach(filler -> filler.fillProblem(solver));
 
-        final MPSolver.ResultStatus resultStatus = solver.solve();
+        MPSolverParameters solverParameters = parametersExtension.buildSolverParameters(solver);
+        final MPSolver.ResultStatus resultStatus = solver.solve(solverParameters);
 
         RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
         // Check that the problem has an optimal solution.

@@ -31,6 +31,8 @@ public class ClosedOptimisationRaoParametersConfigLoader implements RaoComputati
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
             parameters.setSolverType(config.getStringProperty("solver-type", ClosedOptimisationRaoParameters.DEFAULT_SOLVER_TYPE));
+            parameters.setRelativeMipGap(config.getDoubleProperty("relative-mip-gap", 0.0));
+            parameters.setMaxTimeInSeconds(config.getDoubleProperty("max-time-in-seconds", Double.POSITIVE_INFINITY));
             parameters.addAllFillers(config.getStringListProperty("problem-fillers"));
             parameters.addAllPreProcessors(config.getStringListProperty("pre-processors", Collections.emptyList()));
             parameters.addAllPostProcessors(config.getStringListProperty("post-processors", Collections.emptyList()));
