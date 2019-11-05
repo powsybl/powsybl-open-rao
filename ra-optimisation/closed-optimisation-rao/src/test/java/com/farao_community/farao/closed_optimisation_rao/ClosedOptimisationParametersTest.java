@@ -16,7 +16,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
