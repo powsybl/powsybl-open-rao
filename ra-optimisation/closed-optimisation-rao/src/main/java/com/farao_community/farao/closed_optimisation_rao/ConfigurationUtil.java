@@ -118,6 +118,6 @@ public final class ConfigurationUtil {
     }
 
     private static void addParametersToSolver(ClosedOptimisationRaoParameters parameters, MPSolver solver) {
-        solver.setTimeLimit((int) parameters.getMaxTimeInSeconds() * 1000); // read in milliseconds by setTimeLimit
+        solver.setTimeLimit((int) (parameters.getMaxTimeInSeconds() * 1000.0)); // read in milliseconds by setTimeLimit
     }
 }
