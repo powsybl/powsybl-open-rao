@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
@@ -31,12 +30,6 @@ public class ClosedOptimisationParametersTest {
         PlatformConfig config = Mockito.mock(PlatformConfig.class);
         parameters = RaoComputationParameters.load(config);
         parametersExtension = parameters.getExtension(ClosedOptimisationRaoParameters.class);
-    }
-
-    @Test
-    public void checkRaoConfigurationTest() {
-        List<String> qualityCheckOfDefaultParameters = ConfigurationUtil.checkRaoConfiguration(parameters);
-        assertTrue(qualityCheckOfDefaultParameters.isEmpty());
     }
 
     @Test
