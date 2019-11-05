@@ -12,8 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -29,6 +32,35 @@ public class ClosedOptimisationParametersTest {
         PlatformConfig config = Mockito.mock(PlatformConfig.class);
         parameters = RaoComputationParameters.load(config);
         parametersExtension = parameters.getExtension(ClosedOptimisationRaoParameters.class);
+    }
+
+    @Test
+    public void copySetAndGetClosedOptimisationParametersTest() {
+        List<String> listProcessors = new ArrayList<>();
+        List<String> listFillers = new ArrayList<>();
+
+        listProcessors.add("processor1");
+        listProcessors.add("processor2");
+        listFillers.add("filler");
+
+        ClosedOptimisationRaoParameters copiedParameters = new ClosedOptimisationRaoParameters(parametersExtension);
+
+        copiedParameters.setOverloadPenaltyCost(3000.0);
+        copiedParameters.setMaxTimeInSeconds(3600);
+        copiedParameters.setSolverType("ANOTHER_SOLVER");
+        copiedParameters.setRelativeMipGap(0.001);
+        copiedParameters.addAllPreProcessors(listProcessors);
+        copiedParameters.addAllFillers(listFillers);
+        copiedParameters.addAllPostProcessors(listProcessors);
+
+        double  tol = 1e-3;
+        assertEquals(3000.0, copiedParameters.getOverloadPenaltyCost(), tol);
+        assertEquals(3600, copiedParameters.getMaxTimeInSeconds(), tol);
+        assertEquals("ANOTHER_SOLVER", copiedParameters.getSolverType());
+        assertEquals(0.001, copiedParameters.getRelativeMipGap(), tol);
+        assertEquals(parametersExtension.getPreProcessorsList().size() + 2, copiedParameters.getPreProcessorsList().size(), tol);
+        assertEquals(parametersExtension.getFillersList().size() + 1, copiedParameters.getFillersList().size(), tol);
+        assertEquals(parametersExtension.getPostProcessorsList().size() + 2, copiedParameters.getPostProcessorsList().size(), tol);
     }
 
     @Test
