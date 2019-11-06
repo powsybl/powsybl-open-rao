@@ -103,8 +103,8 @@
       "@c" : ".PstElement",
       "id" : "PST",
       "typeOfLimit" : "ABSOLUTE",
-      "minStepRange" : -6,
-      "maxStepRange" : 6
+      "minStepRange" : -106,
+      "maxStepRange" : 106
     } ],
     "usageRules" : [ {
       "id" : "PST_FREE_TO_USE",

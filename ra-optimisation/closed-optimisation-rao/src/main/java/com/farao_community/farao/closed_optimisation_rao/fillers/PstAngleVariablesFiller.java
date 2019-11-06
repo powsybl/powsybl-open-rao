@@ -57,9 +57,11 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
                  compare lowTapPosition and highTapPosition (coming from the CracFile), with the values given in the network
                  this part should ideally be in a global quality check of the cracFile and not in the closed-optimisation-rao
                  */
-
-                lowTapPosition = Math.max(lowTapPosition, phaseTapChanger.getLowTapPosition());
-                highTapPosition = Math.min(highTapPosition, phaseTapChanger.getHighTapPosition());
+                if (lowTapPosition < phaseTapChanger.getLowTapPosition() || highTapPosition > phaseTapChanger.getHighTapPosition()) {
+                    LOGGER.warn("The PST range of '{}' given in the cracFile [{};{}] has been restricted to match network definition [{};{}]", pst.getId(), lowTapPosition, highTapPosition, phaseTapChanger.getLowTapPosition(), phaseTapChanger.getHighTapPosition());
+                    lowTapPosition = Math.max(lowTapPosition, phaseTapChanger.getLowTapPosition());
+                    highTapPosition = Math.min(highTapPosition, phaseTapChanger.getHighTapPosition());
+                }
 
                 // Considering alpha is always between alpha low and alpha high
                 double alphaLowStep = phaseTapChanger.getStep(lowTapPosition).getAlpha();
