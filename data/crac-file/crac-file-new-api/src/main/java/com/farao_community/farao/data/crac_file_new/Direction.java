@@ -8,17 +8,11 @@
 package com.farao_community.farao.data.crac_file_new;
 
 /**
- * PST remedial action alignment
+ * Direction
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
-public class PstGroupLever implements RemedialActionLever {
-
-    private boolean areAligned;
-
-    public PstGroupLever(boolean areAligned) {
-        this.areAligned = areAligned;
-    }
-
+public enum Direction {
+    IN,
+    OUT
 }

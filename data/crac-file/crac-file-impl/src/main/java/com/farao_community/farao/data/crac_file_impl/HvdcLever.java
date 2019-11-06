@@ -5,16 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * Business object of a usage context in the CRAC file
+ * Elementary HVDC range remedial action
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
-
-public interface UsageContext {
-
-
+public class HvdcLever implements RemedialActionLever {
 
 }

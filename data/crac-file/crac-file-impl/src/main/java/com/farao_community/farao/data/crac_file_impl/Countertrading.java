@@ -5,20 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * HVDC remedial action alignment
+ * Countertrading remedial action
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
-public class HvdcGroupLever implements RemedialActionLever {
-
-    private boolean areAligned;
-
-    public HvdcGroupLever(boolean areAligned) {
-        this.areAligned = areAligned;
-    }
+public class Countertrading implements RemedialActionLever {
 
 }

@@ -5,16 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
-
-import java.util.List;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * Business object of a remedial action the CRAC file
+ * Element of the network in the CRAC file.
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
-public abstract class AbstractRemedialAction {
+public class NetworkElement extends AbstractIdentifiable {
 
+    public NetworkElement(String id, String name) {
+        super(id, name);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Network Element";
+    }
 }

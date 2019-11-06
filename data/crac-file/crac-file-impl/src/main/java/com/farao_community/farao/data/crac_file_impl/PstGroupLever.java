@@ -5,21 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
-
-import java.util.List;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * Business object for a contingency in the CRAC file
+ * PST remedial action alignment
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
-public class Contingency {
+public class PstGroupLever implements RemedialActionLever {
 
-    private List<NetworkElement> elementsId;
+    private boolean areAligned;
 
-    public Contingency(final List<NetworkElement> elementsId) {
-        this.elementsId = elementsId;
+    public PstGroupLever(boolean areAligned) {
+        this.areAligned = areAligned;
     }
+
 }

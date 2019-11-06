@@ -8,10 +8,13 @@
 package com.farao_community.farao.data.crac_file_new;
 
 /**
- * On constraint rule
+ * Usage method
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class OnConstraint implements UsageContext {
 
+public enum UsageMethod {
+    FORCED,
+    AVAILABLE,
+    UNAVAILABLE
 }

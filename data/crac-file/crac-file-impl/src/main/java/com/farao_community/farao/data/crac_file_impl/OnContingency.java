@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * Elementary remedial action
+ * On constraint rule
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
-public interface RemedialActionLever {
+public class OnContingency implements UsageContext {
 
 }

@@ -5,14 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * Topological remedial action
+ * Elementary remedial action
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
-
-public class TopologyModification implements RemedialActionLever {
+public interface RemedialActionLever {
 
 }

@@ -8,10 +8,15 @@
 package com.farao_community.farao.data.crac_file_new;
 
 /**
- * On constraint rule
+ * Side
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class OnContingency implements UsageContext {
 
+public enum Side {
+    LEFT,
+    RIGHT,
+    DOWN,
+    MIDDLE,
+    UP
 }

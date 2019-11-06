@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 import java.util.Optional;
 
@@ -24,4 +24,19 @@ public class State {
         this.instant = instant;
     }
 
+    public Instant getInstant() {
+        return instant;
+    }
+
+    public void setInstant(Instant instant) {
+        this.instant = instant;
+    }
+
+    public Optional<Contingency> getContingency() {
+        return contingency;
+    }
+
+    public void setContingency(Optional<Contingency> contingency) {
+        this.contingency = contingency;
+    }
 }

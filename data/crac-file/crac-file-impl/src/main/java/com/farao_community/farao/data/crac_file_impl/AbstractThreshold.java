@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 
 /**
@@ -17,6 +17,14 @@ public abstract class AbstractThreshold {
     private String unit;
 
     public AbstractThreshold(String unit) {
+        this.unit = unit;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
         this.unit = unit;
     }
 }

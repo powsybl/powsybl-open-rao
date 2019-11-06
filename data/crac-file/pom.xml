@@ -22,5 +22,6 @@
         <module>crac-file-xlsx-api</module>
         <module>crac-merging</module>
         <module>crac-file-new-api</module>
+        <module>crac-file-impl</module>
     </modules>
 </project>

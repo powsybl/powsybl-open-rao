@@ -5,7 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
+
+import com.farao_community.farao.data.crac_file_new.UsageMethod;
 
 /**
  * Business object of a usage rule in the CRAC file
@@ -13,12 +15,6 @@ package com.farao_community.farao.data.crac_file_new;
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 public class UsageRule {
-
-    public enum UsageMethod {
-        FORCED,
-        AVAILABLE,
-        UNAVAILABLE
-    }
 
     private UsageMethod usageMethod;
     private UsageContext usageContext;

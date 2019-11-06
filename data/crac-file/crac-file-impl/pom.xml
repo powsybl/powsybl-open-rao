@@ -9,12 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>crac-file-new-api</artifactId>
+    <artifactId>crac-file-impl</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-commons</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>crac-file-new-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

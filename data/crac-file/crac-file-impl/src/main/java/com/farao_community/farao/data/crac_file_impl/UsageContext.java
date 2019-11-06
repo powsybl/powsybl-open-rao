@@ -5,13 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
 
 /**
- * Free to use rule
+ * Business object of a usage context in the CRAC file
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
-public class FreeToUse implements UsageContext {
+
+public interface UsageContext {
+
+
 
 }

@@ -5,7 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_file_new;
+package com.farao_community.farao.data.crac_file_impl;
+
+import com.farao_community.farao.data.crac_file_new.Direction;
+import com.farao_community.farao.data.crac_file_new.Side;
 
 /**
  * Limits of a flow through an equipment.
@@ -13,18 +16,6 @@ package com.farao_community.farao.data.crac_file_new;
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 public class FlowViolation extends AbstractThreshold {
-
-    public enum Side {
-        LEFT,
-        RIGHT,
-        DOWN,
-        MIDDLE,
-        UP
-    }
-    public enum Direction {
-        IN,
-        OUT
-    }
 
     private Side side;
     private Direction direction;
@@ -35,5 +26,29 @@ public class FlowViolation extends AbstractThreshold {
         this.side = side;
         this.direction = direction;
         this.maxValue = maxValue;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(double maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public Side getSide() {
+        return side;
+    }
+
+    public void setSide(Side side) {
+        this.side = side;
     }
 }
