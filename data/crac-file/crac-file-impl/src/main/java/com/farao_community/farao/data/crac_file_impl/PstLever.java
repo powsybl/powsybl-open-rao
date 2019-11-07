@@ -10,8 +10,23 @@ package com.farao_community.farao.data.crac_file_impl;
 /**
  * Elementary PST range remedial action
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class PstLever implements RemedialActionLever {
+public final class PstLever extends AbstractRangeLever {
 
+    private PstLever(NetworkElement networkElement, double minRelative, double maxRelative, double minAbsolute, double maxAbsolute) {
+        super(networkElement, minRelative, maxRelative, minAbsolute, maxAbsolute);
+    }
+
+    public static PstLever withAbsoluteRange(NetworkElement networkElement, double minAbsolute, double maxAbsolute) {
+        return new PstLever(networkElement, Double.NaN, Double.NaN, minAbsolute, maxAbsolute);
+    }
+
+    public static PstLever withRelativeRange(NetworkElement networkElement, double minRelative, double maxRelative) {
+        return new PstLever(networkElement, minRelative, maxRelative, Double.NaN, Double.NaN);
+    }
+
+    public static PstLever create(NetworkElement networkElement, double minRelative, double maxRelative, double minAbsolute, double maxAbsolute) {
+        return new PstLever(networkElement, minRelative, maxRelative, minAbsolute, maxAbsolute);
+    }
 }

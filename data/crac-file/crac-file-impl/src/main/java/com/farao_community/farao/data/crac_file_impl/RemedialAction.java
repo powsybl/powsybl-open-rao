@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Business object of a remedial action the CRAC file
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
 public class RemedialAction extends AbstractIdentifiable {
@@ -35,6 +35,6 @@ public class RemedialAction extends AbstractIdentifiable {
 
     @Override
     protected String getTypeDescription() {
-        return "Remedial Action";
+        return "Remedial ActionType";
     }
 }

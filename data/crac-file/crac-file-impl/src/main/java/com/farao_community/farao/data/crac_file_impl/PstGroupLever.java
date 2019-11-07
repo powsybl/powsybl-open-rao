@@ -7,18 +7,31 @@
 
 package com.farao_community.farao.data.crac_file_impl;
 
+import java.util.List;
+
 /**
  * PST remedial action alignment
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class PstGroupLever implements RemedialActionLever {
+public class PstGroupLever extends AbstractGroupLever {
 
-    private boolean areAligned;
+    private List<PstLever> pstLevers;
 
-    public PstGroupLever(boolean areAligned) {
-        this.areAligned = areAligned;
+    public PstGroupLever(List<PstLever> pstLevers) {
+        this.pstLevers = pstLevers;
     }
 
+    public List<PstLever> getPstLevers() {
+        return pstLevers;
+    }
+
+    public void setPstLevers(List<PstLever> pstLevers) {
+        this.pstLevers = pstLevers;
+    }
+
+    public void addPstLever(PstLever pstLever) {
+        pstLevers.add(pstLever);
+    }
 }

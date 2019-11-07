@@ -7,18 +7,31 @@
 
 package com.farao_community.farao.data.crac_file_impl;
 
+import java.util.List;
+
 /**
  * HVDC remedial action alignment
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class HvdcGroupLever implements RemedialActionLever {
+public class HvdcGroupLever extends AbstractGroupLever {
 
-    private boolean areAligned;
+    private List<HvdcLever> hvdcLevers;
 
-    public HvdcGroupLever(boolean areAligned) {
-        this.areAligned = areAligned;
+    public HvdcGroupLever(List<HvdcLever> hvdcLevers) {
+        this.hvdcLevers = hvdcLevers;
     }
 
+    public List<HvdcLever> getHvdcLevers() {
+        return hvdcLevers;
+    }
+
+    public void setHvdcLevers(List<HvdcLever> hvdcLevers) {
+        this.hvdcLevers = hvdcLevers;
+    }
+
+    public void addHvdcLever(HvdcLever hvdcLever) {
+        hvdcLevers.add(hvdcLever);
+    }
 }

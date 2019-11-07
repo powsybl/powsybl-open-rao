@@ -14,7 +14,7 @@ package com.farao_community.farao.data.crac_file_impl;
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 public abstract class AbstractThreshold {
-    private String unit;
+    protected String unit;
 
     public AbstractThreshold(String unit) {
         this.unit = unit;

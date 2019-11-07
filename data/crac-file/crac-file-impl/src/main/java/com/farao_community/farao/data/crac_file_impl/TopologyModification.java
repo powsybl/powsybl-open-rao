@@ -7,12 +7,37 @@
 
 package com.farao_community.farao.data.crac_file_impl;
 
+import com.farao_community.farao.data.crac_file_new.ActionType;
+
 /**
- * Topological remedial action
+ * Topological remedial actionType
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
 public class TopologyModification implements RemedialActionLever {
 
+    private NetworkElement networkElement;
+    private ActionType actionType;
+
+    public TopologyModification(NetworkElement networkElement, ActionType actionType) {
+        this.networkElement = networkElement;
+        this.actionType = actionType;
+    }
+
+    public NetworkElement getNetworkElement() {
+        return networkElement;
+    }
+
+    public void setNetworkElement(NetworkElement networkElement) {
+        this.networkElement = networkElement;
+    }
+
+    public ActionType getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(ActionType actionType) {
+        this.actionType = actionType;
+    }
 }
