@@ -9,6 +9,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
@@ -39,18 +40,10 @@ import java.util.stream.Stream;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class ExampleGenerator {
+final class ExampleGenerator {
 
     private ExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");
-    }
-
-    public static <K, V> Map.Entry<K, V> entry(K key, V value) {
-        return new AbstractMap.SimpleEntry<>(key, value);
-    }
-
-    public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-        return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
     }
 
     static Network network() {
@@ -373,8 +366,8 @@ public final class ExampleGenerator {
         };
     }
 
-    static LoadFlowFactory loadFlowFactory() {
-        return new LoadFlowFactoryMock();
+    static LoadFlow.Runner loadFlowRunner(PlatformConfig platformConfig) {
+        return LoadFlow.find("MockLoadflow", Collections.singletonList(new LoadFlowProviderMock()), platformConfig);
     }
 
     static SensitivityComputationFactory sensitivityComputationFactory() {
@@ -385,40 +378,35 @@ public final class ExampleGenerator {
      * Load flow provider dedicated for this test case.
      * It ** ONLY ** works in basecase and in N-1 FR-BE.
      */
-    @AutoService(LoadFlowFactory.class)
-    public static class LoadFlowFactoryMock implements LoadFlowFactory {
+    @AutoService(LoadFlowProvider.class)
+    public static class LoadFlowProviderMock implements LoadFlowProvider {
         private final Map<String, Double> expectedFref;
 
-        public LoadFlowFactoryMock() {
+        public LoadFlowProviderMock() {
             expectedFref = getExpectedFref();
         }
 
         @Override
-        public LoadFlow create(Network network, ComputationManager computationManager, int i) {
-            return new LoadFlow() {
-                @Override
-                public CompletableFuture<LoadFlowResult> run(String workingVariantId, LoadFlowParameters loadFlowParameters) {
-                    String initialVariantId = network.getVariantManager().getWorkingVariantId();
-                    network.getVariantManager().setWorkingVariant(workingVariantId);
-                    if (network.getLine("FR-BE").getTerminal1().isConnected() && network.getLine("FR-BE").getTerminal2().isConnected()) {
-                        fillPreContingencyResult(network);
-                    } else {
-                        fillPostContingencyResult(network);
-                    }
-                    network.getVariantManager().setWorkingVariant(initialVariantId);
-                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
-                }
+        public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters loadFlowParameters) {
+            String initialVariantId = network.getVariantManager().getWorkingVariantId();
+            network.getVariantManager().setWorkingVariant(workingVariantId);
+            if (network.getLine("FR-BE").getTerminal1().isConnected() && network.getLine("FR-BE").getTerminal2().isConnected()) {
+                fillPreContingencyResult(network);
+            } else {
+                fillPostContingencyResult(network);
+            }
+            network.getVariantManager().setWorkingVariant(initialVariantId);
+            return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
+        }
 
-                @Override
-                public String getName() {
-                    return "MockLoadflow";
-                }
+        @Override
+        public String getName() {
+            return "MockLoadflow";
+        }
 
-                @Override
-                public String getVersion() {
-                    return "1.0.0";
-                }
-            };
+        @Override
+        public String getVersion() {
+            return "1.0.0";
         }
 
         private void fillPreContingencyResult(Network network) {
