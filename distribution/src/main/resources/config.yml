@@ -40,7 +40,6 @@ closed-optimisation-rao-parameters:
         - com.farao_community.farao.closed_optimisation_rao.fillers.MinimizationObjectiveFiller
         - com.farao_community.farao.closed_optimisation_rao.fillers.OverloadPenaltyCostFiller
     pre-processors:
-        - com.farao_community.farao.closed_optimisation_rao.pre_processors.ReferenceFlowsPreProcessor
         - com.farao_community.farao.closed_optimisation_rao.pre_processors.SensitivityPreProcessor
     post-processors:
         - com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor
