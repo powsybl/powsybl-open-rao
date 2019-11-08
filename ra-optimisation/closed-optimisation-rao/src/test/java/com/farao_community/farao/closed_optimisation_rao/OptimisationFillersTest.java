@@ -196,6 +196,8 @@ public class OptimisationFillersTest {
         referenceFlows.put("C1_MONITORED_FRANCE_BELGIUM_1", -800.000);
 
         constants.put("overload_penalty_cost", 5000.0);
+        constants.put("rd_sensitivity_threshold", 0.05);
+        constants.put("pst_sensitivity_threshold", 5.0);
 
         data.put("pst_branch_sensitivities", pstSensitivities);
         data.put("generators_branch_sensitivities", generatorSensitivities);
@@ -242,6 +244,8 @@ public class OptimisationFillersTest {
         referenceFlows.put("C1_MONITORED_FRANCE_BELGIUM_3", -316.22418212890625);
 
         constants.put("overload_penalty_cost", 5000.0);
+        constants.put("rd_sensitivity_threshold", 0.05);
+        constants.put("pst_sensitivity_threshold", 10.0);
 
         data.put("pst_branch_sensitivities", pstSensitivities);
         data.put("generators_branch_sensitivities", generatorSensitivities);
