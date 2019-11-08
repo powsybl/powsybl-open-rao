@@ -23,11 +23,15 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
     static final double DEFAULT_RELATIVE_MIP_GAP = 0.0;
     static final double DEFAULT_MAX_TIME = Double.POSITIVE_INFINITY;
     static final double DEFAULT_OVERLOAD_PENALTY_COST = 5000.0;
+    static final double DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD = 0.0;
+    static final double DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD = 0.0;
 
     private String solverType = DEFAULT_SOLVER_TYPE;
     private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
     private double maxTimeInSeconds = DEFAULT_MAX_TIME;
     private double overloadPenaltyCost = DEFAULT_OVERLOAD_PENALTY_COST;
+    private double rdSensitivityThreshold = DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD;
+    private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD;
     private List<String> fillersList = new ArrayList<>();
     private List<String> preProcessorsList = new ArrayList<>();
     private List<String> postProcessorsList = new ArrayList<>();
@@ -79,6 +83,24 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
 
     public ClosedOptimisationRaoParameters setOverloadPenaltyCost(double overloadPenaltyCost) {
         this.overloadPenaltyCost = overloadPenaltyCost;
+        return this;
+    }
+
+    public double getRdSensitivityThreshold() {
+        return this.rdSensitivityThreshold;
+    }
+
+    public ClosedOptimisationRaoParameters setRdSensitivityThreshold(double rdSensitivityThreshold) {
+        this.rdSensitivityThreshold = rdSensitivityThreshold;
+        return this;
+    }
+
+    public double getPstSensitivityThreshold() {
+        return this.pstSensitivityThreshold;
+    }
+
+    public ClosedOptimisationRaoParameters setPstSensitivityThreshold(double pstSensitivityThreshold) {
+        this.pstSensitivityThreshold = pstSensitivityThreshold;
         return this;
     }
 

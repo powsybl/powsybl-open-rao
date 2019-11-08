@@ -73,32 +73,35 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(GEN_SENSITIVITIES_DATA_NAME);
+        double sensiThreshold = ((Map<String, Double>) data.get(OPTIMISATION_CONSTANTS_DATA_NAME)).get(RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
 
         redispatchingRemedialActions.forEach((contingency, raList) -> {
             if (!contingency.isPresent()) {
                 // impact of preventive remedial actions on preContingency flows
                 cracFile.getPreContingency().getMonitoredBranches().forEach(branch -> raList.forEach(ra -> {
-                    fillImpactOfRedispatchingRemedialActionOnBranch(contingency, ra, branch, solver, sensitivities);
+                    fillImpactOfRedispatchingRemedialActionOnBranch(contingency, ra, branch, solver, sensitivities, sensiThreshold);
                 }));
                 // impact of preventive remedial actions on all N-1 flows
                 cracFile.getContingencies().forEach(cont -> {
                     cont.getMonitoredBranches().forEach(branch -> raList.forEach(ra -> {
-                        fillImpactOfRedispatchingRemedialActionOnBranch(contingency, ra, branch, solver, sensitivities);
+                        fillImpactOfRedispatchingRemedialActionOnBranch(contingency, ra, branch, solver, sensitivities, sensiThreshold);
                     }));
                 });
             } else {
                 // impact of curative remedial actions on associated N-1 flows
                 contingency.get().getMonitoredBranches().forEach(branch -> raList.forEach(ra -> {
-                    fillImpactOfRedispatchingRemedialActionOnBranch(contingency, ra, branch, solver, sensitivities);
+                    fillImpactOfRedispatchingRemedialActionOnBranch(contingency, ra, branch, solver, sensitivities, sensiThreshold);
                 }));
             }
         });
     }
 
-    public void fillImpactOfRedispatchingRemedialActionOnBranch(Optional<Contingency> contingency, RemedialAction ra, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities) {
-        MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, ra)));
-        MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch)));
+    private void fillImpactOfRedispatchingRemedialActionOnBranch(Optional<Contingency> contingency, RemedialAction ra, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities, double sensiThreshold) {
         double sensitivity = sensitivities.get(Pair.of(branch.getId(), Objects.requireNonNull(getRedispatchElement(ra)).getId()));
-        flowEquation.setCoefficient(redispatchVariable, -sensitivity);
+        if (isSignificant(sensitivity, sensiThreshold)) {
+            MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, ra)));
+            MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch)));
+            flowEquation.setCoefficient(redispatchVariable, -sensitivity);
+        }
     }
 }

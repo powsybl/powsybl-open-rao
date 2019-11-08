@@ -23,7 +23,7 @@ public final class ClosedOptimisationRaoUtil {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-     /**
+    /**
      * Build map of RedispatchingRemedialActionElements with their associated contingency
      * Required for the initialisation of all fillers which invokes redispatching remedial action
      */
@@ -117,8 +117,8 @@ public final class ClosedOptimisationRaoUtil {
 
     /**
      * Check if the remedial action is curative (Instant = CURATIVE), and :
-     *   - free-to-use (Usage = FREE_TO_USE), or
-     *   - applicable on contingency (Usage = ON_OUTAGE), for the given contingency
+     * - free-to-use (Usage = FREE_TO_USE), or
+     * - applicable on contingency (Usage = ON_OUTAGE), for the given contingency
      */
     public static boolean isRemedialActionCurativeAndApplicable(RemedialAction remedialAction, Contingency contingency) {
         // is remedial action curative and free to use ?
@@ -137,8 +137,8 @@ public final class ClosedOptimisationRaoUtil {
     /**
      * Get redispatchRemedialActionElement from remedialAction
      * Or, return null if :
-     *    - the remedialAction includes several RemedialActionElement
-     *    - the remedialActionElement is not a redispatchRemedialActionElement
+     * - the remedialAction includes several RemedialActionElement
+     * - the remedialActionElement is not a redispatchRemedialActionElement
      */
     public static RedispatchRemedialActionElement getRedispatchElement(RemedialAction remedialAction) {
         List<RemedialActionElement> raeList = remedialAction.getRemedialActionElements();
@@ -164,4 +164,12 @@ public final class ClosedOptimisationRaoUtil {
                 .collect(Collectors.toList()));
         return allMonitoredBranches;
     }
+
+    /**
+     * Test the significance of a given sensitivity
+     */
+    public static boolean isSignificant(double sensitivity, double threshold) {
+        return Math.abs(sensitivity) > threshold;
+    }
+
 }

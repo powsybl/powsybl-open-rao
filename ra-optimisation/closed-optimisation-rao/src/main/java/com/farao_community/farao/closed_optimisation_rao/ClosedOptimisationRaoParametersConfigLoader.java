@@ -34,6 +34,8 @@ public class ClosedOptimisationRaoParametersConfigLoader implements RaoComputati
             parameters.setRelativeMipGap(config.getDoubleProperty("relative-mip-gap", ClosedOptimisationRaoParameters.DEFAULT_RELATIVE_MIP_GAP));
             parameters.setMaxTimeInSeconds(config.getDoubleProperty("max-time-in-seconds", ClosedOptimisationRaoParameters.DEFAULT_MAX_TIME));
             parameters.setOverloadPenaltyCost(config.getDoubleProperty("overload-penalty-cost", ClosedOptimisationRaoParameters.DEFAULT_OVERLOAD_PENALTY_COST));
+            parameters.setRdSensitivityThreshold(config.getDoubleProperty("redispatching-sensitivity-threshold", ClosedOptimisationRaoParameters.DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD));
+            parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", ClosedOptimisationRaoParameters.DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD));
             parameters.addAllFillers(config.getStringListProperty("problem-fillers"));
             parameters.addAllPreProcessors(config.getStringListProperty("pre-processors", Collections.emptyList()));
             parameters.addAllPostProcessors(config.getStringListProperty("post-processors", Collections.emptyList()));

@@ -61,6 +61,16 @@ public final class ConfigurationUtil {
             errors.add("Max time must be strictly positive ( " + parametersExtension.getMaxTimeInSeconds() + " not valid)");
         }
 
+        // Check that sensitivityThreshold is positive
+        if (parametersExtension.getMaxTimeInSeconds() < 0) {
+            errors.add("Redispatching sensitivity threshold must be strictly positive ( " + parametersExtension.getRdSensitivityThreshold() + " not valid)");
+        }
+
+        // Check that sensitivityThreshold is positive
+        if (parametersExtension.getMaxTimeInSeconds() < 0) {
+            errors.add("PST sensitivity threshold must be strictly positive ( " + parametersExtension.getPstSensitivityThreshold() + " not valid)");
+        }
+
         // Check that all expected pre-processors are provided
         parametersExtension.getPreProcessorsList().forEach(preProcessor -> {
             try {
@@ -97,6 +107,8 @@ public final class ConfigurationUtil {
     public static Map<String, Double> getOptimisationConstants(ClosedOptimisationRaoParameters parameters) {
         Map<String, Double> constants = new HashMap<>();
         constants.put(ClosedOptimisationRaoNames.OVERLOAD_PENALTY_COST_NAME, parameters.getOverloadPenaltyCost());
+        constants.put(ClosedOptimisationRaoNames.RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME, parameters.getRdSensitivityThreshold());
+        constants.put(ClosedOptimisationRaoNames.PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME, parameters.getPstSensitivityThreshold());
         return constants;
     }
 

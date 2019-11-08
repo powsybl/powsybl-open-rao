@@ -31,6 +31,8 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
         jsonGenerator.writeNumberField("relativeMipGap", closedOptimisationRaoParameters.getRelativeMipGap());
         jsonGenerator.writeNumberField("maxTimeInSeconds", closedOptimisationRaoParameters.getMaxTimeInSeconds());
         jsonGenerator.writeNumberField("overloadPenaltyCost", closedOptimisationRaoParameters.getOverloadPenaltyCost());
+        jsonGenerator.writeNumberField("rdSensitivityThreshold", closedOptimisationRaoParameters.getRdSensitivityThreshold());
+        jsonGenerator.writeNumberField("pstSensitivityThreshold", closedOptimisationRaoParameters.getPstSensitivityThreshold());
         jsonGenerator.writeObjectField("problemFillers", closedOptimisationRaoParameters.getFillersList());
         jsonGenerator.writeObjectField("preProcessors", closedOptimisationRaoParameters.getPreProcessorsList());
         jsonGenerator.writeObjectField("postProcessors", closedOptimisationRaoParameters.getPostProcessorsList());
@@ -57,6 +59,14 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
                 case "overloadPenaltyCost":
                     jsonParser.nextToken();
                     parameters.setOverloadPenaltyCost(jsonParser.getDoubleValue());
+                    break;
+                case "rdSensitivityThreshold":
+                    jsonParser.nextToken();
+                    parameters.setRdSensitivityThreshold(jsonParser.getDoubleValue());
+                    break;
+                case "pstSensitivityThreshold":
+                    jsonParser.nextToken();
+                    parameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
                     break;
                 case "problemFillers":
                     jsonParser.nextToken();

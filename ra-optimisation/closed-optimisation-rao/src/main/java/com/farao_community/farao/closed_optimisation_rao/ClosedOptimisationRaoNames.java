@@ -46,6 +46,8 @@ public final class ClosedOptimisationRaoNames {
     public static final String OPTIMISATION_CONSTANTS_DATA_NAME = "constants";
     public static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
     public static final String OVERLOAD_PENALTY_COST_NAME = "overload_penalty_cost";
+    public static final String RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME = "rd_sensitivity_threshold";
+    public static final String PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME = "pst_sensitivity_threshold";
 
     /**
      * Get standard name of redispatch value variables
