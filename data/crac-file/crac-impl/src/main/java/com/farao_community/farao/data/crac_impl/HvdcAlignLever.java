@@ -15,11 +15,11 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class HvdcGroupLever extends AbstractGroupLever {
+public class HvdcAlignLever extends AbstractRemedialActionRange {
 
     private List<HvdcLever> hvdcLevers;
 
-    public HvdcGroupLever(List<HvdcLever> hvdcLevers) {
+    public HvdcAlignLever(List<HvdcLever> hvdcLevers) {
         this.hvdcLevers = hvdcLevers;
     }
 

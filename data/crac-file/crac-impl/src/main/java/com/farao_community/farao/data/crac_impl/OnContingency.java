@@ -8,13 +8,23 @@
 package com.farao_community.farao.data.crac_impl;
 
 /**
- * On constraint rule
+ * On contingency rule
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class OnContingency implements UsageContext {
+public final class OnContingency implements UsageContext {
 
-    public OnContingency() {
+    private Contingency contingency;
 
+    public OnContingency(Contingency contingency) {
+        this.contingency = contingency;
+    }
+
+    public Contingency getContingency() {
+        return contingency;
+    }
+
+    public void setContingency(Contingency contingency) {
+        this.contingency = contingency;
     }
 }

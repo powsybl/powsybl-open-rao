@@ -8,15 +8,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 /**
- * On constraint rule
+ * Remedial action
  *
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
-public final class OnConstraint implements UsageContext {
+public abstract class AbstractRemedialActionAction implements RemedialActionLever {
 
-    private Cnec constraint;
-
-    public OnConstraint(Cnec constraint) {
-        this.constraint = constraint;
-    }
 }

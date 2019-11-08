@@ -10,12 +10,12 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.ActionType;
 
 /**
- * Topological remedial actionType
+ * Topological remedial action
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
-public class TopologyModification implements RemedialActionLever {
+public class TopologyModification extends AbstractRemedialActionAction {
 
     private NetworkElement networkElement;
     private ActionType actionType;

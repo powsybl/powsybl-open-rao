@@ -7,7 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Business object of the CRAC file
@@ -46,6 +48,27 @@ public class Crac extends AbstractIdentifiable {
 
     public void addRemedialAction(RemedialAction remedialAction) {
         remedialActions.add(remedialAction);
+    }
+
+    public List<NetworkElement> getCriticalNetworkElements() {
+        List<NetworkElement> criticalNetworkElements = new ArrayList<>();
+        cnecs.forEach(cnec -> criticalNetworkElements.add(cnec.getCriticalNetworkElement()));
+        return criticalNetworkElements;
+    }
+
+    public List<UsageRule> getUsageRules() {
+        List<UsageRule> usageRules = new ArrayList<>();
+        remedialActions.forEach(remedialAction -> usageRules.addAll(remedialAction.getUsageRules()));
+        return usageRules;
+    }
+
+    public List<Contingency> getContingencies() {
+        List<Contingency> contingencies = new ArrayList<>();
+        cnecs.forEach(cnec -> {
+            Optional<Contingency> contingency = cnec.getState().getContingency();
+            contingency.ifPresent(contingencies::add);
+        });
+        return contingencies;
     }
 
     @Override

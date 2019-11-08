@@ -8,15 +8,9 @@
 package com.farao_community.farao.data.crac_impl;
 
 /**
- * On constraint rule
+ * Validity domain fix
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class OnConstraint implements UsageContext {
-
-    private Cnec constraint;
-
-    public OnConstraint(Cnec constraint) {
-        this.constraint = constraint;
-    }
+public class ValidityDomainFixe implements ValidityDomain {
 }

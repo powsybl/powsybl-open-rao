@@ -15,11 +15,11 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class PstGroupLever extends AbstractGroupLever {
+public class PstAlignLever extends AbstractRemedialActionRange {
 
     private List<PstLever> pstLevers;
 
-    public PstGroupLever(List<PstLever> pstLevers) {
+    public PstAlignLever(List<PstLever> pstLevers) {
         this.pstLevers = pstLevers;
     }
 

@@ -10,11 +10,10 @@ package com.farao_community.farao.data.crac_impl;
 /**
  * Free to use rule
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class FreeToUse implements UsageContext {
+public final class FreeToUse implements UsageContext {
 
     public FreeToUse() {
-
     }
 }

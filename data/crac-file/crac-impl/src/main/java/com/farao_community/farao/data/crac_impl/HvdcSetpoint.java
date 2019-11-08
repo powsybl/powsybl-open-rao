@@ -8,12 +8,11 @@
 package com.farao_community.farao.data.crac_impl;
 
 /**
- * Group remedial actions
+ * HVDC setpoint remedial action
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public abstract class AbstractGroupLever implements RemedialActionLever {
 
-    public AbstractGroupLever() {
-    }
+public class HvdcSetpoint extends AbstractRemedialActionAction {
+
 }

@@ -12,10 +12,22 @@ package com.farao_community.farao.data.crac_impl;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class HvdcLever extends AbstractRangeLever {
+public final class HvdcLever extends AbstractRemedialActionRange {
+
+    private NetworkElement networkElement;
+
+    private double minAbsolute;
+    private double maxAbsolute;
+
+    private double minRelative;
+    private double maxRelative;
 
     private HvdcLever(NetworkElement networkElement, double minRelative, double maxRelative, double minAbsolute, double maxAbsolute) {
-        super(networkElement, minRelative, maxRelative, minAbsolute, maxAbsolute);
+        this.networkElement = networkElement;
+        this.minAbsolute = minAbsolute;
+        this.maxAbsolute = maxAbsolute;
+        this.minRelative = minRelative;
+        this.maxRelative = maxRelative;
     }
 
     public static HvdcLever withAbsoluteRange(NetworkElement networkElement, double minAbsolute, double maxAbsolute) {
@@ -28,5 +40,21 @@ public final class HvdcLever extends AbstractRangeLever {
 
     public static HvdcLever create(NetworkElement networkElement, double minRelative, double maxRelative, double minAbsolute, double maxAbsolute) {
         return new HvdcLever(networkElement, minRelative, maxRelative, minAbsolute, maxAbsolute);
+    }
+
+    public NetworkElement getNetworkElement() {
+        return networkElement;
+    }
+
+    public void setNetworkElement(NetworkElement networkElement) {
+        this.networkElement = networkElement;
+    }
+
+    public boolean hasRelativeRange() {
+        return !Double.isNaN(minRelative) && !Double.isNaN(maxRelative);
+    }
+
+    public boolean hasAbsoluteRange() {
+        return !Double.isNaN(minAbsolute) && !Double.isNaN(maxAbsolute);
     }
 }

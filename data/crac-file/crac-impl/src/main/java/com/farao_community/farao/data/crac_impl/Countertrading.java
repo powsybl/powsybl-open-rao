@@ -13,7 +13,7 @@ package com.farao_community.farao.data.crac_impl;
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
-public class Countertrading implements RemedialActionLever {
+public class Countertrading extends AbstractRemedialActionRange {
 
     public Countertrading() {
 

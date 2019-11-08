@@ -35,6 +35,22 @@ public class RemedialAction extends AbstractIdentifiable {
 
     @Override
     protected String getTypeDescription() {
-        return "Remedial ActionType";
+        return "Remedial Action";
+    }
+
+    public List<RemedialActionLever> getRemedialActionLevers() {
+        return remedialActionLevers;
+    }
+
+    public void setRemedialActionLevers(List<RemedialActionLever> remedialActionLevers) {
+        this.remedialActionLevers = remedialActionLevers;
+    }
+
+    public List<UsageRule> getUsageRules() {
+        return usageRules;
+    }
+
+    public void setUsageRules(List<UsageRule> usageRules) {
+        this.usageRules = usageRules;
     }
 }
