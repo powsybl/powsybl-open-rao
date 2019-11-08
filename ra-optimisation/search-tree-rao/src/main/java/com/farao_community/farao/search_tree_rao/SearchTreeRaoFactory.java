@@ -18,6 +18,6 @@ import com.powsybl.iidm.network.Network;
 public class SearchTreeRaoFactory implements RaoComputationFactory {
     @Override
     public RaoComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int i) {
-        return null;
+        return new SearchTreeRao();
     }
 }
