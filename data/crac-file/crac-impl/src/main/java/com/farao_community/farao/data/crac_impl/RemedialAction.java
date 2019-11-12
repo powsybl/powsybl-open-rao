@@ -16,17 +16,13 @@ import java.util.List;
  */
 
 public class RemedialAction extends AbstractIdentifiable {
-    private List<RemedialActionLever> remedialActionLevers;
+    private RemedialActionLever remedialActionLever;
     private List<UsageRule> usageRules;
 
-    public RemedialAction(String id, String name, List<RemedialActionLever> remedialActionLevers, List<UsageRule> usageRules) {
+    public RemedialAction(String id, String name, RemedialActionLever remedialActionLever, List<UsageRule> usageRules) {
         super(id, name);
-        this.remedialActionLevers = remedialActionLevers;
+        this.remedialActionLever = remedialActionLever;
         this.usageRules = usageRules;
-    }
-
-    public void addRemedialActionLever(RemedialActionLever remedialActionLever) {
-        remedialActionLevers.add(remedialActionLever);
     }
 
     public void addUsageRule(UsageRule usageRule) {
@@ -38,12 +34,12 @@ public class RemedialAction extends AbstractIdentifiable {
         return "Remedial Action";
     }
 
-    public List<RemedialActionLever> getRemedialActionLevers() {
-        return remedialActionLevers;
+    public RemedialActionLever getRemedialActionLever() {
+        return remedialActionLever;
     }
 
-    public void setRemedialActionLevers(List<RemedialActionLever> remedialActionLevers) {
-        this.remedialActionLevers = remedialActionLevers;
+    public void setRemedialActionLever(RemedialActionLever remedialActionLever) {
+        this.remedialActionLever = remedialActionLever;
     }
 
     public List<UsageRule> getUsageRules() {

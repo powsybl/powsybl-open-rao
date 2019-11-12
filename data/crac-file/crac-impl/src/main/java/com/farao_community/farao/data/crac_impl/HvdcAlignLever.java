@@ -15,7 +15,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class HvdcAlignLever extends AbstractRemedialActionRange {
+public class HvdcAlignLever extends AbstractRangeLever {
 
     private List<HvdcLever> hvdcLevers;
 

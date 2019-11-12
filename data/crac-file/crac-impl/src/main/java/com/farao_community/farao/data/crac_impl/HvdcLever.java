@@ -12,7 +12,7 @@ package com.farao_community.farao.data.crac_impl;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class HvdcLever extends AbstractRemedialActionRange {
+public final class HvdcLever extends AbstractRangeLever {
 
     private NetworkElement networkElement;
 

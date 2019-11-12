@@ -15,7 +15,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class PstAlignLever extends AbstractRemedialActionRange {
+public class PstAlignLever extends AbstractRangeLever {
 
     private List<PstLever> pstLevers;
 

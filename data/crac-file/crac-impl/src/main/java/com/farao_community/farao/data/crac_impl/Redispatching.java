@@ -13,7 +13,7 @@ package com.farao_community.farao.data.crac_impl;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public final class Redispatching extends AbstractRemedialActionRange {
+public final class Redispatching extends AbstractRangeLever {
 
     private double minimumPower;
     private double maximumPower;

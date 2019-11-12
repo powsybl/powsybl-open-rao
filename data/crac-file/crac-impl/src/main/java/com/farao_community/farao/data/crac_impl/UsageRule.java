@@ -23,4 +23,20 @@ public class UsageRule {
         this.usageMethod = usageMethod;
         this.usageContext = usageContext;
     }
+
+    public UsageContext getUsageContext() {
+        return usageContext;
+    }
+
+    public void setUsageContext(UsageContext usageContext) {
+        this.usageContext = usageContext;
+    }
+
+    public UsageMethod getUsageMethod() {
+        return usageMethod;
+    }
+
+    public void setUsageMethod(UsageMethod usageMethod) {
+        this.usageMethod = usageMethod;
+    }
 }
