@@ -10,19 +10,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.farao_community.farao.commons.FaraoException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.concurrent.CompletableFuture;
-
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.when;
 
@@ -33,14 +27,12 @@ public class LoadFlowServiceTest {
 
     @Test
     public void testLoadFlowService() {
-        LoadFlowFactory factory = Mockito.mock(LoadFlowFactory.class);
-        LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
+        LoadFlow.Runner runner = Mockito.mock(LoadFlow.Runner.class);
         LoadFlowResult loadFlowResult = Mockito.mock(LoadFlowResult.class);
 
-        when(factory.create(any(Network.class), any(ComputationManager.class), anyInt())).thenReturn(loadFlow);
-        when(loadFlow.run(anyString(), any(LoadFlowParameters.class))).thenReturn(CompletableFuture.completedFuture(loadFlowResult));
+        when(runner.run(any(), any(), any(), any())).thenReturn(loadFlowResult);
 
-        LoadFlowService service = new LoadFlowService(factory, Mockito.mock(ComputationManager.class));
+        LoadFlowService service = new LoadFlowService(runner, Mockito.mock(ComputationManager.class));
         LoadFlowResult result = service.compute(Mockito.mock(Network.class), "", Mockito.mock(FullLineDecompositionParameters.class, RETURNS_DEEP_STUBS));
         assertNotNull(result);
         assertEquals(loadFlowResult, result);
@@ -48,13 +40,10 @@ public class LoadFlowServiceTest {
 
     @Test(expected = FaraoException.class)
     public void testExceptionInLoadFlowService() {
-        LoadFlowFactory factory = Mockito.mock(LoadFlowFactory.class);
-        LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
+        LoadFlow.Runner runner = Mockito.mock(LoadFlow.Runner.class);
+        when(runner.run(any(), any(), any(), any())).thenThrow(PowsyblException.class);
 
-        when(factory.create(any(Network.class), any(ComputationManager.class), anyInt())).thenReturn(loadFlow);
-        when(loadFlow.run(anyString(), any(LoadFlowParameters.class))).thenThrow(PowsyblException.class);
-
-        LoadFlowService service = new LoadFlowService(factory, Mockito.mock(ComputationManager.class));
+        LoadFlowService service = new LoadFlowService(runner, Mockito.mock(ComputationManager.class));
         service.compute(Mockito.mock(Network.class), "", Mockito.mock(FullLineDecompositionParameters.class, RETURNS_DEEP_STUBS));
     }
 }
