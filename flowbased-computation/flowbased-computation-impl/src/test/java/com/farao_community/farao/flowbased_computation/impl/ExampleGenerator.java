@@ -11,7 +11,6 @@ import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvide
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.*;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -39,18 +38,10 @@ import java.util.stream.Stream;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class ExampleGenerator {
+final class ExampleGenerator {
 
     private ExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");
-    }
-
-    public static <K, V> Map.Entry<K, V> entry(K key, V value) {
-        return new AbstractMap.SimpleEntry<>(key, value);
-    }
-
-    public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-        return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
     }
 
     static Network network() {
@@ -373,68 +364,26 @@ public final class ExampleGenerator {
         };
     }
 
-    static LoadFlowFactory loadFlowFactory() {
-        return new LoadFlowFactoryMock();
-    }
-
     static SensitivityComputationFactory sensitivityComputationFactory() {
         return new SensitivityComputationFactoryMock();
     }
 
-    /**
-     * Load flow provider dedicated for this test case.
-     * It ** ONLY ** works in basecase and in N-1 FR-BE.
-     */
-    @AutoService(LoadFlowFactory.class)
-    public static class LoadFlowFactoryMock implements LoadFlowFactory {
+    @AutoService(SensitivityComputationFactory.class)
+    public static class SensitivityComputationFactoryMock implements SensitivityComputationFactory {
         private final Map<String, Double> expectedFref;
+        private final Map<String, Map<String, Double>> expectedPtdf;
 
-        public LoadFlowFactoryMock() {
+        public SensitivityComputationFactoryMock() {
+            expectedPtdf = getExpectedPtdf();
             expectedFref = getExpectedFref();
         }
 
-        @Override
-        public LoadFlow create(Network network, ComputationManager computationManager, int i) {
-            return new LoadFlow() {
-                @Override
-                public CompletableFuture<LoadFlowResult> run(String workingVariantId, LoadFlowParameters loadFlowParameters) {
-                    String initialVariantId = network.getVariantManager().getWorkingVariantId();
-                    network.getVariantManager().setWorkingVariant(workingVariantId);
-                    if (network.getLine("FR-BE").getTerminal1().isConnected() && network.getLine("FR-BE").getTerminal2().isConnected()) {
-                        fillPreContingencyResult(network);
-                    } else {
-                        fillPostContingencyResult(network);
-                    }
-                    network.getVariantManager().setWorkingVariant(initialVariantId);
-                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
-                }
-
-                @Override
-                public String getName() {
-                    return "MockLoadflow";
-                }
-
-                @Override
-                public String getVersion() {
-                    return "1.0.0";
-                }
-            };
+        public static <K, V> Map.Entry<K, V> entry(K key, V value) {
+            return new AbstractMap.SimpleEntry<>(key, value);
         }
 
-        private void fillPreContingencyResult(Network network) {
-            network.getLineStream().forEach(line -> {
-                double fref = expectedFref.get(line.getId());
-                line.getTerminal1().setP(fref);
-                line.getTerminal2().setP(-fref);
-            });
-        }
-
-        private void fillPostContingencyResult(Network network) {
-            network.getLineStream().forEach(line -> {
-                double fref = expectedFref.get("N-1 FR-BE / " + line.getId());
-                line.getTerminal1().setP(fref);
-                line.getTerminal2().setP(-fref);
-            });
+        public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
+            return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
         }
 
         private Map<String, Double> getExpectedFref() {
@@ -448,23 +397,6 @@ public final class ExampleGenerator {
             expectedFrefByBranch.put("N-1 FR-BE / BE-NL", 0.);
             expectedFrefByBranch.put("N-1 FR-BE / DE-NL", 100.);
             return expectedFrefByBranch;
-        }
-    }
-
-    @AutoService(SensitivityComputationFactory.class)
-    public static class SensitivityComputationFactoryMock implements SensitivityComputationFactory {
-        private final Map<String, Map<String, Double>> expectedPtdf;
-
-        public SensitivityComputationFactoryMock() {
-            expectedPtdf = getExpectedPtdf();
-        }
-
-        public static <K, V> Map.Entry<K, V> entry(K key, V value) {
-            return new AbstractMap.SimpleEntry<>(key, value);
-        }
-
-        public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-            return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
         }
 
         private Map<String, Map<String, Double>> getExpectedPtdf() {
@@ -551,7 +483,7 @@ public final class ExampleGenerator {
                 @Override
                 public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
                     List<SensitivityValue> sensitivityValues = sensitivityFactorsProvider.getFactors(network).stream()
-                            .map(factor -> new SensitivityValue(factor, expectedPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), Double.NaN, Double.NaN))
+                            .map(factor -> new SensitivityValue(factor, expectedPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), expectedFref.get(factor.getFunction().getId()), Double.NaN))
                             .collect(Collectors.toList());
                     return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues));
                 }

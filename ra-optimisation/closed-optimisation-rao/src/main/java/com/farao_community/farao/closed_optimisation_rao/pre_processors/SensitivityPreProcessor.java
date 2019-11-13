@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFactorsProvider;
+import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
 import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -48,12 +49,14 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityPreProcessor.class);
     private static final String PST_SENSITIVITIES_DATA_NAME = "pst_branch_sensitivities";
     private static final String GEN_SENSITIVITIES_DATA_NAME = "generators_branch_sensitivities";
+    private static final String REFERENCE_FLOWS_DATA_NAME = "reference_flows";
 
     @Override
     public Map<String, Class> dataProvided() {
         Map<String, Class> returnMap = new HashMap<>();
         returnMap.put(PST_SENSITIVITIES_DATA_NAME, Map.class);
         returnMap.put(GEN_SENSITIVITIES_DATA_NAME, Map.class);
+        returnMap.put(REFERENCE_FLOWS_DATA_NAME, Map.class);
         return returnMap;
     }
 
@@ -79,6 +82,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
     public void fillData(Network network, CracFile cracFile, ComputationManager computationManager, Map<String, Object> data) {
         Map<Pair<String, String>, Double> genSensitivities = new ConcurrentHashMap<>();
         Map<Pair<String, String>, Double> pstSensitivities = new ConcurrentHashMap<>();
+        Map<String, Double> referenceFlows = new ConcurrentHashMap<>();
 
         List<Generator> generators = cracFile.getRemedialActions().stream()
                 .filter(this::isRedispatchRemedialAction)
@@ -102,7 +106,8 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                 generators,
                 twoWindingsTransformers,
                 genSensitivities,
-                pstSensitivities
+                pstSensitivities,
+                referenceFlows
         );
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
@@ -120,7 +125,8 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                             generators,
                             twoWindingsTransformers,
                             genSensitivities,
-                            pstSensitivities
+                            pstSensitivities,
+                            referenceFlows
                     );
                     variantsPool.releaseUsedVariant(workingVariant);
                 } catch (InterruptedException e) {
@@ -136,6 +142,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
 
         data.put(GEN_SENSITIVITIES_DATA_NAME, genSensitivities);
         data.put(PST_SENSITIVITIES_DATA_NAME, pstSensitivities);
+        data.put(REFERENCE_FLOWS_DATA_NAME, referenceFlows);
     }
 
     private void runSensitivityComputation(
@@ -144,7 +151,8 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
             List<Generator> generators,
             List<TwoWindingsTransformer> twoWindingsTransformers,
             Map<Pair<String, String>, Double> genSensitivities,
-            Map<Pair<String, String>, Double> pstSensitivities) {
+            Map<Pair<String, String>, Double> pstSensitivities,
+            Map<String, Double> referenceFlows) {
 
         SensitivityFactorsProvider factorsProvider = net -> {
             List<SensitivityFactor> factors = new ArrayList<>();
@@ -171,16 +179,19 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
 
         results.getSensitivityValues().forEach(sensitivityValue -> {
             if (sensitivityValue.getFactor() instanceof BranchFlowPerInjectionIncrease) {
-                String genId = sensitivityValue.getFactor().getVariable().getId();
-                String monitoredBranchId = sensitivityValue.getFactor().getFunction().getId();
-                double genSensitivity = sensitivityValue.getValue();
-                genSensitivities.put(Pair.of(monitoredBranchId, genId), Double.isNaN(genSensitivity) ? 0. : genSensitivity);
+                fillSensitivitiesAndReferenceFlows(sensitivityValue, genSensitivities, referenceFlows);
             } else if (sensitivityValue.getFactor() instanceof BranchFlowPerPSTAngle) {
-                String pstId = sensitivityValue.getFactor().getVariable().getId();
-                String monitoredBranchId = sensitivityValue.getFactor().getFunction().getId();
-                double pstSensitivity = sensitivityValue.getValue();
-                pstSensitivities.put(Pair.of(monitoredBranchId, pstId), Double.isNaN(pstSensitivity) ? 0. : pstSensitivity);
+                fillSensitivitiesAndReferenceFlows(sensitivityValue, pstSensitivities, referenceFlows);
             }
         });
+    }
+
+    private void fillSensitivitiesAndReferenceFlows(SensitivityValue sensitivityValue, Map<Pair<String, String>, Double> sensitivities, Map<String, Double> referenceFlows) {
+        String networkElementId = sensitivityValue.getFactor().getVariable().getId();
+        String monitoredBranchId = sensitivityValue.getFactor().getFunction().getId();
+        double sensitivity = sensitivityValue.getValue();
+        double referenceFlow = sensitivityValue.getFunctionReference();
+        sensitivities.put(Pair.of(monitoredBranchId, networkElementId), Double.isNaN(sensitivity) ? 0. : sensitivity);
+        referenceFlows.put(monitoredBranchId, Double.isNaN(referenceFlow) ? 0. : referenceFlow);
     }
 }

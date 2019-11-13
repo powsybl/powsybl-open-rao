@@ -29,6 +29,13 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-sensitivity-api</artifactId>
         </dependency>
+        <!-- Runtime dependencies -->
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.google.jimfs</groupId>

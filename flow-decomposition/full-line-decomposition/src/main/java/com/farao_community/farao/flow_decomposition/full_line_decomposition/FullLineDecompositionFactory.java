@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.farao_community.farao.flow_decomposition.FlowDecomposition;
 import com.farao_community.farao.flow_decomposition.FlowDecompositionFactory;
@@ -25,8 +25,8 @@ public class FullLineDecompositionFactory implements FlowDecompositionFactory {
     @Override
     public FlowDecomposition create(Network network, ComputationManager computationManager, int priority) {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        LoadFlowFactory loadFlowFactory = defaultConfig.newFactoryImpl(LoadFlowFactory.class);
+        LoadFlow.Runner loadFlowRunner = LoadFlow.find();
         SensitivityComputationFactory sensitivityComputationFactory = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class);
-        return new FullLineDecomposition(network, computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new FullLineDecomposition(network, computationManager, loadFlowRunner, sensitivityComputationFactory);
     }
 }

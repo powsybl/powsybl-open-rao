@@ -43,7 +43,7 @@ public class ChronologyGlskProvider implements GlskProvider {
                 .filter(entry -> entry.getValue().getDataForInstant(selectedInstant).isPresent())
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,
-                    entry -> entry.getValue().getDataForInstant(selectedInstant).orElseThrow(() -> new AssertionError("Data should be available at that instant"))
+                    entry -> entry.getValue().getDataForInstant(selectedInstant).<AssertionError>orElseThrow(() -> new AssertionError("Data should be available at that instant"))
                 ));
     }
 

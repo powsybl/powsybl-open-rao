@@ -19,7 +19,7 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,14 +45,14 @@ public class ClosedOptimisationRao implements RaoComputation {
     public ClosedOptimisationRao(Network network,
                                  CracFile cracFile,
                                  ComputationManager computationManager,
-                                 LoadFlowFactory loadFlowFactory,
+                                 LoadFlow.Runner loadFlowRunner,
                                  SensitivityComputationFactory sensitivityComputationFactory) {
         this.network = network;
         this.cracFile = cracFile;
         this.computationManager = computationManager;
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        LoadFlowService.init(loadFlowFactory, computationManager);
+        LoadFlowService.init(loadFlowRunner, computationManager);
     }
 
     @Override

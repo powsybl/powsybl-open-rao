@@ -45,6 +45,8 @@ public class SensitivityPreProcessorTest {
         assertEquals(Map.class, dataProvided.get("pst_branch_sensitivities"));
         assertTrue(dataProvided.containsKey("generators_branch_sensitivities"));
         assertEquals(Map.class, dataProvided.get("generators_branch_sensitivities"));
+        assertTrue(dataProvided.containsKey("reference_flows"));
+        assertEquals(Map.class, dataProvided.get("reference_flows"));
     }
 
     @Test
@@ -58,6 +60,7 @@ public class SensitivityPreProcessorTest {
 
         assertTrue(dataToFeed.containsKey("pst_branch_sensitivities"));
         assertTrue(dataToFeed.containsKey("generators_branch_sensitivities"));
+        assertTrue(dataToFeed.containsKey("reference_flows"));
         assertTrue(dataToFeed.get("pst_branch_sensitivities") instanceof Map);
         Map<Pair<String, String>, Double> pstBranchSensitivities = (Map<Pair<String, String>, Double>) dataToFeed.get("pst_branch_sensitivities");
 
@@ -68,5 +71,10 @@ public class SensitivityPreProcessorTest {
         Map<Pair<String, String>, Double> generatorBranchSensitivities = (Map<Pair<String, String>, Double>) dataToFeed.get("generators_branch_sensitivities");
         assertTrue(generatorBranchSensitivities.containsKey(Pair.of("MONITORED_FRANCE_BELGIUM_1", "GENERATOR_FR")));
         assertTrue(generatorBranchSensitivities.containsKey(Pair.of("C2_MONITORED_FRANCE_BELGIUM_2", "GENERATOR_FR")));
+
+        assertTrue(dataToFeed.get("reference_flows") instanceof Map);
+        Map<String, Double> referenceFlows = (Map<String, Double>) dataToFeed.get("reference_flows");
+        assertTrue(referenceFlows.containsKey("MONITORED_FRANCE_BELGIUM_1"));
+        assertTrue(referenceFlows.containsKey("C2_MONITORED_FRANCE_BELGIUM_2"));
     }
 }
