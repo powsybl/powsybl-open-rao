@@ -12,10 +12,19 @@ package com.farao_community.farao.data.crac_impl;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.AbsoluteFixedRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.RelativeDynamicRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.RelativeFixedRange;
 import com.farao_community.farao.data.crac_impl.remedial_action.threshold.FlowThreshold;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.threshold.VoltageThreshold;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Redispatching;
+import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
+import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.OnConstraint;
+import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.OnContingency;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -30,11 +39,6 @@ import static com.farao_community.farao.data.crac_api.Unit.*;
 import static org.junit.Assert.*;
 
 public class CracFileTest {
-
-    @Test
-    public void test1() {
-        int i = 1;
-    }
 
     @Test
     public void testCrac() {
@@ -53,51 +57,58 @@ public class CracFileTest {
         rd.setStartupCost(rd.getStartupCost() + 1);
         rd.setMarginalCost(rd.getMarginalCost() + 1);
 
-        // PstLever
+        // Range domain
+        RelativeFixedRange relativeFixedRange = new RelativeFixedRange(0, 1);
+        relativeFixedRange.setMin(1);
+        relativeFixedRange.setMax(10);
+        RelativeDynamicRange relativeDynamicRange = new RelativeDynamicRange(0, 1);
+        relativeDynamicRange.setMin(100);
+        relativeDynamicRange.setMax(1000);
+        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1);
+        absoluteFixedRange.setMin(10);
+        absoluteFixedRange.setMax(1000);
+
+        // PstRange
         NetworkElement pst1 = new NetworkElement("idPst1", "My Pst 1");
-        /*PstRange pstRange1 = PstRange.withRelativeRange(pst1, 2, 8);
-        PstRange pstRange2 = PstRange.withAbsoluteRange(null, 4, 18);
-        pstRange2.setNetworkElement(pst1);*/
+        PstRange pstRange1 = new PstRange(null);
+        pstRange1.setNetworkElement(pst1);
 
-        NetworkElement pst2 = new NetworkElement("idPst2", "My Pst 2");
-        //PstRange pstRange3 = PstRange.create(pst2, -5, 5, 10, 20);
-
-        /*List<PstRange> pstRangeList = new ArrayList<>(Arrays.asList(pstRange2));
-        PstAlignLever pstAlignLever1 = new PstAlignLever(Arrays.asList(pstRange1));
-        PstAlignLever pstAlignLever2 = new PstAlignLever(null);
-        pstAlignLever2.setPstRanges(pstRangeList);
-        pstAlignLever2.addPstLever(pstRange3);*/
-
-        // HvdcLever
+        // HvdcRange
         NetworkElement hvdc1 = new NetworkElement("idHvdc1", "My Hvdc 1");
-        /*HvdcRange hvdcRange1 = HvdcRange.withRelativeRange(null, 200, 800);
+        HvdcRange hvdcRange1 = new HvdcRange(null);
         hvdcRange1.setNetworkElement(hvdc1);
-        HvdcRange hvdcRange2 = HvdcRange.withAbsoluteRange(hvdc1, 400, 1800);*/
 
-        NetworkElement hvdc2 = new NetworkElement("idHvdc2", "My Hvdc 2");
-        //HvdcRange hvdcRange3 = HvdcRange.create(hvdc2, -500, 500, 100, 2000);
+        // GeneratorRange
+        NetworkElement generator1 = new NetworkElement("idGen1", "My Generator 1");
+        InjectionRange injectionRange1 = new InjectionRange(null);
+        injectionRange1.setNetworkElement(generator1);
 
-        /*List<HvdcRange> hvdcList = new ArrayList<>(Arrays.asList(hvdcRange2));
-        HvdcAlignLever hvdcAlignLever1 = new HvdcAlignLever(Arrays.asList(hvdcRange1));
-        HvdcAlignLever hvdcAlignLever2 = new HvdcAlignLever(null);
-        hvdcAlignLever2.setHvdcRanges(hvdcList);
-        hvdcAlignLever2.addHvdcLever(hvdcRange3);*/
+        // Countertrading
+        Countertrading countertrading = new Countertrading();
 
-        // Topological RA
+        // Topology
         NetworkElement line1 = new NetworkElement("idLine1", "My Line 1");
         Topology topology1 = new Topology(line1, OPEN);
-
         NetworkElement switch1 = new NetworkElement("idSwitch1", "My Switch 1");
-        Topology topology2 = new Topology(line1, OPEN);
+        Topology topology2 = new Topology(null, null);
         topology2.setNetworkElement(switch1);
         topology2.setActionType(CLOSE);
 
-        List<Topology> topoList = new ArrayList<>(Arrays.asList(topology1));
-        /*TopologyGroupLever topologyGroupLever = new TopologyGroupLever(null);
-        topologyGroupLever.setTopologyModifications(topoList);
-        topologyGroupLever.addTopologyModification(topology2);*/
+        // Hvdc setpoint
+        HvdcSetpoint hvdcSetpoint = new HvdcSetpoint(switch1, 0);
+        hvdcSetpoint.setNetworkElement(line1);
+        hvdcSetpoint.setSetpoint(1000);
 
-        // Usage rules
+        // Pst setpoint
+        PstSetpoint pstSetpoint = new PstSetpoint(switch1, 0);
+        pstSetpoint.setNetworkElement(pst1);
+        pstSetpoint.setSetpoint(5);
+
+        // Injection setpoint
+        InjectionSetpoint injectionSetpoint = new InjectionSetpoint(switch1, 0);
+        injectionSetpoint.setNetworkElement(generator1);
+        injectionSetpoint.setSetpoint(100);
+
         NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
         NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
 
@@ -106,22 +117,12 @@ public class CracFileTest {
         contingency.setNetworkElements(elementsList);
         contingency.addNetworkElement(networkElement1);
 
-        //AbstractUsageRule abstractUsageRule1 = new FreeToUse(FORCED);
-        //AbstractUsageRule abstractUsageRule2 = new FreeToUse(AVAILABLE);
-        //AbstractUsageRule abstractUsageRule3 = new FreeToUse(AVAILABLE);
-        //abstractUsageRule3.setUsageMethod(UNAVAILABLE);
-
-        /*AbstractRemedialAction abstractRemedialAction1 = new AbstractRemedialAction("idRA1", "My Remedial Action 1", topologyGroupLever, null);
-        abstractRemedialAction1.setAbstractUsageRules(new ArrayList<>(Arrays.asList(abstractUsageRule1)));
-        abstractRemedialAction1.addUsageRule(abstractUsageRule2);
-        AbstractRemedialAction abstractRemedialAction2 = new AbstractRemedialAction("idRA2", "My Remedial Action 2", hvdcAlignLever1, new ArrayList<>(Arrays.asList(abstractUsageRule3)));
-        abstractRemedialAction2.setNetworkAction(hvdcAlignLever2);
-
-        List<AbstractRemedialAction> abstractRemedialActions = new ArrayList<>(Arrays.asList(abstractRemedialAction1));*/
-
+        // Instant
         Instant basecase = new Instant(0);
-        Instant curative = new Instant(200);
+        Instant curative = new Instant(-1);
+        curative.setDuration(200);
 
+        // State
         State stateBasecase = new State(Optional.empty(), basecase);
         State stateCurative = new State(Optional.empty(), null);
         stateCurative.setContingency(Optional.of(contingency));
@@ -129,17 +130,49 @@ public class CracFileTest {
 
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
-        FlowThreshold threshold1 = new FlowThreshold(null, LEFT, IN, 1000);
-        threshold1.setUnit(AMPERE);
+        // Thresholds
+        FlowThreshold threshold1 = new FlowThreshold(LEFT, IN, 1000);
         threshold1.setSide(RIGHT);
         threshold1.setDirection(OUT);
         threshold1.setMaxValue(999);
-        VoltageThreshold threshold2 = new VoltageThreshold(KILOVOLT, 280, 300);
+        VoltageThreshold threshold2 = new VoltageThreshold(280, 300);
+        threshold2.setMinValue(275);
+        threshold2.setMaxValue(305);
+
+        // CNECs
         Cnec cnec1 = new Cnec("idCnec", "Cnec", null, threshold1, stateCurative);
         cnec1.setCriticalNetworkElement(monitoredElement);
         Cnec cnec2 = new Cnec("idCnec2", "Cnec 2", monitoredElement, null, null);
         cnec2.setState(stateBasecase);
         cnec2.setThreshold(threshold2);
+
+        // Usage rules
+        FreeToUse freeToUse = new FreeToUse(null, null);
+        freeToUse.setUsageMethod(UsageMethod.AVAILABLE);
+        freeToUse.setState(stateBasecase);
+        OnContingency onContingency = new OnContingency(UsageMethod.FORCED, stateCurative, null);
+        onContingency.setContingency(contingency);
+        OnConstraint onConstraint = new OnConstraint(UsageMethod.FORCED, stateCurative, null);
+        onConstraint.setConstraint(cnec1);
+
+        // NetworkAction
+        NetworkAction networkAction1 = new NetworkAction(new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        networkAction1.addNetworkAction(topology2);
+        NetworkAction networkAction2 = new NetworkAction(new ArrayList<>(Arrays.asList(pstSetpoint)));
+
+        // RangeAction
+        RangeAction rangeAction1 = new RangeAction("idRangeAction", "myRangeAction", null, null, null);
+        List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
+        rangeAction1.setRanges(ranges);
+        rangeAction1.addRange(relativeFixedRange);
+        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
+        rangeAction1.setElementaryRangeActions(elementaryRangeActions);
+        rangeAction1.addElementaryRangeAction(hvdcRange1);
+        List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
+        rangeAction1.setUsageRules(usageRules);
+        rangeAction1.addUsageRule(onContingency);
+
+        RangeAction rangeAction2 = new RangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
@@ -148,9 +181,10 @@ public class CracFileTest {
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
-
-        /*crac.setRangeActions(abstractRemedialActions);
-        crac.addRemedialAction(abstractRemedialAction2);*/
+        crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
+        crac.addNetworkRemedialAction(networkAction2);
+        crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
+        crac.addRangeRemedialAction(rangeAction2);
 
         crac.getCnecs().forEach(
             cnec -> {
@@ -166,19 +200,10 @@ public class CracFileTest {
 
         assertEquals(crac.getContingencies().size(), 1);
         assertEquals(crac.getCriticalNetworkElements().size(), 2);
-        //assertEquals(crac.getRangeActions().size(), 2);
-
-        /*assertFalse(hvdcRange1.hasAbsoluteRange());
-        assertTrue(hvdcRange1.hasRelativeRange());
-        assertTrue(hvdcRange2.hasAbsoluteRange());
-        assertFalse(hvdcRange2.hasRelativeRange());
-
-        assertFalse(pstRange1.hasAbsoluteRange());
-        assertTrue(pstRange1.hasRelativeRange());
-        assertTrue(pstRange2.hasAbsoluteRange());
-        assertFalse(pstRange2.hasRelativeRange());*/
 
         assertTrue(crac.getId().equals("idCrac"));
         assertTrue(cnec2.isBasecase());
+
+        System.out.println("test done");
     }
 }

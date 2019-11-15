@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
  */
 public final class InjectionRange extends AbstractNetworkElementRangeAction {
 
-    private InjectionRange(NetworkElement networkElement) {
+    public InjectionRange(NetworkElement networkElement) {
         super(networkElement);
     }
 

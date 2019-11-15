@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
  */
 public final class HvdcRange extends AbstractNetworkElementRangeAction {
 
-    private HvdcRange(NetworkElement networkElement) {
+    public HvdcRange(NetworkElement networkElement) {
         super(networkElement);
     }
 

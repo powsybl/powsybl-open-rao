@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
  */
 public final class PstRange extends AbstractNetworkElementRangeAction {
 
-    private PstRange(NetworkElement networkElement) {
+    public PstRange(NetworkElement networkElement) {
         super(networkElement);
     }
 

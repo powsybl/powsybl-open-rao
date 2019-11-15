@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.threshold;
 
 import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
-import com.farao_community.farao.data.crac_api.Unit;
+import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
 
 /**
  * Limits of a flow through an equipment.
@@ -22,8 +22,8 @@ public class FlowThreshold extends AbstractThreshold {
     private Direction direction;
     private double maxValue;
 
-    public FlowThreshold(Unit unit, Side side, Direction direction, double maxValue) {
-        super(unit);
+    public FlowThreshold(Side side, Direction direction, double maxValue) {
+        super(AMPERE);
         this.side = side;
         this.direction = direction;
         this.maxValue = maxValue;

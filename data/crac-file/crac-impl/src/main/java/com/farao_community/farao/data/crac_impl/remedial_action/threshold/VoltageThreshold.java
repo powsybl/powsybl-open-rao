@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.threshold;
 
-import com.farao_community.farao.data.crac_api.Unit;
+import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
 
 /**
  * Limits for voltage.
@@ -20,8 +20,8 @@ public class VoltageThreshold extends AbstractThreshold {
     private double minValue;
     private double maxValue;
 
-    public VoltageThreshold(Unit unit, double minValue, double maxValue) {
-        super(unit);
+    public VoltageThreshold(double minValue, double maxValue) {
+        super(KILOVOLT);
         this.minValue = minValue;
         this.maxValue = maxValue;
     }

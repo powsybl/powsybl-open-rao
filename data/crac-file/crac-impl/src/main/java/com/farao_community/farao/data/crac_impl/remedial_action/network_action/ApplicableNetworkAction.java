@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-interface ApplicableNetworkAction {
+public interface ApplicableNetworkAction {
 
     public void apply(Network network);
 }

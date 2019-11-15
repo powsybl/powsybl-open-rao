@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface Range {
 
-    public double getMin(Network network);
+    public double getMinValue(Network network);
 
-    public double getMax(Network network);
+    public double getMaxValue(Network network);
 }

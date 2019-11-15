@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.RangeAction;
 import com.powsybl.iidm.network.Network;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +57,10 @@ public class Crac extends AbstractIdentifiable {
 
     public void addCnec(Cnec cnec) {
         cnecs.add(cnec);
+    }
+
+    public void addNetworkRemedialAction(NetworkAction networkAction) {
+        networkActions.add(networkAction);
     }
 
     public void addRangeRemedialAction(RangeAction rangeAction) {

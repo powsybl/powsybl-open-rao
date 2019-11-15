@@ -19,13 +19,34 @@ public class AbsoluteFixedRange implements Range {
     protected double min;
     protected double max;
 
-    @Override
-    public double getMin(Network network) {
-        return 0;
+    public AbsoluteFixedRange(double min, double max) {
+        this.min = min;
+        this.max = max;
     }
 
     @Override
-    public double getMax(Network network) {
-        return 0;
+    public double getMinValue(Network network) {
+        return min;
+    }
+
+    @Override
+    public double getMaxValue(Network network) {
+        return max;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
     }
 }

@@ -47,12 +47,12 @@ public class RangeAction extends AbstractRemedialAction implements Range, Applic
     }
 
     @Override
-    public double getMin(Network network) {
+    public double getMinValue(Network network) {
         return 0;
     }
 
     @Override
-    public double getMax(Network network) {
+    public double getMaxValue(Network network) {
         return 0;
     }
 

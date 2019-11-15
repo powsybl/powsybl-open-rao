@@ -25,4 +25,12 @@ public final class OnConstraint extends AbstractUsageRule {
         super(usageMethod, state);
         this.constraint = constraint;
     }
+
+    public Cnec getConstraint() {
+        return constraint;
+    }
+
+    public void setConstraint(Cnec constraint) {
+        this.constraint = constraint;
+    }
 }
