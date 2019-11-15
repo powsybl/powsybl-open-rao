@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -44,7 +44,7 @@ public class BranchResultsPostProcessor implements OptimisationPostProcessor {
 
         List<MonitoredBranchResult> branchResultList = cracFile.getPreContingency().getMonitoredBranches().stream()
             .map(branch -> {
-                MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
+                MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch)));
                 return new MonitoredBranchResult(
                     branch.getId(),
                     branch.getName(),
@@ -65,7 +65,7 @@ public class BranchResultsPostProcessor implements OptimisationPostProcessor {
                 );
                 List<MonitoredBranchResult> contingencyBranchesResultList = contingency.getMonitoredBranches().stream()
                     .map(branch -> {
-                        MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch.getId())));
+                        MPVariable branchFlowVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameEstimatedFlowVariable(branch)));
                         return new MonitoredBranchResult(
                             branch.getId(),
                             branch.getName(),

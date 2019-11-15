@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -23,7 +23,7 @@ public final class ClosedOptimisationRaoUtil {
         throw new AssertionError("Utility class should not have constructor");
     }
 
-     /**
+    /**
      * Build map of RedispatchingRemedialActionElements with their associated contingency
      * Required for the initialisation of all fillers which invokes redispatching remedial action
      */
@@ -117,8 +117,8 @@ public final class ClosedOptimisationRaoUtil {
 
     /**
      * Check if the remedial action is curative (Instant = CURATIVE), and :
-     *   - free-to-use (Usage = FREE_TO_USE), or
-     *   - applicable on contingency (Usage = ON_OUTAGE), for the given contingency
+     * - free-to-use (Usage = FREE_TO_USE), or
+     * - applicable on contingency (Usage = ON_OUTAGE), for the given contingency
      */
     public static boolean isRemedialActionCurativeAndApplicable(RemedialAction remedialAction, Contingency contingency) {
         // is remedial action curative and free to use ?
@@ -137,8 +137,8 @@ public final class ClosedOptimisationRaoUtil {
     /**
      * Get redispatchRemedialActionElement from remedialAction
      * Or, return null if :
-     *    - the remedialAction includes several RemedialActionElement
-     *    - the remedialActionElement is not a redispatchRemedialActionElement
+     * - the remedialAction includes several RemedialActionElement
+     * - the remedialActionElement is not a redispatchRemedialActionElement
      */
     public static RedispatchRemedialActionElement getRedispatchElement(RemedialAction remedialAction) {
         List<RemedialActionElement> raeList = remedialAction.getRemedialActionElements();
@@ -150,4 +150,26 @@ public final class ClosedOptimisationRaoUtil {
         }
         return (RedispatchRemedialActionElement) raeList.get(0);
     }
+
+    /**
+     * Get all monitored branch (pre and post contingency) from a CracFile
+     */
+    public static List<MonitoredBranch> getAllMonitoredBranches(CracFile cracFile) {
+        List<MonitoredBranch> allMonitoredBranches = new ArrayList<>();
+        // add pre-contingency monitored branches
+        allMonitoredBranches.addAll(cracFile.getPreContingency().getMonitoredBranches());
+        // add post-contingency monitored branches
+        allMonitoredBranches.addAll(cracFile.getContingencies().stream()
+                .flatMap(contingency -> contingency.getMonitoredBranches().stream())
+                .collect(Collectors.toList()));
+        return allMonitoredBranches;
+    }
+
+    /**
+     * Test the significance of a given sensitivity
+     */
+    public static boolean isSignificant(double sensitivity, double threshold) {
+        return Math.abs(sensitivity) > threshold;
+    }
+
 }

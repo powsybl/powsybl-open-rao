@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -43,9 +43,14 @@ public class RedispatchCostMinimizationObjectiveFiller extends AbstractOptimisat
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         MPVariable totalRedispatchCost = Objects.requireNonNull(solver.lookupVariableOrNull(TOTAL_REDISPATCH_COST));
         MPObjective objective = solver.objective();
-        // In case previous objective has been set, clear
-        objective.clear();
         objective.setCoefficient(totalRedispatchCost, 1);
+        /*
+         objective.setMinimization() is now set by MinimizationObjectiveFiller,
+         it has yet been kept in this filler to ensure the non-regression of
+         "old" configs which did not use the MinimizationObjectiveFiller.
+         objective.setMinimization() is not disturbing in this filler as long as there is no
+         need for an optimisation problem which aims at maximizing the redispatching costs
+         */
         objective.setMinimization();
     }
 }

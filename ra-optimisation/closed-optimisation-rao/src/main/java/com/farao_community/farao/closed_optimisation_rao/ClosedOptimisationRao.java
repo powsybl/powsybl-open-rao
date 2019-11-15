@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,10 +13,7 @@ import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.linearsolver.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -81,7 +78,9 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         fillers.forEach(filler -> filler.fillProblem(solver));
 
-        final MPSolver.ResultStatus resultStatus = solver.solve();
+        MPSolverParameters solverParameters = ConfigurationUtil.getSolverParameters(parametersExtension, solver);
+
+        final MPSolver.ResultStatus resultStatus = solver.solve(solverParameters);
 
         RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
         // Check that the problem has an optimal solution.

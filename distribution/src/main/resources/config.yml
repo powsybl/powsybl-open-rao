@@ -35,6 +35,9 @@ closed-optimisation-rao-parameters:
         - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchEquilibriumConstraintFiller
         - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchImpactOnBranchFlowFiller
         - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchCostMinimizationObjectiveFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchOverloadVariablesFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.MinimizationObjectiveFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.OverloadPenaltyCostFiller
     pre-processors:
         - com.farao_community.farao.closed_optimisation_rao.pre_processors.SensitivityPreProcessor
     post-processors:

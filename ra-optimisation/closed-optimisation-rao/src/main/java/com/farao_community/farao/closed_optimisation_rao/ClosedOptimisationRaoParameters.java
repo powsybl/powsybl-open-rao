@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,23 +14,37 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComputationParameters> {
     static final String DEFAULT_SOLVER_TYPE = "GLOP_LINEAR_PROGRAMMING";
+    static final double DEFAULT_RELATIVE_MIP_GAP = 0.0;
+    static final double DEFAULT_MAX_TIME = Double.POSITIVE_INFINITY;
+    static final double DEFAULT_OVERLOAD_PENALTY_COST = 5000.0;
+    static final double DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD = 0.0;
+    static final double DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD = 0.0;
+
     private String solverType = DEFAULT_SOLVER_TYPE;
+    private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
+    private double maxTimeInSeconds = DEFAULT_MAX_TIME;
+    private double overloadPenaltyCost = DEFAULT_OVERLOAD_PENALTY_COST;
+    private double rdSensitivityThreshold = DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD;
+    private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD;
     private List<String> fillersList = new ArrayList<>();
-    List<String> preProcessorsList = new ArrayList<>();
-    List<String> postProcessorsList = new ArrayList<>();
+    private List<String> preProcessorsList = new ArrayList<>();
+    private List<String> postProcessorsList = new ArrayList<>();
 
     public ClosedOptimisationRaoParameters() {
     }
 
     public ClosedOptimisationRaoParameters(ClosedOptimisationRaoParameters other) {
         Objects.requireNonNull(other);
-
         this.solverType = other.solverType;
+        this.relativeMipGap = other.relativeMipGap;
+        this.maxTimeInSeconds = other.maxTimeInSeconds;
+        this.overloadPenaltyCost = other.overloadPenaltyCost;
         this.fillersList.addAll(other.fillersList);
         this.preProcessorsList.addAll(other.preProcessorsList);
         this.postProcessorsList.addAll(other.postProcessorsList);
@@ -42,6 +56,51 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
 
     public ClosedOptimisationRaoParameters setSolverType(String solverType) {
         this.solverType = solverType;
+        return this;
+    }
+
+    public double getRelativeMipGap() {
+        return this.relativeMipGap;
+    }
+
+    public ClosedOptimisationRaoParameters setRelativeMipGap(double relativeMipGap) {
+        this.relativeMipGap = relativeMipGap;
+        return this;
+    }
+
+    public double getMaxTimeInSeconds() {
+        return this.maxTimeInSeconds;
+    }
+
+    public ClosedOptimisationRaoParameters setMaxTimeInSeconds(double maxTimeInSeconds) {
+        this.maxTimeInSeconds = maxTimeInSeconds;
+        return this;
+    }
+
+    public double getOverloadPenaltyCost() {
+        return this.overloadPenaltyCost;
+    }
+
+    public ClosedOptimisationRaoParameters setOverloadPenaltyCost(double overloadPenaltyCost) {
+        this.overloadPenaltyCost = overloadPenaltyCost;
+        return this;
+    }
+
+    public double getRdSensitivityThreshold() {
+        return this.rdSensitivityThreshold;
+    }
+
+    public ClosedOptimisationRaoParameters setRdSensitivityThreshold(double rdSensitivityThreshold) {
+        this.rdSensitivityThreshold = rdSensitivityThreshold;
+        return this;
+    }
+
+    public double getPstSensitivityThreshold() {
+        return this.pstSensitivityThreshold;
+    }
+
+    public ClosedOptimisationRaoParameters setPstSensitivityThreshold(double pstSensitivityThreshold) {
+        this.pstSensitivityThreshold = pstSensitivityThreshold;
         return this;
     }
 
