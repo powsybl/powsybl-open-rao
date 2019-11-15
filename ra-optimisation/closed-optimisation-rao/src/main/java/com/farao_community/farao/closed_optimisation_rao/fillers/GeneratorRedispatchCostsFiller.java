@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -74,7 +74,7 @@ public class GeneratorRedispatchCostsFiller extends AbstractOptimisationProblemF
     @Override
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
-        double infinity = solver.infinity();
+        double infinity = MPSolver.infinity();
         // Create total redispatch cost and its equation
         MPVariable totalRedispatchCostVariable = solver.makeNumVar(-infinity, infinity, TOTAL_REDISPATCH_COST);
         MPConstraint totalRedispatchCostEquation = solver.makeConstraint(0, 0);
