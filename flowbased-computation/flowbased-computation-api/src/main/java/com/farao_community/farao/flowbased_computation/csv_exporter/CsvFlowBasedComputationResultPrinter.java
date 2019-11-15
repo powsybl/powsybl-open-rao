@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.farao_community.farao.flowbased_computation.csv_exporter;
 
-import com.farao_community.farao.commons.data.glsk_file.EICode;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
@@ -15,6 +14,7 @@ import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
  */
 public class CsvFlowBasedComputationResultPrinter {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CsvFlowBasedComputationResultPrinter.class);
+
     private static String PRECONTINGENCY_NAME = "BASECASE";
     private static String PRECONTINGENCY_STATUS = "N";
     private static String CONTINGENCY_STATUS = "N-K";
@@ -33,12 +35,14 @@ public class CsvFlowBasedComputationResultPrinter {
     private FlowBasedComputationResult flowBasedComputationResult;
     private CracFile cracFile;
 
-    private List<String> countryList;
+    private List<FlowBasedCountry> countryList;
+    private List<Pair<FlowBasedCountry, FlowBasedCountry>> neighbouringCountryPairs;
 
     public CsvFlowBasedComputationResultPrinter(FlowBasedComputationResult flowBasedComputationResult, CracFile cracFile) {
         this.flowBasedComputationResult = flowBasedComputationResult;
         this.cracFile = cracFile;
         this.countryList = getCountryList();
+        this.neighbouringCountryPairs = getCountryPairList(countryList);
     }
 
     public void export(CSVPrinter csvPrinter) throws IOException {
@@ -94,24 +98,33 @@ public class CsvFlowBasedComputationResultPrinter {
         headerList.add("Fref");
         headerList.add("Margin");
         headerList.add("RelativeMargin");
-        headerList.addAll(countryList.stream()
-                .map(this::convertEICodeToCountryNameIfPossible)
-                .collect(Collectors.toList()));
+        headerList.addAll(countryList.stream().map(FlowBasedCountry::getName).collect(Collectors.toList()));
         return headerList;
     }
 
-    private List<String> getCountryList() {
+    private List<FlowBasedCountry> getCountryList() {
         return flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
                 .flatMap(monitoredBranch -> monitoredBranch.getPtdfList().stream().map(DataPtdfPerCountry::getCountry))
-                .distinct().collect(Collectors.toList());
+                .distinct().map(FlowBasedCountry::new).collect(Collectors.toList());
     }
 
-    private String convertEICodeToCountryNameIfPossible(String countryEICode) {
-        try {
-            return new EICode(countryEICode).getCountry().getName();
-        } catch (IllegalArgumentException e) {
-            return countryEICode;
+    private List<Pair<FlowBasedCountry, FlowBasedCountry>> getCountryPairList(List<FlowBasedCountry> countryList) {
+
+        List<Pair<FlowBasedCountry, FlowBasedCountry>> countryPairs = new ArrayList<>();
+
+        if (countryList.size() >= 2) {
+            for (int i = 0; i < countryList.size(); i++) {
+                for (int j = i + 1; j < countryList.size(); j++) {
+                    if (NeighbouringCountryPairsInCore.belongs(countryList.get(i).getName(), countryList.get(j).getName())) {
+                        countryPairs.add(Pair.of(countryList.get(i), countryList.get(j)));
+                    }
+                }
+            }
         }
+        if (countryPairs.size() == 0) {
+            LOGGER.warn("Relative margins cannot be computed as the data set does not contain neighbouring bidding zones");
+        }
+        return countryPairs;
     }
 
     private List<Pair<Contingency, MonitoredBranch>> getCbcoList() {
@@ -135,8 +148,8 @@ public class CsvFlowBasedComputationResultPrinter {
         throw new IllegalArgumentException(String.format("Branch with id '%s' not found in flow-based computation results", branch.getId()));
     }
 
-    private double findPtdf(DataMonitoredBranch branch, String country) {
-        DataPtdfPerCountry ptdf = branch.findPtdfByCountry(country);
+    private double findPtdf(DataMonitoredBranch branch, FlowBasedCountry country) {
+        DataPtdfPerCountry ptdf = branch.findPtdfByCountry(country.getEiCode());
         if (ptdf != null) {
             return ptdf.getPtdf();
         }
@@ -144,9 +157,14 @@ public class CsvFlowBasedComputationResultPrinter {
     }
 
     private Double getRelativeMargin(double margin, DataMonitoredBranch branchResults) {
-        double sumOfAbsPtdf = branchResults.getPtdfList().stream().map(DataPtdfPerCountry::getPtdf).mapToDouble(Math::abs).sum();
-        if (sumOfAbsPtdf > 0) {
-            return margin / sumOfAbsPtdf;
+        double sumOfAbsZoneToZonePtdf = 0;
+        if (neighbouringCountryPairs.size() > 0) {
+            sumOfAbsZoneToZonePtdf = neighbouringCountryPairs.stream()
+                    .map(p -> findPtdf(branchResults, p.getLeft()) - findPtdf(branchResults, p.getRight()))
+                    .mapToDouble(Math::abs).sum();
+        }
+        if (sumOfAbsZoneToZonePtdf > 0) {
+            return margin / sumOfAbsZoneToZonePtdf;
         }
         return Double.POSITIVE_INFINITY;
     }
