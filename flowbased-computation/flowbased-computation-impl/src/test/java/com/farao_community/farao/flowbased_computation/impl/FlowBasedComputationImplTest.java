@@ -13,7 +13,6 @@ import com.farao_community.farao.flowbased_computation.FlowBasedComputationParam
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
-import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -21,7 +20,6 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,9 +54,7 @@ public class FlowBasedComputationImplTest {
         glskProvider = ExampleGenerator.glskProvider();
         computationManager = LocalComputationManager.getDefault();
         parameters = FlowBasedComputationParameters.load(platformConfig);
-        LoadFlowFactory loadFlowFactory = ExampleGenerator.loadFlowFactory();
         SensitivityComputationFactory sensitivityComputationFactory = ExampleGenerator.sensitivityComputationFactory();
-        LoadFlowService.init(loadFlowFactory, computationManager);
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 

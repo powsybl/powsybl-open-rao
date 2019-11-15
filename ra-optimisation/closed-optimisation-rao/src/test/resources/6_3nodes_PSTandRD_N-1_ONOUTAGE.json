@@ -64,6 +64,7 @@
     "remedialActionElements" : [ {
       "@c" : ".RedispatchRemedialActionElement",
       "id" : "GENERATOR_FR",
+      "targetPower" : 1300.0,
       "minimumPower" : 100.0,
       "maximumPower" : 5000.0,
       "startupCost" : 1000.0,
@@ -82,6 +83,7 @@
     "remedialActionElements" : [ {
       "@c" : ".RedispatchRemedialActionElement",
       "id" : "GENERATOR_BE",
+      "targetPower" : 1000.0,
       "minimumPower" : 100.0,
       "maximumPower" : 5000.0,
       "startupCost" : 1000.0,

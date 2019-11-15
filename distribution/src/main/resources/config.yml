@@ -1,5 +1,4 @@
 componentDefaultConfig:
-    LoadFlowFactory: com.rte_france.powsybl.hades2.Hades2Factory
     SensitivityComputationFactory: com.rte_france.powsybl.hades2.sensitivity.Hades2SensitivityFactory
     SensitivityFactorsProviderFactory: com.powsybl.sensitivity.JsonSensitivityFactorsProviderFactory
     FlowDecompositionFactory: com.farao_community.farao.flow_decomposition.full_line_decomposition.FullLineDecompositionFactory
@@ -36,8 +35,10 @@ closed-optimisation-rao-parameters:
         - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchEquilibriumConstraintFiller
         - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchImpactOnBranchFlowFiller
         - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchCostMinimizationObjectiveFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchOverloadVariablesFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.MinimizationObjectiveFiller
+        - com.farao_community.farao.closed_optimisation_rao.fillers.OverloadPenaltyCostFiller
     pre-processors:
-        - com.farao_community.farao.closed_optimisation_rao.pre_processors.ReferenceFlowsPreProcessor
         - com.farao_community.farao.closed_optimisation_rao.pre_processors.SensitivityPreProcessor
     post-processors:
         - com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor
