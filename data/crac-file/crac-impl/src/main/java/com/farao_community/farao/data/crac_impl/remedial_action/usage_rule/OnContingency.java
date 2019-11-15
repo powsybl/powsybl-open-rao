@@ -5,18 +5,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.usage_rule;
+
+import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_impl.Contingency;
+import com.farao_community.farao.data.crac_impl.State;
 
 /**
- * On contingency rule
+ * The remedial action is available only after a specific contingency, with a given method
+ * and in a given state.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class OnContingency implements UsageContext {
+public final class OnContingency extends AbstractUsageRule {
 
     private Contingency contingency;
 
-    public OnContingency(Contingency contingency) {
+    public OnContingency(UsageMethod usageMethod, State state, Contingency contingency) {
+        super(usageMethod, state);
         this.contingency = contingency;
     }
 

@@ -5,30 +5,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
+
+import com.farao_community.farao.data.crac_impl.NetworkElement;
+import com.powsybl.iidm.network.Network;
 
 /**
- * Redispatching remedial action
+ * Redispatching remedial action.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public final class Redispatching extends AbstractRangeLever {
+public final class Redispatching extends AbstractNetworkElementRangeAction {
 
     private double minimumPower;
     private double maximumPower;
     private double targetPower;
     private double startupCost;
     private double marginalCost;
-    private NetworkElement generator;
 
     public Redispatching(double minimumPower, double maximumPower, double targetPower, double startupCost, double marginalCost, NetworkElement generator) {
+        super(generator);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
         this.targetPower = targetPower;
         this.startupCost = startupCost;
         this.marginalCost = marginalCost;
-        this.generator = generator;
     }
 
     public double getMinimumPower() {
@@ -71,11 +73,8 @@ public final class Redispatching extends AbstractRangeLever {
         this.marginalCost = marginalCost;
     }
 
-    public NetworkElement getGenerator() {
-        return generator;
-    }
-
-    public void setGenerator(NetworkElement generator) {
-        this.generator = generator;
+    @Override
+    public void apply(Network network, double setpoint) {
+        throw new UnsupportedOperationException();
     }
 }

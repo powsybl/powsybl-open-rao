@@ -5,31 +5,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.usage_rule;
 
 import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_impl.State;
 
 /**
  * Business object of a usage rule in the CRAC file
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class UsageRule {
+public abstract class AbstractUsageRule {
 
-    private UsageMethod usageMethod;
-    private UsageContext usageContext;
+    protected UsageMethod usageMethod;
+    protected State state;
 
-    public UsageRule(UsageMethod usageMethod, UsageContext usageContext) {
+    public AbstractUsageRule(UsageMethod usageMethod, State state) {
         this.usageMethod = usageMethod;
-        this.usageContext = usageContext;
-    }
-
-    public UsageContext getUsageContext() {
-        return usageContext;
-    }
-
-    public void setUsageContext(UsageContext usageContext) {
-        this.usageContext = usageContext;
+        this.state = state;
     }
 
     public UsageMethod getUsageMethod() {
@@ -38,5 +31,13 @@ public class UsageRule {
 
     public void setUsageMethod(UsageMethod usageMethod) {
         this.usageMethod = usageMethod;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 }

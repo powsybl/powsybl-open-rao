@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import java.util.List;
 
 /**
- * Business object for a contingency in the CRAC file
+ * Business object for a contingency in the CRAC file.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
@@ -24,17 +24,17 @@ public class Contingency extends AbstractIdentifiable {
         this.networkElements = networkElements;
     }
 
-    @Override
-    protected String getTypeDescription() {
-        return "Contingency";
-    }
-
     public List<NetworkElement> getNetworkElements() {
         return networkElements;
     }
 
     public void setNetworkElements(List<NetworkElement> networkElements) {
         this.networkElements = networkElements;
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Contingency";
     }
 
     public void addNetworkElement(NetworkElement networkElement) {

@@ -5,18 +5,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
+
+import com.powsybl.iidm.network.Network;
 
 /**
- * Countertrading remedial action
+ * Countertrading remedial action.
  *
  * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
  */
 
-public class Countertrading extends AbstractRangeLever {
+public class Countertrading implements ApplicableRangeAction {
 
     public Countertrading() {
-
     }
 
+    @Override
+    public void apply(Network network, double setpoint) {
+        throw new UnsupportedOperationException();
+    }
 }

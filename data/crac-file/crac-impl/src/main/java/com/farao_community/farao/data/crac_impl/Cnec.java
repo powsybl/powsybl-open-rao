@@ -7,10 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_impl.remedial_action.threshold.AbstractThreshold;
+import com.powsybl.iidm.network.Network;
+
 /**
- * Critical network element and contingency
+ * Critical network element and contingency.
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class Cnec extends AbstractIdentifiable {
     private NetworkElement criticalNetworkElement;
@@ -48,12 +51,20 @@ public class Cnec extends AbstractIdentifiable {
         this.state = state;
     }
 
+    @Override
+    protected String getTypeDescription() {
+        return "Critical network element and contingency";
+    }
+
     public boolean isBasecase() {
         return !state.getContingency().isPresent();
     }
 
-    @Override
-    protected String getTypeDescription() {
-        return "Critical network element and contingency";
+    public boolean isMinThresholdViolated(Network network) {
+        return true;
+    }
+
+    public boolean isMaxThresholdViolated(Network network) {
+        return true;
     }
 }

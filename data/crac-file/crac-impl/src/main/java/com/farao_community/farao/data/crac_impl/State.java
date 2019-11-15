@@ -10,9 +10,9 @@ package com.farao_community.farao.data.crac_impl;
 import java.util.Optional;
 
 /**
- * Business object for a state (instant and contingency) in the CRAC file
+ * Business object for a state (instant and contingency) in the CRAC file.
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class State {
 

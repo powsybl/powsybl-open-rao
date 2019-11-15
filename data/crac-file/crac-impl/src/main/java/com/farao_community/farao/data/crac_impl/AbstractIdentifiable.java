@@ -62,8 +62,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public String setProperty(String key, String value) {
-        String oldValue = properties.put(key, value);
-        return oldValue;
+        return properties.put(key, value);
     }
 
     @Override

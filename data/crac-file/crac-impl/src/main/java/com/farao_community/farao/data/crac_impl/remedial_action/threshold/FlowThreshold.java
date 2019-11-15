@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.threshold;
 
 import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
@@ -16,13 +16,13 @@ import com.farao_community.farao.data.crac_api.Unit;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class FlowViolation extends AbstractThreshold {
+public class FlowThreshold extends AbstractThreshold {
 
     private Side side;
     private Direction direction;
     private double maxValue;
 
-    public FlowViolation(Unit unit, Side side, Direction direction, double maxValue) {
+    public FlowThreshold(Unit unit, Side side, Direction direction, double maxValue) {
         super(unit);
         this.side = side;
         this.direction = direction;

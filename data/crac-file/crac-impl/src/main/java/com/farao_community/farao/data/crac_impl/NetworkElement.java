@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 /**
  * Element of the network in the CRAC file.
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terruer {@literal <viktor.terrier at rte-france.com>}
  */
 
 public class NetworkElement extends AbstractIdentifiable {

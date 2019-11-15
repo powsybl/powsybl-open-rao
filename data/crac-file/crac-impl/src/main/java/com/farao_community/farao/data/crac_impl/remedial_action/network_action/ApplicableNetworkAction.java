@@ -5,15 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+
+import com.powsybl.iidm.network.Network;
 
 /**
- * Free to use rule
+ * Generic object to implement a simple network action (setpoint, topology, etc.).
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class FreeToUse implements UsageContext {
+interface ApplicableNetworkAction {
 
-    public FreeToUse() {
-    }
+    public void apply(Network network);
 }

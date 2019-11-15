@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.range_domain;
+
+import com.powsybl.iidm.network.Network;
 
 /**
- * On constraint rule
+ * Range.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class OnConstraint implements UsageContext {
+public interface Range {
 
-    private Cnec constraint;
+    public double getMin(Network network);
 
-    public OnConstraint(Cnec constraint) {
-        this.constraint = constraint;
-    }
+    public double getMax(Network network);
 }

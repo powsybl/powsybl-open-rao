@@ -5,24 +5,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.threshold;
 
 import com.farao_community.farao.data.crac_api.Unit;
 
 /**
- * Limits for angles or voltage.
+ * Generic threshold (flow, voltage, etc.) in the CRAC file.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+public abstract class AbstractThreshold {
+    protected Unit unit;
 
-public class SafetyInterval extends AbstractThreshold {
+    public AbstractThreshold(Unit unit) {
+        this.unit = unit;
+    }
 
-    private double minValue;
-    private double maxValue;
+    public Unit getUnit() {
+        return unit;
+    }
 
-    public SafetyInterval(Unit unit, double minValue, double maxValue) {
-        super(unit);
-        this.minValue = minValue;
-        this.maxValue = maxValue;
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 }

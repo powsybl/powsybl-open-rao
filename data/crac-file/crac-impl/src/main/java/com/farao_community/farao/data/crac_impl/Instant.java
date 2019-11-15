@@ -8,15 +8,23 @@
 package com.farao_community.farao.data.crac_impl;
 
 /**
- * Business object for an instant in the CRAC file
+ * Business object for an instant in the CRAC file.
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class Instant {
 
     private double duration;
 
     public Instant(double duration) {
+        this.duration = duration;
+    }
+
+    public double getDuration() {
+        return duration;
+    }
+
+    public void setDuration(double duration) {
         this.duration = duration;
     }
 }

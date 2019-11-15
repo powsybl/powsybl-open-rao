@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_api;
 
 /**
- * Usage method
+ * Usage method of a remedial action.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
