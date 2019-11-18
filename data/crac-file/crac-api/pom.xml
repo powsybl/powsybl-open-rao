@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>crac-api</artifactId>
+    <artifactId>farao-crac-api</artifactId>
 
     <dependencies>
         <dependency>

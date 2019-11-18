@@ -35,7 +35,6 @@ import java.util.Optional;
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
 import static com.farao_community.farao.data.crac_api.Side.*;
-import static com.farao_community.farao.data.crac_api.Unit.*;
 import static org.junit.Assert.*;
 
 public class CracFileTest {
@@ -44,9 +43,6 @@ public class CracFileTest {
     public void testCrac() {
 
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
-        NetworkElement networkElement2 = new NetworkElement("idNE2", "My Element 2");
-        NetworkElement networkElement3 = new NetworkElement("idNE3", "My Element 3");
-        NetworkElement networkElement4 = new NetworkElement("idNE4", "My Element 4");
 
         // Redispatching
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
@@ -177,7 +173,7 @@ public class CracFileTest {
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
 
-        Crac crac = new Crac("idCrac", "name", new ArrayList<>(), new ArrayList<>());
+        Crac crac = new Crac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
@@ -198,12 +194,7 @@ public class CracFileTest {
                     abstractUsageRule.getUsageMethod();
                 }));
 
-        assertEquals(crac.getContingencies().size(), 1);
-        assertEquals(crac.getCriticalNetworkElements().size(), 2);
-
         assertTrue(crac.getId().equals("idCrac"));
         assertTrue(cnec2.isBasecase());
-
-        System.out.println("test done");
     }
 }

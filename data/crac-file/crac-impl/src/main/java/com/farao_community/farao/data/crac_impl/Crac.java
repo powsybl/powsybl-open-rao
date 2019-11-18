@@ -25,10 +25,11 @@ public class Crac extends AbstractIdentifiable {
     private List<RangeAction> rangeActions;
     private List<NetworkAction> networkActions;
 
-    Crac(String id, String name, List<Cnec> cnecs, List<RangeAction> rangeActions) {
+    public Crac(String id, String name, List<Cnec> cnecs, List<RangeAction> rangeActions, List<NetworkAction> networkActions) {
         super(id, name);
         this.cnecs = cnecs;
         this.rangeActions = rangeActions;
+        this.networkActions = networkActions;
     }
 
     public List<Cnec> getCnecs() {
