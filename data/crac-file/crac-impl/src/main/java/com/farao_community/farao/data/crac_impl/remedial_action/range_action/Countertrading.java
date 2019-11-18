@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * Countertrading remedial action.
  *
- * @author Xxx Xxx {@literal <xxx.xxx at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
 public class Countertrading implements ApplicableRangeAction {
