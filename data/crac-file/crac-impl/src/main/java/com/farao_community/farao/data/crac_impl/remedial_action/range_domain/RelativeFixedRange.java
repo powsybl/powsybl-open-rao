@@ -26,12 +26,12 @@ public class RelativeFixedRange implements Range {
 
     @Override
     public double getMinValue(Network network) {
-        return min;
+        return -100;
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return max;
+        return -100;
     }
 
     public double getMin() {
