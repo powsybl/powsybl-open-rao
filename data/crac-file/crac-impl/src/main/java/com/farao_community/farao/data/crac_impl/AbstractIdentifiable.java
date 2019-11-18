@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+/*
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,19 +9,15 @@ package com.farao_community.farao.data.crac_impl;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.farao_community.farao.data.crac_api.Identifiable;
 
-import java.util.*;
-
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Viktor Terrier <viktor.terrier at rte-france.com>
  */
 abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
 
     protected final String id;
 
     protected String name;
-
-    protected final Map<String, String> properties = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -36,38 +32,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String getName() {
         return name != null ? name : id;
-    }
-
-    protected abstract String getTypeDescription();
-
-    @Override
-    public boolean hasProperty() {
-        return !properties.isEmpty();
-    }
-
-    @Override
-    public boolean hasProperty(String key) {
-        return properties.containsKey(key);
-    }
-
-    @Override
-    public String getProperty(String key) {
-        return properties.get(key);
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        return properties.getOrDefault(key, defaultValue);
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        return properties.put(key, value);
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        return properties.keySet();
     }
 
     @Override

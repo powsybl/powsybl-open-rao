@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
 import com.powsybl.iidm.network.Network;
 import java.util.List;
 
@@ -15,28 +17,29 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class NetworkAction implements ApplicableNetworkAction {
+public class NetworkAction extends AbstractRemedialAction implements ApplicableNetworkAction {
 
-    private List<ApplicableNetworkAction> networkActions;
+    private List<ApplicableNetworkAction> applicableNetworkActions;
 
-    public NetworkAction(List<ApplicableNetworkAction> networkActions) {
-        this.networkActions = networkActions;
+    public NetworkAction(String id, String name, List<AbstractUsageRule> usageRules, List<ApplicableNetworkAction> applicableNetworkActions) {
+        super(id, name, usageRules);
+        this.applicableNetworkActions = applicableNetworkActions;
     }
 
-    public void setNetworkActions(List<ApplicableNetworkAction> networkActions) {
-        this.networkActions = networkActions;
+    public void setApplicableNetworkActions(List<ApplicableNetworkAction> applicableNetworkActions) {
+        this.applicableNetworkActions = applicableNetworkActions;
     }
 
-    public List<ApplicableNetworkAction> getNetworkActions() {
-        return networkActions;
+    public List<ApplicableNetworkAction> getApplicableNetworkActions() {
+        return applicableNetworkActions;
     }
 
     @Override
     public void apply(Network network) {
-        throw new UnsupportedOperationException();
+        applicableNetworkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
     }
 
     public void addNetworkAction(ApplicableNetworkAction networkAction) {
-        this.networkActions.add(networkAction);
+        this.applicableNetworkActions.add(networkAction);
     }
 }

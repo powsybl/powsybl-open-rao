@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,12 +22,12 @@ import java.util.List;
 public class RangeAction extends AbstractRemedialAction implements Range, ApplicableRangeAction {
 
     private List<Range> ranges;
-    private List<ApplicableRangeAction> elementaryRangeActions;
+    private List<ApplicableRangeAction> applicableRangeActions;
 
-    public RangeAction(String id, String name, List<AbstractUsageRule> abstractUsageRules, List<Range> ranges, List<ApplicableRangeAction> elementaryRangeActions) {
+    public RangeAction(String id, String name, List<AbstractUsageRule> abstractUsageRules, List<Range> ranges, List<ApplicableRangeAction> applicableRangeActions) {
         super(id, name, abstractUsageRules);
         this.ranges = ranges;
-        this.elementaryRangeActions = elementaryRangeActions;
+        this.applicableRangeActions = applicableRangeActions;
     }
 
     public List<Range> getRanges() {
@@ -38,12 +38,12 @@ public class RangeAction extends AbstractRemedialAction implements Range, Applic
         this.ranges = ranges;
     }
 
-    public List<ApplicableRangeAction> getElementaryRangeActions() {
-        return elementaryRangeActions;
+    public List<ApplicableRangeAction> getApplicableRangeActions() {
+        return applicableRangeActions;
     }
 
-    public void setElementaryRangeActions(List<ApplicableRangeAction> elementaryRangeActions) {
-        this.elementaryRangeActions = elementaryRangeActions;
+    public void setApplicableRangeActions(List<ApplicableRangeAction> applicableRangeActions) {
+        this.applicableRangeActions = applicableRangeActions;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class RangeAction extends AbstractRemedialAction implements Range, Applic
 
     @Override
     public void apply(Network network, double setpoint) {
-        throw new UnsupportedOperationException();
+        applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
     }
 
     public void addRange(Range range) {
@@ -66,6 +66,6 @@ public class RangeAction extends AbstractRemedialAction implements Range, Applic
     }
 
     public void addElementaryRangeAction(ApplicableRangeAction elementaryRangeAction) {
-        this.elementaryRangeActions.add(elementaryRangeAction);
+        this.applicableRangeActions.add(elementaryRangeAction);
     }
 }

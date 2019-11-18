@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface Range {
 
-    public double getMinValue(Network network);
+    double getMinValue(Network network);
 
-    public double getMaxValue(Network network);
+    double getMaxValue(Network network);
 }

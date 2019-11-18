@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,8 +19,8 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.Abs
 import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.RelativeDynamicRange;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.RelativeFixedRange;
-import com.farao_community.farao.data.crac_impl.remedial_action.threshold.FlowThreshold;
-import com.farao_community.farao.data.crac_impl.remedial_action.threshold.VoltageThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.FlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
 import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.OnConstraint;
@@ -149,12 +149,12 @@ public class CracFileTest {
         OnContingency onContingency = new OnContingency(UsageMethod.FORCED, stateCurative, null);
         onContingency.setContingency(contingency);
         OnConstraint onConstraint = new OnConstraint(UsageMethod.FORCED, stateCurative, null);
-        onConstraint.setConstraint(cnec1);
+        onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        NetworkAction networkAction1 = new NetworkAction(new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        NetworkAction networkAction1 = new NetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
         networkAction1.addNetworkAction(topology2);
-        NetworkAction networkAction2 = new NetworkAction(new ArrayList<>(Arrays.asList(pstSetpoint)));
+        NetworkAction networkAction2 = new NetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
         RangeAction rangeAction1 = new RangeAction("idRangeAction", "myRangeAction", null, null, null);
@@ -162,7 +162,7 @@ public class CracFileTest {
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
-        rangeAction1.setElementaryRangeActions(elementaryRangeActions);
+        rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addElementaryRangeAction(hvdcRange1);
         List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);

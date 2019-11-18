@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,18 +19,18 @@ import com.farao_community.farao.data.crac_impl.State;
  */
 public final class OnConstraint extends AbstractUsageRule {
 
-    private Cnec constraint;
+    private Cnec cnec;
 
-    public OnConstraint(UsageMethod usageMethod, State state, Cnec constraint) {
+    public OnConstraint(UsageMethod usageMethod, State state, Cnec cnec) {
         super(usageMethod, state);
-        this.constraint = constraint;
+        this.cnec = cnec;
     }
 
-    public Cnec getConstraint() {
-        return constraint;
+    public Cnec getCnec() {
+        return cnec;
     }
 
-    public void setConstraint(Cnec constraint) {
-        this.constraint = constraint;
+    public void setCnec(Cnec cnec) {
+        this.cnec = cnec;
     }
 }
