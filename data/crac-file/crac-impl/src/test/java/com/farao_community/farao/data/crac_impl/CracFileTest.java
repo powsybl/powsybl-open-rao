@@ -39,9 +39,7 @@ import static org.junit.Assert.*;
 
 public class CracFileTest {
 
-    @Test
-    public void testCrac() {
-
+    private static Crac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
@@ -182,6 +180,14 @@ public class CracFileTest {
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
+        return crac;
+    }
+
+    @Test
+    public void testCrac() {
+
+        Crac crac = create();
+
         crac.getCnecs().forEach(
             cnec -> {
                 cnec.getState().getInstant();
@@ -195,6 +201,5 @@ public class CracFileTest {
                 }));
 
         assertTrue(crac.getId().equals("idCrac"));
-        assertTrue(cnec2.isBasecase());
     }
 }
