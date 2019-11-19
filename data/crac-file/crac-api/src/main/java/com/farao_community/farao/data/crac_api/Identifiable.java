@@ -26,8 +26,3 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      */
     String getName();
 }
-
-
-
-
-
