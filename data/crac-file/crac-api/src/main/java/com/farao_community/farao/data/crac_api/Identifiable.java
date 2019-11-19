@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.Extendable;
  * An object that is part of the network model and that is identified uniquely
  * by a <code>String</code> id.
  *
- * @author Viktor Terrier <viktor.terrier at rte-france.com>
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 

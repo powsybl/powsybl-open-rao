@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 
 /**
  *
- * @author Viktor Terrier <viktor.terrier at rte-france.com>
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
 

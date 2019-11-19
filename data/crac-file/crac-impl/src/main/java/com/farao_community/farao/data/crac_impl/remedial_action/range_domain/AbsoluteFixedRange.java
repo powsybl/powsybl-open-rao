@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_domain;
 import com.powsybl.iidm.network.Network;
 
 /**
- * Absolute validity domain.
+ * Definition of an absolute range.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
