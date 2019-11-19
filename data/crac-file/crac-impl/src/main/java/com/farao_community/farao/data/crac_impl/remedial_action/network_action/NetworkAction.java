@@ -39,7 +39,7 @@ public class NetworkAction extends AbstractRemedialAction implements ApplicableN
         applicableNetworkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
     }
 
-    public void addNetworkAction(ApplicableNetworkAction networkAction) {
+    public void addApplicableNetworkAction(ApplicableNetworkAction networkAction) {
         this.applicableNetworkActions.add(networkAction);
     }
 }

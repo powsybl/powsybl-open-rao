@@ -153,7 +153,7 @@ public class CracFileTest {
 
         // NetworkAction
         NetworkAction networkAction1 = new NetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
-        networkAction1.addNetworkAction(topology2);
+        networkAction1.addApplicableNetworkAction(topology2);
         NetworkAction networkAction2 = new NetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
@@ -163,7 +163,7 @@ public class CracFileTest {
         rangeAction1.addRange(relativeFixedRange);
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
-        rangeAction1.addElementaryRangeAction(hvdcRange1);
+        rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
