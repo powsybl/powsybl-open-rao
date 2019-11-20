@@ -116,8 +116,8 @@ public class CracFileTest {
         curative.setDuration(200);
 
         // State
-        State stateBasecase = new State(Optional.empty(), basecase);
-        State stateCurative = new State(Optional.empty(), null);
+        State stateBasecase = new SimpleState(Optional.empty(), basecase);
+        State stateCurative = new SimpleState(Optional.empty(), null);
         stateCurative.setContingency(Optional.of(contingency));
         stateCurative.setInstant(curative);
 
@@ -174,8 +174,6 @@ public class CracFileTest {
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
-        /*crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
-        crac.addNetworkRemedialAction(networkAction2);*/
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
