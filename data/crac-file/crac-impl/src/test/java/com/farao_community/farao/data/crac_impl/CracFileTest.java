@@ -38,9 +38,7 @@ import static org.junit.Assert.*;
 
 public class CracFileTest {
 
-    @Test
-    public void testCrac() {
-
+    private static SimpleCrac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
@@ -152,7 +150,7 @@ public class CracFileTest {
 
         // NetworkAction
         ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
-        networkAction1.addNetworkAction(topology2);
+        networkAction1.addApplicableNetworkAction(topology2);
         ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
@@ -162,7 +160,7 @@ public class CracFileTest {
         rangeAction1.addRange(relativeFixedRange);
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
-        rangeAction1.addElementaryRangeAction(hvdcRange1);
+        rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
@@ -181,6 +179,14 @@ public class CracFileTest {
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
+        return crac;
+    }
+
+    @Test
+    public void testCrac() {
+
+        SimpleCrac crac = create();
+
         crac.getCnecs().forEach(
             cnec -> {
                 cnec.getState().getInstant();
@@ -192,6 +198,5 @@ public class CracFileTest {
                     AbstractUsageRule::getUsageMethod));
 
         assertTrue(crac.getId().equals("idCrac"));
-        assertTrue(cnec2.isBasecase());
     }
 }

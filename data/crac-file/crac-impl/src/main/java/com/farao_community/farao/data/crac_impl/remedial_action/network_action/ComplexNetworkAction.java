@@ -40,7 +40,7 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Appl
         applicableNetworkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
     }
 
-    public void addNetworkAction(ApplicableNetworkAction networkAction) {
+    public void addApplicableNetworkAction(ApplicableNetworkAction networkAction) {
         this.applicableNetworkActions.add(networkAction);
     }
 }

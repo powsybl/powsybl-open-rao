@@ -67,7 +67,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements Applic
         this.ranges.add(range);
     }
 
-    public void addElementaryRangeAction(ApplicableRangeAction elementaryRangeAction) {
+    public void addApplicableRangeAction(ApplicableRangeAction elementaryRangeAction) {
         this.applicableRangeActions.add(elementaryRangeAction);
     }
 }
