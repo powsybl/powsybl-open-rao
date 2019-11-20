@@ -7,7 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_impl.NetworkElement;
+import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 
 /**
  * Generic object to define any simple action on a network element (setpoint, open/close, etc.).

@@ -5,18 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.range_domain;
+package com.farao_community.farao.data.crac_api;
 
 import com.powsybl.iidm.network.Network;
 
 /**
- * Range.
+ * Interface to apply an action on the network
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public interface Range {
-
-    double getMinValue(Network network);
-
-    double getMaxValue(Network network);
+public interface ApplicableNetworkAction {
+    void apply(Network network);
 }

@@ -5,33 +5,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.range_domain;
+package com.farao_community.farao.data.crac_impl.range_domain;
 
+import com.farao_community.farao.data.crac_api.Range;
 import com.powsybl.iidm.network.Network;
 
 /**
- * Definition of an absolute range.
+ * Definition of a range relative to the previous network.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class AbsoluteFixedRange implements Range {
+public class RelativeDynamicRange implements Range {
 
-    protected double min;
-    protected double max;
+    private double min;
+    private double max;
 
-    public AbsoluteFixedRange(double min, double max) {
+    public RelativeDynamicRange(double min, double max) {
         this.min = min;
         this.max = max;
     }
 
     @Override
     public double getMinValue(Network network) {
-        return min;
+        return 0;
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return max;
+        return 0;
     }
 
     public double getMin() {

@@ -5,11 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.usage_rule;
+package com.farao_community.farao.data.crac_impl.usage_rule;
 
+import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_impl.Contingency;
-import com.farao_community.farao.data.crac_impl.State;
+import com.farao_community.farao.data.crac_api.State;
 
 /**
  * The remedial action is available only after a specific contingency, with a given method

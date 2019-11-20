@@ -7,6 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+
 import java.util.List;
 
 /**
@@ -15,11 +19,11 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class Contingency extends AbstractIdentifiable {
+public class ComplexContingency extends AbstractIdentifiable implements Contingency {
 
     private List<NetworkElement> networkElements;
 
-    public Contingency(String id, String name, final List<NetworkElement> networkElements) {
+    public ComplexContingency(String id, String name, final List<NetworkElement> networkElements) {
         super(id, name);
         this.networkElements = networkElements;
     }

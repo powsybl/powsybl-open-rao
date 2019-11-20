@@ -12,19 +12,18 @@ package com.farao_community.farao.data.crac_impl;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.AbsoluteFixedRange;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.RelativeDynamicRange;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.RelativeFixedRange;
+import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
+import com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange;
+import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
 import com.farao_community.farao.data.crac_impl.threshold.FlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.OnConstraint;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -109,7 +108,7 @@ public class CracFileTest {
         NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
 
         List<NetworkElement> elementsList = new ArrayList<>(Arrays.asList(line2, line3));
-        Contingency contingency = new Contingency("idContingency", "My contingency", null);
+        ComplexContingency contingency = new ComplexContingency("idContingency", "My contingency", null);
         contingency.setNetworkElements(elementsList);
         contingency.addNetworkElement(networkElement1);
 
@@ -136,9 +135,9 @@ public class CracFileTest {
         threshold2.setMaxValue(305);
 
         // CNECs
-        Cnec cnec1 = new Cnec("idCnec", "Cnec", null, threshold1, stateCurative);
+        SimpleCnec cnec1 = new SimpleCnec("idCnec", "Cnec", null, threshold1, stateCurative);
         cnec1.setCriticalNetworkElement(monitoredElement);
-        Cnec cnec2 = new Cnec("idCnec2", "Cnec 2", monitoredElement, null, null);
+        SimpleCnec cnec2 = new SimpleCnec("idCnec2", "Cnec 2", monitoredElement, null, null);
         cnec2.setState(stateBasecase);
         cnec2.setThreshold(threshold2);
 
@@ -152,12 +151,12 @@ public class CracFileTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        NetworkAction networkAction1 = new NetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
         networkAction1.addNetworkAction(topology2);
-        NetworkAction networkAction2 = new NetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
-        RangeAction rangeAction1 = new RangeAction("idRangeAction", "myRangeAction", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
@@ -168,17 +167,17 @@ public class CracFileTest {
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        RangeAction rangeAction2 = new RangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
 
-        Crac crac = new Crac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        SimpleCrac crac = new SimpleCrac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
-        crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
-        crac.addNetworkRemedialAction(networkAction2);
+        /*crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
+        crac.addNetworkRemedialAction(networkAction2);*/
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
@@ -190,9 +189,7 @@ public class CracFileTest {
 
         crac.getRangeActions().forEach(
             abstractRemedialAction -> abstractRemedialAction.getUsageRules().forEach(
-                abstractUsageRule -> {
-                    abstractUsageRule.getUsageMethod();
-                }));
+                    AbstractUsageRule::getUsageMethod));
 
         assertTrue(crac.getId().equals("idCrac"));
         assertTrue(cnec2.isBasecase());

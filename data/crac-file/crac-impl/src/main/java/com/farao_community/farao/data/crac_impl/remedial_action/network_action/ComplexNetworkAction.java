@@ -7,8 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
+import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.powsybl.iidm.network.Network;
 import java.util.List;
 
@@ -17,11 +18,11 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class NetworkAction extends AbstractRemedialAction implements ApplicableNetworkAction {
+public class ComplexNetworkAction extends AbstractRemedialAction implements ApplicableNetworkAction {
 
     private List<ApplicableNetworkAction> applicableNetworkActions;
 
-    public NetworkAction(String id, String name, List<AbstractUsageRule> usageRules, List<ApplicableNetworkAction> applicableNetworkActions) {
+    public ComplexNetworkAction(String id, String name, List<AbstractUsageRule> usageRules, List<ApplicableNetworkAction> applicableNetworkActions) {
         super(id, name, usageRules);
         this.applicableNetworkActions = applicableNetworkActions;
     }

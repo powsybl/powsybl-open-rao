@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
 import com.powsybl.iidm.network.Network;
 
 /**

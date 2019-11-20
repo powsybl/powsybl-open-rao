@@ -5,10 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.usage_rule;
-
-import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_impl.State;
+package com.farao_community.farao.data.crac_api;
 
 /**
  * Business object of a usage rule in the CRAC file

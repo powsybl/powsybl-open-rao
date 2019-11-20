@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
+import com.farao_community.farao.data.crac_api.Range;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
+import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -19,12 +21,12 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class RangeAction extends AbstractRemedialAction implements Range, ApplicableRangeAction {
+public class ComplexRangeAction extends AbstractRemedialAction implements ApplicableRangeAction, RangeAction {
 
     private List<Range> ranges;
     private List<ApplicableRangeAction> applicableRangeActions;
 
-    public RangeAction(String id, String name, List<AbstractUsageRule> abstractUsageRules, List<Range> ranges, List<ApplicableRangeAction> applicableRangeActions) {
+    public ComplexRangeAction(String id, String name, List<AbstractUsageRule> abstractUsageRules, List<Range> ranges, List<ApplicableRangeAction> applicableRangeActions) {
         super(id, name, abstractUsageRules);
         this.ranges = ranges;
         this.applicableRangeActions = applicableRangeActions;

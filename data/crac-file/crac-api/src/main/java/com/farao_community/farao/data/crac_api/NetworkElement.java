@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_api;
 
 /**
  * Element of the network in the CRAC file.
  *
- * @author Viktor Terruer {@literal <viktor.terrier at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
 public class NetworkElement extends AbstractIdentifiable {

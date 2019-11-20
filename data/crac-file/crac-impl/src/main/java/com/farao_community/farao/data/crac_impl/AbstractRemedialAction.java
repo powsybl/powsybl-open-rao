@@ -7,8 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
+import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_impl.remedial_action.usage_rule.AbstractUsageRule;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public abstract class AbstractRemedialAction extends AbstractIdentifiable {
+public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
     protected List<AbstractUsageRule> usageRules;
 
     public AbstractRemedialAction(String id, String name, List<AbstractUsageRule> usageRules) {
@@ -31,6 +33,7 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable {
         this.usageRules = usageRules;
     }
 
+    @Override
     public List<AbstractUsageRule> getUsageRules() {
         return usageRules;
     }
@@ -39,6 +42,7 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable {
         usageRules.add(abstractUsageRule);
     }
 
+    @Override
     public UsageMethod getUsageMethod(Network network) {
         return null;
     }

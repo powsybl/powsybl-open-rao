@@ -7,6 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.powsybl.iidm.network.Network;
 
@@ -15,18 +19,19 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class Cnec extends AbstractIdentifiable {
+public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private NetworkElement criticalNetworkElement;
     private AbstractThreshold threshold;
     private State state;
 
-    public Cnec(String id, String name, NetworkElement criticalNetworkElement, AbstractThreshold threshold, State state) {
+    public SimpleCnec(String id, String name, NetworkElement criticalNetworkElement, AbstractThreshold threshold, State state) {
         super(id, name);
         this.criticalNetworkElement = criticalNetworkElement;
         this.threshold = threshold;
         this.state = state;
     }
 
+    @Override
     public NetworkElement getCriticalNetworkElement() {
         return criticalNetworkElement;
     }
@@ -43,6 +48,7 @@ public class Cnec extends AbstractIdentifiable {
         this.threshold = threshold;
     }
 
+    @Override
     public State getState() {
         return state;
     }
@@ -55,10 +61,12 @@ public class Cnec extends AbstractIdentifiable {
         return !state.getContingency().isPresent();
     }
 
+    @Override
     public boolean isMinThresholdViolated(Network network) {
         return true;
     }
 
+    @Override
     public boolean isMaxThresholdViolated(Network network) {
         return true;
     }

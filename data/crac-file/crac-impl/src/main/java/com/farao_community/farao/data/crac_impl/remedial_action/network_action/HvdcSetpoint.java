@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_impl.NetworkElement;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.network.Network;
 
 /**

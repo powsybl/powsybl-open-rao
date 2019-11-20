@@ -4,22 +4,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_impl;
+
+package com.farao_community.farao.data.crac_api;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.farao_community.farao.data.crac_api.Identifiable;
 
 /**
+ * Common abstract class to inherit from for all identifiable classes
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
+public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
 
-    protected final String id;
+    private final String id;
 
     protected String name;
 
-    AbstractIdentifiable(String id, String name) {
+    public AbstractIdentifiable(String id, String name) {
         this.id = id;
         this.name = name;
     }
