@@ -7,11 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-/**
- * General test file
- *
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- */
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
@@ -36,6 +31,11 @@ import static com.farao_community.farao.data.crac_api.Direction.*;
 import static com.farao_community.farao.data.crac_api.Side.*;
 import static org.junit.Assert.*;
 
+/**
+ * General test file
+ *
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ */
 public class CracFileTest {
 
     private static SimpleCrac create() {

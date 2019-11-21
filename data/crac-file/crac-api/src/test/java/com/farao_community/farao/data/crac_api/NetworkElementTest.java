@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class NetworkElementTest {
 
     @Test
-    public void testConstructoElementTest() {
+    public void testConstructorElementTest() {
         NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
         assertEquals("basicElemId", networkElement.getId());
         assertEquals("basicElemName", networkElement.getName());
