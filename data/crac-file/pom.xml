@@ -23,5 +23,6 @@
         <module>crac-merging</module>
         <module>crac-api</module>
         <module>crac-impl</module>
+        <module>crac-io-api</module>
     </modules>
 </project>
