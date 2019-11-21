@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 /**
  * Interface for CRAC object import
@@ -18,5 +19,7 @@ import java.io.InputStream;
 
 public interface CracImporter {
 
-    Crac importCrac(InputStream cracFileInput);
+    public Crac importCrac(Path filePath);
+
+    public Crac importCrac(InputStream cracFileInput);
 }
