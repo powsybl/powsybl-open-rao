@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -15,14 +16,23 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-public class NetworkElementTest {
+public class InstantTest {
 
-    @Test
-    public void testConstructoElementTest() {
-        NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
-        assertEquals("basicElemId", networkElement.getId());
-        assertEquals("basicElemName", networkElement.getName());
-        assertEquals("basicElemId", networkElement.toString());
+    private Instant instant;
+
+    @Before
+    public void setUp() {
+        instant = new Instant(15);
     }
 
+    @Test
+    public void getDuration() {
+        assertEquals(15, instant.getDuration(), 0.1);
+    }
+
+    @Test
+    public void setDuration() {
+        instant.setDuration(5);
+        assertEquals(5, instant.getDuration(), 0.1);
+    }
 }
