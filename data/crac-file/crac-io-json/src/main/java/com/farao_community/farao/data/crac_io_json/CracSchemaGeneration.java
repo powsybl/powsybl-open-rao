@@ -38,12 +38,12 @@ final class CracSchemaGeneration {
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         mapper.writeValue(json, jsonSchema);
 
+        try (OutputStream os = new FileOutputStream(
+                new File(CracSchemaGeneration.class.getResource("/CracSchema.json").toURI()))) {
+            os.write(json.toString().getBytes());
+        }
         //System.out.println(json.toString());
-        OutputStream os = new FileOutputStream(new File(CracSchemaGeneration.class.getResource("/CracSchema.json").toURI()));
+        //OutputStream os = new FileOutputStream(new File(CracSchemaGeneration.class.getResource("/CracSchema.json").toURI()));
         //OutputStream os = new FileOutputStream("../../../main/java/resources/CracSchema.json");
-
-        os.write(json.toString().getBytes());
-        os.flush();
-        os.close();
     }
 }

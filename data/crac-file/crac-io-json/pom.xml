@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>crac-io-json</artifactId>
+    <artifactId>farao-crac-io-json</artifactId>
     <packaging>jar</packaging>
     <name>Json to CRAC converter</name>
     <description>Conversion between Json and CRAC formats</description>

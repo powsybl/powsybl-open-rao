@@ -10,15 +10,12 @@ package com.farao_community.farao.data.crac_io_api;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -28,46 +25,46 @@ import java.util.stream.Collectors;
  */
 public final class CracExporters {
 
-    private static final Supplier<List<CracExporter>> NAMING_STRATEGY_SUPPLIERS
+    private static final Supplier<List<CracExporter>> CRAC_EXPORTERS
         = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracExporter.class).getServices())::get;
 
     private CracExporters() {
-
     }
 
     public static void exportCrac(Crac crac, String format, Path cracPath) {
-        try {
-            OutputStream os = new FileOutputStream(new File(cracPath.toUri()));
+        try (OutputStream os = new FileOutputStream(cracPath.toFile())) {
             exportCrac(crac, format, os);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     public static void exportCrac(Crac crac, String format, OutputStream outputStream) {
-        CracExporter availableExporter = findNamingStrategy(format, NAMING_STRATEGY_SUPPLIERS.get());
-        availableExporter.exportCrac(crac, outputStream);
+        CracExporter exporter = findCracExporter(format, CRAC_EXPORTERS.get());
+        exporter.exportCrac(crac, outputStream);
     }
 
-    static CracExporter findNamingStrategy(String name, List<CracExporter> namingStrategies) {
-        Objects.requireNonNull(namingStrategies);
+    static CracExporter findCracExporter(String name, List<CracExporter> cracExporters) {
+        Objects.requireNonNull(cracExporters);
 
-        if (namingStrategies.size() == 1 && name == null) {
-            // no information to select the implementation but only one naming strategy, so we can use it by default
+        if (cracExporters.size() == 1 && name == null) {
+            // no information to select the implementation but only one crac exporter, so we can use it by default
             // (that is be the most common use case)
-            return namingStrategies.get(0);
+            return cracExporters.get(0);
         } else {
-            if (namingStrategies.size() > 1 && name == null) {
-                // several naming strategies and no information to select which one to choose, we can only throw
+            if (cracExporters.size() > 1 && name == null) {
+                // several crac exporters and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> namingStrategyNames = namingStrategies.stream().map(CracExporter::getFormat).collect(Collectors.toList());
-                throw new FaraoException("Several naming strategy implementations found (" + namingStrategyNames
-                    + "), you must add properties to select the implementation");
+                List<String> exportersNames = cracExporters.stream().map(CracExporter::getFormat).collect(Collectors.toList());
+                throw new FaraoException("Several crac exporters implementations found (" + exportersNames
+                    + "), you must specify an explicit exporter name");
             }
-            return namingStrategies.stream()
+            return cracExporters.stream()
                 .filter(ns -> ns.getFormat().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new FaraoException("NamingStrategy '" + name + "' not found"));
+                .orElseThrow(() -> new FaraoException("Crac exporter '" + name + "' not found"));
         }
     }
 }

@@ -12,10 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
@@ -25,32 +22,32 @@ import java.util.function.Supplier;
  */
 public final class CracImporters {
 
-    private static final Supplier<List<CracImporter>> NAMING_STRATEGY_SUPPLIERS
+    private static final Supplier<List<CracImporter>> CRAC_IMPORTERS
         = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracImporter.class).getServices())::get;
 
     private CracImporters() {
-
     }
 
     public static Crac importCrac(Path cracPath) {
-        try {
-            InputStream is = new FileInputStream(new File(cracPath.toUri()));
+        try (InputStream is = new FileInputStream(cracPath.toFile())) {
             return importCrac(is);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     public static Crac importCrac(InputStream inputStream) {
-        CracImporter availableImporter = findImporter(inputStream);
-        if (availableImporter == null) {
-            throw new FaraoException("No importer found for this data source");
+        CracImporter importer = findImporter(inputStream);
+        if (importer == null) {
+            throw new FaraoException("No importer found for this file");
         }
-        return availableImporter.importCrac(inputStream);
+        return importer.importCrac(inputStream);
     }
 
     public static CracImporter findImporter(InputStream inputStream) {
-        for (CracImporter importer : NAMING_STRATEGY_SUPPLIERS.get()) {
+        for (CracImporter importer : CRAC_IMPORTERS.get()) {
             if (importer.exists(inputStream)) {
                 return importer;
             }
