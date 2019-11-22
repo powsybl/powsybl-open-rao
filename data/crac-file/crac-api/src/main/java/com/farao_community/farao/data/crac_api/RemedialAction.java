@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface RemedialAction {
+public interface RemedialAction extends Identifiable {
     UsageMethod getUsageMethod(Network network);
 
     List<AbstractUsageRule> getUsageRules();
