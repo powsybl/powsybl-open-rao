@@ -20,6 +20,7 @@ import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_io_api.CracExporters;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
@@ -38,11 +39,9 @@ import static org.junit.Assert.*;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class JsonExportTest {
+public class JsonImportExportTest {
 
-    @Test
-    public void testExportCrac() throws IOException {
-
+    private Crac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
@@ -181,16 +180,19 @@ public class JsonExportTest {
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
+        return crac;
+    }
+
+    @Test
+    public void testExportCrac() throws IOException {
+
+        Crac crac = create();
+
         OutputStream os = new FileOutputStream("file.json");
 
-        JsonExport jsonExport = new JsonExport();
-
-        jsonExport.exportCrac(crac, os);
+        CracExporters.exportCrac(crac, "Json", os);
 
         os.flush();
-
-        //close the stream
         os.close();
-
     }
 }

@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_io_api.CracExporter;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
@@ -27,7 +26,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@AutoService(CracExporter.class)
+@AutoService(CracImporter.class)
 public class JsonImport implements CracImporter {
 
     private static final String CRAC_FILE_SCHEMA_JSON = "/CracSchema.json";

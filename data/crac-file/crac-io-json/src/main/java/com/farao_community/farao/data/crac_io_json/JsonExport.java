@@ -25,9 +25,11 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 @AutoService(CracExporter.class)
 public class JsonExport implements CracExporter {
 
+    private static final String JSON_FORMAT = "Json";
+
     @Override
     public String getFormat() {
-        return "Json";
+        return JSON_FORMAT;
     }
 
     @Override
