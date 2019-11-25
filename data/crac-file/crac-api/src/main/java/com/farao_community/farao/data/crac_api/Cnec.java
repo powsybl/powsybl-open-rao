@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Cnec {
+public interface Cnec extends Identifiable {
 
     State getState();
 

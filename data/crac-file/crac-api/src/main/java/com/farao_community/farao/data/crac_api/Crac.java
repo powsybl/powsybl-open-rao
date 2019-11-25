@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Crac {
+public interface Crac extends Identifiable {
 
     List<Cnec> getCnecs();
 
