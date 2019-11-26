@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +25,8 @@ public class GlskQualityCheckImporter {
     private Instant instant;
 
     private Map<String, GlskPoint> glskPointMap;
+
+    private List<QualityReport> qualityReports;
 
     public UcteGlskDocument getUcteGlskDocument() {
         return ucteGlskDocument;
@@ -46,7 +49,11 @@ public class GlskQualityCheckImporter {
         this.network = network;
         this.instant = instant;
         this.glskPointMap = ucteGlskDocument.getGlskPointForInstant(instant);
-        new GlskQualityCheck().gskQualityCheck(this);
+        qualityReports = new GlskQualityCheck().gskQualityCheck(this);
+    }
+
+    public List<QualityReport> getQualityReports() {
+        return qualityReports;
     }
 
     public static GlskQualityCheckImporter checkFromFiles(String name, InputStream glsk, InputStream cgm, Instant localDate) throws IOException, SAXException, ParserConfigurationException {

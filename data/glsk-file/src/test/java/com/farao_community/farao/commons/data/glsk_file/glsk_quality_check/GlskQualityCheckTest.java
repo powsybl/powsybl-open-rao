@@ -12,13 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 public class GlskQualityCheckTest {
 
-    private static final String COUNTRYFULL = "/20160729_0000_GSK_allday_full.xml";
-    private static final String COUNTRYTEST = "/20170322_1844_SN3_FR2_GLSK_test_quality_check.xml";
+    private static final String FIRST_ERROR = "/20170322_1844_SN3_FR2_GLSK_error_1.xml";
+    private static final String COUNTRYTEST = "/20170322_1844_SN3_FR2_GLSK_test.xml";
 
     private Path getResourceAsPath(String resource) {
         return Paths.get(getResourceAsPathString(resource));
@@ -36,15 +38,43 @@ public class GlskQualityCheckTest {
 
     @Before
     public void setUp() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        glskQualityCheck = new GlskQualityCheck();
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        GlskQualityCheckImporter.checkFromObject(ucteGlskDocument, network, Instant.parse("2016-07-28T23:00:00Z"));
+
     }
 
     @Test
-    public void qualityCheck() {
+    public void qualityCheckWithCorrectValue() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+        glskQualityCheck = new GlskQualityCheck();
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskQualityCheckImporter glskQualityCheckImporter = GlskQualityCheckImporter.checkFromObject(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
+        assertEquals(0, glskQualityCheckImporter.getQualityReports().size());
+    }
+
+    @Test
+    public void qualityCheckWithError1() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(FIRST_ERROR));
+        glskQualityCheck = new GlskQualityCheck();
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskQualityCheckImporter glskQualityCheckImporter = GlskQualityCheckImporter.checkFromObject(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+
+        assertEquals(1, glskQualityCheckImporter.getQualityReports().size());
+        assertEquals("GSK node is not found in CGM", glskQualityCheckImporter.getQualityReports().get(0).getMessage());
+        assertEquals("FFR2AA2 ", glskQualityCheckImporter.getQualityReports().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", glskQualityCheckImporter.getQualityReports().get(0).getTso());
+    }
+
+    @Test
+    public void qualityCheckWithError2() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+        glskQualityCheck = new GlskQualityCheck();
+        Network network = Importers.loadNetwork("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
+        GlskQualityCheckImporter glskQualityCheckImporter = GlskQualityCheckImporter.checkFromObject(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+
+        assertEquals(1, glskQualityCheckImporter.getQualityReports().size());
+        assertEquals("GSK node is not found in CGM", glskQualityCheckImporter.getQualityReports().get(0).getMessage());
+        //assertEquals("FFR2AA2 ", glskQualityCheckImporter.getQualityReports().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", glskQualityCheckImporter.getQualityReports().get(0).getTso());
     }
 
 }

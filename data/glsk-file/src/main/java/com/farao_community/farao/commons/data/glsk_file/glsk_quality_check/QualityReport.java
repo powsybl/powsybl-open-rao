@@ -25,6 +25,26 @@ public class QualityReport {
         return new QualityReport(nodeId, type, tso, severity, message);
     }
 
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getTso() {
+        return tso;
+    }
+
+    public SeverityEnum getSeverity() {
+        return severity;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
     public QualityReport(String nodeId, String type, String tso, SeverityEnum severity, String message) {
         this.nodeId = nodeId;
         this.type = type;
