@@ -13,6 +13,21 @@ import com.powsybl.commons.extensions.AbstractExtension;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult> {
+
+    public enum ComputationStatus {
+        SECURE,
+        UNSECURE,
+        ERROR
+    }
+
+    public enum StopCriterion {
+        OPTIMIZATION_FINISHED,
+        NO_COMPUTATION,
+        DIVERGENCE,
+        TIME_OUT,
+        OPTIMIZATION_TIME_OUT
+    }
+
     @Override
     public String getName() {
         return null;
