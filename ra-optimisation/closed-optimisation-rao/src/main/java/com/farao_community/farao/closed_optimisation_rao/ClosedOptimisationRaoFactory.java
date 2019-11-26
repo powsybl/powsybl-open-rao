@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,7 +12,7 @@ import com.farao_community.farao.ra_optimisation.RaoComputationFactory;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 
 /**
@@ -22,8 +22,8 @@ public class ClosedOptimisationRaoFactory implements RaoComputationFactory {
 
     @Override
     public RaoComputation create(Network network, CracFile cracFile, ComputationManager computationManager, int priority) {
-        LoadFlowFactory loadFlowFactory = ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
+        LoadFlow.Runner loadFlowRunner = LoadFlow.find();
         SensitivityComputationFactory sensitivityComputationFactory = ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class);
-        return new ClosedOptimisationRao(network, cracFile, computationManager, loadFlowFactory, sensitivityComputationFactory);
+        return new ClosedOptimisationRao(network, cracFile, computationManager, loadFlowRunner, sensitivityComputationFactory);
     }
 }
