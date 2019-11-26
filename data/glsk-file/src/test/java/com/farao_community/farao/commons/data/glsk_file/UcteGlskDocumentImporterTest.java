@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -114,6 +115,37 @@ public class UcteGlskDocumentImporterTest {
             fail();
         } catch (FaraoException e) {
             // Should throw FaraoException
+        }
+    }
+
+    @Test
+    public void testGetGlskPointForInstant() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
+        Map<String, GlskPoint> result = ucteGlskDocument.getGlskPointForInstant(Instant.parse("2016-07-28T23:30:00Z"));
+        Instant instant = Instant.parse("2016-07-28T23:30:00Z");
+        assertTrue(result.get("10YNL----------L").getPointInterval().getStart().isBefore(instant));
+        assertTrue(result.get("10YNL----------L").getPointInterval().getEnd().isAfter(instant));
+        assertEquals(1, result.get("10YNL----------L").getGlskShiftKeys().size());
+
+        Double factor = result.get("10YNL----------L").getGlskShiftKeys().get(0)
+                .getRegisteredResourceArrayList()
+                .stream()
+                .filter(glskRegisteredResource -> glskRegisteredResource.getmRID().equals("N_EC-42 "))
+                .mapToDouble(glskRegisteredResource -> glskRegisteredResource.getParticipationFactor())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Not good"));
+
+        assertEquals(0.009878, factor, 0.);
+    }
+
+    @Test
+    public void testGetGlskPointForIncorrectInstant() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
+        try {
+            ucteGlskDocument.getGlskPointForInstant(Instant.parse("2016-07-29T22:00:00Z"));
+            fail();
+        } catch (FaraoException e) {
+            // should throw
         }
     }
 }

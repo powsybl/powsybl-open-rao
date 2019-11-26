@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons.data.glsk_file;
 
+import com.farao_community.farao.commons.FaraoException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,10 +19,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * Ucte type GLSK document object: contains a list of GlskPoint
@@ -40,6 +39,10 @@ public class UcteGlskDocument {
      * List of Glsk point by country code
      */
     private Map<String, List<GlskPoint>> ucteGlskPointsByCountry; //map <CountryID, List<GlskPoint>>
+
+    public static UcteGlskDocument importGlskFromFile(InputStream data) throws IOException, SAXException, ParserConfigurationException {
+        return new UcteGlskDocument(data);
+    }
 
     /**
      * @param data input file as input stream
@@ -154,5 +157,17 @@ public class UcteGlskDocument {
      */
     public List<String> getCountries() {
         return new ArrayList<>(ucteGlskPointsByCountry.keySet());
+    }
+
+    public Map<String, GlskPoint> getGlskPointForInstant(Instant instant) {
+        Map<String, GlskPoint> glskPointInstant = new HashMap<>();
+        ucteGlskPointsByCountry.forEach((key, glskPoints) -> {
+            GlskPoint glskPoint = glskPoints.stream()
+                    .filter(p -> p.checkInstantInPointInterval(instant))
+                    .findFirst().orElseThrow(() -> new FaraoException("Error during get glsk point by instant for " + key + " country"));
+
+            glskPointInstant.put(key, glskPoint);
+        });
+        return glskPointInstant;
     }
 }

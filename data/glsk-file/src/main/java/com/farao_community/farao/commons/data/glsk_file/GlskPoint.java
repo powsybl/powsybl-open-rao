@@ -186,6 +186,10 @@ public class GlskPoint {
         return pointInterval;
     }
 
+    public boolean checkInstantInPointInterval(Instant instant) {
+        return !this.pointInterval.getStart().isAfter(instant) && this.pointInterval.getEnd().isAfter(instant);
+    }
+
     /**
      * @param pointInterval set interval of point
      */
