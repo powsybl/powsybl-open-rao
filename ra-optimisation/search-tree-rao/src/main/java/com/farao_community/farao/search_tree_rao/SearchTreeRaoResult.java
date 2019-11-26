@@ -7,11 +7,17 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SearchTreeRaoResult extends RaoComputationResult {
+public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult> {
+
+    @Override
+    public String getName() {
+        return "SearchTreeRaoResult";
+    }
 
     public enum ComputationStatus {
         SECURE,
@@ -30,8 +36,7 @@ public class SearchTreeRaoResult extends RaoComputationResult {
     private final ComputationStatus computationStatus;
     private final StopCriterion stopCriterion;
 
-    public SearchTreeRaoResult(final Status status, final ComputationStatus computationStatus, final StopCriterion stopCriterion) {
-        super(status);
+    public SearchTreeRaoResult(final ComputationStatus computationStatus, final StopCriterion stopCriterion) {
         this.computationStatus = computationStatus;
         this.stopCriterion = stopCriterion;
     }
