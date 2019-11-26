@@ -21,13 +21,11 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -198,13 +196,13 @@ public class JsonImportExportTest {
         os.close();
     }
 
-    @Test
+    /*@Test
     public void testImportCrac() throws IOException {
 
-                /*Path hello = Paths.get("file.json");
-        byte[] encoded = Files.readAllBytes(Paths.get("file.json"));
-        String contenu = new String(encoded, StandardCharsets.UTF_8);*/
+        //Path hello = Paths.get("file.json");
+        //byte[] encoded = Files.readAllBytes(Paths.get("file.json"));
+        //String contenu = new String(encoded, StandardCharsets.UTF_8);
 
-        CracImporters.importCrac(Paths.get("file.json"));
-    }
+        //CracImporters.importCrac(Paths.get("file.json"));
+    }*/
 }
