@@ -6,13 +6,17 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.ra_optimisation.ContingencyResult;
+import com.farao_community.farao.ra_optimisation.PreContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.powsybl.commons.extensions.AbstractExtension;
+
+import java.beans.ConstructorProperties;
+import java.util.List;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult> {
+public class SearchTreeRaoResult extends RaoComputationResult {
 
     public enum ComputationStatus {
         SECURE,
@@ -28,8 +32,39 @@ public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult>
         OPTIMIZATION_TIME_OUT
     }
 
-    @Override
-    public String getName() {
-        return null;
+    private final ComputationStatus computationStatus;
+    private final StopCriterion stopCriterion;
+
+    public SearchTreeRaoResult(final Status status, final ComputationStatus computationStatus, final StopCriterion stopCriterion) {
+        super(status);
+        this.computationStatus = computationStatus;
+        this.stopCriterion = stopCriterion;
     }
+
+    public SearchTreeRaoResult(final Status status, final PreContingencyResult preContingencyResult, ComputationStatus computationStatus, final StopCriterion stopCriterion) {
+        super(status, preContingencyResult);
+        this.computationStatus = computationStatus;
+        this.stopCriterion = stopCriterion;
+    }
+
+    @ConstructorProperties({"status", "preContingencyResult", "contingencyResults", "computationStatus", "stopCriterion"})
+    public SearchTreeRaoResult(
+            final Status status,
+            final PreContingencyResult preContingencyResult,
+            final List<ContingencyResult> contingencyResults,
+            final ComputationStatus computationStatus,
+            final StopCriterion stopCriterion) {
+        super(status, preContingencyResult, contingencyResults);
+        this.computationStatus = computationStatus;
+        this.stopCriterion = stopCriterion;
+    }
+
+    public ComputationStatus getComputationStatus() {
+        return computationStatus;
+    }
+
+    public StopCriterion getStopCriterion() {
+        return stopCriterion;
+    }
+
 }
