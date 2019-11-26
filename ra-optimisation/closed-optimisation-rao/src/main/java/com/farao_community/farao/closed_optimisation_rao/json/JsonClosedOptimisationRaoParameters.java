@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,6 +28,11 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
     public void serialize(ClosedOptimisationRaoParameters closedOptimisationRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("solverType", closedOptimisationRaoParameters.getSolverType());
+        jsonGenerator.writeNumberField("relativeMipGap", closedOptimisationRaoParameters.getRelativeMipGap());
+        jsonGenerator.writeNumberField("maxTimeInSeconds", closedOptimisationRaoParameters.getMaxTimeInSeconds());
+        jsonGenerator.writeNumberField("overloadPenaltyCost", closedOptimisationRaoParameters.getOverloadPenaltyCost());
+        jsonGenerator.writeNumberField("rdSensitivityThreshold", closedOptimisationRaoParameters.getRdSensitivityThreshold());
+        jsonGenerator.writeNumberField("pstSensitivityThreshold", closedOptimisationRaoParameters.getPstSensitivityThreshold());
         jsonGenerator.writeObjectField("problemFillers", closedOptimisationRaoParameters.getFillersList());
         jsonGenerator.writeObjectField("preProcessors", closedOptimisationRaoParameters.getPreProcessorsList());
         jsonGenerator.writeObjectField("postProcessors", closedOptimisationRaoParameters.getPostProcessorsList());
@@ -42,6 +47,26 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
             switch (jsonParser.getCurrentName()) {
                 case "solverType":
                     parameters.setSolverType(jsonParser.nextTextValue());
+                    break;
+                case "relativeMipGap":
+                    jsonParser.nextToken();
+                    parameters.setRelativeMipGap(jsonParser.getDoubleValue());
+                    break;
+                case "maxTimeInSeconds":
+                    jsonParser.nextToken();
+                    parameters.setMaxTimeInSeconds(jsonParser.getDoubleValue());
+                    break;
+                case "overloadPenaltyCost":
+                    jsonParser.nextToken();
+                    parameters.setOverloadPenaltyCost(jsonParser.getDoubleValue());
+                    break;
+                case "rdSensitivityThreshold":
+                    jsonParser.nextToken();
+                    parameters.setRdSensitivityThreshold(jsonParser.getDoubleValue());
+                    break;
+                case "pstSensitivityThreshold":
+                    jsonParser.nextToken();
+                    parameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
                     break;
                 case "problemFillers":
                     jsonParser.nextToken();
