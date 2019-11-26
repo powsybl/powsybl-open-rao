@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexRangeAction extends AbstractRemedialAction implements ApplicableRangeAction, RangeAction {
 
     private List<Range> ranges;
@@ -63,10 +66,12 @@ public class ComplexRangeAction extends AbstractRemedialAction implements Applic
         applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
     }
 
+    @JsonProperty("ranges")
     public void addRange(Range range) {
         this.ranges.add(range);
     }
 
+    @JsonProperty("applicableRangeActions")
     public void addApplicableRangeAction(ApplicableRangeAction elementaryRangeAction) {
         this.applicableRangeActions.add(elementaryRangeAction);
     }

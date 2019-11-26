@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
 
@@ -17,6 +18,7 @@ import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class FlowThreshold extends AbstractThreshold {
 
     private Side side;

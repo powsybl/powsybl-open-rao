@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
     private List<Cnec> cnecs;
     private List<RangeAction> rangeActions;
@@ -61,16 +64,19 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
+    @JsonProperty("cnecs")
     public void addCnec(Cnec cnec) {
         cnecs.add(cnec);
     }
 
     @Override
+    @JsonProperty("networkActions")
     public void addNetworkRemedialAction(NetworkAction networkAction) {
         networkActions.add(networkAction);
     }
 
     @Override
+    @JsonProperty("rangeActions")
     public void addRangeRemedialAction(RangeAction rangeAction) {
         rangeActions.add(rangeAction);
     }

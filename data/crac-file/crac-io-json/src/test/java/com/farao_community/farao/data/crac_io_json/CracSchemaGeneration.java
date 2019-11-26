@@ -7,16 +7,13 @@
 
 package com.farao_community.farao.data.crac_io_json;
 
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 
 /**
  * Generates the Crac schema manually
@@ -32,18 +29,22 @@ final class CracSchemaGeneration {
     public static void main(String[] args) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         JsonSchemaGenerator generator = new JsonSchemaGenerator(mapper);
-        JsonSchema jsonSchema = generator.generateSchema(Crac.class);
+        JsonSchema jsonSchema = generator.generateSchema(SimpleCrac.class);
 
         StringWriter json = new StringWriter();
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         mapper.writeValue(json, jsonSchema);
 
-        try (OutputStream os = new FileOutputStream(
-                new File(CracSchemaGeneration.class.getResource("/CracSchema.json").toURI()))) {
-            os.write(json.toString().getBytes());
-        }
-        //System.out.println(json.toString());
-        //OutputStream os = new FileOutputStream(new File(CracSchemaGeneration.class.getResource("/CracSchema.json").toURI()));
-        //OutputStream os = new FileOutputStream("../../../main/java/resources/CracSchema.json");
+        System.out.println(json.toString());
+
+        // Copy and paste it in #your_folder/farao-core/data/crac-file/crac-io-json/src/main/resources/CracSchema.json
+        // And replace manually
+        //                              "extendable" : {
+        //                                "type" : "any"
+        //                              }
+        // by
+        //                              "extendable" : {
+        //                                "type" : "string"
+        //                              }
     }
 }

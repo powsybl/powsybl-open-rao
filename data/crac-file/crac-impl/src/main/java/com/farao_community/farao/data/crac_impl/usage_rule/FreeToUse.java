@@ -10,12 +10,14 @@ package com.farao_community.farao.data.crac_impl.usage_rule;
 import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * The remedial action is free to use with a given method and in a given state.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class FreeToUse extends AbstractUsageRule {
 
     public FreeToUse(UsageMethod usageMethod, State state) {

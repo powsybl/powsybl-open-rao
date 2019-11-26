@@ -30,7 +30,7 @@ public final class CracImporters {
 
     public static Crac importCrac(Path cracPath) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(is);
+            return importCrac(cracPath.getFileName().toString(), is);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
         } catch (IOException e) {
@@ -38,17 +38,17 @@ public final class CracImporters {
         }
     }
 
-    public static Crac importCrac(InputStream inputStream) {
-        CracImporter importer = findImporter(inputStream);
+    public static Crac importCrac(String fileName, InputStream inputStream) {
+        CracImporter importer = findImporter(fileName, inputStream);
         if (importer == null) {
             throw new FaraoException("No importer found for this file");
         }
         return importer.importCrac(inputStream);
     }
 
-    public static CracImporter findImporter(InputStream inputStream) {
+    public static CracImporter findImporter(String fileName, InputStream inputStream) {
         for (CracImporter importer : CRAC_IMPORTERS.get()) {
-            if (importer.exists(inputStream)) {
+            if (importer.exists(fileName, inputStream)) {
                 return importer;
             }
         }

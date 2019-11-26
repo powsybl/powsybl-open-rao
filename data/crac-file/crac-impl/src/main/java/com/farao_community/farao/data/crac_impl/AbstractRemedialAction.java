@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
     protected List<AbstractUsageRule> usageRules;
 
@@ -38,6 +40,7 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         return usageRules;
     }
 
+    @JsonProperty("usageRules")
     public void addUsageRule(AbstractUsageRule abstractUsageRule) {
         usageRules.add(abstractUsageRule);
     }

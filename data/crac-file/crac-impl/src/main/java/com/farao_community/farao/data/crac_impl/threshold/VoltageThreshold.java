@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
 
 /**
@@ -14,7 +16,7 @@ import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class VoltageThreshold extends AbstractThreshold {
 
     private double minValue;

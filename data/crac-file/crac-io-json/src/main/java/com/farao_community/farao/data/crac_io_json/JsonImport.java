@@ -30,6 +30,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 public class JsonImport implements CracImporter {
 
     private static final String CRAC_FILE_SCHEMA_JSON = "/CracSchema.json";
+    private static final String JSON_EXTENSION = "json";
     private static final Schema SCHEMA_JSON;
 
     static {
@@ -49,17 +50,17 @@ public class JsonImport implements CracImporter {
     }
 
     @Override
-    public boolean exists(InputStream inputStream) {
-        return validCracFile(inputStream);
+    public boolean exists(String fileName, InputStream inputStream) {
+        return validCracFile(fileName, inputStream);
     }
 
-    private boolean validCracFile(InputStream inputStream) {
+    private boolean validCracFile(String fileName, InputStream inputStream) {
         try {
             JSONObject jsonSubject = new JSONObject(
                 new JSONTokener(inputStream));
             SCHEMA_JSON.validate(jsonSubject);
-            return true;
-        } catch (Exception ve) {
+            return fileName.split("\\.")[1].equals(JSON_EXTENSION);
+        } catch (Exception e) {
             return false;
         }
     }

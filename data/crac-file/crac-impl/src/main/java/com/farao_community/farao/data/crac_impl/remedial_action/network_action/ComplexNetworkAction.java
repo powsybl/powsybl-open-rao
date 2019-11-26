@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexNetworkAction extends AbstractRemedialAction implements ApplicableNetworkAction {
 
     private List<ApplicableNetworkAction> applicableNetworkActions;
@@ -40,6 +43,7 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Appl
         applicableNetworkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
     }
 
+    @JsonProperty("applicableNetworkActions")
     public void addApplicableNetworkAction(ApplicableNetworkAction networkAction) {
         this.applicableNetworkActions.add(networkAction);
     }
