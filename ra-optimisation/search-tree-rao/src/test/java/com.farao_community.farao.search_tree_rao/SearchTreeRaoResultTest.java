@@ -7,7 +7,6 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
