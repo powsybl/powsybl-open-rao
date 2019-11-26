@@ -31,6 +31,8 @@ public interface Crac extends Identifiable {
 
     void addCnec(Cnec cnec);
 
+    void addContingency(Contingency contingency);
+
     void addNetworkRemedialAction(NetworkAction networkAction);
 
     void addRangeRemedialAction(RangeAction rangeAction);
