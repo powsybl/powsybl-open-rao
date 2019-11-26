@@ -6,18 +6,32 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.ra_optimisation.RaoComputation;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoProvider;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Network;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SearchTreeRao implements RaoComputation {
+public class SearchTreeRao implements RaoProvider {
+
     @Override
-    public CompletableFuture<RaoComputationResult> run(String s, RaoComputationParameters raoComputationParameters) {
+    public String getName() {
+        return "Search Tree Rao";
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0.0";
+    }
+
+    @Override
+    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, ComputationManager computationManager, String workingVariantId, RaoComputationParameters parameters) {
         return null;
     }
 }
