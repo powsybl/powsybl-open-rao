@@ -20,6 +20,12 @@
             <artifactId>farao-ra-optimisation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
