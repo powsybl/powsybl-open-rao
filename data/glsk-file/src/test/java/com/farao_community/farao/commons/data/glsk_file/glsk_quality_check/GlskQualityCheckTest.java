@@ -19,8 +19,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class GlskQualityCheckTest {
 
-    private static final String FIRST_ERROR = "/20170322_1844_SN3_FR2_GLSK_error_1.xml";
     private static final String COUNTRYTEST = "/20170322_1844_SN3_FR2_GLSK_test.xml";
+    private static final String FIRST_ERROR = "/20170322_1844_SN3_FR2_GLSK_error_1.xml";
 
     private Path getResourceAsPath(String resource) {
         return Paths.get(getResourceAsPathString(resource));
@@ -72,8 +72,8 @@ public class GlskQualityCheckTest {
         GlskQualityCheckImporter glskQualityCheckImporter = GlskQualityCheckImporter.checkFromObject(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
         assertEquals(1, glskQualityCheckImporter.getQualityReports().size());
-        assertEquals("GSK node is not found in CGM", glskQualityCheckImporter.getQualityReports().get(0).getMessage());
-        //assertEquals("FFR2AA2 ", glskQualityCheckImporter.getQualityReports().get(0).getNodeId());
+        assertEquals("The GSK node is present but it's not representing a Generator or Load", glskQualityCheckImporter.getQualityReports().get(0).getMessage());
+        assertEquals("FFR2AA1 ", glskQualityCheckImporter.getQualityReports().get(0).getNodeId());
         assertEquals("10YFR-RTE------C", glskQualityCheckImporter.getQualityReports().get(0).getTso());
     }
 

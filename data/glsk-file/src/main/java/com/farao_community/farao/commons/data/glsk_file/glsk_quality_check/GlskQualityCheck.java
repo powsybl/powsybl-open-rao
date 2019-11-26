@@ -48,7 +48,7 @@ public class GlskQualityCheck {
             if (glskShiftKey.getPsrType().equals(GENERATOR)) {
                 glskShiftKey.getRegisteredResourceArrayList().stream()
                         .forEach(resource -> checkResource(resource, network.getGenerator(resource.getGeneratorId(TypeGlskFile.UCTE)), "Generator", network, tso));
-            } else {
+            } else if (glskShiftKey.getPsrType().equals(LOAD)) {
                 glskShiftKey.getRegisteredResourceArrayList().stream()
                         .forEach(resource -> checkResource(resource, network.getLoad(resource.getLoadId(TypeGlskFile.UCTE)), "Load", network, tso));
             }
@@ -58,7 +58,7 @@ public class GlskQualityCheck {
     private void checkResource(GlskRegisteredResource registeredResource, Injection injection, String type, Network network, String tso) {
         if (injection == null) {
 
-            if (network.getBusView().getBus(registeredResource.getmRID()) == null) {
+            if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) { //todo valid the use of BusBreakerView not BusView
                 setRapport(registeredResource.getmRID(),
                         type,
                         tso,
@@ -72,7 +72,7 @@ public class GlskQualityCheck {
                         "The GSK node is present but it's not representing a Generator or Load");
             }
         } else {
-            if (!injection.getTerminal().getBusView().getBus().isInMainSynchronousComponent()) {
+            if (!injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) { //todo valid the use of BusBreakerView not BusView
                 setRapport(registeredResource.getmRID(),
                         type,
                         tso,
