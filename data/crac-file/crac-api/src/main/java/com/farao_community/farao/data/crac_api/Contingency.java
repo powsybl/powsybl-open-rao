@@ -14,6 +14,6 @@ import java.util.List;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Contingency {
+public interface Contingency extends Identifiable {
     List<NetworkElement> getNetworkElements();
 }
