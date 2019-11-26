@@ -10,7 +10,7 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult> {
 

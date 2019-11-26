@@ -23,8 +23,8 @@ public class SearchTreeRaoResultTest {
         SearchTreeRaoResult searchTreeRaoResult4 = new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.SECURE, SearchTreeRaoResult.StopCriterion.TIME_OUT);
         SearchTreeRaoResult searchTreeRaoResult5 = new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.SECURE, SearchTreeRaoResult.StopCriterion.OPTIMIZATION_TIME_OUT);
 
-        assertTrue(searchTreeRaoResult1.getStopCriterion() != null);
-        assertTrue(searchTreeRaoResult2.getComputationStatus() != null);
+        assertNotNull(searchTreeRaoResult1.getStopCriterion());
+        assertNotNull(searchTreeRaoResult2.getComputationStatus());
     }
 
 }
