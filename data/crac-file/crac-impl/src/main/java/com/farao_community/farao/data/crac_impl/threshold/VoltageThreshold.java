@@ -7,6 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.SynchronizationException;
+import com.powsybl.iidm.network.Network;
+
 import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
 
 /**
@@ -40,5 +44,20 @@ public class VoltageThreshold extends AbstractThreshold {
 
     public void setMaxValue(double maxValue) {
         this.maxValue = maxValue;
+    }
+
+    @Override
+    public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
+        return false;
+    }
+
+    @Override
+    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
+        return false;
+    }
+
+    @Override
+    public void synchronize(Network network, Cnec cnec) {
+
     }
 }
