@@ -13,7 +13,6 @@ import com.google.auto.service.AutoService;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -31,13 +30,9 @@ public class JsonSearchTreeRaoResultExporter implements SearchTreeRaoResultExpor
     }
 
     @Override
-    public void export(SearchTreeRaoResult result, OutputStream os) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(os, result);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public void export(SearchTreeRaoResult result, OutputStream os) throws IOException {
+        ObjectMapper objectMapper = createObjectMapper();
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(os, result);
     }
 }

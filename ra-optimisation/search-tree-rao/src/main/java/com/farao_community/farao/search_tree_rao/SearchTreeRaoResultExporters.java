@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Supplier;
@@ -26,25 +27,21 @@ public final class SearchTreeRaoResultExporters {
     private SearchTreeRaoResultExporters() {
     }
 
-    public static void exportSearchTreeRaoResult(SearchTreeRaoResult result, String format, OutputStream outputStream) {
+    public static void exportSearchTreeRaoResult(SearchTreeRaoResult result, String format, OutputStream outputStream) throws IOException {
         SearchTreeRaoResultExporter exporter = findSearchTreeRaoResultExporter(format, SEARCH_TREE_RAO_RESULTS_EXPORTERS.get());
         exporter.export(result, outputStream);
     }
 
     static SearchTreeRaoResultExporter findSearchTreeRaoResultExporter(String name, List<SearchTreeRaoResultExporter> searchTreeRaoResultExporters) {
         Objects.requireNonNull(searchTreeRaoResultExporters);
-        if (searchTreeRaoResultExporters.size() == 1 && name == null) {
-            return searchTreeRaoResultExporters.get(0);
-        } else {
-            if (searchTreeRaoResultExporters.size() > 1 && name == null) {
-                List<String> exportersNames = searchTreeRaoResultExporters.stream().map(SearchTreeRaoResultExporter::getFormat).collect(Collectors.toList());
-                throw new FaraoException("Several Search Tree Rao result exporters implementations found (" + exportersNames
-                        + "), you must specify an explicit exporter name");
-            }
-            return searchTreeRaoResultExporters.stream()
-                    .filter(ns -> ns.getFormat().equals(name))
-                    .findFirst()
-                    .orElseThrow(() -> new FaraoException("SearchTreeRaoResult export '" + name + "' not found"));
+        if (searchTreeRaoResultExporters.size() > 1 && name == null) {
+            throw new FaraoException("Several Search Tree Rao result exporters implementations found (" + searchTreeRaoResultExporters.stream().map(SearchTreeRaoResultExporter::getFormat).collect(Collectors.toList()) + "), you must specify an explicit exporter name");
         }
+        return searchTreeRaoResultExporters.stream()
+                .filter(ns -> ns.getFormat().equals(name))
+                .findFirst()
+                .orElseThrow(() ->
+                        new FaraoException("SearchTreeRaoResult export '" + name + "' not found")
+                );
     }
 }

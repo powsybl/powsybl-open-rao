@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -26,6 +27,6 @@ public interface SearchTreeRaoResultExporter {
      * @param result The result of the remedial action optimisation
      * @param os The output stream used for the export
      */
-    void export(SearchTreeRaoResult result, OutputStream os);
+    void export(SearchTreeRaoResult result, OutputStream os) throws IOException;
 
 }

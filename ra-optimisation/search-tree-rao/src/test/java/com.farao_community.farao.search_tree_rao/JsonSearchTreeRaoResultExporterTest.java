@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -26,7 +27,7 @@ public class JsonSearchTreeRaoResultExporterTest {
     }
 
     @Test
-    public void testExport() {
+    public void testExport() throws IOException {
         OutputStream os = new ByteArrayOutputStream();
         SearchTreeRaoResultExporters.exportSearchTreeRaoResult(result, "Json", os);
         Assert.assertTrue(os.toString().contains("NO_COMPUTATION"));
