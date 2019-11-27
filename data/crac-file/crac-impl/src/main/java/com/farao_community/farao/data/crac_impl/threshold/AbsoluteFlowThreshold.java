@@ -30,7 +30,7 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public boolean isMaxThresholdOvercome(Network network, Cnec cnec) {
-        return maxValue > network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        return maxValue < network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
     }
 
     @Override

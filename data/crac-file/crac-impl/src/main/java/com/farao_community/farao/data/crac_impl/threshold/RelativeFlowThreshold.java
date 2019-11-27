@@ -32,7 +32,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         if (Double.isNaN(maxValue)) {
             throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
         }
-        return maxValue > network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        return (maxValue * percentageOfMax / 100) < network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
     }
 
     @Override

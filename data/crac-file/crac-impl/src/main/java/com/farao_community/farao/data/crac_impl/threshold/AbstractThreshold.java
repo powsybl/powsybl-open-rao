@@ -28,9 +28,9 @@ public abstract class AbstractThreshold {
         return unit;
     }
 
-    abstract public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
+    public abstract boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 
-    abstract public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
+    public abstract boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 
-    abstract public void synchronize(Network network, Cnec cnec);
+    public abstract void synchronize(Network network, Cnec cnec);
 }
