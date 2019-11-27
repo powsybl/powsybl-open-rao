@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
 import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
-import com.farao_community.farao.data.crac_impl.threshold.FlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
 import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
@@ -127,7 +127,7 @@ public class JsonImportExportTest {
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
         // Thresholds
-        FlowThreshold threshold1 = new FlowThreshold(LEFT, IN, 1000);
+        AbsoluteFlowThreshold threshold1 = new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000);
         threshold1.setSide(RIGHT);
         threshold1.setDirection(OUT);
         threshold1.setMaxValue(999);
