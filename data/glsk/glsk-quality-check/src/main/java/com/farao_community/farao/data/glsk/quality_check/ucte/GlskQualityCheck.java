@@ -53,25 +53,22 @@ class GlskQualityCheck {
         if (injection == null) {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
-                qualityReport.log(registeredResource.getmRID(),
+                qualityReport.warn(registeredResource.getmRID(),
                         type,
                         tso,
-                        SeverityEnum.WARNING,
                         "GSK node is not found in CGM");
             } else {
-                qualityReport.log(registeredResource.getmRID(),
+                qualityReport.warn(registeredResource.getmRID(),
                         type,
                         tso,
-                        SeverityEnum.WARNING,
                         "The GSK node is present but it's not representing a Generator or Load");
             }
         } else {
             if (!injection.getTerminal().isConnected()
                     || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
-                qualityReport.log(registeredResource.getmRID(),
+                qualityReport.warn(registeredResource.getmRID(),
                         type,
                         tso,
-                        SeverityEnum.WARNING,
                         "GLSK node is connected to an island");
             }
         }
