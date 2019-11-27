@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -15,6 +17,7 @@ public final class SearchTreeRaoResultExampleBuilder {
     }
 
     public static SearchTreeRaoResult buildResult() {
-        return new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.SECURE, SearchTreeRaoResult.StopCriterion.NO_COMPUTATION);
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        return new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.SECURE, SearchTreeRaoResult.StopCriterion.NO_COMPUTATION, raoComputationResult);
     }
 }

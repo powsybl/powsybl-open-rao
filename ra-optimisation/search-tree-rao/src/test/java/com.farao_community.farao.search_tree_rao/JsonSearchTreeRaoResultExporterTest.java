@@ -30,7 +30,8 @@ public class JsonSearchTreeRaoResultExporterTest {
     public void testExport() throws IOException {
         OutputStream os = new ByteArrayOutputStream();
         SearchTreeRaoResultExporters.exportSearchTreeRaoResult(result, "Json", os);
-        Assert.assertTrue(os.toString().contains("NO_COMPUTATION"));
+
+        Assert.assertTrue(os.toString().contains("SUCCESS"));
     }
 
 }

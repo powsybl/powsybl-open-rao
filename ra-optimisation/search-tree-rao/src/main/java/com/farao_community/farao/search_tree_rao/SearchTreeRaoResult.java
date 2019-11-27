@@ -41,6 +41,12 @@ public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult>
         this.stopCriterion = stopCriterion;
     }
 
+    public SearchTreeRaoResult(final ComputationStatus computationStatus, final StopCriterion stopCriterion, RaoComputationResult raoComputationResult) {
+        this.computationStatus = computationStatus;
+        this.stopCriterion = stopCriterion;
+        setRaoComputationResult(raoComputationResult);
+    }
+
     public ComputationStatus getComputationStatus() {
         return computationStatus;
     }
@@ -49,4 +55,11 @@ public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult>
         return stopCriterion;
     }
 
+    public void setRaoComputationResult(RaoComputationResult raoComputationResult) {
+        this.setExtendable(raoComputationResult);
+    }
+
+    public RaoComputationResult getRaoComputationResult() {
+        return this.getExtendable();
+    }
 }
