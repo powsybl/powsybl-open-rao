@@ -186,8 +186,8 @@ public class GlskPoint {
         return pointInterval;
     }
 
-    public boolean checkInstantInPointInterval(Instant instant) {
-        return !this.pointInterval.getStart().isAfter(instant) && this.pointInterval.getEnd().isAfter(instant);
+    public boolean containsInstant(Instant instant) {
+        return pointInterval.contains(instant);
     }
 
     /**

@@ -12,44 +12,38 @@ import com.farao_community.farao.commons.data.glsk_file.actors.TypeGlskFile;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
-public class GlskQualityCheck {
+class GlskQualityCheck {
 
     private static final String GENERATOR = "A04";
 
     private static final String LOAD = "A05";
 
-    private List<QualityReport> qualityReports;
+    private QualityReport qualityReport = new QualityReport();
 
-    public List<QualityReport> getQualityReports() {
-        return qualityReports;
+    public static QualityReport gskQualityCheck(GlskQualityCheckInput input) {
+        return new GlskQualityCheck().generateReport(input);
     }
 
-    public GlskQualityCheck() {
-        this.qualityReports = new ArrayList<>();
-    }
-
-    public List<QualityReport> gskQualityCheck(GlskQualityCheckImporter data) {
-        Map<String, GlskPoint> glskPointMap = data.getUcteGlskDocument().getGlskPointForInstant(data.getInstant());
+    private QualityReport generateReport(GlskQualityCheckInput data) {
+        Map<String, GlskPoint> glskPointMap = data.getUcteGlskDocument().getGlskPointsForInstant(data.getInstant());
         glskPointMap.forEach((country, glskPoint) -> {
             checkGlskPoint(glskPoint, data.getNetwork(), country);
         });
-        return this.qualityReports;
+        return qualityReport;
     }
 
     private void checkGlskPoint(GlskPoint glskPoint, Network network, String tso) {
-        glskPoint.getGlskShiftKeys().stream().forEach(glskShiftKey -> {
+        glskPoint.getGlskShiftKeys().forEach(glskShiftKey -> {
             if (glskShiftKey.getPsrType().equals(GENERATOR)) {
-                glskShiftKey.getRegisteredResourceArrayList().stream()
+                glskShiftKey.getRegisteredResourceArrayList()
                         .forEach(resource -> checkResource(resource, network.getGenerator(resource.getGeneratorId(TypeGlskFile.UCTE)), "Generator", network, tso));
             } else if (glskShiftKey.getPsrType().equals(LOAD)) {
-                glskShiftKey.getRegisteredResourceArrayList().stream()
+                glskShiftKey.getRegisteredResourceArrayList()
                         .forEach(resource -> checkResource(resource, network.getLoad(resource.getLoadId(TypeGlskFile.UCTE)), "Load", network, tso));
             }
         });
@@ -58,31 +52,27 @@ public class GlskQualityCheck {
     private void checkResource(GlskRegisteredResource registeredResource, Injection injection, String type, Network network, String tso) {
         if (injection == null) {
 
-            if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) { //todo valid the use of BusBreakerView not BusView
-                setRapport(registeredResource.getmRID(),
+            if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
+                qualityReport.log(registeredResource.getmRID(),
                         type,
                         tso,
                         SeverityEnum.WARNING,
                         "GSK node is not found in CGM");
             } else {
-                setRapport(registeredResource.getmRID(),
+                qualityReport.log(registeredResource.getmRID(),
                         type,
                         tso,
                         SeverityEnum.WARNING,
                         "The GSK node is present but it's not representing a Generator or Load");
             }
         } else {
-            if (!injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) { //todo valid the use of BusBreakerView not BusView
-                setRapport(registeredResource.getmRID(),
+            if (!injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
+                qualityReport.log(registeredResource.getmRID(),
                         type,
                         tso,
                         SeverityEnum.WARNING,
                         "GLSK node is connected to an island");
             }
         }
-    }
-
-    private void setRapport(String nodeId, String type, String tso, SeverityEnum severity, String message) {
-        this.qualityReports.add(QualityReport.setQualityReport(nodeId, type, tso, severity, message));
     }
 }

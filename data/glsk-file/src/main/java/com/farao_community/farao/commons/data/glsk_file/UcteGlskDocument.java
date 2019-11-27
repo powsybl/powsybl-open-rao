@@ -159,13 +159,12 @@ public class UcteGlskDocument {
         return new ArrayList<>(ucteGlskPointsByCountry.keySet());
     }
 
-    public Map<String, GlskPoint> getGlskPointForInstant(Instant instant) {
+    public Map<String, GlskPoint> getGlskPointsForInstant(Instant instant) {
         Map<String, GlskPoint> glskPointInstant = new HashMap<>();
         ucteGlskPointsByCountry.forEach((key, glskPoints) -> {
             GlskPoint glskPoint = glskPoints.stream()
-                    .filter(p -> p.checkInstantInPointInterval(instant))
-                    .findFirst().orElseThrow(() -> new FaraoException("Error during get glsk point by instant for " + key + " country"));
-
+                    .filter(p -> p.containsInstant(instant))
+                    .findAny().orElseThrow(() -> new FaraoException("Error during get glsk point by instant for " + key + " country"));
             glskPointInstant.put(key, glskPoint);
         });
         return glskPointInstant;

@@ -121,7 +121,7 @@ public class UcteGlskDocumentImporterTest {
     @Test
     public void testGetGlskPointForInstant() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
-        Map<String, GlskPoint> result = ucteGlskDocument.getGlskPointForInstant(Instant.parse("2016-07-28T23:30:00Z"));
+        Map<String, GlskPoint> result = ucteGlskDocument.getGlskPointsForInstant(Instant.parse("2016-07-28T23:30:00Z"));
         Instant instant = Instant.parse("2016-07-28T23:30:00Z");
         assertTrue(result.get("10YNL----------L").getPointInterval().getStart().isBefore(instant));
         assertTrue(result.get("10YNL----------L").getPointInterval().getEnd().isAfter(instant));
@@ -142,7 +142,7 @@ public class UcteGlskDocumentImporterTest {
     public void testGetGlskPointForIncorrectInstant() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
         try {
-            ucteGlskDocument.getGlskPointForInstant(Instant.parse("2016-07-29T22:00:00Z"));
+            ucteGlskDocument.getGlskPointsForInstant(Instant.parse("2016-07-29T22:00:00Z"));
             fail();
         } catch (FaraoException e) {
             // should throw

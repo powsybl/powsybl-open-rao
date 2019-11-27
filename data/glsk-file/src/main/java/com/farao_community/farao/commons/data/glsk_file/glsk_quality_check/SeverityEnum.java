@@ -11,7 +11,6 @@ package com.farao_community.farao.commons.data.glsk_file.glsk_quality_check;
  */
 public enum SeverityEnum {
     INFORMATION,
-    ERROR,
     WARNING,
-    CRITICAL
+    ERROR
 }
