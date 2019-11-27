@@ -113,7 +113,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void synchronize(Network network) {
-        throw new UnsupportedOperationException();
+        cnecs.forEach(cnec -> cnec.synchronize(network));
     }
 
     @Override

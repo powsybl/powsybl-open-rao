@@ -7,7 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.powsybl.iidm.network.Network;
 
 /**
  * Generic threshold (flow, voltage, etc.) in the CRAC file.
@@ -24,4 +27,10 @@ public abstract class AbstractThreshold {
     public Unit getUnit() {
         return unit;
     }
+
+    abstract public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
+
+    abstract public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
+
+    abstract public void synchronize(Network network, Cnec cnec);
 }

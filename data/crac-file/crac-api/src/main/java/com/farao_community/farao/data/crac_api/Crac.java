@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Crac extends Identifiable {
+public interface Crac extends Identifiable, Synchronizable {
 
     List<Cnec> getCnecs();
 
@@ -44,8 +44,6 @@ public interface Crac extends Identifiable {
     List<NetworkElement> getCriticalNetworkElements();
 
     List<Contingency> getContingencies();
-
-    void synchronize(Network network);
 
     void generateValidityReport(Network network);
 }
