@@ -34,6 +34,5 @@ public class JsonSearchTreeRaoResultExporter implements SearchTreeRaoResultExpor
         ObjectMapper objectMapper = createObjectMapper();
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
         writer.writeValue(os, result);
-        writer.writeValue(os, result.getRaoComputationResult());
     }
 }
