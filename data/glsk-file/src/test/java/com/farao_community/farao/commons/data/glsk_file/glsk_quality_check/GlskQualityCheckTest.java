@@ -35,8 +35,6 @@ public class GlskQualityCheckTest {
         return getClass().getResourceAsStream(resource);
     }
 
-    GlskQualityCheck glskQualityCheck;
-
     @Before
     public void setUp() {
 
@@ -45,7 +43,6 @@ public class GlskQualityCheckTest {
     @Test
     public void qualityCheckWithCorrectValue() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        glskQualityCheck = new GlskQualityCheck();
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
@@ -55,7 +52,6 @@ public class GlskQualityCheckTest {
     @Test
     public void qualityCheckWithError1() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(FIRST_ERROR));
-        glskQualityCheck = new GlskQualityCheck();
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
@@ -68,7 +64,6 @@ public class GlskQualityCheckTest {
     @Test
     public void qualityCheckWithError2() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        glskQualityCheck = new GlskQualityCheck();
         Network network = Importers.loadNetwork("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
@@ -78,4 +73,27 @@ public class GlskQualityCheckTest {
         assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
     }
 
+    @Test
+    public void qualityCheckWithError3() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+        Network network = Importers.loadNetwork("testCase_error_3.xiidm", getClass().getResourceAsStream("/testCase_error_3.xiidm"));
+        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+
+        assertEquals(1, qualityReport.getQualityLogs().size());
+        assertEquals("GLSK node is connected to an island", qualityReport.getQualityLogs().get(0).getMessage());
+        assertEquals("FFR2AA1 ", qualityReport.getQualityLogs().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
+    }
+
+    @Test
+    public void qualityCheckLoadNotConnected() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+        Network network = Importers.loadNetwork("testCase_error_load_not_connected.xiidm", getClass().getResourceAsStream("/testCase_error_load_not_connected.xiidm"));
+        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+
+        assertEquals(1, qualityReport.getQualityLogs().size());
+        assertEquals("GLSK node is connected to an island", qualityReport.getQualityLogs().get(0).getMessage());
+        assertEquals("FFR2AA1 ", qualityReport.getQualityLogs().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
+    }
 }

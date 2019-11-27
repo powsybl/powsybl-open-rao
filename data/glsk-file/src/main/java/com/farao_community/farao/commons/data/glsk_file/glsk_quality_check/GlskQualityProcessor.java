@@ -13,7 +13,10 @@ import java.time.Instant;
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
-public class GlskQualityProcessor {
+public final class GlskQualityProcessor {
+
+    private GlskQualityProcessor() {
+    }
 
     public static QualityReport process(String cgmName, InputStream cgmIs, InputStream glskIs, Instant localDate) throws IOException, SAXException, ParserConfigurationException {
         return process(UcteGlskDocument.importGlskFromFile(glskIs), Importers.loadNetwork(cgmName, cgmIs), localDate);

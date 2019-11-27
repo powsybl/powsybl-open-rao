@@ -29,10 +29,10 @@ class GlskQualityCheck {
         return new GlskQualityCheck().generateReport(input);
     }
 
-    private QualityReport generateReport(GlskQualityCheckInput data) {
-        Map<String, GlskPoint> glskPointMap = data.getUcteGlskDocument().getGlskPointsForInstant(data.getInstant());
+    private QualityReport generateReport(GlskQualityCheckInput input) {
+        Map<String, GlskPoint> glskPointMap = input.getUcteGlskDocument().getGlskPointsForInstant(input.getInstant());
         glskPointMap.forEach((country, glskPoint) -> {
-            checkGlskPoint(glskPoint, data.getNetwork(), country);
+            checkGlskPoint(glskPoint, input.getNetwork(), country);
         });
         return qualityReport;
     }
@@ -66,7 +66,8 @@ class GlskQualityCheck {
                         "The GSK node is present but it's not representing a Generator or Load");
             }
         } else {
-            if (!injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
+            if (!injection.getTerminal().isConnected()
+                    || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
                 qualityReport.log(registeredResource.getmRID(),
                         type,
                         tso,
