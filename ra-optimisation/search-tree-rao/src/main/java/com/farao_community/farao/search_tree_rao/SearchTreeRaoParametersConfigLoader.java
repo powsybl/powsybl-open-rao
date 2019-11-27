@@ -6,32 +6,37 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@AutoService(RaoComputationParameters.ConfigLoader.class)
-public class SearchTreeRaoParametersConfigLoader implements RaoComputationParameters.ConfigLoader<SearchTreeRaoParameters> {
+@AutoService(RaoParameters.ConfigLoader.class)
+public class SearchTreeRaoParametersConfigLoader implements RaoParameters.ConfigLoader<SearchTreeRaoParameters> {
+
     @Override
     public SearchTreeRaoParameters load(PlatformConfig platformConfig) {
-        return null;
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setSenstivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
+        return parameters;
     }
 
     @Override
     public String getExtensionName() {
-        return null;
+        return "SearchTreeRaoParameters";
     }
 
     @Override
     public String getCategoryName() {
-        return null;
+        return "rao-parameters";
     }
 
     @Override
     public Class<? super SearchTreeRaoParameters> getExtensionClass() {
-        return null;
+        return SearchTreeRaoParameters.class;
     }
 }

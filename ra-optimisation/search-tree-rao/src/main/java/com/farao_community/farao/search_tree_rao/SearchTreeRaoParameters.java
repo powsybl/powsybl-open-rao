@@ -6,15 +6,31 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
+
+import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SearchTreeRaoParameters extends AbstractExtension<RaoComputationParameters> {
+public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
+
+    private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+
     @Override
     public String getName() {
-        return null;
+        return "SearchTreeRaoParameters";
+    }
+
+    public SensitivityComputationParameters getSenstivityComputationParameters() {
+        return sensitivityComputationParameters;
+    }
+
+    public SearchTreeRaoParameters setSenstivityComputationParameters(SensitivityComputationParameters sensiParameters) {
+        this.sensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+        return this;
     }
 }

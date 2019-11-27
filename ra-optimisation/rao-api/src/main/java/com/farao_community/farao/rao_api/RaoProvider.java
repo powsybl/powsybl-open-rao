@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_api;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.powsybl.commons.Versionable;
 import com.powsybl.computation.ComputationManager;
@@ -19,5 +18,5 @@ import java.util.concurrent.CompletableFuture;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RaoProvider extends Versionable {
-    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, ComputationManager computationManager, String workingVariantId, RaoComputationParameters parameters);
+    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, ComputationManager computationManager, String workingVariantId, RaoParameters parameters);
 }

@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.rao_mock.AnotherRaoProviderMock;
 import com.farao_community.farao.rao_api.rao_mock.RaoProviderMock;
@@ -69,10 +68,10 @@ public class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoComputationResult result = defaultRao.run(network, crac, computationManager, new RaoComputationParameters());
+        RaoComputationResult result = defaultRao.run(network, crac, computationManager, new RaoParameters());
         assertNotNull(result);
         assertEquals(result.getStatus(), RaoComputationResult.Status.SUCCESS);
-        RaoComputationResult resultAsync = defaultRao.runAsync(network, crac, computationManager, new RaoComputationParameters()).join();
+        RaoComputationResult resultAsync = defaultRao.runAsync(network, crac, computationManager, new RaoParameters()).join();
         assertNotNull(resultAsync);
         assertEquals(resultAsync.getStatus(), RaoComputationResult.Status.SUCCESS);
     }
