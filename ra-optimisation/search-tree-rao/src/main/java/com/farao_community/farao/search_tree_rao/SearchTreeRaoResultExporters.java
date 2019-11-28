@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Supplier;
@@ -27,7 +26,7 @@ public final class SearchTreeRaoResultExporters {
     private SearchTreeRaoResultExporters() {
     }
 
-    public static void exportSearchTreeRaoResult(SearchTreeRaoResult result, String format, OutputStream outputStream) throws IOException {
+    public static void exportSearchTreeRaoResult(SearchTreeRaoResult result, String format, OutputStream outputStream) {
         SearchTreeRaoResultExporter exporter = findSearchTreeRaoResultExporter(format, SEARCH_TREE_RAO_RESULTS_EXPORTERS.get());
         exporter.export(result, outputStream);
     }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -27,6 +26,6 @@ public interface SearchTreeRaoResultExporter {
      * @param result The result of the remedial action optimisation
      * @param os The output stream used for the export
      */
-    void export(SearchTreeRaoResult result, OutputStream os) throws IOException;
+    void export(SearchTreeRaoResult result, OutputStream os);
 
 }

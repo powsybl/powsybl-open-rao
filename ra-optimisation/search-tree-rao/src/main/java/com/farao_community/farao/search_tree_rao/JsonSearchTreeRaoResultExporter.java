@@ -11,7 +11,6 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
 import com.google.auto.service.AutoService;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -28,7 +27,7 @@ public class JsonSearchTreeRaoResultExporter implements SearchTreeRaoResultExpor
     }
 
     @Override
-    public void export(SearchTreeRaoResult result, OutputStream os) throws IOException {
+    public void export(SearchTreeRaoResult result, OutputStream os) {
         RaoComputationResult raoComputationResult = result.getExtendable();
         JsonRaoComputationResult.write(raoComputationResult, os);
     }
