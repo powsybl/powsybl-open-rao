@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class JsonSearchTreeRaoResultTest {
 
     private RaoComputationResult result;
-    private SearchTreeRaoResult resultExtension;
+    private SearchTreeRaoResult resultExtension; //searchTreeRaoResult as an extension of RaoComputationResult
 
     @Test
     public void testImporter() throws IOException {
