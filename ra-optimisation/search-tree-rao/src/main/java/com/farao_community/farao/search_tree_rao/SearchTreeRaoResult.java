@@ -33,33 +33,32 @@ public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult>
         OPTIMIZATION_TIME_OUT
     }
 
-    private final ComputationStatus computationStatus;
-    private final StopCriterion stopCriterion;
+    private ComputationStatus computationStatus;
+    private StopCriterion stopCriterion;
 
-    public SearchTreeRaoResult(final ComputationStatus computationStatus, final StopCriterion stopCriterion) {
-        this.computationStatus = computationStatus;
-        this.stopCriterion = stopCriterion;
+    public SearchTreeRaoResult() {
+
     }
 
-    public SearchTreeRaoResult(final ComputationStatus computationStatus, final StopCriterion stopCriterion, RaoComputationResult raoComputationResult) {
-        this.computationStatus = computationStatus;
-        this.stopCriterion = stopCriterion;
-        setRaoComputationResult(raoComputationResult);
+    public SearchTreeRaoResult(ComputationStatus c, StopCriterion s) {
+        this.computationStatus = c;
+        this.stopCriterion = s;
     }
 
     public ComputationStatus getComputationStatus() {
         return computationStatus;
     }
 
+    public void setComputationStatus(String s) {
+        this.computationStatus = Enum.valueOf(ComputationStatus.class, s);
+    }
+
+    public void setStopCriterion(String s) {
+        this.stopCriterion = Enum.valueOf(StopCriterion.class, s);
+    }
+
     public StopCriterion getStopCriterion() {
         return stopCriterion;
     }
 
-    public void setRaoComputationResult(RaoComputationResult raoComputationResult) {
-        this.setExtendable(raoComputationResult);
-    }
-
-    public RaoComputationResult getRaoComputationResult() {
-        return this.getExtendable();
-    }
 }
