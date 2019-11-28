@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -17,7 +19,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class NetworkElement extends AbstractIdentifiable {
 
-    public NetworkElement(String id, String name) {
+    @JsonCreator
+    public NetworkElement(@JsonProperty("id") String id, @JsonProperty("name") String name) {
         super(id, name);
     }
 }

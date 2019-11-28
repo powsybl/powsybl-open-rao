@@ -1,263 +1,378 @@
 {
   "@c" : ".SimpleCrac",
-  "extensions" : [ ],
   "id" : "idCrac",
   "name" : "name",
   "cnecs" : [ {
-    "extensions" : [ ],
+    "@c" : "com.farao_community.farao.data.crac_impl.SimpleCnec",
     "id" : "idCnec",
     "name" : "Cnec",
     "criticalNetworkElement" : {
       "@c" : ".NetworkElement",
-      "extensions" : [ ],
       "id" : "idMR",
       "name" : "Monitored Element"
     },
     "threshold" : {
-      "unit" : "AMPERE",
+      "@c" : ".FlowThreshold",
       "side" : "RIGHT",
       "direction" : "OUT",
-      "maxValue" : 999.0
+      "maxValue" : 999.0,
+      "unit" : "AMPERE"
     },
     "state" : {
+      "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
       "contingency" : {
-        "present" : true
-      },
-      "instant" : {
-        "duration" : 200.0
-      }
-    },
-    "basecase" : false
-  }, {
-    "extensions" : [ ],
-    "id" : "idCnec2",
-    "name" : "Cnec 2",
-    "criticalNetworkElement" : {
-      "@c" : ".NetworkElement",
-      "extensions" : [ ],
-      "id" : "idMR",
-      "name" : "Monitored Element"
-    },
-    "threshold" : {
-      "unit" : "KILOVOLT",
-      "minValue" : 275.0,
-      "maxValue" : 305.0
-    },
-    "state" : {
-      "contingency" : {
-        "present" : false
-      },
-      "instant" : {
-        "duration" : 0.0
-      }
-    },
-    "basecase" : true
-  } ],
-  "rangeActions" : [ {
-    "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction",
-    "extensions" : [ ],
-    "id" : "idRangeAction",
-    "name" : "myRangeAction",
-    "usageRules" : [ {
-      "usageMethod" : "AVAILABLE",
-      "state" : {
-        "contingency" : {
-          "present" : false
-        },
-        "instant" : {
-          "duration" : 0.0
-        }
-      }
-    }, {
-      "usageMethod" : "FORCED",
-      "state" : {
-        "contingency" : {
-          "present" : true
-        },
-        "instant" : {
-          "duration" : 200.0
-        }
-      },
-      "cnec" : {
-        "extensions" : [ ],
-        "id" : "idCnec",
-        "name" : "Cnec",
-        "criticalNetworkElement" : {
-          "@c" : ".NetworkElement",
-          "extensions" : [ ],
-          "id" : "idMR",
-          "name" : "Monitored Element"
-        },
-        "threshold" : {
-          "unit" : "AMPERE",
-          "side" : "RIGHT",
-          "direction" : "OUT",
-          "maxValue" : 999.0
-        },
-        "state" : {
-          "contingency" : {
-            "present" : true
-          },
-          "instant" : {
-            "duration" : 200.0
-          }
-        },
-        "basecase" : false
-      }
-    }, {
-      "usageMethod" : "FORCED",
-      "state" : {
-        "contingency" : {
-          "present" : true
-        },
-        "instant" : {
-          "duration" : 200.0
-        }
-      },
-      "contingency" : {
-        "extensions" : [ ],
+        "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
         "id" : "idContingency",
         "name" : "My contingency",
         "networkElements" : [ {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
           "id" : "idLine2",
           "name" : "My Line 2"
         }, {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
           "id" : "idLine3",
           "name" : "My Line 3"
         }, {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
+          "id" : "idNE1",
+          "name" : "My Element 1"
+        } ]
+      },
+      "instant" : {
+        "@c" : ".Instant",
+        "duration" : 200.0
+      }
+    }
+  }, {
+    "@c" : "com.farao_community.farao.data.crac_impl.SimpleCnec",
+    "id" : "idCnec2",
+    "name" : "Cnec 2",
+    "criticalNetworkElement" : {
+      "@c" : ".NetworkElement",
+      "id" : "idMR",
+      "name" : "Monitored Element"
+    },
+    "threshold" : {
+      "@c" : ".VoltageThreshold",
+      "minValue" : 275.0,
+      "maxValue" : 305.0,
+      "unit" : "KILOVOLT"
+    },
+    "state" : {
+      "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
+      "instant" : {
+        "@c" : ".Instant",
+        "duration" : 0.0
+      }
+    }
+  } ],
+  "rangeActions" : [ {
+    "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction",
+    "id" : "idRangeAction",
+    "name" : "myRangeAction",
+    "usageRules" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse",
+      "usageMethod" : "AVAILABLE",
+      "state" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
+        "instant" : {
+          "@c" : ".Instant",
+          "duration" : 0.0
+        }
+      }
+    }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint",
+      "usageMethod" : "FORCED",
+      "state" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
+        "contingency" : {
+          "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+          "id" : "idContingency",
+          "name" : "My contingency",
+          "networkElements" : [ {
+            "@c" : ".NetworkElement",
+            "id" : "idLine2",
+            "name" : "My Line 2"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idLine3",
+            "name" : "My Line 3"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idNE1",
+            "name" : "My Element 1"
+          } ]
+        },
+        "instant" : {
+          "@c" : ".Instant",
+          "duration" : 200.0
+        }
+      },
+      "cnec" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleCnec",
+        "id" : "idCnec",
+        "name" : "Cnec",
+        "criticalNetworkElement" : {
+          "@c" : ".NetworkElement",
+          "id" : "idMR",
+          "name" : "Monitored Element"
+        },
+        "threshold" : {
+          "@c" : ".FlowThreshold",
+          "side" : "RIGHT",
+          "direction" : "OUT",
+          "maxValue" : 999.0,
+          "unit" : "AMPERE"
+        },
+        "state" : {
+          "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
+          "contingency" : {
+            "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+            "id" : "idContingency",
+            "name" : "My contingency",
+            "networkElements" : [ {
+              "@c" : ".NetworkElement",
+              "id" : "idLine2",
+              "name" : "My Line 2"
+            }, {
+              "@c" : ".NetworkElement",
+              "id" : "idLine3",
+              "name" : "My Line 3"
+            }, {
+              "@c" : ".NetworkElement",
+              "id" : "idNE1",
+              "name" : "My Element 1"
+            } ]
+          },
+          "instant" : {
+            "@c" : ".Instant",
+            "duration" : 200.0
+          }
+        }
+      }
+    }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.OnContingency",
+      "usageMethod" : "FORCED",
+      "state" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
+        "contingency" : {
+          "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+          "id" : "idContingency",
+          "name" : "My contingency",
+          "networkElements" : [ {
+            "@c" : ".NetworkElement",
+            "id" : "idLine2",
+            "name" : "My Line 2"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idLine3",
+            "name" : "My Line 3"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idNE1",
+            "name" : "My Element 1"
+          } ]
+        },
+        "instant" : {
+          "@c" : ".Instant",
+          "duration" : 200.0
+        }
+      },
+      "contingency" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+        "id" : "idContingency",
+        "name" : "My contingency",
+        "networkElements" : [ {
+          "@c" : ".NetworkElement",
+          "id" : "idLine2",
+          "name" : "My Line 2"
+        }, {
+          "@c" : ".NetworkElement",
+          "id" : "idLine3",
+          "name" : "My Line 3"
+        }, {
+          "@c" : ".NetworkElement",
           "id" : "idNE1",
           "name" : "My Element 1"
         } ]
       }
     } ],
     "ranges" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange",
       "min" : 10.0,
       "max" : 1000.0
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange",
       "min" : 100.0,
       "max" : 1000.0
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange",
       "min" : 1.0,
       "max" : 10.0
     } ],
     "applicableRangeActions" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange",
       "networkElement" : {
         "@c" : ".NetworkElement",
-        "extensions" : [ ],
         "id" : "idPst1",
         "name" : "My Pst 1"
       }
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.range_action.HvdcRange",
       "networkElement" : {
         "@c" : ".NetworkElement",
-        "extensions" : [ ],
         "id" : "idHvdc1",
         "name" : "My Hvdc 1"
       }
     } ]
   }, {
     "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction",
-    "extensions" : [ ],
     "id" : "idRangeAction2",
     "name" : "myRangeAction2",
     "usageRules" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse",
       "usageMethod" : "AVAILABLE",
       "state" : {
-        "contingency" : {
-          "present" : false
-        },
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
         "instant" : {
+          "@c" : ".Instant",
           "duration" : 0.0
         }
       }
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint",
       "usageMethod" : "FORCED",
       "state" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
         "contingency" : {
-          "present" : true
+          "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+          "id" : "idContingency",
+          "name" : "My contingency",
+          "networkElements" : [ {
+            "@c" : ".NetworkElement",
+            "id" : "idLine2",
+            "name" : "My Line 2"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idLine3",
+            "name" : "My Line 3"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idNE1",
+            "name" : "My Element 1"
+          } ]
         },
         "instant" : {
+          "@c" : ".Instant",
           "duration" : 200.0
         }
       },
       "cnec" : {
-        "extensions" : [ ],
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleCnec",
         "id" : "idCnec",
         "name" : "Cnec",
         "criticalNetworkElement" : {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
           "id" : "idMR",
           "name" : "Monitored Element"
         },
         "threshold" : {
-          "unit" : "AMPERE",
+          "@c" : ".FlowThreshold",
           "side" : "RIGHT",
           "direction" : "OUT",
-          "maxValue" : 999.0
+          "maxValue" : 999.0,
+          "unit" : "AMPERE"
         },
         "state" : {
+          "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
           "contingency" : {
-            "present" : true
+            "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+            "id" : "idContingency",
+            "name" : "My contingency",
+            "networkElements" : [ {
+              "@c" : ".NetworkElement",
+              "id" : "idLine2",
+              "name" : "My Line 2"
+            }, {
+              "@c" : ".NetworkElement",
+              "id" : "idLine3",
+              "name" : "My Line 3"
+            }, {
+              "@c" : ".NetworkElement",
+              "id" : "idNE1",
+              "name" : "My Element 1"
+            } ]
           },
           "instant" : {
+            "@c" : ".Instant",
             "duration" : 200.0
           }
-        },
-        "basecase" : false
+        }
       }
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.OnContingency",
       "usageMethod" : "FORCED",
       "state" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
         "contingency" : {
-          "present" : true
+          "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
+          "id" : "idContingency",
+          "name" : "My contingency",
+          "networkElements" : [ {
+            "@c" : ".NetworkElement",
+            "id" : "idLine2",
+            "name" : "My Line 2"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idLine3",
+            "name" : "My Line 3"
+          }, {
+            "@c" : ".NetworkElement",
+            "id" : "idNE1",
+            "name" : "My Element 1"
+          } ]
         },
         "instant" : {
+          "@c" : ".Instant",
           "duration" : 200.0
         }
       },
       "contingency" : {
-        "extensions" : [ ],
+        "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
         "id" : "idContingency",
         "name" : "My contingency",
         "networkElements" : [ {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
           "id" : "idLine2",
           "name" : "My Line 2"
         }, {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
           "id" : "idLine3",
           "name" : "My Line 3"
         }, {
           "@c" : ".NetworkElement",
-          "extensions" : [ ],
           "id" : "idNE1",
           "name" : "My Element 1"
         } ]
       }
     } ],
     "ranges" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange",
       "min" : 10.0,
       "max" : 1000.0
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange",
       "min" : 100.0,
       "max" : 1000.0
     }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange",
       "min" : 1.0,
       "max" : 10.0
     } ],
     "applicableRangeActions" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange",
       "networkElement" : {
         "@c" : ".NetworkElement",
-        "extensions" : [ ],
         "id" : "idPst1",
         "name" : "My Pst 1"
       }
@@ -266,32 +381,27 @@
   "networkActions" : [ ],
   "criticalNetworkElements" : [ {
     "@c" : ".NetworkElement",
-    "extensions" : [ ],
     "id" : "idMR",
     "name" : "Monitored Element"
   }, {
     "@c" : ".NetworkElement",
-    "extensions" : [ ],
     "id" : "idMR",
     "name" : "Monitored Element"
   } ],
   "contingencies" : [ {
-    "extensions" : [ ],
+    "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
     "id" : "idContingency",
     "name" : "My contingency",
     "networkElements" : [ {
       "@c" : ".NetworkElement",
-      "extensions" : [ ],
       "id" : "idLine2",
       "name" : "My Line 2"
     }, {
       "@c" : ".NetworkElement",
-      "extensions" : [ ],
       "id" : "idLine3",
       "name" : "My Line 3"
     }, {
       "@c" : ".NetworkElement",
-      "extensions" : [ ],
       "id" : "idNE1",
       "name" : "My Element 1"
     } ]

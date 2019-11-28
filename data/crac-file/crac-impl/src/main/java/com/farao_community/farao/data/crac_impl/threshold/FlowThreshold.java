@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
@@ -25,7 +27,9 @@ public class FlowThreshold extends AbstractThreshold {
     private Direction direction;
     private double maxValue;
 
-    public FlowThreshold(Side side, Direction direction, double maxValue) {
+    @JsonCreator
+    public FlowThreshold(@JsonProperty("side") Side side, @JsonProperty("direction") Direction direction,
+                         @JsonProperty("maxValue") double maxValue) {
         super(AMPERE);
         this.side = side;
         this.direction = direction;

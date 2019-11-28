@@ -10,8 +10,9 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
 import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
-import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
@@ -26,11 +27,18 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexRangeAction extends AbstractRemedialAction implements ApplicableRangeAction, RangeAction {
 
+    @JsonProperty("ranges")
     private List<Range> ranges;
+
+    @JsonProperty("applicableRangeActions")
     private List<ApplicableRangeAction> applicableRangeActions;
 
-    public ComplexRangeAction(String id, String name, List<AbstractUsageRule> abstractUsageRules, List<Range> ranges, List<ApplicableRangeAction> applicableRangeActions) {
-        super(id, name, abstractUsageRules);
+    @JsonCreator
+    public ComplexRangeAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
+                              @JsonProperty("usageRules") List<UsageRule> usageRules,
+                              @JsonProperty("ranges") List<Range> ranges,
+                              @JsonProperty("applicableRangeActions") List<ApplicableRangeAction> applicableRangeActions) {
+        super(id, name, usageRules);
         this.ranges = ranges;
         this.applicableRangeActions = applicableRangeActions;
     }

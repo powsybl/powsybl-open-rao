@@ -8,8 +8,10 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
 
 import java.io.*;
@@ -43,7 +45,8 @@ public class JsonImport implements CracImporter {
     public Crac importCrac(InputStream inputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readValue(inputStream, Crac.class);
+            objectMapper.registerModule(new Jdk8Module());
+            return objectMapper.readValue(inputStream, SimpleCrac.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -61,6 +64,7 @@ public class JsonImport implements CracImporter {
             SCHEMA_JSON.validate(jsonSubject);
             return fileName.split("\\.")[1].equals(JSON_EXTENSION);
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }

@@ -8,12 +8,20 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.data.crac_api.Unit;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Generic threshold (flow, voltage, etc.) in the CRAC file.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonSubTypes(
+    {
+        @JsonSubTypes.Type(value = FlowThreshold.class, name = "flowThreshold"),
+        @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltageThreshold")
+    })
 public abstract class AbstractThreshold {
     protected Unit unit;
 

@@ -12,6 +12,9 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
@@ -26,7 +29,10 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private AbstractThreshold threshold;
     private State state;
 
-    public SimpleCnec(String id, String name, NetworkElement criticalNetworkElement, AbstractThreshold threshold, State state) {
+    @JsonCreator
+    public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
+                      @JsonProperty("criticalNetworkElement") NetworkElement criticalNetworkElement,
+                      @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
         super(id, name);
         this.criticalNetworkElement = criticalNetworkElement;
         this.threshold = threshold;
@@ -59,6 +65,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         this.state = state;
     }
 
+    @JsonIgnore
     public boolean isBasecase() {
         return !state.getContingency().isPresent();
     }

@@ -1,7 +1,7 @@
 {
   "type" : "object",
   "properties" : {
-    "extensions" : {
+    "contingencies" : {
       "type" : "array",
       "items" : {
         "type" : "object",
@@ -9,80 +9,11 @@
           "name" : {
             "type" : "string"
           },
-          "extendable" : {
-            "type" : "object",
-            "properties" : {
-              "extensions" : {
-                "type" : "array",
-                "items" : {
-                  "type" : "object",
-                  "properties" : {
-                    "name" : {
-                      "type" : "string"
-                    },
-                    "extendable" : {
-                      "type" : "string"
-                    }
-                  }
-                }
-              },
-              "name" : {
-                "type" : "string"
-              },
-              "id" : {
-                "type" : "string"
-              }
-            }
-          }
-        }
-      }
-    },
-    "contingencies" : {
-      "type" : "array",
-      "items" : {
-        "type" : "object",
-        "properties" : {
           "networkElements" : {
             "type" : "array",
             "items" : {
               "type" : "object",
               "properties" : {
-                "extensions" : {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "object",
-                    "properties" : {
-                      "name" : {
-                        "type" : "string"
-                      },
-                      "extendable" : {
-                        "type" : "object",
-                        "properties" : {
-                          "extensions" : {
-                            "type" : "array",
-                            "items" : {
-                              "type" : "object",
-                              "properties" : {
-                                "name" : {
-                                  "type" : "string"
-                                },
-                                "extendable" : {
-                                  "type" : "string"
-                                }
-                              }
-                            }
-                          },
-                          "name" : {
-                            "type" : "string"
-                          },
-                          "id" : {
-                            "type" : "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
                 "name" : {
                   "type" : "string"
                 },
@@ -91,6 +22,9 @@
                 }
               }
             }
+          },
+          "id" : {
+            "type" : "string"
           }
         }
       }
@@ -100,42 +34,6 @@
       "items" : {
         "type" : "object",
         "properties" : {
-          "extensions" : {
-            "type" : "array",
-            "items" : {
-              "type" : "object",
-              "properties" : {
-                "name" : {
-                  "type" : "string"
-                },
-                "extendable" : {
-                  "type" : "object",
-                  "properties" : {
-                    "extensions" : {
-                      "type" : "array",
-                      "items" : {
-                        "type" : "object",
-                        "properties" : {
-                          "name" : {
-                            "type" : "string"
-                          },
-                          "extendable" : {
-                            "type" : "string"
-                          }
-                        }
-                      }
-                    },
-                    "name" : {
-                      "type" : "string"
-                    },
-                    "id" : {
-                      "type" : "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "name" : {
             "type" : "string"
           },
@@ -161,30 +59,15 @@
                 "usageMethod" : {
                   "type" : "string",
                   "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
-                },
-                "state" : {
-                  "type" : "object",
-                  "properties" : {
-                    "contingency" : {
-                      "type" : "object",
-                      "properties" : {
-                        "present" : {
-                          "type" : "boolean"
-                        }
-                      }
-                    },
-                    "instant" : {
-                      "type" : "object",
-                      "properties" : {
-                        "duration" : {
-                          "type" : "number"
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
           }
         }
       }
@@ -205,30 +88,15 @@
                 "usageMethod" : {
                   "type" : "string",
                   "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
-                },
-                "state" : {
-                  "type" : "object",
-                  "properties" : {
-                    "contingency" : {
-                      "type" : "object",
-                      "properties" : {
-                        "present" : {
-                          "type" : "boolean"
-                        }
-                      }
-                    },
-                    "instant" : {
-                      "type" : "object",
-                      "properties" : {
-                        "duration" : {
-                          "type" : "number"
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
           }
         }
       }
@@ -238,45 +106,12 @@
       "items" : {
         "type" : "object",
         "properties" : {
+          "name" : {
+            "type" : "string"
+          },
           "criticalNetworkElement" : {
             "type" : "object",
             "properties" : {
-              "extensions" : {
-                "type" : "array",
-                "items" : {
-                  "type" : "object",
-                  "properties" : {
-                    "name" : {
-                      "type" : "string"
-                    },
-                    "extendable" : {
-                      "type" : "object",
-                      "properties" : {
-                        "extensions" : {
-                          "type" : "array",
-                          "items" : {
-                            "type" : "object",
-                            "properties" : {
-                              "name" : {
-                                "type" : "string"
-                              },
-                              "extendable" : {
-                                "type" : "string"
-                              }
-                            }
-                          }
-                        },
-                        "name" : {
-                          "type" : "string"
-                        },
-                        "id" : {
-                          "type" : "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              },
               "name" : {
                 "type" : "string"
               },
@@ -289,10 +124,27 @@
             "type" : "object",
             "properties" : {
               "contingency" : {
-                "type" : "object",
+                "type" : ["object"],
                 "properties" : {
-                  "present" : {
-                    "type" : "boolean"
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "networkElements" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "name" : {
+                          "type" : "string"
+                        },
+                        "id" : {
+                          "type" : "string"
+                        }
+                      }
+                    }
+                  },
+                  "id" : {
+                    "type" : "string"
                   }
                 }
               },
@@ -305,6 +157,9 @@
                 }
               }
             }
+          },
+          "id" : {
+            "type" : "string"
           }
         }
       }

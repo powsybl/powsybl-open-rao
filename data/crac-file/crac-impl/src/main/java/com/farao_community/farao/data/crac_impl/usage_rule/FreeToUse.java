@@ -7,9 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
-import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -20,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class FreeToUse extends AbstractUsageRule {
 
-    public FreeToUse(UsageMethod usageMethod, State state) {
+    @JsonCreator
+    public FreeToUse(@JsonProperty("usageMethod") UsageMethod usageMethod, @JsonProperty("state") State state) {
         super(usageMethod, state);
     }
 }

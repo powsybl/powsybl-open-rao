@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
@@ -22,7 +24,8 @@ public class VoltageThreshold extends AbstractThreshold {
     private double minValue;
     private double maxValue;
 
-    public VoltageThreshold(double minValue, double maxValue) {
+    @JsonCreator
+    public VoltageThreshold(@JsonProperty("minValue") double minValue, @JsonProperty("maxValue") double maxValue) {
         super(KILOVOLT);
         this.minValue = minValue;
         this.maxValue = maxValue;

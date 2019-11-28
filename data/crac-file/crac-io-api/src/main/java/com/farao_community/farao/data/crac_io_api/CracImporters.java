@@ -39,19 +39,38 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(String fileName, InputStream inputStream) {
-        CracImporter importer = findImporter(fileName, inputStream);
-        if (importer == null) {
-            throw new FaraoException("No importer found for this file");
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            org.apache.commons.io.IOUtils.copy(inputStream, baos);
+            byte[] bytes = baos.toByteArray();
+
+            CracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
+            if (importer == null) {
+                throw new FaraoException("No importer found for this file");
+            }
+            return importer.importCrac(new ByteArrayInputStream(bytes));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-        return importer.importCrac(inputStream);
     }
 
     public static CracImporter findImporter(String fileName, InputStream inputStream) {
-        for (CracImporter importer : CRAC_IMPORTERS.get()) {
-            if (importer.exists(fileName, inputStream)) {
-                return importer;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            org.apache.commons.io.IOUtils.copy(inputStream, baos);
+            byte[] bytes = baos.toByteArray();
+
+            for (CracImporter importer : CRAC_IMPORTERS.get()) {
+                ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                if (importer.exists(fileName, bais)) {
+                    return importer;
+                }
             }
+            return null;
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return null;
     }
 }

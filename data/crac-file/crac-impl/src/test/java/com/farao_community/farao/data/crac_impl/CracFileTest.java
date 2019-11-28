@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRang
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
 import com.farao_community.farao.data.crac_impl.threshold.FlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
-import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
@@ -161,7 +160,7 @@ public class CracFileTest {
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
-        List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
+        List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
@@ -174,6 +173,8 @@ public class CracFileTest {
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
+        crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
+        crac.addNetworkRemedialAction(networkAction2);
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
@@ -193,7 +194,7 @@ public class CracFileTest {
 
         crac.getRangeActions().forEach(
             abstractRemedialAction -> abstractRemedialAction.getUsageRules().forEach(
-                    AbstractUsageRule::getUsageMethod));
+                    UsageRule::getUsageMethod));
 
         assertTrue(crac.getId().equals("idCrac"));
     }

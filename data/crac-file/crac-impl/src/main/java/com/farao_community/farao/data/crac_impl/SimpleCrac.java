@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
@@ -26,7 +27,10 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     private List<RangeAction> rangeActions;
     private List<NetworkAction> networkActions;
 
-    public SimpleCrac(String id, String name, List<Cnec> cnecs, List<RangeAction> rangeActions, List<NetworkAction> networkActions) {
+    @JsonCreator
+    public SimpleCrac(@JsonProperty("id") String id, @JsonProperty("name") String name,
+                      @JsonProperty("cnecs") List<Cnec> cnecs, @JsonProperty("rangeActions") List<RangeAction> rangeActions,
+                      @JsonProperty("networkActions") List<NetworkAction> networkActions) {
         super(id, name);
         this.cnecs = cnecs;
         this.rangeActions = rangeActions;

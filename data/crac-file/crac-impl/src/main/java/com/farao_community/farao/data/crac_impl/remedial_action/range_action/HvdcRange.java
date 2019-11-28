@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
@@ -19,7 +21,8 @@ import com.powsybl.iidm.network.Network;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class HvdcRange extends AbstractNetworkElementRangeAction {
 
-    public HvdcRange(NetworkElement networkElement) {
+    @JsonCreator
+    public HvdcRange(@JsonProperty("networkElement") NetworkElement networkElement) {
         super(networkElement);
     }
 

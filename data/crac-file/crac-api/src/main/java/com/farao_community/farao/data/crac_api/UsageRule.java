@@ -8,14 +8,11 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Network;
 
 /**
- * Interface to apply an action on the network
- *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface ApplicableNetworkAction {
-    void apply(Network network);
+public interface UsageRule {
+    UsageMethod getUsageMethod();
 }

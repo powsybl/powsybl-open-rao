@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Generic object to define any simple range action on a network element
@@ -20,7 +22,8 @@ public abstract class AbstractNetworkElementRangeAction implements ApplicableRan
 
     protected NetworkElement networkElement;
 
-    public AbstractNetworkElementRangeAction(NetworkElement networkElement) {
+    @JsonCreator
+    public AbstractNetworkElementRangeAction(@JsonProperty("networkElement") NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
 

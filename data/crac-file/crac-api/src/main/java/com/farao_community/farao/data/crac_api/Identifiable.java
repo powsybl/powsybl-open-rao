@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.commons.extensions.Extendable;
 
@@ -17,6 +18,7 @@ import com.powsybl.commons.extensions.Extendable;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonIgnoreProperties(value = {"extensions"})
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
