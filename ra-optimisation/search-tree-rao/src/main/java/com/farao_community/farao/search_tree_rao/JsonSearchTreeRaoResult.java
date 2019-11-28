@@ -33,22 +33,23 @@ public class JsonSearchTreeRaoResult implements  JsonRaoComputationResult.Extens
 
     @Override
     public SearchTreeRaoResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        SearchTreeRaoResult resultExtension = new SearchTreeRaoResult();
+        SearchTreeRaoResult.ComputationStatus computationStatus = SearchTreeRaoResult.ComputationStatus.ERROR;
+        SearchTreeRaoResult.StopCriterion stopCriterion = SearchTreeRaoResult.StopCriterion.NO_COMPUTATION;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "computationStatus":
                     jsonParser.nextToken();
-                    resultExtension.setComputationStatus(jsonParser.getValueAsString());
+                    computationStatus = Enum.valueOf(SearchTreeRaoResult.ComputationStatus.class, jsonParser.getValueAsString());
                     break;
                 case "stopCriterion":
                     jsonParser.nextToken();
-                    resultExtension.setStopCriterion(jsonParser.getValueAsString());
+                    stopCriterion = Enum.valueOf(SearchTreeRaoResult.StopCriterion.class, jsonParser.getValueAsString());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
-        return resultExtension;
+        return new SearchTreeRaoResult(computationStatus, stopCriterion);
     }
 
     @Override
