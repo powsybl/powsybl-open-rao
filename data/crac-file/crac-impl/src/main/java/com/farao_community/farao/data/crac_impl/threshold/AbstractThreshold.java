@@ -33,4 +33,6 @@ public abstract class AbstractThreshold {
     public abstract boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 
     public abstract void synchronize(Network network, Cnec cnec);
+
+    public abstract void desynchronize();
 }

@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -30,11 +30,25 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public boolean isMaxThresholdOvercome(Network network, Cnec cnec) {
-        return maxValue < network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        switch (unit) {
+            case AMPERE:
+                return maxValue < getTerminal(network, cnec).getI();
+            case MEGAWATT:
+                return maxValue < getTerminal(network, cnec).getP();
+            case DEGREE:
+            case KILOVOLT:
+            default:
+                throw new FaraoException("Incompatible type of unit between FlowThreshold and degree or kV");
+        }
     }
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
+
+    }
+
+    @Override
+    public void desynchronize() {
 
     }
 }

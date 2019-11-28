@@ -117,6 +117,11 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
+    public void desynchronize() {
+        cnecs.forEach(Synchronizable::desynchronize);
+    }
+
+    @Override
     public void generateValidityReport(Network network) {
         throw new UnsupportedOperationException();
     }

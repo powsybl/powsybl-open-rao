@@ -10,9 +10,13 @@ package com.farao_community.farao.data.crac_api;
 import com.powsybl.iidm.network.Network;
 
 /**
+ * This interface enables to enhance the Crac objects with network information
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface Synchronizable {
 
     void synchronize(Network network);
+
+    void desynchronize();
 }

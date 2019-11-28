@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -32,11 +33,36 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         if (Double.isNaN(maxValue)) {
             throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
         }
-        return (maxValue * percentageOfMax / 100) < network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        switch (unit) {
+            case AMPERE:
+                return (maxValue * percentageOfMax / 100) < getTerminal(network, cnec).getI();
+            case MEGAWATT:
+                return (maxValue * percentageOfMax / 100) < getTerminal(network, cnec).getP();
+            case DEGREE:
+            case KILOVOLT:
+            default:
+                throw new FaraoException("Incompatible type of unit between FlowThreshold and degree or kV");
+        }
     }
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-        maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        // TODO: manage matching between LEFT/RIGHT and ONE/TWO
+        switch (side) {
+            case LEFT:
+                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+                break;
+            case RIGHT:
+                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
+                break;
+            default:
+                throw new FaraoException("Side is not defined");
+        }
+
+    }
+
+    @Override
+    public void desynchronize() {
+        maxValue = Double.NaN;
     }
 }

@@ -463,6 +463,11 @@
                 <artifactId>org.everit.json.schema</artifactId>
                 <version>${org.everit.json.version}</version>
             </dependency>
+            <dependency> <!--for CracSchemaGeneration-->
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jsonSchema</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
@@ -569,6 +574,12 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito2</artifactId>
                 <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-config-test</artifactId>
+                <version>${powsybl.core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

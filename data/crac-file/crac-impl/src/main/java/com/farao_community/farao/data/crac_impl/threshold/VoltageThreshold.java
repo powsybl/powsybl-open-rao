@@ -60,4 +60,9 @@ public class VoltageThreshold extends AbstractThreshold {
     public void synchronize(Network network, Cnec cnec) {
 
     }
+
+    @Override
+    public void desynchronize() {
+
+    }
 }
