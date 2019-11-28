@@ -209,6 +209,12 @@ public class JsonImportExportTest {
         CracExporters.exportCrac(crac, "Json", outputStream);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        CracImporters.importCrac("file.json", inputStream);
+        Crac importedCrac = CracImporters.importCrac("file.json", inputStream);
+
+        assertTrue(crac.getId().equals(importedCrac.getId()));
+        assertEquals(crac.getCnecs().size(), importedCrac.getCnecs().size());
+        assertEquals(crac.getContingencies().size(), importedCrac.getContingencies().size());
+        assertEquals(crac.getNetworkActions().size(), importedCrac.getNetworkActions().size());
+        assertEquals(crac.getRangeActions().size(), importedCrac.getRangeActions().size());
     }
 }

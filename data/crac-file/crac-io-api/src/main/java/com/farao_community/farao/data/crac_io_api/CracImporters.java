@@ -50,8 +50,7 @@ public final class CracImporters {
             }
             return importer.importCrac(new ByteArrayInputStream(bytes));
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new UncheckedIOException(e);
         }
     }
 

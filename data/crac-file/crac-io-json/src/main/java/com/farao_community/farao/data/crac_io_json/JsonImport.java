@@ -58,14 +58,9 @@ public class JsonImport implements CracImporter {
     }
 
     private boolean validCracFile(String fileName, InputStream inputStream) {
-        try {
-            JSONObject jsonSubject = new JSONObject(
-                new JSONTokener(inputStream));
-            SCHEMA_JSON.validate(jsonSubject);
-            return fileName.split("\\.")[1].equals(JSON_EXTENSION);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        JSONObject jsonSubject = new JSONObject(
+            new JSONTokener(inputStream));
+        SCHEMA_JSON.validate(jsonSubject);
+        return fileName.split("\\.")[1].equals(JSON_EXTENSION);
     }
 }

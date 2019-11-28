@@ -378,15 +378,38 @@
       }
     } ]
   } ],
-  "networkActions" : [ ],
-  "criticalNetworkElements" : [ {
-    "@c" : ".NetworkElement",
-    "id" : "idMR",
-    "name" : "Monitored Element"
-  }, {
-    "@c" : ".NetworkElement",
-    "id" : "idMR",
-    "name" : "Monitored Element"
+  "networkActions" : [ {
+    "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction",
+    "id" : "id1",
+    "name" : "name1",
+    "usageRules" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse",
+      "usageMethod" : "AVAILABLE",
+      "state" : {
+        "@c" : "com.farao_community.farao.data.crac_impl.SimpleState",
+        "instant" : {
+          "@c" : ".Instant",
+          "duration" : 0.0
+        }
+      }
+    } ],
+    "applicableNetworkActions" : [ {
+      "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.network_action.HvdcSetpoint",
+      "networkElement" : {
+        "@c" : ".NetworkElement",
+        "id" : "idLine1",
+        "name" : "My Line 1"
+      },
+      "setpoint" : 1000.0
+    }, {
+      "@c" : "com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology",
+      "networkElement" : {
+        "@c" : ".NetworkElement",
+        "id" : "idSwitch1",
+        "name" : "My Switch 1"
+      },
+      "actionType" : "CLOSE"
+    } ]
   } ],
   "contingencies" : [ {
     "@c" : "com.farao_community.farao.data.crac_impl.ComplexContingency",
@@ -405,5 +428,14 @@
       "id" : "idNE1",
       "name" : "My Element 1"
     } ]
+  } ],
+  "criticalNetworkElements" : [ {
+    "@c" : ".NetworkElement",
+    "id" : "idMR",
+    "name" : "Monitored Element"
+  }, {
+    "@c" : ".NetworkElement",
+    "id" : "idMR",
+    "name" : "Monitored Element"
   } ]
 }
