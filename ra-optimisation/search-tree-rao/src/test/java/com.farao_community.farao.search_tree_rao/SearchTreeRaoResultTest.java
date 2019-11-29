@@ -8,7 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
