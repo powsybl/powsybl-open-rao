@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Business object of the CRAC file.
@@ -24,8 +23,18 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
     private List<Cnec> cnecs;
+    @JsonProperty("contingencies")
+    private List<Contingency> contingencies;
     private List<RangeAction> rangeActions;
     private List<NetworkAction> networkActions;
+
+    public SimpleCrac(String id, String name) {
+        super(id, name);
+        cnecs = new ArrayList<>();
+        contingencies = new ArrayList<>();
+        rangeActions = new ArrayList<>();
+        networkActions = new ArrayList<>();
+    }
 
     @JsonCreator
     public SimpleCrac(@JsonProperty("id") String id, @JsonProperty("name") String name,
@@ -33,6 +42,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
                       @JsonProperty("networkActions") List<NetworkAction> networkActions) {
         super(id, name);
         this.cnecs = cnecs;
+        contingencies = new ArrayList<>();
         this.rangeActions = rangeActions;
         this.networkActions = networkActions;
     }
@@ -73,8 +83,14 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         cnecs.add(cnec);
     }
 
+    @JsonProperty("contingency")
     @Override
+    public void addContingency(Contingency contingency) {
+        contingencies.add(contingency);
+    }
+
     @JsonProperty("networkActions")
+    @Override
     public void addNetworkRemedialAction(NetworkAction networkAction) {
         networkActions.add(networkAction);
     }
@@ -104,17 +120,17 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public List<Contingency> getContingencies() {
-        List<Contingency> contingencies = new ArrayList<>();
-        cnecs.forEach(cnec -> {
-            Optional<Contingency> contingency = cnec.getState().getContingency();
-            contingency.ifPresent(contingencies::add);
-        });
         return contingencies;
     }
 
     @Override
     public void synchronize(Network network) {
-        throw new UnsupportedOperationException();
+        cnecs.forEach(cnec -> cnec.synchronize(network));
+    }
+
+    @Override
+    public void desynchronize() {
+        cnecs.forEach(Synchronizable::desynchronize);
     }
 
     @Override

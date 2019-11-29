@@ -17,7 +17,7 @@ import java.util.List;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface Crac extends Identifiable {
+public interface Crac extends Identifiable, Synchronizable {
 
     List<Cnec> getCnecs();
 
@@ -33,6 +33,8 @@ public interface Crac extends Identifiable {
 
     void addCnec(Cnec cnec);
 
+    void addContingency(Contingency contingency);
+
     void addNetworkRemedialAction(NetworkAction networkAction);
 
     void addRangeRemedialAction(RangeAction rangeAction);
@@ -44,8 +46,6 @@ public interface Crac extends Identifiable {
     List<NetworkElement> getCriticalNetworkElements();
 
     List<Contingency> getContingencies();
-
-    void synchronize(Network network);
 
     void generateValidityReport(Network network);
 }

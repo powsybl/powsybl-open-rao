@@ -255,19 +255,6 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven.javadoc.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>${maven.source.version}</version>
                         <executions>
@@ -496,7 +483,7 @@
             </dependency>
 
             <!-- Test dependencies -->
-            <dependency> <!--for CracSchemaGeneration-->
+            <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jsonSchema</artifactId>
                 <version>${jackson.version}</version>
@@ -564,12 +551,6 @@
                 <version>${test.assert.version}</version>
                 <scope>test</scope>
             </dependency>
-            <!--dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.10.19</version>
-                <scope>test</scope>
-            </dependency-->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
@@ -586,6 +567,12 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito2</artifactId>
                 <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-config-test</artifactId>
+                <version>${powsybl.core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

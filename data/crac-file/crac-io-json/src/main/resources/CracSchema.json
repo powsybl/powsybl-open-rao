@@ -1,27 +1,117 @@
 {
   "type" : "object",
+  "id" : "urn:jsonschema:com:farao_community:farao:data:crac_impl:SimpleCrac",
   "properties" : {
-    "contingencies" : {
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string"
+    },
+    "cnecs" : {
       "type" : "array",
       "items" : {
         "type" : "object",
+        "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Cnec",
         "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "networkElements" : {
-            "type" : "array",
-            "items" : {
-              "type" : "object",
-              "properties" : {
-                "name" : {
-                  "type" : "string"
-                },
-                "id" : {
-                  "type" : "string"
+          "state" : {
+            "type" : "object",
+            "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:State",
+            "properties" : {
+              "instant" : {
+                "type" : "object",
+                "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Instant",
+                "properties" : {
+                  "duration" : {
+                    "type" : "number"
+                  }
+                }
+              },
+              "contingency" : {
+                "type" : "object",
+                "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Contingency",
+                "properties" : {
+                  "networkElements" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement",
+                      "properties" : {
+                        "id" : {
+                          "type" : "string"
+                        },
+                        "name" : {
+                          "type" : "string"
+                        }
+                      }
+                    }
+                  },
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "id" : {
+                    "type" : "string"
+                  }
                 }
               }
             }
+          },
+          "criticalNetworkElement" : {
+            "type" : "object",
+            "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "rangeActions" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:RangeAction",
+        "properties" : {
+          "usageRules" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:UsageRule",
+              "properties" : {
+                "usageMethod" : {
+                  "type" : "string",
+                  "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
+                }
+              }
+            }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "networkActions" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkAction",
+        "properties" : {
+          "usageRules" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:UsageRule"
+            }
+          },
+          "name" : {
+            "type" : "string"
           },
           "id" : {
             "type" : "string"
@@ -33,135 +123,14 @@
       "type" : "array",
       "items" : {
         "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        }
+        "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
       }
     },
-    "name" : {
-      "type" : "string"
-    },
-    "rangeActions" : {
+    "contingencies" : {
       "type" : "array",
       "items" : {
         "type" : "object",
-        "properties" : {
-          "usageRules" : {
-            "type" : "array",
-            "items" : {
-              "type" : "object",
-              "properties" : {
-                "usageMethod" : {
-                  "type" : "string",
-                  "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
-                }
-              }
-            }
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        }
-      }
-    },
-    "id" : {
-      "type" : "string"
-    },
-    "networkActions" : {
-      "type" : "array",
-      "items" : {
-        "type" : "object",
-        "properties" : {
-          "usageRules" : {
-            "type" : "array",
-            "items" : {
-              "type" : "object",
-              "properties" : {
-                "usageMethod" : {
-                  "type" : "string",
-                  "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
-                }
-              }
-            }
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string"
-          }
-        }
-      }
-    },
-    "cnecs" : {
-      "type" : "array",
-      "items" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "criticalNetworkElement" : {
-            "type" : "object",
-            "properties" : {
-              "name" : {
-                "type" : "string"
-              },
-              "id" : {
-                "type" : "string"
-              }
-            }
-          },
-          "state" : {
-            "type" : "object",
-            "properties" : {
-              "contingency" : {
-                "type" : "object",
-                "properties" : {
-                  "name" : {
-                    "type" : "string"
-                  },
-                  "networkElements" : {
-                    "type" : "array",
-                    "items" : {
-                      "type" : "object",
-                      "properties" : {
-                        "name" : {
-                          "type" : "string"
-                        },
-                        "id" : {
-                          "type" : "string"
-                        }
-                      }
-                    }
-                  },
-                  "id" : {
-                    "type" : "string"
-                  }
-                }
-              },
-              "instant" : {
-                "type" : "object",
-                "properties" : {
-                  "duration" : {
-                    "type" : "number"
-                  }
-                }
-              }
-            }
-          },
-          "id" : {
-            "type" : "string"
-          }
-        }
+        "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Contingency"
       }
     }
   }

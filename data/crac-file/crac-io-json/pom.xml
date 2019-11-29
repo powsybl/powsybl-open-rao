@@ -41,6 +41,11 @@
 
         <!-- Test dependencies -->
         <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <scope>test</scope>
@@ -55,11 +60,6 @@
             <artifactId>powsybl-commons</artifactId>
             <version>${powsybl.core.version}</version>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency> <!--for CracSchemaGeneration-->
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jsonSchema</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
