@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class RaoProviderMock implements RaoProvider {
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, ComputationManager computationManager, String workingStateId, RaoParameters parameters) {
+    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
         return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.SUCCESS));
     }
 

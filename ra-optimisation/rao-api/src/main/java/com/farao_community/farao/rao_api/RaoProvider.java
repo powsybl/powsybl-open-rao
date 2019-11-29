@@ -18,5 +18,5 @@ import java.util.concurrent.CompletableFuture;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RaoProvider extends Versionable {
-    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, ComputationManager computationManager, String workingVariantId, RaoParameters parameters);
+    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters);
 }

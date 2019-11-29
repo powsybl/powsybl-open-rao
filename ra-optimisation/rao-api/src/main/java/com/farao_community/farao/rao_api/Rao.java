@@ -53,7 +53,7 @@ public final class Rao {
         public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
-            return provider.run(network, crac, computationManager, workingStateId, parameters);
+            return provider.run(network, crac, workingStateId, computationManager, parameters);
         }
 
         public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
@@ -71,7 +71,7 @@ public final class Rao {
         public RaoComputationResult run(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
-            return provider.run(network, crac, computationManager, workingStateId, parameters).join();
+            return provider.run(network, crac, workingStateId, computationManager, parameters).join();
         }
 
         public RaoComputationResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
