@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.powsybl.iidm.network.Network;
 
@@ -62,12 +59,22 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     }
 
     @Override
-    public boolean isMinThresholdViolated(Network network) {
-        return true;
+    public boolean isMinThresholdViolated(Network network) throws SynchronizationException {
+        return threshold.isMinThresholdOvercome(network, this);
     }
 
     @Override
-    public boolean isMaxThresholdViolated(Network network) {
-        return true;
+    public boolean isMaxThresholdViolated(Network network) throws SynchronizationException {
+        return threshold.isMaxThresholdOvercome(network, this);
+    }
+
+    @Override
+    public void synchronize(Network network) {
+        threshold.synchronize(network, this);
+    }
+
+    @Override
+    public void desynchronize() {
+        threshold.desynchronize();
     }
 }

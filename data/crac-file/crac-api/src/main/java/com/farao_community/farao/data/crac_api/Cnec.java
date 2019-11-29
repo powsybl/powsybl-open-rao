@@ -16,13 +16,13 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Cnec extends Identifiable {
+public interface Cnec extends Identifiable, Synchronizable {
 
     State getState();
 
     NetworkElement getCriticalNetworkElement();
 
-    boolean isMinThresholdViolated(Network network);
+    boolean isMinThresholdViolated(Network network) throws SynchronizationException;
 
-    boolean isMaxThresholdViolated(Network network);
+    boolean isMaxThresholdViolated(Network network) throws SynchronizationException;
 }

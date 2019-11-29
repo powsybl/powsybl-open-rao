@@ -9,47 +9,56 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-crac-impl</artifactId>
+    <artifactId>farao-crac-io-json</artifactId>
     <packaging>jar</packaging>
-    <name>CRAC business object model implementation</name>
-    <description>Object model for CRAC implementation</description>
+    <name>Json to CRAC converter</name>
+    <description>Conversion between Json and CRAC formats</description>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-io-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency> <!--for CracSchemaGeneration-->
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.everit.json</groupId>
+            <artifactId>org.everit.json.schema</artifactId>
         </dependency>
 
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-config-test</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-impl</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-xml-converter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
+            <artifactId>powsybl-commons</artifactId>
+            <version>${powsybl.core.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 
 </project>

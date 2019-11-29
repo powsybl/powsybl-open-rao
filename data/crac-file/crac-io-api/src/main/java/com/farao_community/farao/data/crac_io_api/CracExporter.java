@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import java.io.OutputStream;
-import java.nio.file.Path;
 
 /**
  * Interface for CRAC object export
@@ -19,7 +18,7 @@ import java.nio.file.Path;
 
 public interface CracExporter {
 
-    public void exportCrac(Crac crac, Path filePath);
+    String getFormat();
 
-    public void exportCrac(Crac crac, OutputStream outputStream);
+    void exportCrac(Crac crac, OutputStream outputStream);
 }
