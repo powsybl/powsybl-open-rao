@@ -5,9 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
 import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
@@ -19,8 +20,12 @@ import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_io_api.CracExporters;
 import org.junit.Test;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,13 +37,11 @@ import static com.farao_community.farao.data.crac_api.Side.*;
 import static org.junit.Assert.*;
 
 /**
- * General test file
- *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class CracFileTest {
+public class JsonImportExportTest {
 
-    private static SimpleCrac create() {
+    private Crac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
@@ -161,7 +164,7 @@ public class CracFileTest {
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
-        List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
+        List<AbstractUsageRule> usageRules = new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
@@ -181,20 +184,15 @@ public class CracFileTest {
     }
 
     @Test
-    public void testCrac() {
+    public void testExportCrac() throws IOException {
 
-        SimpleCrac crac = create();
+        Crac crac = create();
 
-        crac.getCnecs().forEach(
-            cnec -> {
-                cnec.getState().getInstant();
-                cnec.getState().getContingency();
-            });
+        OutputStream os = new FileOutputStream("file.json");
 
-        crac.getRangeActions().forEach(
-            abstractRemedialAction -> abstractRemedialAction.getUsageRules().forEach(
-                    AbstractUsageRule::getUsageMethod));
+        CracExporters.exportCrac(crac, "Json", os);
 
-        assertTrue(crac.getId().equals("idCrac"));
+        os.flush();
+        os.close();
     }
 }
