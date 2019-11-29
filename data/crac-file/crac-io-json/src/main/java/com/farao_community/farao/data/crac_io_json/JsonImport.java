@@ -16,6 +16,7 @@ import com.google.auto.service.AutoService;
 
 import java.io.*;
 
+import org.apache.commons.io.FilenameUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
@@ -61,6 +62,6 @@ public class JsonImport implements CracImporter {
         JSONObject jsonSubject = new JSONObject(
             new JSONTokener(inputStream));
         SCHEMA_JSON.validate(jsonSubject);
-        return fileName.split("\\.")[1].equals(JSON_EXTENSION);
+        return FilenameUtils.getExtension(fileName).equals(JSON_EXTENSION);
     }
 }

@@ -325,6 +325,11 @@
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-guava</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
@@ -491,6 +496,12 @@
             </dependency>
 
             <!-- Test dependencies -->
+            <dependency> <!--for CracSchemaGeneration-->
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jsonSchema</artifactId>
+                <version>${jackson.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>com.google.jimfs</groupId>
                 <artifactId>jimfs</artifactId>
@@ -553,6 +564,12 @@
                 <version>${test.assert.version}</version>
                 <scope>test</scope>
             </dependency>
+            <!--dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.10.19</version>
+                <scope>test</scope>
+            </dependency-->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
