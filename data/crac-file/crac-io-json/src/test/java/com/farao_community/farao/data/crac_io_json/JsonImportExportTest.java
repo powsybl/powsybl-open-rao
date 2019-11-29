@@ -21,6 +21,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.google.common.io.Files;
 import org.junit.Test;
 
 import java.io.*;
@@ -191,14 +192,17 @@ public class JsonImportExportTest {
     @Test
     public void testExportCrac() throws IOException {
 
+        File tmpDirectory = Files.createTempDir();
         Crac crac = create();
 
-        OutputStream os = new FileOutputStream("file.json");
+        OutputStream os = new FileOutputStream(tmpDirectory + File.separator + "file.json");
 
         CracExporters.exportCrac(crac, "Json", os);
 
         os.flush();
         os.close();
+
+        tmpDirectory.delete();
     }
 
     @Test
@@ -218,7 +222,7 @@ public class JsonImportExportTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         Crac importedCrac = CracImporters.importCrac("file.json", inputStream);
 
-        assertTrue(crac.getId().equals(importedCrac.getId()));
+        assertEquals(crac.getId(), importedCrac.getId());
         assertEquals(crac.getCnecs().size(), importedCrac.getCnecs().size());
         assertEquals(crac.getContingencies().size(), importedCrac.getContingencies().size());
         assertEquals(crac.getNetworkActions().size(), importedCrac.getNetworkActions().size());

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
@@ -38,11 +39,17 @@ public final class CracImporters {
         }
     }
 
+    @JsonIgnore
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
+    }
+
     public static Crac importCrac(String fileName, InputStream inputStream) {
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            org.apache.commons.io.IOUtils.copy(inputStream, baos);
-            byte[] bytes = baos.toByteArray();
+            byte[] bytes = getBytesFromInputStream(inputStream);
 
             CracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
             if (importer == null) {
@@ -56,9 +63,7 @@ public final class CracImporters {
 
     public static CracImporter findImporter(String fileName, InputStream inputStream) {
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            org.apache.commons.io.IOUtils.copy(inputStream, baos);
-            byte[] bytes = baos.toByteArray();
+            byte[] bytes = getBytesFromInputStream(inputStream);
 
             for (CracImporter importer : CRAC_IMPORTERS.get()) {
                 ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
