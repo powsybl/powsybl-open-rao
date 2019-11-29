@@ -1,0 +1,271 @@
+{
+  "type" : "object",
+  "properties" : {
+    "contingencies" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "networkElements" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "extensions" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "name" : {
+                        "type" : "string"
+                      },
+                      "extendable" : {
+                        "type" : "object",
+                        "properties" : {
+                          "extensions" : {
+                            "type" : "array",
+                            "items" : {
+                              "type" : "object",
+                              "properties" : {
+                                "name" : {
+                                  "type" : "string"
+                                },
+                                "extendable" : {
+                                  "type" : "any"
+                                }
+                              }
+                            }
+                          },
+                          "name" : {
+                            "type" : "string"
+                          },
+                          "id" : {
+                            "type" : "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "criticalNetworkElements" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "extensions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "name" : {
+                  "type" : "string"
+                },
+                "extendable" : {
+                  "type" : "object",
+                  "properties" : {
+                    "extensions" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "name" : {
+                            "type" : "string"
+                          },
+                          "extendable" : {
+                            "type" : "any"
+                          }
+                        }
+                      }
+                    },
+                    "name" : {
+                      "type" : "string"
+                    },
+                    "id" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "rangeActions" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "usageRules" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "usageMethod" : {
+                  "type" : "string",
+                  "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
+                },
+                "state" : {
+                  "type" : "object",
+                  "properties" : {
+                    "contingency" : {
+                      "type" : "object",
+                      "properties" : {
+                        "present" : {
+                          "type" : "boolean"
+                        }
+                      }
+                    },
+                    "instant" : {
+                      "type" : "object",
+                      "properties" : {
+                        "duration" : {
+                          "type" : "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "networkActions" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "usageRules" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "usageMethod" : {
+                  "type" : "string",
+                  "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
+                },
+                "state" : {
+                  "type" : "object",
+                  "properties" : {
+                    "contingency" : {
+                      "type" : "object",
+                      "properties" : {
+                        "present" : {
+                          "type" : "boolean"
+                        }
+                      }
+                    },
+                    "instant" : {
+                      "type" : "object",
+                      "properties" : {
+                        "duration" : {
+                          "type" : "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cnecs" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "criticalNetworkElement" : {
+            "type" : "object",
+            "properties" : {
+              "extensions" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "name" : {
+                      "type" : "string"
+                    },
+                    "extendable" : {
+                      "type" : "object",
+                      "properties" : {
+                        "extensions" : {
+                          "type" : "array",
+                          "items" : {
+                            "type" : "object",
+                            "properties" : {
+                              "name" : {
+                                "type" : "string"
+                              },
+                              "extendable" : {
+                                "type" : "any"
+                              }
+                            }
+                          }
+                        },
+                        "name" : {
+                          "type" : "string"
+                        },
+                        "id" : {
+                          "type" : "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "name" : {
+                "type" : "string"
+              },
+              "id" : {
+                "type" : "string"
+              }
+            }
+          },
+          "state" : {
+            "type" : "object",
+            "properties" : {
+              "contingency" : {
+                "type" : "object",
+                "properties" : {
+                  "present" : {
+                    "type" : "boolean"
+                  }
+                }
+              },
+              "instant" : {
+                "type" : "object",
+                "properties" : {
+                  "duration" : {
+                    "type" : "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
