@@ -16,7 +16,18 @@ import com.powsybl.iidm.network.Network;
  */
 public interface Synchronizable {
 
+    /**
+     * Enhance the Crac object with network information.
+     * Some Crac methods will become available thanks to this action.
+     *
+     * @param network: PowSyBl network associated to the Crac object
+     */
     void synchronize(Network network);
 
+    /**
+     * Erase the additional data created by synchronize method.
+     * The aim is to be able to get back to the original Crac object,
+     * mainly for export purpose.
+     */
     void desynchronize();
 }

@@ -8,9 +8,9 @@
 package com.farao_community.farao.data.crac_api;
 
 /**
- * Some methods in the Crac requires other information contained in the network.
+ * Some methods in the Crac require other information contained in the network.
  * So these methods require that the Crac has been previously synchronized with the network
- * When one of this method is called with no previous synchronization of the Crac
+ * When one of these methods is called with no previous synchronization of the Crac
  * this exception will be raised. The final user could deal with this exception
  * differently considering the cases.
  *

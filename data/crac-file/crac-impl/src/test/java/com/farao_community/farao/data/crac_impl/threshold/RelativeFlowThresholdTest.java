@@ -51,10 +51,6 @@ public class RelativeFlowThresholdTest {
     }
 
     @Test
-    public void isMaxThresholdOvercome() {
-    }
-
-    @Test
     public void isMaxThresholdOvercomeWithNoSynchronization() {
         try {
             relativeFlowThreshold.isMaxThresholdOvercome(network, cnec);
