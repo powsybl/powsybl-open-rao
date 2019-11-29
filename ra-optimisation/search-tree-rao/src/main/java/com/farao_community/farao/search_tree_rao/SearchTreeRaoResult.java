@@ -36,9 +36,9 @@ public class SearchTreeRaoResult extends AbstractExtension<RaoComputationResult>
     private final ComputationStatus computationStatus;
     private final StopCriterion stopCriterion;
 
-    public SearchTreeRaoResult(final ComputationStatus computationStatus, final StopCriterion stopCriterion) {
-        this.computationStatus = computationStatus;
-        this.stopCriterion = stopCriterion;
+    public SearchTreeRaoResult(ComputationStatus c, StopCriterion s) {
+        this.computationStatus = c;
+        this.stopCriterion = s;
     }
 
     public ComputationStatus getComputationStatus() {
