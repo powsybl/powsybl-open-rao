@@ -46,6 +46,7 @@ public class SearchTreeRaoToolTest extends AbstractToolTest {
 
         Assert.assertEquals(tool.getCommand().getTheme(), "Computation");
         Assert.assertEquals(tool.getCommand().getDescription(), "Run SearchTreeRao Computation");
+        Assert.assertEquals(tool.getCommand().getUsageFooter(), "SearchTreeRao computation returns RaoComputation result with SearchTreeRao extension");
     }
 
     @Test
