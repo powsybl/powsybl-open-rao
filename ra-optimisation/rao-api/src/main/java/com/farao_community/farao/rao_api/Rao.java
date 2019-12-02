@@ -35,7 +35,7 @@ public final class Rao {
         throw new AssertionError("Utility class should not been instantiated");
     }
 
-    private static final Supplier<List<RaoProvider>> PROVIDERS_SUPPLIERS
+    private static final Supplier<List<RaoProvider>> RAO_PROVIDERS
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(RaoProvider.class).getServices());
 
     /**
@@ -86,8 +86,8 @@ public final class Rao {
             return run(network, crac, LocalComputationManager.getDefault(), parameters);
         }
 
-        public RaoComputationResult run(Network network, Crac cracFile) {
-            return run(network, cracFile, RaoParameters.load());
+        public RaoComputationResult run(Network network, Crac crac) {
+            return run(network, crac, RaoParameters.load());
         }
 
         @Override
@@ -109,7 +109,7 @@ public final class Rao {
      * @return a runner for RAO implementation named {@code name}
      */
     public static Runner find(String name) {
-        return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+        return find(name, RAO_PROVIDERS.get(), PlatformConfig.defaultConfig());
     }
 
     /**
