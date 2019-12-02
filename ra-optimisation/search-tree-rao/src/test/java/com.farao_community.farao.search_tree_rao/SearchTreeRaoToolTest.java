@@ -44,9 +44,9 @@ public class SearchTreeRaoToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-format", true, true);
 
-        Assert.assertEquals(tool.getCommand().getTheme(), "Computation");
-        Assert.assertEquals(tool.getCommand().getDescription(), "Run SearchTreeRao Computation");
-        Assert.assertEquals(tool.getCommand().getUsageFooter(), "SearchTreeRao computation returns RaoComputation result with SearchTreeRao extension");
+        Assert.assertEquals("Computation", tool.getCommand().getTheme());
+        Assert.assertEquals("Run SearchTreeRao Computation", tool.getCommand().getDescription());
+        Assert.assertEquals("SearchTreeRao computation returns RaoComputation result with SearchTreeRao extension", tool.getCommand().getUsageFooter());
     }
 
     @Test

@@ -50,8 +50,7 @@ public class SearchTreeRaoTool implements Tool {
 
             @Override
             public String getDescription() {
-                String description = "Run SearchTreeRao Computation";
-                return description;
+                return "Run SearchTreeRao Computation";
             }
 
             @Override
