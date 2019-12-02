@@ -53,7 +53,7 @@ public class SearchTreeRaoTool implements Tool {
                 String description = "Run SearchTreeRao Computation";
                 return description;
             }
-            
+
             @Override
             public String getName() {
                 return "search-tree-rao";
