@@ -42,10 +42,6 @@ public class SearchTreeRaoTool implements Tool {
     @Override
     public Command getCommand() {
         return new Command() {
-            @Override
-            public String getName() {
-                return "search-tree-rao";
-            }
 
             @Override
             public String getTheme() {
@@ -54,15 +50,21 @@ public class SearchTreeRaoTool implements Tool {
 
             @Override
             public String getDescription() {
-                return "Run SearchTreeRao Computation";
+                String description = "Run SearchTreeRao Computation";
+                return description;
+            }
+            
+            @Override
+            public String getName() {
+                return "search-tree-rao";
             }
 
             @Override
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder()
-                        .longOpt(CASE_FILE_OPTION)
-                        .desc("Network file")
+                        .longOpt(OUTPUT_FILE_OPTION)
+                        .desc("SearchTreeRao results output file")
                         .hasArg()
                         .argName("FILE")
                         .required()
@@ -75,17 +77,17 @@ public class SearchTreeRaoTool implements Tool {
                         .required()
                         .build());
                 options.addOption(Option.builder()
-                        .longOpt(OUTPUT_FILE_OPTION)
-                        .desc("SearchTreeRao results output file")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
-                options.addOption(Option.builder()
                         .longOpt(OUTPUT_FORMAT_OPTION)
                         .desc("SearchTreeRao results output format")
                         .hasArg()
                         .argName("FORMAT")
+                        .required()
+                        .build());
+                options.addOption(Option.builder()
+                        .longOpt(CASE_FILE_OPTION)
+                        .desc("Network file")
+                        .hasArg()
+                        .argName("FILE")
                         .required()
                         .build());
                 return options;
