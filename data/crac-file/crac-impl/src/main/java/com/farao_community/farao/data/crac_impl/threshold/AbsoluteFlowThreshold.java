@@ -9,6 +9,9 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -16,9 +19,14 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
-    public AbsoluteFlowThreshold(Unit unit, Side side, Direction direction, double maxValue) {
+    @JsonCreator
+    public AbsoluteFlowThreshold(@JsonProperty("unit") Unit unit,
+                                 @JsonProperty("side") Side side,
+                                 @JsonProperty("direction") Direction direction,
+                                 @JsonProperty("maxValue") double maxValue) {
         super(unit, side, direction);
         this.maxValue = maxValue;
     }

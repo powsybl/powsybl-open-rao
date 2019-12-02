@@ -20,5 +20,5 @@ public interface CracImporter {
 
     Crac importCrac(InputStream inputStream);
 
-    boolean exists(InputStream inputStream);
+    boolean exists(String fileName, InputStream inputStream);
 }

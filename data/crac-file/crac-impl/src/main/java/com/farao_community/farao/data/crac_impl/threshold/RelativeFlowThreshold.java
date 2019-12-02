@@ -8,17 +8,25 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
 
     private double percentageOfMax;
 
-    public RelativeFlowThreshold(Unit unit, Side side, Direction direction, double percentageOfMax) {
+    @JsonCreator
+    public RelativeFlowThreshold(@JsonProperty("unit") Unit unit,
+                                 @JsonProperty("side") Side side,
+                                 @JsonProperty("direction") Direction direction,
+                                 @JsonProperty("percentageOfMax") double percentageOfMax) {
         super(unit, side, direction);
         this.percentageOfMax = percentageOfMax;
     }

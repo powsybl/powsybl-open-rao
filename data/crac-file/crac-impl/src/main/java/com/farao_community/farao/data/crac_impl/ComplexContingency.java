@@ -10,6 +10,9 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
 
@@ -18,12 +21,15 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexContingency extends AbstractIdentifiable implements Contingency {
 
+    @JsonProperty("networkElements")
     private List<NetworkElement> networkElements;
 
-    public ComplexContingency(String id, String name, final List<NetworkElement> networkElements) {
+    @JsonCreator
+    public ComplexContingency(@JsonProperty("id") String id,  @JsonProperty("name") String name,
+                              @JsonProperty("networkElements") final List<NetworkElement> networkElements) {
         super(id, name);
         this.networkElements = networkElements;
     }
@@ -36,6 +42,7 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
         this.networkElements = networkElements;
     }
 
+    @JsonProperty("networkElements")
     public void addNetworkElement(NetworkElement networkElement) {
         networkElements.add(networkElement);
     }

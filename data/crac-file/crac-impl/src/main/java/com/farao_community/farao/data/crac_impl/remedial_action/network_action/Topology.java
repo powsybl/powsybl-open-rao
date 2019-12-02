@@ -9,6 +9,9 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -16,12 +19,13 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class Topology extends AbstractNetworkElementAction {
 
     private ActionType actionType;
 
-    public Topology(NetworkElement networkElement, ActionType actionType) {
+    @JsonCreator
+    public Topology(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("actionType") ActionType actionType) {
         super(networkElement);
         this.actionType = actionType;
     }
