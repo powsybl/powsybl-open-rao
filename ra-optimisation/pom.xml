@@ -20,6 +20,7 @@
         <module>ra-optimisation-api</module>
         <module>ra-optimisation-afs</module>
         <module>ra-optimisation-afs-local</module>
+        <module>rao-api</module>
         <module>search-tree-rao</module>
     </modules>
 
