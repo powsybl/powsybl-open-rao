@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  * RA optimisation main API. It is a utility class (so with only static methods) used as an entry point for running
- * a Ra optimisation allowing to choose either a specific find implementation or just to rely on default one.
+ * a RA optimisation allowing to choose either a specific find implementation or just to rely on default one.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -50,10 +50,12 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
-            Objects.requireNonNull(workingStateId);
-            Objects.requireNonNull(parameters);
-            return provider.run(network, crac, workingStateId, computationManager, parameters);
+        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+            Objects.requireNonNull(network, "network should not be null");
+            Objects.requireNonNull(crac, "crac should not be null");
+            Objects.requireNonNull(variantId, "variantId should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+            return provider.run(network, crac, variantId, computationManager, parameters);
         }
 
         public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
@@ -68,10 +70,12 @@ public final class Rao {
             return runAsync(network, crac, RaoParameters.load());
         }
 
-        public RaoComputationResult run(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
-            Objects.requireNonNull(workingStateId);
-            Objects.requireNonNull(parameters);
-            return provider.run(network, crac, workingStateId, computationManager, parameters).join();
+        public RaoComputationResult run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+            Objects.requireNonNull(network, "network should not be null");
+            Objects.requireNonNull(crac, "crac should not be null");
+            Objects.requireNonNull(variantId, "variantId should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+            return provider.run(network, crac, variantId, computationManager, parameters).join();
         }
 
         public RaoComputationResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
@@ -98,7 +102,7 @@ public final class Rao {
     }
 
     /**
-     * Get a runner for optimising RA named {@code name}. In the case of a null {@code name}, default
+     * Get a runner for a RAO named {@code name}. In the case of a null {@code name}, default
      * implementation is used.
      *
      * @param name name of the RAO implementation, null if we want to use default one

@@ -42,8 +42,8 @@ public class SearchTreeRaoParametersTest {
     public void testSettersAndGetters() {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
         // sensitivityComputationParameters
-        searchTreeRaoParameters.setSenstivityComputationParameters(Mockito.mock(SensitivityComputationParameters.class));
-        assertNotNull(searchTreeRaoParameters.getSenstivityComputationParameters());
+        searchTreeRaoParameters.setSensitivityComputationParameters(Mockito.mock(SensitivityComputationParameters.class));
+        assertNotNull(searchTreeRaoParameters.getSensitivityComputationParameters());
         // name
         assertEquals(searchTreeRaoParameters.getName(), "SearchTreeRaoParameters");
     }

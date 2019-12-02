@@ -21,7 +21,7 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
     @Override
     public SearchTreeRaoParameters load(PlatformConfig platformConfig) {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
-        parameters.setSenstivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
+        parameters.setSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
         return parameters;
     }
 

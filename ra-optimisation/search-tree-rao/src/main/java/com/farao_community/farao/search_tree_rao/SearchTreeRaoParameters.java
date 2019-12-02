@@ -25,11 +25,11 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         return "SearchTreeRaoParameters";
     }
 
-    public SensitivityComputationParameters getSenstivityComputationParameters() {
+    public SensitivityComputationParameters getSensitivityComputationParameters() {
         return sensitivityComputationParameters;
     }
 
-    public SearchTreeRaoParameters setSenstivityComputationParameters(SensitivityComputationParameters sensiParameters) {
+    public SearchTreeRaoParameters setSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
         this.sensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
         return this;
     }
