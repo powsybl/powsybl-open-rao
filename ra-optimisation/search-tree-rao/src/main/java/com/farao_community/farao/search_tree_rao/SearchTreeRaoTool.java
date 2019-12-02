@@ -60,10 +60,34 @@ public class SearchTreeRaoTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION).desc("Network file").hasArg().argName("FILE").required().build());
-                options.addOption(Option.builder().longOpt(CRAC_FILE_OPTION).desc("Crac file").hasArg().argName("FILE").required().build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION).desc("SearchTreeRao results output file").hasArg().argName("FILE").required().build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION).desc("SearchTreeRao results output format").hasArg().argName("FORMAT").required().build());
+                options.addOption(Option.builder()
+                        .longOpt(CASE_FILE_OPTION)
+                        .desc("Network file")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder()
+                        .longOpt(CRAC_FILE_OPTION)
+                        .desc("Crac file")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_FILE_OPTION)
+                        .desc("SearchTreeRao results output file")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_FORMAT_OPTION)
+                        .desc("SearchTreeRao results output format")
+                        .hasArg()
+                        .argName("FORMAT")
+                        .required()
+                        .build());
                 return options;
             }
 
