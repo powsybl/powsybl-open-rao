@@ -30,7 +30,7 @@ public final class CracImporters {
 
     public static Crac importCrac(Path cracPath) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(is);
+            return importCrac(cracPath.getFileName().toString(), is);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
         } catch (IOException e) {
@@ -38,20 +38,41 @@ public final class CracImporters {
         }
     }
 
-    public static Crac importCrac(InputStream inputStream) {
-        CracImporter importer = findImporter(inputStream);
-        if (importer == null) {
-            throw new FaraoException("No importer found for this file");
-        }
-        return importer.importCrac(inputStream);
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
     }
 
-    public static CracImporter findImporter(InputStream inputStream) {
-        for (CracImporter importer : CRAC_IMPORTERS.get()) {
-            if (importer.exists(inputStream)) {
-                return importer;
+    public static Crac importCrac(String fileName, InputStream inputStream) {
+        try {
+            byte[] bytes = getBytesFromInputStream(inputStream);
+
+            CracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
+            if (importer == null) {
+                throw new FaraoException("No importer found for this file");
             }
+            return importer.importCrac(new ByteArrayInputStream(bytes));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return null;
+    }
+
+    public static CracImporter findImporter(String fileName, InputStream inputStream) {
+        try {
+            byte[] bytes = getBytesFromInputStream(inputStream);
+
+            for (CracImporter importer : CRAC_IMPORTERS.get()) {
+                ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                if (importer.exists(fileName, bais)) {
+                    return importer;
+                }
+            }
+            return null;
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

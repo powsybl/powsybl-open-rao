@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl.range_domain;
 
 import com.farao_community.farao.data.crac_api.Range;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -17,10 +19,11 @@ import com.powsybl.iidm.network.Network;
  */
 public class AbsoluteFixedRange implements Range {
 
-    protected double min;
-    protected double max;
+    private double min;
+    private double max;
 
-    public AbsoluteFixedRange(double min, double max) {
+    @JsonCreator
+    public AbsoluteFixedRange(@JsonProperty("min") double min, @JsonProperty("max") double max) {
         this.min = min;
         this.max = max;
     }

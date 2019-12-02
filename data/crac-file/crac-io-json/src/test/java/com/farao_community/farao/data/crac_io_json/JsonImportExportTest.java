@@ -14,14 +14,18 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
 import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
-import com.farao_community.farao.data.crac_api.AbstractUsageRule;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.google.common.io.Files;
 import org.junit.Test;
+
+import java.io.*;
+import java.nio.file.Paths;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +38,7 @@ import java.util.Optional;
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
 import static com.farao_community.farao.data.crac_api.Side.*;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 
 /**
@@ -152,23 +157,23 @@ public class JsonImportExportTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(hvdcSetpoint)));
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(pstSetpoint)));
 
         // RangeAction
         ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
-        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
+        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(singletonList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
-        List<AbstractUsageRule> usageRules = new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
+        List<UsageRule> usageRules = new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(singletonList(pstRange1)));
 
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
@@ -177,7 +182,8 @@ public class JsonImportExportTest {
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
-        crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
+        crac.setNetworkActions(new ArrayList<>(singletonList(networkAction1)));
+        crac.setRangeActions(new ArrayList<>(singletonList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
         return crac;
@@ -186,13 +192,40 @@ public class JsonImportExportTest {
     @Test
     public void testExportCrac() throws IOException {
 
+        File tmpDirectory = Files.createTempDir();
         Crac crac = create();
 
-        OutputStream os = new FileOutputStream("file.json");
+        OutputStream os = new FileOutputStream(tmpDirectory + File.separator + "file.json");
 
         CracExporters.exportCrac(crac, "Json", os);
 
         os.flush();
         os.close();
+
+        tmpDirectory.delete();
+    }
+
+    @Test
+    public void testImportCrac() {
+
+        CracImporters.importCrac(Paths.get(getClass().getResource("/file.json").getFile()));
+    }
+
+    @Test
+    public void roundTripTest() {
+        Crac crac = create();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        CracExporters.exportCrac(crac, "Json", outputStream);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        Crac importedCrac = CracImporters.importCrac("file.json", inputStream);
+
+        assertEquals(crac.getId(), importedCrac.getId());
+        assertEquals(crac.getCnecs().size(), importedCrac.getCnecs().size());
+        assertEquals(crac.getContingencies().size(), importedCrac.getContingencies().size());
+        assertEquals(crac.getNetworkActions().size(), importedCrac.getNetworkActions().size());
+        assertEquals(crac.getRangeActions().size(), importedCrac.getRangeActions().size());
     }
 }

@@ -9,8 +9,10 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
 
 import java.io.*;
@@ -37,6 +39,8 @@ public class JsonExport implements CracExporter {
 
         try {
             ObjectMapper objectMapper = createObjectMapper();
+            objectMapper.registerModule(new Jdk8Module());
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, crac);
         } catch (IOException e) {

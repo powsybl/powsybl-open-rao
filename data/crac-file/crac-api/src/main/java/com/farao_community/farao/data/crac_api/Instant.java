@@ -7,16 +7,22 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Business object for an instant in the CRAC file.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class Instant {
 
     private double duration;
 
-    public Instant(double duration) {
+    @JsonCreator
+    public Instant(@JsonProperty("duration") double duration) {
         this.duration = duration;
     }
 

@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -18,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 
 public class Countertrading implements ApplicableRangeAction {
 
+    @JsonCreator
     public Countertrading() {
     }
 

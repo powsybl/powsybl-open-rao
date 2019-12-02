@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Generic object to define any simple action on a network element (setpoint, open/close, etc.).
@@ -18,7 +20,8 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 abstract class AbstractNetworkElementAction implements ApplicableNetworkAction {
     protected NetworkElement networkElement;
 
-    public AbstractNetworkElementAction(NetworkElement networkElement) {
+    @JsonCreator
+    public AbstractNetworkElementAction(@JsonProperty("networkElement") NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
 

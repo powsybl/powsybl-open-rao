@@ -8,6 +8,9 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -15,7 +18,7 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class Redispatching extends AbstractNetworkElementRangeAction {
 
     private double minimumPower;
@@ -24,7 +27,10 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     private double startupCost;
     private double marginalCost;
 
-    public Redispatching(double minimumPower, double maximumPower, double targetPower, double startupCost, double marginalCost, NetworkElement generator) {
+    @JsonCreator
+    public Redispatching(@JsonProperty("minimumPower") double minimumPower, @JsonProperty("maximumPower") double maximumPower,
+                         @JsonProperty("targetPower") double targetPower, @JsonProperty("startupCost") double startupCost,
+                         @JsonProperty("marginalCost") double marginalCost, @JsonProperty("generator") NetworkElement generator) {
         super(generator);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
