@@ -8,12 +8,15 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
 
 import java.io.*;
 
+import org.apache.commons.io.FilenameUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
@@ -30,6 +33,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 public class JsonImport implements CracImporter {
 
     private static final String CRAC_FILE_SCHEMA_JSON = "/CracSchema.json";
+    private static final String JSON_EXTENSION = "json";
     private static final Schema SCHEMA_JSON;
 
     static {
@@ -42,25 +46,22 @@ public class JsonImport implements CracImporter {
     public Crac importCrac(InputStream inputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readValue(inputStream, Crac.class);
+            objectMapper.registerModule(new Jdk8Module());
+            return objectMapper.readValue(inputStream, SimpleCrac.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public boolean exists(InputStream inputStream) {
-        return validCracFile(inputStream);
+    public boolean exists(String fileName, InputStream inputStream) {
+        return validCracFile(fileName, inputStream);
     }
 
-    private boolean validCracFile(InputStream inputStream) {
-        try {
-            JSONObject jsonSubject = new JSONObject(
-                new JSONTokener(inputStream));
-            SCHEMA_JSON.validate(jsonSubject);
-            return true;
-        } catch (Exception ve) {
-            return false;
-        }
+    private boolean validCracFile(String fileName, InputStream inputStream) {
+        JSONObject jsonSubject = new JSONObject(
+            new JSONTokener(inputStream));
+        SCHEMA_JSON.validate(jsonSubject);
+        return FilenameUtils.getExtension(fileName).equals(JSON_EXTENSION);
     }
 }

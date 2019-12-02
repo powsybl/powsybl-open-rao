@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_impl.threshold;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -17,6 +19,11 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonSubTypes(
+    {
+        @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltageThreshold")
+    })
 public abstract class AbstractThreshold {
     protected Unit unit;
 
