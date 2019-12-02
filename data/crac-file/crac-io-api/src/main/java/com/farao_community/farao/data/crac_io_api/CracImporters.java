@@ -38,8 +38,7 @@ public final class CracImporters {
             throw new UncheckedIOException(e);
         }
     }
-
-    @JsonIgnore
+    
     private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
