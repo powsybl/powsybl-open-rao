@@ -15,6 +15,7 @@
     <description>Implementation of search tree remedial action optimisation with modular approach</description>
 
     <dependencies>
+        <!-- compile -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-io-api</artifactId>
@@ -36,6 +37,7 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- test -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>
