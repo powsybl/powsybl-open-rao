@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.AbstractToolTest;
 import com.farao_community.farao.flowbased_computation.tools.FlowBasedComputationTool;
 import com.powsybl.tools.Tool;
 import org.junit.Assert;
