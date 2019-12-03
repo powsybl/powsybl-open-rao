@@ -148,12 +148,12 @@ public class CracFileTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
-        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
@@ -164,7 +164,7 @@ public class CracFileTest {
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);

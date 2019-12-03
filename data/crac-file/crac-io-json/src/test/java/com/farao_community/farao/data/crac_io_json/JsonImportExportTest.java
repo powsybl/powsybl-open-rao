@@ -157,12 +157,12 @@ public class JsonImportExportTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(hvdcSetpoint)));
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(pstSetpoint)));
 
         // RangeAction
-        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
@@ -173,7 +173,7 @@ public class JsonImportExportTest {
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(singletonList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(singletonList(pstRange1)));
 
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
@@ -195,7 +195,7 @@ public class JsonImportExportTest {
         File tmpDirectory = Files.createTempDir();
         Crac crac = create();
 
-        OutputStream os = new FileOutputStream(tmpDirectory + File.separator + "file.json");
+        OutputStream os = new FileOutputStream(tmpDirectory + File.separator + "testCrac.json");
 
         CracExporters.exportCrac(crac, "Json", os);
 
@@ -208,7 +208,7 @@ public class JsonImportExportTest {
     @Test
     public void testImportCrac() {
 
-        CracImporters.importCrac(Paths.get(getClass().getResource("/file.json").getFile()));
+        CracImporters.importCrac(Paths.get(getClass().getResource("/testCrac.json").getFile()));
     }
 
     @Test
@@ -220,7 +220,7 @@ public class JsonImportExportTest {
         CracExporters.exportCrac(crac, "Json", outputStream);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        Crac importedCrac = CracImporters.importCrac("file.json", inputStream);
+        Crac importedCrac = CracImporters.importCrac("testCrac.json", inputStream);
 
         assertEquals(crac.getId(), importedCrac.getId());
         assertEquals(crac.getCnecs().size(), importedCrac.getCnecs().size());

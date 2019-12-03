@@ -23,16 +23,17 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public class ComplexNetworkAction extends AbstractRemedialAction implements ApplicableNetworkAction, NetworkAction {
+public class ComplexNetworkAction extends AbstractRemedialAction implements NetworkAction {
 
     @JsonProperty("applicableNetworkActions")
     private List<ApplicableNetworkAction> applicableNetworkActions;
 
     @JsonCreator
     public ComplexNetworkAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
+                                @JsonProperty("operator") String operator,
                                 @JsonProperty("usageRules") List<UsageRule> usageRules,
                                 @JsonProperty("applicableNetworkActions") List<ApplicableNetworkAction> applicableNetworkActions) {
-        super(id, name, usageRules);
+        super(id, name, operator, usageRules);
         this.applicableNetworkActions = applicableNetworkActions;
     }
 

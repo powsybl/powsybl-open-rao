@@ -14,6 +14,18 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Cnec",
         "properties" : {
+          "criticalNetworkElement" : {
+            "type" : "object",
+            "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement",
+            "properties" : {
+              "id" : {
+                "type" : "string"
+              },
+              "name" : {
+                "type" : "string"
+              }
+            }
+          },
           "state" : {
             "type" : "object",
             "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:State",
@@ -35,15 +47,7 @@
                     "type" : "array",
                     "items" : {
                       "type" : "object",
-                      "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement",
-                      "properties" : {
-                        "id" : {
-                          "type" : "string"
-                        },
-                        "name" : {
-                          "type" : "string"
-                        }
-                      }
+                      "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
                     }
                   },
                   "name" : {
@@ -55,10 +59,6 @@
                 }
               }
             }
-          },
-          "criticalNetworkElement" : {
-            "type" : "object",
-            "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
           },
           "name" : {
             "type" : "string"
@@ -75,6 +75,9 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:RangeAction",
         "properties" : {
+          "operator" : {
+            "type" : "string"
+          },
           "usageRules" : {
             "type" : "array",
             "items" : {
@@ -103,6 +106,9 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkAction",
         "properties" : {
+          "operator" : {
+            "type" : "string"
+          },
           "usageRules" : {
             "type" : "array",
             "items" : {

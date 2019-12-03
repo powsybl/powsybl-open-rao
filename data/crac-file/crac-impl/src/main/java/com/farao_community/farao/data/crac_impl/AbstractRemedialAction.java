@@ -25,13 +25,25 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
+    protected String operator;
     protected List<UsageRule> usageRules;
 
     @JsonCreator
     public AbstractRemedialAction(@JsonProperty("id") String id,  @JsonProperty("name") String name,
+                                  @JsonProperty("operator") String operator,
                                   @JsonProperty("usageRules") List<UsageRule> usageRules) {
         super(id, name);
+        this.operator = operator;
         this.usageRules = usageRules;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
+    @Override
+    public String getOperator() {
+        return operator;
     }
 
     public void setUsageRules(List<UsageRule> usageRules) {
