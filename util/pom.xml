@@ -18,8 +18,18 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.farao-community.farao</groupId>
+            <artifactId>farao-crac-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-file-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.farao-community.farao</groupId>
+            <artifactId>farao-full-line-decomposition</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -38,6 +48,8 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-sensitivity-api</artifactId>
         </dependency>
+
+        <!--test-->
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>

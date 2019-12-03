@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.util;
 
+import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.flow_decomposition.full_line_decomposition.PtdfSensitivityConverter;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
@@ -35,6 +37,17 @@ public final class SensitivityComputationService {
             init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
         }
         SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
+        return computation.run(factorsProvider, workingStateId, SensitivityComputationParameters.load()).join();
+    }
+
+    public static SensitivityComputationResults runSensitivity(Network network,
+                                                               String workingStateId,
+                                                               CracFile cracFile) {
+        if (!initialised()) {
+            init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+        }
+        SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
+        SensitivityFactorsProvider factorsProvider = new PtdfSensitivityConverter(cracFile); //todo migrate CracFile to Crac
         return computation.run(factorsProvider, workingStateId, SensitivityComputationParameters.load()).join();
     }
 
