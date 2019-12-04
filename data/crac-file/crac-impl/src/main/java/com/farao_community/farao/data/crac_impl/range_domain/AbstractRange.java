@@ -10,12 +10,18 @@ package com.farao_community.farao.data.crac_impl.range_domain;
 import com.farao_community.farao.data.crac_api.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AbsoluteFixedRange.class, name = "absoluteFixedRange"),
+        @JsonSubTypes.Type(value = RelativeDynamicRange.class, name = "relativeDynamicRange"),
+        @JsonSubTypes.Type(value = RelativeFixedRange.class, name = "relativeFixedRange")
+    })
 public abstract class AbstractRange implements Range {
 
     protected double min;
