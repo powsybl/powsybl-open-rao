@@ -57,11 +57,6 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-simple-loadflow</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
             <scope>test</scope>
         </dependency>

@@ -43,15 +43,9 @@ public class PstSetpointTest {
             12
         );
 
-        LoadFlow.run(network);
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
-        double initialFlow = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getTerminal1().getP();
-
         pstSetpoint.apply(network);
-        LoadFlow.run(network);
         assertEquals(12, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
-        double finalFlow = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getTerminal1().getP();
-        assertTrue(finalFlow > initialFlow);
     }
 
     @Test

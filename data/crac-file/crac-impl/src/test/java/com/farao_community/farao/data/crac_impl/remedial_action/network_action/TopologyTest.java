@@ -49,19 +49,16 @@ public class TopologyTest {
             ActionType.CLOSE
         );
 
-        LoadFlow.run(network);
-        assertNotEquals(0, network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().getP());
-        assertNotEquals(0, network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().getP());
+        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
+        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
 
         topologyOpen.apply(network);
-        LoadFlow.run(network);
-        assertTrue(Double.isNaN(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().getP()));
-        assertTrue(Double.isNaN(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().getP()));
+        assertFalse(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
+        assertFalse(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
 
         topologyClose.apply(network);
-        LoadFlow.run(network);
-        assertNotEquals(0, network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().getP());
-        assertNotEquals(0, network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().getP());
+        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
+        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
     }
 
     @Test
