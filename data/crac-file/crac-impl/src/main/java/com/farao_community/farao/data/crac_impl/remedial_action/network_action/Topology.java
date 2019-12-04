@@ -46,15 +46,12 @@ public final class Topology extends AbstractNetworkElementAction {
         Identifiable element = network.getIdentifiable(getNetworkElement().getId());
         if (element instanceof Branch) {
             Branch branch = (Branch) element;
-            switch (actionType) {
-                case OPEN:
-                    branch.getTerminal1().disconnect();
-                    branch.getTerminal2().disconnect();
-                    break;
-                case CLOSE:
-                    branch.getTerminal1().connect();
-                    branch.getTerminal2().connect();
-                    break;
+            if (actionType == ActionType.OPEN) {
+                branch.getTerminal1().disconnect();
+                branch.getTerminal2().disconnect();
+            } else {
+                branch.getTerminal1().connect();
+                branch.getTerminal2().connect();
             }
         } else {
             throw new NotImplementedException("Topological actions are only on branches for now");
