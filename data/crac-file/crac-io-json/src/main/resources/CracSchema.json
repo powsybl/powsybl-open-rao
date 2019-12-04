@@ -75,6 +75,9 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:RangeAction",
         "properties" : {
+          "operator" : {
+            "type" : "string"
+          },
           "usageRules" : {
             "type" : "array",
             "items" : {
@@ -103,6 +106,9 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkAction",
         "properties" : {
+          "operator" : {
+            "type" : "string"
+          },
           "usageRules" : {
             "type" : "array",
             "items" : {

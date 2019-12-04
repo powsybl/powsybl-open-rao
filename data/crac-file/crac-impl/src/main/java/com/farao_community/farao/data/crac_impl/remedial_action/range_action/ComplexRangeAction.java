@@ -25,7 +25,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public class ComplexRangeAction extends AbstractRemedialAction implements ApplicableRangeAction, RangeAction {
+public class ComplexRangeAction extends AbstractRemedialAction implements RangeAction {
 
     @JsonProperty("ranges")
     private List<Range> ranges;
@@ -35,10 +35,11 @@ public class ComplexRangeAction extends AbstractRemedialAction implements Applic
 
     @JsonCreator
     public ComplexRangeAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
+                              @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<Range> ranges,
                               @JsonProperty("applicableRangeActions") List<ApplicableRangeAction> applicableRangeActions) {
-        super(id, name, usageRules);
+        super(id, name, operator, usageRules);
         this.ranges = ranges;
         this.applicableRangeActions = applicableRangeActions;
     }
