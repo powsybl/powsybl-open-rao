@@ -7,11 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
@@ -39,6 +41,11 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
 
     @Override
     public void apply(Network network) {
-        throw new UnsupportedOperationException();
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(getNetworkElement().getId()).getPhaseTapChanger();
+        if (phaseTapChanger.getHighTapPosition() >= setpoint && phaseTapChanger.getLowTapPosition() <= setpoint) {
+            phaseTapChanger.setTapPosition((int) setpoint);
+        } else {
+            throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
+        }
     }
 }
