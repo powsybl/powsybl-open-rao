@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

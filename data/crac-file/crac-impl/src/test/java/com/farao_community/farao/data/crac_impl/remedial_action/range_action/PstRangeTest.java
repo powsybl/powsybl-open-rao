@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;

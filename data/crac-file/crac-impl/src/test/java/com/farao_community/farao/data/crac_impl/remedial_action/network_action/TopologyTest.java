@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 
