@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -20,6 +21,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = FreeToUse.class, name = "freeToUse"),
+        @JsonSubTypes.Type(value = OnConstraint.class, name = "onConstraint"),
+        @JsonSubTypes.Type(value = OnContingency.class, name = "onContingency")
+    })
 public abstract class AbstractUsageRule implements UsageRule {
 
     protected UsageMethod usageMethod;
