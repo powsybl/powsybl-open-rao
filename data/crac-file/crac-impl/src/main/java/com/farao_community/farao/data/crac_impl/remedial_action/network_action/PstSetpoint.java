@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -23,6 +24,12 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
 
     private double setpoint;
 
+    /**
+     * Constructor of a remedial action on a PST to fix a tap
+     *
+     * @param networkElement: PST element to modify
+     * @param setpoint: value of the tap. That should be an int value, if not it will be truncated.
+     */
     @JsonCreator
     public PstSetpoint(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("setpoint") double setpoint) {
         super(networkElement);
@@ -37,8 +44,14 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
         this.setpoint = setpoint;
     }
 
+    /**
+     * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
+     *
+     * @param network: network to modify
+     */
     @Override
     public void apply(Network network) {
-        throw new UnsupportedOperationException();
+        PstRange pst = new PstRange(networkElement);
+        pst.apply(network, setpoint);
     }
 }
