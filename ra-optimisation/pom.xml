@@ -22,6 +22,7 @@
         <module>ra-optimisation-afs-local</module>
         <module>rao-api</module>
         <module>search-tree-rao</module>
+        <module>linear-range-action-rao</module>
     </modules>
 
 </project>
