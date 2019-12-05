@@ -7,6 +7,8 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -14,6 +16,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,7 +37,24 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
-        // TODO : implement searchTreeRao
+        Leaf optimalLeaf = new Leaf();
+        optimalLeaf.evaluate(network, crac, computationManager, parameters);
+
+        while (optimalLeaf.getActionImpact().getCost() < 0) {
+            // TODO: create a crac copy
+            crac.getNetworkActions().remove(optimalLeaf.getNetworkAction());
+
+            List<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, UsageMethod.AVAILABLE);
+            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
+            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, variantId, computationManager, parameters));
+
+            for (Leaf currentLeaf: generatedLeaves) {
+                if (currentLeaf.getActionImpact().getCost() < optimalLeaf.getActionImpact().getCost()) {
+                    optimalLeaf = currentLeaf;
+                }
+            }
+        }
+
         return null;
     }
 }

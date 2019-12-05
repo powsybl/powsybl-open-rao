@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
+
 /**
  * Generic threshold (flow, voltage, etc.) in the CRAC file.
  *
@@ -35,9 +37,15 @@ public abstract class AbstractThreshold {
         return unit;
     }
 
+    public abstract Optional<Double> getMinThreshold() throws SynchronizationException;
+
+    public abstract Optional<Double> getMaxThreshold() throws SynchronizationException;
+
     public abstract boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 
     public abstract boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
+
+    public abstract double computeMargin(Network network, Cnec cnec) throws SynchronizationException;
 
     public void synchronize(Network network, Cnec cnec) {
 

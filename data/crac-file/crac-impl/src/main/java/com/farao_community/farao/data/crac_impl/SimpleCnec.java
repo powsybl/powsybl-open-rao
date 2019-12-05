@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
 
 /**
  * Critical network element and contingency.
@@ -39,6 +42,19 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     @Override
     public NetworkElement getCriticalNetworkElement() {
         return criticalNetworkElement;
+    }
+
+    @Override
+    public double computeMargin(Network network) {
+        try {
+            double margin = threshold.computeMargin(network, this);
+            if (Double.isNaN(margin)) {
+                throw new FaraoException(String.format("Impossible to compute margin on %s", criticalNetworkElement.getName()));
+            }
+            return margin;
+        } catch (SynchronizationException e) {
+            throw new FaraoException(e.getMessage());
+        }
     }
 
     public void setCriticalNetworkElement(NetworkElement criticalNetworkElement) {

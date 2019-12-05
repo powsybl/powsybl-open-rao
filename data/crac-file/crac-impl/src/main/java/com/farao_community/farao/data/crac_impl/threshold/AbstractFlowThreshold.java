@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Optional;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -75,5 +77,10 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             default:
                 throw new FaraoException("Side is not defined");
         }
+    }
+
+    @Override
+    public Optional<Double> getMinThreshold() {
+        return Optional.empty();
     }
 }

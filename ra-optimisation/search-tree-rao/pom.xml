@@ -36,6 +36,11 @@
             <artifactId>farao-rao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-linear-range-action-rao</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- test -->
         <dependency>

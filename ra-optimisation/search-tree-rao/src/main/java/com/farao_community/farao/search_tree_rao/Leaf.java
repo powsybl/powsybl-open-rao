@@ -1,16 +1,20 @@
 /*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.perimeter_optimisation;
+package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.linear_range_action_rao.LinearRangeActionRaoResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.Rao;
+import com.farao_community.farao.rao_api.RaoParameters;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import sun.nio.ch.Net;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +47,7 @@ class Leaf {
     /**
      * Impact of the network action
      */
-    private RaoComputationResult actionImpact;
+    private LinearRangeActionRaoResult actionImpact;
 
     /**
      * Status of the leaf's Network Action evaluation
@@ -82,10 +86,14 @@ class Leaf {
         return parentLeaf;
     }
 
+    NetworkAction getNetworkAction() {
+        return networkAction;
+    }
+
     /**
      * Action impact getter
      */
-    RaoComputationResult getActionImpact() {
+    LinearRangeActionRaoResult getActionImpact() {
         return actionImpact;
     }
 
@@ -122,18 +130,18 @@ class Leaf {
      * Evaluate the impact of Network Actions (from the current Leaf and
      * its parents)
      */
-    void evaluate(Network network) {
+    void evaluate(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
         if (isRoot()) {
             throw new FaraoException("When evaluating the root leaf, a network variant must be specified.");
         }
-        evaluate(network, getParent().getNetworkVariant());
+        evaluate(network, crac, getParent().getNetworkVariant(), computationManager, parameters);
     }
 
     /**
      * Evaluate the impact of Network Actions (from the current Leaf and
      * its parents)
      */
-    void evaluate(Network network, String referenceNetworkVariant) {
+    void evaluate(Network network, Crac crac, String referenceNetworkVariant, ComputationManager computationManager, RaoParameters parameters) {
 
         this.status = Status.EVALUATION_RUNNING;
 
@@ -141,6 +149,8 @@ class Leaf {
         this.networkVariant = createVariant(network, referenceNetworkVariant);
         network.getVariantManager().setWorkingVariant(this.networkVariant);
 
+        RaoComputationResult results = Rao.find("Linear Range Action Rao").run(network, crac, networkVariant, computationManager, parameters);
+        actionImpact = results.getExtension(LinearRangeActionRaoResult.class);
         //todo : run RangeActionRao and update RaoComputationResult
     }
 
