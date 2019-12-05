@@ -60,8 +60,8 @@ public class PstSetpointTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (FaraoException ignored) {
-
+        } catch (FaraoException e) {
+            assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
         }
     }
 }

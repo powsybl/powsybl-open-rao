@@ -43,8 +43,38 @@ public class PstRangeTest {
         try {
             pstRange.apply(network, 50);
             fail();
-        } catch (FaraoException ignored) {
+        } catch (FaraoException e) {
+            assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
+        }
+    }
 
+    @Test
+    public void applyOnUnknownPst() {
+        Network network = Importers.loadNetwork(
+            "TestCase12Nodes.uct",
+            getClass().getResourceAsStream("/TestCase12Nodes.uct")
+        );
+        PstRange pstRange = new PstRange(new NetworkElement("unknown pst", "unknown pst"));
+        try {
+            pstRange.apply(network, 50);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("PST unknown pst does not exist in the current network", e.getMessage());
+        }
+    }
+
+    @Test
+    public void applyOnTransformerWithNoPhaseShifter() {
+        Network network = Importers.loadNetwork(
+            "TestCase12Nodes_no_pst.uct",
+            getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct")
+        );
+        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
+        try {
+            pstRange.apply(network, 50);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST, tap could not be changed", e.getMessage());
         }
     }
 }

@@ -7,13 +7,12 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
@@ -25,6 +24,12 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
 
     private double setpoint;
 
+    /**
+     * Constructor of a remedial action on a PST to fix a tap
+     *
+     * @param networkElement: PST element to modify
+     * @param setpoint: value of the tap. That should be an int value, if not it will be truncated.
+     */
     @JsonCreator
     public PstSetpoint(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("setpoint") double setpoint) {
         super(networkElement);
@@ -39,13 +44,14 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
         this.setpoint = setpoint;
     }
 
+    /**
+     * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
+     *
+     * @param network: network to modify
+     */
     @Override
     public void apply(Network network) {
-        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(getNetworkElement().getId()).getPhaseTapChanger();
-        if (phaseTapChanger.getHighTapPosition() >= setpoint && phaseTapChanger.getLowTapPosition() <= setpoint) {
-            phaseTapChanger.setTapPosition((int) setpoint);
-        } else {
-            throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
-        }
+        PstRange pst = new PstRange(networkElement);
+        pst.apply(network, setpoint);
     }
 }
