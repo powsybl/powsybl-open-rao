@@ -14,5 +14,6 @@ package com.farao_community.farao.data.crac_api;
  */
 public enum Direction {
     IN,
-    OUT
+    OUT,
+    BOTH
 }

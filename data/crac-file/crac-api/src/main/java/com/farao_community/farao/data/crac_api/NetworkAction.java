@@ -7,11 +7,14 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Remedial action interface specifying a direct action on the network
  * The action is completely defined by itself
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface NetworkAction extends RemedialAction, ApplicableNetworkAction {
 }

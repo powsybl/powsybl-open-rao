@@ -7,6 +7,14 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.SynchronizationException;
+import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
+
 import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
 
 /**
@@ -14,13 +22,14 @@ import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class VoltageThreshold extends AbstractThreshold {
 
     private double minValue;
     private double maxValue;
 
-    public VoltageThreshold(double minValue, double maxValue) {
+    @JsonCreator
+    public VoltageThreshold(@JsonProperty("minValue") double minValue, @JsonProperty("maxValue") double maxValue) {
         super(KILOVOLT);
         this.minValue = minValue;
         this.maxValue = maxValue;
@@ -40,5 +49,15 @@ public class VoltageThreshold extends AbstractThreshold {
 
     public void setMaxValue(double maxValue) {
         this.maxValue = maxValue;
+    }
+
+    @Override
+    public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
+        throw new NotImplementedException("Voltage threshold not implemented");
+    }
+
+    @Override
+    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
+        throw new NotImplementedException("Voltage threshold not implemented");
     }
 }

@@ -13,9 +13,8 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
 import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
-import com.farao_community.farao.data.crac_impl.threshold.FlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
-import com.farao_community.farao.data.crac_api.AbstractUsageRule;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
@@ -124,7 +123,7 @@ public class CracFileTest {
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
         // Thresholds
-        FlowThreshold threshold1 = new FlowThreshold(LEFT, IN, 1000);
+        AbsoluteFlowThreshold threshold1 = new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000);
         threshold1.setSide(RIGHT);
         threshold1.setDirection(OUT);
         threshold1.setMaxValue(999);
@@ -149,23 +148,23 @@ public class CracFileTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
-        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
-        List<AbstractUsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
+        List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
@@ -174,6 +173,8 @@ public class CracFileTest {
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);
+        crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
+        crac.addNetworkRemedialAction(networkAction2);
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
@@ -193,7 +194,7 @@ public class CracFileTest {
 
         crac.getRangeActions().forEach(
             abstractRemedialAction -> abstractRemedialAction.getUsageRules().forEach(
-                    AbstractUsageRule::getUsageMethod));
+                    UsageRule::getUsageMethod));
 
         assertTrue(crac.getId().equals("idCrac"));
     }
