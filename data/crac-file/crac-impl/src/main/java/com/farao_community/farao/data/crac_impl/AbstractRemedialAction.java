@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
-import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -19,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +40,14 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
+    }
+
+    public AbstractRemedialAction(String id, String operator, List<UsageRule> usageRules) {
+        this(id, id, operator, usageRules);
+    }
+
+    public AbstractRemedialAction(String id, String operator) {
+        this(id, id, operator, new ArrayList<>());
     }
 
     public void setOperator(String operator) {
@@ -68,7 +74,7 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
     }
 
     @Override
-    public UsageMethod getUsageMethod(Network network) {
+    public UsageMethod getUsageMethod(Network network, State state) {
         return null;
     }
 }

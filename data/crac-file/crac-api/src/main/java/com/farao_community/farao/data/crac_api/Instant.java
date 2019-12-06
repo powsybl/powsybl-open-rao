@@ -17,12 +17,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public class Instant {
+public class Instant extends AbstractIdentifiable {
 
     private double duration;
 
     @JsonCreator
-    public Instant(@JsonProperty("duration") double duration) {
+    public Instant(@JsonProperty("id") String id, @JsonProperty("duration") double duration) {
+        super(id, id);
         this.duration = duration;
     }
 

@@ -22,8 +22,14 @@
                 "type" : "object",
                 "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Instant",
                 "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
                   "duration" : {
                     "type" : "number"
+                  },
+                  "name" : {
+                    "type" : "string"
                   }
                 }
               },
@@ -67,6 +73,13 @@
             "type" : "string"
           }
         }
+      }
+    },
+    "contingencies" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Contingency"
       }
     },
     "rangeActions" : {
@@ -123,20 +136,6 @@
             "type" : "string"
           }
         }
-      }
-    },
-    "criticalNetworkElements" : {
-      "type" : "array",
-      "items" : {
-        "type" : "object",
-        "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
-      }
-    },
-    "contingencies" : {
-      "type" : "array",
-      "items" : {
-        "type" : "object",
-        "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Contingency"
       }
     }
   }

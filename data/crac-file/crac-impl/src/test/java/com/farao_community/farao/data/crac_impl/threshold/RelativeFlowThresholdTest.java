@@ -40,7 +40,7 @@ public class RelativeFlowThresholdTest {
                 "cnec",
                 new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 relativeFlowThreshold,
-                new SimpleState(Optional.empty(), new Instant(0))
+                new SimpleState(Optional.empty(), new Instant("initial", 0))
         );
         network = Importers.loadNetwork("4_2nodes_RD_N-1.xiidm", getClass().getResourceAsStream("/4_2nodes_RD_N-1.xiidm"));
     }

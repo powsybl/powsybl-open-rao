@@ -23,4 +23,8 @@ public class NetworkElement extends AbstractIdentifiable {
     public NetworkElement(@JsonProperty("id") String id, @JsonProperty("name") String name) {
         super(id, name);
     }
+
+    public NetworkElement(String id) {
+        this(id, id);
+    }
 }

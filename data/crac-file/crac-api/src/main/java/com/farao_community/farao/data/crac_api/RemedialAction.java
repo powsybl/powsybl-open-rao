@@ -18,9 +18,10 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface RemedialAction extends Identifiable {
+
     String getOperator();
 
-    UsageMethod getUsageMethod(Network network);
+    UsageMethod getUsageMethod(Network network, State state);
 
     List<UsageRule> getUsageRules();
 }

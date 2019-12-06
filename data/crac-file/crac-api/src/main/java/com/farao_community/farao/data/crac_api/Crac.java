@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_api;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Interface to manage CRAC
@@ -31,7 +32,11 @@ public interface Crac extends Identifiable, Synchronizable {
 
     void setNetworkActions(List<NetworkAction> networkActions);
 
+    void addState(State state);
+
     void addCnec(Cnec cnec);
+
+    void addInstant(Instant instant);
 
     void addContingency(Contingency contingency);
 
@@ -39,9 +44,23 @@ public interface Crac extends Identifiable, Synchronizable {
 
     void addRangeRemedialAction(RangeAction rangeAction);
 
-    List<RangeAction> getRangeActions(Network network, UsageMethod usageMethod);
+    State getPreventiveState();
 
-    List<NetworkAction> getNetworkActions(Network network, UsageMethod usageMethod);
+    List<State> getStates(Contingency contingency);
+
+    List<State> getStates(Instant instant);
+
+    State getState(Contingency contingency, Instant instant);
+
+    Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod);
+
+    Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod);
+
+    Contingency getContingency(String id);
+
+    Instant getInstant(String id);
+
+    Set<Cnec> getCnecs(State state);
 
     List<NetworkElement> getCriticalNetworkElements();
 

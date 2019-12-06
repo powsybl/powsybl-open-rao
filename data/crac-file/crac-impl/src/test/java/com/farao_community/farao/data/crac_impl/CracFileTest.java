@@ -113,8 +113,8 @@ public class CracFileTest {
         contingency.addNetworkElement(networkElement1);
 
         // Instant
-        Instant basecase = new Instant(0);
-        Instant curative = new Instant(-1);
+        Instant basecase = new Instant("initial", 0);
+        Instant curative = new Instant("negative", -1);
         curative.setDuration(200);
 
         // State
@@ -172,7 +172,7 @@ public class CracFileTest {
         List<Cnec> cnecs = new ArrayList<>();
         cnecs.add(cnec1);
 
-        SimpleCrac crac = new SimpleCrac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        SimpleCrac crac = new SimpleCrac("idCrac", "name");
 
         crac.setCnecs(cnecs);
         crac.addCnec(cnec2);

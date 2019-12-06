@@ -22,7 +22,7 @@ public class InstantTest {
 
     @Before
     public void setUp() {
-        instant = new Instant(15);
+        instant = new Instant("instant", 15);
     }
 
     @Test

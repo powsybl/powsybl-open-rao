@@ -36,6 +36,10 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         this.state = state;
     }
 
+    public SimpleCnec(String id, NetworkElement criticalNetworkElement, AbstractThreshold threshold, State state) {
+        this(id, id, criticalNetworkElement, threshold, state);
+    }
+
     @Override
     public NetworkElement getCriticalNetworkElement() {
         return criticalNetworkElement;

@@ -34,6 +34,10 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
         this.networkElements = networkElements;
     }
 
+    public ComplexContingency(String id, final List<NetworkElement> networkElements) {
+        this(id, id, networkElements);
+    }
+
     public List<NetworkElement> getNetworkElements() {
         return networkElements;
     }

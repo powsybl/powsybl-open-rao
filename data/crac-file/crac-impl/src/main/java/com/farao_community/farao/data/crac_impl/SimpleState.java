@@ -55,4 +55,47 @@ public class SimpleState implements State {
     public void setContingency(Optional<Contingency> contingency) {
         this.contingency = contingency.orElse(null);
     }
+
+    @Override
+    public int compareTo(State state) {
+        return (int) (instant.getDuration() - state.getInstant().getDuration());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        State state = (State) o;
+
+        if (!getContingency().isPresent() && !state.getContingency().isPresent()) {
+            return getInstant().getDuration() == state.getInstant().getDuration();
+        } else if (getContingency().isPresent() && state.getContingency().isPresent()) {
+            return getContingency().get().getId().equals(state.getContingency().get().getId()) &&
+                getInstant().getDuration() == state.getInstant().getDuration();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        if (contingency != null) {
+            return String.format("%s at instant %f", contingency.getId(), instant.getDuration()).hashCode();
+        } else {
+            return String.format("preventive at instant %f", instant.getDuration()).hashCode();
+        }
+    }
+
+    @Override
+    public String toString() {
+        String name = instant.getId();
+        if (contingency != null) {
+            name += String.format(" - %s", contingency.getId());
+        }
+        return name;
+    }
 }

@@ -8,12 +8,11 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Business object of the CRAC file.
@@ -22,29 +21,37 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
+
+    private List<Instant> instants;
+    private List<State> states;
     private List<Cnec> cnecs;
-    @JsonProperty("contingencies")
     private List<Contingency> contingencies;
     private List<RangeAction> rangeActions;
     private List<NetworkAction> networkActions;
 
-    public SimpleCrac(String id, String name) {
-        super(id, name);
-        cnecs = new ArrayList<>();
-        contingencies = new ArrayList<>();
-        rangeActions = new ArrayList<>();
-        networkActions = new ArrayList<>();
-    }
-
     @JsonCreator
     public SimpleCrac(@JsonProperty("id") String id, @JsonProperty("name") String name,
-                      @JsonProperty("cnecs") List<Cnec> cnecs, @JsonProperty("rangeActions") List<RangeAction> rangeActions,
+                      @JsonProperty("instants") List<Instant> instants,
+                      @JsonProperty("states") List<State> states,
+                      @JsonProperty("cnecs") List<Cnec> cnecs,
+                      @JsonProperty("contingencies") List<Contingency> contingencies,
+                      @JsonProperty("rangeActions") List<RangeAction> rangeActions,
                       @JsonProperty("networkActions") List<NetworkAction> networkActions) {
         super(id, name);
+        this.instants = instants;
+        this.states = states;
         this.cnecs = cnecs;
-        contingencies = new ArrayList<>();
+        this.contingencies = contingencies;
         this.rangeActions = rangeActions;
         this.networkActions = networkActions;
+    }
+
+    public SimpleCrac(String id, String name) {
+        this(id, name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    public SimpleCrac(String id) {
+        this(id, id);
     }
 
     @Override
@@ -78,15 +85,45 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
+    public void addState(State state) {
+        if (states.stream().noneMatch(cracState -> cracState.equals(state))) {
+            Optional<Contingency> cracContingency;
+            if (state.getContingency().isPresent()) {
+                if (getContingency(state.getContingency().get().getId()) == null) {
+                    addContingency(state.getContingency().get());
+                }
+                cracContingency = Optional.of(getContingency(state.getContingency().get().getId()));
+            } else {
+                cracContingency = Optional.empty();
+            }
+
+            if (getInstant(state.getInstant().getId()) == null) {
+                addInstant(state.getInstant());
+            }
+
+            states.add(new SimpleState(cracContingency, getInstant(state.getInstant().getId())));
+        }
+    }
+
+    @Override
     @JsonProperty("cnecs")
     public void addCnec(Cnec cnec) {
         cnecs.add(cnec);
     }
 
+    @Override
+    public void addInstant(Instant instant) {
+        if (getInstant(instant.getId()) == null) {
+            instants.add(instant);
+        }
+    }
+
     @JsonProperty("contingency")
     @Override
     public void addContingency(Contingency contingency) {
-        contingencies.add(contingency);
+        if (getContingency(contingency.getId()) == null) {
+            contingencies.add(contingency);
+        }
     }
 
     @JsonProperty("networkActions")
@@ -102,16 +139,73 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
-    public List<RangeAction> getRangeActions(Network network, UsageMethod usageMethod) {
-        return null;
+    @JsonIgnore
+    public State getPreventiveState() {
+        return states.stream().filter(state -> !state.getContingency().isPresent()).findFirst().orElse(null);
     }
 
     @Override
-    public List<NetworkAction> getNetworkActions(Network network, UsageMethod usageMethod) {
-        return null;
+    public List<State> getStates(Contingency contingency) {
+        return states.stream()
+            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
+            .sorted().collect(Collectors.toList());
     }
 
     @Override
+    public List<State> getStates(Instant instant) {
+        return states.stream()
+            .filter(state -> state.getInstant().getId().equals(instant.getId()))
+            .sorted().collect(Collectors.toList());
+    }
+
+    @Override
+    public State getState(Contingency contingency, Instant instant) {
+        return states.stream()
+            .filter(state -> state.getContingency().isPresent() && state.getInstant().getId().equals(instant.getId()))
+            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod) {
+        return networkActions.stream()
+            .filter(networkAction -> networkAction.getUsageMethod(network, state).equals(usageMethod))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod) {
+        return rangeActions.stream()
+            .filter(networkAction -> networkAction.getUsageMethod(network, state).equals(usageMethod))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Contingency getContingency(String id) {
+        return contingencies.stream()
+            .filter(contingency -> contingency.getId().equals(id))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Instant getInstant(String id) {
+        return instants.stream()
+            .filter(instant -> instant.getId().equals(id))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Set<Cnec> getCnecs(State state) {
+        return cnecs.stream()
+            .filter(cnec -> cnec.getState().equals(state))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    @JsonIgnore
     public List<NetworkElement> getCriticalNetworkElements() {
         List<NetworkElement> criticalNetworkElements = new ArrayList<>();
         cnecs.forEach(cnec -> criticalNetworkElements.add(cnec.getCriticalNetworkElement()));

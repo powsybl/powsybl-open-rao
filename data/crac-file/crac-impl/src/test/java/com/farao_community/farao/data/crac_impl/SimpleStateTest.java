@@ -30,7 +30,7 @@ public class SimpleStateTest {
         NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
         state =  new SimpleState(
                 Optional.of(new ComplexContingency("contingencyId", "contingencyName", new ArrayList<>(Arrays.asList(networkElement)))),
-                new Instant(12)
+                new Instant("curative", 12)
         );
     }
 
@@ -41,7 +41,7 @@ public class SimpleStateTest {
 
     @Test
     public void setInstant() {
-        state.setInstant(new Instant(5));
+        state.setInstant(new Instant("curative2", 5));
         assertEquals(5, state.getInstant().getDuration(), 0.1);
     }
 
