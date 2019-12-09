@@ -22,4 +22,20 @@ public class SensitivitySecurityAnalysisResult {
         this.precontingencyResult = precontingencyResult;
         this.resultMap = contingencySensitivityComputationResultsMap;
     }
+
+    public SensitivityComputationResults getPrecontingencyResult() {
+        return precontingencyResult;
+    }
+
+    public void setPrecontingencyResult(SensitivityComputationResults precontingencyResult) {
+        this.precontingencyResult = precontingencyResult;
+    }
+
+    public Map<Contingency, SensitivityComputationResults> getResultMap() {
+        return resultMap;
+    }
+
+    public void setResultMap(Map<Contingency, SensitivityComputationResults> resultMap) {
+        this.resultMap = resultMap;
+    }
 }
