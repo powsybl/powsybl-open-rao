@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.closed_optimisation_rao.pre_processors;
 
+import com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoParameters;
+import com.farao_community.farao.closed_optimisation_rao.ConfigurationUtil;
 import com.farao_community.farao.closed_optimisation_rao.mocks.MockSensitivityComputationFactory;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.json.JsonCracFile;
@@ -22,6 +24,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoNames.OPTIMISATION_CONSTANTS_DATA_NAME;
 import static org.junit.Assert.*;
 
 /**
@@ -55,6 +58,7 @@ public class SensitivityPreProcessorTest {
         CracFile cracFile = JsonCracFile.read(getClass().getResourceAsStream("/5_3nodes_PSTandRD_N-1.json"));
         ComputationManager computationManager = new LocalComputationManager();
         Map<String, Object> dataToFeed = new HashMap<>();
+        dataToFeed.put(OPTIMISATION_CONSTANTS_DATA_NAME, ConfigurationUtil.getOptimisationConstants(new ClosedOptimisationRaoParameters()));
 
         sensitivityPreProcessor.fillData(network, cracFile, computationManager, dataToFeed);
 

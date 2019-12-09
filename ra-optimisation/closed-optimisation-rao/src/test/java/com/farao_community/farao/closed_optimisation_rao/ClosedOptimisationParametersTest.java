@@ -49,6 +49,9 @@ public class ClosedOptimisationParametersTest {
         copiedParameters.setMaxTimeInSeconds(3600);
         copiedParameters.setSolverType("ANOTHER_SOLVER");
         copiedParameters.setRelativeMipGap(0.001);
+        copiedParameters.setRdSensitivityThreshold(0.05);
+        copiedParameters.setPstSensitivityThreshold(1);
+        copiedParameters.setNumberOfParallelThreads(8);
         copiedParameters.addAllPreProcessors(listProcessors);
         copiedParameters.addAllFillers(listFillers);
         copiedParameters.addAllPostProcessors(listProcessors);
@@ -58,6 +61,9 @@ public class ClosedOptimisationParametersTest {
         assertEquals(3600, copiedParameters.getMaxTimeInSeconds(), tol);
         assertEquals("ANOTHER_SOLVER", copiedParameters.getSolverType());
         assertEquals(0.001, copiedParameters.getRelativeMipGap(), tol);
+        assertEquals(0.05, copiedParameters.getRdSensitivityThreshold(), tol);
+        assertEquals(1, copiedParameters.getPstSensitivityThreshold(), tol);
+        assertEquals(8, copiedParameters.getNumberOfParallelThreads(), tol);
         assertEquals(parametersExtension.getPreProcessorsList().size() + 2, copiedParameters.getPreProcessorsList().size(), tol);
         assertEquals(parametersExtension.getFillersList().size() + 1, copiedParameters.getFillersList().size(), tol);
         assertEquals(parametersExtension.getPostProcessorsList().size() + 2, copiedParameters.getPostProcessorsList().size(), tol);
@@ -65,7 +71,7 @@ public class ClosedOptimisationParametersTest {
 
     @Test
     public void getOptimisationConstantsTest() {
-        Map<String, Double> constants = ConfigurationUtil.getOptimisationConstants(parametersExtension);
+        Map<String, Object> constants = ConfigurationUtil.getOptimisationConstants(parametersExtension);
         assertTrue(constants.containsKey(ClosedOptimisationRaoNames.OVERLOAD_PENALTY_COST_NAME));
     }
 }

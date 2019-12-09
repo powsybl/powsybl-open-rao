@@ -36,6 +36,7 @@ public class ClosedOptimisationRaoParametersConfigLoader implements RaoComputati
             parameters.setOverloadPenaltyCost(config.getDoubleProperty("overload-penalty-cost", ClosedOptimisationRaoParameters.DEFAULT_OVERLOAD_PENALTY_COST));
             parameters.setRdSensitivityThreshold(config.getDoubleProperty("redispatching-sensitivity-threshold", ClosedOptimisationRaoParameters.DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD));
             parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", ClosedOptimisationRaoParameters.DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD));
+            parameters.setNumberOfParallelThreads(config.getIntProperty("number-of-parallel-threads", ClosedOptimisationRaoParameters.DEFAULT_NUMBER_OF_PARALLEL_THREADS));
             parameters.addAllFillers(config.getStringListProperty("problem-fillers"));
             parameters.addAllPreProcessors(config.getStringListProperty("pre-processors", Collections.emptyList()));
             parameters.addAllPostProcessors(config.getStringListProperty("post-processors", Collections.emptyList()));

@@ -62,13 +62,18 @@ public final class ConfigurationUtil {
         }
 
         // Check that sensitivityThreshold is positive
-        if (parametersExtension.getMaxTimeInSeconds() < 0) {
+        if (parametersExtension.getRdSensitivityThreshold() < 0) {
             errors.add("Redispatching sensitivity threshold must be strictly positive ( " + parametersExtension.getRdSensitivityThreshold() + " not valid)");
         }
 
         // Check that sensitivityThreshold is positive
-        if (parametersExtension.getMaxTimeInSeconds() < 0) {
+        if (parametersExtension.getPstSensitivityThreshold() < 0) {
             errors.add("PST sensitivity threshold must be strictly positive ( " + parametersExtension.getPstSensitivityThreshold() + " not valid)");
+        }
+
+        // Check that the number of parallel threads is above 1
+        if (parametersExtension.getNumberOfParallelThreads() < 1) {
+            errors.add("Number of parallel threads must be at least 1 ( " + parametersExtension.getNumberOfParallelThreads() + " not valid)");
         }
 
         // Check that all expected pre-processors are provided
@@ -104,11 +109,12 @@ public final class ConfigurationUtil {
      * Get the optimisation constants given in the RAO parameters as a map readable
      * by the optimisation problem fillers
      */
-    public static Map<String, Double> getOptimisationConstants(ClosedOptimisationRaoParameters parameters) {
-        Map<String, Double> constants = new HashMap<>();
+    public static Map<String, Object> getOptimisationConstants(ClosedOptimisationRaoParameters parameters) {
+        Map<String, Object> constants = new HashMap<>();
         constants.put(ClosedOptimisationRaoNames.OVERLOAD_PENALTY_COST_NAME, parameters.getOverloadPenaltyCost());
         constants.put(ClosedOptimisationRaoNames.RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME, parameters.getRdSensitivityThreshold());
         constants.put(ClosedOptimisationRaoNames.PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME, parameters.getPstSensitivityThreshold());
+        constants.put(ClosedOptimisationRaoNames.NUMBER_OF_PARALLEL_THREADS_NAME, parameters.getNumberOfParallelThreads());
         return constants;
     }
 

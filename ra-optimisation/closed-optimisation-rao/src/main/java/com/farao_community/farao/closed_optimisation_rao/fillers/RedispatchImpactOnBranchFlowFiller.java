@@ -73,7 +73,8 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(GEN_SENSITIVITIES_DATA_NAME);
-        double sensiThreshold = ((Map<String, Double>) data.get(OPTIMISATION_CONSTANTS_DATA_NAME)).get(RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
+        Map<String, Object> optimisationConstants = (Map<String, Object>) data.get(OPTIMISATION_CONSTANTS_DATA_NAME);
+        double sensiThreshold = (Double) optimisationConstants.get(RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
 
         redispatchingRemedialActions.forEach((contingency, raList) -> {
             if (!contingency.isPresent()) {
@@ -97,7 +98,8 @@ public class RedispatchImpactOnBranchFlowFiller extends AbstractOptimisationProb
     }
 
     private void fillImpactOfRedispatchingRemedialActionOnBranch(Optional<Contingency> contingency, RemedialAction ra, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities, double sensiThreshold) {
-        double sensitivity = sensitivities.get(Pair.of(branch.getId(), Objects.requireNonNull(getRedispatchElement(ra)).getId()));
+        double sensitivity = sensitivities.getOrDefault(Pair.of(branch.getId(), Objects.requireNonNull(getRedispatchElement(ra)).getId()), 0.0);
+
         if (isSignificant(sensitivity, sensiThreshold)) {
             MPVariable redispatchVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameRedispatchValueVariable(contingency, ra)));
             MPConstraint flowEquation = Objects.requireNonNull(solver.lookupConstraintOrNull(nameEstimatedFlowConstraint(branch)));
