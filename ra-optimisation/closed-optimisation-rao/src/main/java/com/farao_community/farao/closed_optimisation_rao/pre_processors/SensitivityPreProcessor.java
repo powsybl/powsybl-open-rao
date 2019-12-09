@@ -156,7 +156,7 @@ public class SensitivityPreProcessor implements OptimisationPreProcessor {
                 redispatchingSensitivityThreshold = (Double) optimisationConstants.get(RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
             }
             if (optimisationConstants.containsKey(PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME)) {
-                redispatchingSensitivityThreshold = (Double) optimisationConstants.get(PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
+                pstSensitivityThreshold = (Double) optimisationConstants.get(PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
             }
             if (optimisationConstants.containsKey(NUMBER_OF_PARALLEL_THREADS_NAME)) {
                 numberOfParallelThreads = (Integer) optimisationConstants.get(NUMBER_OF_PARALLEL_THREADS_NAME);
