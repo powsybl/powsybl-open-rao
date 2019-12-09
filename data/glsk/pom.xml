@@ -6,19 +6,17 @@
 
     <parent>
         <groupId>com.farao-community.farao</groupId>
-        <artifactId>farao-core</artifactId>
+        <artifactId>farao-data</artifactId>
         <version>1.3.0-SNAPSHOT</version>
     </parent>
-
-    <artifactId>farao-data</artifactId>
+    <artifactId>farao-glsk</artifactId>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Data</name>
-    <description>Business data classes (inputs and outputs) of FARAO core and associated converters</description>
+    <name>GLSK related modules</name>
+    <description>Module that regroups all features related to GLSK file</description>
 
     <modules>
-        <module>flowbased-domain</module>
-        <module>flow-decomposition-results</module>
-        <module>crac-file</module>
-        <module>glsk</module>
+        <module>glsk-file</module>
+        <module>glsk-quality-check</module>
     </modules>
 </project>
