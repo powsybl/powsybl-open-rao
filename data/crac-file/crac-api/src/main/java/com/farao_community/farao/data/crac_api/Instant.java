@@ -34,4 +34,17 @@ public class Instant extends AbstractIdentifiable {
     public void setDuration(double duration) {
         this.duration = duration;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Instant instant = (Instant) o;
+
+        return duration == instant.getDuration();
+    }
 }
