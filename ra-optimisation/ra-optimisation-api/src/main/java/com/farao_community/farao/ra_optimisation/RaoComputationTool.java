@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -137,7 +137,7 @@ public class RaoComputationTool implements Tool {
         RaoComputationResult result = raoComputation.run(currentState, parameters).join();
 
         if (Objects.isNull(result)) {
-            context.getErrorStream().println("Error occured during computation, result not provided");
+            context.getErrorStream().println("Error occurred during computation, result not provided");
         } else {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
