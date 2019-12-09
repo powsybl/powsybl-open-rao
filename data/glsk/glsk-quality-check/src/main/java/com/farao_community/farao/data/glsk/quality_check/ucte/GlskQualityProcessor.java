@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.glsk.quality_check.ucte;
 
 import com.farao_community.farao.data.glsk.import_.UcteGlskDocument;
@@ -19,7 +25,7 @@ public final class GlskQualityProcessor {
     }
 
     public static QualityReport process(String cgmName, InputStream cgmIs, InputStream glskIs, Instant localDate) throws IOException, SAXException, ParserConfigurationException {
-        return process(UcteGlskDocument.importGlskFromFile(glskIs), Importers.loadNetwork(cgmName, cgmIs), localDate);
+        return process(UcteGlskDocument.importGlsk(glskIs), Importers.loadNetwork(cgmName, cgmIs), localDate);
     }
 
     public static QualityReport process(UcteGlskDocument ucteGlskDocument, Network network, Instant instant) {

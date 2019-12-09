@@ -40,7 +40,7 @@ public class UcteGlskDocument {
      */
     private Map<String, List<GlskPoint>> ucteGlskPointsByCountry; //map <CountryID, List<GlskPoint>>
 
-    public static UcteGlskDocument importGlskFromFile(InputStream data) throws IOException, SAXException, ParserConfigurationException {
+    public static UcteGlskDocument importGlsk(InputStream data) throws IOException, SAXException, ParserConfigurationException {
         return new UcteGlskDocument(data);
     }
 

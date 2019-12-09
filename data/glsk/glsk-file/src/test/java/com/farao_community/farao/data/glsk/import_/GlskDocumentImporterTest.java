@@ -17,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -60,7 +59,6 @@ public class GlskDocumentImporterTest {
         GlskDocument glskDocument = GlskDocumentImporter.importGlsk(getResourceAsPath(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", glskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", glskDocument.getInstantEnd().toString());
-        System.out.println(Instant.now());
         assertFalse(glskDocument.getCountries().isEmpty());
     }
 

@@ -56,12 +56,12 @@ class GlskQualityCheck {
                 qualityReport.warn(registeredResource.getmRID(),
                         type,
                         tso,
-                        "GSK node is not found in CGM");
+                        "GLSK node is not found in CGM");
             } else {
                 qualityReport.warn(registeredResource.getmRID(),
                         type,
                         tso,
-                        "The GSK node is present but it's not representing a Generator or Load");
+                        "GLSK node is present but it's not representing a Generator or Load");
             }
         } else {
             if (!injection.getTerminal().isConnected()
