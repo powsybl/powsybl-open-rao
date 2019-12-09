@@ -47,4 +47,9 @@ public class Instant extends AbstractIdentifiable {
 
         return duration == instant.getDuration();
     }
+
+    @Override
+    public int hashCode() {
+        return (int) duration;
+    }
 }
