@@ -19,6 +19,8 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,7 @@ import static org.junit.Assert.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class CracFileTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CracFileTest.class);
 
     private static SimpleCrac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
@@ -197,5 +200,14 @@ public class CracFileTest {
                     UsageRule::getUsageMethod));
 
         assertTrue(crac.getId().equals("idCrac"));
+
+        List<RangeAction> rangeActions = crac.getRangeActions();
+        for (RangeAction rangeAction : rangeActions) {
+            List<ApplicableRangeAction> list = rangeAction.getApplicableRangeActions();
+            LOGGER.info("RangeAction: " + rangeAction.getId());
+            for (ApplicableRangeAction applicableRangeAction : list) {
+                LOGGER.info(applicableRangeAction.getNetworkElement().getId());
+            }
+        }
     }
 }

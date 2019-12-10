@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
-import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
-import com.farao_community.farao.data.crac_api.Range;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -73,6 +70,11 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public void apply(Network network, double setpoint) {
         applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return null;
     }
 
     @JsonProperty("ranges")
