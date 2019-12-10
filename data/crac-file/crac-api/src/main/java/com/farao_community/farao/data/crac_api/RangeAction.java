@@ -21,4 +21,6 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface RangeAction extends RemedialAction, ApplicableRangeAction, Range {
     List<ApplicableRangeAction> getApplicableRangeActions();
+
+    List<NetworkElement> getNetworkElements();
 }

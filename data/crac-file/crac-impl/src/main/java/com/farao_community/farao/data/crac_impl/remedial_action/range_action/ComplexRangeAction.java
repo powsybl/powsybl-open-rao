@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,8 +50,17 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this.ranges = ranges;
     }
 
+    @Override
     public List<ApplicableRangeAction> getApplicableRangeActions() {
         return applicableRangeActions;
+    }
+
+    @Override
+    public List<NetworkElement> getNetworkElements() {
+        List<NetworkElement> list = new ArrayList<>();
+        applicableRangeActions.stream()
+                .forEach(applicableRangeAction -> list.add(applicableRangeAction.getNetworkElement()));
+        return list;
     }
 
     public void setApplicableRangeActions(List<ApplicableRangeAction> applicableRangeActions) {

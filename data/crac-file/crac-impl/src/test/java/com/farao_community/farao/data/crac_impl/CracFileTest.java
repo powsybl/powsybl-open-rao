@@ -208,6 +208,9 @@ public class CracFileTest {
             for (ApplicableRangeAction applicableRangeAction : list) {
                 LOGGER.info(applicableRangeAction.getNetworkElement().getId());
             }
+            for (NetworkElement networkElement : rangeAction.getNetworkElements()) {
+                LOGGER.info(networkElement.getId());
+            }
         }
     }
 }
