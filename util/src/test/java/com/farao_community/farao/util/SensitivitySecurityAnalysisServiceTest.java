@@ -63,7 +63,7 @@ public class SensitivitySecurityAnalysisServiceTest {
 
     @Test
     public void testSensiSAresult() {
-        SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);//new SensitivityComputationResults(true, new HashMap<>(), "", values);
+        SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
         Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
         SensitivitySecurityAnalysisResult result = new SensitivitySecurityAnalysisResult(precontingencyResult, resultMap);
         result.setPrecontingencyResult(precontingencyResult);
