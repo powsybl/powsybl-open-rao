@@ -47,7 +47,7 @@ class Leaf {
     /**
      * Impact of the network action
      */
-    private LinearRangeActionRaoResult actionImpact;
+    private LinearRangeActionRaoResult linearRaoResult;
 
     /**
      * Status of the leaf's Network Action evaluation
@@ -57,7 +57,7 @@ class Leaf {
     enum Status {
         CREATED,
         EVALUATION_RUNNING,
-        EVALUATED,
+        EVALUATION_SUCCESS,
         EVALUATION_ERROR
     }
 
@@ -93,8 +93,8 @@ class Leaf {
     /**
      * Action impact getter
      */
-    LinearRangeActionRaoResult getActionImpact() {
-        return actionImpact;
+    LinearRangeActionRaoResult getLinearRaoResult() {
+        return linearRaoResult;
     }
 
     /**
@@ -123,6 +123,7 @@ class Leaf {
      * for the N Network Actions given in argument
      */
     List<Leaf> bloom(List<NetworkAction> availableNetworkActions) {
+        //TODO: remove network actions of current leaf and its parents
         return availableNetworkActions.stream().map(na -> new Leaf(this, na)).collect(Collectors.toList());
     }
 
@@ -150,7 +151,7 @@ class Leaf {
         network.getVariantManager().setWorkingVariant(this.networkVariant);
 
         RaoComputationResult results = Rao.find("Linear Range Action Rao").run(network, crac, networkVariant, computationManager, parameters);
-        actionImpact = results.getExtension(LinearRangeActionRaoResult.class);
+        linearRaoResult = results.getExtension(LinearRangeActionRaoResult.class);
         //todo : run RangeActionRao and update RaoComputationResult
     }
 

@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
@@ -40,21 +41,35 @@ public class SearchTreeRao implements RaoProvider {
         Leaf optimalLeaf = new Leaf();
         optimalLeaf.evaluate(network, crac, computationManager, parameters);
 
-        while (optimalLeaf.getActionImpact().getCost() < 0) {
-            // TODO: create a crac copy
-            crac.getNetworkActions().remove(optimalLeaf.getNetworkAction());
-
-            List<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, UsageMethod.AVAILABLE);
-            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
-            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, variantId, computationManager, parameters));
-
-            for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getActionImpact().getCost() < optimalLeaf.getActionImpact().getCost()) {
-                    optimalLeaf = currentLeaf;
-                }
-            }
+        if (optimalLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
+            throw new FaraoException("Initial case is divergent");
         }
 
-        return null;
+        boolean hasImproved;
+        //TODO: generalize to handle different stop criterion
+        do {
+            List<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, UsageMethod.AVAILABLE);
+            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
+
+            if (generatedLeaves.size() == 0) {
+                break;
+            }
+
+            //TODO: manage parallel computation
+            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, variantId, computationManager, parameters));
+
+            hasImproved = false;
+            for (Leaf currentLeaf: generatedLeaves) {
+                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
+                    if (currentLeaf.getLinearRaoResult().getCost() < optimalLeaf.getLinearRaoResult().getCost()) {
+                        hasImproved = true;
+                        optimalLeaf = currentLeaf;
+                    }
+                }
+            }
+        } while (optimalLeaf.getLinearRaoResult().getCost() < 0 && hasImproved);
+
+        //TODO: build SearchTreeRaoResult object
+        return CompletableFuture.completedFuture(optimalLeaf.getLinearRaoResult().getExtendable());
     }
 }
