@@ -18,7 +18,7 @@
 
     <artifactId>farao-linear-range-action-rao</artifactId>
     <packaging>jar</packaging>
-    <name>Modular RAO on linear actions implementation</name>
+    <name>Modular linear RAO implementation</name>
     <description>Implementation of a RAO that will optimize only linear range actions</description>
 
     <dependencies>
