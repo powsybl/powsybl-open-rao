@@ -23,14 +23,13 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.ActionType.CLOSE;
 import static com.farao_community.farao.data.crac_api.ActionType.OPEN;
@@ -60,6 +59,18 @@ public class SensitivitySecurityAnalysisServiceTest {
         List<RangeAction> rangeActions = crac.getRangeActions();
 
         SensitivitySecurityAnalysisService.getPstInRangeActions(network, rangeActions);
+    }
+
+    @Test
+    public void testSensiSAresult() {
+        SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);//new SensitivityComputationResults(true, new HashMap<>(), "", values);
+        Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
+        SensitivitySecurityAnalysisResult result = new SensitivitySecurityAnalysisResult(precontingencyResult, resultMap);
+        result.setPrecontingencyResult(precontingencyResult);
+        result.setResultMap(resultMap);
+        assertNotNull(result);
+        assertNotNull(result.getPrecontingencyResult());
+        assertNotNull(result.getResultMap());
     }
 
     private static SimpleCrac create() {
