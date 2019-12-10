@@ -212,5 +212,11 @@ public class CracFileTest {
                 LOGGER.info(networkElement.getId());
             }
         }
+
+        ComplexRangeAction rangeAction1 = (ComplexRangeAction) rangeActions.get(0);
+        assertNull(rangeAction1.getNetworkElement());
+
+        Countertrading countertrading = new Countertrading();
+        assertNull(countertrading.getNetworkElement());
     }
 }
