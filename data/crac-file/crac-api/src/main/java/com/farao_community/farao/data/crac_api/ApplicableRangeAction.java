@@ -20,4 +20,6 @@ public interface ApplicableRangeAction {
 
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
+
+    NetworkElement getNetworkElement();
 }
