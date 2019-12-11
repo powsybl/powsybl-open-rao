@@ -26,7 +26,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -34,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_api.ActionType.CLOSE;
 import static com.farao_community.farao.data.crac_api.ActionType.OPEN;
@@ -59,6 +61,9 @@ public class SensitivitySecurityAnalysisServiceTest {
         network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         computationManager = LocalComputationManager.getDefault();
         crac = create();
+
+        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
     @Test
@@ -99,6 +104,14 @@ public class SensitivitySecurityAnalysisServiceTest {
         assertNotNull(result);
         assertNotNull(result.getPrecontingencyResult());
         assertNotNull(result.getResultMap());
+    }
+
+    @Test
+    public void testSensiSArunSensitivityComputation() {
+        List<RangeAction> rangeActions = crac.getRangeActions();
+        List<TwoWindingsTransformer> transformers = SensitivitySecurityAnalysisService.getPstInRangeActions(network, rangeActions);
+
+        SensitivitySecurityAnalysisService.runSensitivityComputation(network, crac, transformers);
     }
 
     private static SimpleCrac create() {
@@ -243,5 +256,40 @@ public class SensitivitySecurityAnalysisServiceTest {
         crac.addRangeRemedialAction(rangeAction2);
 
         return crac;
+    }
+
+    public class MockSensitivityComputationFactory implements SensitivityComputationFactory {
+        class MockSensitivityComputation implements SensitivityComputation {
+            private final Network network;
+
+            MockSensitivityComputation(Network network) {
+                this.network = network;
+            }
+
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                return CompletableFuture.completedFuture(randomResults(network, sensitivityFactorsProvider));
+            }
+
+            private SensitivityComputationResults randomResults(Network network, SensitivityFactorsProvider sensitivityFactorsProvider) {
+                List<SensitivityValue> randomSensitivities = sensitivityFactorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
+                return new SensitivityComputationResults(true, Collections.emptyMap(), "", randomSensitivities);
+            }
+
+            @Override
+            public String getName() {
+                return "Mock";
+            }
+
+            @Override
+            public String getVersion() {
+                return "Mock";
+            }
+        }
+
+        @Override
+        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
+            return new MockSensitivityComputation(network);
+        }
     }
 }
