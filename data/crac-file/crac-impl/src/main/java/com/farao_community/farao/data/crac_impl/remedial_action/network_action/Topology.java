@@ -12,7 +12,10 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * Topological remedial action: open or close a network element.
@@ -40,6 +43,18 @@ public final class Topology extends AbstractNetworkElementAction {
 
     @Override
     public void apply(Network network) {
-        throw new UnsupportedOperationException();
+        Identifiable element = network.getIdentifiable(getNetworkElement().getId());
+        if (element instanceof Branch) {
+            Branch branch = (Branch) element;
+            if (actionType == ActionType.OPEN) {
+                branch.getTerminal1().disconnect();
+                branch.getTerminal2().disconnect();
+            } else {
+                branch.getTerminal1().connect();
+                branch.getTerminal2().connect();
+            }
+        } else {
+            throw new NotImplementedException("Topological actions are only on branches for now");
+        }
     }
 }

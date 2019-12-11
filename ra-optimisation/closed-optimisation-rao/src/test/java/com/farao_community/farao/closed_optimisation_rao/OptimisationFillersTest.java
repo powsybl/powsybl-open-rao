@@ -7,6 +7,7 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.closed_optimisation_rao.fillers.*;
+import com.farao_community.farao.closed_optimisation_rao.json.JsonClosedOptimisationRaoResultTest;
 import com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor;
 import com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor;
 import com.farao_community.farao.closed_optimisation_rao.post_processors.RedispatchElementResultsPostProcessor;

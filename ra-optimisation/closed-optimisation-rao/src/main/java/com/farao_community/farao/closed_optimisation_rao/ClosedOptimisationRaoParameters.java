@@ -25,6 +25,7 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
     static final double DEFAULT_OVERLOAD_PENALTY_COST = 5000.0;
     static final double DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD = 0.0;
     static final double DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD = 0.0;
+    static final int DEFAULT_NUMBER_OF_PARALLEL_THREADS = 1;
 
     private String solverType = DEFAULT_SOLVER_TYPE;
     private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
@@ -32,6 +33,7 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
     private double overloadPenaltyCost = DEFAULT_OVERLOAD_PENALTY_COST;
     private double rdSensitivityThreshold = DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD;
+    private int numberOfParallelThreads = DEFAULT_NUMBER_OF_PARALLEL_THREADS;
     private List<String> fillersList = new ArrayList<>();
     private List<String> preProcessorsList = new ArrayList<>();
     private List<String> postProcessorsList = new ArrayList<>();
@@ -45,6 +47,9 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
         this.relativeMipGap = other.relativeMipGap;
         this.maxTimeInSeconds = other.maxTimeInSeconds;
         this.overloadPenaltyCost = other.overloadPenaltyCost;
+        this.rdSensitivityThreshold = other.rdSensitivityThreshold;
+        this.pstSensitivityThreshold = other.pstSensitivityThreshold;
+        this.numberOfParallelThreads = other.numberOfParallelThreads;
         this.fillersList.addAll(other.fillersList);
         this.preProcessorsList.addAll(other.preProcessorsList);
         this.postProcessorsList.addAll(other.postProcessorsList);
@@ -101,6 +106,15 @@ public class ClosedOptimisationRaoParameters extends AbstractExtension<RaoComput
 
     public ClosedOptimisationRaoParameters setPstSensitivityThreshold(double pstSensitivityThreshold) {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
+        return this;
+    }
+
+    public int getNumberOfParallelThreads() {
+        return this.numberOfParallelThreads;
+    }
+
+    public ClosedOptimisationRaoParameters setNumberOfParallelThreads(int numberOfParallelThreads) {
+        this.numberOfParallelThreads = numberOfParallelThreads;
         return this;
     }
 

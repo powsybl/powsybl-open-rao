@@ -135,12 +135,12 @@ public final class OptimisationComponentUtil {
                 .filter(filler -> parameters.getPreProcessorsList().contains(filler.getClass().getName()))
                 .collect(Collectors.toList());
 
+        // add rao closed-optimisation parameters in data
+        data.put(OPTIMISATION_CONSTANTS_DATA_NAME, ConfigurationUtil.getOptimisationConstants(parameters));
+
         for (OptimisationPreProcessor preProcessor : preProcessors) {
             preProcessor.fillData(network, cracFile, computationManager, data);
         }
-
-        // add rao closed-optimisation parameters in data
-        data.put(OPTIMISATION_CONSTANTS_DATA_NAME, ConfigurationUtil.getOptimisationConstants(parameters));
         return data;
     }
 
