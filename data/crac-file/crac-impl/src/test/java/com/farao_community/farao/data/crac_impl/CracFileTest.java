@@ -203,20 +203,17 @@ public class CracFileTest {
 
         List<RangeAction> rangeActions = crac.getRangeActions();
         for (RangeAction rangeAction : rangeActions) {
-            List<ApplicableRangeAction> list = rangeAction.getApplicableRangeActions();
             LOGGER.info("RangeAction: " + rangeAction.getId());
-            for (ApplicableRangeAction applicableRangeAction : list) {
-                LOGGER.info(applicableRangeAction.getNetworkElement().getId());
-            }
-            for (NetworkElement networkElement : rangeAction.getNetworkElements()) {
-                LOGGER.info(networkElement.getId());
+            List<NetworkElement> networkElements = rangeAction.getNetworkElements();
+            for (NetworkElement networkElement : networkElements) {
+                LOGGER.info("   NetworkElement: " + networkElement.getId());
             }
         }
 
         ComplexRangeAction rangeAction1 = (ComplexRangeAction) rangeActions.get(0);
-        assertNull(rangeAction1.getNetworkElement());
+        assertNotNull(rangeAction1.getNetworkElements().size());
 
         Countertrading countertrading = new Countertrading();
-        assertNull(countertrading.getNetworkElement());
+        assertNull(countertrading.getNetworkElements());
     }
 }

@@ -51,15 +51,14 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
-    public List<ApplicableRangeAction> getApplicableRangeActions() {
-        return applicableRangeActions;
-    }
-
-    @Override
     public List<NetworkElement> getNetworkElements() {
         List<NetworkElement> list = new ArrayList<>();
         applicableRangeActions.stream()
-                .forEach(applicableRangeAction -> list.add(applicableRangeAction.getNetworkElement()));
+                .forEach(applicableRangeAction -> {
+                    applicableRangeAction.getNetworkElements().stream().forEach(networkElement -> {
+                        list.add(networkElement);
+                    });
+                });
         return list;
     }
 
@@ -80,11 +79,6 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public void apply(Network network, double setpoint) {
         applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
-    }
-
-    @Override
-    public NetworkElement getNetworkElement() {
-        return null;
     }
 
     @JsonProperty("ranges")
