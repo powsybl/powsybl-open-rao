@@ -11,7 +11,6 @@
 
     <artifactId>farao-util</artifactId>
 
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -19,7 +18,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.farao-community.farao</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -28,10 +27,6 @@
             <artifactId>farao-crac-file-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.powsybl</groupId>-->
-<!--            <artifactId>powsybl-config-classic</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
@@ -93,6 +88,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-
+    
 </project>
