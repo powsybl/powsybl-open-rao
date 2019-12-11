@@ -31,12 +31,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-file-afs</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-file-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -44,23 +38,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-file-xlsx</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-file-xlsx-afs</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flow-decomposition-afs</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flow-decomposition-afs-local</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -108,18 +85,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-ra-optimisation-afs</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-ra-optimisation-afs-local</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-ra-optimisation-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -132,30 +97,6 @@
         </dependency>
 
         <!-- powsybl extra dependencies -->
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-afs-ext-base</artifactId>
-            <version>${powsybl.core.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-afs-local</artifactId>
-            <version>${powsybl.core.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-afs-mapdb</artifactId>
-            <version>${powsybl.core.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-afs-mapdb-storage</artifactId>
-            <version>${powsybl.core.version}</version>
-            <scope>runtime</scope>
-        </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-cgmes-conversion</artifactId>

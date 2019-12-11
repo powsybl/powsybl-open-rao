@@ -16,9 +16,7 @@
     <description>Module that regroups all features related to CRAC file</description>
 
     <modules>
-        <module>crac-file-afs</module>
         <module>crac-file-api</module>
-        <module>crac-file-xlsx-afs</module>
         <module>crac-file-xlsx-api</module>
         <module>crac-merging</module>
         <module>crac-api</module>
