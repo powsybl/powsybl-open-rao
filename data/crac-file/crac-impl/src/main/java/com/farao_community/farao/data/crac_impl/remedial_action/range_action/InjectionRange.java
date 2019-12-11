@@ -13,9 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Injection range remedial action: choose the optimal value for a load or generator setpoint.
  *
@@ -34,10 +31,4 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public List<NetworkElement> getNetworkElements() {
-        List<NetworkElement> networkElements = new ArrayList<>();
-        networkElements.add(this.networkElement);
-        return networkElements;
-    }
 }
