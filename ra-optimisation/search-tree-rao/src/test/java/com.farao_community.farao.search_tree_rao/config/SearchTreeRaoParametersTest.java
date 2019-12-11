@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao;
+package com.farao_community.farao.search_tree_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,9 +41,9 @@ public class SearchTreeRaoParametersTest {
     @Test
     public void testSettersAndGetters() {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
-        // sensitivityComputationParameters
-        searchTreeRaoParameters.setSensitivityComputationParameters(Mockito.mock(SensitivityComputationParameters.class));
-        assertNotNull(searchTreeRaoParameters.getSensitivityComputationParameters());
+        // range-action-rao
+        searchTreeRaoParameters.setRangeActionRao("LinearRao");
+        assertNotNull(searchTreeRaoParameters.getRangeActionRao());
         // name
         assertEquals(searchTreeRaoParameters.getName(), "SearchTreeRaoParameters");
     }

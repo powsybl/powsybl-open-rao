@@ -4,13 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao;
+package com.farao_community.farao.search_tree_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -18,19 +17,22 @@ import java.util.Objects;
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
-    private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
+
+    static final String DEFAULT_RANGE_ACTION_RAO = "Linear Range Action Rao";
+
+    private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
 
     @Override
     public String getName() {
         return "SearchTreeRaoParameters";
     }
 
-    public SensitivityComputationParameters getSensitivityComputationParameters() {
-        return sensitivityComputationParameters;
+    public String getRangeActionRao() {
+        return rangeActionRao;
     }
 
-    public SearchTreeRaoParameters setSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
-        this.sensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
-        return this;
+    public void setRangeActionRao(String rangeActionRaoName) {
+        this.rangeActionRao = rangeActionRaoName;
     }
 }

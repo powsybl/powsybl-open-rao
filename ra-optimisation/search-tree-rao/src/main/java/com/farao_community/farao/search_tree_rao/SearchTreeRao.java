@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -38,6 +39,9 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+
+        List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters);
+
         Leaf optimalLeaf = new Leaf();
         optimalLeaf.evaluate(network, crac, computationManager, parameters);
 

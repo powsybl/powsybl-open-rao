@@ -1,0 +1,8 @@
+{
+  "version" : "1.0",
+  "extensions" : {
+    "SearchTreeRaoParameters" : {
+      "range-action-rao" : "myRangeActionRao",
+    }
+  }
+}
