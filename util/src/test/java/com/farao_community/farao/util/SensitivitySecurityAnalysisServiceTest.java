@@ -114,6 +114,11 @@ public class SensitivitySecurityAnalysisServiceTest {
         SensitivitySecurityAnalysisService.runSensitivityComputation(network, crac, transformers);
     }
 
+    @Test
+    public void testSensiSArunSensitivitySA() {
+        SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
+    }
+
     private static SimpleCrac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
