@@ -19,20 +19,20 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class Instant extends AbstractIdentifiable {
 
-    private double duration;
+    private int seconds;
 
     @JsonCreator
-    public Instant(@JsonProperty("id") String id, @JsonProperty("duration") double duration) {
+    public Instant(@JsonProperty("id") String id, @JsonProperty("seconds") int seconds) {
         super(id, id);
-        this.duration = duration;
+        this.seconds = seconds;
     }
 
-    public double getDuration() {
-        return duration;
+    public double getSeconds() {
+        return seconds;
     }
 
-    public void setDuration(double duration) {
-        this.duration = duration;
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
     }
 
     @Override
@@ -45,11 +45,11 @@ public class Instant extends AbstractIdentifiable {
         }
         Instant instant = (Instant) o;
 
-        return duration == instant.getDuration();
+        return super.equals(o) || seconds == instant.getSeconds();
     }
 
     @Override
     public int hashCode() {
-        return (int) duration;
+        return (int) seconds;
     }
 }

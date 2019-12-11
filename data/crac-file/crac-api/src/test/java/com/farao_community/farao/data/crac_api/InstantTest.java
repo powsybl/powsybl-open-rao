@@ -27,12 +27,39 @@ public class InstantTest {
 
     @Test
     public void getDuration() {
-        assertEquals(15, instant.getDuration(), 0.1);
+        assertEquals(15, instant.getSeconds(), 0.1);
     }
 
     @Test
     public void setDuration() {
-        instant.setDuration(5);
-        assertEquals(5, instant.getDuration(), 0.1);
+        instant.setSeconds(5);
+        assertEquals(5, instant.getSeconds(), 0.1);
+    }
+
+    @Test
+    public void testEqualsById() {
+        Instant instantA = new Instant("A", 12);
+        Instant instantB = new Instant("A", 20);
+        assertEquals(instantA, instantB);
+    }
+
+    @Test
+    public void testEqualsByValue() {
+        Instant instantA = new Instant("A", 12);
+        Instant instantB = new Instant("B", 12);
+        assertEquals(instantA, instantB);
+    }
+
+    @Test
+    public void testNotEquals() {
+        Instant instantA = new Instant("A", 12);
+        Instant instantB = new Instant("B", 20);
+        assertNotEquals(instantA, instantB);
+    }
+
+    @Test
+    public void testHashCode() {
+        Instant instantA = new Instant("A", 12);
+        assertEquals(12, instantA.hashCode());
     }
 }

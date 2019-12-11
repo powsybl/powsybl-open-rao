@@ -58,7 +58,7 @@ public class SimpleState implements State {
 
     @Override
     public int compareTo(State state) {
-        return (int) (instant.getDuration() - state.getInstant().getDuration());
+        return (int) (instant.getSeconds() - state.getInstant().getSeconds());
     }
 
     @Override
@@ -71,22 +71,19 @@ public class SimpleState implements State {
         }
         State state = (State) o;
 
-        if (!getContingency().isPresent() && !state.getContingency().isPresent()) {
-            return getInstant().getDuration() == state.getInstant().getDuration();
-        } else if (getContingency().isPresent() && state.getContingency().isPresent()) {
-            return getContingency().get().getId().equals(state.getContingency().get().getId()) &&
-                getInstant().getDuration() == state.getInstant().getDuration();
+        if (state.getContingency().isPresent()) {
+            return state.getContingency().get().equals(contingency) && state.getInstant().equals(instant);
         } else {
-            return false;
+            return contingency == null && state.getInstant().equals(instant);
         }
     }
 
     @Override
     public int hashCode() {
         if (contingency != null) {
-            return String.format("%s at instant %f", contingency.getId(), instant.getDuration()).hashCode();
+            return String.format("%s at instant %f", contingency.getId(), instant.getSeconds()).hashCode();
         } else {
-            return String.format("preventive at instant %f", instant.getDuration()).hashCode();
+            return String.format("preventive at instant %f", instant.getSeconds()).hashCode();
         }
     }
 

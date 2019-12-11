@@ -36,13 +36,13 @@ public class SimpleStateTest {
 
     @Test
     public void getInstant() {
-        assertEquals(12, state.getInstant().getDuration(), 0.1);
+        assertEquals(12, state.getInstant().getSeconds(), 0.1);
     }
 
     @Test
     public void setInstant() {
         state.setInstant(new Instant("curative2", 5));
-        assertEquals(5, state.getInstant().getDuration(), 0.1);
+        assertEquals(5, state.getInstant().getSeconds(), 0.1);
     }
 
     @Test

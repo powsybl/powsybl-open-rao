@@ -23,21 +23,22 @@ import java.util.stream.Collectors;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
-    private List<Instant> instants;
-    private List<State> states;
-    private List<Cnec> cnecs;
-    private List<Contingency> contingencies;
-    private List<RangeAction> rangeActions;
-    private List<NetworkAction> networkActions;
+    private Set<Instant> instants;
+    private Set<Contingency> contingencies;
+    private Set<State> states;
+    private Set<Cnec> cnecs;
+    private Set<RangeAction> rangeActions;
+    private Set<NetworkAction> networkActions;
 
     @JsonCreator
-    public SimpleCrac(@JsonProperty("id") String id, @JsonProperty("name") String name,
-                      @JsonProperty("instants") List<Instant> instants,
-                      @JsonProperty("states") List<State> states,
-                      @JsonProperty("cnecs") List<Cnec> cnecs,
-                      @JsonProperty("contingencies") List<Contingency> contingencies,
-                      @JsonProperty("rangeActions") List<RangeAction> rangeActions,
-                      @JsonProperty("networkActions") List<NetworkAction> networkActions) {
+    public SimpleCrac(@JsonProperty("id") String id,
+                       @JsonProperty("name") String name,
+                       @JsonProperty("instants") Set<Instant> instants,
+                       @JsonProperty("contingencies") Set<Contingency> contingencies,
+                       @JsonProperty("states") Set<State> states,
+                       @JsonProperty("cnecs") Set<Cnec> cnecs,
+                       @JsonProperty("rangeActions") Set<RangeAction> rangeActions,
+                       @JsonProperty("networkActions") Set<NetworkAction> networkActions) {
         super(id, name);
         this.instants = instants;
         this.states = states;
@@ -48,41 +49,85 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     public SimpleCrac(String id, String name) {
-        this(id, name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this(id, name, new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
     }
 
     public SimpleCrac(String id) {
         this(id, id);
     }
 
-    @Override
-    public List<Cnec> getCnecs() {
-        return cnecs;
+    final Set<Instant> getInstants() {
+        return instants;
+    }
+
+    final Set<State> getStates() {
+        return states;
     }
 
     @Override
-    public void setCnecs(List<Cnec> cnecs) {
-        this.cnecs = cnecs;
+    public Instant getInstant(String id) {
+        return instants.stream()
+            .filter(instant -> instant.getId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
-    public List<RangeAction> getRangeActions() {
-        return rangeActions;
+    public void addInstant(Instant instant) {
+        if (instants.stream().anyMatch(cracInstant -> cracInstant.equals(instant))) {
+            throw new FaraoException("An instant with the same ID or the same duration already exists.");
+        }
+        instants.add(instant);
     }
 
     @Override
-    public void setRangeActions(List<RangeAction> rangeActions) {
-        this.rangeActions = rangeActions;
+    public Set<Contingency> getContingencies() {
+        return contingencies;
     }
 
     @Override
-    public List<NetworkAction> getNetworkActions() {
-        return networkActions;
+    public Contingency getContingency(String id) {
+        return contingencies.stream()
+            .filter(contingency -> contingency.getId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
-    public void setNetworkActions(List<NetworkAction> networkActions) {
-        this.networkActions = networkActions;
+    public void addContingency(Contingency contingency) {
+        if (contingencies.stream().anyMatch(cracContingency -> cracContingency.equals(contingency))) {
+            throw new FaraoException("A contingency with the same ID already exists.");
+        }
+        contingencies.add(contingency);
+    }
+
+    @Override
+    public State getPreventiveState() {
+        return states.stream().filter(state -> !state.getContingency().isPresent()).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<State> getStates(Contingency contingency) {
+        return states.stream()
+            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
+            .sorted()
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public Set<State> getStates(Instant instant) {
+        return states.stream()
+            .filter(state -> state.getInstant().getId().equals(instant.getId()))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public State getState(Contingency contingency, Instant instant) {
+        return states.stream()
+            .filter(state -> state.getContingency().isPresent() && state.getInstant().getId().equals(instant.getId()))
+            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
@@ -98,90 +143,62 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
      */
     @Override
     public void addState(State state) {
-        if (states.stream().noneMatch(cracState -> cracState.equals(state))) {
-            // reference that will point at an object existing in the Crac
-            Optional<Contingency> cracContingency;
-            if (state.getContingency().isPresent()) {
-                Contingency contingency = state.getContingency().get();
-                if (getContingency(contingency.getId()) == null) {
-                    addContingency(contingency);
-                }
-                cracContingency = Optional.of(getContingency(contingency.getId()));
-            } else {
-                cracContingency = Optional.empty();
+        // reference that will point at an object existing in the Crac
+        Optional<Contingency> cracContingency;
+        if (state.getContingency().isPresent()) {
+            Contingency contingency = state.getContingency().get();
+            if (contingencies.stream().noneMatch(contingency::equals)) {
+                addContingency(contingency);
             }
-
-            if (getInstant(state.getInstant().getId()) == null) {
-                addInstant(state.getInstant());
-            }
-
-            states.add(new SimpleState(cracContingency, getInstant(state.getInstant().getId())));
+            cracContingency = Optional.of(getContingency(contingency.getId()));
+        } else {
+            cracContingency = Optional.empty();
         }
+
+        // If the two instants are strictly equals no need to add it
+        if (instants.stream().noneMatch(instant ->
+            instant.getId().equals(state.getInstant().getId()) && instant.getSeconds() == state.getInstant().getSeconds())
+        ) {
+            addInstant(state.getInstant());
+        }
+        states.add(new SimpleState(cracContingency, getInstant(state.getInstant().getId())));
     }
 
     @Override
-    @JsonProperty("cnecs")
+    public Set<Cnec> getCnecs() {
+        return cnecs;
+    }
+
+    @Override
+    public Set<Cnec> getCnecs(State state) {
+        return cnecs.stream()
+            .filter(cnec -> cnec.getState().equals(state))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
     public void addCnec(Cnec cnec) {
         cnecs.add(cnec);
     }
 
     @Override
-    public void addInstant(Instant instant) {
-        if (getInstant(instant.getId()) == null) {
-            if (instants.stream().anyMatch(cracInstant -> cracInstant.equals(instant))) {
-                throw new FaraoException("Two instants with same duration and different IDs cannot be added.");
-            }
-            instants.add(instant);
-        }
+    public Set<RangeAction> getRangeActions() {
+        return rangeActions;
     }
 
-    @JsonProperty("contingency")
     @Override
-    public void addContingency(Contingency contingency) {
-        if (getContingency(contingency.getId()) == null) {
-            contingencies.add(contingency);
-        }
+    public Set<NetworkAction> getNetworkActions() {
+        return networkActions;
     }
 
-    @JsonProperty("networkActions")
     @Override
-    public void addNetworkRemedialAction(NetworkAction networkAction) {
+    public void addNetworkAction(NetworkAction networkAction) {
         networkActions.add(networkAction);
     }
 
     @Override
-    @JsonProperty("rangeActions")
-    public void addRangeRemedialAction(RangeAction rangeAction) {
+    public void addRangeAction(RangeAction rangeAction) {
         rangeActions.add(rangeAction);
-    }
-
-    @Override
-    @JsonIgnore
-    public State getPreventiveState() {
-        return states.stream().filter(state -> !state.getContingency().isPresent()).findFirst().orElse(null);
-    }
-
-    @Override
-    public List<State> getStates(Contingency contingency) {
-        return states.stream()
-            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
-            .sorted().collect(Collectors.toList());
-    }
-
-    @Override
-    public List<State> getStates(Instant instant) {
-        return states.stream()
-            .filter(state -> state.getInstant().getId().equals(instant.getId()))
-            .sorted().collect(Collectors.toList());
-    }
-
-    @Override
-    public State getState(Contingency contingency, Instant instant) {
-        return states.stream()
-            .filter(state -> state.getContingency().isPresent() && state.getInstant().getId().equals(instant.getId()))
-            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
-            .findFirst()
-            .orElse(null);
     }
 
     @Override
@@ -196,42 +213,6 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         return rangeActions.stream()
             .filter(networkAction -> networkAction.getUsageMethod(network, state).equals(usageMethod))
             .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Contingency getContingency(String id) {
-        return contingencies.stream()
-            .filter(contingency -> contingency.getId().equals(id))
-            .findFirst()
-            .orElse(null);
-    }
-
-    @Override
-    public Instant getInstant(String id) {
-        return instants.stream()
-            .filter(instant -> instant.getId().equals(id))
-            .findFirst()
-            .orElse(null);
-    }
-
-    @Override
-    public Set<Cnec> getCnecs(State state) {
-        return cnecs.stream()
-            .filter(cnec -> cnec.getState().equals(state))
-            .collect(Collectors.toSet());
-    }
-
-    @Override
-    @JsonIgnore
-    public List<NetworkElement> getCriticalNetworkElements() {
-        List<NetworkElement> criticalNetworkElements = new ArrayList<>();
-        cnecs.forEach(cnec -> criticalNetworkElements.add(cnec.getCriticalNetworkElement()));
-        return criticalNetworkElements;
-    }
-
-    @Override
-    public List<Contingency> getContingencies() {
-        return contingencies;
     }
 
     @Override

@@ -50,4 +50,21 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
     public void addNetworkElement(NetworkElement networkElement) {
         networkElements.add(networkElement);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComplexContingency contingency = (ComplexContingency) o;
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

@@ -42,4 +42,20 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
         return id;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractIdentifiable abstractIdentifiable = (AbstractIdentifiable) o;
+        return getId().equals(abstractIdentifiable.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

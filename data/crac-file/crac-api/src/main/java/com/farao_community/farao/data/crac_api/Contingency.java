@@ -18,5 +18,6 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface Contingency extends Identifiable {
+
     List<NetworkElement> getNetworkElements();
 }
