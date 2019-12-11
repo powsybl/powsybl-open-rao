@@ -8,8 +8,12 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.powsybl.iidm.network.Network;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Countertrading remedial action.
@@ -27,4 +31,10 @@ public class Countertrading implements ApplicableRangeAction {
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public List<NetworkElement> getNetworkElements() {
+        return new ArrayList<>();
+    }
+
 }
