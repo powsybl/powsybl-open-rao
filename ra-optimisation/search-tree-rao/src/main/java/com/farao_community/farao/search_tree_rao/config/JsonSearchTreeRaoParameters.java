@@ -53,7 +53,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
 
     @Override
     public String getCategoryName() {
-        return "rao-computation-parameters";
+        return "rao-parameters";
     }
 
     @Override

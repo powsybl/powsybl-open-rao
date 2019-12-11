@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.ra_optimisation.json.RaoComputationParametersJsonModule;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -30,7 +29,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Provides methods to read and write JsonRaoComputationParameters from and to JSON.
+ * Provides methods to read and write JsonRaoParameters from and to JSON.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -126,14 +125,14 @@ public final class JsonRaoParameters {
     }
 
     /**
-     * Low level deserialization method, to be used for instance for reading rao computation parameters nested in another object.
+     * Low level deserialization method, to be used for instance for reading rao parameters nested in another object.
      */
     public static RaoParameters deserialize(JsonParser parser, DeserializationContext context, RaoParameters parameters) throws IOException {
         return new RaoParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
-     * Low level deserialization method, to be used for instance for updating rao computation parameters nested in another object.
+     * Low level deserialization method, to be used for instance for updating rao parameters nested in another object.
      */
     public static RaoParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new RaoParametersDeserializer().deserialize(parser, context);
@@ -148,6 +147,6 @@ public final class JsonRaoParameters {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new RaoComputationParametersJsonModule());
+                .registerModule(new RaoParametersJsonModule());
     }
 }

@@ -7,19 +7,15 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.powsybl.iidm.network.Network;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MinimumMargin {
+public final class MinimumMargin {
 
     private MinimumMargin() {
 
     }
-
+/*
     public static double evaluate(Network network, Crac crac) {
         double minimumMargin = Double.MAX_VALUE;
         for (Cnec cnec : crac.getCnecs()) {
@@ -30,4 +26,5 @@ public class MinimumMargin {
         }
         return minimumMargin;
     }
+    */
 }

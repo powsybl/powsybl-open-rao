@@ -166,13 +166,11 @@ class Leaf {
     private String createVariant(Network network, String referenceNetworkVariant) {
         String uniqueId = getUniqueVariantId(network);
 
-        if (isRoot())
-        {
+        if (isRoot()) {
             network.getVariantManager().cloneVariant(referenceNetworkVariant, this.networkVariant);
         } else {
             network.getVariantManager().cloneVariant(referenceNetworkVariant, this.networkVariant);
         }
-
         return uniqueId;
     }
 

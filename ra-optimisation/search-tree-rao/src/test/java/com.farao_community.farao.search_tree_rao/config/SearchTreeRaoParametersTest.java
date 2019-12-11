@@ -7,7 +7,6 @@
 package com.farao_community.farao.search_tree_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.powsybl.commons.config.PlatformConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,6 @@ public class SearchTreeRaoParametersTest {
 
     @Test
     public void testExtensionRecognition() {
-        assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName("SearchTreeRaoParameters") instanceof SearchTreeRaoParameters);
         assertNotNull(parameters.getExtension(SearchTreeRaoParameters.class));
     }

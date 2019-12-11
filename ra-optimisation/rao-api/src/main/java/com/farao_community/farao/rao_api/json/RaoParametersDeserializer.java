@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
-import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -26,7 +24,7 @@ import java.util.List;
 public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
 
     RaoParametersDeserializer() {
-        super(RaoComputationParameters.class);
+        super(RaoParameters.class);
     }
 
     @Override
@@ -37,17 +35,18 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
     @Override
     public RaoParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoParameters parameters) throws IOException {
 
+        System.out.println("coucou1");
+
         List<Extension<RaoParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-
                 case "version":
                     parser.nextToken();
                     break;
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoComputationParameters.getExtensionSerializers());
+                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
                     break;
 
                 default:
@@ -55,7 +54,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             }
         }
 
-        JsonRaoComputationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        JsonRaoParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
     }
 

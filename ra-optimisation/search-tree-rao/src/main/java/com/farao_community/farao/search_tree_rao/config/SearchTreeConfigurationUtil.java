@@ -21,17 +21,17 @@ import java.util.Objects;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SearchTreeConfigurationUtil {
+public final class SearchTreeConfigurationUtil {
 
     private SearchTreeConfigurationUtil() {
         throw new AssertionError("Utility class should not be instanciated");
     }
 
     /**
-     * Validates RAO computation parameters compatibility with platform available plugins.
+     * Validates RAO parameters compatibility with platform available plugins.
      * Return a list of errors, that is empty if the configuration is correct.
      *
-     * @param parameters RAO computation parameters
+     * @param parameters RAO parameters
      * @return a list of configuration issues
      */
     public static List<String> checkSearchTreeRaoConfiguration(RaoParameters parameters) {

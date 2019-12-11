@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
-import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -30,9 +28,9 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", RaoComputationParameters.VERSION);
+        jsonGenerator.writeStringField("version", RaoParameters.VERSION);
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoComputationParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }
