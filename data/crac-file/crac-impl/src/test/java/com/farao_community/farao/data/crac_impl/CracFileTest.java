@@ -213,11 +213,11 @@ public class CracFileTest {
         assertNotNull(rangeAction1.getNetworkElements().size());
 
         Countertrading countertrading = new Countertrading();
-        assertNull(countertrading.getNetworkElements());
+        assertEquals(0, countertrading.getNetworkElements().size());
 
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
         Redispatching rd = new Redispatching(10, 20, 18, 1000, 12, generator);
-        assertNull(rd.getNetworkElements());
+        assertEquals(0, rd.getNetworkElements().size());
 
         NetworkElement generator1 = new NetworkElement("idGen1", "My Generator 1");
         InjectionRange injectionRange1 = new InjectionRange(null);
