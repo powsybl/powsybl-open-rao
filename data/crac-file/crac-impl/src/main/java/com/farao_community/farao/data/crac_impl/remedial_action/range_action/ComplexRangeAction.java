@@ -53,9 +53,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public List<NetworkElement> getNetworkElements() {
         List<NetworkElement> list = new ArrayList<>();
-        applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.getNetworkElements().forEach(networkElement -> {
-            list.add(networkElement);
-        }));
+        applicableRangeActions.forEach(applicableRangeAction -> list.addAll(applicableRangeAction.getNetworkElements()));
         return list;
     }
 

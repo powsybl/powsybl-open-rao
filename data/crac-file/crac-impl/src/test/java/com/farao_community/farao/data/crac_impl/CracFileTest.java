@@ -203,10 +203,9 @@ public class CracFileTest {
 
         List<RangeAction> rangeActions = crac.getRangeActions();
         for (RangeAction rangeAction : rangeActions) {
-            LOGGER.info("RangeAction: " + rangeAction.getId());
             List<NetworkElement> networkElements = rangeAction.getNetworkElements();
             for (NetworkElement networkElement : networkElements) {
-                LOGGER.info("   NetworkElement: " + networkElement.getId());
+                assertNotNull(networkElement.getId());
             }
         }
 
