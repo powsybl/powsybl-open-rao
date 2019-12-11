@@ -13,6 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Elementary HVDC range remedial action: choose the optimal value for an HVDC line setpoint.
  *
@@ -29,5 +32,10 @@ public final class HvdcRange extends AbstractNetworkElementRangeAction {
     @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<NetworkElement> getNetworkElements() {
+        return Arrays.asList(this.networkElement);
     }
 }
