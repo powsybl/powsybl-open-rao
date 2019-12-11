@@ -34,7 +34,6 @@ public final class SensitivitySecurityAnalysisService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivitySecurityAnalysisService.class);
 
     private SensitivitySecurityAnalysisService() {
-        throw new AssertionError("Utility class should not be instantiated");
     }
 
     public static SensitivitySecurityAnalysisResult runSensitivity(Network network,

@@ -21,9 +21,13 @@ import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.sensitivity.SensitivityComputationResults;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -46,19 +50,43 @@ public class SensitivitySecurityAnalysisServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivitySecurityAnalysisServiceTest.class);
 
-    @Test
-    public void testispst() {
-        Network network = Importers.loadNetwork(
-                "TestCase12Nodes.uct",
-                getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
+    private Network network;
+    private ComputationManager computationManager;
+    private SimpleCrac crac;
 
+    @Before
+    public void setUp() {
+        network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        computationManager = LocalComputationManager.getDefault();
+        crac = create();
+    }
+
+    @Test
+    public void testSensiSAService() {
         assertTrue(SensitivitySecurityAnalysisService.isPst(network, new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
 
-        SimpleCrac crac = create();
         List<RangeAction> rangeActions = crac.getRangeActions();
+        List<TwoWindingsTransformer> transformers = SensitivitySecurityAnalysisService.getPstInRangeActions(network, rangeActions);
+        assertEquals(2, transformers.size());
 
-        SensitivitySecurityAnalysisService.getPstInRangeActions(network, rangeActions);
+        String branchId = "BBE2AA1  BBE3AA1  1";
+        assertTrue(network.getBranch(branchId).getTerminal1().isConnected());
+        assertTrue(network.getBranch(branchId).getTerminal2().isConnected());
+        SensitivitySecurityAnalysisService.applyCracContingencyElement(network, computationManager, new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
+        assertFalse(network.getBranch(branchId).getTerminal1().isConnected());
+        assertFalse(network.getBranch(branchId).getTerminal2().isConnected());
+    }
+
+    @Test
+    public void testSensiSAServiceApplyContingency() {
+        String branchId = "BBE2AA1  BBE3AA1  1";
+        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
+                Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
+        assertTrue(network.getBranch(branchId).getTerminal1().isConnected());
+        assertTrue(network.getBranch(branchId).getTerminal2().isConnected());
+        SensitivitySecurityAnalysisService.applyCracContingency(network, computationManager, contingency1);
+        assertFalse(network.getBranch(branchId).getTerminal1().isConnected());
+        assertFalse(network.getBranch(branchId).getTerminal2().isConnected());
     }
 
     @Test
@@ -216,5 +244,4 @@ public class SensitivitySecurityAnalysisServiceTest {
 
         return crac;
     }
-
 }
