@@ -119,7 +119,7 @@ public class SensitivitySecurityAnalysisServiceTest {
         SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
-        assertEquals(0,result.getResultMap().keySet().size());
+        assertEquals(0, result.getResultMap().keySet().size());
     }
 
     private static SimpleCrac create() {
