@@ -19,6 +19,8 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,7 @@ import static org.junit.Assert.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class CracFileTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CracFileTest.class);
 
     private static SimpleCrac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
@@ -197,5 +200,28 @@ public class CracFileTest {
                     UsageRule::getUsageMethod));
 
         assertTrue(crac.getId().equals("idCrac"));
+
+        List<RangeAction> rangeActions = crac.getRangeActions();
+        for (RangeAction rangeAction : rangeActions) {
+            List<NetworkElement> networkElements = rangeAction.getNetworkElements();
+            for (NetworkElement networkElement : networkElements) {
+                assertNotNull(networkElement.getId());
+            }
+        }
+
+        ComplexRangeAction rangeAction1 = (ComplexRangeAction) rangeActions.get(0);
+        assertNotNull(rangeAction1.getNetworkElements().size());
+
+        Countertrading countertrading = new Countertrading();
+        assertEquals(0, countertrading.getNetworkElements().size());
+
+        NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
+        Redispatching rd = new Redispatching(10, 20, 18, 1000, 12, generator);
+        assertEquals(0, rd.getNetworkElements().size());
+
+        NetworkElement generator1 = new NetworkElement("idGen1", "My Generator 1");
+        InjectionRange injectionRange1 = new InjectionRange(null);
+        injectionRange1.setNetworkElement(generator1);
+        assertEquals(1, injectionRange1.getNetworkElements().size());
     }
 }

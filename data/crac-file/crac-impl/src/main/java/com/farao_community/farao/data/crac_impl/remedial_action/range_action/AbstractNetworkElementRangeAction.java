@@ -12,6 +12,9 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Generic object to define any simple range action on a network element
  * (HVDC line, PST, injection, redispatching, etc.).
@@ -29,6 +32,10 @@ public abstract class AbstractNetworkElementRangeAction implements ApplicableRan
 
     public NetworkElement getNetworkElement() {
         return networkElement;
+    }
+
+    public List<NetworkElement> getNetworkElements() {
+        return Collections.singletonList(networkElement);
     }
 
     public void setNetworkElement(NetworkElement networkElement) {

@@ -7,16 +7,14 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
-import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
-import com.farao_community.farao.data.crac_api.Range;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,8 +50,11 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this.ranges = ranges;
     }
 
-    public List<ApplicableRangeAction> getApplicableRangeActions() {
-        return applicableRangeActions;
+    @Override
+    public List<NetworkElement> getNetworkElements() {
+        List<NetworkElement> list = new ArrayList<>();
+        applicableRangeActions.forEach(applicableRangeAction -> list.addAll(applicableRangeAction.getNetworkElements()));
+        return list;
     }
 
     public void setApplicableRangeActions(List<ApplicableRangeAction> applicableRangeActions) {
