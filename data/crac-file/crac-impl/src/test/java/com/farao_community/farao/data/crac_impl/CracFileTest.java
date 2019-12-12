@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 public class CracFileTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CracFileTest.class);
 
-    private static SimpleCrac create() {
+    private static Crac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
@@ -167,7 +167,7 @@ public class CracFileTest {
 
         ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
-        SimpleCrac crac = new SimpleCrac("idCrac", "name");
+        Crac crac = new SimpleCrac("idCrac", "name");
 
         crac.addCnec(cnec1);
         crac.addCnec(cnec2);
@@ -182,7 +182,7 @@ public class CracFileTest {
     @Test
     public void testCrac() {
 
-        SimpleCrac crac = create();
+        Crac crac = create();
 
         crac.getCnecs().forEach(
             cnec -> {
@@ -237,13 +237,13 @@ public class CracFileTest {
             simpleCrac.addInstant(new Instant("initial-instant", 12));
             fail();
         } catch (FaraoException e) {
-            assertEquals("An instant with the same ID or the same duration already exists.", e.getMessage());
+            assertEquals("An instant with the same ID but different seconds already exists.", e.getMessage());
         }
         try {
             simpleCrac.addInstant(new Instant("fail-initial", 0));
             fail();
         } catch (FaraoException e) {
-            assertEquals("An instant with the same ID or the same duration already exists.", e.getMessage());
+            assertEquals("An instant with the same seconds but different ID already exists.", e.getMessage());
         }
         assertEquals(1, simpleCrac.getInstants().size());
         simpleCrac.addInstant(new Instant("curative", 60));
@@ -253,14 +253,13 @@ public class CracFileTest {
 
     @Test
     public void testGetContingency() {
-        SimpleCrac simpleCrac = new SimpleCrac("test-crac");
+        Crac simpleCrac = new SimpleCrac("test-crac");
         assertEquals(0, simpleCrac.getContingencies().size());
-
     }
 
     @Test
     public void testAddContingency() {
-        SimpleCrac simpleCrac = new SimpleCrac("test-crac");
+        Crac simpleCrac = new SimpleCrac("test-crac");
         assertEquals(0, simpleCrac.getContingencies().size());
         simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1"))));
         assertEquals(1, simpleCrac.getContingencies().size());
@@ -269,7 +268,7 @@ public class CracFileTest {
             simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne2"))));
             fail();
         } catch (FaraoException e) {
-            assertEquals("A contingency with the same ID already exists.", e.getMessage());
+            assertEquals("A contingency with the same ID and different network elements already exists.", e.getMessage());
         }
         try {
             simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singletonList(new NetworkElement("ne1"))));
@@ -305,14 +304,14 @@ public class CracFileTest {
             simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant-fail", 0)));
             fail();
         } catch (FaraoException e) {
-            assertEquals("An instant with the same ID or the same duration already exists.", e.getMessage());
+            assertEquals("An instant with the same seconds but different ID already exists.", e.getMessage());
         }
 
         try {
             simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant", 12)));
             fail();
         } catch (FaraoException e) {
-            assertEquals("An instant with the same ID or the same duration already exists.", e.getMessage());
+            assertEquals("An instant with the same ID but different seconds already exists.", e.getMessage());
         }
 
         assertEquals(2, simpleCrac.getInstants().size());

@@ -27,7 +27,7 @@ public class Instant extends AbstractIdentifiable {
         this.seconds = seconds;
     }
 
-    public double getSeconds() {
+    public int getSeconds() {
         return seconds;
     }
 
@@ -45,11 +45,11 @@ public class Instant extends AbstractIdentifiable {
         }
         Instant instant = (Instant) o;
 
-        return super.equals(o) || seconds == instant.getSeconds();
+        return super.equals(o) && seconds == instant.getSeconds();
     }
 
     @Override
     public int hashCode() {
-        return (int) seconds;
+        return String.format("%s%d", getId(), getSeconds()).hashCode();
     }
 }

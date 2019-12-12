@@ -27,4 +27,21 @@ public class NetworkElement extends AbstractIdentifiable {
     public NetworkElement(String id) {
         this(id, id);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        NetworkElement networkElement = (NetworkElement) o;
+        return super.equals(networkElement);
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

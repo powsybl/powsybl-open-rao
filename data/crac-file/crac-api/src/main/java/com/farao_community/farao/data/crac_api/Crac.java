@@ -52,8 +52,8 @@ public interface Crac extends Identifiable, Synchronizable {
     List<State> getStates(Contingency contingency);
 
     /**
-     * Unordered set of States defined at the same instant. It will be either the preventive state either
-     * the set of all the states defined at at the same instant after all the contingencies.
+     * Unordered set of States defined at the same instant. It will be either the preventive state or
+     * the set of all the states defined at the same instant after all the contingencies.
      *
      * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.

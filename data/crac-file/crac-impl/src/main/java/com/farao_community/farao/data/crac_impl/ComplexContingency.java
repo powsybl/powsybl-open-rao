@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -60,7 +61,7 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
             return false;
         }
         ComplexContingency contingency = (ComplexContingency) o;
-        return super.equals(o);
+        return super.equals(o) && new HashSet<>(contingency.getNetworkElements()).equals(new HashSet<>(networkElements));
     }
 
     @Override

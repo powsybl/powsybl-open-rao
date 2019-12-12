@@ -74,10 +74,16 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void addInstant(Instant instant) {
-        if (instants.stream().anyMatch(cracInstant -> cracInstant.equals(instant))) {
-            throw new FaraoException("An instant with the same ID or the same duration already exists.");
+        // If no strictly equal elements are present in the Crac
+        if (instants.stream().noneMatch(cracInstant -> cracInstant.equals(instant))) {
+            // If an element with the same ID is present
+            if (instants.stream().anyMatch(cracInstant -> cracInstant.getId().equals(instant.getId()))) {
+                throw new FaraoException("An instant with the same ID but different seconds already exists.");
+            } else if (instants.stream().anyMatch(cracInstant -> cracInstant.getSeconds() == instant.getSeconds())) {
+                throw new FaraoException("An instant with the same seconds but different ID already exists.");
+            }
+            instants.add(instant);
         }
-        instants.add(instant);
     }
 
     @Override
@@ -95,10 +101,14 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void addContingency(Contingency contingency) {
-        if (contingencies.stream().anyMatch(cracContingency -> cracContingency.equals(contingency))) {
-            throw new FaraoException("A contingency with the same ID already exists.");
+        // If no strictly equal elements are present in the Crac
+        if (contingencies.stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
+            // If an element with the same ID is present
+            if (contingencies.stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
+                throw new FaraoException("A contingency with the same ID and different network elements already exists.");
+            }
+            contingencies.add(contingency);
         }
-        contingencies.add(contingency);
     }
 
     @Override
@@ -143,25 +153,24 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
      */
     @Override
     public void addState(State state) {
-        // reference that will point at an object existing in the Crac
-        Optional<Contingency> cracContingency;
-        if (state.getContingency().isPresent()) {
-            Contingency contingency = state.getContingency().get();
-            if (contingencies.stream().noneMatch(contingency::equals)) {
-                addContingency(contingency);
-            }
-            cracContingency = Optional.of(getContingency(contingency.getId()));
-        } else {
-            cracContingency = Optional.empty();
-        }
-
         // If the two instants are strictly equals no need to add it
         if (instants.stream().noneMatch(instant ->
             instant.getId().equals(state.getInstant().getId()) && instant.getSeconds() == state.getInstant().getSeconds())
         ) {
+            // Can thow FaraoException if this instant and already present instants are incompatible
             addInstant(state.getInstant());
         }
-        states.add(new SimpleState(cracContingency, getInstant(state.getInstant().getId())));
+        Instant instant = getInstant(state.getInstant().getId());
+
+        Optional<Contingency> stateContingency = state.getContingency();
+        if (stateContingency.isPresent()) {
+            if (contingencies.stream().noneMatch(stateContingency.get()::equals)) {
+                addContingency(stateContingency.get());
+            }
+            states.add(new SimpleState(Optional.of(getContingency(stateContingency.get().getId())), instant));
+        } else {
+            states.add(new SimpleState(Optional.empty(), instant));
+        }
     }
 
     @Override

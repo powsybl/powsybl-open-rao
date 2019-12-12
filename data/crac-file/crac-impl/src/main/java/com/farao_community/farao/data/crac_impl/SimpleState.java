@@ -70,20 +70,17 @@ public class SimpleState implements State {
             return false;
         }
         State state = (State) o;
-
-        if (state.getContingency().isPresent()) {
-            return state.getContingency().get().equals(contingency) && state.getInstant().equals(instant);
-        } else {
-            return contingency == null && state.getInstant().equals(instant);
-        }
+        Optional<Contingency> oContingency = state.getContingency();
+        return state.getInstant().equals(instant) && oContingency.map(value -> value.equals(contingency))
+            .orElseGet(() -> contingency == null);
     }
 
     @Override
     public int hashCode() {
         if (contingency != null) {
-            return String.format("%s at instant %f", contingency.getId(), instant.getSeconds()).hashCode();
+            return String.format("%s%s", contingency.getId(), instant.getId()).hashCode();
         } else {
-            return String.format("preventive at instant %f", instant.getSeconds()).hashCode();
+            return String.format("preventive%s", instant.getId()).hashCode();
         }
     }
 
@@ -92,6 +89,8 @@ public class SimpleState implements State {
         String name = instant.getId();
         if (contingency != null) {
             name += String.format(" - %s", contingency.getId());
+        } else {
+            name += " - preventive";
         }
         return name;
     }
