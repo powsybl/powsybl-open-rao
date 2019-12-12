@@ -341,26 +341,6 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-core</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-ext-base</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-local</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-storage-api</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-commons</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
@@ -512,19 +492,6 @@
                 <groupId>com.google.jimfs</groupId>
                 <artifactId>jimfs</artifactId>
                 <version>${jimfs.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-core</artifactId>
-                <version>${powsybl.core.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-mapdb-storage</artifactId>
-                <version>${powsybl.core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

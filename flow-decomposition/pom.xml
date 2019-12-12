@@ -16,8 +16,6 @@
     <description>Flow decomposition feature</description>
 
     <modules>
-        <module>flow-decomposition-afs</module>
-        <module>flow-decomposition-afs-local</module>
         <module>flow-decomposition-api</module>
         <module>full-line-decomposition</module>
     </modules>
