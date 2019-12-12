@@ -82,7 +82,7 @@ public class SensitivitySecurityAnalysisServiceTest {
         SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
-        assertEquals(0, result.getResultMap().keySet().size());
+        assertEquals(1, result.getResultMap().keySet().size());
     }
 
     private static SimpleCrac create() {
@@ -225,6 +225,12 @@ public class SensitivitySecurityAnalysisServiceTest {
         crac.addNetworkRemedialAction(networkAction2);
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
+
+
+        String branchId = "BBE2AA1  BBE3AA1  1";
+        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
+                Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
+        crac.addContingency(contingency1);
 
         return crac;
     }
