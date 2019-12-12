@@ -225,8 +225,7 @@ public class SensitivitySecurityAnalysisServiceTest {
         crac.addNetworkRemedialAction(networkAction2);
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
-
-
+        
         String branchId = "BBE2AA1  BBE3AA1  1";
         ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
                 Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
