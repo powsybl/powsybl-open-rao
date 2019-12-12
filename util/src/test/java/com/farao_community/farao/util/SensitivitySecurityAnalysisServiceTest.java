@@ -25,7 +25,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,34 +66,6 @@ public class SensitivitySecurityAnalysisServiceTest {
     }
 
     @Test
-    public void testSensiSAService() {
-        assertTrue(SensitivitySecurityAnalysisService.isPst(network, new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
-
-        List<RangeAction> rangeActions = crac.getRangeActions();
-        List<TwoWindingsTransformer> transformers = SensitivitySecurityAnalysisService.getPstInRangeActions(network, rangeActions);
-        assertEquals(2, transformers.size());
-
-        String branchId = "BBE2AA1  BBE3AA1  1";
-        assertTrue(network.getBranch(branchId).getTerminal1().isConnected());
-        assertTrue(network.getBranch(branchId).getTerminal2().isConnected());
-        SensitivitySecurityAnalysisService.applyCracContingencyElement(network, computationManager, new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
-        assertFalse(network.getBranch(branchId).getTerminal1().isConnected());
-        assertFalse(network.getBranch(branchId).getTerminal2().isConnected());
-    }
-
-    @Test
-    public void testSensiSAServiceApplyContingency() {
-        String branchId = "BBE2AA1  BBE3AA1  1";
-        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
-                Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
-        assertTrue(network.getBranch(branchId).getTerminal1().isConnected());
-        assertTrue(network.getBranch(branchId).getTerminal2().isConnected());
-        SensitivitySecurityAnalysisService.applyCracContingency(network, computationManager, contingency1);
-        assertFalse(network.getBranch(branchId).getTerminal1().isConnected());
-        assertFalse(network.getBranch(branchId).getTerminal2().isConnected());
-    }
-
-    @Test
     public void testSensiSAresult() {
         SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
         Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
@@ -104,14 +75,6 @@ public class SensitivitySecurityAnalysisServiceTest {
         assertNotNull(result);
         assertNotNull(result.getPrecontingencyResult());
         assertNotNull(result.getResultMap());
-    }
-
-    @Test
-    public void testSensiSArunSensitivityComputation() {
-        List<RangeAction> rangeActions = crac.getRangeActions();
-        List<TwoWindingsTransformer> transformers = SensitivitySecurityAnalysisService.getPstInRangeActions(network, rangeActions);
-
-        SensitivitySecurityAnalysisService.runSensitivityComputation(network, crac, transformers);
     }
 
     @Test

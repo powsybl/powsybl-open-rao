@@ -78,11 +78,11 @@ public final class SensitivitySecurityAnalysisService {
         return new SensitivitySecurityAnalysisResult(precontingencyResult, contingencySensitivityComputationResultsMap);
     }
 
-    public static void applyCracContingency(Network network, ComputationManager computationManager, Contingency contingency) {
+    private static void applyCracContingency(Network network, ComputationManager computationManager, Contingency contingency) {
         contingency.getNetworkElements().forEach(contingencyElement -> applyCracContingencyElement(network, computationManager, contingencyElement));
     }
 
-    public static void applyCracContingencyElement(Network network, ComputationManager computationManager, NetworkElement contingencyElement) {
+    private static void applyCracContingencyElement(Network network, ComputationManager computationManager, NetworkElement contingencyElement) {
         Identifiable element = network.getIdentifiable(contingencyElement.getId());
         if (element instanceof Branch) {
             BranchContingency contingency = new BranchContingency(contingencyElement.getId());
@@ -92,14 +92,12 @@ public final class SensitivitySecurityAnalysisService {
         }
     }
 
-    public static List<TwoWindingsTransformer> getPstInRangeActions(Network network, List<RangeAction> rangeActions) {
+    private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, List<RangeAction> rangeActions) {
         List<TwoWindingsTransformer> psts = new ArrayList<>();
         for (RangeAction rangeAction : rangeActions) {
             List<NetworkElement> networkElements = rangeAction.getNetworkElements();
-//            LOGGER.info("In RangeAction: " + rangeAction.getId());
             for (NetworkElement networkElement : networkElements) {
                 if (isPst(network, networkElement)) {
-//                    LOGGER.info("adding " + networkElement.getId());
                     psts.add(network.getTwoWindingsTransformer(networkElement.getId()));
                 } else {
                     LOGGER.warn("not support type of range action");
@@ -109,7 +107,7 @@ public final class SensitivitySecurityAnalysisService {
         return psts;
     }
 
-    public static SensitivityComputationResults runSensitivityComputation(
+    private static SensitivityComputationResults runSensitivityComputation(
             Network network,
             Crac crac,
             List<TwoWindingsTransformer> psts) {
@@ -132,7 +130,7 @@ public final class SensitivitySecurityAnalysisService {
         return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
     }
 
-    public static boolean isPst(Network network, NetworkElement networkElement) {
+    private static boolean isPst(Network network, NetworkElement networkElement) {
         return network.getTwoWindingsTransformer(networkElement.getId()) != null;
     }
 
