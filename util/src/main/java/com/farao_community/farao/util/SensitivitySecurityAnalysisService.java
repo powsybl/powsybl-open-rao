@@ -57,7 +57,7 @@ public final class SensitivitySecurityAnalysisService {
                     LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
-                    applyCracContingency(network, computationManager, contingency);
+                    applyContingencyInCrac(network, computationManager, contingency);
 
                     SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
                     contingencySensitivityComputationResultsMap.put(contingency, sensiResults);
@@ -78,11 +78,11 @@ public final class SensitivitySecurityAnalysisService {
         return new SensitivitySecurityAnalysisResult(precontingencyResult, contingencySensitivityComputationResultsMap);
     }
 
-    private static void applyCracContingency(Network network, ComputationManager computationManager, Contingency contingency) {
-        contingency.getNetworkElements().forEach(contingencyElement -> applyCracContingencyElement(network, computationManager, contingencyElement));
+    private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
+        contingency.getNetworkElements().forEach(contingencyElement -> applyContingencyElementInCrac(network, computationManager, contingencyElement));
     }
 
-    private static void applyCracContingencyElement(Network network, ComputationManager computationManager, NetworkElement contingencyElement) {
+    private static void applyContingencyElementInCrac(Network network, ComputationManager computationManager, NetworkElement contingencyElement) {
         Identifiable element = network.getIdentifiable(contingencyElement.getId());
         if (element instanceof Branch) {
             BranchContingency contingency = new BranchContingency(contingencyElement.getId());
