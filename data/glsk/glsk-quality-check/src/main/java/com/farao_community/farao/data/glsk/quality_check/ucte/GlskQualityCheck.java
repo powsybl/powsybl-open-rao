@@ -53,20 +53,24 @@ class GlskQualityCheck {
         if (injection == null) {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
-                qualityReport.warn(registeredResource.getmRID(),
+                qualityReport.warn("1",
+                        registeredResource.getmRID(),
                         type,
                         tso,
                         "GLSK node is not found in CGM");
             } else {
-                qualityReport.warn(registeredResource.getmRID(),
+                qualityReport.warn("2",
+                        registeredResource.getmRID(),
                         type,
                         tso,
-                        "GLSK node is present but it's not representing a Generator or Load");
+                        "GLSK node is present but has no running Generator or Load");
             }
         } else {
             if (!injection.getTerminal().isConnected()
                     || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
-                qualityReport.warn(registeredResource.getmRID(),
+                qualityReport.warn(
+                        "3",
+                        registeredResource.getmRID(),
                         type,
                         tso,
                         "GLSK node is connected to an island");

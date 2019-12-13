@@ -15,21 +15,21 @@ import java.util.stream.Collectors;
 public class QualityReport {
     private Map<String, List<QualityLog>> qualityLogs = new TreeMap<>();
 
-    public void info(String nodeId, String type, String tso, String message) {
-        log(nodeId, type, tso, SeverityEnum.INFORMATION, message);
+    public void info(String checkId, String nodeId, String type, String tso, String message) {
+        log(checkId, nodeId, type, tso, SeverityEnum.INFORMATION, message);
     }
 
-    public void warn(String nodeId, String type, String tso, String message) {
-        log(nodeId, type, tso, SeverityEnum.WARNING, message);
+    public void warn(String checkId, String nodeId, String type, String tso, String message) {
+        log(checkId, nodeId, type, tso, SeverityEnum.WARNING, message);
     }
 
-    public void error(String nodeId, String type, String tso, String message) {
-        log(nodeId, type, tso, SeverityEnum.ERROR, message);
+    public void error(String checkId, String nodeId, String type, String tso, String message) {
+        log(checkId, nodeId, type, tso, SeverityEnum.ERROR, message);
     }
 
-    private void log(String nodeId, String type, String tso, SeverityEnum severity, String message) {
+    private void log(String checkId, String nodeId, String type, String tso, SeverityEnum severity, String message) {
         qualityLogs.putIfAbsent(tso, new ArrayList<>());
-        qualityLogs.get(tso).add(new QualityLog(nodeId, type, tso, severity, message));
+        qualityLogs.get(tso).add(new QualityLog(checkId, nodeId, type, tso, severity, message));
     }
 
     public List<QualityLog> getQualityLogs() {

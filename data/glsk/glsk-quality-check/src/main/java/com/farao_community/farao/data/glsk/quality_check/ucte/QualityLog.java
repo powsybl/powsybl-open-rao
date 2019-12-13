@@ -11,15 +11,16 @@ package com.farao_community.farao.data.glsk.quality_check.ucte;
  */
 public class QualityLog {
 
+    private String checkId;
     private String nodeId;
-
     private String type;
-
     private String tso;
-
     private SeverityEnum severity;
-
     private String message;
+
+    public String getCheckId() {
+        return checkId;
+    }
 
     public String getNodeId() {
         return nodeId;
@@ -41,7 +42,8 @@ public class QualityLog {
         return message;
     }
 
-    public QualityLog(String nodeId, String type, String tso, SeverityEnum severity, String message) {
+    public QualityLog(String checkId, String nodeId, String type, String tso, SeverityEnum severity, String message) {
+        this.checkId = checkId;
         this.nodeId = nodeId;
         this.type = type;
         this.tso = tso;

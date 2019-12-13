@@ -67,7 +67,7 @@ public class GlskQualityProcessorTest {
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
         assertEquals(1, qualityReport.getQualityLogs().size());
-        assertEquals("GLSK node is present but it's not representing a Generator or Load", qualityReport.getQualityLogs().get(0).getMessage());
+        assertEquals("GLSK node is present but has no running Generator or Load", qualityReport.getQualityLogs().get(0).getMessage());
         assertEquals("FFR2AA1 ", qualityReport.getQualityLogs().get(0).getNodeId());
         assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
     }
