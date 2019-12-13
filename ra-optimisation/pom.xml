@@ -17,6 +17,7 @@
 
     <modules>
         <module>closed-optimisation-rao</module>
+        <module>linear-range-action-rao</module>
         <module>ra-optimisation-api</module>
         <module>rao-api</module>
         <module>search-tree-rao</module>
