@@ -35,7 +35,7 @@ public final class OptimisationComponentUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(OptimisationComponentUtil.class);
 
     private OptimisationComponentUtil() {
-        throw new AssertionError("Utility class should not be instanciated");
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     private static boolean isProblemComplete(List<AbstractOptimisationProblemFiller> fillers, Map<String, Object> data) {

@@ -20,7 +20,7 @@ public final class SensitivityComputationService {
     private static ComputationManager computationManager;
 
     private SensitivityComputationService() {
-        throw new AssertionError("Utility class should not be instanciated");
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     public static void init(SensitivityComputationFactory factory, ComputationManager computationManager) {
