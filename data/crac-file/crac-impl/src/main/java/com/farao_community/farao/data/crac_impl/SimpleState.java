@@ -58,7 +58,7 @@ public class SimpleState implements State {
 
     @Override
     public int compareTo(State state) {
-        return (int) (instant.getSeconds() - state.getInstant().getSeconds());
+        return instant.getSeconds() - state.getInstant().getSeconds();
     }
 
     @Override
