@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
-import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * Interface to manage CRAC
@@ -26,6 +26,13 @@ public interface Crac extends Identifiable, Synchronizable {
     void addInstant(Instant instant);
 
     // Contingencies management
+
+    /**
+     * Gather all the contingencies present in the Crac. It returns a set because contingencies
+     * must not be duplicated and there is no defined order for contingencies.
+     *
+     * @return A set of contingencies.
+     */
     Set<Contingency> getContingencies();
 
     Contingency getContingency(String id);
@@ -33,7 +40,6 @@ public interface Crac extends Identifiable, Synchronizable {
     void addContingency(Contingency contingency);
 
     //States management
-
     /**
      * Select the preventive state. This state must be unique. It's the only state that is
      * defined with no contingency.
@@ -44,16 +50,19 @@ public interface Crac extends Identifiable, Synchronizable {
 
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
-     * instants objects.
+     * instants objects. This is a set because states must not be duplicated and it is sorted
+     * by chronology of instants.
      *
      * @param contingency: The contingency after which we want to gather states.
      * @return Ordered list of states after the specified contingency.
      */
-    List<State> getStates(Contingency contingency);
+    SortedSet<State> getStates(Contingency contingency);
 
     /**
      * Unordered set of States defined at the same instant. It will be either the preventive state or
-     * the set of all the states defined at the same instant after all the contingencies.
+     * the set of all the states defined at the same instant after all the contingencies. It is a set
+     * because states must not be duplicated and there is no defined order for states selected by
+     * instants.
      *
      * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
@@ -72,22 +81,62 @@ public interface Crac extends Identifiable, Synchronizable {
     void addState(State state);
 
     // Cnecs management
+
+    /**
+     * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     * @return A set of Cnecs.
+     */
     Set<Cnec> getCnecs();
 
+    /**
+     * Gather all the Cnecs of a specified State. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     * @param state: The state on which we want to select Cnecs.
+     * @return A set of Cnecs.
+     */
     Set<Cnec> getCnecs(State state);
 
     void addCnec(Cnec cnec);
 
     // Range actions management
+    /**
+     * Gather all the range actions present in the Crac. It returns a set because range
+     * actions must not be duplicated and there is no defined order for range actions.
+     *
+     * @return A set of range actions.
+     */
     Set<RangeAction> getRangeActions();
 
+    /**
+     * Gather all the range actions of a specified state with the specified usage method (available, forced or
+     * unavailable). To determine this usage method it requires a network. It returns a set because range
+     * actions must not be duplicated and there is no defined order for range actions.
+     *
+     * @return A set of range actions.
+     */
     Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod);
 
     void addRangeAction(RangeAction rangeAction);
 
     // Network actions management
+    /**
+     * Gather all the network actions present in the Crac. It returns a set because network
+     * actions must not be duplicated and there is no defined order for network actions.
+     *
+     * @return A set of network actions.
+     */
     Set<NetworkAction> getNetworkActions();
 
+    /**
+     * Gather all the network actions of a specified state with the specified usage method (available, forced or
+     * unavailable). To determine this usage method it requires a network. It returns a set because network
+     * actions must not be duplicated and there is no defined order for network actions.
+     *
+     * @return A set of network actions.
+     */
     Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod);
 
     void addNetworkAction(NetworkAction networkAction);

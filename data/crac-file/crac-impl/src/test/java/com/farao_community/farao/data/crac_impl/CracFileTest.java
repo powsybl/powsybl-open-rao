@@ -350,4 +350,66 @@ public class CracFileTest {
         assertSame(testState.getContingency().get(), contingency);
         assertSame(testState.getInstant(), instant);
     }
+
+    @Test
+    public void testOrderedStates() {
+        Crac simpleCrac = new SimpleCrac("simple-crac");
+        State state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            new Instant("auto", 60)
+        );
+
+        State state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            new Instant("auto-later", 70)
+        );
+
+        State state3 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            new Instant("curative", 120)
+        );
+
+        simpleCrac.addState(state3);
+        simpleCrac.addState(state1);
+        simpleCrac.addState(state2);
+
+        Iterator<State> states = simpleCrac.getStates(simpleCrac.getContingency("contingency-1")).iterator();
+        assertEquals(
+            60,
+            states.next().getInstant().getSeconds()
+        );
+        assertEquals(
+            70,
+            states.next().getInstant().getSeconds()
+        );
+        assertEquals(
+            120,
+            states.next().getInstant().getSeconds()
+        );
+
+        State state4 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            new Instant("intermediate", 100)
+        );
+
+        simpleCrac.addState(state4);
+
+        states = simpleCrac.getStates(simpleCrac.getContingency("contingency-1")).iterator();
+        assertEquals(
+            60,
+            states.next().getInstant().getSeconds()
+        );
+        assertEquals(
+            70,
+            states.next().getInstant().getSeconds()
+        );
+        assertEquals(
+            100,
+            states.next().getInstant().getSeconds()
+        );
+        assertEquals(
+            120,
+            states.next().getInstant().getSeconds()
+        );
+    }
 }

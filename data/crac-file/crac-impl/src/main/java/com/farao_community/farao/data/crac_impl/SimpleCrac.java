@@ -117,11 +117,10 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
-    public List<State> getStates(Contingency contingency) {
+    public SortedSet<State> getStates(Contingency contingency) {
         return states.stream()
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
-            .sorted()
-            .collect(Collectors.toList());
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
