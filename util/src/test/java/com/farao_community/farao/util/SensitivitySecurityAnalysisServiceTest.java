@@ -1,44 +1,89 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.util;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
+import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeDynamicRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.*;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_api.ActionType.*;
-import static com.farao_community.farao.data.crac_api.Direction.*;
-import static com.farao_community.farao.data.crac_api.Side.*;
+import static com.farao_community.farao.data.crac_api.ActionType.CLOSE;
+import static com.farao_community.farao.data.crac_api.ActionType.OPEN;
+import static com.farao_community.farao.data.crac_api.Direction.IN;
+import static com.farao_community.farao.data.crac_api.Direction.OUT;
+import static com.farao_community.farao.data.crac_api.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.Side.RIGHT;
 import static org.junit.Assert.*;
 
 /**
- * General test file
- *
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class CracFileTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracFileTest.class);
+public class SensitivitySecurityAnalysisServiceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivitySecurityAnalysisServiceTest.class);
+
+    private Network network;
+    private ComputationManager computationManager;
+    private SimpleCrac crac;
+
+    @Before
+    public void setUp() {
+        network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        computationManager = LocalComputationManager.getDefault();
+        crac = create();
+
+        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+    }
+
+    @Test
+    public void testSensiSAresult() {
+        SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
+        Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
+        SensitivitySecurityAnalysisResult result = new SensitivitySecurityAnalysisResult(precontingencyResult, resultMap);
+        result.setPrecontingencyResult(precontingencyResult);
+        result.setResultMap(resultMap);
+        assertNotNull(result);
+        assertNotNull(result.getPrecontingencyResult());
+        assertNotNull(result.getResultMap());
+    }
+
+    @Test
+    public void testSensiSArunSensitivitySA() {
+        SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
+        assertNotNull(result);
+        assertTrue(result.getPrecontingencyResult().isOk());
+        assertEquals(1, result.getResultMap().keySet().size());
+    }
 
     private static SimpleCrac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
@@ -64,7 +109,7 @@ public class CracFileTest {
         absoluteFixedRange.setMax(1000);
 
         // PstRange
-        NetworkElement pst1 = new NetworkElement("idPst1", "My Pst 1");
+        NetworkElement pst1 = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1");
         PstRange pstRange1 = new PstRange(null);
         pstRange1.setNetworkElement(pst1);
 
@@ -181,47 +226,46 @@ public class CracFileTest {
         crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
         crac.addRangeRemedialAction(rangeAction2);
 
+        String branchId = "BBE2AA1  BBE3AA1  1";
+        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
+                Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
+        crac.addContingency(contingency1);
+
         return crac;
     }
 
-    @Test
-    public void testCrac() {
+    public class MockSensitivityComputationFactory implements SensitivityComputationFactory {
+        class MockSensitivityComputation implements SensitivityComputation {
+            private final Network network;
 
-        SimpleCrac crac = create();
+            MockSensitivityComputation(Network network) {
+                this.network = network;
+            }
 
-        crac.getCnecs().forEach(
-            cnec -> {
-                cnec.getState().getInstant();
-                cnec.getState().getContingency();
-            });
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                return CompletableFuture.completedFuture(randomResults(network, sensitivityFactorsProvider));
+            }
 
-        crac.getRangeActions().forEach(
-            abstractRemedialAction -> abstractRemedialAction.getUsageRules().forEach(
-                    UsageRule::getUsageMethod));
+            private SensitivityComputationResults randomResults(Network network, SensitivityFactorsProvider sensitivityFactorsProvider) {
+                List<SensitivityValue> randomSensitivities = sensitivityFactorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
+                return new SensitivityComputationResults(true, Collections.emptyMap(), "", randomSensitivities);
+            }
 
-        assertTrue(crac.getId().equals("idCrac"));
+            @Override
+            public String getName() {
+                return "Mock";
+            }
 
-        List<RangeAction> rangeActions = crac.getRangeActions();
-        for (RangeAction rangeAction : rangeActions) {
-            List<NetworkElement> networkElements = rangeAction.getNetworkElements();
-            for (NetworkElement networkElement : networkElements) {
-                assertNotNull(networkElement.getId());
+            @Override
+            public String getVersion() {
+                return "Mock";
             }
         }
 
-        ComplexRangeAction rangeAction1 = (ComplexRangeAction) rangeActions.get(0);
-        assertNotNull(rangeAction1.getNetworkElements().size());
-
-        Countertrading countertrading = new Countertrading();
-        assertEquals(0, countertrading.getNetworkElements().size());
-
-        NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
-        Redispatching rd = new Redispatching(10, 20, 18, 1000, 12, generator);
-        assertEquals(0, rd.getNetworkElements().size());
-
-        NetworkElement generator1 = new NetworkElement("idGen1", "My Generator 1");
-        InjectionRange injectionRange1 = new InjectionRange(null);
-        injectionRange1.setNetworkElement(generator1);
-        assertEquals(1, injectionRange1.getNetworkElements().size());
+        @Override
+        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
+            return new MockSensitivityComputation(network);
+        }
     }
 }

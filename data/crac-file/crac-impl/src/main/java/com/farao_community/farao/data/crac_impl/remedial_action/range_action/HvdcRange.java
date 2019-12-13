@@ -30,4 +30,5 @@ public final class HvdcRange extends AbstractNetworkElementRangeAction {
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }
+
 }
