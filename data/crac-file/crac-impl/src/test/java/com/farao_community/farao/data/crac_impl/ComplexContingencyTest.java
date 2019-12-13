@@ -10,7 +10,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -23,12 +24,12 @@ public class ComplexContingencyTest {
     public void testDifferentWithDifferentIds() {
         ComplexContingency complexContingency1 = new ComplexContingency(
             "contingency-1",
-            Arrays.asList(new NetworkElement("network-element-1"), new NetworkElement("network-element-2"))
+            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
         );
 
         ComplexContingency complexContingency2 = new ComplexContingency(
             "contingency-2",
-            Arrays.asList(new NetworkElement("network-element-1"), new NetworkElement("network-element-2"))
+            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
         );
 
         assertNotEquals(complexContingency1, complexContingency2);
@@ -38,12 +39,12 @@ public class ComplexContingencyTest {
     public void testDifferentWithDifferentObjects() {
         ComplexContingency complexContingency1 = new ComplexContingency(
             "contingency-1",
-            Arrays.asList(new NetworkElement("network-element-1"), new NetworkElement("network-element-2"))
+            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
         );
 
         ComplexContingency complexContingency2 = new ComplexContingency(
             "contingency-1",
-            Arrays.asList(new NetworkElement("network-element-1"), new NetworkElement("network-element-5"))
+            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-5")).collect(Collectors.toSet())
         );
 
         assertNotEquals(complexContingency1, complexContingency2);
@@ -53,12 +54,12 @@ public class ComplexContingencyTest {
     public void testEqual() {
         ComplexContingency complexContingency1 = new ComplexContingency(
             "contingency-1",
-            Arrays.asList(new NetworkElement("network-element-1"), new NetworkElement("network-element-2"))
+            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
         );
 
         ComplexContingency complexContingency2 = new ComplexContingency(
             "contingency-1",
-            Arrays.asList(new NetworkElement("network-element-1"), new NetworkElement("network-element-2"))
+            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
         );
 
         assertEquals(complexContingency1, complexContingency2);

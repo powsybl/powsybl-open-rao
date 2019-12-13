@@ -44,7 +44,7 @@ public class NetworkElementTest {
     @Test
     public void testEqualWithSameNames() {
         NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElement("network-element-1", "name-2");
+        NetworkElement networkElement2 = new NetworkElement("network-element-1", "name-1");
 
         assertEquals(networkElement1, networkElement2);
     }

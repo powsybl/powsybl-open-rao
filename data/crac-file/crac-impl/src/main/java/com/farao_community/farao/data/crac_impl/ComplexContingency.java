@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Business object for a contingency in the CRAC file.
@@ -26,32 +26,40 @@ import java.util.List;
 public class ComplexContingency extends AbstractIdentifiable implements Contingency {
 
     @JsonProperty("networkElements")
-    private List<NetworkElement> networkElements;
+    private Set<NetworkElement> networkElements;
 
     @JsonCreator
     public ComplexContingency(@JsonProperty("id") String id,  @JsonProperty("name") String name,
-                              @JsonProperty("networkElements") final List<NetworkElement> networkElements) {
+                              @JsonProperty("networkElements") final Set<NetworkElement> networkElements) {
         super(id, name);
         this.networkElements = networkElements;
     }
 
-    public ComplexContingency(String id, final List<NetworkElement> networkElements) {
+    public ComplexContingency(String id, final Set<NetworkElement> networkElements) {
         this(id, id, networkElements);
     }
 
-    public List<NetworkElement> getNetworkElements() {
-        return networkElements;
+    public ComplexContingency(String id) {
+        super(id, id);
+        this.networkElements = new HashSet<>();
     }
 
-    public void setNetworkElements(List<NetworkElement> networkElements) {
-        this.networkElements = networkElements;
-    }
-
-    @JsonProperty("networkElements")
     public void addNetworkElement(NetworkElement networkElement) {
         networkElements.add(networkElement);
     }
 
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return networkElements;
+    }
+
+    /**
+     * Check if complex contingencies are equals. Complex contingencies are considered equals when IDs are equals
+     * and all the contained network elements are also equals. So sets of network elements have to be strictly equals.
+     *
+     * @param o: If it's null or another object than ComplexContingency it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

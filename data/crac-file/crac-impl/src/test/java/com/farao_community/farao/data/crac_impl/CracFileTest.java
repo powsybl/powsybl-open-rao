@@ -105,9 +105,9 @@ public class CracFileTest {
         NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
         NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
 
-        List<NetworkElement> elementsList = new ArrayList<>(Arrays.asList(line2, line3));
-        ComplexContingency contingency = new ComplexContingency("idContingency", "My contingency", null);
-        contingency.setNetworkElements(elementsList);
+        ComplexContingency contingency = new ComplexContingency("idContingency");
+        contingency.addNetworkElement(line2);
+        contingency.addNetworkElement(line3);
         contingency.addNetworkElement(networkElement1);
 
         // Instant
@@ -149,23 +149,35 @@ public class CracFileTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction(
+            "id1",
+            "name1",
+            "operator1",
+            new ArrayList<>(Collections.singletonList(freeToUse)),
+            new ArrayList<>(Collections.singletonList(hvdcSetpoint))
+        );
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction(
+            "id2",
+            "name2",
+            "operator1",
+            new ArrayList<>(Collections.singletonList(freeToUse)),
+            new ArrayList<>(Collections.singletonList(pstSetpoint))
+        );
 
         // RangeAction
         ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
-        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
+        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Collections.singletonList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Collections.singletonList(pstRange1)));
 
         Crac crac = new SimpleCrac("idCrac", "name");
 
@@ -198,7 +210,7 @@ public class CracFileTest {
 
         Set<RangeAction> rangeActions = crac.getRangeActions();
         for (RangeAction rangeAction : rangeActions) {
-            List<NetworkElement> networkElements = rangeAction.getNetworkElements();
+            Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
             for (NetworkElement networkElement : networkElements) {
                 assertNotNull(networkElement.getId());
             }
@@ -261,22 +273,22 @@ public class CracFileTest {
     public void testAddContingency() {
         Crac simpleCrac = new SimpleCrac("test-crac");
         assertEquals(0, simpleCrac.getContingencies().size());
-        simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1"))));
+        simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1"))));
         assertEquals(1, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-1"));
         try {
-            simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne2"))));
+            simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne2"))));
             fail();
         } catch (FaraoException e) {
             assertEquals("A contingency with the same ID and different network elements already exists.", e.getMessage());
         }
         try {
-            simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singletonList(new NetworkElement("ne1"))));
+            simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("ne1"))));
         } catch (FaraoException e) {
             fail();
         }
         assertEquals(2, simpleCrac.getContingencies().size());
-        simpleCrac.addContingency(new ComplexContingency("contingency-3", Collections.singletonList(new NetworkElement("ne3"))));
+        simpleCrac.addContingency(new ComplexContingency("contingency-3", Collections.singleton(new NetworkElement("ne3"))));
         assertEquals(3, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-3"));
         assertNull(simpleCrac.getContingency("contingency-fail"));
@@ -296,7 +308,7 @@ public class CracFileTest {
         assertEquals(simpleCrac.getInstant("initial-instant"), simpleCrac.getPreventiveState().getInstant());
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singletonList(new NetworkElement("network-element")))),
+                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
                 new Instant("after-contingency", 60))
         );
 
@@ -319,7 +331,7 @@ public class CracFileTest {
         assertEquals(1, simpleCrac.getContingencies().size());
 
         simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singletonList(new NetworkElement("network-element-2")))),
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
             new Instant("after-contingency", 60))
         );
 
@@ -332,7 +344,7 @@ public class CracFileTest {
         );
 
         simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singletonList(new NetworkElement("network-element-2")))),
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
             new Instant("after-contingency-bis", 70))
         );
 
@@ -355,17 +367,17 @@ public class CracFileTest {
     public void testOrderedStates() {
         Crac simpleCrac = new SimpleCrac("simple-crac");
         State state1 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
             new Instant("auto", 60)
         );
 
         State state2 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
             new Instant("auto-later", 70)
         );
 
         State state3 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
             new Instant("curative", 120)
         );
 
@@ -388,7 +400,7 @@ public class CracFileTest {
         );
 
         State state4 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singletonList(new NetworkElement("ne1")))),
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
             new Instant("intermediate", 100)
         );
 

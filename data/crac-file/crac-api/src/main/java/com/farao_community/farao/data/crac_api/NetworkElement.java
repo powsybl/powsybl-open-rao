@@ -28,6 +28,12 @@ public class NetworkElement extends AbstractIdentifiable {
         this(id, id);
     }
 
+    /**
+     * Check if network elements are equals. Network elements are considered equals when IDs are equals.
+     *
+     * @param o: If it's null or another object than NetworkElement it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

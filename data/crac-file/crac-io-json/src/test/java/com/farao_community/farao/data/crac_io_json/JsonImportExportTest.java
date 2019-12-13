@@ -106,9 +106,9 @@ public class JsonImportExportTest {
         NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
         NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
 
-        List<NetworkElement> elementsList = new ArrayList<>(Arrays.asList(line2, line3));
-        ComplexContingency contingency = new ComplexContingency("idContingency", "My contingency", null);
-        contingency.setNetworkElements(elementsList);
+        ComplexContingency contingency = new ComplexContingency("idContingency");
+        contingency.addNetworkElement(line2);
+        contingency.addNetworkElement(line3);
         contingency.addNetworkElement(networkElement1);
 
         // Instant

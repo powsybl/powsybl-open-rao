@@ -54,7 +54,7 @@ public interface Crac extends Identifiable, Synchronizable {
      * by chronology of instants.
      *
      * @param contingency: The contingency after which we want to gather states.
-     * @return Ordered list of states after the specified contingency.
+     * @return Ordered set of states after the specified contingency.
      */
     SortedSet<State> getStates(Contingency contingency);
 

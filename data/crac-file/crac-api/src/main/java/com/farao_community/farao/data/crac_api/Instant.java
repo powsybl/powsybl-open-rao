@@ -35,6 +35,12 @@ public class Instant extends AbstractIdentifiable {
         this.seconds = seconds;
     }
 
+    /**
+     * Check if instants are equals. Instants are considered equals when IDs and seconds are equals.
+     *
+     * @param o: If it's null or another object than Instant it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
