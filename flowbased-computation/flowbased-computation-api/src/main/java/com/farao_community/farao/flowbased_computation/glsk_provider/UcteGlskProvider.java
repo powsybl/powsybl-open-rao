@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.glsk_provider;
 
-import com.farao_community.farao.commons.data.glsk_file.actors.UcteGlskDocumentLinearGlskConverter;
+import com.farao_community.farao.data.glsk.import_.actors.UcteGlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.network.Network;
 
 import java.io.InputStream;

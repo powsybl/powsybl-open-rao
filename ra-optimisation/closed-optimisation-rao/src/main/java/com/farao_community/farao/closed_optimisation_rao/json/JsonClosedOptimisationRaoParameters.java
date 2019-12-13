@@ -27,15 +27,16 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
     @Override
     public void serialize(ClosedOptimisationRaoParameters closedOptimisationRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("solverType", closedOptimisationRaoParameters.getSolverType());
-        jsonGenerator.writeNumberField("relativeMipGap", closedOptimisationRaoParameters.getRelativeMipGap());
-        jsonGenerator.writeNumberField("maxTimeInSeconds", closedOptimisationRaoParameters.getMaxTimeInSeconds());
-        jsonGenerator.writeNumberField("overloadPenaltyCost", closedOptimisationRaoParameters.getOverloadPenaltyCost());
-        jsonGenerator.writeNumberField("rdSensitivityThreshold", closedOptimisationRaoParameters.getRdSensitivityThreshold());
-        jsonGenerator.writeNumberField("pstSensitivityThreshold", closedOptimisationRaoParameters.getPstSensitivityThreshold());
-        jsonGenerator.writeObjectField("problemFillers", closedOptimisationRaoParameters.getFillersList());
-        jsonGenerator.writeObjectField("preProcessors", closedOptimisationRaoParameters.getPreProcessorsList());
-        jsonGenerator.writeObjectField("postProcessors", closedOptimisationRaoParameters.getPostProcessorsList());
+        jsonGenerator.writeStringField("solver-type", closedOptimisationRaoParameters.getSolverType());
+        jsonGenerator.writeNumberField("relative-mip-gap", closedOptimisationRaoParameters.getRelativeMipGap());
+        jsonGenerator.writeNumberField("max-time-in-seconds", closedOptimisationRaoParameters.getMaxTimeInSeconds());
+        jsonGenerator.writeNumberField("overload-penalty-cost", closedOptimisationRaoParameters.getOverloadPenaltyCost());
+        jsonGenerator.writeNumberField("redispatching-sensitivity-threshold", closedOptimisationRaoParameters.getRdSensitivityThreshold());
+        jsonGenerator.writeNumberField("pst-sensitivity-threshold", closedOptimisationRaoParameters.getPstSensitivityThreshold());
+        jsonGenerator.writeNumberField("number-of-parallel-threads", closedOptimisationRaoParameters.getNumberOfParallelThreads());
+        jsonGenerator.writeObjectField("problem-fillers", closedOptimisationRaoParameters.getFillersList());
+        jsonGenerator.writeObjectField("pre-processors", closedOptimisationRaoParameters.getPreProcessorsList());
+        jsonGenerator.writeObjectField("post-processors", closedOptimisationRaoParameters.getPostProcessorsList());
         jsonGenerator.writeEndObject();
     }
 
@@ -45,40 +46,44 @@ public class JsonClosedOptimisationRaoParameters implements JsonRaoComputationPa
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "solverType":
+                case "solver-type":
                     parameters.setSolverType(jsonParser.nextTextValue());
                     break;
-                case "relativeMipGap":
+                case "relative-mip-gap":
                     jsonParser.nextToken();
                     parameters.setRelativeMipGap(jsonParser.getDoubleValue());
                     break;
-                case "maxTimeInSeconds":
+                case "max-time-in-seconds":
                     jsonParser.nextToken();
                     parameters.setMaxTimeInSeconds(jsonParser.getDoubleValue());
                     break;
-                case "overloadPenaltyCost":
+                case "overload-penalty-cost":
                     jsonParser.nextToken();
                     parameters.setOverloadPenaltyCost(jsonParser.getDoubleValue());
                     break;
-                case "rdSensitivityThreshold":
+                case "redispatching-sensitivity-threshold":
                     jsonParser.nextToken();
                     parameters.setRdSensitivityThreshold(jsonParser.getDoubleValue());
                     break;
-                case "pstSensitivityThreshold":
+                case "pst-sensitivity-threshold":
                     jsonParser.nextToken();
                     parameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
                     break;
-                case "problemFillers":
+                case "number-of-parallel-threads":
+                    jsonParser.nextToken();
+                    parameters.setNumberOfParallelThreads(jsonParser.getIntValue());
+                    break;
+                case "problem-fillers":
                     jsonParser.nextToken();
                     parameters.addAllFillers(jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
                     }));
                     break;
-                case "preProcessors":
+                case "pre-processors":
                     jsonParser.nextToken();
                     parameters.addAllPreProcessors(jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
                     }));
                     break;
-                case "postProcessors":
+                case "post-processors":
                     jsonParser.nextToken();
                     parameters.addAllPostProcessors(jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
                     }));

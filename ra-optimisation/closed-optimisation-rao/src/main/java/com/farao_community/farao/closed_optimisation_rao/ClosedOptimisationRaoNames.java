@@ -48,6 +48,7 @@ public final class ClosedOptimisationRaoNames {
     public static final String OVERLOAD_PENALTY_COST_NAME = "overload_penalty_cost";
     public static final String RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME = "rd_sensitivity_threshold";
     public static final String PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME = "pst_sensitivity_threshold";
+    public static final String NUMBER_OF_PARALLEL_THREADS_NAME = "number_of_parallel_threads";
 
     /**
      * Get standard name of redispatch value variables

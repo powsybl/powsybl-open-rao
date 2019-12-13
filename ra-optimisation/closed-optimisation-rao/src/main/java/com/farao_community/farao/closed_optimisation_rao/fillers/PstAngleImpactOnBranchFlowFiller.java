@@ -76,7 +76,8 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
     public void fillProblem(MPSolver solver) {
         LOGGER.info("Filling problem using plugin '{}'", getClass().getSimpleName());
         Map<Pair<String, String>, Double> sensitivities = (Map<Pair<String, String>, Double>) data.get(PST_SENSITIVITIES_DATA_NAME);
-        double sensiThreshold = ((Map<String, Double>) data.get(OPTIMISATION_CONSTANTS_DATA_NAME)).get(PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
+        Map<String, Object> optimisationConstants = (Map<String, Object>) data.get(OPTIMISATION_CONSTANTS_DATA_NAME);
+        double sensiThreshold = (Double) optimisationConstants.get(PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD_NAME);
 
         pstRemedialActions.forEach((contingency, raList) -> {
             if (!contingency.isPresent()) {
@@ -100,7 +101,7 @@ public class PstAngleImpactOnBranchFlowFiller extends AbstractOptimisationProble
     }
 
     private void fillImpactOfPstRemedialActionOnBranch(Optional<Contingency> contingency, PstElement pst, MonitoredBranch branch, MPSolver solver, Map<Pair<String, String>, Double> sensitivities, double sensiThreshold) {
-        double sensitivity = sensitivities.get(Pair.of(branch.getId(), pst.getId()));
+        double sensitivity = sensitivities.getOrDefault(Pair.of(branch.getId(), pst.getId()), 0.0);
 
         if (isSignificant(sensitivity, sensiThreshold)) {
             MPVariable pstVariable = Objects.requireNonNull(solver.lookupVariableOrNull(nameShiftValueVariable(contingency, pst)));

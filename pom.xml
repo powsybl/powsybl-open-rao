@@ -64,6 +64,7 @@
         <google.autoservice.version>1.0-rc2</google.autoservice.version>
         <google.guava.version>20.0</google.guava.version>
         <google.ortools.version>6.7.2</google.ortools.version>
+        <hamcrest.version>1.3</hamcrest.version>
         <jackson.version>2.10.0</jackson.version>
         <java.version>1.8</java.version>
         <javax.annotation.api.version>1.3</javax.annotation.api.version>
@@ -340,26 +341,6 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-core</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-ext-base</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-local</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-storage-api</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-commons</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
@@ -376,6 +357,11 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-iidm-api</artifactId>
+                <version>${powsybl.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-converter-api</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
             <dependency>
@@ -510,19 +496,6 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-core</artifactId>
-                <version>${powsybl.core.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-afs-mapdb-storage</artifactId>
-                <version>${powsybl.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-commons</artifactId>
                 <version>${powsybl.core.version}</version>
                 <type>test-jar</type>
@@ -562,6 +535,12 @@
                 <groupId>org.easytesting</groupId>
                 <artifactId>fest-assert</artifactId>
                 <version>${test.assert.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>${hamcrest.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
