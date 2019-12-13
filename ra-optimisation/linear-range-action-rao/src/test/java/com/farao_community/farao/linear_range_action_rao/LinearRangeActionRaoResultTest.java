@@ -21,7 +21,7 @@ public class LinearRangeActionRaoResultTest {
 
     @Before
     public void setUp() throws Exception {
-        raoResult = new LinearRangeActionRaoResult();
+        raoResult = new LinearRangeActionRaoResult(0);
     }
 
     @Test

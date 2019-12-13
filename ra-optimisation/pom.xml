@@ -21,7 +21,6 @@
         <module>ra-optimisation-api</module>
         <module>rao-api</module>
         <module>search-tree-rao</module>
-        <module>linear-range-action-rao</module>
     </modules>
 
 </project>

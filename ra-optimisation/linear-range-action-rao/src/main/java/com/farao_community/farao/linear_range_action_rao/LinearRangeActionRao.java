@@ -11,10 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
-<<<<<<< HEAD
-=======
 import com.google.auto.service.AutoService;
->>>>>>> master
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
