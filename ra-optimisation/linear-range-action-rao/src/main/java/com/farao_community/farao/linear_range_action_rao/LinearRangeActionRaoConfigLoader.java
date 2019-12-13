@@ -26,12 +26,12 @@ public class LinearRangeActionRaoConfigLoader implements RaoParameters.ConfigLoa
 
     @Override
     public String getExtensionName() {
-        return "LinearRangeActionParameters";
+        return "LinearRangeActionRaoParameters";
     }
 
     @Override
     public String getCategoryName() {
-        return "rao-parameters";
+        return "linear-rao-parameters";
     }
 
     @Override
