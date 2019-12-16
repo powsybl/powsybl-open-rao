@@ -67,7 +67,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         this.side = side;
     }
 
-    protected Terminal getTerminal(Network network, Cnec cnec) {
+    private Terminal getTerminal(Network network, Cnec cnec) {
         // TODO: manage matching between LEFT/RIGHT and ONE/TWO
         switch (side) {
             case LEFT:
@@ -79,8 +79,25 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         }
     }
 
+    protected double getI(Network network, Cnec cnec) {
+        double i = getTerminal(network, cnec).getI();
+        if (Double.isNaN(i)) {
+            throw new FaraoException(String.format("No intensity (I) data available for CNEC %s", cnec.getName()));
+        }
+        return i;
+    }
+
+    protected double getP(Network network, Cnec cnec) {
+        double p = getTerminal(network, cnec).getP();
+        if (Double.isNaN(p)) {
+            throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", cnec.getName()));
+        }
+        return p;
+    }
+
     @Override
     public Optional<Double> getMinThreshold() {
         return Optional.empty();
     }
+
 }

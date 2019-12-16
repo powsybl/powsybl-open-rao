@@ -53,9 +53,9 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         }
         switch (unit) {
             case AMPERE:
-                return (maxValue * percentageOfMax / 100) < getTerminal(network, cnec).getI();
+                return (maxValue * percentageOfMax / 100) < getI(network, cnec);
             case MEGAWATT:
-                return (maxValue * percentageOfMax / 100) < getTerminal(network, cnec).getP();
+                return (maxValue * percentageOfMax / 100) < getP(network, cnec);
             case DEGREE:
             case KILOVOLT:
             default:
@@ -70,9 +70,9 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         }
         switch (unit) {
             case AMPERE:
-                return (maxValue * percentageOfMax / 100) - getTerminal(network, cnec).getI();
+                return (maxValue * percentageOfMax / 100) - getI(network, cnec);
             case MEGAWATT:
-                return (maxValue * percentageOfMax / 100) - getTerminal(network, cnec).getP();
+                return (maxValue * percentageOfMax / 100) - getP(network, cnec);
             case DEGREE:
             case KILOVOLT:
             default:

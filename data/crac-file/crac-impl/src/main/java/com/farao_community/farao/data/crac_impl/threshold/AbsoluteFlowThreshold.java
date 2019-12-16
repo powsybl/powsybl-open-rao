@@ -52,9 +52,9 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     public double computeMargin(Network network, Cnec cnec) {
         switch (unit) {
             case AMPERE:
-                return maxValue - getTerminal(network, cnec).getI();
+                return maxValue - getI(network, cnec);
             case MEGAWATT:
-                return maxValue - getTerminal(network, cnec).getP();
+                return maxValue - getP(network, cnec);
             case DEGREE:
             case KILOVOLT:
             default:

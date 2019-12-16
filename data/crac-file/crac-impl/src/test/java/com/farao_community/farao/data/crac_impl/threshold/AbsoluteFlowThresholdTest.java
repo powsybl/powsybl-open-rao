@@ -52,6 +52,12 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
+    public void isMaxThresholdOvercome() throws Exception {
+        assertFalse(absoluteFlowThreshold.isMaxThresholdOvercome(network, cnec));
+    }
+
+
+    @Test
     public void synchronize() {
         assertEquals(1500, absoluteFlowThreshold.getMaxValue(), 1);
         cnec.synchronize(network);
