@@ -18,14 +18,41 @@
 
     <artifactId>farao-linear-range-action-rao</artifactId>
     <packaging>jar</packaging>
-    <name>Modular RAO on linear actions implementation</name>
+    <name>Modular linear RAO implementation</name>
     <description>Implementation of a RAO that will optimize only linear range actions</description>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-rao-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

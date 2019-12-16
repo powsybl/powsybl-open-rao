@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@AutoService(RaoProvider.class)
 public class LinearRangeActionRao implements RaoProvider {
 
     @Override

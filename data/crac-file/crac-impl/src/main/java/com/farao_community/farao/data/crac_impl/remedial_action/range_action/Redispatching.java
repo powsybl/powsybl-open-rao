@@ -13,6 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Redispatching remedial action.
  *
@@ -82,5 +85,10 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<NetworkElement> getNetworkElements() {
+        return new ArrayList<>();
     }
 }
