@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.linear_range_action_rao.LinearRangeActionRaoResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -49,12 +48,12 @@ class Leaf {
     /**
      * Impact of the network action
      */
-    private LinearRangeActionRaoResult linearRaoResult;
+    private RaoComputationResult raoResult;
 
     /**
      * Status of the leaf's Network Action evaluation
      */
-    Status status;
+    private Status status;
 
     enum Status {
         CREATED,
@@ -70,7 +69,7 @@ class Leaf {
         this.parentLeaf = null;
         this.networkAction = null;
         this.networkVariant = networkVariant;
-        this.linearRaoResult = null;
+        this.raoResult = null;
         this.status = Status.CREATED;
     }
 
@@ -81,7 +80,7 @@ class Leaf {
         this.parentLeaf = parentLeaf;
         this.networkAction = networkAction;
         this.networkVariant = null;
-        this.linearRaoResult = null;
+        this.raoResult = null;
         this.status = Status.CREATED;
     }
 
@@ -99,8 +98,8 @@ class Leaf {
     /**
      * Action impact getter
      */
-    LinearRangeActionRaoResult getLinearRaoResult() {
-        return linearRaoResult;
+    RaoComputationResult getRaoResult() {
+        return raoResult;
     }
 
     /**
@@ -171,7 +170,7 @@ class Leaf {
             RaoComputationResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac);
 
             // Get results
-            this.linearRaoResult = results.getExtension(LinearRangeActionRaoResult.class);
+            this.raoResult = results;
             this.status = buildStatus(results);
 
         } catch (FaraoException e) {

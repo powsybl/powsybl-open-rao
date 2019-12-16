@@ -91,7 +91,7 @@ public class LeafTest {
         assertNull(rootLeaf.getParent());
         assertNull(rootLeaf.getNetworkAction());
         assertTrue(rootLeaf.getNetworkActionLegacy().isEmpty());
-        assertNull(rootLeaf.getLinearRaoResult());
+        assertNull(rootLeaf.getRaoResult());
         assertEquals("referenceVariant", rootLeaf.getNetworkVariant());
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
 

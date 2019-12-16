@@ -49,7 +49,7 @@ public class Tree {
 
         if (optimalLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
             //TODO : improve error messages depending on leaf error (Sensi divergent, infeasible optimisation, time-out, ...)
-            throw new FaraoException("Initial case is divergent");
+            throw new FaraoException("Initial case returns an error");
         }
 
         boolean hasImproved;
@@ -67,16 +67,25 @@ public class Tree {
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
                 if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
-                    if (currentLeaf.getLinearRaoResult().getCost() < optimalLeaf.getLinearRaoResult().getCost()) {
+                    if (getCost(currentLeaf.getRaoResult()) < getCost(optimalLeaf.getRaoResult())) {
                         hasImproved = true;
                         optimalLeaf = currentLeaf;
                     }
                 }
             }
             //TODO: generalize to handle different stop criterion
-        } while (optimalLeaf.getLinearRaoResult().getCost() < 0 && hasImproved);
+        } while (getCost(optimalLeaf.getRaoResult()) < 0 && hasImproved);
 
         //TODO: build SearchTreeRaoResult object
-        return CompletableFuture.completedFuture(optimalLeaf.getLinearRaoResult().getExtendable());
+        return CompletableFuture.completedFuture(optimalLeaf.getRaoResult());
+    }
+
+    /**
+     * Temporarily function, will be deprecated once the RaoResult will
+     * be refactored
+     */
+    private double getCost(RaoComputationResult raoResult) {
+        // TODO: get objective function value
+        return 0;
     }
 }
