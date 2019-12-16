@@ -4,7 +4,7 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao;
+package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -13,10 +13,12 @@ import com.farao_community.farao.linear_range_action_rao.LinearRangeActionRaoRes
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.powsybl.computation.ComputationManager;
+import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -64,9 +66,11 @@ class Leaf {
     /**
      * Initial Leaf constructor
      */
-    Leaf() {
+    Leaf(String networkVariant) {
         this.parentLeaf = null;
         this.networkAction = null;
+        this.networkVariant = networkVariant;
+        this.linearRaoResult = null;
         this.status = Status.CREATED;
     }
 
@@ -76,6 +80,8 @@ class Leaf {
     private Leaf(Leaf parentLeaf, NetworkAction networkAction) {
         this.parentLeaf = parentLeaf;
         this.networkAction = networkAction;
+        this.networkVariant = null;
+        this.linearRaoResult = null;
         this.status = Status.CREATED;
     }
 
@@ -119,40 +125,58 @@ class Leaf {
     }
 
     /**
+     * Get the list of Network Actions from the current leaf, and from its
+     * parent leaves
+     */
+    List<NetworkAction> getNetworkActionLegacy() {
+        Leaf leaf = this;
+        List<NetworkAction> naList = new ArrayList<>();
+        while (!leaf.isRoot()) {
+            naList.add(leaf.getNetworkAction());
+            leaf = leaf.getParent();
+        }
+        return naList;
+    }
+
+    /**
      * Extend the tree from the current Leaf with N new children Leaves
      * for the N Network Actions given in argument
      */
     List<Leaf> bloom(List<NetworkAction> availableNetworkActions) {
-        //TODO: remove network actions of current leaf and its parents
-        return availableNetworkActions.stream().map(na -> new Leaf(this, na)).collect(Collectors.toList());
+        List<NetworkAction> legacy = getNetworkActionLegacy();
+        return availableNetworkActions.stream().
+                filter(na -> !legacy.contains(na)).
+                map(na -> new Leaf(this, na)).collect(Collectors.toList());
     }
 
     /**
      * Evaluate the impact of Network Actions (from the current Leaf and
      * its parents)
      */
-    void evaluate(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
-        if (isRoot()) {
-            throw new FaraoException("When evaluating the root leaf, a network variant must be specified.");
-        }
-        evaluate(network, crac, getParent().getNetworkVariant(), computationManager, parameters);
-    }
-
-    /**
-     * Evaluate the impact of Network Actions (from the current Leaf and
-     * its parents)
-     */
-    void evaluate(Network network, Crac crac, String referenceNetworkVariant, ComputationManager computationManager, RaoParameters parameters) {
-
+    void evaluate(Network network, Crac crac, RaoParameters parameters) {
         this.status = Status.EVALUATION_RUNNING;
 
-        // get network variant and apply network action
-        this.networkVariant = createVariant(network, referenceNetworkVariant);
-        network.getVariantManager().setWorkingVariant(this.networkVariant);
+        try {
+            // apply Network Action
+            if (!isRoot()) {
+                Objects.requireNonNull(networkAction);
+                this.networkVariant = createVariant(network, getParent().getNetworkVariant());
+                network.getVariantManager().setWorkingVariant(this.networkVariant);
+                networkAction.apply(network);
+            } else {
+                network.getVariantManager().setWorkingVariant(this.networkVariant);
+            }
 
-        RaoComputationResult results = Rao.find("Linear Range Action Rao").run(network, crac, networkVariant, computationManager, parameters);
-        linearRaoResult = results.getExtension(LinearRangeActionRaoResult.class);
-        //todo : run RangeActionRao and update RaoComputationResult
+            // Optimize the use of Range Actions
+            RaoComputationResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac);
+
+            // Get results
+            this.linearRaoResult = results.getExtension(LinearRangeActionRaoResult.class);
+            this.status = buildStatus(results);
+
+        } catch (FaraoException e) {
+            this.status = Status.EVALUATION_ERROR;
+        }
     }
 
     private String getUniqueVariantId(Network network) {
@@ -164,14 +188,24 @@ class Leaf {
     }
 
     private String createVariant(Network network, String referenceNetworkVariant) {
-        String uniqueId = getUniqueVariantId(network);
-
-        if (isRoot()) {
-            network.getVariantManager().cloneVariant(referenceNetworkVariant, this.networkVariant);
-        } else {
-            network.getVariantManager().cloneVariant(referenceNetworkVariant, this.networkVariant);
+        Objects.requireNonNull(referenceNetworkVariant);
+        if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
+            throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
         }
+        String uniqueId = getUniqueVariantId(network);
+        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
         return uniqueId;
     }
 
+    private String getRangeActionRaoName(RaoParameters parameters) {
+        return SearchTreeConfigurationUtil.getSearchTreeParameters(parameters).getRangeActionRao();
+    }
+
+    private Status buildStatus(RaoComputationResult results) {
+        if (results.getStatus().equals(RaoComputationResult.Status.SUCCESS)) {
+            return Status.EVALUATION_SUCCESS;
+        } else {
+            return Status.EVALUATION_ERROR;
+        }
+    }
 }

@@ -31,17 +31,19 @@ public final class SearchTreeConfigurationUtil {
      * Validates RAO parameters compatibility with platform available plugins.
      * Return a list of errors, that is empty if the configuration is correct.
      *
-     * @param parameters RAO parameters
+     * @param raoParameters RAO parameters
      * @return a list of configuration issues
      */
-    public static List<String> checkSearchTreeRaoConfiguration(RaoParameters parameters) {
+    public static List<String> checkSearchTreeRaoConfiguration(RaoParameters raoParameters) {
         List<String> errors = new ArrayList<>();
 
         // Check that correct extension is provided
         // Return directly if the extension is not provided
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
-        if (Objects.isNull(searchTreeRaoParameters)) {
-            errors.add("Search Tree RAO parameters not available");
+        SearchTreeRaoParameters searchTreeRaoParameters;
+        try {
+            searchTreeRaoParameters = getSearchTreeParameters(raoParameters);
+        } catch (FaraoException e) {
+            errors.add(e.getMessage());
             return errors;
         }
 
@@ -53,5 +55,17 @@ public final class SearchTreeConfigurationUtil {
         }
 
         return errors;
+    }
+
+    /**
+     * Get SearchTreeRaoParameters from a RaoParameters
+     * Throws a FaraoException if it does not exists
+     */
+    public static SearchTreeRaoParameters getSearchTreeParameters(RaoParameters raoParameters) {
+        SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
+        if (Objects.isNull(searchTreeRaoParameters)) {
+            throw new FaraoException("Search Tree RAO parameters not available");
+        }
+        return searchTreeRaoParameters;
     }
 }

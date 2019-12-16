@@ -8,12 +8,11 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
+import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -40,40 +39,15 @@ public class SearchTreeRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
 
+        // quality check
         List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters);
-
-        Leaf optimalLeaf = new Leaf();
-        optimalLeaf.evaluate(network, crac, computationManager, parameters);
-
-        if (optimalLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
-            throw new FaraoException("Initial case is divergent");
+        if (!configQualityCheck.isEmpty()) {
+            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
 
-        boolean hasImproved;
-        //TODO: generalize to handle different stop criterion
-        do {
-            List<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, UsageMethod.AVAILABLE);
-            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
-
-            if (generatedLeaves.size() == 0) {
-                break;
-            }
-
-            //TODO: manage parallel computation
-            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, variantId, computationManager, parameters));
-
-            hasImproved = false;
-            for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
-                    if (currentLeaf.getLinearRaoResult().getCost() < optimalLeaf.getLinearRaoResult().getCost()) {
-                        hasImproved = true;
-                        optimalLeaf = currentLeaf;
-                    }
-                }
-            }
-        } while (optimalLeaf.getLinearRaoResult().getCost() < 0 && hasImproved);
-
-        //TODO: build SearchTreeRaoResult object
-        return CompletableFuture.completedFuture(optimalLeaf.getLinearRaoResult().getExtendable());
+        // run optimisation
+        RaoComputationResult result = new Tree(network, crac, variantId, parameters).search().join();
+        return CompletableFuture.completedFuture(result);
     }
+
 }
