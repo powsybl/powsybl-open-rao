@@ -6,50 +6,37 @@
  */
 package com.farao_community.farao.search_tree_rao.config;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonSearchTreeRaoParametersTest {
-    private RaoParameters parameters;
+public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
 
-    @Before
-    public void setUp() {
-        parameters = new RaoParameters();
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        searchTreeRaoParameters.setRangeActionRao("myRangeActionRao");
-        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+    @Test
+    public void roundTrip() throws IOException {
+        RaoParameters parameters = new RaoParameters();
+        parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
+        parameters.getExtension(SearchTreeRaoParameters.class).setRangeActionRao("myRangeActionRao");
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
     }
 
     @Test
-    public void shouldImportAValidParametersFileAndHaveCorrectsValues() {
-        RaoParameters importedParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/config/raoParametersValid.json"));
-        SearchTreeRaoParameters searchTreeRaoParameters = importedParameters.getExtension(SearchTreeRaoParameters.class);
-        assertEquals(searchTreeRaoParameters.getRangeActionRao(), "myRangeActionRao");
-    }
-
-    @Test
-    public void shouldExportParametersInAValidFormat() throws IOException {
-        String expectedParameters;
-        try (InputStream is = getClass().getResourceAsStream("/config/raoParametersValid.json")) {
-            expectedParameters = IOUtils.toString(is, "UTF-8");
+    public void readError() throws IOException {
+        try {
+            JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersError.json"));
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+            assertTrue(e.getMessage().contains("Unexpected field"));
         }
-        String actualParameters;
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            JsonRaoParameters.write(parameters, baos);
-            actualParameters = new String(baos.toByteArray());
-        }
-        assertEquals(actualParameters, expectedParameters);
     }
 }
