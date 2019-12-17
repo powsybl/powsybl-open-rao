@@ -35,8 +35,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
     @Override
     public RaoParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoParameters parameters) throws IOException {
 
-        System.out.println("coucou1");
-
         List<Extension<RaoParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
