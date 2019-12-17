@@ -8,16 +8,12 @@ package com.farao_community.farao.search_tree_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
 
     static final String DEFAULT_RANGE_ACTION_RAO = "Linear Range Action Rao";
 

@@ -43,6 +43,6 @@ public class SearchTreeRaoParametersTest {
         searchTreeRaoParameters.setRangeActionRao("LinearRao");
         assertNotNull(searchTreeRaoParameters.getRangeActionRao());
         // name
-        assertEquals(searchTreeRaoParameters.getName(), "SearchTreeRaoParameters");
+        assertEquals("SearchTreeRaoParameters", searchTreeRaoParameters.getName());
     }
 }

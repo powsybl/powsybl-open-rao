@@ -57,7 +57,7 @@ public class Tree {
             List<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
-            if (generatedLeaves.size() == 0) {
+            if (generatedLeaves.isEmpty()) {
                 break;
             }
 
