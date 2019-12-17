@@ -41,6 +41,18 @@ public final class OnContingency extends AbstractUsageRule {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OnContingency rule = (OnContingency) o;
+        return super.equals(o) && rule.contingency.equals(contingency);
+    }
+
+    @Override
     public int hashCode() {
         return usageMethod.hashCode() * 29 + state.hashCode() * 59 + contingency.hashCode();
     }

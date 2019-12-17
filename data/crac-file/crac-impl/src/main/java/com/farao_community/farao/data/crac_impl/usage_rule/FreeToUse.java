@@ -27,6 +27,17 @@ public final class FreeToUse extends AbstractUsageRule {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+    @Override
     public int hashCode() {
         return usageMethod.hashCode() * 19 + state.hashCode() * 47;
     }

@@ -57,12 +57,6 @@ public abstract class AbstractUsageRule implements UsageRule {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
         AbstractUsageRule rule = (AbstractUsageRule) o;
         return usageMethod.equals(rule.getUsageMethod()) && state.equals(rule.getState());
     }
