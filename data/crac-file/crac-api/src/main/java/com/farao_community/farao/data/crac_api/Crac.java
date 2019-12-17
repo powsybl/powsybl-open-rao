@@ -53,7 +53,7 @@ public interface Crac extends Identifiable, Synchronizable {
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
      * instants objects. This is a set because states must not be duplicated and it is sorted
-     * by chronology of instants.
+     * by chronology of instants. Can return null if no matching contingency is found.
      *
      * @param contingency: The contingency after which we want to gather states.
      * @return Ordered set of states after the specified contingency.
@@ -64,7 +64,7 @@ public interface Crac extends Identifiable, Synchronizable {
      * Unordered set of States defined at the same instant. It will be either the preventive state or
      * the set of all the states defined at the same instant after all the contingencies. It is a set
      * because states must not be duplicated and there is no defined order for states selected by
-     * instants.
+     * instants. Can return null if no matching instant is found.
      *
      * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
@@ -73,6 +73,7 @@ public interface Crac extends Identifiable, Synchronizable {
 
     /**
      * Select a unique state after a contingency and at a specific instant.
+     * Can return null if no matching state or contingency are found.
      *
      * @param contingency: The contingency after which we want to select the state.
      * @param instant: The instant at which we want to select the state.
@@ -81,22 +82,23 @@ public interface Crac extends Identifiable, Synchronizable {
     State getState(Contingency contingency, Instant instant);
 
     /**
-     * Given an id which can be a contingency id or an instant id. It filters a set of
-     * corresponding states.
+     * Unordered set of States defined at the same instant. It will be either the preventive state or
+     * the set of all the states defined at the same instant after all the contingencies. It is a set
+     * because states must not be duplicated and there is no defined order for states selected by
+     * instants. Can return null if no matching instant is found.
      *
-     * @param id: String that can be either a contigency id or an instant id.
-     * @return a sorted set of states. It can return null if no matching instant or
-     * contingency are found.
+     * @param id: The instant id at which we want to gather states.
+     * @return Unordered set of states at the same specified instant.
      */
     Set<State> getStatesFromInstant(String id);
 
     /**
-     * Given an id which can be a contingency id or an instant id. It filters a set of
-     * corresponding states.
+     * Chronological list of states after a defined contingency. The chronology is defined by
+     * instants objects. This is a set because states must not be duplicated and it is sorted
+     * by chronology of instants. Can return null if no matching contingency is found.
      *
-     * @param id: String that can be either a contigency id or an instant id.
-     * @return a sorted set of states. It can return null if no matching instant or
-     * contingency are found.
+     * @param id: The contingency id after which we want to gather states.
+     * @return Ordered set of states after the specified contingency.
      */
     SortedSet<State> getStatesFromContingency(String id);
 
