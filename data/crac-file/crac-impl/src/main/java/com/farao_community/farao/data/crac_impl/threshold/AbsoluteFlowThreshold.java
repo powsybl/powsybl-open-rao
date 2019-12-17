@@ -64,11 +64,9 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-
     }
 
     @Override
     public void desynchronize() {
-
     }
 }
