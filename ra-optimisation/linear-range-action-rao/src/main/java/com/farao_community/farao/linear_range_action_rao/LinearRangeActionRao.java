@@ -36,20 +36,6 @@ import java.util.concurrent.CompletableFuture;
 @AutoService(RaoProvider.class)
 public class LinearRangeActionRao implements RaoProvider {
 
-    private Network network;
-    private Crac crac;
-    private ComputationManager computationManager;
-
-    public LinearRangeActionRao(Network network,
-                                 Crac crac,
-                                 ComputationManager computationManager,
-                                 SensitivityComputationFactory sensitivityComputationFactory) {
-        this.network = network;
-        this.crac = crac;
-        this.computationManager = computationManager;
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-    }
-
     @Override
     public String getName() {
         return "Linear Range Action Rao";
@@ -62,6 +48,13 @@ public class LinearRangeActionRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+        return null;
+    }
+
+    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId,
+                                                       ComputationManager computationManager, RaoParameters parameters,
+                                                       SensitivityComputationFactory sensitivityComputationFactory) {
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         SensitivitySecurityAnalysisResult sensiSaResults = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
 
         SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
@@ -110,4 +103,5 @@ public class LinearRangeActionRao implements RaoProvider {
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
         return CompletableFuture.completedFuture(raoComputationResult);
     }
+
 }
