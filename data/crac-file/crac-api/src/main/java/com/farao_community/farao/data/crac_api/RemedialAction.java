@@ -24,4 +24,6 @@ public interface RemedialAction extends Identifiable {
     UsageMethod getUsageMethod(Network network, State state);
 
     List<UsageRule> getUsageRules();
+
+    void addUsageRule(UsageRule usageRule);
 }

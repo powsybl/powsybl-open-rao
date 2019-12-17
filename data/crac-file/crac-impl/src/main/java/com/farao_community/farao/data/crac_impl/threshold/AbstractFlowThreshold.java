@@ -76,4 +76,24 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
                 throw new FaraoException("Side is not defined");
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractFlowThreshold threshold = (AbstractFlowThreshold) o;
+        return unit.equals(threshold.unit) && side.equals(threshold.side) && direction.equals(threshold.direction);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = unit.hashCode();
+        result = 31 * result + side.hashCode();
+        result = 31 * result + direction.hashCode();
+        return result;
+    }
 }

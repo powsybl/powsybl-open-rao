@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -43,14 +43,6 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         this.usageRules = usageRules;
     }
 
-    public AbstractRemedialAction(String id, String operator, List<UsageRule> usageRules) {
-        this(id, id, operator, usageRules);
-    }
-
-    public AbstractRemedialAction(String id, String operator) {
-        this(id, id, operator, new ArrayList<>());
-    }
-
     public void setOperator(String operator) {
         this.operator = operator;
     }
@@ -69,6 +61,7 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         return usageRules;
     }
 
+    @Override
     @JsonProperty("usageRules")
     public void addUsageRule(UsageRule usageRule) {
         usageRules.add(usageRule);
@@ -78,5 +71,26 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
     public UsageMethod getUsageMethod(Network network, State state) {
         // TODO: implement method
         throw new NotImplementedException("Get usage method is not implemented yet.");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractRemedialAction remedialAction = (AbstractRemedialAction) o;
+        return super.equals(remedialAction) && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        for (UsageRule rule : usageRules) {
+            result = 31 * result + rule.hashCode();
+        }
+        return result;
     }
 }

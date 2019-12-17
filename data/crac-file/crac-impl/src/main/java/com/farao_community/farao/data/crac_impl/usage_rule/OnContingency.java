@@ -39,4 +39,9 @@ public final class OnContingency extends AbstractUsageRule {
     public void setContingency(Contingency contingency) {
         this.contingency = contingency;
     }
+
+    @Override
+    public int hashCode() {
+        return usageMethod.hashCode() * 29 + state.hashCode() * 59 + contingency.hashCode();
+    }
 }

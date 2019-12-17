@@ -42,18 +42,8 @@ public class SimpleState implements State {
     }
 
     @Override
-    public void setInstant(Instant instant) {
-        this.instant = instant;
-    }
-
-    @Override
     public Optional<Contingency> getContingency() {
         return Optional.ofNullable(contingency);
-    }
-
-    @Override
-    public void setContingency(Optional<Contingency> contingency) {
-        this.contingency = contingency.orElse(null);
     }
 
     @Override

@@ -118,9 +118,7 @@ public class JsonImportExportTest {
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
-        State stateCurative = new SimpleState(Optional.empty(), null);
-        stateCurative.setContingency(Optional.of(contingency));
-        stateCurative.setInstant(curative);
+        State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 

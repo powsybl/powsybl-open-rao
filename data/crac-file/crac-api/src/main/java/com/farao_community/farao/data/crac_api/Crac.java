@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.Set;
@@ -46,6 +47,7 @@ public interface Crac extends Identifiable, Synchronizable {
      *
      * @return The preventive state of the problem definition.
      */
+    @JsonIgnore
     State getPreventiveState();
 
     /**
@@ -74,9 +76,39 @@ public interface Crac extends Identifiable, Synchronizable {
      *
      * @param contingency: The contingency after which we want to select the state.
      * @param instant: The instant at which we want to select the state.
-     * @return  State after a contingency and at a specific instant.
+     * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
+
+    /**
+     * Given an id which can be a contingency id or an instant id. It filters a set of
+     * corresponding states.
+     *
+     * @param id: String that can be either a contigency id or an instant id.
+     * @return a sorted set of states. It can return null if no matching instant or
+     * contingency are found.
+     */
+    Set<State> getStatesFromInstant(String id);
+
+    /**
+     * Given an id which can be a contingency id or an instant id. It filters a set of
+     * corresponding states.
+     *
+     * @param id: String that can be either a contigency id or an instant id.
+     * @return a sorted set of states. It can return null if no matching instant or
+     * contingency are found.
+     */
+    SortedSet<State> getStatesFromContingency(String id);
+
+    /**
+     * Select a unique state after a contingency and at a specific instant, specified by their ids.
+     *
+     * @param contingencyId: The contingency id after which we want to select the state.
+     * @param instantId: The instant id at which we want to select the state.
+     * @return State after a contingency and at a specific instant. Can return null if no matching
+     * state or contingency are found.
+     */
+    State getState(String contingencyId, String instantId);
 
     void addState(State state);
 
@@ -99,6 +131,8 @@ public interface Crac extends Identifiable, Synchronizable {
      */
     Set<Cnec> getCnecs(State state);
 
+    Set<Cnec> getCnecs(String contingencyId, String instantId);
+
     void addCnec(Cnec cnec);
 
     // Range actions management
@@ -112,7 +146,7 @@ public interface Crac extends Identifiable, Synchronizable {
 
     /**
      * Gather all the range actions of a specified state with the specified usage method (available, forced or
-     * unavailable). To determine this usage method it requires a network. It returns a set because range
+     * unavailable). A network is required to determine the usage method. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
      *
      * @return A set of range actions.

@@ -39,8 +39,8 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
         this.applicableNetworkActions = applicableNetworkActions;
     }
 
-    public ComplexNetworkAction(String id, String operator, List<UsageRule> usageRules, List<ApplicableNetworkAction> applicableNetworkActions) {
-        this (id, id, operator, usageRules, applicableNetworkActions);
+    public ComplexNetworkAction(String id, String name, String operator) {
+        this (id, name, operator, new ArrayList<>(), new ArrayList<>());
     }
 
     public ComplexNetworkAction(String id, String operator) {

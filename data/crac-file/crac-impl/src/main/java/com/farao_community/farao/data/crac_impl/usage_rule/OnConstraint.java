@@ -37,4 +37,9 @@ public final class OnConstraint extends AbstractUsageRule {
     public void setCnec(Cnec cnec) {
         this.cnec = cnec;
     }
+
+    @Override
+    public int hashCode() {
+        return usageMethod.hashCode() * 23 + state.hashCode() * 53 + cnec.hashCode();
+    }
 }

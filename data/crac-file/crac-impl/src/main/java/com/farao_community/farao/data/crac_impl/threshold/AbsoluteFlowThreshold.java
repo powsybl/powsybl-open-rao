@@ -59,4 +59,23 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     public void desynchronize() {
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbsoluteFlowThreshold threshold = (AbsoluteFlowThreshold) o;
+        return super.equals(threshold) && maxValue == threshold.maxValue;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) maxValue;
+        return result;
+    }
 }

@@ -39,12 +39,6 @@ public class SimpleStateTest {
     }
 
     @Test
-    public void setInstant() {
-        state.setInstant(new Instant("curative2", 5));
-        assertEquals(5, state.getInstant().getSeconds());
-    }
-
-    @Test
     public void testEquals() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),

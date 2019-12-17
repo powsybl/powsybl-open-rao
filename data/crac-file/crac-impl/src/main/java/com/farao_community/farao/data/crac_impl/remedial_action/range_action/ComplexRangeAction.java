@@ -48,6 +48,10 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this (id, id, operator, usageRules, ranges, applicableRangeActions);
     }
 
+    public ComplexRangeAction(String id, String name, String operator) {
+        this (id, name, operator, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
     public ComplexRangeAction(String id, String operator) {
         this (id, id, operator, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }

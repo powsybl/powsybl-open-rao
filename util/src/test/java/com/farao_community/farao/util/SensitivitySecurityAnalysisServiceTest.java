@@ -82,12 +82,10 @@ public class SensitivitySecurityAnalysisServiceTest {
         SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
-        assertEquals(1, result.getResultMap().keySet().size());
+        assertEquals(2, result.getResultMap().keySet().size());
     }
 
     private static Crac create() {
-        NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
-
         // Redispatching
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
         Redispatching rd = new Redispatching(10, 20, 18, 1000, 12, generator);
@@ -149,13 +147,10 @@ public class SensitivitySecurityAnalysisServiceTest {
         injectionSetpoint.setNetworkElement(generator1);
         injectionSetpoint.setSetpoint(100);
 
-        NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
-        NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
+        NetworkElement line2 = new NetworkElement("BBE1AA1  BBE2AA1  1");
 
         ComplexContingency contingency = new ComplexContingency("idContingency");
         contingency.addNetworkElement(line2);
-        contingency.addNetworkElement(line3);
-        contingency.addNetworkElement(networkElement1);
 
         // Instant
         Instant basecase = new Instant("initial", 0);
@@ -164,9 +159,7 @@ public class SensitivitySecurityAnalysisServiceTest {
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
-        State stateCurative = new SimpleState(Optional.empty(), null);
-        stateCurative.setContingency(Optional.of(contingency));
-        stateCurative.setInstant(curative);
+        State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
@@ -236,7 +229,7 @@ public class SensitivitySecurityAnalysisServiceTest {
         crac.addRangeAction(rangeAction2);
 
         String branchId = "BBE2AA1  BBE3AA1  1";
-        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
+        ComplexContingency contingency1 = new ComplexContingency("idContingency2", "My contingency",
                 Collections.singleton(new NetworkElement(branchId)));
         crac.addContingency(contingency1);
 

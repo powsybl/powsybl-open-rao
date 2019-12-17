@@ -25,4 +25,9 @@ public final class FreeToUse extends AbstractUsageRule {
     public FreeToUse(@JsonProperty("usageMethod") UsageMethod usageMethod, @JsonProperty("state") State state) {
         super(usageMethod, state);
     }
+
+    @Override
+    public int hashCode() {
+        return usageMethod.hashCode() * 19 + state.hashCode() * 47;
+    }
 }
