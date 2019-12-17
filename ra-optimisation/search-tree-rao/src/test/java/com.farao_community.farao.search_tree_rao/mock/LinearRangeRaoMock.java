@@ -40,7 +40,7 @@ public class LinearRangeRaoMock implements RaoProvider {
 
     @Override
     public String getName() {
-        return "LinearRangeActionRaoMock";
+        return "Linear Range Action Rao Mock";
     }
 
     @Override

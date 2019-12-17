@@ -54,6 +54,11 @@ public final class SearchTreeConfigurationUtil {
             errors.add(String.format("Range action Rao '%s' not found", searchTreeRaoParameters.getRangeActionRao()));
         }
 
+        // check that RangeActionRao is not the Search Tree Rao
+        if (searchTreeRaoParameters.getRangeActionRao().equals("Search Tree Rao")) {
+            errors.add("Range action Rao cannot be the 'Search Tree Rao'");
+        }
+
         return errors;
     }
 
@@ -64,7 +69,7 @@ public final class SearchTreeConfigurationUtil {
     public static SearchTreeRaoParameters getSearchTreeParameters(RaoParameters raoParameters) {
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (Objects.isNull(searchTreeRaoParameters)) {
-            throw new FaraoException("Search Tree RAO parameters not available");
+            throw new FaraoException("Search Tree Rao parameters not available");
         }
         return searchTreeRaoParameters;
     }
