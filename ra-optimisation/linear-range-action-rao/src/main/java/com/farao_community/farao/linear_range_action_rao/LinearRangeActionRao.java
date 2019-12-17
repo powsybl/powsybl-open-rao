@@ -24,6 +24,8 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.powsybl.sensitivity.SensitivityComputationResults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(RaoProvider.class)
 public class LinearRangeActionRao implements RaoProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRao.class);
 
     @Override
     public String getName() {
@@ -62,15 +65,15 @@ public class LinearRangeActionRao implements RaoProvider {
         // 1. do for pre
         // get cnec from crac
         crac.getCnecs().forEach(cnec -> {
-            // cnec.getCriticalNetworkElement().getId()
+            LOGGER.info("Cnec: " + cnec.getId());
             preSensi.getSensitivityValues().forEach(sensitivityValue -> {
                 String id = sensitivityValue.getFactor().getFunction().getId();
                 String name = sensitivityValue.getFactor().getFunction().getName();
                 double maximumFlow = Integer.MAX_VALUE; //todo ? how to get max from Crac?
                 double preOptimisationFlow = sensitivityValue.getFunctionReference();
-
                 MonitoredBranchResult monitoredBranchResult = new MonitoredBranchResult(id, name, id, maximumFlow, preOptimisationFlow, preOptimisationFlow);
                 preRao.addMonitoredBranchResult(monitoredBranchResult);
+                LOGGER.info("ID: " + id + "; preOptimisationFlow = " + preOptimisationFlow);
             });
         });
 
