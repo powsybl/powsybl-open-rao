@@ -60,7 +60,7 @@ public class LeafTest {
         // rao parameters
         raoParameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        searchTreeRaoParameters.setRangeActionRao("LinearRangeActionRaoMock");
+        searchTreeRaoParameters.setRangeActionRao("Linear Range Action Rao Mock");
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
     }
 

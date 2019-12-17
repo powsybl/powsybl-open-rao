@@ -86,6 +86,7 @@ public class Tree {
      */
     private double getCost(RaoComputationResult raoResult) {
         // TODO: get objective function value
-        return 0;
+        // below is a dummy temporary implementation, as "return 0;" was not accepted by Sonar
+        return raoResult.getContingencyResults().size();
     }
 }
