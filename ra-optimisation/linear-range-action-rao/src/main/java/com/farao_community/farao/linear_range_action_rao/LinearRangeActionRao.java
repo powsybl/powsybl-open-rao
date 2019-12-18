@@ -58,6 +58,9 @@ public class LinearRangeActionRao implements RaoProvider {
                                                        ComputationManager computationManager, RaoParameters parameters,
                                                        SensitivityComputationFactory sensitivityComputationFactory) {
         SensitivitySecurityAnalysisResult sensiSaResults = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
+        if (sensiSaResults == null) {
+            return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
+        }
 
         // 1. do for pre
         SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
