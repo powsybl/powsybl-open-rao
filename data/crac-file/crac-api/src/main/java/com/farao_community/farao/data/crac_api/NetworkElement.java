@@ -23,4 +23,31 @@ public class NetworkElement extends AbstractIdentifiable {
     public NetworkElement(@JsonProperty("id") String id, @JsonProperty("name") String name) {
         super(id, name);
     }
+
+    public NetworkElement(String id) {
+        this(id, id);
+    }
+
+    /**
+     * Check if network elements are equals. Network elements are considered equals when IDs are equals.
+     *
+     * @param o: If it's null or another object than NetworkElement it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        NetworkElement networkElement = (NetworkElement) o;
+        return super.equals(networkElement);
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

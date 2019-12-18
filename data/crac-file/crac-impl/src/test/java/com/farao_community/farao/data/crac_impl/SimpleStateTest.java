@@ -12,11 +12,10 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -29,27 +28,153 @@ public class SimpleStateTest {
     public void create() {
         NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
         state =  new SimpleState(
-                Optional.of(new ComplexContingency("contingencyId", "contingencyName", new ArrayList<>(Arrays.asList(networkElement)))),
-                new Instant(12)
+                Optional.of(new ComplexContingency("contingencyId", "contingencyName", Collections.singleton(networkElement))),
+                new Instant("curative", 12)
         );
     }
 
     @Test
     public void getInstant() {
-        assertEquals(12, state.getInstant().getDuration(), 0.1);
+        assertEquals(12, state.getInstant().getSeconds());
     }
 
     @Test
-    public void setInstant() {
-        state.setInstant(new Instant(5));
-        assertEquals(5, state.getInstant().getDuration(), 0.1);
+    public void testEquals() {
+        SimpleState state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        assertEquals(state1, state2);
     }
 
     @Test
-    public void getContingency() {
+    public void testEqualsForPreventive() {
+        SimpleState state1 = new SimpleState(
+            Optional.empty(),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.empty(),
+            new Instant("instant-1", 10)
+        );
+
+        assertEquals(state1, state2);
     }
 
     @Test
-    public void setContingency() {
+    public void testDifferentPreventiveAndAfterContingency() {
+        SimpleState state1 = new SimpleState(
+            Optional.empty(),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        assertNotEquals(state1, state2);
+    }
+
+    @Test
+    public void testNotEqualsByInstant() {
+        SimpleState state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-2", 10)
+        );
+
+        assertNotEquals(state1, state2);
+    }
+
+    @Test
+    public void testNotEqualsByContingency() {
+        SimpleState state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 2", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        assertNotEquals(state1, state2);
+    }
+
+    @Test
+    public void testNotEqualsByContingencyElements() {
+        SimpleState state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("instant-1", 10)
+        );
+
+        assertNotEquals(state1, state2);
+    }
+
+    @Test
+    public void testHashCode() {
+        assertEquals("contingencyIdcurative".hashCode(), state.hashCode());
+    }
+
+    @Test
+    public void testHashCodeForPreventive() {
+        SimpleState state1 = new SimpleState(
+            Optional.empty(),
+            new Instant("instant-1", 10)
+        );
+
+        assertEquals("preventiveinstant-1".hashCode(), state1.hashCode());
+    }
+
+    @Test
+    public void testToStringForPreventive() {
+        SimpleState state1 = new SimpleState(
+            Optional.empty(),
+            new Instant("instant-1", 10)
+        );
+
+        assertEquals("instant-1 - preventive", state1.toString());
+    }
+
+    @Test
+    public void testToStringAfterContingency() {
+        SimpleState state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        assertEquals("instant-1 - contingency 1", state1.toString());
+    }
+
+    @Test
+    public void testCompareTo() {
+        SimpleState state1 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-1", 10)
+        );
+
+        SimpleState state2 = new SimpleState(
+            Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
+            new Instant("instant-2", 15)
+        );
+
+        assertTrue(state2.compareTo(state1) > 0);
     }
 }

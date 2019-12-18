@@ -53,7 +53,7 @@ public class SensitivitySecurityAnalysisServiceTest {
 
     private Network network;
     private ComputationManager computationManager;
-    private SimpleCrac crac;
+    private Crac crac;
 
     @Before
     public void setUp() {
@@ -82,12 +82,10 @@ public class SensitivitySecurityAnalysisServiceTest {
         SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
-        assertEquals(1, result.getResultMap().keySet().size());
+        assertEquals(2, result.getResultMap().keySet().size());
     }
 
-    private static SimpleCrac create() {
-        NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
-
+    private static Crac create() {
         // Redispatching
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
         Redispatching rd = new Redispatching(10, 20, 18, 1000, 12, generator);
@@ -109,7 +107,7 @@ public class SensitivitySecurityAnalysisServiceTest {
         absoluteFixedRange.setMax(1000);
 
         // PstRange
-        NetworkElement pst1 = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1");
+        NetworkElement pst1 = new NetworkElement("idPst1", "My Pst 1");
         PstRange pstRange1 = new PstRange(null);
         pstRange1.setNetworkElement(pst1);
 
@@ -149,24 +147,19 @@ public class SensitivitySecurityAnalysisServiceTest {
         injectionSetpoint.setNetworkElement(generator1);
         injectionSetpoint.setSetpoint(100);
 
-        NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
-        NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
+        NetworkElement line2 = new NetworkElement("BBE1AA1  BBE2AA1  1");
 
-        List<NetworkElement> elementsList = new ArrayList<>(Arrays.asList(line2, line3));
-        ComplexContingency contingency = new ComplexContingency("idContingency", "My contingency", null);
-        contingency.setNetworkElements(elementsList);
-        contingency.addNetworkElement(networkElement1);
+        ComplexContingency contingency = new ComplexContingency("idContingency");
+        contingency.addNetworkElement(line2);
 
         // Instant
-        Instant basecase = new Instant(0);
-        Instant curative = new Instant(-1);
-        curative.setDuration(200);
+        Instant basecase = new Instant("initial", 0);
+        Instant curative = new Instant("curative", -1);
+        curative.setSeconds(200);
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
-        State stateCurative = new SimpleState(Optional.empty(), null);
-        stateCurative.setContingency(Optional.of(contingency));
-        stateCurative.setInstant(curative);
+        State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
@@ -196,39 +189,48 @@ public class SensitivitySecurityAnalysisServiceTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction(
+            "id1",
+            "name1",
+            "operator1",
+            new ArrayList<>(Collections.singletonList(freeToUse)),
+            new ArrayList<>(Collections.singletonList(hvdcSetpoint))
+        );
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction(
+            "id2",
+            "name2",
+            "operator1",
+            new ArrayList<>(Collections.singletonList(freeToUse)),
+            new ArrayList<>(Collections.singletonList(pstSetpoint))
+        );
 
         // RangeAction
         ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
-        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
+        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Collections.singletonList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Collections.singletonList(pstRange1)));
 
-        List<Cnec> cnecs = new ArrayList<>();
-        cnecs.add(cnec1);
+        Crac crac = new SimpleCrac("idCrac", "name");
 
-        SimpleCrac crac = new SimpleCrac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-
-        crac.setCnecs(cnecs);
+        crac.addCnec(cnec1);
         crac.addCnec(cnec2);
-        crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
-        crac.addNetworkRemedialAction(networkAction2);
-        crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
-        crac.addRangeRemedialAction(rangeAction2);
+        crac.addNetworkAction(networkAction1);
+        crac.addNetworkAction(networkAction2);
+        crac.addRangeAction(rangeAction1);
+        crac.addRangeAction(rangeAction2);
 
         String branchId = "BBE2AA1  BBE3AA1  1";
-        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
-                Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
+        ComplexContingency contingency1 = new ComplexContingency("idContingency2", "My contingency",
+                Collections.singleton(new NetworkElement(branchId)));
         crac.addContingency(contingency1);
 
         return crac;

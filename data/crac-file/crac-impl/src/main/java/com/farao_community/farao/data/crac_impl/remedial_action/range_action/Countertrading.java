@@ -12,8 +12,8 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Countertrading remedial action.
@@ -33,8 +33,8 @@ public class Countertrading implements ApplicableRangeAction {
     }
 
     @Override
-    public List<NetworkElement> getNetworkElements() {
-        return new ArrayList<>();
+    public Set<NetworkElement> getNetworkElements() {
+        return new HashSet<>();
     }
 
 }

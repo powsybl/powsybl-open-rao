@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Generic object to define any simple range action on a network element
@@ -34,8 +34,8 @@ public abstract class AbstractNetworkElementRangeAction implements ApplicableRan
         return networkElement;
     }
 
-    public List<NetworkElement> getNetworkElements() {
-        return Collections.singletonList(networkElement);
+    public Set<NetworkElement> getNetworkElements() {
+        return Collections.singleton(networkElement);
     }
 
     public void setNetworkElement(NetworkElement networkElement) {

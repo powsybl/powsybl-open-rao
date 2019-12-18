@@ -15,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,6 +37,14 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
                                 @JsonProperty("applicableNetworkActions") List<ApplicableNetworkAction> applicableNetworkActions) {
         super(id, name, operator, usageRules);
         this.applicableNetworkActions = applicableNetworkActions;
+    }
+
+    public ComplexNetworkAction(String id, String name, String operator) {
+        this (id, name, operator, new ArrayList<>(), new ArrayList<>());
+    }
+
+    public ComplexNetworkAction(String id, String operator) {
+        this (id, id, operator, new ArrayList<>(), new ArrayList<>());
     }
 
     public void setApplicableNetworkActions(List<ApplicableNetworkAction> applicableNetworkActions) {

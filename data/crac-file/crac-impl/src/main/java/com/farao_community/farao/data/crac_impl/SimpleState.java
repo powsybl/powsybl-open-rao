@@ -42,17 +42,53 @@ public class SimpleState implements State {
     }
 
     @Override
-    public void setInstant(Instant instant) {
-        this.instant = instant;
-    }
-
-    @Override
     public Optional<Contingency> getContingency() {
         return Optional.ofNullable(contingency);
     }
 
     @Override
-    public void setContingency(Optional<Contingency> contingency) {
-        this.contingency = contingency.orElse(null);
+    public int compareTo(State state) {
+        return instant.getSeconds() - state.getInstant().getSeconds();
+    }
+
+    /**
+     * Check if states are equals. States are considered equals when instant and contingency are equals if
+     * contingency is present. Otherwise they are considered equals when instant are equals.
+     *
+     * @param o: If it's null or another object than State it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        State state = (State) o;
+        Optional<Contingency> oContingency = state.getContingency();
+        return state.getInstant().equals(instant) && oContingency.map(value -> value.equals(contingency))
+            .orElseGet(() -> contingency == null);
+    }
+
+    @Override
+    public int hashCode() {
+        if (contingency != null) {
+            return String.format("%s%s", contingency.getId(), instant.getId()).hashCode();
+        } else {
+            return String.format("preventive%s", instant.getId()).hashCode();
+        }
+    }
+
+    @Override
+    public String toString() {
+        String name = instant.getId();
+        if (contingency != null) {
+            name += String.format(" - %s", contingency.getId());
+        } else {
+            name += " - preventive";
+        }
+        return name;
     }
 }

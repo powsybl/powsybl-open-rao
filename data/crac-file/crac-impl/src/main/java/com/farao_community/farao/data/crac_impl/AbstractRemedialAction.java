@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
-import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -18,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -62,13 +61,36 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         return usageRules;
     }
 
+    @Override
     @JsonProperty("usageRules")
     public void addUsageRule(UsageRule usageRule) {
         usageRules.add(usageRule);
     }
 
     @Override
-    public UsageMethod getUsageMethod(Network network) {
-        return null;
+    public UsageMethod getUsageMethod(Network network, State state) {
+        // TODO: implement method
+        throw new NotImplementedException("Get usage method is not implemented yet.");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractRemedialAction remedialAction = (AbstractRemedialAction) o;
+        return super.equals(remedialAction) && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        for (UsageRule rule : usageRules) {
+            result = 31 * result + rule.hashCode();
+        }
+        return result;
     }
 }
