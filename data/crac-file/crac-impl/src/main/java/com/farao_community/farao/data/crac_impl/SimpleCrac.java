@@ -131,39 +131,12 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
-    public Set<State> getStatesFromInstant(String id) {
-        if (getInstant(id) != null) {
-            return getStates(getInstant(id));
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public SortedSet<State> getStatesFromContingency(String id) {
-        if (getContingency(id) != null) {
-            return getStates(getContingency(id));
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public State getState(Contingency contingency, Instant instant) {
         return states.stream()
             .filter(state -> state.getContingency().isPresent() && state.getInstant().getId().equals(instant.getId()))
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
             .findFirst()
             .orElse(null);
-    }
-
-    @Override
-    public State getState(String idContingency, String idInstant) {
-        if (getContingency(idContingency) != null && getInstant(idInstant) != null) {
-            return getState(getContingency(idContingency), getInstant(idInstant));
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -211,15 +184,6 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         return cnecs.stream()
             .filter(cnec -> cnec.getState().equals(state))
             .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<Cnec> getCnecs(String contingencyId, String instantId) {
-        if (getState(contingencyId, instantId) != null) {
-            return getCnecs(getState(contingencyId, instantId));
-        } else {
-            return null;
-        }
     }
 
     @Override

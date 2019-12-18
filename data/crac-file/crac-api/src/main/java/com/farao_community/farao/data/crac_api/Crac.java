@@ -90,7 +90,13 @@ public interface Crac extends Identifiable, Synchronizable {
      * @param id: The instant id at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
-    Set<State> getStatesFromInstant(String id);
+    default Set<State> getStatesFromInstant(String id) {
+        if (getInstant(id) != null) {
+            return getStates(getInstant(id));
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
@@ -100,7 +106,13 @@ public interface Crac extends Identifiable, Synchronizable {
      * @param id: The contingency id after which we want to gather states.
      * @return Ordered set of states after the specified contingency.
      */
-    SortedSet<State> getStatesFromContingency(String id);
+    default SortedSet<State> getStatesFromContingency(String id) {
+        if (getContingency(id) != null) {
+            return getStates(getContingency(id));
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
@@ -110,7 +122,13 @@ public interface Crac extends Identifiable, Synchronizable {
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
-    State getState(String contingencyId, String instantId);
+    default State getState(String contingencyId, String instantId) {
+        if (getContingency(contingencyId) != null && getInstant(instantId) != null) {
+            return getState(getContingency(contingencyId), getInstant(instantId));
+        } else {
+            return null;
+        }
+    }
 
     void addState(State state);
 
@@ -133,7 +151,13 @@ public interface Crac extends Identifiable, Synchronizable {
      */
     Set<Cnec> getCnecs(State state);
 
-    Set<Cnec> getCnecs(String contingencyId, String instantId);
+    default Set<Cnec> getCnecs(String contingencyId, String instantId) {
+        if (getState(contingencyId, instantId) != null) {
+            return getCnecs(getState(contingencyId, instantId));
+        } else {
+            return null;
+        }
+    }
 
     void addCnec(Cnec cnec);
 
