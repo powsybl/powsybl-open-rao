@@ -22,17 +22,44 @@ public class InstantTest {
 
     @Before
     public void setUp() {
-        instant = new Instant(15);
+        instant = new Instant("instant", 15);
     }
 
     @Test
-    public void getDuration() {
-        assertEquals(15, instant.getDuration(), 0.1);
+    public void getSeconds() {
+        assertEquals(15, instant.getSeconds());
     }
 
     @Test
-    public void setDuration() {
-        instant.setDuration(5);
-        assertEquals(5, instant.getDuration(), 0.1);
+    public void setSeconds() {
+        instant.setSeconds(5);
+        assertEquals(5, instant.getSeconds());
+    }
+
+    @Test
+    public void testDifferentBySeconds() {
+        Instant instantA = new Instant("A", 12);
+        Instant instantB = new Instant("A", 20);
+        assertNotEquals(instantA, instantB);
+    }
+
+    @Test
+    public void testDifferentById() {
+        Instant instantA = new Instant("A", 12);
+        Instant instantB = new Instant("B", 12);
+        assertNotEquals(instantA, instantB);
+    }
+
+    @Test
+    public void testEquals() {
+        Instant instantA = new Instant("A", 12);
+        Instant instantB = new Instant("A", 12);
+        assertEquals(instantA, instantB);
+    }
+
+    @Test
+    public void testHashCode() {
+        Instant instantA = new Instant("A", 12);
+        assertEquals("A12".hashCode(), instantA.hashCode());
     }
 }

@@ -21,15 +21,9 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.google.common.io.Files;
 import org.junit.Test;
 
 import java.io.*;
-import java.nio.file.Paths;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +32,6 @@ import java.util.Optional;
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
 import static com.farao_community.farao.data.crac_api.Side.*;
-import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 
 /**
@@ -46,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class JsonImportExportTest {
 
-    private Crac create() {
+    private static Crac create() {
         NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
@@ -113,21 +106,19 @@ public class JsonImportExportTest {
         NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
         NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
 
-        List<NetworkElement> elementsList = new ArrayList<>(Arrays.asList(line2, line3));
-        ComplexContingency contingency = new ComplexContingency("idContingency", "My contingency", null);
-        contingency.setNetworkElements(elementsList);
+        ComplexContingency contingency = new ComplexContingency("idContingency");
+        contingency.addNetworkElement(line2);
+        contingency.addNetworkElement(line3);
         contingency.addNetworkElement(networkElement1);
 
         // Instant
-        Instant basecase = new Instant(0);
-        Instant curative = new Instant(-1);
-        curative.setDuration(200);
+        Instant basecase = new Instant("initial", 0);
+        Instant curative = new Instant("curative", -1);
+        curative.setSeconds(200);
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
-        State stateCurative = new SimpleState(Optional.empty(), null);
-        stateCurative.setContingency(Optional.of(contingency));
-        stateCurative.setInstant(curative);
+        State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
@@ -157,58 +148,34 @@ public class JsonImportExportTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(singletonList(freeToUse)), new ArrayList<>(singletonList(pstSetpoint)));
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
 
         // RangeAction
         ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
         rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
-        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(singletonList(pstRange1));
+        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
         rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
-        List<UsageRule> usageRules = new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
+        List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(singletonList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
-        List<Cnec> cnecs = new ArrayList<>();
-        cnecs.add(cnec1);
+        Crac crac = new SimpleCrac("idCrac", "name");
 
-        SimpleCrac crac = new SimpleCrac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-
-        crac.setCnecs(cnecs);
+        crac.addCnec(cnec1);
         crac.addCnec(cnec2);
-        crac.setNetworkActions(new ArrayList<>(singletonList(networkAction1)));
-        crac.setRangeActions(new ArrayList<>(singletonList(rangeAction1)));
-        crac.addRangeRemedialAction(rangeAction2);
+        crac.addNetworkAction(networkAction1);
+        crac.addNetworkAction(networkAction2);
+        crac.addRangeAction(rangeAction1);
+        crac.addRangeAction(rangeAction2);
 
         return crac;
-    }
-
-    @Test
-    public void testExportCrac() throws IOException {
-
-        File tmpDirectory = Files.createTempDir();
-        Crac crac = create();
-
-        OutputStream os = new FileOutputStream(tmpDirectory + File.separator + "testCrac.json");
-
-        CracExporters.exportCrac(crac, "Json", os);
-
-        os.flush();
-        os.close();
-
-        tmpDirectory.delete();
-    }
-
-    @Test
-    public void testImportCrac() {
-
-        CracImporters.importCrac(Paths.get(getClass().getResource("/testCrac.json").getFile()));
     }
 
     @Test

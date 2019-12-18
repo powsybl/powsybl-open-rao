@@ -42,4 +42,26 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
         return id;
     }
 
+    /**
+     * Check if abstract identifiables are equals. Abstract identifiables are considered equals when IDs are equals.
+     *
+     * @param o: If it's null or another object than AbstractIdentifiable it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractIdentifiable abstractIdentifiable = (AbstractIdentifiable) o;
+        return getId().equals(abstractIdentifiable.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

@@ -15,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Group of simultaneously applied range remedial actions.
@@ -42,6 +44,18 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this.applicableRangeActions = applicableRangeActions;
     }
 
+    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<Range> ranges, List<ApplicableRangeAction> applicableRangeActions) {
+        this (id, id, operator, usageRules, ranges, applicableRangeActions);
+    }
+
+    public ComplexRangeAction(String id, String name, String operator) {
+        this (id, name, operator, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    public ComplexRangeAction(String id, String operator) {
+        this (id, id, operator, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
     public List<Range> getRanges() {
         return ranges;
     }
@@ -51,10 +65,10 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
-    public List<NetworkElement> getNetworkElements() {
-        List<NetworkElement> list = new ArrayList<>();
-        applicableRangeActions.forEach(applicableRangeAction -> list.addAll(applicableRangeAction.getNetworkElements()));
-        return list;
+    public Set<NetworkElement> getNetworkElements() {
+        Set<NetworkElement> set = new HashSet<>();
+        applicableRangeActions.forEach(applicableRangeAction -> set.addAll(applicableRangeAction.getNetworkElements()));
+        return set;
     }
 
     public void setApplicableRangeActions(List<ApplicableRangeAction> applicableRangeActions) {
