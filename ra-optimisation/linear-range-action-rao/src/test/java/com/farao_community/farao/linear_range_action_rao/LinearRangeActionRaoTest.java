@@ -23,7 +23,6 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
@@ -91,7 +90,6 @@ public class LinearRangeActionRaoTest {
         SimpleCrac crac = create();
 
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         String variantId = "variant-test";
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
 

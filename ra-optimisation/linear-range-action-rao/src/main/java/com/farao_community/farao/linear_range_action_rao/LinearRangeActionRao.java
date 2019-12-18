@@ -16,7 +16,6 @@ import com.farao_community.farao.ra_optimisation.PreContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.util.SensitivityComputationService;
 import com.farao_community.farao.util.SensitivitySecurityAnalysisResult;
 import com.farao_community.farao.util.SensitivitySecurityAnalysisService;
 import com.google.auto.service.AutoService;
@@ -24,6 +23,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,25 +57,12 @@ public class LinearRangeActionRao implements RaoProvider {
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId,
                                                        ComputationManager computationManager, RaoParameters parameters,
                                                        SensitivityComputationFactory sensitivityComputationFactory) {
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        SensitivitySecurityAnalysisResult sensiSaResults = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
+        SensitivitySecurityAnalysisResult sensiSaResults = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
 
-        SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
-        PreContingencyResult preRao = new PreContingencyResult();
         // 1. do for pre
-        // get cnec from crac
-        crac.getCnecs().forEach(cnec -> {
-            LOGGER.info("Cnec: " + cnec.getId());
-            preSensi.getSensitivityValues().forEach(sensitivityValue -> {
-                String id = sensitivityValue.getFactor().getFunction().getId();
-                String name = sensitivityValue.getFactor().getFunction().getName();
-                double maximumFlow = Integer.MAX_VALUE; //todo ? how to get max from Crac?
-                double preOptimisationFlow = sensitivityValue.getFunctionReference();
-                MonitoredBranchResult monitoredBranchResult = new MonitoredBranchResult(id, name, id, maximumFlow, preOptimisationFlow, preOptimisationFlow);
-                preRao.addMonitoredBranchResult(monitoredBranchResult);
-                LOGGER.info("ID: " + id + "; preOptimisationFlow = " + preOptimisationFlow);
-            });
-        });
+        SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
+        List<MonitoredBranchResult> monitoredBranchResults = getMonitoredBranchResultList(crac, preSensi);
+        PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
         Map<Contingency, SensitivityComputationResults>  mapSensi = sensiSaResults.getResultMap();
@@ -83,28 +70,36 @@ public class LinearRangeActionRao implements RaoProvider {
         for (Contingency contingency : mapSensi.keySet()) {
             String idContSensi = contingency.getId();
             String nameContSensi = contingency.getName();
-            ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi);
 
             SensitivityComputationResults sensitivityComputationResults = mapSensi.get(contingency);
-
-            crac.getCnecs().forEach(cnec -> {
-                // cnec.getCriticalNetworkElement().getId()
-                sensitivityComputationResults.getSensitivityValues().forEach(sensitivityValue -> {
-                    String id = sensitivityValue.getFactor().getFunction().getId();
-                    String name = sensitivityValue.getFactor().getFunction().getName();
-                    double maximumFlow = Integer.MAX_VALUE; //todo ? how to get max from Crac?
-                    double preOptimisationFlow = sensitivityValue.getFunctionReference();
-
-                    MonitoredBranchResult monitoredBranchResult = new MonitoredBranchResult(id, name, id, maximumFlow, preOptimisationFlow, preOptimisationFlow);
-                    contingencyResult.addMonitoredBranchResult(monitoredBranchResult);
-                });
-            });
+            List<MonitoredBranchResult> tmpMonitoredBranchResults = getMonitoredBranchResultList(crac, sensitivityComputationResults);
+            ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
             contingencyResultsRao.add(contingencyResult);
         }
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
         return CompletableFuture.completedFuture(raoComputationResult);
+    }
+
+    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults preSensi) {
+        List<MonitoredBranchResult> returnlist = new ArrayList<>();
+        crac.getCnecs().forEach(cnec -> {
+            LOGGER.info("Cnec: " + cnec.getId());
+            preSensi.getSensitivityValues().forEach(sensitivityValue -> {
+                MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(sensitivityValue);
+                returnlist.add(monitoredBranchResult);
+            });
+        });
+        return returnlist;
+    }
+
+    private MonitoredBranchResult getMonitoredBranchResult(SensitivityValue sensitivityValue) {
+        String id = sensitivityValue.getFactor().getFunction().getId();
+        String name = sensitivityValue.getFactor().getFunction().getName();
+        double maximumFlow = Integer.MAX_VALUE; //todo ? how to get max from Crac?
+        double preOptimisationFlow = sensitivityValue.getFunctionReference();
+        return new MonitoredBranchResult(id, name, id, maximumFlow, preOptimisationFlow, preOptimisationFlow);
     }
 
 }

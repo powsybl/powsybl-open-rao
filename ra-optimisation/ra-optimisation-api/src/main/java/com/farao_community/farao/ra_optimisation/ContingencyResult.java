@@ -64,7 +64,4 @@ public class ContingencyResult {
         return remedialActionResults;
     }
 
-    public void addMonitoredBranchResult(MonitoredBranchResult monitoredBranchResult) {
-        this.monitoredBranchResults.add(monitoredBranchResult);
-    }
 }

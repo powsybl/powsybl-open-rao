@@ -44,7 +44,4 @@ public class PreContingencyResult {
         return remedialActionResults;
     }
 
-    public void addMonitoredBranchResult(MonitoredBranchResult monitoredBranchResult) {
-        this.monitoredBranchResults.add(monitoredBranchResult);
-    }
 }

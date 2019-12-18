@@ -54,6 +54,7 @@ public class SensitivitySecurityAnalysisServiceTest {
     private Network network;
     private ComputationManager computationManager;
     private SimpleCrac crac;
+    private SensitivityComputationFactory sensitivityComputationFactory;
 
     @Before
     public void setUp() {
@@ -61,7 +62,7 @@ public class SensitivitySecurityAnalysisServiceTest {
         computationManager = LocalComputationManager.getDefault();
         crac = create();
 
-        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
+        sensitivityComputationFactory = new MockSensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
@@ -79,7 +80,7 @@ public class SensitivitySecurityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
-        SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
+        SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
         assertEquals(1, result.getResultMap().keySet().size());
