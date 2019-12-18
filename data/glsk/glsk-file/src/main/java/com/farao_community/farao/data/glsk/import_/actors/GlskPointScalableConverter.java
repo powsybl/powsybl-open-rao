@@ -136,7 +136,7 @@ public final class GlskPointScalableConverter {
             network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null).equals(country))
                     .forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalCountryP));
             network.getLoadStream().filter(load -> load.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null).equals(country))
-                    .forEach(load -> scalables.add(Scalable.onLoad(load.getId())));
+                    .forEach(load -> scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE)));
         }
     }
 
@@ -164,7 +164,7 @@ public final class GlskPointScalableConverter {
             network.getLoadStream().filter(load -> loadsList.contains(load.getId()))
                     .forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) load.getP0() / (float) totalP));
             network.getLoadStream().filter(load -> loadsList.contains(load.getId()))
-                    .forEach(load -> scalables.add(Scalable.onLoad(load.getId())));
+                    .forEach(load -> scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE)));
         }
     }
 
@@ -197,7 +197,7 @@ public final class GlskPointScalableConverter {
             resourceList.stream().filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)) != null)
                     .forEach(loadResource -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
             resourceList.stream().filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)) != null)
-                    .forEach(loadResource -> scalables.add(Scalable.onLoad(loadResource.getLoadId(typeGlskFile))));
+                    .forEach(loadResource -> scalables.add(Scalable.onLoad(loadResource.getLoadId(typeGlskFile), -Double.MAX_VALUE, Double.MAX_VALUE)));
         }
     }
 }
