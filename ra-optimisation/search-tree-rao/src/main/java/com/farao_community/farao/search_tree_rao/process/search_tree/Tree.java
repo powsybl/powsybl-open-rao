@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
  * routing among the leaves in order to converge as quick as possible to a local
  * minimum of the objective function.
  *
- * @author Joris Mancini {@literal <joris.mancini at rte-international.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-international.com>}
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class Tree {
 

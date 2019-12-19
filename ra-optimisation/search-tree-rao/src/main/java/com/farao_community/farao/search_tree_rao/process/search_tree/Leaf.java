@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Each leaf contains a Network Action, which should be tested in combination with
  * it's parent Leaves' Network Actions
  *
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-international.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class Leaf {
 

@@ -24,7 +24,7 @@ import static com.farao_community.farao.search_tree_rao.mock.LinearRangeRaoMock.
 import static org.junit.Assert.*;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-international.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LeafTest {
 

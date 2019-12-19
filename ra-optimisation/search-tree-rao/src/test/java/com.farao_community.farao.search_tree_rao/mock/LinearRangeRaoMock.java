@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-international.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class LinearRangeRaoMock implements RaoProvider {
