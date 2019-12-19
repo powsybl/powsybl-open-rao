@@ -97,7 +97,6 @@ public class LinearRangeActionRaoTest {
     }
 
     private static Crac create() {
-//        NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
@@ -160,13 +159,7 @@ public class LinearRangeActionRaoTest {
         injectionSetpoint.setNetworkElement(generator1);
         injectionSetpoint.setSetpoint(100);
 
-//        NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
-//        NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
-
         ComplexContingency contingency = new ComplexContingency("idContingency");
-//        contingency.addNetworkElement(line2);
-//        contingency.addNetworkElement(line3);
-//        contingency.addNetworkElement(networkElement1);
 
         // Instant
         Instant basecase = new Instant("initial", 0);
