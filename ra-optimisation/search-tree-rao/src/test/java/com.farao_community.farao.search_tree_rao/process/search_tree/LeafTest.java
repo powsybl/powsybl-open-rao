@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -19,8 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.farao_community.farao.search_tree_rao.mock.LinearRangeRaoMock.*;
 import static org.junit.Assert.*;
@@ -77,7 +75,7 @@ public class LeafTest {
          */
 
         // first generation
-        List<NetworkAction> twoNetworkActions = new ArrayList<>();
+        Set<NetworkAction> twoNetworkActions = new HashSet<>();
         twoNetworkActions.add(na1);
         twoNetworkActions.add(na2);
 
@@ -103,17 +101,17 @@ public class LeafTest {
 
         assertNull(firstGeneration.get(0).getNetworkVariant());
 
-        assertTrue(rootLeaf.bloom(new ArrayList<>()).isEmpty());
+        assertTrue(rootLeaf.bloom(Collections.emptySet()).isEmpty());
 
         // second generation - left
-        List<NetworkAction> oneNetworkAction = new ArrayList<>();
+        Set<NetworkAction> oneNetworkAction = new HashSet<>();
         oneNetworkAction.add(na3);
         List<Leaf> secondGenerationL = firstGeneration.get(0).bloom(oneNetworkAction);
 
         assertEquals(2, secondGenerationL.get(0).getNetworkActionLegacy().size());
 
         // second generation - right
-        List<NetworkAction> threeNetworkActions = new ArrayList<>();
+        Set<NetworkAction> threeNetworkActions = new HashSet<>();
         threeNetworkActions.add(na1);
         threeNetworkActions.add(na2);
         threeNetworkActions.add(na3);
@@ -135,7 +133,7 @@ public class LeafTest {
         assertEquals(initialVariant, network.getVariantManager().getWorkingVariantId());
         assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
 
-        List<Leaf> childrenLeaf = rootLeaf.bloom(ImmutableList.of(na1));
+        List<Leaf> childrenLeaf = rootLeaf.bloom(Collections.singleton(na1));
         childrenLeaf.get(0).evaluate(network, crac, raoParameters);
 
         assertNotEquals(initialVariant, network.getVariantManager().getWorkingVariantId());

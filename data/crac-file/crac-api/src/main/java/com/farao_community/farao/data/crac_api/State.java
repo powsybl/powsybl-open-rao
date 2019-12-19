@@ -15,13 +15,9 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface State {
+public interface State extends Comparable<State> {
 
     Instant getInstant();
 
-    void setInstant(Instant instant);
-
     Optional<Contingency> getContingency();
-
-    void setContingency(Optional<Contingency> contingency);
 }

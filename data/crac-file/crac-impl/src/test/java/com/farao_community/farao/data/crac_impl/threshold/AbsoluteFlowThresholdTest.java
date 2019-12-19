@@ -54,7 +54,7 @@ public class AbsoluteFlowThresholdTest {
                 "cnec1",
                 new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 absoluteFlowThresholdAmps,
-                new SimpleState(Optional.empty(), new Instant(0))
+                new SimpleState(Optional.empty(), new Instant("initial", 0))
         );
 
         cnec2 = new SimpleCnec(
@@ -62,7 +62,7 @@ public class AbsoluteFlowThresholdTest {
                 "cnec2",
                 new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"),
                 absoluteFlowThresholdAmps,
-                new SimpleState(Optional.empty(), new Instant(0))
+                new SimpleState(Optional.empty(), new Instant("initial", 0))
         );
 
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));

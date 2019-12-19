@@ -15,6 +15,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -54,7 +55,7 @@ public class Tree {
 
         boolean hasImproved;
         do {
-            List<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, UsageMethod.AVAILABLE);
+            Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
             if (generatedLeaves.isEmpty()) {

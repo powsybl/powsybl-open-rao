@@ -100,4 +100,23 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     public void desynchronize() {
         maxValue = Double.NaN;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RelativeFlowThreshold threshold = (RelativeFlowThreshold) o;
+        return super.equals(threshold) && percentageOfMax == threshold.percentageOfMax;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) percentageOfMax;
+        return result;
+    }
 }

@@ -77,4 +77,22 @@ public class VoltageThreshold extends AbstractThreshold {
     public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
         return 0;
     }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        VoltageThreshold threshold = (VoltageThreshold) o;
+        return minValue == threshold.minValue && maxValue == threshold.maxValue;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) minValue * 100;
+        result = 31 * result + (int) maxValue * 100;
+        return result;
+    }
 }

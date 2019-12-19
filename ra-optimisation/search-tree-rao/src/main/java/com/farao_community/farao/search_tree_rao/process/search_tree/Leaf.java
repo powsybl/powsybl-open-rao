@@ -15,10 +15,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -141,7 +138,7 @@ class Leaf {
      * Extend the tree from the current Leaf with N new children Leaves
      * for the N Network Actions given in argument
      */
-    List<Leaf> bloom(List<NetworkAction> availableNetworkActions) {
+    List<Leaf> bloom(Set<NetworkAction> availableNetworkActions) {
         List<NetworkAction> legacy = getNetworkActionLegacy();
         return availableNetworkActions.stream().
                 filter(na -> !legacy.contains(na)).
