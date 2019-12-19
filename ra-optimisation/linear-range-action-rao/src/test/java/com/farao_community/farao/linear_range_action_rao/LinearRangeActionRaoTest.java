@@ -226,7 +226,7 @@ public class LinearRangeActionRaoTest {
         crac.addRangeAction(rangeAction2);
 
         ComplexContingency contingency1 = new ComplexContingency("idContingencyTmp", "My contingency Tmp",
-                new HashSet<>(Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"))));
+                new HashSet<>(Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1"))));
         crac.addContingency(contingency1);
 
         return crac;
