@@ -25,4 +25,42 @@ public class NetworkElementTest {
         assertEquals("basicElemId", networkElement.toString());
     }
 
+    @Test
+    public void testDifferent() {
+        NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
+        NetworkElement networkElement2 = new NetworkElement("network-element-2", "name-2");
+
+        assertNotEquals(networkElement1, networkElement2);
+    }
+
+    @Test
+    public void testEqualWithDifferentNames() {
+        NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
+        NetworkElement networkElement2 = new NetworkElement("network-element-1", "name-2");
+
+        assertEquals(networkElement1, networkElement2);
+    }
+
+    @Test
+    public void testEqualWithSameNames() {
+        NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
+        NetworkElement networkElement2 = new NetworkElement("network-element-1", "name-1");
+
+        assertEquals(networkElement1, networkElement2);
+    }
+
+    @Test
+    public void testSimpleConstructor() {
+        NetworkElement networkElement = new NetworkElement("network-element");
+
+        assertEquals("network-element", networkElement.getId());
+        assertEquals("network-element", networkElement.getName());
+    }
+
+    @Test
+    public void testHashCode() {
+        NetworkElement networkElement = new NetworkElement("network-element");
+
+        assertEquals("network-element".hashCode(), networkElement.getId().hashCode());
+    }
 }

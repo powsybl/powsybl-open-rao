@@ -21,10 +21,7 @@ import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -94,10 +91,10 @@ public final class SensitivitySecurityAnalysisService {
         }
     }
 
-    private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, List<RangeAction> rangeActions) {
+    private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, Set<RangeAction> rangeActions) {
         List<TwoWindingsTransformer> psts = new ArrayList<>();
         for (RangeAction rangeAction : rangeActions) {
-            List<NetworkElement> networkElements = rangeAction.getNetworkElements();
+            Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
             for (NetworkElement networkElement : networkElements) {
                 if (isPst(network, networkElement)) {
                     psts.add(network.getTwoWindingsTransformer(networkElement.getId()));

@@ -87,7 +87,7 @@ public class LinearRangeActionRaoTest {
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        SimpleCrac crac = create();
+        Crac crac = create();
 
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
         String variantId = "variant-test";
@@ -96,8 +96,8 @@ public class LinearRangeActionRaoTest {
         assertNotNull(linearRangeActionRao.run(network, crac, variantId, computationManager, raoParameters, sensitivityComputationFactory));
     }
 
-    private static SimpleCrac create() {
-        NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
+    private static Crac create() {
+//        NetworkElement networkElement1 = new NetworkElement("idNE1", "My Element 1");
 
         // Redispatching
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
@@ -160,24 +160,22 @@ public class LinearRangeActionRaoTest {
         injectionSetpoint.setNetworkElement(generator1);
         injectionSetpoint.setSetpoint(100);
 
-        NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
-        NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
+//        NetworkElement line2 = new NetworkElement("idLine2", "My Line 2");
+//        NetworkElement line3 = new NetworkElement("idLine3", "My Line 3");
 
-        List<NetworkElement> elementsList = new ArrayList<>(Arrays.asList(line2, line3));
-        ComplexContingency contingency = new ComplexContingency("idContingency", "My contingency", null);
-        contingency.setNetworkElements(elementsList);
-        contingency.addNetworkElement(networkElement1);
+        ComplexContingency contingency = new ComplexContingency("idContingency");
+//        contingency.addNetworkElement(line2);
+//        contingency.addNetworkElement(line3);
+//        contingency.addNetworkElement(networkElement1);
 
         // Instant
-        Instant basecase = new Instant(0);
-        Instant curative = new Instant(-1);
-        curative.setDuration(200);
+        Instant basecase = new Instant("initial", 0);
+        Instant curative = new Instant("curative", -1);
+        curative.setSeconds(200);
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
-        State stateCurative = new SimpleState(Optional.empty(), null);
-        stateCurative.setContingency(Optional.of(contingency));
-        stateCurative.setInstant(curative);
+        State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
         NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
 
@@ -225,21 +223,17 @@ public class LinearRangeActionRaoTest {
 
         ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
 
-        List<Cnec> cnecs = new ArrayList<>();
-        cnecs.add(cnec1);
+        Crac crac = new SimpleCrac("idCrac", "name");
 
-        SimpleCrac crac = new SimpleCrac("idCrac", "name", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-
-        crac.setCnecs(cnecs);
+        crac.addCnec(cnec1);
         crac.addCnec(cnec2);
-        crac.setNetworkActions(new ArrayList<>(Arrays.asList(networkAction1)));
-        crac.addNetworkRemedialAction(networkAction2);
-        crac.setRangeActions(new ArrayList<>(Arrays.asList(rangeAction1)));
-        crac.addRangeRemedialAction(rangeAction2);
+        crac.addNetworkAction(networkAction1);
+        crac.addNetworkAction(networkAction2);
+        crac.addRangeAction(rangeAction1);
+        crac.addRangeAction(rangeAction2);
 
-        String branchId = "BBE2AA1  BBE3AA1  1";
-        ComplexContingency contingency1 = new ComplexContingency("idContingency", "My contingency",
-                Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1")));
+        ComplexContingency contingency1 = new ComplexContingency("idContingencyTmp", "My contingency Tmp",
+                new HashSet<>(Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"))));
         crac.addContingency(contingency1);
 
         return crac;

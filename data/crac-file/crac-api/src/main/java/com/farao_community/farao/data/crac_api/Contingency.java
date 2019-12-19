@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Interface to manage contingencies
@@ -18,5 +18,12 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface Contingency extends Identifiable {
-    List<NetworkElement> getNetworkElements();
+
+    /**
+     * Gather all the network elements present in the contingency. It returns a set because network
+     * elements must not be duplicated inside a contingency and there is no defined order for network elements.
+     *
+     * @return A set of network elements.
+     */
+    Set<NetworkElement> getNetworkElements();
 }
