@@ -86,14 +86,13 @@ public class LinearRangeActionRaoTest {
                 "TestCase12Nodes.uct",
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        ComputationManager computationManager = LocalComputationManager.getDefault();
         Crac crac = create();
 
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
         String variantId = "variant-test";
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
 
-        assertNotNull(linearRangeActionRao.run(network, crac, variantId, computationManager, raoParameters, sensitivityComputationFactory));
+        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters, sensitivityComputationFactory));
     }
 
     private static Crac create() {
