@@ -45,6 +45,11 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return criticalNetworkElement;
     }
 
+    @Override
+    public double computeMargin(Network network) throws SynchronizationException {
+        return threshold.computeMargin(network, this);
+    }
+
     public void setCriticalNetworkElement(NetworkElement criticalNetworkElement) {
         this.criticalNetworkElement = criticalNetworkElement;
     }

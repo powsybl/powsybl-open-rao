@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_range_action_rao;
+package com.farao_community.farao.linear_range_action_rao.config;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
@@ -53,7 +53,7 @@ public class LinearRangeActionRaoConfigLoaderTest {
 
     @Test
     public void getCategoryName() {
-        assertEquals("linear-rao-parameters", configLoader.getCategoryName());
+        assertEquals("rao-parameters", configLoader.getCategoryName());
     }
 
     @Test

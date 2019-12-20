@@ -4,12 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao;
+package com.farao_community.farao.search_tree_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+
+import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -18,10 +20,16 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 @AutoService(RaoParameters.ConfigLoader.class)
 public class SearchTreeRaoParametersConfigLoader implements RaoParameters.ConfigLoader<SearchTreeRaoParameters> {
 
+    private static final String MODULE_NAME = "search-tree-rao-parameters";
+
     @Override
     public SearchTreeRaoParameters load(PlatformConfig platformConfig) {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
-        parameters.setSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
+        Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
+        if (configOptional.isPresent()) {
+            ModuleConfig config = configOptional.get();
+            parameters.setRangeActionRao(config.getStringProperty("range-action-rao", SearchTreeRaoParameters.DEFAULT_RANGE_ACTION_RAO));
+        }
         return parameters;
     }
 

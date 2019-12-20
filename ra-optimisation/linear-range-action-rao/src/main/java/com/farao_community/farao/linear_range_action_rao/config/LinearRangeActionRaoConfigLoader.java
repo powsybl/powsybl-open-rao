@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_range_action_rao;
+package com.farao_community.farao.linear_range_action_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.google.auto.service.AutoService;
@@ -31,7 +31,7 @@ public class LinearRangeActionRaoConfigLoader implements RaoParameters.ConfigLoa
 
     @Override
     public String getCategoryName() {
-        return "linear-rao-parameters";
+        return "rao-parameters";
     }
 
     @Override

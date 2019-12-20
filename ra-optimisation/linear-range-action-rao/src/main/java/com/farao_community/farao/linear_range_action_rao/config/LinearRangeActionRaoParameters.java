@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_range_action_rao;
+package com.farao_community.farao.linear_range_action_rao.config;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;

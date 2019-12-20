@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.Optional;
+
 import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
 
 /**
@@ -52,6 +54,16 @@ public class VoltageThreshold extends AbstractThreshold {
     }
 
     @Override
+    public Optional<Double> getMinThreshold() throws SynchronizationException {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Double> getMaxThreshold() throws SynchronizationException {
+        return Optional.empty();
+    }
+
+    @Override
     public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
         throw new NotImplementedException("Voltage threshold not implemented");
     }
@@ -62,6 +74,10 @@ public class VoltageThreshold extends AbstractThreshold {
     }
 
     @Override
+    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
+        return 0;
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;

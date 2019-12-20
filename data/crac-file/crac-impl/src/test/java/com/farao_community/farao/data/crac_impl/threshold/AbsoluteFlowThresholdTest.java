@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleState;
@@ -24,45 +25,92 @@ import static org.junit.Assert.*;
  */
 public class AbsoluteFlowThresholdTest {
 
-    private AbsoluteFlowThreshold absoluteFlowThreshold;
-    private Cnec cnec;
-    private Network network;
+    private AbsoluteFlowThreshold absoluteFlowThresholdAmps;
+    private AbsoluteFlowThreshold absoluteFlowThresholdMW;
+    private Cnec cnec1;
+    private Cnec cnec2;
+    private Network networkWithoutLf;
+    private Network networkWithtLf;
 
     @Before
     public void setUp() {
-        absoluteFlowThreshold = new AbsoluteFlowThreshold(
+
+        absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(
                 Unit.AMPERE,
                 Side.RIGHT,
                 Direction.IN,
-                1500
+                500
         );
-        cnec = new SimpleCnec(
-                "cnec",
-                "cnec",
+
+        absoluteFlowThresholdMW = new AbsoluteFlowThreshold(
+                Unit.MEGAWATT,
+                Side.RIGHT,
+                Direction.IN,
+                500
+        );
+
+        cnec1 = new SimpleCnec(
+                "cnec1",
+                "cnec1",
                 new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
-                absoluteFlowThreshold,
+                absoluteFlowThresholdAmps,
                 new SimpleState(Optional.empty(), new Instant("initial", 0))
         );
-        network = Importers.loadNetwork("4_2nodes_RD_N-1.xiidm", getClass().getResourceAsStream("/4_2nodes_RD_N-1.xiidm"));
+
+        cnec2 = new SimpleCnec(
+                "cnec2",
+                "cnec2",
+                new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"),
+                absoluteFlowThresholdAmps,
+                new SimpleState(Optional.empty(), new Instant("initial", 0))
+        );
+
+        networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
+        networkWithtLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
     }
 
     @Test
     public void isMinThresholdOvercome() throws Exception {
-        assertFalse(absoluteFlowThreshold.isMinThresholdOvercome(network, cnec));
+        assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithoutLf, cnec1));
+        assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithtLf, cnec1));
+    }
+
+    @Test
+    public void isMaxThresholdOvercomeOk() throws Exception {
+        assertFalse(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec1)); // on cnec1, after LF: 385 A
+        assertTrue(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec2)); // on cnec2, after LF: 770 A
+    }
+
+    @Test
+    public void computeMarginOk() throws Exception {
+        assertEquals(500 - 385, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec1), 1); // on cnec1, after LF: 385 A
+        assertEquals(500 - 770, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec2), 1); // on cnec2, after LF: 770 A
+        assertEquals(500 - 266, absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec1), 1); // on cnec1, after LF: 266 MW
+        assertEquals(500 - 533, absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec2), 1); // on cnec2, after LF: 533 MW
+    }
+
+    @Test
+    public void computeMarginNoData() throws Exception {
+        try {
+            absoluteFlowThresholdAmps.computeMargin(networkWithoutLf, cnec1);
+            fail();
+        } catch (FaraoException e) {
+            //should throw
+        }
     }
 
     @Test
     public void synchronize() {
-        assertEquals(1500, absoluteFlowThreshold.getMaxValue(), 1);
-        cnec.synchronize(network);
-        assertEquals(1500, absoluteFlowThreshold.getMaxValue(), 1);
+        assertEquals(500, absoluteFlowThresholdAmps.getMaxValue(), 1);
+        cnec1.synchronize(networkWithoutLf);
+        assertEquals(500, absoluteFlowThresholdAmps.getMaxValue(), 1);
     }
 
     @Test
     public void desynchronize() {
-        cnec.synchronize(network);
-        assertEquals(1500, absoluteFlowThreshold.getMaxValue(), 1);
-        cnec.desynchronize();
-        assertEquals(1500, absoluteFlowThreshold.getMaxValue(), 1);
+        cnec1.synchronize(networkWithoutLf);
+        assertEquals(500, absoluteFlowThresholdAmps.getMaxValue(), 1);
+        cnec1.desynchronize();
+        assertEquals(500, absoluteFlowThresholdAmps.getMaxValue(), 1);
     }
 }

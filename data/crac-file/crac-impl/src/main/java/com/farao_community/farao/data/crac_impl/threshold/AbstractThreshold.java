@@ -36,11 +36,9 @@ public abstract class AbstractThreshold implements Threshold {
     }
 
     public void synchronize(Network network, Cnec cnec) {
-
     }
 
     public void desynchronize() {
-
     }
 
     @Override
