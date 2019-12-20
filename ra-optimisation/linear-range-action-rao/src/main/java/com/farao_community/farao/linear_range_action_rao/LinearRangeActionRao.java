@@ -39,17 +39,6 @@ import java.util.concurrent.CompletableFuture;
 public class LinearRangeActionRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRao.class);
 
-    public enum SecurityStatus {
-        SECURED,
-        UNSECURED
-    }
-
-    private SecurityStatus securityStatus;
-
-    public void setSecurityStatus(SecurityStatus securityStatus) {
-        this.securityStatus = securityStatus;
-    }
-
     @Override
     public String getName() {
         return "Linear Range Action Rao";
@@ -70,13 +59,17 @@ public class LinearRangeActionRao implements RaoProvider {
                                                        SensitivityComputationFactory sensitivityComputationFactory) {
         SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
         if (sensiSaResults == null) {
-            this.setSecurityStatus(SecurityStatus.UNSECURED);
-            return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
+            LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
+            RaoComputationResult raoComputationResult =  new RaoComputationResult(RaoComputationResult.Status.FAILURE);
+            raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
+            return CompletableFuture.completedFuture(raoComputationResult);
         }
+
+        LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
 
         // 1. do for pre
         SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
-        List<MonitoredBranchResult> monitoredBranchResults = getMonitoredBranchResultList(crac, preSensi);
+        List<MonitoredBranchResult> monitoredBranchResults = getMonitoredBranchResultList(crac, preSensi, resultExtension);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
@@ -87,32 +80,32 @@ public class LinearRangeActionRao implements RaoProvider {
             String nameContSensi = contingency.getName();
 
             SensitivityComputationResults sensitivityComputationResults = mapSensi.get(contingency);
-            List<MonitoredBranchResult> tmpMonitoredBranchResults = getMonitoredBranchResultList(crac, sensitivityComputationResults);
+            List<MonitoredBranchResult> tmpMonitoredBranchResults = getMonitoredBranchResultList(crac, sensitivityComputationResults, resultExtension);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
             contingencyResultsRao.add(contingencyResult);
         }
 
-        setSecurityStatus(SecurityStatus.SECURED);
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
+        raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
 
         // 4. return
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
-    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults preSensi) {
+    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults preSensi, LinearRangeActionRaoResult resultExtension) {
         List<MonitoredBranchResult> returnlist = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> {
             LOGGER.info("Cnec: " + cnec.getId());
             preSensi.getSensitivityValues().forEach(sensitivityValue -> {
-                MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue);
+                MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue, resultExtension);
                 returnlist.add(monitoredBranchResult);
             });
         });
         return returnlist;
     }
 
-    private MonitoredBranchResult getMonitoredBranchResult(Cnec cnec, SensitivityValue sensitivityValue) {
+    private MonitoredBranchResult getMonitoredBranchResult(Cnec cnec, SensitivityValue sensitivityValue, LinearRangeActionRaoResult resultExtension) {
         String id = sensitivityValue.getFactor().getFunction().getId();
         String name = sensitivityValue.getFactor().getFunction().getName();
         Optional<Double> maximumFlow = Optional.empty();
@@ -123,7 +116,7 @@ public class LinearRangeActionRao implements RaoProvider {
         double preOptimisationFlow = sensitivityValue.getFunctionReference();
         if (maximumFlow.orElse(Double.MIN_VALUE) < preOptimisationFlow) {
             //unsecured
-            setSecurityStatus(SecurityStatus.UNSECURED);
+            resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
         }
         return new MonitoredBranchResult(id, name, id, maximumFlow.orElse(Double.MIN_VALUE), preOptimisationFlow, preOptimisationFlow);
     }

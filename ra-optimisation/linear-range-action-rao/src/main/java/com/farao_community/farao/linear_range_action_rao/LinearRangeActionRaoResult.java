@@ -15,7 +15,13 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputationResult> {
 
+    public enum SecurityStatus {
+        SECURED,
+        UNSECURED
+    }
+
     private final double cost;
+    private SecurityStatus securityStatus;
 
     @Override
     public String getName() {
@@ -26,7 +32,16 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
         this.cost = cost;
     }
 
+    public LinearRangeActionRaoResult(SecurityStatus securityStatus) {
+        this.securityStatus = securityStatus;
+        cost = 0;
+    }
+
     public double getCost() {
         return cost;
+    }
+
+    public void setSecurityStatus(SecurityStatus securityStatus) {
+        this.securityStatus = securityStatus;
     }
 }
