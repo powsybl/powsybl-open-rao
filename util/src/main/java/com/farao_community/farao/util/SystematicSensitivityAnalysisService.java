@@ -27,16 +27,16 @@ import java.util.concurrent.ExecutionException;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public final class SensitivitySecurityAnalysisService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivitySecurityAnalysisService.class);
+public final class SystematicSensitivityAnalysisService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisService.class);
 
-    private SensitivitySecurityAnalysisService() {
+    private SystematicSensitivityAnalysisService() {
     }
 
-    public static SensitivitySecurityAnalysisResult runSensitivity(Network network,
-                                                                   Crac crac,
-                                                                   ComputationManager computationManager,
-                                                                   SensitivityComputationFactory sensitivityComputationFactory) {
+    public static SystematicSensitivityAnalysisResult runSensitivity(Network network,
+                                                                     Crac crac,
+                                                                     ComputationManager computationManager,
+                                                                     SensitivityComputationFactory sensitivityComputationFactory) {
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         //prepare range actions: pst ( and hvdc in the future )
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
@@ -73,8 +73,8 @@ public final class SensitivitySecurityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        //return SensitivitySecurityAnalysisResult
-        return new SensitivitySecurityAnalysisResult(precontingencyResult, contingencySensitivityComputationResultsMap);
+        //return SystematicSensitivityAnalysisResult
+        return new SystematicSensitivityAnalysisResult(precontingencyResult, contingencySensitivityComputationResultsMap);
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {

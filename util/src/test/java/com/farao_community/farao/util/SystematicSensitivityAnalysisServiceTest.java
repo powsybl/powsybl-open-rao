@@ -47,9 +47,9 @@ import static org.junit.Assert.*;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class SensitivitySecurityAnalysisServiceTest {
+public class SystematicSensitivityAnalysisServiceTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivitySecurityAnalysisServiceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisServiceTest.class);
 
     private Network network;
     private ComputationManager computationManager;
@@ -70,7 +70,7 @@ public class SensitivitySecurityAnalysisServiceTest {
     public void testSensiSAresult() {
         SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
         Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
-        SensitivitySecurityAnalysisResult result = new SensitivitySecurityAnalysisResult(precontingencyResult, resultMap);
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(precontingencyResult, resultMap);
         result.setPrecontingencyResult(precontingencyResult);
         result.setResultMap(resultMap);
         assertNotNull(result);
@@ -80,7 +80,7 @@ public class SensitivitySecurityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
-        SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
         assertEquals(2, result.getResultMap().keySet().size());

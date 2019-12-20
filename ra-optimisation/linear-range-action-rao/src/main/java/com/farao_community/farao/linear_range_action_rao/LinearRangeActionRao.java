@@ -16,8 +16,8 @@ import com.farao_community.farao.ra_optimisation.PreContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.util.SensitivitySecurityAnalysisResult;
-import com.farao_community.farao.util.SensitivitySecurityAnalysisService;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -57,7 +57,7 @@ public class LinearRangeActionRao implements RaoProvider {
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId,
                                                        ComputationManager computationManager, RaoParameters parameters,
                                                        SensitivityComputationFactory sensitivityComputationFactory) {
-        SensitivitySecurityAnalysisResult sensiSaResults = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
+        SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
         if (sensiSaResults == null) {
             return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
         }

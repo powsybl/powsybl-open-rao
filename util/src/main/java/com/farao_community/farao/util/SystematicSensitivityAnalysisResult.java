@@ -14,11 +14,11 @@ import java.util.Map;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class SensitivitySecurityAnalysisResult {
+public class SystematicSensitivityAnalysisResult {
     private SensitivityComputationResults precontingencyResult;
     private Map<Contingency, SensitivityComputationResults> resultMap;
 
-    public SensitivitySecurityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap) {
+    public SystematicSensitivityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap) {
         this.precontingencyResult = precontingencyResult;
         this.resultMap = contingencySensitivityComputationResultsMap;
     }
