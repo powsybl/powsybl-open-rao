@@ -51,16 +51,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         if (Double.isNaN(maxValue)) {
             throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
         }
-        switch (unit) {
-            case AMPERE:
-                return (maxValue * percentageOfMax / 100) < getI(network, cnec);
-            case MEGAWATT:
-                return (maxValue * percentageOfMax / 100) < getP(network, cnec);
-            case DEGREE:
-            case KILOVOLT:
-            default:
-                throw new FaraoException("Incompatible type of unit between FlowThreshold and degree or kV");
-        }
+        return computeMargin(network, cnec) < 0;
     }
 
     @Override

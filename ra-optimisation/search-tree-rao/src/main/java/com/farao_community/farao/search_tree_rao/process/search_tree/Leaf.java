@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * A "leaf" is a junction of the search tree
+ * A "leaf" is a node of the search tree.
  * Each leaf contains a Network Action, which should be tested in combination with
  * it's parent Leaves' Network Actions
  *
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 class Leaf {
 
     /**
-     * Parent Leaf or null for initial Leaf
+     * Parent Leaf or null for root Leaf
      */
     private final Leaf parentLeaf;
 
@@ -60,7 +60,7 @@ class Leaf {
     }
 
     /**
-     * Initial Leaf constructor
+     * Root Leaf constructor
      */
     Leaf(String networkVariant) {
         this.parentLeaf = null;
@@ -93,7 +93,7 @@ class Leaf {
     }
 
     /**
-     * Action impact getter
+     * Rao results getter
      */
     RaoComputationResult getRaoResult() {
         return raoResult;

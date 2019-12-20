@@ -30,21 +30,13 @@ import java.util.concurrent.CompletableFuture;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class Tree {
+public final class Tree {
 
-    private Network network;
-    private Crac crac;
-    private String initialVariantId;
-    private RaoParameters parameters;
-
-    public Tree(Network network, Crac crac, String initialVariantId, RaoParameters parameters) {
-        this.network = network;
-        this.crac = crac;
-        this.initialVariantId = initialVariantId;
-        this.parameters = parameters;
+    private Tree() {
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
-    public CompletableFuture<RaoComputationResult> search() {
+    public static CompletableFuture<RaoComputationResult> search(Network network, Crac crac, String initialVariantId, RaoParameters parameters) {
         Leaf optimalLeaf = new Leaf(initialVariantId);
         optimalLeaf.evaluate(network, crac, parameters);
 
@@ -67,11 +59,9 @@ public class Tree {
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
-                    if (getCost(currentLeaf.getRaoResult()) < getCost(optimalLeaf.getRaoResult())) {
-                        hasImproved = true;
-                        optimalLeaf = currentLeaf;
-                    }
+                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS && getCost(currentLeaf.getRaoResult()) < getCost(optimalLeaf.getRaoResult())) {
+                    hasImproved = true;
+                    optimalLeaf = currentLeaf;
                 }
             }
             //TODO: generalize to handle different stop criterion
@@ -85,7 +75,7 @@ public class Tree {
      * Temporarily function, will be deprecated once the RaoResult will
      * be refactored
      */
-    private double getCost(RaoComputationResult raoResult) {
+    private static double getCost(RaoComputationResult raoResult) {
         // TODO: get objective function value
         // below is a dummy temporary implementation, as "return 0;" was not accepted by Sonar
         return raoResult.getContingencyResults().size();

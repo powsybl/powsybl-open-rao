@@ -24,7 +24,7 @@ public interface Cnec extends Identifiable, Synchronizable {
 
     NetworkElement getCriticalNetworkElement();
 
-    double computeMargin(Network network);
+    double computeMargin(Network network) throws SynchronizationException;
 
     Threshold getThreshold();
 

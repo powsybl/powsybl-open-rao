@@ -46,7 +46,7 @@ public class SearchTreeRao implements RaoProvider {
         }
 
         // run optimisation
-        RaoComputationResult result = new Tree(network, crac, variantId, parameters).search().join();
+        RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
         return CompletableFuture.completedFuture(result);
     }
 

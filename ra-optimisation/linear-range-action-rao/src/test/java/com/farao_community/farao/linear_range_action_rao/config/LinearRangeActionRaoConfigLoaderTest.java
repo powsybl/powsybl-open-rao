@@ -53,7 +53,7 @@ public class LinearRangeActionRaoConfigLoaderTest {
 
     @Test
     public void getCategoryName() {
-        assertEquals("linear-rao-parameters", configLoader.getCategoryName());
+        assertEquals("rao-parameters", configLoader.getCategoryName());
     }
 
     @Test
