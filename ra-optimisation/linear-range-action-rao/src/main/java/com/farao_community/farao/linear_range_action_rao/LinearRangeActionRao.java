@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.linear_range_action_rao;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 
+import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
 import com.farao_community.farao.ra_optimisation.PreContingencyResult;
@@ -27,9 +29,7 @@ import com.powsybl.sensitivity.SensitivityValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -38,6 +38,17 @@ import java.util.concurrent.CompletableFuture;
 @AutoService(RaoProvider.class)
 public class LinearRangeActionRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRao.class);
+
+    public enum SecurityStatus {
+        SECURED,
+        UNSECURED
+    }
+
+    private SecurityStatus securityStatus;
+
+    public void setSecurityStatus(SecurityStatus securityStatus) {
+        this.securityStatus = securityStatus;
+    }
 
     @Override
     public String getName() {
@@ -59,6 +70,7 @@ public class LinearRangeActionRao implements RaoProvider {
                                                        SensitivityComputationFactory sensitivityComputationFactory) {
         SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
         if (sensiSaResults == null) {
+            this.setSecurityStatus(SecurityStatus.UNSECURED);
             return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
         }
 
@@ -81,7 +93,10 @@ public class LinearRangeActionRao implements RaoProvider {
             contingencyResultsRao.add(contingencyResult);
         }
 
+        setSecurityStatus(SecurityStatus.SECURED);
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
+
+        // 4. return
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
@@ -90,19 +105,28 @@ public class LinearRangeActionRao implements RaoProvider {
         crac.getCnecs().forEach(cnec -> {
             LOGGER.info("Cnec: " + cnec.getId());
             preSensi.getSensitivityValues().forEach(sensitivityValue -> {
-                MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(sensitivityValue);
+                MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue);
                 returnlist.add(monitoredBranchResult);
             });
         });
         return returnlist;
     }
 
-    private MonitoredBranchResult getMonitoredBranchResult(SensitivityValue sensitivityValue) {
+    private MonitoredBranchResult getMonitoredBranchResult(Cnec cnec, SensitivityValue sensitivityValue) {
         String id = sensitivityValue.getFactor().getFunction().getId();
         String name = sensitivityValue.getFactor().getFunction().getName();
-        double maximumFlow = Integer.MAX_VALUE; //todo ? how to get max from Crac?
+        Optional<Double> maximumFlow = Optional.empty();
+        try {
+            maximumFlow = cnec.getThreshold().getMaxThreshold();
+        } catch (SynchronizationException e) {
+            e.printStackTrace();
+        }
         double preOptimisationFlow = sensitivityValue.getFunctionReference();
-        return new MonitoredBranchResult(id, name, id, maximumFlow, preOptimisationFlow, preOptimisationFlow);
+        if (maximumFlow.orElse(Double.MIN_VALUE) < preOptimisationFlow) {
+            //unsecured
+            setSecurityStatus(SecurityStatus.UNSECURED);
+        }
+        return new MonitoredBranchResult(id, name, id, maximumFlow.orElse(Double.MIN_VALUE), preOptimisationFlow, preOptimisationFlow);
     }
 
 }
