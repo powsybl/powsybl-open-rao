@@ -118,8 +118,7 @@ public class LinearRangeActionRao implements RaoProvider {
         Optional<Double> maximumFlow = Optional.empty();
         try {
             maximumFlow = cnec.getThreshold().getMaxThreshold();
-        } catch (SynchronizationException e) {
-            e.printStackTrace();
+        } catch (SynchronizationException ignored) {
         }
         double preOptimisationFlow = sensitivityValue.getFunctionReference();
         if (maximumFlow.orElse(Double.MIN_VALUE) < preOptimisationFlow) {
