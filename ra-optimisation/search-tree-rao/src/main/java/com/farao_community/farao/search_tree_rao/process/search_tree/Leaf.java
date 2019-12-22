@@ -38,6 +38,11 @@ class Leaf {
     private final NetworkAction networkAction;
 
     /**
+     * Network Action list from this Leaf to root leaf
+     */
+    private final List<NetworkAction> legacyNetworkActions;
+
+    /**
      * Name of the network variant associated with this Leaf
      */
     private String networkVariant;
@@ -62,9 +67,10 @@ class Leaf {
     /**
      * Root Leaf constructor
      */
-    Leaf(String networkVariant) {
+    Leaf(String networkVariant) { //! constructor only for Root Leaf
         this.parentLeaf = null;
-        this.networkAction = null;
+        this.networkAction = null; //! root leaf has null networkaction
+        this.legacyNetworkActions = new ArrayList<>();
         this.networkVariant = networkVariant;
         this.raoResult = null;
         this.status = Status.CREATED;
@@ -76,6 +82,7 @@ class Leaf {
     private Leaf(Leaf parentLeaf, NetworkAction networkAction) {
         this.parentLeaf = parentLeaf;
         this.networkAction = networkAction;
+        this.legacyNetworkActions = getNetworkActionLegacy(); //init legacyNetworkActions in constructor
         this.networkVariant = null;
         this.raoResult = null;
         this.status = Status.CREATED;
@@ -125,13 +132,18 @@ class Leaf {
      * parent leaves
      */
     List<NetworkAction> getNetworkActionLegacy() {
-        Leaf leaf = this;
-        List<NetworkAction> naList = new ArrayList<>();
-        while (!leaf.isRoot()) {
-            naList.add(leaf.getNetworkAction());
-            leaf = leaf.getParent();
+        if (this.legacyNetworkActions == null) { // first time here, need to init the list
+            List<NetworkAction> naList = new ArrayList<>();
+            if (this.networkAction != null) {
+                naList.add(this.getNetworkAction()); // add its own NetworkAction is not null (root's is null)
+            }
+            if (!this.isRoot()) {
+                naList.addAll(this.getParent().getNetworkActionLegacy()); // merge with its parent's list
+            }
+            return naList;
+        } else {
+            return this.legacyNetworkActions;
         }
-        return naList;
     }
 
     /**
