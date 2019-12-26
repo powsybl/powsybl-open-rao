@@ -48,6 +48,19 @@ public class EICode {
 //            case "10YDE-EON------1" : return Country.DE;//b ControlArea
 //            case "10YDE-RWENET---I" : return Country.DE;//c ControlArea
 //            case "10YDE-VE-------2" : return Country.DE;//d ControlArea
+            case "10YES-REE------0" : return Country.ES;
+            case "10YCS-SERBIATSOV" : return Country.RS;
+            case "10YCH-SWISSGRIDZ" : return Country.CH;
+            case "10YPT-REN------W" : return Country.PT;
+            case "10YCA-BULGARIA-R" : return Country.BG;
+            case "10YAL-KESH-----5" : return Country.AL;
+            case "10YTR-TEIAS----W" : return Country.TR;
+            case "10Y1001C--00003F" : return Country.UA;
+            case "10YMK-MEPSO----8" : return Country.MK;
+            case "10YBA-JPCC-----D" : return Country.BA;
+            case "10YCS-CG-TSO---S" : return Country.ME;
+            case "10YGR-HTSO-----Y" : return Country.GR;
+            case "10YIT-GRTN-----B" : return Country.IT;
             default: throw new IllegalArgumentException("Unknown EICode.");
         }
     }
