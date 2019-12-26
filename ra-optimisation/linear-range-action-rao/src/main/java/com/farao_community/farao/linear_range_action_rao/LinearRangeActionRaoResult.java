@@ -15,8 +15,18 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputationResult> {
 
+    private final double cost;
+
     @Override
     public String getName() {
         return "LinearRangeActionRaoResult";
+    }
+
+    public LinearRangeActionRaoResult(double cost) {
+        this.cost = cost;
+    }
+
+    public double getCost() {
+        return cost;
     }
 }

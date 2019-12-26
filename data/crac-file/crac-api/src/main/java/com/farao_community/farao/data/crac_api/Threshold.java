@@ -7,8 +7,11 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -16,9 +19,17 @@ import com.powsybl.iidm.network.Network;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface Threshold {
 
+    @JsonIgnore
+    Optional<Double> getMinThreshold() throws SynchronizationException;
+
+    @JsonIgnore
+    Optional<Double> getMaxThreshold() throws SynchronizationException;
+
     boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 
     boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
+
+    double computeMargin(Network network, Cnec cnec) throws SynchronizationException;
 
     void synchronize(Network network, Cnec cnec);
 
