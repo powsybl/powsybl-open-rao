@@ -204,10 +204,10 @@ public final class GlskPointScalableConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B43 LSK");
             List<GlskRegisteredResource> loadsList = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> network.getLoad(loadResource.getGeneratorId(typeGlskFile)) != null)
-                    .filter(loadResource -> network.getLoad(loadResource.getGeneratorId(typeGlskFile)).getTerminal().isConnected())
-                    .filter(loadResource -> network.getLoad(loadResource.getGeneratorId(typeGlskFile)).getTerminal().getBusView().getBus() != null)
-                    .filter(loadResource -> network.getLoad(loadResource.getGeneratorId(typeGlskFile)).getTerminal().getBusView().getBus().isInMainSynchronousComponent())
+                    .filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)) != null)
+                    .filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)).getTerminal().isConnected())
+                    .filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)).getTerminal().getBusView().getBus() != null)
+                    .filter(loadResource -> network.getLoad(loadResource.getLoadId(typeGlskFile)).getTerminal().getBusView().getBus().isInMainSynchronousComponent())
                     .collect(Collectors.toList());
             double totalFactor = loadsList.stream()
                     .mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
