@@ -64,7 +64,7 @@ public final class GlskPointScalableConverter {
                     throw new FaraoException("In convert glskShiftKey business type not supported");
                 }
             }
-            return Scalable.proportional(percentages, scalables);
+            return Scalable.proportional(percentages, scalables, true);
         } else {
             //B45 merit order
             return convertMeritOrder(network, glskPoint, typeGlskFile);
