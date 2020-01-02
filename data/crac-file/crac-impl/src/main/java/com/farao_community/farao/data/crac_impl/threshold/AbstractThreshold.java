@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.SynchronizationException;
+import com.farao_community.farao.data.crac_api.Threshold;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,7 +24,7 @@ import com.powsybl.iidm.network.Network;
     {
         @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltageThreshold")
     })
-public abstract class AbstractThreshold {
+public abstract class AbstractThreshold implements Threshold {
     protected Unit unit;
 
     public AbstractThreshold(Unit unit) {
@@ -35,15 +35,15 @@ public abstract class AbstractThreshold {
         return unit;
     }
 
-    public abstract boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
-
-    public abstract boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
-
     public void synchronize(Network network, Cnec cnec) {
-
     }
 
     public void desynchronize() {
-
     }
+
+    @Override
+    public abstract boolean equals(Object o);
+
+    @Override
+    public abstract int hashCode();
 }

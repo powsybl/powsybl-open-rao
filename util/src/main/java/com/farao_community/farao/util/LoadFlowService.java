@@ -21,7 +21,7 @@ public final class LoadFlowService {
     private static ComputationManager computationManager;
 
     private LoadFlowService() {
-        throw new AssertionError("Utility class should not be instanciated");
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     public static void init(LoadFlow.Runner runner, ComputationManager computationManager) {

@@ -23,17 +23,21 @@ import com.powsybl.iidm.network.Network;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private NetworkElement criticalNetworkElement;
-    private AbstractThreshold threshold;
+    private Threshold threshold;
     private State state;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("criticalNetworkElement") NetworkElement criticalNetworkElement,
-                      @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
+                      @JsonProperty("threshold") Threshold threshold, @JsonProperty("state") State state) {
         super(id, name);
         this.criticalNetworkElement = criticalNetworkElement;
         this.threshold = threshold;
         this.state = state;
+    }
+
+    public SimpleCnec(String id, NetworkElement criticalNetworkElement, AbstractThreshold threshold, State state) {
+        this(id, id, criticalNetworkElement, threshold, state);
     }
 
     @Override
@@ -41,11 +45,17 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return criticalNetworkElement;
     }
 
+    @Override
+    public double computeMargin(Network network) throws SynchronizationException {
+        return threshold.computeMargin(network, this);
+    }
+
     public void setCriticalNetworkElement(NetworkElement criticalNetworkElement) {
         this.criticalNetworkElement = criticalNetworkElement;
     }
 
-    public AbstractThreshold getThreshold() {
+    @Override
+    public Threshold getThreshold() {
         return threshold;
     }
 
@@ -85,5 +95,27 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     @Override
     public void desynchronize() {
         threshold.desynchronize();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SimpleCnec cnec = (SimpleCnec) o;
+        return super.equals(cnec) && criticalNetworkElement.equals(cnec.getCriticalNetworkElement())
+            && state.equals(cnec.getState()) && threshold.equals(cnec.getThreshold());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + criticalNetworkElement.hashCode();
+        result = 31 * result + state.hashCode();
+        result = 31 * result + threshold.hashCode();
+        return result;
     }
 }

@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -32,6 +34,14 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
+    public Optional<Double> getMaxThreshold() throws SynchronizationException {
+        if (Double.isNaN(maxValue)) {
+            throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
+        }
+        return Optional.of(maxValue);
+    }
+
+    @Override
     public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
         return false;
     }
@@ -41,11 +51,19 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         if (Double.isNaN(maxValue)) {
             throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
         }
+        return computeMargin(network, cnec) < 0;
+    }
+
+    @Override
+    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
+        if (Double.isNaN(maxValue)) {
+            throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
+        }
         switch (unit) {
             case AMPERE:
-                return (maxValue * percentageOfMax / 100) < getTerminal(network, cnec).getI();
+                return (maxValue * percentageOfMax / 100) - getI(network, cnec);
             case MEGAWATT:
-                return (maxValue * percentageOfMax / 100) < getTerminal(network, cnec).getP();
+                return (maxValue * percentageOfMax / 100) - getP(network, cnec);
             case DEGREE:
             case KILOVOLT:
             default:
@@ -72,5 +90,24 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     @Override
     public void desynchronize() {
         maxValue = Double.NaN;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RelativeFlowThreshold threshold = (RelativeFlowThreshold) o;
+        return super.equals(threshold) && percentageOfMax == threshold.percentageOfMax;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) percentageOfMax;
+        return result;
     }
 }

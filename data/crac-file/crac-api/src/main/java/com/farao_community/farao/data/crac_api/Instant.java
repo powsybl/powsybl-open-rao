@@ -17,20 +17,45 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public class Instant {
+public class Instant extends AbstractIdentifiable {
 
-    private double duration;
+    private int seconds;
 
     @JsonCreator
-    public Instant(@JsonProperty("duration") double duration) {
-        this.duration = duration;
+    public Instant(@JsonProperty("id") String id, @JsonProperty("seconds") int seconds) {
+        super(id, id);
+        this.seconds = seconds;
     }
 
-    public double getDuration() {
-        return duration;
+    public int getSeconds() {
+        return seconds;
     }
 
-    public void setDuration(double duration) {
-        this.duration = duration;
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
+    }
+
+    /**
+     * Check if instants are equals. Instants are considered equals when IDs and seconds are equals.
+     *
+     * @param o: If it's null or another object than Instant it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Instant instant = (Instant) o;
+
+        return super.equals(o) && seconds == instant.getSeconds();
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%d", getId(), getSeconds()).hashCode();
     }
 }

@@ -23,7 +23,7 @@ import java.util.*;
 public final class ConfigurationUtil {
 
     private ConfigurationUtil() {
-        throw new AssertionError("Utility class should not be instanciated");
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     /**

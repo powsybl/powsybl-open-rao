@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
+
 /**
  * Limits of a flow through an equipment.
  *
@@ -32,17 +34,27 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
+    public Optional<Double> getMaxThreshold() {
+        return Optional.of(maxValue);
+    }
+
+    @Override
     public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
         return false;
     }
 
     @Override
     public boolean isMaxThresholdOvercome(Network network, Cnec cnec) {
+        return computeMargin(network, cnec) < 0;
+    }
+
+    @Override
+    public double computeMargin(Network network, Cnec cnec) {
         switch (unit) {
             case AMPERE:
-                return maxValue < getTerminal(network, cnec).getI();
+                return maxValue - getI(network, cnec);
             case MEGAWATT:
-                return maxValue < getTerminal(network, cnec).getP();
+                return maxValue - getP(network, cnec);
             case DEGREE:
             case KILOVOLT:
             default:
@@ -52,11 +64,28 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-
     }
 
     @Override
     public void desynchronize() {
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbsoluteFlowThreshold threshold = (AbsoluteFlowThreshold) o;
+        return super.equals(threshold) && maxValue == threshold.maxValue;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) maxValue;
+        return result;
     }
 }
