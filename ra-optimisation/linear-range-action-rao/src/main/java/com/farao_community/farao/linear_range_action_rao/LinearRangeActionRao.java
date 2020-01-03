@@ -93,13 +93,14 @@ public class LinearRangeActionRao implements RaoProvider {
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
-    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults preSensi, LinearRangeActionRaoResult resultExtension) {
+    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults results, LinearRangeActionRaoResult resultExtension) {
         List<MonitoredBranchResult> returnlist = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> {
-            LOGGER.info("Cnec: " + cnec.getId());
-            preSensi.getSensitivityValues().forEach(sensitivityValue -> {
-                MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue, resultExtension);
-                returnlist.add(monitoredBranchResult);
+            results.getSensitivityValues().forEach(sensitivityValue -> {
+                if (sensitivityValue.getFactor().getFunction().getId() == cnec.getId()) { //id filter: get sensiValue result for current cnec
+                    MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue, resultExtension);
+                    returnlist.add(monitoredBranchResult);
+                }
             });
         });
         return returnlist;
@@ -113,7 +114,7 @@ public class LinearRangeActionRao implements RaoProvider {
             maximumFlow = cnec.getThreshold().getMaxThreshold();
         } catch (SynchronizationException ignored) {
         }
-        double preOptimisationFlow = sensitivityValue.getFunctionReference();
+        double preOptimisationFlow = sensitivityValue.getFunctionReference(); //todo: make a separate map for reference flow
         if (maximumFlow.orElse(Double.MIN_VALUE) < preOptimisationFlow) {
             //unsecured
             resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);

@@ -99,7 +99,7 @@ public final class SystematicSensitivityAnalysisService {
                 if (isPst(network, networkElement)) {
                     psts.add(network.getTwoWindingsTransformer(networkElement.getId()));
                 } else {
-                    LOGGER.warn("not support type of range action");
+                    LOGGER.warn("In SystematicSensitivityAnalysisService getPstInRangeActions: not supported type of range action");
                 }
             }
         }

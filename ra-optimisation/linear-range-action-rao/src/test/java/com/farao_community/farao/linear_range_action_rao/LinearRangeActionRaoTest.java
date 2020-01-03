@@ -169,7 +169,7 @@ public class LinearRangeActionRaoTest {
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
         State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
-        NetworkElement monitoredElement = new NetworkElement("idMR", "Monitored Element");
+        NetworkElement monitoredElement = new NetworkElement("idMonitoredElement", "Monitored Element");
 
         // Thresholds
         AbsoluteFlowThreshold threshold1 = new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000);
@@ -181,7 +181,7 @@ public class LinearRangeActionRaoTest {
         threshold2.setMaxValue(305);
 
         // CNECs
-        SimpleCnec cnec1 = new SimpleCnec("idCnec", "Cnec", null, threshold1, stateCurative);
+        SimpleCnec cnec1 = new SimpleCnec("idCnec1", "Cnec 1", null, threshold1, stateCurative);
         cnec1.setCriticalNetworkElement(monitoredElement);
         SimpleCnec cnec2 = new SimpleCnec("idCnec2", "Cnec 2", monitoredElement, null, null);
         cnec2.setState(stateBasecase);
@@ -221,10 +221,10 @@ public class LinearRangeActionRaoTest {
         crac.addCnec(cnec2);
         crac.addNetworkAction(networkAction1);
         crac.addNetworkAction(networkAction2);
-        crac.addRangeAction(rangeAction1);
+
         crac.addRangeAction(rangeAction2);
 
-        ComplexContingency contingency1 = new ComplexContingency("idContingencyTmp", "My contingency Tmp",
+        ComplexContingency contingency1 = new ComplexContingency("idContingency1", "My contingency 1",
                 new HashSet<>(Arrays.asList(new NetworkElement("BBE2AA1  BBE3AA1  1"))));
         crac.addContingency(contingency1);
 
