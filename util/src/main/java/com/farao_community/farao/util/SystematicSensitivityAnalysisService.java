@@ -35,9 +35,9 @@ public final class SystematicSensitivityAnalysisService {
 
     public static SystematicSensitivityAnalysisResult runSensitivity(Network network,
                                                                      Crac crac,
-                                                                     ComputationManager computationManager,
-                                                                     SensitivityComputationFactory sensitivityComputationFactory) {
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+                                                                     ComputationManager computationManager) {
+        //todo:
+//        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         //prepare range actions: pst ( and hvdc in the future )
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
 

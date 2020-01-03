@@ -23,6 +23,10 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.util.SensitivityComputationService;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
@@ -30,10 +34,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -53,10 +57,20 @@ public class LinearRangeActionRaoTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRaoTest.class);
 
     private LinearRangeActionRao linearRangeActionRao;
+    private ComputationManager computationManager;
+    private RaoParameters raoParameters;
 
     @Before
     public void setUp() {
         linearRangeActionRao = new LinearRangeActionRao();
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
+
+        computationManager = LocalComputationManager.getDefault();
+        raoParameters = RaoParameters.load(platformConfig);
+        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
     @Test
@@ -71,28 +85,15 @@ public class LinearRangeActionRaoTest {
 
     @Test
     public void run() {
-        Network network = Mockito.mock(Network.class);
-        Crac crac = Mockito.mock(Crac.class);
-        String variantId = "variant-test";
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
-
-        assertNull(linearRangeActionRao.run(network, crac, variantId, computationManager, raoParameters));
-    }
-
-    @Test
-    public void run2() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         Crac crac = create();
 
-        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
         String variantId = "variant-test";
-        RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
 
-        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters, sensitivityComputationFactory));
+        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters));
     }
 
     private static Crac create() {

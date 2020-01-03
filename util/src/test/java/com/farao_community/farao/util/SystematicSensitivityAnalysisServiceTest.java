@@ -80,7 +80,7 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
         assertEquals(2, result.getResultMap().keySet().size());

@@ -23,7 +23,6 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import org.slf4j.Logger;
@@ -50,14 +49,9 @@ public class LinearRangeActionRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
-        return null;
-    }
-
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId,
-                                                       ComputationManager computationManager, RaoParameters parameters,
-                                                       SensitivityComputationFactory sensitivityComputationFactory) {
-        SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager, sensitivityComputationFactory);
+                                                       ComputationManager computationManager, RaoParameters parameters) {
+        SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager);
         if (sensiSaResults == null) {
             LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
             RaoComputationResult raoComputationResult =  new RaoComputationResult(RaoComputationResult.Status.FAILURE);
@@ -97,7 +91,7 @@ public class LinearRangeActionRao implements RaoProvider {
         List<MonitoredBranchResult> returnlist = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> {
             results.getSensitivityValues().forEach(sensitivityValue -> {
-                if (sensitivityValue.getFactor().getFunction().getId() == cnec.getId()) { //id filter: get sensiValue result for current cnec
+                if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
                     MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue, resultExtension);
                     returnlist.add(monitoredBranchResult);
                 }
