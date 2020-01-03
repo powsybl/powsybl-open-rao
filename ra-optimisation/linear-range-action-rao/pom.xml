@@ -37,6 +37,10 @@
             <artifactId>farao-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-loadflow-api</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>

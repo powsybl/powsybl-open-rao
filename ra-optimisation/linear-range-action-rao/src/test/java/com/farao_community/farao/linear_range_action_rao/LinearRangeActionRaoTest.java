@@ -23,6 +23,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -31,9 +32,12 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +75,10 @@ public class LinearRangeActionRaoTest {
         raoParameters = RaoParameters.load(platformConfig);
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+        LoadFlowService.init(loadFlowRunner, computationManager);
     }
 
     @Test
@@ -170,7 +178,7 @@ public class LinearRangeActionRaoTest {
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
         State stateCurative = new SimpleState(Optional.of(contingency), curative);
 
-        NetworkElement monitoredElement = new NetworkElement("idMonitoredElement", "Monitored Element");
+        NetworkElement monitoredElement = new NetworkElement("BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1 name");
 
         // Thresholds
         AbsoluteFlowThreshold threshold1 = new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000);

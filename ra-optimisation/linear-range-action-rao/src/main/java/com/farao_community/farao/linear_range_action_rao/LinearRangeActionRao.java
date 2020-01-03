@@ -18,11 +18,14 @@ import com.farao_community.farao.ra_optimisation.PreContingencyResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import org.slf4j.Logger;
@@ -51,6 +54,30 @@ public class LinearRangeActionRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId,
                                                        ComputationManager computationManager, RaoParameters parameters) {
+        // 0. load flow: get reference flow
+        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, variantId);
+        if (loadFlowResult == null) { // load flow failed. return
+            LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
+            RaoComputationResult raoComputationResult =  new RaoComputationResult(RaoComputationResult.Status.FAILURE);
+            raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
+            return CompletableFuture.completedFuture(raoComputationResult);
+        }
+        Map<String, Double> cnecReferenceFlowMap = new HashMap<>(); // reference flow map for cnec, from loadflow result
+        crac.getCnecs().forEach(cnec -> {
+            String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
+            Branch branch = network.getBranch(cnecnetworkelementid);
+            if (branch == null) {
+                LOGGER.warn("Cannot found branch in network for cnec: {}", cnecnetworkelementid);
+            } else {
+                double referenceflow = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
+                if (Double.isNaN(referenceflow)) {
+                    referenceflow = 0.0;
+                }
+                cnecReferenceFlowMap.put(cnecnetworkelementid, referenceflow);
+            }
+        });
+
+        // sensi
         SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager);
         if (sensiSaResults == null) {
             LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
@@ -63,7 +90,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         // 1. do for pre
         SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
-        List<MonitoredBranchResult> monitoredBranchResults = getMonitoredBranchResultList(crac, preSensi, resultExtension);
+        List<MonitoredBranchResult> monitoredBranchResults = getMonitoredBranchResultList(crac, preSensi, resultExtension, cnecReferenceFlowMap);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
@@ -74,7 +101,7 @@ public class LinearRangeActionRao implements RaoProvider {
             String nameContSensi = contingency.getName();
 
             SensitivityComputationResults sensitivityComputationResults = mapSensi.get(contingency);
-            List<MonitoredBranchResult> tmpMonitoredBranchResults = getMonitoredBranchResultList(crac, sensitivityComputationResults, resultExtension);
+            List<MonitoredBranchResult> tmpMonitoredBranchResults = getMonitoredBranchResultList(crac, sensitivityComputationResults, resultExtension, cnecReferenceFlowMap);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
             contingencyResultsRao.add(contingencyResult);
@@ -87,12 +114,14 @@ public class LinearRangeActionRao implements RaoProvider {
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
-    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults results, LinearRangeActionRaoResult resultExtension) {
+    private List<MonitoredBranchResult> getMonitoredBranchResultList(Crac crac, SensitivityComputationResults results,
+                                                                     LinearRangeActionRaoResult resultExtension,
+                                                                     Map<String, Double> cnecReferenceFlowMap) {
         List<MonitoredBranchResult> returnlist = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> {
             results.getSensitivityValues().forEach(sensitivityValue -> {
                 if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
-                    MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue, resultExtension);
+                    MonitoredBranchResult monitoredBranchResult = getMonitoredBranchResult(cnec, sensitivityValue, resultExtension, cnecReferenceFlowMap);
                     returnlist.add(monitoredBranchResult);
                 }
             });
@@ -100,7 +129,9 @@ public class LinearRangeActionRao implements RaoProvider {
         return returnlist;
     }
 
-    private MonitoredBranchResult getMonitoredBranchResult(Cnec cnec, SensitivityValue sensitivityValue, LinearRangeActionRaoResult resultExtension) {
+    private MonitoredBranchResult getMonitoredBranchResult(Cnec cnec, SensitivityValue sensitivityValue,
+                                                           LinearRangeActionRaoResult resultExtension,
+                                                           Map<String, Double> cnecReferenceFlowMap) {
         String id = sensitivityValue.getFactor().getFunction().getId();
         String name = sensitivityValue.getFactor().getFunction().getName();
         Optional<Double> maximumFlow = Optional.empty();
@@ -108,12 +139,17 @@ public class LinearRangeActionRao implements RaoProvider {
             maximumFlow = cnec.getThreshold().getMaxThreshold();
         } catch (SynchronizationException ignored) {
         }
-        double preOptimisationFlow = sensitivityValue.getFunctionReference(); //todo: make a separate map for reference flow
-        if (maximumFlow.orElse(Double.MIN_VALUE) < preOptimisationFlow) {
+        double preOptimisationFlow = sensitivityValue.getFunctionReference();
+        if (Double.isNaN(preOptimisationFlow)) {
+            // if no reference flow is calculated by sensi, use the loadflow result in cnecReferenceFlowMap
+            preOptimisationFlow = cnecReferenceFlowMap.getOrDefault(id, 0.0);
+            LOGGER.info("Use reference flow for cnec {}: {}", id, preOptimisationFlow);
+        }
+        if (maximumFlow.orElse(0.0) < preOptimisationFlow) {
             //unsecured
             resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
         }
-        return new MonitoredBranchResult(id, name, id, maximumFlow.orElse(Double.MIN_VALUE), preOptimisationFlow, preOptimisationFlow);
+        return new MonitoredBranchResult(id, name, id, maximumFlow.orElse(0.0), preOptimisationFlow, preOptimisationFlow);
     }
 
 }
