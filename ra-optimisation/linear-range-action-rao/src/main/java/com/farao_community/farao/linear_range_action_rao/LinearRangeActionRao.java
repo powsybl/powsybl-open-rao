@@ -50,8 +50,11 @@ public class LinearRangeActionRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId,
-                                                       ComputationManager computationManager, RaoParameters parameters) {
+    public CompletableFuture<RaoComputationResult> run(Network network,
+                                                       Crac crac,
+                                                       String variantId,
+                                                       ComputationManager computationManager,
+                                                       RaoParameters parameters) {
         // sensi
         SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runSensitivity(network, crac, computationManager);
         if (sensiSaResults == null) {
@@ -89,7 +92,9 @@ public class LinearRangeActionRao implements RaoProvider {
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
-    private List<MonitoredBranchResult> buildMonitoredBranchResultList(Network network, Crac crac, SensitivityComputationResults results,
+    private List<MonitoredBranchResult> buildMonitoredBranchResultList(Network network,
+                                                                       Crac crac,
+                                                                       SensitivityComputationResults results,
                                                                        LinearRangeActionRaoResult resultExtension,
                                                                        Contingency contingency) {
         List<MonitoredBranchResult> returnlist = new ArrayList<>();
@@ -114,10 +119,15 @@ public class LinearRangeActionRao implements RaoProvider {
                 }
 
                 //get from sensi result
-                for (SensitivityValue sensitivityValue : results.getSensitivityValues()) {
-                    if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
-                        MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, sensitivityValue, resultExtension, referenceflowFromNetwork);
-                        returnlist.add(monitoredBranchResult);
+                if (results.getSensitivityValues().size() == 0) {
+                    MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, null, resultExtension, referenceflowFromNetwork);
+                    returnlist.add(monitoredBranchResult);
+                } else {
+                    for (SensitivityValue sensitivityValue : results.getSensitivityValues()) {
+                        if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
+                            MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, sensitivityValue, resultExtension, referenceflowFromNetwork);
+                            returnlist.add(monitoredBranchResult);
+                        }
                     }
                 }
             }
@@ -126,27 +136,36 @@ public class LinearRangeActionRao implements RaoProvider {
         return returnlist;
     }
 
-    private MonitoredBranchResult buildMonitoredBranchResult(Cnec cnec, SensitivityValue sensitivityValue,
+    private MonitoredBranchResult buildMonitoredBranchResult(Cnec cnec,
+                                                             SensitivityValue sensitivityValue,
                                                              LinearRangeActionRaoResult resultExtension,
                                                              double referenceflowFromNetwork) {
-        String id = sensitivityValue.getFactor().getFunction().getId();
-        String name = sensitivityValue.getFactor().getFunction().getName();
+        // get pre optim flow
+        double preOptimisationFlow;
+        if (sensitivityValue == null) {
+            preOptimisationFlow = referenceflowFromNetwork;
+            LOGGER.info("Use reference flow from network for cnec {}: {}", cnec.getId(), preOptimisationFlow);
+        } else {
+            preOptimisationFlow = sensitivityValue.getFunctionReference();
+            if (Double.isNaN(preOptimisationFlow)) {
+                // if no reference flow is calculated by sensi, use the loadflow result from referenceflowFromNetwork
+                preOptimisationFlow = referenceflowFromNetwork;
+                LOGGER.info("Use reference flow from network for cnec {}: {}", cnec.getId(), preOptimisationFlow);
+            }
+        }
+
+        // secure or unsecured test
         Optional<Double> maximumFlow = Optional.empty();
         try {
             maximumFlow = cnec.getThreshold().getMaxThreshold();
         } catch (SynchronizationException ignored) {
         }
-        double preOptimisationFlow = sensitivityValue.getFunctionReference();
-        if (Double.isNaN(preOptimisationFlow)) {
-            // if no reference flow is calculated by sensi, use the loadflow result from referenceflowFromNetwork
-            preOptimisationFlow = referenceflowFromNetwork;
-            LOGGER.info("Use reference flow from network for cnec {}: {}", id, preOptimisationFlow);
-        }
         if (maximumFlow.orElse(0.0) < preOptimisationFlow) {
             //unsecured
             resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
         }
-        return new MonitoredBranchResult(id, name, id, maximumFlow.orElse(0.0), preOptimisationFlow, preOptimisationFlow);
+
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getId(), maximumFlow.orElse(0.0), preOptimisationFlow, Double.NaN);
     }
 
 }
