@@ -65,7 +65,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         // 1. do for pre
         SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
-        List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultList(network, crac, preSensi, resultExtension);
+        List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultList(network, crac, preSensi, resultExtension, null);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
@@ -76,7 +76,7 @@ public class LinearRangeActionRao implements RaoProvider {
             String nameContSensi = contingency.getName();
 
             SensitivityComputationResults sensitivityComputationResults = mapSensi.get(contingency);
-            List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultList(network, crac, sensitivityComputationResults, resultExtension);
+            List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultList(network, crac, sensitivityComputationResults, resultExtension, contingency);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
             contingencyResultsRao.add(contingencyResult);
@@ -90,31 +90,39 @@ public class LinearRangeActionRao implements RaoProvider {
     }
 
     private List<MonitoredBranchResult> buildMonitoredBranchResultList(Network network, Crac crac, SensitivityComputationResults results,
-                                                                       LinearRangeActionRaoResult resultExtension) {
+                                                                       LinearRangeActionRaoResult resultExtension,
+                                                                       Contingency contingency) {
         List<MonitoredBranchResult> returnlist = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> {
-            double referenceflowFromNetwork = 0.0;
-            //get from network
-            String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
-            Branch branch = network.getBranch(cnecnetworkelementid);
-            if (branch == null) {
-                LOGGER.warn("Cannot found branch in network for cnec: {}", cnecnetworkelementid);
-            } else {
-                referenceflowFromNetwork = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
-                if (Double.isNaN(referenceflowFromNetwork)) {
-                    referenceflowFromNetwork = 0.0;
-                    LOGGER.warn("Reference flow is set to 0.0 from NaN in network for cnec: {}", cnecnetworkelementid);
+        for (Cnec cnec : crac.getCnecs()) {
+            Contingency currentCnecContingnecy = cnec.getState().getContingency().orElse(null);
+            String cnecContingencyId = (currentCnecContingnecy == null) ? "" : currentCnecContingnecy.getId();
+            if ((contingency == null && cnecContingencyId.equals("")) || //pre and cnec's state is null
+                (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
+            ) {
+                double referenceflowFromNetwork = 0.0;
+                //get from network
+                String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
+                Branch branch = network.getBranch(cnecnetworkelementid);
+                if (branch == null) {
+                    LOGGER.warn("Cannot found branch in network for cnec: {}", cnecnetworkelementid);
+                } else {
+                    referenceflowFromNetwork = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
+                    if (Double.isNaN(referenceflowFromNetwork)) {
+                        referenceflowFromNetwork = 0.0;
+                        LOGGER.warn("Reference flow is set to 0.0 from NaN in network for cnec: {}", cnecnetworkelementid);
+                    }
                 }
-            }
 
-            //get from sensi result
-            for (SensitivityValue sensitivityValue : results.getSensitivityValues()) {
-                if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
-                    MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, sensitivityValue, resultExtension, referenceflowFromNetwork);
-                    returnlist.add(monitoredBranchResult);
+                //get from sensi result
+                for (SensitivityValue sensitivityValue : results.getSensitivityValues()) {
+                    if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
+                        MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, sensitivityValue, resultExtension, referenceflowFromNetwork);
+                        returnlist.add(monitoredBranchResult);
+                    }
                 }
             }
-        });
+        }
+
         return returnlist;
     }
 
