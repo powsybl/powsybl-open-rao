@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -33,11 +34,18 @@ public final class SystematicSensitivityAnalysisService {
     private SystematicSensitivityAnalysisService() {
     }
 
-    public static SystematicSensitivityAnalysisResult runSensitivity(Network network,
-                                                                     Crac crac,
-                                                                     ComputationManager computationManager) {
-        //todo:
-//        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+    public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
+                                                                  Crac crac,
+                                                                  ComputationManager computationManager) {
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+
+        Map<String, Double> preReferenceFlow = new HashMap<>();
+//        LoadFlowService.init(LoadFlow.find(), computationManager);
+        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId); //todo, how to run load flow ...
+        if (loadFlowResult.isOk()) {
+            buildReferenceFlowFromNetwork(network, crac, preReferenceFlow);
+        }
+
         //prepare range actions: pst ( and hvdc in the future )
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
 
@@ -46,10 +54,10 @@ public final class SystematicSensitivityAnalysisService {
         SensitivityComputationResults precontingencyResult = runSensitivityComputation(network, crac, twoWindingsTransformers);
 
         //get result per contingency
-        LOGGER.info("Calculating sensitivity result per contingency");
+        LOGGER.info("Calculating reference flow and sensitivity result per contingency");
+        Map<Contingency, Map<String, Double> > contingencyReferenceFlowsMap = new HashMap<>();
         Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap = new HashMap<>();
 
-        String initialVariantId = network.getVariantManager().getWorkingVariantId();
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> crac.getContingencies().forEach(contingency -> {
                 try {
@@ -58,6 +66,15 @@ public final class SystematicSensitivityAnalysisService {
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingencyInCrac(network, computationManager, contingency);
 
+                    //run load flow
+                    Map<String, Double> contingencyReferenceFlow = new HashMap<>();
+                    LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant); //todo, how to run load flow ...
+                    if (currentloadFlowResult.isOk()) {
+                        buildReferenceFlowFromNetwork(network, crac, contingencyReferenceFlow);
+                    }
+                    contingencyReferenceFlowsMap.put(contingency, contingencyReferenceFlow);
+
+                    //run sensi
                     SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
                     contingencySensitivityComputationResultsMap.put(contingency, sensiResults);
 
@@ -74,7 +91,28 @@ public final class SystematicSensitivityAnalysisService {
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
         //return SystematicSensitivityAnalysisResult
-        return new SystematicSensitivityAnalysisResult(precontingencyResult, contingencySensitivityComputationResultsMap);
+        return new SystematicSensitivityAnalysisResult(precontingencyResult, preReferenceFlow, contingencySensitivityComputationResultsMap, contingencyReferenceFlowsMap);
+    }
+
+    private static void buildReferenceFlowFromNetwork(Network network, Crac crac, Map<String, Double> referenceFlow) {
+        Set<Cnec> cnecs = crac.getCnecs();
+        for (Cnec cnec : cnecs) {
+            double referenceflowFromNetwork = 0.0;
+            //get from network
+            String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
+            Branch branch = network.getBranch(cnecnetworkelementid);
+            if (branch == null) {
+                LOGGER.warn("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecnetworkelementid);
+            } else {
+                referenceflowFromNetwork = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
+                if (Double.isNaN(referenceflowFromNetwork)) {
+                    referenceflowFromNetwork = 0.0;
+                    LOGGER.warn("Reference flow is set to 0.0 from NaN in network for cnec: {} during building reference flow from network", cnecnetworkelementid);
+                }
+                referenceFlow.put(cnecnetworkelementid, referenceflowFromNetwork);
+                LOGGER.info("Building reference flow from network for cnec {} with value {}", cnecnetworkelementid, referenceflowFromNetwork);
+            }
+        }
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {

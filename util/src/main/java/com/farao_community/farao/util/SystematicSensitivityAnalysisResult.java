@@ -16,11 +16,15 @@ import java.util.Map;
  */
 public class SystematicSensitivityAnalysisResult {
     private SensitivityComputationResults precontingencyResult;
+    private Map<String, Double> preReferenceFlow;
     private Map<Contingency, SensitivityComputationResults> resultMap;
+    private Map<Contingency, Map<String, Double> > contingencyReferenceFlowsMap;
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap) {
+    public SystematicSensitivityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<String, Double> preReferenceFlow, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap, Map<Contingency, Map<String, Double>> contingencyReferenceFlowsMap) {
         this.precontingencyResult = precontingencyResult;
+        this.preReferenceFlow = preReferenceFlow;
         this.resultMap = contingencySensitivityComputationResultsMap;
+        this.contingencyReferenceFlowsMap = contingencyReferenceFlowsMap;
     }
 
     public SensitivityComputationResults getPrecontingencyResult() {
@@ -37,5 +41,21 @@ public class SystematicSensitivityAnalysisResult {
 
     public void setResultMap(Map<Contingency, SensitivityComputationResults> resultMap) {
         this.resultMap = resultMap;
+    }
+
+    public Map<String, Double> getPreReferenceFlow() {
+        return preReferenceFlow;
+    }
+
+    public void setPreReferenceFlow(Map<String, Double> preReferenceFlow) {
+        this.preReferenceFlow = preReferenceFlow;
+    }
+
+    public Map<Contingency, Map<String, Double>> getContingencyReferenceFlowsMap() {
+        return contingencyReferenceFlowsMap;
+    }
+
+    public void setContingencyReferenceFlowsMap(Map<Contingency, Map<String, Double>> contingencyReferenceFlowsMap) {
+        this.contingencyReferenceFlowsMap = contingencyReferenceFlowsMap;
     }
 }
