@@ -39,8 +39,8 @@ public final class SystematicSensitivityAnalysisService {
                                                                   ComputationManager computationManager) {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
+        LOGGER.info("Running pre contingency sensitivity computation");
         Map<String, Double> preReferenceFlow = new HashMap<>();
-//        LoadFlowService.init(LoadFlow.find(), computationManager);
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId); //todo, how to run load flow ...
         if (loadFlowResult.isOk()) {
             buildReferenceFlowFromNetwork(network, crac, preReferenceFlow);
@@ -48,9 +48,7 @@ public final class SystematicSensitivityAnalysisService {
 
         //prepare range actions: pst ( and hvdc in the future )
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
-
         //contingency = null : pre-contingency sensitivity computation analysis
-        LOGGER.info("Running pre contingency sensitivity computation");
         SensitivityComputationResults precontingencyResult = runSensitivityComputation(network, crac, twoWindingsTransformers);
 
         //get result per contingency

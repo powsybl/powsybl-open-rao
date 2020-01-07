@@ -22,10 +22,7 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.SensitivityValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +53,8 @@ public class LinearRangeActionRao implements RaoProvider {
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
         // sensi
-        SystematicSensitivityAnalysisResult sensiSaResults = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        if (sensiSaResults == null) {
+        SystematicSensitivityAnalysisResult analysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        if (analysisResult == null) {
             LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
             RaoComputationResult raoComputationResult =  new RaoComputationResult(RaoComputationResult.Status.FAILURE);
             raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
@@ -67,19 +64,19 @@ public class LinearRangeActionRao implements RaoProvider {
         LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
 
         // 1. do for pre
-        SensitivityComputationResults preSensi = sensiSaResults.getPrecontingencyResult();
-        List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultList(network, crac, preSensi, resultExtension, null);
+        Map<String, Double> preReferenceFlow = analysisResult.getPreReferenceFlow();
+        List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultListFromReferenceFlowMap(crac, preReferenceFlow, resultExtension, null);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
-        Map<Contingency, SensitivityComputationResults>  mapSensi = sensiSaResults.getResultMap();
+        Map<Contingency, Map<String, Double> > mapReferenceFlowsMap = analysisResult.getContingencyReferenceFlowsMap();
         List<ContingencyResult> contingencyResultsRao = new ArrayList<>();
-        for (Contingency contingency : mapSensi.keySet()) {
+        for (Contingency contingency : mapReferenceFlowsMap.keySet()) {
             String idContSensi = contingency.getId();
             String nameContSensi = contingency.getName();
 
-            SensitivityComputationResults sensitivityComputationResults = mapSensi.get(contingency);
-            List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultList(network, crac, sensitivityComputationResults, resultExtension, contingency);
+            Map<String, Double> currentReferenceFlowMap = mapReferenceFlowsMap.get(contingency);
+            List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultListFromReferenceFlowMap(crac, currentReferenceFlowMap, resultExtension, contingency);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
             contingencyResultsRao.add(contingencyResult);
@@ -92,80 +89,34 @@ public class LinearRangeActionRao implements RaoProvider {
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
-    private List<MonitoredBranchResult> buildMonitoredBranchResultList(Network network,
-                                                                       Crac crac,
-                                                                       SensitivityComputationResults results,
-                                                                       LinearRangeActionRaoResult resultExtension,
-                                                                       Contingency contingency) {
-        List<MonitoredBranchResult> returnlist = new ArrayList<>();
+    private List<MonitoredBranchResult> buildMonitoredBranchResultListFromReferenceFlowMap(Crac crac,
+                                                                                           Map<String, Double> referenceFlowsMap,
+                                                                                           LinearRangeActionRaoResult resultExtension,
+                                                                                           Contingency contingency) {
+        List<MonitoredBranchResult> resultList = new ArrayList<>();
         for (Cnec cnec : crac.getCnecs()) {
             Contingency currentCnecContingnecy = cnec.getState().getContingency().orElse(null);
             String cnecContingencyId = (currentCnecContingnecy == null) ? "" : currentCnecContingnecy.getId();
             if ((contingency == null && cnecContingencyId.equals("")) || //pre and cnec's state is null
-                (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
+                    (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
             ) {
-                double referenceflowFromNetwork = 0.0;
-                //get from network
-                String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
-                Branch branch = network.getBranch(cnecnetworkelementid);
-                if (branch == null) {
-                    LOGGER.warn("Cannot found branch in network for cnec: {}", cnecnetworkelementid);
-                } else {
-                    referenceflowFromNetwork = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
-                    if (Double.isNaN(referenceflowFromNetwork)) {
-                        referenceflowFromNetwork = 0.0;
-                        LOGGER.warn("Reference flow is set to 0.0 from NaN in network for cnec: {}", cnecnetworkelementid);
-                    }
-                }
+                double referenceFlow = referenceFlowsMap.getOrDefault(cnec.getCriticalNetworkElement().getId(), 0.0);
+                LOGGER.info("Reference flow for cnec {} is {}", cnec.getCriticalNetworkElement().getId(), referenceFlow);
 
-                //get from sensi result
-                if (results.getSensitivityValues().size() == 0) {
-                    MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, null, resultExtension, referenceflowFromNetwork);
-                    returnlist.add(monitoredBranchResult);
-                } else {
-                    for (SensitivityValue sensitivityValue : results.getSensitivityValues()) {
-                        if (sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId())) { //id filter: get sensiValue result for current cnec
-                            MonitoredBranchResult monitoredBranchResult = buildMonitoredBranchResult(cnec, sensitivityValue, resultExtension, referenceflowFromNetwork);
-                            returnlist.add(monitoredBranchResult);
-                        }
-                    }
+                // secure or unsecured test
+                Optional<Double> maximumFlow = Optional.empty();
+                try {
+                    maximumFlow = cnec.getThreshold().getMaxThreshold();
+                } catch (SynchronizationException ignored) {
                 }
+                if (maximumFlow.orElse(0.0) < referenceFlow) {
+                    //unsecured
+                    LOGGER.info("cnec {} maximumFlow {} < referenceFlow {} => UNSECURED", cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow);
+                    resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
+                }
+                resultList.add(new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow.orElse(0.0), referenceFlow, Double.NaN));
             }
         }
-
-        return returnlist;
+        return resultList;
     }
-
-    private MonitoredBranchResult buildMonitoredBranchResult(Cnec cnec,
-                                                             SensitivityValue sensitivityValue,
-                                                             LinearRangeActionRaoResult resultExtension,
-                                                             double referenceflowFromNetwork) {
-        // get pre optim flow
-        double preOptimisationFlow;
-        if (sensitivityValue == null) {
-            preOptimisationFlow = referenceflowFromNetwork;
-            LOGGER.info("Use reference flow from network for cnec {}: {}", cnec.getId(), preOptimisationFlow);
-        } else {
-            preOptimisationFlow = sensitivityValue.getFunctionReference();
-            if (Double.isNaN(preOptimisationFlow)) {
-                // if no reference flow is calculated by sensi, use the loadflow result from referenceflowFromNetwork
-                preOptimisationFlow = referenceflowFromNetwork;
-                LOGGER.info("Use reference flow from network for cnec {}: {}", cnec.getId(), preOptimisationFlow);
-            }
-        }
-
-        // secure or unsecured test
-        Optional<Double> maximumFlow = Optional.empty();
-        try {
-            maximumFlow = cnec.getThreshold().getMaxThreshold();
-        } catch (SynchronizationException ignored) {
-        }
-        if (maximumFlow.orElse(0.0) < preOptimisationFlow) {
-            //unsecured
-            resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
-        }
-
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getId(), maximumFlow.orElse(0.0), preOptimisationFlow, Double.NaN);
-    }
-
 }
