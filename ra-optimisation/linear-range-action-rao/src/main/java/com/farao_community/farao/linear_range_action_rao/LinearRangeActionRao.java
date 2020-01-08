@@ -65,7 +65,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         // 1. do for pre
         Map<String, Double> preReferenceFlow = analysisResult.getPreReferenceFlow();
-        List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultListFromReferenceFlowMap(crac, preReferenceFlow, resultExtension, null);
+        List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultListFromReferenceFlows(crac, preReferenceFlow, resultExtension, null);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
@@ -76,7 +76,7 @@ public class LinearRangeActionRao implements RaoProvider {
             String nameContSensi = contingency.getName();
 
             Map<String, Double> currentReferenceFlowMap = mapReferenceFlowsMap.get(contingency);
-            List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultListFromReferenceFlowMap(crac, currentReferenceFlowMap, resultExtension, contingency);
+            List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultListFromReferenceFlows(crac, currentReferenceFlowMap, resultExtension, contingency);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
             contingencyResultsRao.add(contingencyResult);
@@ -89,16 +89,16 @@ public class LinearRangeActionRao implements RaoProvider {
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
-    private List<MonitoredBranchResult> buildMonitoredBranchResultListFromReferenceFlowMap(Crac crac,
-                                                                                           Map<String, Double> referenceFlowsMap,
-                                                                                           LinearRangeActionRaoResult resultExtension,
-                                                                                           Contingency contingency) {
+    private List<MonitoredBranchResult> buildMonitoredBranchResultListFromReferenceFlows(Crac crac,
+                                                                                         Map<String, Double> referenceFlowsMap,
+                                                                                         LinearRangeActionRaoResult resultExtension,
+                                                                                         Contingency contingency) {
         List<MonitoredBranchResult> resultList = new ArrayList<>();
         for (Cnec cnec : crac.getCnecs()) {
             Contingency currentCnecContingnecy = cnec.getState().getContingency().orElse(null);
             String cnecContingencyId = (currentCnecContingnecy == null) ? "" : currentCnecContingnecy.getId();
             if ((contingency == null && cnecContingencyId.equals("")) || //pre and cnec's state is null
-                    (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
+                (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
             ) {
                 double referenceFlow = referenceFlowsMap.getOrDefault(cnec.getCriticalNetworkElement().getId(), 0.0);
                 LOGGER.info("Reference flow for cnec {} is {}", cnec.getCriticalNetworkElement().getId(), referenceFlow);
@@ -107,9 +107,11 @@ public class LinearRangeActionRao implements RaoProvider {
                 Optional<Double> maximumFlow = Optional.empty();
                 try {
                     maximumFlow = cnec.getThreshold().getMaxThreshold();
+                    LOGGER.info("Maximum threshold for cnec : {} is {}", cnec.getCriticalNetworkElement().getId(), maximumFlow);
                 } catch (SynchronizationException ignored) {
+                    LOGGER.warn("Cannot get maximum threshold for cnec: {}", cnec.getCriticalNetworkElement().getId());
                 }
-                if (maximumFlow.orElse(0.0) < referenceFlow) {
+                if (maximumFlow.orElse(Double.MAX_VALUE) < referenceFlow) {
                     //unsecured
                     LOGGER.info("cnec {} maximumFlow {} < referenceFlow {} => UNSECURED", cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow);
                     resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
