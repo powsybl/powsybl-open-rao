@@ -79,7 +79,7 @@ public class LeafTest {
         twoNetworkActions.add(na1);
         twoNetworkActions.add(na2);
 
-        Leaf rootLeaf = new Leaf("referenceVariant");
+        Leaf rootLeaf = new Leaf();
         List<Leaf> firstGeneration = rootLeaf.bloom(twoNetworkActions);
 
         assertTrue(rootLeaf.isRoot());
@@ -87,19 +87,14 @@ public class LeafTest {
         assertFalse(firstGeneration.get(0).isRoot());
 
         assertNull(rootLeaf.getParent());
-        assertNull(rootLeaf.getNetworkAction());
-        assertTrue(rootLeaf.getNetworkActionLegacy().isEmpty());
+        assertTrue(rootLeaf.getNetworkActions().isEmpty());
         assertNull(rootLeaf.getRaoResult());
-        assertEquals("referenceVariant", rootLeaf.getNetworkVariant());
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
 
         assertEquals(rootLeaf, firstGeneration.get(0).getParent());
-        assertEquals(1, firstGeneration.stream().filter(l -> l.getNetworkAction().getId().equals("topological_RA")).count());
-        assertEquals(1, firstGeneration.stream().filter(l -> l.getNetworkAction().getId().equals("PSTsetpoint_RA")).count());
-        assertEquals(1, firstGeneration.get(0).getNetworkActionLegacy().size());
-        assertEquals(firstGeneration.get(0).getNetworkAction(), firstGeneration.get(0).getNetworkActionLegacy().get(0));
-
-        assertNull(firstGeneration.get(0).getNetworkVariant());
+        assertEquals(1, firstGeneration.get(0).getNetworkActions().size());
+        assertEquals(1, firstGeneration.stream().filter(l -> l.getNetworkActions().get(0).getId().equals("topological_RA")).count());
+        assertEquals(1, firstGeneration.stream().filter(l -> l.getNetworkActions().get(0).getId().equals("PSTsetpoint_RA")).count());
 
         assertTrue(rootLeaf.bloom(Collections.emptySet()).isEmpty());
 
@@ -108,18 +103,18 @@ public class LeafTest {
         oneNetworkAction.add(na3);
         List<Leaf> secondGenerationL = firstGeneration.get(0).bloom(oneNetworkAction);
 
-        assertEquals(2, secondGenerationL.get(0).getNetworkActionLegacy().size());
+        assertEquals(2, secondGenerationL.get(0).getNetworkActions().size());
 
         // second generation - right
         Set<NetworkAction> threeNetworkActions = new HashSet<>();
         threeNetworkActions.add(na1);
-        threeNetworkActions.add(na2);
+        threeNetworkActions.add(na2); // filtered because already present in the leaf legacy
         threeNetworkActions.add(na3);
         List<Leaf> secondGenerationR = firstGeneration.get(1).bloom(threeNetworkActions);
 
         assertEquals(2, secondGenerationR.size());
-        assertEquals(2, secondGenerationR.get(0).getNetworkActionLegacy().size());
-        assertTrue(secondGenerationR.get(0).getNetworkActionLegacy().contains(firstGeneration.get(1).getNetworkAction()));
+        assertEquals(2, secondGenerationR.get(0).getNetworkActions().size());
+        assertTrue(secondGenerationR.get(0).getNetworkActions().containsAll(firstGeneration.get(1).getNetworkActions()));
     }
 
     @Test
@@ -127,25 +122,26 @@ public class LeafTest {
         Mockito.when(crac.getName()).thenReturn("CracOk");
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
-        Leaf rootLeaf = new Leaf(initialVariant);
-        rootLeaf.evaluate(network, crac, raoParameters);
+        Leaf rootLeaf = new Leaf();
+        rootLeaf.evaluate(network, crac, initialVariant, raoParameters);
 
-        assertEquals(initialVariant, network.getVariantManager().getWorkingVariantId());
+        assertEquals(1, network.getVariantManager().getVariantIds().size());
         assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
 
         List<Leaf> childrenLeaf = rootLeaf.bloom(Collections.singleton(na1));
-        childrenLeaf.get(0).evaluate(network, crac, raoParameters);
+        childrenLeaf.get(0).evaluate(network, crac, initialVariant, raoParameters);
 
-        assertNotEquals(initialVariant, network.getVariantManager().getWorkingVariantId());
-        assertEquals(childrenLeaf.get(0).getNetworkVariant(), network.getVariantManager().getWorkingVariantId());
+        assertEquals(1, network.getVariantManager().getVariantIds().size());
+        assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
     }
 
     @Test
     public void evaluateWithRaoExceptionTest() {
         Mockito.when(crac.getName()).thenReturn(CRAC_NAME_RAO_THROWS_EXCEPTION);
+        String initialVariant = network.getVariantManager().getWorkingVariantId();
 
-        Leaf rootLeaf = new Leaf(network.getVariantManager().getWorkingVariantId());
-        rootLeaf.evaluate(network, crac, raoParameters);
+        Leaf rootLeaf = new Leaf();
+        rootLeaf.evaluate(network, crac, initialVariant, raoParameters);
 
         assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
     }
@@ -153,11 +149,11 @@ public class LeafTest {
     @Test
     public void evaluateWithRaoFailureTest() {
         Mockito.when(crac.getName()).thenReturn(CRAC_NAME_RAO_RETURNS_FAILURE);
+        String initialVariant = network.getVariantManager().getWorkingVariantId();
 
-        Leaf rootLeaf = new Leaf(network.getVariantManager().getWorkingVariantId());
-        rootLeaf.evaluate(network, crac, raoParameters);
+        Leaf rootLeaf = new Leaf();
+        rootLeaf.evaluate(network, crac, initialVariant, raoParameters);
 
         assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
     }
-
 }
