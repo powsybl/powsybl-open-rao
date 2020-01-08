@@ -4,13 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao;
+package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
-
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.ra_optimisation.converter.RaoComputationResultExporters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
@@ -26,22 +25,25 @@ import org.apache.commons.cli.Options;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
+
 
 /**
- * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class SearchTreeRaoTool implements Tool {
-
-    private static final String CASE_FILE_OPTION = "case-file";
-    private static final String CRAC_FILE_OPTION = "crac-file";
+public class RaoTool implements Tool {
     private static final String OUTPUT_FILE_OPTION = "output-file";
+    private static final String CRAC_FILE_OPTION = "crac-file";
+    private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
 
     @Override
     public Command getCommand() {
         return new Command() {
+            @Override
+            public String getName() {
+                return "rao";
+            }
 
             @Override
             public String getTheme() {
@@ -50,20 +52,15 @@ public class SearchTreeRaoTool implements Tool {
 
             @Override
             public String getDescription() {
-                return "Run SearchTreeRao Computation";
-            }
-
-            @Override
-            public String getName() {
-                return "search-tree-rao";
+                return "Run a RAO computation";
             }
 
             @Override
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder()
-                        .longOpt(OUTPUT_FILE_OPTION)
-                        .desc("SearchTreeRao results output file")
+                        .longOpt(CASE_FILE_OPTION)
+                        .desc("Network file")
                         .hasArg()
                         .argName("FILE")
                         .required()
@@ -76,17 +73,17 @@ public class SearchTreeRaoTool implements Tool {
                         .required()
                         .build());
                 options.addOption(Option.builder()
-                        .longOpt(OUTPUT_FORMAT_OPTION)
-                        .desc("SearchTreeRao results output format")
+                        .longOpt(OUTPUT_FILE_OPTION)
+                        .desc("Rao results output file")
                         .hasArg()
-                        .argName("FORMAT")
+                        .argName("FILE")
                         .required()
                         .build());
                 options.addOption(Option.builder()
-                        .longOpt(CASE_FILE_OPTION)
-                        .desc("Network file")
+                        .longOpt(OUTPUT_FORMAT_OPTION)
+                        .desc("Rao results output format")
                         .hasArg()
-                        .argName("FILE")
+                        .argName("FORMAT")
                         .required()
                         .build());
                 return options;
@@ -94,7 +91,7 @@ public class SearchTreeRaoTool implements Tool {
 
             @Override
             public String getUsageFooter() {
-                return "SearchTreeRao computation returns RaoComputation result with SearchTreeRao extension";
+                return "Rao computation returns RaoComputationResult using the Rao implementation given in the config";
             }
         };
     }
@@ -112,20 +109,23 @@ public class SearchTreeRaoTool implements Tool {
         Network network = Importers.loadNetwork(caseFile);
         String currentState = network.getVariantManager().getWorkingVariantId();
 
-        //Crac for SearchTreeRao
+        //Crac
+        context.getOutputStream().println("Importing crac '" + cracFile + "'");
         Crac crac = CracImporters.importCrac(cracFile);
 
         //Rao Parameter
+        context.getOutputStream().println("Loading RAO parameters");
         RaoParameters raoParameters = RaoParameters.load(PlatformConfig.defaultConfig());
 
         //Run
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
-        CompletableFuture<RaoComputationResult> raoComputationResult = new SearchTreeRao().run(network, crac, currentState, computationManager, raoParameters);
-        SearchTreeRaoResult searchTreeRaoResult = raoComputationResult.get().getExtension(SearchTreeRaoResult.class);
+        context.getOutputStream().println("Running Rao computation");
+        RaoComputationResult raoComputationResult = Rao.run(network, crac, currentState, computationManager, raoParameters);
+        RaoComputationResult raoResult = raoComputationResult.getExtension(RaoComputationResult.class);
 
         //Output
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         OutputStream outputStream = new FileOutputStream(String.valueOf(outputFile));
-        SearchTreeRaoResultExporters.exportSearchTreeRaoResult(searchTreeRaoResult, format, outputStream);
+        RaoComputationResultExporters.export(raoResult, outputStream, format);
     }
 }
