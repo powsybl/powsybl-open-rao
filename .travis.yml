@@ -8,4 +8,6 @@ addons:
         token: ${SONAR_TOKEN}
 
 script:
+- SONAR_SKIP=$(if [ "$TRAVIS_PULL_REQUEST" = "false" -a $TRAVIS_REPO_SLUG = 'alfasoftware/morf' ]; then echo "false"; else echo "true"; fi)
+- if [ $SONAR_SKIP = "false" ]; then git fetch --unshallow --quiet; fi
 - mvn clean verify sonar:sonar
