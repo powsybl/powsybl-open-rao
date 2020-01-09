@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.util;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
@@ -78,12 +79,12 @@ public class SystematicSensitivityAnalysisServiceTest {
         assertNotNull(result.getResultMap());
     }
 
-    @Test
+    @Test(expected = java.util.ServiceConfigurationError.class)
     public void testSensiSArunSensitivitySA() {
-//        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-//        assertNotNull(result);
-//        assertTrue(result.getPrecontingencyResult().isOk());
-//        assertEquals(2, result.getResultMap().keySet().size());
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        assertNotNull(result);
+        assertTrue(result.getPrecontingencyResult().isOk());
+        assertEquals(2, result.getResultMap().keySet().size());
     }
 
     private static Crac create() {
