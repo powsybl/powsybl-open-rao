@@ -106,7 +106,7 @@ public class LinearRangeActionRao implements RaoProvider {
                 (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
             ) {
                 double referenceMargin = referenceMarginsMap.getOrDefault(cnec.getCriticalNetworkElement().getId(), 0.0);
-                LOGGER.info("Reference margin for cnec {} is {}", cnec.getCriticalNetworkElement().getId(), referenceMargin);
+                LOGGER.info("Reference margin for cnec {} of contingency {} is {}", cnec.getId(), cnecContingencyId, referenceMargin);
 
                 // secure or unsecured test
                 if (referenceMargin < 0.0) {
