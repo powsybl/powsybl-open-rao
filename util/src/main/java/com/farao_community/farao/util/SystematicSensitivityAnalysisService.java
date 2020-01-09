@@ -95,6 +95,7 @@ public final class SystematicSensitivityAnalysisService {
     private static void buildReferenceFlowFromNetwork(Network network, Crac crac, Map<String, Double> referenceFlow) {
         Set<Cnec> cnecs = crac.getCnecs();
         for (Cnec cnec : cnecs) {
+            double margin = 0.0;
             double referenceflowFromNetwork = 0.0;
             //get from network
             String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
@@ -102,6 +103,12 @@ public final class SystematicSensitivityAnalysisService {
             if (branch == null) {
                 LOGGER.warn("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecnetworkelementid);
             } else {
+                try {
+                    margin = cnec.computeMargin(network);
+                } catch (SynchronizationException e) {
+                    e.printStackTrace();
+                }
+
                 referenceflowFromNetwork = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
                 if (Double.isNaN(referenceflowFromNetwork)) {
                     referenceflowFromNetwork = 0.0;
