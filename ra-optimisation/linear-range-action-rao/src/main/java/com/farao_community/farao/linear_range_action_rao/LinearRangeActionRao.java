@@ -118,6 +118,7 @@ public class LinearRangeActionRao implements RaoProvider {
                 try {
                     maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
                 } catch (SynchronizationException e) {
+                    LOGGER.error("Cannot get max threshold for cnec {}", cnec.getId());
                 }
                 double referenceFlow = maximumFlow - referenceMargin;
                 resultList.add(new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN));
