@@ -39,40 +39,39 @@ public final class SystematicSensitivityAnalysisService {
                                                                   ComputationManager computationManager) {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
-        LOGGER.info("Running pre contingency sensitivity computation");
-        Map<String, Double> preReferenceFlow = new HashMap<>();
-        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId); //todo, how to run load flow ...
+        // 1. pre
+        LOGGER.info("Running pre contingency analysis");
+        Map<String, Double> preMargin = new HashMap<>();
+        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildReferenceFlowFromNetwork(network, crac, preReferenceFlow);
+            buildMarginFromNetwork(network, crac, preMargin); // get reference margin
         }
-
-        //prepare range actions: pst ( and hvdc in the future )
+        // get sensi result for pre
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
-        //contingency = null : pre-contingency sensitivity computation analysis
         SensitivityComputationResults precontingencyResult = runSensitivityComputation(network, crac, twoWindingsTransformers);
 
-        //get result per contingency
-        LOGGER.info("Calculating reference flow and sensitivity result per contingency");
-        Map<Contingency, Map<String, Double> > contingencyReferenceFlowsMap = new HashMap<>();
+        // 2. analysis for each contingency
+        LOGGER.info("Calculating analysis for each contingency");
+        Map<Contingency, Map<String, Double> > contingencyReferenceMarginMap = new HashMap<>();
         Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap = new HashMap<>();
 
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> crac.getContingencies().forEach(contingency -> {
                 try {
-                    LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
+                    LOGGER.info("Running post contingency analysis for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingencyInCrac(network, computationManager, contingency);
 
-                    //run load flow
-                    Map<String, Double> contingencyReferenceFlow = new HashMap<>();
-                    LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant); //todo, how to run load flow ...
+                    // get reference margin
+                    Map<String, Double> contingencyReferenceMargin = new HashMap<>();
+                    LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                     if (currentloadFlowResult.isOk()) {
-                        buildReferenceFlowFromNetwork(network, crac, contingencyReferenceFlow);
+                        buildMarginFromNetwork(network, crac, contingencyReferenceMargin);
                     }
-                    contingencyReferenceFlowsMap.put(contingency, contingencyReferenceFlow);
+                    contingencyReferenceMarginMap.put(contingency, contingencyReferenceMargin);
 
-                    //run sensi
+                    // get sensi result for post-contingency
                     SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
                     contingencySensitivityComputationResultsMap.put(contingency, sensiResults);
 
@@ -89,34 +88,29 @@ public final class SystematicSensitivityAnalysisService {
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
         //return SystematicSensitivityAnalysisResult
-        return new SystematicSensitivityAnalysisResult(precontingencyResult, preReferenceFlow, contingencySensitivityComputationResultsMap, contingencyReferenceFlowsMap);
+        return new SystematicSensitivityAnalysisResult(precontingencyResult, preMargin, contingencySensitivityComputationResultsMap, contingencyReferenceMarginMap);
     }
 
-    private static void buildReferenceFlowFromNetwork(Network network, Crac crac, Map<String, Double> referenceFlow) {
+    private static void buildMarginFromNetwork(Network network, Crac crac, Map<String, Double> referenceMargin) {
         Set<Cnec> cnecs = crac.getCnecs();
         crac.synchronize(network);
         for (Cnec cnec : cnecs) {
             double margin = 0.0;
-            double referenceflowFromNetwork = 0.0;
             //get from network
             String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
             Branch branch = network.getBranch(cnecnetworkelementid);
             if (branch == null) {
-                LOGGER.warn("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecnetworkelementid);
+                LOGGER.error("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecnetworkelementid);
             } else {
                 try {
                     margin = cnec.computeMargin(network);
                 } catch (SynchronizationException e) {
-                    e.printStackTrace();
+                    //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
+                    LOGGER.error("Cannot get compute margin for cnec {} in network variant.", cnecnetworkelementid);
                 }
 
-                referenceflowFromNetwork = network.getBranch(cnecnetworkelementid).getTerminal1().getP();
-                if (Double.isNaN(referenceflowFromNetwork)) {
-                    referenceflowFromNetwork = 0.0;
-                    LOGGER.warn("Reference flow is set to 0.0 from NaN in network for cnec: {} during building reference flow from network", cnecnetworkelementid);
-                }
-                referenceFlow.put(cnecnetworkelementid, referenceflowFromNetwork);
-                LOGGER.info("Building reference flow from network for cnec {} with value {}", cnecnetworkelementid, referenceflowFromNetwork);
+                LOGGER.info("Building margin from network for cnec {} with value {}", cnecnetworkelementid, margin);
+                referenceMargin.put(cnecnetworkelementid, margin);
             }
         }
     }
