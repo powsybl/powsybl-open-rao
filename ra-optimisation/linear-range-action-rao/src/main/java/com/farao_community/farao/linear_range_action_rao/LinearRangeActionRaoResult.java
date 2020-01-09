@@ -20,7 +20,6 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
         UNSECURED
     }
 
-    private final double cost;
     private SecurityStatus securityStatus;
 
     @Override
@@ -29,21 +28,11 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
     }
 
     public LinearRangeActionRaoResult() {
-        cost = 0;
         this.securityStatus = SecurityStatus.SECURED;
-    }
-
-    public LinearRangeActionRaoResult(double cost) {
-        this.cost = cost;
     }
 
     public LinearRangeActionRaoResult(SecurityStatus securityStatus) {
         this.securityStatus = securityStatus;
-        cost = 0;
-    }
-
-    public double getCost() {
-        return cost;
     }
 
     public SecurityStatus getSecurityStatus() {
