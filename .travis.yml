@@ -12,4 +12,4 @@ addons:
 
 script:
 - git fetch origin master
-- mvn clean verify sonar:sonar
+- mvn clean verify sonar:sonar -Pcoverage
