@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.linear_range_action_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
@@ -57,6 +56,7 @@ public class LinearRangeActionRaoTest {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
+        platformConfig.createModuleConfig("hades2-default-parameters").setStringProperty("dcMode", "false");
 
         computationManager = LocalComputationManager.getDefault();
         raoParameters = RaoParameters.load(platformConfig);
@@ -78,7 +78,7 @@ public class LinearRangeActionRaoTest {
         assertEquals("1.0.0", linearRangeActionRao.getVersion());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void run() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
