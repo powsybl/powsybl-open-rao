@@ -11,4 +11,4 @@ addons:
         token: ${SONAR_TOKEN}
 
 script:
-- mvn clean verify sonar:sonar
+- mvn clean verify sonar:sonar -Pcoverage
