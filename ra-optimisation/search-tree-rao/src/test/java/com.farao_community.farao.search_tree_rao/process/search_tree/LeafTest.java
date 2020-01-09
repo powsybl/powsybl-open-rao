@@ -156,4 +156,15 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
     }
+
+    @Test
+    public void evaluateWithUnknownVariantTest() {
+        Mockito.when(crac.getName()).thenReturn("CracOK");
+        String initialVariant = network.getVariantManager().getWorkingVariantId();
+
+        Leaf rootLeaf = new Leaf();
+        rootLeaf.evaluate(network, crac, "unknownVariant", raoParameters);
+
+        assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
+    }
 }
