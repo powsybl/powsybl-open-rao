@@ -41,6 +41,10 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
         return cost;
     }
 
+    public SecurityStatus getSecurityStatus() {
+        return securityStatus;
+    }
+
     public void setSecurityStatus(SecurityStatus securityStatus) {
         this.securityStatus = securityStatus;
     }

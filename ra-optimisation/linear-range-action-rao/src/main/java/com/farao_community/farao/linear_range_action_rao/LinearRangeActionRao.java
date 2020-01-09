@@ -73,13 +73,14 @@ public class LinearRangeActionRao implements RaoProvider {
         // 2. do for each contingency
         Map<Contingency, Map<String, Double> > mapReferenceFlowsMap = analysisResult.getContingencyReferenceMarginsMap();
         List<ContingencyResult> contingencyResultsRao = new ArrayList<>();
-        for (Contingency contingency : mapReferenceFlowsMap.keySet()) {
+        for (Map.Entry<Contingency, Map<String, Double> > entry : mapReferenceFlowsMap.entrySet()) {
+            Contingency contingency = entry.getKey();
+            Map<String, Double> currentReferenceFlowMap = mapReferenceFlowsMap.get(contingency);
 
             String idContSensi = contingency.getId();
             String nameContSensi = contingency.getName();
             LOGGER.info("Building result for post-contingency {}:", idContSensi);
 
-            Map<String, Double> currentReferenceFlowMap = mapReferenceFlowsMap.get(contingency);
             List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultListFromReferenceMargins(crac, currentReferenceFlowMap, resultExtension, contingency);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
 
@@ -110,7 +111,6 @@ public class LinearRangeActionRao implements RaoProvider {
                 // secure or unsecured test
                 if (referenceMargin < 0.0) {
                     //unsecured
-//                    LOGGER.info("cnec {} referenceMargin {} < 0 => UNSECURED", cnec.getCriticalNetworkElement().getId(), referenceMargin);
                     resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
                 }
 
@@ -122,7 +122,6 @@ public class LinearRangeActionRao implements RaoProvider {
                 }
                 double referenceFlow = maximumFlow - referenceMargin;
                 resultList.add(new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN));
-//                LOGGER.info("adding new Monitored branch: {}, maximumFlow = {}, referenceFlow = {}", cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow);
             }
         }
         return resultList;

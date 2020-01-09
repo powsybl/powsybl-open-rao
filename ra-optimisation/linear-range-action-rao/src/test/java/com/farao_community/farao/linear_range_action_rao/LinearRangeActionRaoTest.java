@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_range_action_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
@@ -77,7 +78,7 @@ public class LinearRangeActionRaoTest {
         assertEquals("1.0.0", linearRangeActionRao.getVersion());
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void run() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
@@ -87,7 +88,7 @@ public class LinearRangeActionRaoTest {
 
         String variantId = "variant-test";
 
-//        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
+        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
     }
 
     private static Crac create() {
