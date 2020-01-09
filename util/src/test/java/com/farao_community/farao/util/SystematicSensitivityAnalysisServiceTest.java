@@ -21,10 +21,15 @@ import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +37,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -43,6 +49,8 @@ import static com.farao_community.farao.data.crac_api.Direction.OUT;
 import static com.farao_community.farao.data.crac_api.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.Side.RIGHT;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -58,6 +66,11 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Before
     public void setUp() {
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
+        platformConfig.createModuleConfig("hades2-default-parameters").setStringProperty("dcMode", "false");
+
         network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         computationManager = LocalComputationManager.getDefault();
         crac = create();
@@ -76,6 +89,18 @@ public class SystematicSensitivityAnalysisServiceTest {
         assertNotNull(result);
         assertNotNull(result.getPrecontingencyResult());
         assertNotNull(result.getResultMap());
+    }
+
+    @Test
+    public void testSensiSArunSensitivitySA() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        LoadFlowResult loadFlowResult = Mockito.mock(LoadFlowResult.class);
+        when(loadFlowRunner.run(any(), any(), any(), any())).thenReturn(loadFlowResult);
+        LoadFlowService.init(loadFlowRunner, computationManager);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        assertNotNull(result);
+        assertTrue(result.getPrecontingencyResult().isOk());
+        assertEquals(2, result.getResultMap().keySet().size());
     }
 
     private static Crac create() {

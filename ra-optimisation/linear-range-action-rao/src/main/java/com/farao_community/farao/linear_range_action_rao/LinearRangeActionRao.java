@@ -55,12 +55,6 @@ public class LinearRangeActionRao implements RaoProvider {
         crac.synchronize(network);
         // sensi
         SystematicSensitivityAnalysisResult analysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        if (analysisResult == null) {
-            LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
-            RaoComputationResult raoComputationResult =  new RaoComputationResult(RaoComputationResult.Status.FAILURE);
-            raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
-            return CompletableFuture.completedFuture(raoComputationResult);
-        }
 
         LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
 

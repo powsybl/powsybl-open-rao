@@ -63,6 +63,9 @@ public class LinearRangeActionRaoTest {
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
 
+//        SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
+//        Mockito.when(SensitivityComputationService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SensitivityComputationResults(true, null, null, null));
+
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
         LoadFlowService.init(loadFlowRunner, computationManager);
