@@ -94,6 +94,7 @@ public final class SystematicSensitivityAnalysisService {
 
     private static void buildReferenceFlowFromNetwork(Network network, Crac crac, Map<String, Double> referenceFlow) {
         Set<Cnec> cnecs = crac.getCnecs();
+        crac.synchronize(network);
         for (Cnec cnec : cnecs) {
             double margin = 0.0;
             double referenceflowFromNetwork = 0.0;
