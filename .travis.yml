@@ -8,4 +8,5 @@ addons:
         token: ${SONAR_TOKEN}
 
 script:
+- git fetch --unshallow --quiet
 - mvn clean verify sonar:sonar
