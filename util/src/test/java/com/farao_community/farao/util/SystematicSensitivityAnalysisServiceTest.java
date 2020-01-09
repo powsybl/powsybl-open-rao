@@ -78,14 +78,6 @@ public class SystematicSensitivityAnalysisServiceTest {
         assertNotNull(result.getResultMap());
     }
 
-    @Test(expected = java.util.ServiceConfigurationError.class)
-    public void testSensiSArunSensitivitySA() {
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        assertNotNull(result);
-        assertTrue(result.getPrecontingencyResult().isOk());
-        assertEquals(2, result.getResultMap().keySet().size());
-    }
-
     private static Crac create() {
         // Redispatching
         NetworkElement generator = new NetworkElement("idGenerator", "My Generator");
