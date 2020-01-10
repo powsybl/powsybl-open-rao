@@ -19,6 +19,7 @@ import java.io.*;
 import org.apache.commons.io.FilenameUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -59,9 +60,6 @@ public class JsonImport implements CracImporter {
     }
 
     private boolean validCracFile(String fileName, InputStream inputStream) {
-        JSONObject jsonSubject = new JSONObject(
-            new JSONTokener(inputStream));
-        SCHEMA_JSON.validate(jsonSubject);
         return FilenameUtils.getExtension(fileName).equals(JSON_EXTENSION);
     }
 }
