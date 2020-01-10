@@ -19,7 +19,6 @@ import java.io.*;
 import org.apache.commons.io.FilenameUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
