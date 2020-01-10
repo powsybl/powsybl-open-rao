@@ -195,4 +195,9 @@ public class JsonImportExportTest {
         assertEquals(crac.getNetworkActions().size(), importedCrac.getNetworkActions().size());
         assertEquals(crac.getRangeActions().size(), importedCrac.getRangeActions().size());
     }
+
+    @Test
+    public void existsNotAJsonTest() {
+        assertFalse(new JsonImport().exists("notAJson.xml", getClass().getResourceAsStream("/notAJson.xml")));
+    }
 }
