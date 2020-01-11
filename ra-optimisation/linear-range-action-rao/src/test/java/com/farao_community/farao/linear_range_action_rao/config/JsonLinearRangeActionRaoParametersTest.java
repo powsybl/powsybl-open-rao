@@ -24,7 +24,7 @@ public class JsonLinearRangeActionRaoParametersTest extends AbstractConverterTes
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRangeActionRaoParameters.class, new LinearRangeActionRaoParameters());
-//        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRangeActionRaoParameters.json");
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRangeActionRaoParameters.json");
     }
 
     @Test
@@ -34,7 +34,7 @@ public class JsonLinearRangeActionRaoParametersTest extends AbstractConverterTes
             fail();
         } catch (AssertionError e) {
             // should throw
-//            assertTrue(e.getMessage().contains("Unexpected field"));
+            assertTrue(e.getMessage().contains("Unexpected field"));
         }
     }
 }
