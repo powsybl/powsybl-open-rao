@@ -55,8 +55,6 @@ public class LinearRangeActionRaoTest {
         linearRangeActionRao = new LinearRangeActionRao();
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
-        platformConfig.createModuleConfig("hades2-default-parameters").setStringProperty("dcMode", "false");
 
         computationManager = LocalComputationManager.getDefault();
         raoParameters = RaoParameters.load(platformConfig);
