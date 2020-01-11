@@ -104,10 +104,8 @@ public final class SystematicSensitivityAnalysisService {
             } else {
                 try {
                     margin = cnec.computeMargin(network);
-                } catch (SynchronizationException e) {
+                } catch (SynchronizationException | FaraoException e) {
                     //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
-                    LOGGER.error("Cannot get compute margin for cnec {} in network variant.", cnecnetworkelementid);
-                } catch (FaraoException e) {
                     LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnecnetworkelementid, e.getMessage());
                 }
 
