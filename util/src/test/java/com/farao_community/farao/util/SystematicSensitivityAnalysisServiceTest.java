@@ -68,8 +68,6 @@ public class SystematicSensitivityAnalysisServiceTest {
     public void setUp() {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
-        platformConfig.createModuleConfig("hades2-default-parameters").setStringProperty("dcMode", "false");
 
         network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         computationManager = LocalComputationManager.getDefault();
