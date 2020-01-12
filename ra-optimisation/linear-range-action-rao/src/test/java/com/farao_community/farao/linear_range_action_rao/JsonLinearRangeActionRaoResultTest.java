@@ -53,7 +53,7 @@ public class JsonLinearRangeActionRaoResultTest extends AbstractConverterTest {
         JsonRaoComputationResult.write(outputResult, outputStream);
         assertTrue(outputStream.toString().contains("minimum-margin"));
 
-        InputStream inputStream = new ByteArrayInputStream( outputStream.toString().getBytes());
+        InputStream inputStream = new ByteArrayInputStream(outputStream.toString().getBytes());
         RaoComputationResult inputResult = JsonRaoComputationResult.read(inputStream);
         LinearRangeActionRaoResult inputExtension = inputResult.getExtension(LinearRangeActionRaoResult.class);
         assertEquals(RaoComputationResult.Status.SUCCESS, inputResult.getStatus());
