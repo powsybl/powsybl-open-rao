@@ -66,4 +66,8 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
         return minMargin;
     }
 
+    public void setMinMargin(double minMargin) {
+        this.minMargin = minMargin;
+    }
+
 }
