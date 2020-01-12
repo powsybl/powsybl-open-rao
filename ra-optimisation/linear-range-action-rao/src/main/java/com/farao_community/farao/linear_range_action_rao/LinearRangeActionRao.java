@@ -83,7 +83,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
         raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
-
+        LOGGER.info("LinearRangeActionRaoResult extension: mininum margin = {}, security status: {}", resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
         // 4. return
         return CompletableFuture.completedFuture(raoComputationResult);
     }
@@ -102,11 +102,7 @@ public class LinearRangeActionRao implements RaoProvider {
                 double margin = marginsMap.getOrDefault(cnec.getCriticalNetworkElement().getId(), 0.0);
                 LOGGER.info("Reference margin for cnec {} of contingency {} is {}", cnec.getId(), cnecContingencyId, margin);
 
-                // secure or unsecured test
-                if (margin < 0.0) {
-                    //unsecured
-                    resultExtension.setSecurityStatus(LinearRangeActionRaoResult.SecurityStatus.UNSECURED);
-                }
+                resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
 
                 double maximumFlow = 0;
                 try {
