@@ -36,9 +36,9 @@ public final class Tree {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    public static CompletableFuture<RaoComputationResult> search(Network network, Crac crac, String initialVariantId, RaoParameters parameters) {
-        Leaf optimalLeaf = new Leaf(initialVariantId);
-        optimalLeaf.evaluate(network, crac, parameters);
+    public static CompletableFuture<RaoComputationResult> search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+        Leaf optimalLeaf = new Leaf();
+        optimalLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
         if (optimalLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
             //TODO : improve error messages depending on leaf error (Sensi divergent, infeasible optimisation, time-out, ...)
@@ -55,7 +55,7 @@ public final class Tree {
             }
 
             //TODO: manage parallel computation
-            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, parameters));
+            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, referenceNetworkVariant, parameters));
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
