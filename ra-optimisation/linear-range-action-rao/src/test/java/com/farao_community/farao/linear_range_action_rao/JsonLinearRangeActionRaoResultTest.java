@@ -58,7 +58,6 @@ public class JsonLinearRangeActionRaoResultTest extends AbstractConverterTest {
         LinearRangeActionRaoResult inputExtension = inputResult.getExtension(LinearRangeActionRaoResult.class);
         assertEquals(RaoComputationResult.Status.SUCCESS, inputResult.getStatus());
         assertEquals(LinearRangeActionRaoResult.SecurityStatus.UNSECURED, inputExtension.getSecurityStatus());
-        assertTrue(inputExtension.getMinMargin() == minMargin);
-
+        assertEquals(minMargin, inputExtension.getMinMargin(), 1E-10);
     }
 }
