@@ -59,25 +59,16 @@ public final class Tree {
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS && getCost(currentLeaf.getRaoResult()) < getCost(optimalLeaf.getRaoResult())) {
+                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS && currentLeaf.getCost() < optimalLeaf.getCost()) {
                     hasImproved = true;
                     optimalLeaf = currentLeaf;
                 }
             }
             //TODO: generalize to handle different stop criterion
-        } while (getCost(optimalLeaf.getRaoResult()) < 0 && hasImproved);
+        } while (optimalLeaf.getCost() < 0 && hasImproved);
 
         //TODO: build SearchTreeRaoResult object
         return CompletableFuture.completedFuture(optimalLeaf.getRaoResult());
     }
 
-    /**
-     * Temporarily function, will be deprecated once the RaoResult will
-     * be refactored
-     */
-    private static double getCost(RaoComputationResult raoResult) {
-        // TODO: get objective function value
-        // below is a dummy temporary implementation, as "return 0;" was not accepted by Sonar
-        return raoResult.getContingencyResults().size();
-    }
 }
