@@ -14,13 +14,17 @@ import java.util.Map;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class SensitivitySecurityAnalysisResult {
+public class SystematicSensitivityAnalysisResult {
     private SensitivityComputationResults precontingencyResult;
+    private Map<String, Double> preReferenceMargin;
     private Map<Contingency, SensitivityComputationResults> resultMap;
+    private Map<Contingency, Map<String, Double> > contingencyReferenceMarginsMap;
 
-    public SensitivitySecurityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap) {
+    public SystematicSensitivityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<String, Double> preReferenceMargin, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap, Map<Contingency, Map<String, Double>> contingencyReferenceMarginsMap) {
         this.precontingencyResult = precontingencyResult;
+        this.preReferenceMargin = preReferenceMargin;
         this.resultMap = contingencySensitivityComputationResultsMap;
+        this.contingencyReferenceMarginsMap = contingencyReferenceMarginsMap;
     }
 
     public SensitivityComputationResults getPrecontingencyResult() {
@@ -37,5 +41,21 @@ public class SensitivitySecurityAnalysisResult {
 
     public void setResultMap(Map<Contingency, SensitivityComputationResults> resultMap) {
         this.resultMap = resultMap;
+    }
+
+    public Map<String, Double> getPreReferenceMargin() {
+        return preReferenceMargin;
+    }
+
+    public void setPreReferenceMargin(Map<String, Double> preReferenceMargin) {
+        this.preReferenceMargin = preReferenceMargin;
+    }
+
+    public Map<Contingency, Map<String, Double>> getContingencyReferenceMarginsMap() {
+        return contingencyReferenceMarginsMap;
+    }
+
+    public void setContingencyReferenceMarginsMap(Map<Contingency, Map<String, Double>> contingencyReferenceMarginsMap) {
+        this.contingencyReferenceMarginsMap = contingencyReferenceMarginsMap;
     }
 }
