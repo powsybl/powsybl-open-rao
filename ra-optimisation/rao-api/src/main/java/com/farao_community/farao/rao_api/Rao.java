@@ -66,6 +66,10 @@ public final class Rao {
             return runAsync(network, crac, LocalComputationManager.getDefault(), parameters);
         }
 
+        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String variantId) {
+            return runAsync(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
+        }
+
         public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac) {
             return runAsync(network, crac, RaoParameters.load());
         }
@@ -84,6 +88,10 @@ public final class Rao {
 
         public RaoComputationResult run(Network network, Crac crac, RaoParameters parameters) {
             return run(network, crac, LocalComputationManager.getDefault(), parameters);
+        }
+
+        public RaoComputationResult run(Network network, Crac crac, String variantId) {
+            return run(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
         }
 
         public RaoComputationResult run(Network network, Crac crac) {
