@@ -193,6 +193,7 @@ class Leaf {
     }
 
     private static double computeMargin(MonitoredBranchResult monitoredBranchResult) {
+        // TODO: do it with PostOptimisationFlow once PST optimisation is ready
         return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPreOptimisationFlow());
     }
 

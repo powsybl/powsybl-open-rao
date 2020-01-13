@@ -65,7 +65,7 @@ public final class Tree {
                 }
             }
             //TODO: generalize to handle different stop criterion
-        } while (optimalLeaf.getCost() < 0 && hasImproved);
+        } while (optimalLeaf.getCost() > 0 && hasImproved);
 
         //TODO: build SearchTreeRaoResult object
         return CompletableFuture.completedFuture(optimalLeaf.getRaoResult());
