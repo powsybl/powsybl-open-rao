@@ -70,7 +70,7 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
     @Override
     public UsageMethod getUsageMethod(Network network, State state) {
         // TODO: implement method
-        throw new NotImplementedException("Get usage method is not implemented yet.");
+        return UsageMethod.AVAILABLE;
     }
 
     @Override
