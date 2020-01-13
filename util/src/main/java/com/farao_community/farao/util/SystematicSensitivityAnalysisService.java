@@ -87,7 +87,6 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        //return SystematicSensitivityAnalysisResult
         return new SystematicSensitivityAnalysisResult(precontingencyResult, preMargin, contingencySensitivityComputationResultsMap, contingencyReferenceMarginMap);
     }
 
@@ -97,20 +96,20 @@ public final class SystematicSensitivityAnalysisService {
         for (Cnec cnec : cnecs) {
             double margin = 0.0;
             //get from network
-            String cnecnetworkelementid = cnec.getCriticalNetworkElement().getId();
-            Branch branch = network.getBranch(cnecnetworkelementid);
+            String cnecNetworkElementId = cnec.getCriticalNetworkElement().getId();
+            Branch branch = network.getBranch(cnecNetworkElementId);
             if (branch == null) {
-                LOGGER.error("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecnetworkelementid);
+                LOGGER.error("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecNetworkElementId);
             } else {
                 try {
                     margin = cnec.computeMargin(network);
                 } catch (SynchronizationException | FaraoException e) {
                     //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
-                    LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnecnetworkelementid, e.getMessage());
+                    LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnecNetworkElementId, e.getMessage());
                 }
 
-                LOGGER.info("Building margin from network for cnec {} with value {}", cnecnetworkelementid, margin);
-                referenceMargin.put(cnecnetworkelementid, margin);
+                LOGGER.info("Building margin from network for cnec {} with value {}", cnecNetworkElementId, margin);
+                referenceMargin.put(cnecNetworkElementId, margin);
             }
         }
     }
