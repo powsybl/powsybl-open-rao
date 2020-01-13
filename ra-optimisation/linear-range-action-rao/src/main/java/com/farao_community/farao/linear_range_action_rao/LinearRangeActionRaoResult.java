@@ -20,7 +20,8 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
 
     public enum SecurityStatus {
         SECURED,
-        UNSECURED
+        UNSECURED,
+        UNKNOWN
     }
 
     private SecurityStatus securityStatus;
@@ -33,7 +34,7 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
     }
 
     public LinearRangeActionRaoResult() {
-        this.securityStatus = SecurityStatus.SECURED;
+        this.securityStatus = SecurityStatus.UNKNOWN;
         this.minMargin = Double.MAX_VALUE;
     }
 
@@ -64,6 +65,10 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
 
     public double getMinMargin() {
         return minMargin;
+    }
+
+    public void setMinMargin(double minMargin) {
+        this.minMargin = minMargin;
     }
 
 }
