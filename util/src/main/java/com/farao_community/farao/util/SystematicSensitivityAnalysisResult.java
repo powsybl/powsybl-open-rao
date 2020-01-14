@@ -6,7 +6,8 @@
  */
 package com.farao_community.farao.util;
 
-import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.State;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.Map;
@@ -15,40 +16,19 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityAnalysisResult {
-    private SensitivityComputationResults preSensi;
-    private Map<String, Double> preMargin;
-    private Map<Contingency, SensitivityComputationResults> contingencySensiMap;
-    private Map<Contingency, Map<String, Double> > contingencyMarginsMap;
+    private Map<State, SensitivityComputationResults> stateSensiMap;
+    private Map<Cnec, Double> cnecFlowMap;
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults preSensi, Map<String, Double> preMargin, Map<Contingency, SensitivityComputationResults> contingencySensiMap, Map<Contingency, Map<String, Double>> contingencyMarginsMap) {
-        this.preSensi = preSensi;
-        this.preMargin = preMargin;
-        this.contingencySensiMap = contingencySensiMap;
-        this.contingencyMarginsMap = contingencyMarginsMap;
+    public SystematicSensitivityAnalysisResult(Map<State, SensitivityComputationResults> stateSensiMap, Map<Cnec, Double> cnecFlowMap) {
+        this.stateSensiMap = stateSensiMap;
+        this.cnecFlowMap = cnecFlowMap;
     }
 
-    public SensitivityComputationResults getPreSensi() {
-        return preSensi;
+    public Map<State, SensitivityComputationResults> getStateSensiMap() {
+        return stateSensiMap;
     }
 
-    public void setPreSensi(SensitivityComputationResults preSensi) {
-        this.preSensi = preSensi;
+    public Map<Cnec, Double> getCnecFlowMap() {
+        return cnecFlowMap;
     }
-
-    public Map<Contingency, SensitivityComputationResults> getContingencySensiMap() {
-        return contingencySensiMap;
-    }
-
-    public void setContingencySensiMap(Map<Contingency, SensitivityComputationResults> contingencySensiMap) {
-        this.contingencySensiMap = contingencySensiMap;
-    }
-
-    public Map<String, Double> getPreMargin() {
-        return preMargin;
-    }
-
-    public Map<Contingency, Map<String, Double>> getContingencyMarginsMap() {
-        return contingencyMarginsMap;
-    }
-
 }

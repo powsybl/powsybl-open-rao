@@ -66,27 +66,16 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Test
     public void testSensiSAresult() {
-        SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
-        Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
-        Map<String, Double> preMarginMap = new HashMap<>();
-        Map<Contingency, Map<String, Double> > contingencyMarginsMap = new HashMap<>();
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(precontingencyResult, preMarginMap, resultMap, contingencyMarginsMap);
-        result.setPreSensi(precontingencyResult);
-        result.setContingencySensiMap(resultMap);
-
+        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
         assertNotNull(result);
-        assertNotNull(result.getPreSensi());
-        assertNotNull(result.getContingencySensiMap());
-        assertNotNull(result.getPreMargin());
-        assertNotNull(result.getContingencyMarginsMap());
     }
 
     @Test
     public void testSensiSArunSensitivitySA() {
         SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         assertNotNull(result);
-        assertTrue(result.getPreSensi().isOk());
-        assertEquals(2, result.getContingencySensiMap().keySet().size());
     }
 
     private static Crac create() {
