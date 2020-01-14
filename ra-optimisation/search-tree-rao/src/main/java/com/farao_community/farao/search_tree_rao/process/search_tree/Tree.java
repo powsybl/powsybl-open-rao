@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -80,6 +81,8 @@ public final class Tree {
         optimalLeaf.getRaoResult().getContingencyResults().forEach(contingencyResult ->
                 output.addContingencyResult(buildContingencyResult(contingencyResult, rootLeaf)));
 
+        output.addExtension(SearchTreeRaoResult.class, buildExtension(optimalLeaf));
+
         return output;
     }
 
@@ -136,5 +139,11 @@ public final class Tree {
         ArrayList<RemedialActionElementResult> raer = new ArrayList<>();
         raer.add(new TopologicalActionElementResult(na.getId(), TopologicalActionElementResult.TopologicalState.OPEN));
         return raer;
+    }
+
+    private static SearchTreeRaoResult buildExtension(Leaf optimalLeaf) {
+        SearchTreeRaoResult.ComputationStatus computationStatus = optimalLeaf.getCost() > 0 ? SearchTreeRaoResult.ComputationStatus.SECURE : SearchTreeRaoResult.ComputationStatus.UNSECURE;
+        SearchTreeRaoResult.StopCriterion stopCriterion = SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED;
+        return new SearchTreeRaoResult(computationStatus, stopCriterion);
     }
 }

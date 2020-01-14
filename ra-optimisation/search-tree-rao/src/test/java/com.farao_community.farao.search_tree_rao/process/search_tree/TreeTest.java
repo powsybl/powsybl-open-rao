@@ -10,12 +10,14 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
 
+import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -43,6 +45,7 @@ public class TreeTest {
         Leaf leafOptimal = Mockito.mock(Leaf.class);
         Mockito.when(leafOptimal.getRaoResult()).thenReturn(raoResultOptimal);
         Mockito.when(leafOptimal.getNetworkActions()).thenReturn(Collections.singletonList(na));
+        Mockito.when(leafOptimal.getCost()).thenReturn(1.0);
 
         // build output
         RaoComputationResult result = Tree.buildOutput(leafRoot, leafOptimal);
@@ -60,5 +63,9 @@ public class TreeTest {
 
         assertEquals(1, result.getPreContingencyResult().getRemedialActionResults().size());
         assertEquals("RA1", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());
+
+        assertNotNull(result.getExtension(SearchTreeRaoResult.class));
+        assertEquals(SearchTreeRaoResult.ComputationStatus.SECURE, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
+        assertEquals(SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED, result.getExtension(SearchTreeRaoResult.class).getStopCriterion());
     }
 }
