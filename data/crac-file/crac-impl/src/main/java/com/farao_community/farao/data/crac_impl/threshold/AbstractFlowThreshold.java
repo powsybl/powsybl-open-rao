@@ -80,9 +80,8 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     private static boolean isCnecDisconnected(Network network, Cnec cnec) {
-        Terminal terminal1, terminal2;
-        terminal1 = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal1();
-        terminal2 = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal2();
+        Terminal terminal1 = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal1();
+        Terminal terminal2 = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal2();
 
         return !terminal1.isConnected() || !terminal2.isConnected();
     }
