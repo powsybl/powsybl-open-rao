@@ -21,10 +21,15 @@ import com.farao_community.farao.data.crac_impl.threshold.VoltageThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +37,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -43,25 +49,31 @@ import static com.farao_community.farao.data.crac_api.Direction.OUT;
 import static com.farao_community.farao.data.crac_api.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.Side.RIGHT;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class SensitivitySecurityAnalysisServiceTest {
+public class SystematicSensitivityAnalysisServiceTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivitySecurityAnalysisServiceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisServiceTest.class);
 
     private Network network;
     private ComputationManager computationManager;
+    private SensitivityComputationFactory sensitivityComputationFactory;
     private Crac crac;
 
     @Before
     public void setUp() {
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
         network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         computationManager = LocalComputationManager.getDefault();
         crac = create();
 
-        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
+        sensitivityComputationFactory = new MockSensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
@@ -69,7 +81,7 @@ public class SensitivitySecurityAnalysisServiceTest {
     public void testSensiSAresult() {
         SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
         Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
-        SensitivitySecurityAnalysisResult result = new SensitivitySecurityAnalysisResult(precontingencyResult, resultMap);
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(precontingencyResult, null, resultMap, null);
         result.setPrecontingencyResult(precontingencyResult);
         result.setResultMap(resultMap);
         assertNotNull(result);
@@ -79,7 +91,11 @@ public class SensitivitySecurityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
-        SensitivitySecurityAnalysisResult result = SensitivitySecurityAnalysisService.runSensitivity(network, crac, computationManager);
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        LoadFlowResult loadFlowResult = Mockito.mock(LoadFlowResult.class);
+        when(loadFlowRunner.run(any(), any(), any(), any())).thenReturn(loadFlowResult);
+        LoadFlowService.init(loadFlowRunner, computationManager);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPrecontingencyResult().isOk());
         assertEquals(2, result.getResultMap().keySet().size());
