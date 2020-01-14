@@ -53,13 +53,13 @@ public class TreeTest {
         assertEquals(2, result.getPreContingencyResult().getMonitoredBranchResults().size());
         assertEquals("MONITORED_BRANCH_1", result.getPreContingencyResult().getMonitoredBranchResults().get(0).getId());
         assertEquals(105.0, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow(), DOUBLE_TOLERANCE);
-        //assertEquals(95.0, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
+        assertEquals(95.0, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
 
         assertEquals(2, result.getContingencyResults().size());
         assertEquals("CONTINGENCY_1", result.getContingencyResults().get(0).getId());
         assertEquals("MONITORED_BRANCH_1_CO_1", result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getId());
         assertEquals(115.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPreOptimisationFlow(), DOUBLE_TOLERANCE);
-        //assertEquals(98.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
+        assertEquals(98.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
 
         assertEquals(1, result.getPreContingencyResult().getRemedialActionResults().size());
         assertEquals("RA1", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());

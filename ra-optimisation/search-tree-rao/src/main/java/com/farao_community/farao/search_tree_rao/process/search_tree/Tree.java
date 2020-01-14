@@ -96,10 +96,9 @@ public final class Tree {
         // preventive monitored branches
         outputRoot.getPreContingencyResult().getMonitoredBranchResults().forEach(mbrRoot -> {
             double preOptimisationFlow = mbrRoot.getPreOptimisationFlow();
-            // TODO : replace by postOptimisationFlow() once PST optimisation is ready
             double postOptimisationFlow = outputOptimal.getPreContingencyResult().getMonitoredBranchResults().stream()
                     .filter(mbrOptimal -> mbrOptimal.getId().equals(mbrRoot.getId())).findAny().orElseThrow(FaraoException::new)
-                    .getPreOptimisationFlow();
+                    .getPostOptimisationFlow();
             monitoredBranchResultList.add(new MonitoredBranchResult(mbrRoot.getId(), mbrRoot.getName(), mbrRoot.getBranchId(), mbrRoot.getMaximumFlow(), preOptimisationFlow, postOptimisationFlow));
         });
 
@@ -123,8 +122,7 @@ public final class Tree {
                     .getMonitoredBranchResults().stream()
                     .filter(mbr2 -> mbr2.getId().equals(mbr.getId())).findAny().orElseThrow(FaraoException::new)
                     .getPreOptimisationFlow();
-            // TODO : replace by postOptimisationFlow() once PST optimisation is ready
-            double postOptimisationFlow = mbr.getPreOptimisationFlow();
+            double postOptimisationFlow = mbr.getPostOptimisationFlow();
             monitoredBranchResultList.add(new MonitoredBranchResult(mbr.getId(), mbr.getName(), mbr.getBranchId(), mbr.getMaximumFlow(), preOptimisationFlow, postOptimisationFlow));
         });
 
