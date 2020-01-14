@@ -80,18 +80,12 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     private static boolean isCnecDisconnected(Network network, Cnec cnec) {
-        Terminal terminal1 = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal1();
-        Terminal terminal2 = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal2();
-
-        return !terminal1.isConnected() || !terminal2.isConnected();
+        Branch branch = network.getBranch(cnec.getCriticalNetworkElement().getId());
+        return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
     }
 
     protected double getI(Network network, Cnec cnec) {
-        if (isCnecDisconnected(network, cnec)) {
-            return 0;
-        }
-
-        double i = getTerminal(network, cnec).getI();
+        double i = isCnecDisconnected(network, cnec) ? 0 : getTerminal(network, cnec).getI();
         if (Double.isNaN(i)) {
             throw new FaraoException(String.format("No intensity (I) data available for CNEC %s", cnec.getName()));
         }
@@ -99,10 +93,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     protected double getP(Network network, Cnec cnec) {
-        if (isCnecDisconnected(network, cnec)) {
-            return 0;
-        }
-        double p = getTerminal(network, cnec).getP();
+        double p = isCnecDisconnected(network, cnec) ? 0 : getTerminal(network, cnec).getP();
         if (Double.isNaN(p)) {
             throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", cnec.getName()));
         }
