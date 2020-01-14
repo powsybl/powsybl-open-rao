@@ -61,9 +61,7 @@ public class LinearRangeActionRao implements RaoProvider {
         Map<Contingency, List<MonitoredBranchResult> > contingencyBranchResultsMap = new HashMap<>();
         List<MonitoredBranchResult> preBranchResults = new ArrayList<>();
 
-        for (Map.Entry<Cnec, Double> entry : cnecMarginMap.entrySet()) {
-            Cnec cnec = entry.getKey();
-            double referenceFlow = entry.getValue();
+        cnecMarginMap.forEach((cnec, referenceFlow) -> {
             double maximumFlow = 0.0;
             try {
                 maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
@@ -82,12 +80,10 @@ public class LinearRangeActionRao implements RaoProvider {
             } else {
                 preBranchResults.add(currentResult);
             }
-        }
+        });
 
         List<ContingencyResult> contingencyResultsForRao = new ArrayList<>();
-        for (Map.Entry<Contingency, List<MonitoredBranchResult> > entry : contingencyBranchResultsMap.entrySet()) {
-            contingencyResultsForRao.add(new ContingencyResult(entry.getKey().getId(), entry.getKey().getName(), entry.getValue()));
-        }
+        contingencyBranchResultsMap.forEach((contingency, list) -> contingencyResultsForRao.add(new ContingencyResult(contingency.getId(), contingency.getName(), list)));
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS,
                 new PreContingencyResult(preBranchResults),
