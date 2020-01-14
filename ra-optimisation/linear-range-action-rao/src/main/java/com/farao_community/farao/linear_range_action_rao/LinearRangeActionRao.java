@@ -58,7 +58,6 @@ public class LinearRangeActionRao implements RaoProvider {
         LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
 
         // 1. do for pre
-        LOGGER.info("Building result for precontingency:");
         Map<String, Double> preMargin = analysisResult.getPreMargin();
         List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultAndResultExtension(crac, preMargin, resultExtension, null);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
@@ -72,7 +71,6 @@ public class LinearRangeActionRao implements RaoProvider {
 
             String idContSensi = contingency.getId();
             String nameContSensi = contingency.getName();
-            LOGGER.info("Building result for post-contingency {}:", idContSensi);
 
             List<MonitoredBranchResult> tmpMonitoredBranchResults = buildMonitoredBranchResultAndResultExtension(crac, currentMarginMap, resultExtension, contingency);
             ContingencyResult contingencyResult = new ContingencyResult(idContSensi, nameContSensi, tmpMonitoredBranchResults);
@@ -82,7 +80,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
         raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
-        LOGGER.info("LinearRangeActionRaoResult extension: mininum margin = {}, security status: {}", resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
+        LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int)resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
         // 4. return
         return CompletableFuture.completedFuture(raoComputationResult);
     }
@@ -103,7 +101,7 @@ public class LinearRangeActionRao implements RaoProvider {
                     return false;
                 }).forEach(cnec -> {
                     double margin = marginsMap.getOrDefault(cnec.getId(), 0.0);
-                    LOGGER.info("Reference margin for cnec {} is {}", cnec.getId(), margin);
+                    LOGGER.info("Margin for cnec {} is {}", cnec.getId(), (int)margin);
 
                     resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
 

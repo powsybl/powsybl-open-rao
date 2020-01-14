@@ -57,9 +57,6 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
             if (minMargin < 0.0) {
                 this.setSecurityStatus(SecurityStatus.UNSECURED);
             }
-            LOGGER.info("Updated LinearRangeActionRaoResult to: mininum margin = {}, security status: {}",
-                    this.minMargin,
-                    this.securityStatus);
         }
     }
 

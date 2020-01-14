@@ -40,7 +40,6 @@ public final class SystematicSensitivityAnalysisService {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
         // 1. pre
-        LOGGER.info("Running pre contingency analysis");
         Map<String, Double> preMargin = new HashMap<>();
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
@@ -51,14 +50,12 @@ public final class SystematicSensitivityAnalysisService {
         SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
 
         // 2. analysis for each contingency
-        LOGGER.info("Calculating analysis for each contingency");
         Map<Contingency, Map<String, Double> > contingencyMarginsMap = new HashMap<>();
         Map<Contingency, SensitivityComputationResults> contingencySensisMap = new HashMap<>();
 
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> crac.getContingencies().forEach(contingency -> {
                 try {
-                    LOGGER.info("Running post contingency analysis for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingencyInCrac(network, computationManager, contingency);
@@ -109,7 +106,6 @@ public final class SystematicSensitivityAnalysisService {
                     //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
                     LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnec.getId(), e.getMessage());
                 }
-                LOGGER.info("Building margin from network for cnec {} with value {}", cnec.getId(), margin);
                 marginMap.put(cnec.getId(), margin);
             });
     }
