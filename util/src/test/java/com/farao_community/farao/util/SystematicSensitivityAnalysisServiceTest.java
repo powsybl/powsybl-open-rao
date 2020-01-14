@@ -21,7 +21,6 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
@@ -36,8 +35,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -71,20 +68,21 @@ public class SystematicSensitivityAnalysisServiceTest {
     public void testSensiSAresult() {
         SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
         Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(precontingencyResult, null, resultMap, null);
+        Map<String, Double> preMarginMap = new HashMap<>();
+        Map<Contingency, Map<String, Double> > contingencyMarginsMap = new HashMap<>();
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(precontingencyResult, preMarginMap, resultMap, contingencyMarginsMap);
         result.setPreSensi(precontingencyResult);
         result.setContingencySensiMap(resultMap);
+
         assertNotNull(result);
         assertNotNull(result.getPreSensi());
         assertNotNull(result.getContingencySensiMap());
+        assertNotNull(result.getPreMargin());
+        assertNotNull(result.getContingencyMarginsMap());
     }
 
     @Test
     public void testSensiSArunSensitivitySA() {
-        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
-        LoadFlowResult loadFlowResult = Mockito.mock(LoadFlowResult.class);
-        when(loadFlowRunner.run(any(), any(), any(), any())).thenReturn(loadFlowResult);
-        LoadFlowService.init(loadFlowRunner, computationManager);
         SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         assertNotNull(result);
         assertTrue(result.getPreSensi().isOk());
