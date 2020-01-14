@@ -47,15 +47,8 @@ public class SystematicSensitivityAnalysisResult {
         return preMargin;
     }
 
-    public void setPreMargin(Map<String, Double> preMargin) {
-        this.preMargin = preMargin;
-    }
-
     public Map<Contingency, Map<String, Double>> getContingencyMarginsMap() {
         return contingencyMarginsMap;
     }
 
-    public void setContingencyMarginsMap(Map<Contingency, Map<String, Double>> contingencyMarginsMap) {
-        this.contingencyMarginsMap = contingencyMarginsMap;
-    }
 }
