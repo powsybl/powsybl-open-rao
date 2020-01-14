@@ -64,7 +64,8 @@ public class LinearRangeActionRao implements RaoProvider {
         for (Map.Entry<Cnec, Double> entry : cnecMarginMap.entrySet()) {
             Cnec cnec = entry.getKey();
             double referenceFlow = entry.getValue();
-            double margin = 0, maximumFlow = 0;
+            double margin = 0.0;
+            double maximumFlow = 0.0;
             try {
                 maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
                 margin = maximumFlow - referenceFlow;
