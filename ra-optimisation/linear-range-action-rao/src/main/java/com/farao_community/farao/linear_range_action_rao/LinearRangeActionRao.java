@@ -76,7 +76,7 @@ public class LinearRangeActionRao implements RaoProvider {
             MonitoredBranchResult currentResult = new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN);
 
             if (cnec.getState().getContingency().isPresent()) {
-                Contingency contingency = cnec.getState().getContingency().get();
+                Contingency contingency = cnec.getState().getContingency().orElse(null);
                 List<MonitoredBranchResult> currentList = contingencyBranchResultsMap.getOrDefault(contingency, new ArrayList<>());
                 currentList.add(currentResult);
                 contingencyBranchResultsMap.put(contingency, currentList);

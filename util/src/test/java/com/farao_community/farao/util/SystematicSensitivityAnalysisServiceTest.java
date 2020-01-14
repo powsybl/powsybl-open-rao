@@ -70,6 +70,8 @@ public class SystematicSensitivityAnalysisServiceTest {
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
         SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
         assertNotNull(result);
+        assertNotNull(result.getCnecFlowMap());
+        assertNotNull(result.getStateSensiMap());
     }
 
     @Test
