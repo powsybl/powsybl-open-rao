@@ -80,7 +80,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preRao, contingencyResultsRao);
         raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
-        LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int)resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
+        LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
         // 4. return
         return CompletableFuture.completedFuture(raoComputationResult);
     }
@@ -101,7 +101,7 @@ public class LinearRangeActionRao implements RaoProvider {
                     return false;
                 }).forEach(cnec -> {
                     double margin = marginsMap.getOrDefault(cnec.getId(), 0.0);
-                    LOGGER.info("Margin for cnec {} is {}", cnec.getId(), (int)margin);
+                    LOGGER.info("Margin for cnec {} is {}", cnec.getId(), (int) margin);
 
                     resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
 
