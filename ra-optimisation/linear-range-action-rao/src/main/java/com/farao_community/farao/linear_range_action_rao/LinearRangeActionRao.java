@@ -59,12 +59,12 @@ public class LinearRangeActionRao implements RaoProvider {
 
         // 1. do for pre
         LOGGER.info("Building result for precontingency:");
-        Map<String, Double> preMargin = analysisResult.getPreReferenceMargin();
+        Map<String, Double> preMargin = analysisResult.getPreMargin();
         List<MonitoredBranchResult> monitoredBranchResults = buildMonitoredBranchResultAndResultExtension(crac, preMargin, resultExtension, null);
         PreContingencyResult preRao = new PreContingencyResult(monitoredBranchResults);
 
         // 2. do for each contingency
-        Map<Contingency, Map<String, Double> > mapMarginsMap = analysisResult.getContingencyReferenceMarginsMap();
+        Map<Contingency, Map<String, Double> > mapMarginsMap = analysisResult.getContingencyMarginsMap();
         List<ContingencyResult> contingencyResultsRao = new ArrayList<>();
         for (Map.Entry<Contingency, Map<String, Double> > entry : mapMarginsMap.entrySet()) {
             Contingency contingency = entry.getKey();

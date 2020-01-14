@@ -82,11 +82,11 @@ public class SystematicSensitivityAnalysisServiceTest {
         SensitivityComputationResults precontingencyResult = Mockito.mock(SensitivityComputationResults.class);
         Map<Contingency, SensitivityComputationResults> resultMap = new HashMap<>();
         SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(precontingencyResult, null, resultMap, null);
-        result.setPrecontingencyResult(precontingencyResult);
-        result.setResultMap(resultMap);
+        result.setPreSensi(precontingencyResult);
+        result.setContingencySensiMap(resultMap);
         assertNotNull(result);
-        assertNotNull(result.getPrecontingencyResult());
-        assertNotNull(result.getResultMap());
+        assertNotNull(result.getPreSensi());
+        assertNotNull(result.getContingencySensiMap());
     }
 
     @Test
@@ -97,8 +97,8 @@ public class SystematicSensitivityAnalysisServiceTest {
         LoadFlowService.init(loadFlowRunner, computationManager);
         SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         assertNotNull(result);
-        assertTrue(result.getPrecontingencyResult().isOk());
-        assertEquals(2, result.getResultMap().keySet().size());
+        assertTrue(result.getPreSensi().isOk());
+        assertEquals(2, result.getContingencySensiMap().keySet().size());
     }
 
     private static Crac create() {

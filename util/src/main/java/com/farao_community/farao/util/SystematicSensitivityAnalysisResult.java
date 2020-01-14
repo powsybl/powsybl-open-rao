@@ -15,47 +15,47 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityAnalysisResult {
-    private SensitivityComputationResults precontingencyResult;
-    private Map<String, Double> preReferenceMargin;
-    private Map<Contingency, SensitivityComputationResults> resultMap;
-    private Map<Contingency, Map<String, Double> > contingencyReferenceMarginsMap;
+    private SensitivityComputationResults preSensi;
+    private Map<String, Double> preMargin;
+    private Map<Contingency, SensitivityComputationResults> contingencySensiMap;
+    private Map<Contingency, Map<String, Double> > contingencyMarginsMap;
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<String, Double> preReferenceMargin, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap, Map<Contingency, Map<String, Double>> contingencyReferenceMarginsMap) {
-        this.precontingencyResult = precontingencyResult;
-        this.preReferenceMargin = preReferenceMargin;
-        this.resultMap = contingencySensitivityComputationResultsMap;
-        this.contingencyReferenceMarginsMap = contingencyReferenceMarginsMap;
+    public SystematicSensitivityAnalysisResult(SensitivityComputationResults preSensi, Map<String, Double> preMargin, Map<Contingency, SensitivityComputationResults> contingencySensiMap, Map<Contingency, Map<String, Double>> contingencyMarginsMap) {
+        this.preSensi = preSensi;
+        this.preMargin = preMargin;
+        this.contingencySensiMap = contingencySensiMap;
+        this.contingencyMarginsMap = contingencyMarginsMap;
     }
 
-    public SensitivityComputationResults getPrecontingencyResult() {
-        return precontingencyResult;
+    public SensitivityComputationResults getPreSensi() {
+        return preSensi;
     }
 
-    public void setPrecontingencyResult(SensitivityComputationResults precontingencyResult) {
-        this.precontingencyResult = precontingencyResult;
+    public void setPreSensi(SensitivityComputationResults preSensi) {
+        this.preSensi = preSensi;
     }
 
-    public Map<Contingency, SensitivityComputationResults> getResultMap() {
-        return resultMap;
+    public Map<Contingency, SensitivityComputationResults> getContingencySensiMap() {
+        return contingencySensiMap;
     }
 
-    public void setResultMap(Map<Contingency, SensitivityComputationResults> resultMap) {
-        this.resultMap = resultMap;
+    public void setContingencySensiMap(Map<Contingency, SensitivityComputationResults> contingencySensiMap) {
+        this.contingencySensiMap = contingencySensiMap;
     }
 
-    public Map<String, Double> getPreReferenceMargin() {
-        return preReferenceMargin;
+    public Map<String, Double> getPreMargin() {
+        return preMargin;
     }
 
-    public void setPreReferenceMargin(Map<String, Double> preReferenceMargin) {
-        this.preReferenceMargin = preReferenceMargin;
+    public void setPreMargin(Map<String, Double> preMargin) {
+        this.preMargin = preMargin;
     }
 
-    public Map<Contingency, Map<String, Double>> getContingencyReferenceMarginsMap() {
-        return contingencyReferenceMarginsMap;
+    public Map<Contingency, Map<String, Double>> getContingencyMarginsMap() {
+        return contingencyMarginsMap;
     }
 
-    public void setContingencyReferenceMarginsMap(Map<Contingency, Map<String, Double>> contingencyReferenceMarginsMap) {
-        this.contingencyReferenceMarginsMap = contingencyReferenceMarginsMap;
+    public void setContingencyMarginsMap(Map<Contingency, Map<String, Double>> contingencyMarginsMap) {
+        this.contingencyMarginsMap = contingencyMarginsMap;
     }
 }
