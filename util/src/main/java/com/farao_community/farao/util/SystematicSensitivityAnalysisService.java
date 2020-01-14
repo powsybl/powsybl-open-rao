@@ -44,7 +44,7 @@ public final class SystematicSensitivityAnalysisService {
         Map<String, Double> preMargin = new HashMap<>();
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildMarginFromNetwork(network, crac, preMargin); // get reference margin
+            buildMarginFromNetwork(network, crac, preMargin, null); // get reference margin
         }
         // get sensi result for pre
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
@@ -67,7 +67,7 @@ public final class SystematicSensitivityAnalysisService {
                     Map<String, Double> contingencyReferenceMargin = new HashMap<>();
                     LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                     if (currentloadFlowResult.isOk()) {
-                        buildMarginFromNetwork(network, crac, contingencyReferenceMargin);
+                        buildMarginFromNetwork(network, crac, contingencyReferenceMargin, contingency);
                     }
                     contingencyReferenceMarginMap.put(contingency, contingencyReferenceMargin);
 
@@ -90,28 +90,28 @@ public final class SystematicSensitivityAnalysisService {
         return new SystematicSensitivityAnalysisResult(precontingencyResult, preMargin, contingencySensitivityComputationResultsMap, contingencyReferenceMarginMap);
     }
 
-    private static void buildMarginFromNetwork(Network network, Crac crac, Map<String, Double> referenceMargin) {
-        Set<Cnec> cnecs = crac.getCnecs();
+    private static void buildMarginFromNetwork(Network network, Crac crac, Map<String, Double> referenceMargin, Contingency contingency) {
         crac.synchronize(network);
-        for (Cnec cnec : cnecs) {
-            double margin = 0.0;
-            //get from network
-            String cnecNetworkElementId = cnec.getCriticalNetworkElement().getId();
-            Branch branch = network.getBranch(cnecNetworkElementId);
-            if (branch == null) {
-                LOGGER.error("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecNetworkElementId);
-            } else {
+        crac.getCnecs().stream()
+            .filter(cnec -> {
+                if (!cnec.getState().getContingency().isPresent() && contingency == null) {
+                    return true;
+                } else if (cnec.getState().getContingency().isPresent() && contingency != null) {
+                    return cnec.getState().getContingency().get().getId().equals(contingency.getId());
+                }
+                return false;
+            }).forEach(cnec -> {
+                double margin = 0.0;
+                //get margin from network
                 try {
                     margin = cnec.computeMargin(network);
                 } catch (SynchronizationException | FaraoException e) {
                     //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
-                    LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnecNetworkElementId, e.getMessage());
+                    LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnec.getId(), e.getMessage());
                 }
-
-                LOGGER.info("Building margin from network for cnec {} with value {}", cnecNetworkElementId, margin);
-                referenceMargin.put(cnecNetworkElementId, margin);
-            }
-        }
+                LOGGER.info("Building margin from network for cnec {} with value {}", cnec.getId(), margin);
+                referenceMargin.put(cnec.getId(), margin);
+            });
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {

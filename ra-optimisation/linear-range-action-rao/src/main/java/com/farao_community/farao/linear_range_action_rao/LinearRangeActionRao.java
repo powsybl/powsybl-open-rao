@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.linear_range_action_rao;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 
@@ -93,27 +92,31 @@ public class LinearRangeActionRao implements RaoProvider {
                                                                                      LinearRangeActionRaoResult resultExtension,
                                                                                      Contingency contingency) {
         List<MonitoredBranchResult> resultList = new ArrayList<>();
-        for (Cnec cnec : crac.getCnecs()) {
-            Contingency currentCnecContingency = cnec.getState().getContingency().orElse(null);
-            String cnecContingencyId = (currentCnecContingency == null) ? "" : currentCnecContingency.getId();
-            if ((contingency == null && cnecContingencyId.equals("")) || //pre and cnec's state is null
-                (contingency != null && cnecContingencyId.equals(contingency.getId())) // filter for contingency id
-            ) {
-                double margin = marginsMap.getOrDefault(cnec.getCriticalNetworkElement().getId(), 0.0);
-                LOGGER.info("Reference margin for cnec {} of contingency {} is {}", cnec.getId(), cnecContingencyId, margin);
 
-                resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
+        crac.getCnecs().stream()
+                .filter(cnec -> {
+                    if (!cnec.getState().getContingency().isPresent() && contingency == null) {
+                        return true;
+                    } else if (cnec.getState().getContingency().isPresent() && contingency != null) {
+                        return cnec.getState().getContingency().get().getId().equals(contingency.getId());
+                    }
+                    return false;
+                }).forEach(cnec -> {
+                    double margin = marginsMap.getOrDefault(cnec.getId(), 0.0);
+                    LOGGER.info("Reference margin for cnec {} is {}", cnec.getId(), margin);
 
-                double maximumFlow = 0;
-                try {
-                    maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
-                } catch (SynchronizationException e) {
-                    LOGGER.error("Cannot get max threshold for cnec {}", cnec.getId());
-                }
-                double referenceFlow = maximumFlow - margin;
-                resultList.add(new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN));
-            }
-        }
+                    resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
+
+                    double maximumFlow = 0;
+                    try {
+                        maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
+                    } catch (SynchronizationException e) {
+                        LOGGER.error("Cannot get max threshold for cnec {}", cnec.getId());
+                    }
+                    double referenceFlow = maximumFlow - margin;
+                    resultList.add(new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN));
+                });
+
         return resultList;
     }
 }
