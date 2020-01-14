@@ -111,13 +111,14 @@ public class LinearRangeActionRao implements RaoProvider {
         LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
 
         LOGGER.info("RaoComputationResult:");
+        LOGGER.info("For preventive:");
         for (MonitoredBranchResult b : raoComputationResult.getPreContingencyResult().getMonitoredBranchResults()) {
-            LOGGER.info("    pre: id {}, flow = {}", b.getBranchId(), b.getMaximumFlow());
+            LOGGER.info("    id {}, flow = {}", b.getBranchId(), b.getMaximumFlow());
         }
         for (ContingencyResult c : raoComputationResult.getContingencyResults()) {
-            LOGGER.info("For contingency {}", c.getId());
+            LOGGER.info("For contingency {}:", c.getId());
             for (MonitoredBranchResult b : c.getMonitoredBranchResults()) {
-                LOGGER.info("   id {}, flow = {}", b.getBranchId(), b.getPreOptimisationFlow());
+                LOGGER.info("    id {}, flow = {}", b.getBranchId(), b.getPreOptimisationFlow());
             }
         }
 
