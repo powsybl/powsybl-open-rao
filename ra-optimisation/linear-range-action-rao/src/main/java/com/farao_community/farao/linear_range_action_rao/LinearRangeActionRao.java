@@ -95,8 +95,7 @@ public class LinearRangeActionRao implements RaoProvider {
 
         List<ContingencyResult> contingencyResultsForRao = new ArrayList<>();
         for (Map.Entry<Contingency, List<MonitoredBranchResult> > entry : contingencyBranchResultsMap.entrySet()) {
-            ContingencyResult current = new ContingencyResult(entry.getKey().getId(), entry.getKey().getName(), entry.getValue());
-            contingencyResultsForRao.add(current);
+            contingencyResultsForRao.add(new ContingencyResult(entry.getKey().getId(), entry.getKey().getName(), entry.getValue()));
         }
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS,
