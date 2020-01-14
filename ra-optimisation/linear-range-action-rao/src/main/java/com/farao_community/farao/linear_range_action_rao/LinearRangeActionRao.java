@@ -70,7 +70,6 @@ public class LinearRangeActionRao implements RaoProvider {
             } catch (SynchronizationException e) {
                 LOGGER.error("Cannot comput margin for cnec {}. {}", cnec.getId(), e.getMessage());
             }
-            LOGGER.info("Margin for cnec {} is {}", cnec.getId(), (int) margin);
 
             resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
 
@@ -84,22 +83,19 @@ public class LinearRangeActionRao implements RaoProvider {
 
             MonitoredBranchResult currentResult = new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN);
 
-            if (!cnec.getState().getContingency().isPresent()) {
-                preBranchResults.add(currentResult);
-            } else {
+            if (cnec.getState().getContingency().isPresent()) {
                 Contingency contingency = cnec.getState().getContingency().get();
                 List<MonitoredBranchResult> currentList = contingencyBranchResultsMap.getOrDefault(contingency, new ArrayList<>());
                 currentList.add(currentResult);
                 contingencyBranchResultsMap.put(contingency, currentList);
+            } else {
+                preBranchResults.add(currentResult);
             }
         }
 
         List<ContingencyResult> contingencyResultsForRao = new ArrayList<>();
         for (Map.Entry<Contingency, List<MonitoredBranchResult> > entry : contingencyBranchResultsMap.entrySet()) {
-            String id = entry.getKey().getId();
-            String name = entry.getKey().getName();
-            List<MonitoredBranchResult> list = entry.getValue();
-            ContingencyResult current = new ContingencyResult(id, name, list);
+            ContingencyResult current = new ContingencyResult(entry.getKey().getId(), entry.getKey().getName(), entry.getValue());
             contingencyResultsForRao.add(current);
         }
 
@@ -108,19 +104,6 @@ public class LinearRangeActionRao implements RaoProvider {
                 contingencyResultsForRao);
 
         raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
-        LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
-
-        LOGGER.info("RaoComputationResult:");
-        LOGGER.info("For preventive:");
-        for (MonitoredBranchResult b : raoComputationResult.getPreContingencyResult().getMonitoredBranchResults()) {
-            LOGGER.info("    id {}, flow = {}", b.getBranchId(), b.getMaximumFlow());
-        }
-        for (ContingencyResult c : raoComputationResult.getContingencyResults()) {
-            LOGGER.info("For contingency {}:", c.getId());
-            for (MonitoredBranchResult b : c.getMonitoredBranchResults()) {
-                LOGGER.info("    id {}, flow = {}", b.getBranchId(), b.getPreOptimisationFlow());
-            }
-        }
 
         // 4. return
         return CompletableFuture.completedFuture(raoComputationResult);

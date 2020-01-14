@@ -53,31 +53,29 @@ public final class SystematicSensitivityAnalysisService {
 
         // 2. analysis for each contingency
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
-            variantsPool.submit(() -> {
-                crac.getContingencies().forEach(contingency -> {
-                    try {
-                        String workingVariant = variantsPool.getAvailableVariant();
-                        network.getVariantManager().setWorkingVariant(workingVariant);
-                        applyContingencyInCrac(network, computationManager, contingency);
+            variantsPool.submit(() -> crac.getContingencies().forEach(contingency -> {
+                try {
+                    String workingVariant = variantsPool.getAvailableVariant();
+                    network.getVariantManager().setWorkingVariant(workingVariant);
+                    applyContingencyInCrac(network, computationManager, contingency);
 
-                        LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
-                        if (currentloadFlowResult.isOk()) {
-                            buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
-                        }
-
-                        SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
-                        crac.getStates(contingency).forEach(state -> {
-                            if (!stateSensiMap.containsKey(state)) {
-                                stateSensiMap.put(state, sensiResults);
-                            }
-                        });
-
-                        variantsPool.releaseUsedVariant(workingVariant);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                    LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
+                    if (currentloadFlowResult.isOk()) {
+                        buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
                     }
-                });
-            }).get();
+
+                    SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
+                    crac.getStates(contingency).forEach(state -> {
+                        if (!stateSensiMap.containsKey(state)) {
+                            stateSensiMap.put(state, sensiResults);
+                        }
+                    });
+
+                    variantsPool.releaseUsedVariant(workingVariant);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            })).get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
