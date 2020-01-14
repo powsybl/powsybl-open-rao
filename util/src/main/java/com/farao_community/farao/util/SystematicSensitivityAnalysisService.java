@@ -65,9 +65,11 @@ public final class SystematicSensitivityAnalysisService {
                             buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
                         }
 
-                        SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
                         crac.getStates(contingency).forEach(state -> {
-                            stateSensiMap.put(state, sensiResults);
+                            if (!stateSensiMap.containsKey(state)) {
+                                SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
+                                stateSensiMap.put(state, sensiResults);
+                            }
                         });
 
                         variantsPool.releaseUsedVariant(workingVariant);
