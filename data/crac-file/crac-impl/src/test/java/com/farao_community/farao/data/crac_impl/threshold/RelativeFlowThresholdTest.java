@@ -79,7 +79,7 @@ public class RelativeFlowThresholdTest {
     public void synchronize() {
         assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
         cnec1.synchronize(networkWithoutLf);
-        assertEquals(721, relativeFlowThresholdAmps.getMaxValue(), 1);
+        assertEquals(433, relativeFlowThresholdAmps.getMaxValue(), 1);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class RelativeFlowThresholdTest {
     public void desynchronize() {
         assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
         cnec1.synchronize(networkWithoutLf);
-        assertEquals(721, relativeFlowThresholdAmps.getMaxValue(), 1);
+        assertEquals(433, relativeFlowThresholdAmps.getMaxValue(), 1);
         cnec1.desynchronize();
         assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
     }

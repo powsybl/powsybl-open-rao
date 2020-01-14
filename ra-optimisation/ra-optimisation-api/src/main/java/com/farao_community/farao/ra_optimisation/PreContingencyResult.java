@@ -43,4 +43,5 @@ public class PreContingencyResult {
     public List<RemedialActionResult> getRemedialActionResults() {
         return remedialActionResults;
     }
+
 }

@@ -33,14 +33,11 @@ class Leaf {
     private final Leaf parentLeaf;
 
     /**
-     * Network Action which will be tested, can be null
+     * Network Actions which will be tested (including the
+     * network actions from the parent leaves as well as from
+     * this leaf), can be empty
      */
-    private final NetworkAction networkAction;
-
-    /**
-     * Name of the network variant associated with this Leaf
-     */
-    private String networkVariant;
+    private final List<NetworkAction> networkActions;
 
     /**
      * Impact of the network action
@@ -62,10 +59,9 @@ class Leaf {
     /**
      * Root Leaf constructor
      */
-    Leaf(String networkVariant) {
+    Leaf() { //! constructor only for Root Leaf
         this.parentLeaf = null;
-        this.networkAction = null;
-        this.networkVariant = networkVariant;
+        this.networkActions = new ArrayList<>(); //! root leaf has no network action
         this.raoResult = null;
         this.status = Status.CREATED;
     }
@@ -75,8 +71,11 @@ class Leaf {
      */
     private Leaf(Leaf parentLeaf, NetworkAction networkAction) {
         this.parentLeaf = parentLeaf;
-        this.networkAction = networkAction;
-        this.networkVariant = null;
+
+        List<NetworkAction> networkActionList = new ArrayList<>(parentLeaf.getNetworkActions());
+        networkActionList.add(networkAction);
+        this.networkActions = networkActionList;
+
         this.raoResult = null;
         this.status = Status.CREATED;
     }
@@ -88,8 +87,8 @@ class Leaf {
         return parentLeaf;
     }
 
-    NetworkAction getNetworkAction() {
-        return networkAction;
+    List<NetworkAction> getNetworkActions() {
+        return networkActions;
     }
 
     /**
@@ -107,13 +106,6 @@ class Leaf {
     }
 
     /**
-     * Leaf Variant getter
-     */
-    String getNetworkVariant() {
-        return networkVariant;
-    }
-
-    /**
      * Is this Leaf the initial one of the tree
      */
     boolean isRoot() {
@@ -121,27 +113,12 @@ class Leaf {
     }
 
     /**
-     * Get the list of Network Actions from the current leaf, and from its
-     * parent leaves
-     */
-    List<NetworkAction> getNetworkActionLegacy() {
-        Leaf leaf = this;
-        List<NetworkAction> naList = new ArrayList<>();
-        while (!leaf.isRoot()) {
-            naList.add(leaf.getNetworkAction());
-            leaf = leaf.getParent();
-        }
-        return naList;
-    }
-
-    /**
      * Extend the tree from the current Leaf with N new children Leaves
      * for the N Network Actions given in argument
      */
     List<Leaf> bloom(Set<NetworkAction> availableNetworkActions) {
-        List<NetworkAction> legacy = getNetworkActionLegacy();
         return availableNetworkActions.stream().
-                filter(na -> !legacy.contains(na)).
+                filter(na -> !networkActions.contains(na)).
                 map(na -> new Leaf(this, na)).collect(Collectors.toList());
     }
 
@@ -149,29 +126,29 @@ class Leaf {
      * Evaluate the impact of Network Actions (from the current Leaf and
      * its parents)
      */
-    void evaluate(Network network, Crac crac, RaoParameters parameters) {
+    void evaluate(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
         this.status = Status.EVALUATION_RUNNING;
+        String leafNetworkVariant;
 
+        // apply Network Actions
         try {
-            // apply Network Action
-            if (!isRoot()) {
-                Objects.requireNonNull(networkAction);
-                this.networkVariant = createVariant(network, getParent().getNetworkVariant());
-                network.getVariantManager().setWorkingVariant(this.networkVariant);
-                networkAction.apply(network);
-            } else {
-                network.getVariantManager().setWorkingVariant(this.networkVariant);
-            }
+            leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
+            networkActions.forEach(na -> na.apply(network));
+        } catch (FaraoException e) {
+            this.status = Status.EVALUATION_ERROR;
+            return;
+        }
 
-            // Optimize the use of Range Actions
-            RaoComputationResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac);
-
-            // Get results
+        // Optimize the use of Range Actions
+        try {
+            RaoComputationResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant);
             this.raoResult = results;
             this.status = buildStatus(results);
+            deleteVariant(network, leafNetworkVariant);
 
         } catch (FaraoException e) {
             this.status = Status.EVALUATION_ERROR;
+            deleteVariant(network, leafNetworkVariant);
         }
     }
 
@@ -183,13 +160,14 @@ class Leaf {
         return uniqueId;
     }
 
-    private String createVariant(Network network, String referenceNetworkVariant) {
+    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
         Objects.requireNonNull(referenceNetworkVariant);
         if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
             throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
         }
         String uniqueId = getUniqueVariantId(network);
         network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
+        network.getVariantManager().setWorkingVariant(uniqueId);
         return uniqueId;
     }
 
@@ -202,6 +180,12 @@ class Leaf {
             return Status.EVALUATION_SUCCESS;
         } else {
             return Status.EVALUATION_ERROR;
+        }
+    }
+
+    private void deleteVariant(Network network, String leafNetworkVariant) {
+        if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
+            network.getVariantManager().removeVariant(leafNetworkVariant);
         }
     }
 }
