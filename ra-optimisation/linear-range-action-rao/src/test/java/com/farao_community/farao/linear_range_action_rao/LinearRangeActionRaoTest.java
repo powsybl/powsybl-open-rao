@@ -49,8 +49,8 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( SystematicSensitivityAnalysisService.class )
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(SystematicSensitivityAnalysisService.class)
 public class LinearRangeActionRaoTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRaoTest.class);
 
@@ -111,7 +111,6 @@ public class LinearRangeActionRaoTest {
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap));
         assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
     }
-
 
     private static Crac create() {
         Crac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
