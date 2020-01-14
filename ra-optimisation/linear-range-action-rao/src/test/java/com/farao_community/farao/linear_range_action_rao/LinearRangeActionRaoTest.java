@@ -17,6 +17,8 @@ import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
@@ -29,7 +31,11 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +49,8 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( SystematicSensitivityAnalysisService.class )
 public class LinearRangeActionRaoTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRaoTest.class);
 
@@ -83,11 +91,27 @@ public class LinearRangeActionRaoTest {
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         Crac crac = create();
-
         String variantId = "variant-test";
-
         assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
     }
+
+    @Test
+    public void runTest() {
+        Network network = Importers.loadNetwork(
+                "TestCase12Nodes.uct",
+                getClass().getResourceAsStream("/TestCase12Nodes.uct")
+        );
+        Crac crac = create();
+        String variantId = "variant-test";
+        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 1.0));
+
+        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap));
+        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
+    }
+
 
     private static Crac create() {
         Crac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
