@@ -64,16 +64,14 @@ public class LinearRangeActionRao implements RaoProvider {
         for (Map.Entry<Cnec, Double> entry : cnecMarginMap.entrySet()) {
             Cnec cnec = entry.getKey();
             double referenceFlow = entry.getValue();
-            double margin = 0.0;
             double maximumFlow = 0.0;
             try {
                 maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
-                margin = maximumFlow - referenceFlow;
             } catch (SynchronizationException e) {
                 LOGGER.error("Cannot comput margin for cnec {}. {}", cnec.getId(), e.getMessage());
             }
 
-            resultExtension.updateResult(margin); // update mininum margin and security status in LinearRangeActionRaoResult
+            resultExtension.updateResult(maximumFlow - referenceFlow); // update mininum margin and security status in LinearRangeActionRaoResult
             MonitoredBranchResult currentResult = new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN);
 
             if (cnec.getState().getContingency().isPresent()) {
