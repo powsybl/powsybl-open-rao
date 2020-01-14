@@ -58,6 +58,7 @@ public class LinearRangeActionRao implements RaoProvider {
         Map<Cnec, Double> cnecMarginMap = analysisResult.getCnecFlowMap();
 
         List<MonitoredBranchResult> resultList = new ArrayList<>();
+        MonitoredBranchResult preContingencyResult = new MonitoredBranchResult();
         for (Map.Entry<Cnec, Double> entry : cnecMarginMap.entrySet()) {
             Cnec cnec = entry.getKey();
             double refereceFlow = entry.getValue();
@@ -79,11 +80,15 @@ public class LinearRangeActionRao implements RaoProvider {
             }
             double referenceFlow = maximumFlow - margin;
 
-            resultList.add(new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN));
+            MonitoredBranchResult currentResult = new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN);
+            if (cnec.getState().getContingency().isPresent()) {
+                resultList.add(currentResult);
+            } else {
+                preContingencyResult = currentResult;
+            }
         }
 
-        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS,
-                null, null); //todo change RaoComputationResult with state?
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult, resultList);
         raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
         LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
         // 4. return
