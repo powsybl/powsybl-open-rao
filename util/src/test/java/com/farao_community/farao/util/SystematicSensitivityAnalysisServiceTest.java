@@ -68,10 +68,11 @@ public class SystematicSensitivityAnalysisServiceTest {
     @Test
     public void testSensiSAresult() {
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
+        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
+        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
         assertNotNull(result);
-        assertNotNull(result.getCnecFlowMap());
+        assertNotNull(result.getCnecMarginMap());
         assertNotNull(result.getStateSensiMap());
     }
 

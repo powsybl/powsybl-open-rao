@@ -40,12 +40,13 @@ public final class SystematicSensitivityAnalysisService {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
+        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
 
         // 1. pre
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildFlowFromNetwork(network, crac, cnecFlowMap, null);
+            buildFlowFromNetwork(network, crac, cnecMarginMap, cnecMaxThresholdMap, null);
         }
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
         SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -61,7 +62,7 @@ public final class SystematicSensitivityAnalysisService {
 
                     LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                     if (currentloadFlowResult.isOk()) {
-                        buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
+                        buildFlowFromNetwork(network, crac, cnecMarginMap, cnecMaxThresholdMap, contingency);
                     }
 
                     SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -83,30 +84,29 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
+        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
     }
 
-    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecFlowMap, Contingency contingency) {
+    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecMarginMap, Map<Cnec, Double> cnecMaxThresholdMap, Contingency contingency) {
+        Set<State> states = new HashSet<>();
+        if (contingency == null) {
+            states.add(crac.getPreventiveState());
+        } else {
+            states.addAll(crac.getStates(contingency));
+        }
+
         crac.synchronize(network);
-        crac.getCnecs().stream()
-            .filter(cnec -> {
-                if (!cnec.getState().getContingency().isPresent() && contingency == null) {
-                    return true;
-                } else if (cnec.getState().getContingency().isPresent() && contingency != null) {
-                    return cnec.getState().getContingency().get().getId().equals(contingency.getId());
-                }
-                return false;
-            }).forEach(cnec -> {
-                double margin = 0.0;
-                try {
-                    margin = cnec.computeMargin(network);
-                    double referenceFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0) - margin;
-                    cnecFlowMap.put(cnec, referenceFlow);
-                } catch (SynchronizationException | FaraoException e) {
-                    //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
-                    LOGGER.error("Cannot get compute flow for cnec {} in network variant. {}.", cnec.getId(), e.getMessage());
-                }
-            });
+        states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
+            try {
+                cnecMarginMap.put(cnec, cnec.computeMargin(network));
+                Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold();
+                maxThreshold.ifPresent(threshold -> cnecMaxThresholdMap.put(cnec, threshold));
+            } catch (SynchronizationException | FaraoException e) {
+                //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
+                LOGGER.error("Cannot get compute flow for cnec {} in network variant. {}.", cnec.getId(), e.getMessage());
+            }
+        }));
+        crac.desynchronize(); // To be sure it is always synchronized with the good network
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {

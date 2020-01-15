@@ -56,7 +56,7 @@ public class LinearRangeActionRao implements RaoProvider {
         SystematicSensitivityAnalysisResult analysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
 
         LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
-        Map<Cnec, Double> cnecMarginMap = analysisResult.getCnecFlowMap();
+        Map<Cnec, Double> cnecMarginMap = analysisResult.getCnecMarginMap();
 
         Map<Contingency, List<MonitoredBranchResult> > contingencyBranchResultsMap = new HashMap<>();
         List<MonitoredBranchResult> preBranchResults = new ArrayList<>();
