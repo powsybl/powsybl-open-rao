@@ -51,8 +51,8 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
         if (phaseTapChanger == null) {
             throw new FaraoException(String.format("Transformer %s is not a PST, tap could not be changed", networkElement.getId()));
         }
-        if (phaseTapChanger.getHighTapPosition() >= setpoint && phaseTapChanger.getLowTapPosition() <= setpoint) {
-            phaseTapChanger.setTapPosition((int) setpoint);
+        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() >= setpoint) {
+            phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);
         } else {
             throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
         }
