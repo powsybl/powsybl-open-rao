@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -39,7 +40,7 @@ public class GlskDocumentLinearGlskConverterTest {
     }
 
     private String getResourceAsPathString(String resource) {
-        return getClass().getResource(resource).getPath();
+        return new File(getClass().getResource(resource).getFile()).getAbsolutePath();
     }
 
     @Before

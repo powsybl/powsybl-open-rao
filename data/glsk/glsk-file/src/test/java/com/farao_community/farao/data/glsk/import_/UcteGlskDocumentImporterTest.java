@@ -12,6 +12,7 @@ import com.google.common.math.DoubleMath;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +35,7 @@ public class UcteGlskDocumentImporterTest {
     }
 
     private String getResourceAsPathString(String resource) {
-        return getClass().getResource(resource).getPath();
+        return new File(getClass().getResource(resource).getFile()).getAbsolutePath();
     }
 
     private InputStream getResourceAsInputStream(String resource) {
