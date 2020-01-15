@@ -9,14 +9,11 @@ package com.farao_community.farao.linear_range_action_rao;
 
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputationResult> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRaoResult.class);
 
     public enum SecurityStatus {
         SECURED,
@@ -57,9 +54,6 @@ public class LinearRangeActionRaoResult extends AbstractExtension<RaoComputation
             if (minMargin < 0.0) {
                 this.setSecurityStatus(SecurityStatus.UNSECURED);
             }
-            LOGGER.info("Updated LinearRangeActionRaoResult to: mininum margin = {}, security status: {}",
-                    this.minMargin,
-                    this.securityStatus);
         }
     }
 
