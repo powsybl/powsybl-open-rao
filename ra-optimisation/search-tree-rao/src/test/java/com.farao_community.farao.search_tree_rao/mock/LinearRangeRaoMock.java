@@ -38,8 +38,8 @@ public class LinearRangeRaoMock implements RaoProvider {
 
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, new PreContingencyResult(monitoredBranchResults, null));
 
-        MonitoredBranchResult mb4 = new MonitoredBranchResult("id4", "name4", "branchId4", 1000, 2500, 1500);
-        MonitoredBranchResult mb5 = new MonitoredBranchResult("id5", "name5", "branchId5", 1000, 900, 500);
+        MonitoredBranchResult mb4 = new MonitoredBranchResult("id4", "name4", "branchId4", 1000, 2500, 2500);
+        MonitoredBranchResult mb5 = new MonitoredBranchResult("id5", "name5", "branchId5", 1000, 900, 900);
 
         ContingencyResult contingencyResult1 = new ContingencyResult("idCo1", "nameCo1", new ArrayList<>(Arrays.asList(mb1, mb3)));
         ContingencyResult contingencyResult2 = new ContingencyResult("idCo2", "nameCo2", new ArrayList<>(Arrays.asList(mb2, mb4, mb5)));
