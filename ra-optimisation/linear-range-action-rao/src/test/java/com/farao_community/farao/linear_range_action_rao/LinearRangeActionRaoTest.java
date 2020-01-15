@@ -16,7 +16,8 @@ import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
-import com.farao_community.farao.util.SensitivityComputationService;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
@@ -29,20 +30,24 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(SystematicSensitivityAnalysisService.class)
 public class LinearRangeActionRaoTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRaoTest.class);
 
@@ -58,8 +63,6 @@ public class LinearRangeActionRaoTest {
 
         computationManager = LocalComputationManager.getDefault();
         raoParameters = RaoParameters.load(platformConfig);
-        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
 
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
@@ -77,15 +80,21 @@ public class LinearRangeActionRaoTest {
     }
 
     @Test
-    public void run() {
+    public void runTest() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         Crac crac = create();
-
         String variantId = "variant-test";
+        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
+        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecMarginMap.put(cnec, 1.0));
+        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecMaxThresholdMap.put(cnec, 500.));
 
+        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap));
         assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
     }
 
@@ -140,40 +149,5 @@ public class LinearRangeActionRaoTest {
         crac.addCnec(cnec2stateCurativeContingency2);
 
         return crac;
-    }
-
-    public class MockSensitivityComputationFactory implements SensitivityComputationFactory {
-        class MockSensitivityComputation implements SensitivityComputation {
-            private final Network network;
-
-            MockSensitivityComputation(Network network) {
-                this.network = network;
-            }
-
-            @Override
-            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                return CompletableFuture.completedFuture(randomResults(network, sensitivityFactorsProvider));
-            }
-
-            private SensitivityComputationResults randomResults(Network network, SensitivityFactorsProvider sensitivityFactorsProvider) {
-                List<SensitivityValue> randomSensitivities = sensitivityFactorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
-                return new SensitivityComputationResults(true, Collections.emptyMap(), "", randomSensitivities);
-            }
-
-            @Override
-            public String getName() {
-                return "Mock";
-            }
-
-            @Override
-            public String getVersion() {
-                return "Mock";
-            }
-        }
-
-        @Override
-        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
-            return new MockSensitivityComputation(network);
-        }
     }
 }

@@ -39,41 +39,38 @@ public final class SystematicSensitivityAnalysisService {
                                                                   ComputationManager computationManager) {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
+        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
+        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
+        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
+
         // 1. pre
-        LOGGER.info("Running pre contingency analysis");
-        Map<String, Double> preMargin = new HashMap<>();
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildMarginFromNetwork(network, crac, preMargin); // get reference margin
+            buildFlowFromNetwork(network, crac, cnecMarginMap, cnecMaxThresholdMap, null);
         }
-        // get sensi result for pre
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
-        SensitivityComputationResults precontingencyResult = runSensitivityComputation(network, crac, twoWindingsTransformers);
+        SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
+        stateSensiMap.put(crac.getPreventiveState(), preSensi);
 
         // 2. analysis for each contingency
-        LOGGER.info("Calculating analysis for each contingency");
-        Map<Contingency, Map<String, Double> > contingencyReferenceMarginMap = new HashMap<>();
-        Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap = new HashMap<>();
-
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
             variantsPool.submit(() -> crac.getContingencies().forEach(contingency -> {
                 try {
-                    LOGGER.info("Running post contingency analysis for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingencyInCrac(network, computationManager, contingency);
 
-                    // get reference margin
-                    Map<String, Double> contingencyReferenceMargin = new HashMap<>();
                     LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                     if (currentloadFlowResult.isOk()) {
-                        buildMarginFromNetwork(network, crac, contingencyReferenceMargin);
+                        buildFlowFromNetwork(network, crac, cnecMarginMap, cnecMaxThresholdMap, contingency);
                     }
-                    contingencyReferenceMarginMap.put(contingency, contingencyReferenceMargin);
 
-                    // get sensi result for post-contingency
                     SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
-                    contingencySensitivityComputationResultsMap.put(contingency, sensiResults);
+                    crac.getStates(contingency).forEach(state -> {
+                        if (!stateSensiMap.containsKey(state)) {
+                            stateSensiMap.put(state, sensiResults);
+                        }
+                    });
 
                     variantsPool.releaseUsedVariant(workingVariant);
                 } catch (InterruptedException e) {
@@ -87,31 +84,29 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        return new SystematicSensitivityAnalysisResult(precontingencyResult, preMargin, contingencySensitivityComputationResultsMap, contingencyReferenceMarginMap);
+        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
     }
 
-    private static void buildMarginFromNetwork(Network network, Crac crac, Map<String, Double> referenceMargin) {
-        Set<Cnec> cnecs = crac.getCnecs();
-        crac.synchronize(network);
-        for (Cnec cnec : cnecs) {
-            double margin = 0.0;
-            //get from network
-            String cnecNetworkElementId = cnec.getCriticalNetworkElement().getId();
-            Branch branch = network.getBranch(cnecNetworkElementId);
-            if (branch == null) {
-                LOGGER.error("Cannot found branch in network for cnec: {} during building reference flow from network.", cnecNetworkElementId);
-            } else {
-                try {
-                    margin = cnec.computeMargin(network);
-                } catch (SynchronizationException | FaraoException e) {
-                    //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
-                    LOGGER.error("Cannot get compute margin for cnec {} in network variant. {}.", cnecNetworkElementId, e.getMessage());
-                }
-
-                LOGGER.info("Building margin from network for cnec {} with value {}", cnecNetworkElementId, margin);
-                referenceMargin.put(cnecNetworkElementId, margin);
-            }
+    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecMarginMap, Map<Cnec, Double> cnecMaxThresholdMap, Contingency contingency) {
+        Set<State> states = new HashSet<>();
+        if (contingency == null) {
+            states.add(crac.getPreventiveState());
+        } else {
+            states.addAll(crac.getStates(contingency));
         }
+
+        crac.synchronize(network);
+        states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
+            try {
+                cnecMarginMap.put(cnec, cnec.computeMargin(network));
+                Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold();
+                maxThreshold.ifPresent(threshold -> cnecMaxThresholdMap.put(cnec, threshold));
+            } catch (SynchronizationException | FaraoException e) {
+                //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
+                LOGGER.error("Cannot get compute flow for cnec {} in network variant. {}.", cnec.getId(), e.getMessage());
+            }
+        }));
+        crac.desynchronize(); // To be sure it is always synchronized with the good network
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {

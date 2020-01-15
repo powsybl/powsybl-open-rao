@@ -6,7 +6,8 @@
  */
 package com.farao_community.farao.util;
 
-import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.State;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.Map;
@@ -15,47 +16,25 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityAnalysisResult {
-    private SensitivityComputationResults precontingencyResult;
-    private Map<String, Double> preReferenceMargin;
-    private Map<Contingency, SensitivityComputationResults> resultMap;
-    private Map<Contingency, Map<String, Double> > contingencyReferenceMarginsMap;
+    private Map<State, SensitivityComputationResults> stateSensiMap;
+    private Map<Cnec, Double> cnecMarginMap;
+    private Map<Cnec, Double> cnecMaxThresholdMap;
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults precontingencyResult, Map<String, Double> preReferenceMargin, Map<Contingency, SensitivityComputationResults> contingencySensitivityComputationResultsMap, Map<Contingency, Map<String, Double>> contingencyReferenceMarginsMap) {
-        this.precontingencyResult = precontingencyResult;
-        this.preReferenceMargin = preReferenceMargin;
-        this.resultMap = contingencySensitivityComputationResultsMap;
-        this.contingencyReferenceMarginsMap = contingencyReferenceMarginsMap;
+    public SystematicSensitivityAnalysisResult(Map<State, SensitivityComputationResults> stateSensiMap, Map<Cnec, Double> cnecMarginMap, Map<Cnec, Double> cnecMaxThresholdMap) {
+        this.stateSensiMap = stateSensiMap;
+        this.cnecMarginMap = cnecMarginMap;
+        this.cnecMaxThresholdMap = cnecMaxThresholdMap;
     }
 
-    public SensitivityComputationResults getPrecontingencyResult() {
-        return precontingencyResult;
+    public Map<State, SensitivityComputationResults> getStateSensiMap() {
+        return stateSensiMap;
     }
 
-    public void setPrecontingencyResult(SensitivityComputationResults precontingencyResult) {
-        this.precontingencyResult = precontingencyResult;
+    public Map<Cnec, Double> getCnecMarginMap() {
+        return cnecMarginMap;
     }
 
-    public Map<Contingency, SensitivityComputationResults> getResultMap() {
-        return resultMap;
-    }
-
-    public void setResultMap(Map<Contingency, SensitivityComputationResults> resultMap) {
-        this.resultMap = resultMap;
-    }
-
-    public Map<String, Double> getPreReferenceMargin() {
-        return preReferenceMargin;
-    }
-
-    public void setPreReferenceMargin(Map<String, Double> preReferenceMargin) {
-        this.preReferenceMargin = preReferenceMargin;
-    }
-
-    public Map<Contingency, Map<String, Double>> getContingencyReferenceMarginsMap() {
-        return contingencyReferenceMarginsMap;
-    }
-
-    public void setContingencyReferenceMarginsMap(Map<Contingency, Map<String, Double>> contingencyReferenceMarginsMap) {
-        this.contingencyReferenceMarginsMap = contingencyReferenceMarginsMap;
+    public Map<Cnec, Double> getCnecMaxThresholdMap() {
+        return cnecMaxThresholdMap;
     }
 }
