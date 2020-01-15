@@ -45,7 +45,7 @@ public class TreeTest {
         Leaf leafOptimal = Mockito.mock(Leaf.class);
         Mockito.when(leafOptimal.getRaoResult()).thenReturn(raoResultOptimal);
         Mockito.when(leafOptimal.getNetworkActions()).thenReturn(Collections.singletonList(na));
-        Mockito.when(leafOptimal.getCost()).thenReturn(1.0);
+        Mockito.when(leafOptimal.getCost()).thenReturn(0.0);
 
         // build output
         RaoComputationResult result = Tree.buildOutput(leafRoot, leafOptimal);

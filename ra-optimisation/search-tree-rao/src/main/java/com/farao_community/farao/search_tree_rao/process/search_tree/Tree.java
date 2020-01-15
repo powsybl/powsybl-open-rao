@@ -140,7 +140,7 @@ public final class Tree {
     }
 
     private static SearchTreeRaoResult buildExtension(Leaf optimalLeaf) {
-        SearchTreeRaoResult.ComputationStatus computationStatus = optimalLeaf.getCost() > 0 ? SearchTreeRaoResult.ComputationStatus.SECURE : SearchTreeRaoResult.ComputationStatus.UNSECURE;
+        SearchTreeRaoResult.ComputationStatus computationStatus = optimalLeaf.getCost() > 0 ? SearchTreeRaoResult.ComputationStatus.UNSECURE : SearchTreeRaoResult.ComputationStatus.SECURE;
         SearchTreeRaoResult.StopCriterion stopCriterion = SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED;
         return new SearchTreeRaoResult(computationStatus, stopCriterion);
     }
