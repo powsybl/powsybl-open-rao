@@ -61,9 +61,9 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         }
         switch (unit) {
             case AMPERE:
-                return (maxValue * percentageOfMax / 100) - getI(network, cnec);
+                return maxValue - getI(network, cnec);
             case MEGAWATT:
-                return (maxValue * percentageOfMax / 100) - getP(network, cnec);
+                return maxValue - getP(network, cnec);
             case DEGREE:
             case KILOVOLT:
             default:
@@ -76,10 +76,10 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         // TODO: manage matching between LEFT/RIGHT and ONE/TWO
         switch (side) {
             case LEFT:
-                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit() * percentageOfMax / 100;
                 break;
             case RIGHT:
-                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
+                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.TWO).getPermanentLimit() * percentageOfMax / 100;
                 break;
             default:
                 throw new FaraoException("Side is not defined");
