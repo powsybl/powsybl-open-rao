@@ -21,7 +21,7 @@ jobs:
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
-        run: mvn --batch-mode -coverage install
+        run: mvn --batch-mode -Pcoverage install
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
