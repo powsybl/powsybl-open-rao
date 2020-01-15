@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_range_action_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.ra_optimisation.ContingencyResult;
@@ -93,9 +94,10 @@ public class LinearRangeActionRao implements RaoProvider {
         double margin = systematicSensitivityAnalysisResult.getCnecMarginMap().getOrDefault(cnec, Double.NaN);
         double maximumFlow = systematicSensitivityAnalysisResult.getCnecMaxThresholdMap().getOrDefault(cnec, Double.NaN);
         if (Double.isNaN(margin) || Double.isNaN(maximumFlow)) {
-            throw new RuntimeException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+            throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
         }
         linearRangeActionRaoResult.updateResult(margin);
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, maximumFlow - margin, Double.NaN);
+        double flow = maximumFlow - margin;
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, flow, flow);
     }
 }
