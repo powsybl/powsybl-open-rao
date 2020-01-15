@@ -34,11 +34,11 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
         assertNotNull(result.getExtension(LinearRaoResult.class));
 
         // write
-        OutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JsonRaoComputationResult.write(result, baos);
 
         //compare
-        compareTxt(getClass().getResourceAsStream("/LinearRaoResults.json"), baos.toString());
+        compareTxt(getClass().getResourceAsStream("/LinearRangeActionRaoResults.json"), new ByteArrayInputStream(baos.toByteArray()));
     }
 
     @Test
