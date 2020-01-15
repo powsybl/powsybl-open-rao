@@ -99,7 +99,7 @@ public class RaoTest {
     @Test
     public void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
-        platformConfig.createModuleConfig("rao-computation-parameters").setStringProperty("default", "GlobalRAOptimizer");
+        platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
         Rao.Runner globalRaOptimizer = Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
         assertEquals("2.3", globalRaOptimizer.getVersion());
@@ -108,7 +108,7 @@ public class RaoTest {
     @Test(expected = FaraoException.class)
     public void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
-        platformConfig.createModuleConfig("rao-computation-parameters").setStringProperty("default", "UnknownRao");
+        platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig);
     }
 }
