@@ -11,9 +11,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.nio.file.Paths;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -23,11 +22,11 @@ public class CracExportersImportersTest {
     @Test
     public void testExport() {
         Crac crac = Mockito.mock(Crac.class);
-        CracExporters.exportCrac(crac, Mockito.anyString(), Paths.get(getClass().getResource("/empty.txt").getPath()));
+        CracExporters.exportCrac(crac, Mockito.anyString(), Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
     }
 
     @Test
     public void testImport() {
-        CracImporters.importCrac(Paths.get(getClass().getResource("/empty.txt").getPath()));
+        CracImporters.importCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
     }
 }
