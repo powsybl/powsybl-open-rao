@@ -37,13 +37,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-ra-optimisation-api</artifactId>
+            <artifactId>farao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.farao-community.farao</groupId>
-            <artifactId>farao-crac-io-api</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-ra-optimisation-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

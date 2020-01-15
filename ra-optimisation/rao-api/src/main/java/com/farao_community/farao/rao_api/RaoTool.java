@@ -121,11 +121,10 @@ public class RaoTool implements Tool {
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
         context.getOutputStream().println("Running Rao computation");
         RaoComputationResult raoComputationResult = Rao.run(network, crac, currentState, computationManager, raoParameters);
-        RaoComputationResult raoResult = raoComputationResult.getExtension(RaoComputationResult.class);
 
         //Output
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         OutputStream outputStream = new FileOutputStream(String.valueOf(outputFile));
-        RaoComputationResultExporters.export(raoResult, outputStream, format);
+        RaoComputationResultExporters.export(raoComputationResult, outputStream, format);
     }
 }
