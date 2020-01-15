@@ -44,7 +44,7 @@ public class PstSetpointTest {
 
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
-        assertEquals(12, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(-5, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 
     @Test
