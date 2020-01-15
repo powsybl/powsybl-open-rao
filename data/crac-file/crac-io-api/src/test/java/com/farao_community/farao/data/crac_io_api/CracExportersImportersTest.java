@@ -23,11 +23,11 @@ public class CracExportersImportersTest {
     @Test
     public void testExport() {
         Crac crac = Mockito.mock(Crac.class);
-        CracExporters.exportCrac(crac, Mockito.anyString(), Paths.get(getClass().getResource("/empty.txt").getFile()));
+        CracExporters.exportCrac(crac, Mockito.anyString(), Paths.get(getClass().getResource("/empty.txt").getPath()));
     }
 
     @Test
     public void testImport() {
-        CracImporters.importCrac(Paths.get(getClass().getResource("/empty.txt").getFile()));
+        CracImporters.importCrac(Paths.get(getClass().getResource("/empty.txt").getPath()));
     }
 }
