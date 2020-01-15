@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -17,6 +18,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.StrictMath.abs;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -187,5 +190,16 @@ class Leaf {
         if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
             network.getVariantManager().removeVariant(leafNetworkVariant);
         }
+    }
+
+    private static double computeMargin(MonitoredBranchResult monitoredBranchResult) {
+        return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPostOptimisationFlow());
+    }
+
+    public double getCost() {
+        Objects.requireNonNull(raoResult);
+        double preContingencyMargin = raoResult.getPreContingencyResult().getMonitoredBranchResults().stream().map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
+        double contingencyMargin = raoResult.getContingencyResults().stream().flatMap(contingencyResult -> contingencyResult.getMonitoredBranchResults().stream()).map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
+        return -StrictMath.min(preContingencyMargin, contingencyMargin);
     }
 }

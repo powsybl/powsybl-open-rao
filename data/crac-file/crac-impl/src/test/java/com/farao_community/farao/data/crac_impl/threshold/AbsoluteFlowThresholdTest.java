@@ -100,6 +100,13 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
+    public void computeMarginDisconnectedLine() throws Exception {
+        assertEquals(500 - 770, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec2), 1); // on cnec2, after LF: 770 A
+        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
+        assertEquals(500, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec2), 1);
+    }
+
+    @Test
     public void synchronize() {
         assertEquals(500, absoluteFlowThresholdAmps.getMaxValue(), 1);
         cnec1.synchronize(networkWithoutLf);
