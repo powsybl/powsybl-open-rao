@@ -30,7 +30,7 @@ jobs:
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
         run: >
-          mvn --batch-mode -DskipTests sonar:sonar
+          mvn --batch-mode -DskipTests sonar:sonar -Pcoverage
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=farao-community
           -Dsonar.projectKey=com.farao-community.farao:farao-core
