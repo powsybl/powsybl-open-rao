@@ -8,10 +8,7 @@
 package com.farao_community.farao.linear_range_action_rao;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-
-import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.ra_optimisation.ContingencyResult;
 import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
 import com.farao_community.farao.ra_optimisation.PreContingencyResult;
@@ -29,12 +26,16 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import static java.lang.String.format;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class LinearRangeActionRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRangeActionRao.class);
+
+    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
     @Override
     public String getName() {
@@ -52,47 +53,49 @@ public class LinearRangeActionRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
-        crac.synchronize(network);
-        SystematicSensitivityAnalysisResult analysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-
-        LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
-        Map<Cnec, Double> cnecMarginMap = analysisResult.getCnecMarginMap();
-
-        Map<Contingency, List<MonitoredBranchResult> > contingencyBranchResultsMap = new HashMap<>();
-        List<MonitoredBranchResult> preBranchResults = new ArrayList<>();
-
-        cnecMarginMap.forEach((cnec, referenceFlow) -> {
-            double maximumFlow = 0.0;
-            try {
-                maximumFlow = cnec.getThreshold().getMaxThreshold().orElse(0.0);
-            } catch (SynchronizationException e) {
-                LOGGER.error("Cannot comput margin for cnec {}. {}", cnec.getId(), e.getMessage());
-            }
-
-            resultExtension.updateResult(maximumFlow - referenceFlow); // update mininum margin and security status in LinearRangeActionRaoResult
-            MonitoredBranchResult currentResult = new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, referenceFlow, Double.NaN);
-
-            if (cnec.getState().getContingency().isPresent()) {
-                Contingency contingency = cnec.getState().getContingency().orElse(null);
-                List<MonitoredBranchResult> currentList = contingencyBranchResultsMap.getOrDefault(contingency, new ArrayList<>());
-                currentList.add(currentResult);
-                contingencyBranchResultsMap.put(contingency, currentList);
-            } else {
-                preBranchResults.add(currentResult);
-            }
-        });
-
-        List<ContingencyResult> contingencyResultsForRao = new ArrayList<>();
-        contingencyBranchResultsMap.forEach((contingency, list) -> contingencyResultsForRao.add(new ContingencyResult(contingency.getId(), contingency.getName(), list)));
-
-        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS,
-                new PreContingencyResult(preBranchResults),
-                contingencyResultsForRao);
-
-        raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
-
-        // 4. return
+        systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        RaoComputationResult raoComputationResult = buildRaoComputationResult(crac);
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
+    private RaoComputationResult buildRaoComputationResult(Crac crac) {
+        LinearRangeActionRaoResult resultExtension = new LinearRangeActionRaoResult(LinearRangeActionRaoResult.SecurityStatus.SECURED);
+        PreContingencyResult preContingencyResult = createPreContingencyResultAndUpdateLinearRaoResult(crac, resultExtension);
+        List<ContingencyResult> contingencyResults = createContingencyResultsAndUpdateLinearRaoResult(crac, resultExtension);
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult, contingencyResults);
+        raoComputationResult.addExtension(LinearRangeActionRaoResult.class, resultExtension);
+        LOGGER.info("LinearRangeActionRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
+        return raoComputationResult;
+    }
+
+    private PreContingencyResult createPreContingencyResultAndUpdateLinearRaoResult(Crac crac, LinearRangeActionRaoResult linearRangeActionRaoResult) {
+        List<MonitoredBranchResult> preContingencyMonitoredBranches = new ArrayList<>();
+        if (crac.getPreventiveState() != null) {
+            crac.getCnecs(crac.getPreventiveState()).forEach(cnec ->
+                preContingencyMonitoredBranches.add(createMonitoredBranchResultAndUpdateLinearRaoResult(cnec, linearRangeActionRaoResult)
+                ));
+        }
+        return new PreContingencyResult(preContingencyMonitoredBranches);
+    }
+
+    private List<ContingencyResult> createContingencyResultsAndUpdateLinearRaoResult(Crac crac, LinearRangeActionRaoResult linearRangeActionRaoResult) {
+        List<ContingencyResult> contingencyResults = new ArrayList<>();
+        crac.getContingencies().forEach(contingency -> {
+            List<MonitoredBranchResult> contingencyMonitoredBranches = new ArrayList<>();
+            crac.getStates(contingency).forEach(state -> crac.getCnecs(state).forEach(cnec ->
+                contingencyMonitoredBranches.add(createMonitoredBranchResultAndUpdateLinearRaoResult(cnec, linearRangeActionRaoResult))));
+            contingencyResults.add(new ContingencyResult(contingency.getId(), contingency.getName(), contingencyMonitoredBranches));
+        });
+        return contingencyResults;
+    }
+
+    private MonitoredBranchResult createMonitoredBranchResultAndUpdateLinearRaoResult(Cnec cnec, LinearRangeActionRaoResult linearRangeActionRaoResult) {
+        double margin = systematicSensitivityAnalysisResult.getCnecMarginMap().getOrDefault(cnec, Double.NaN);
+        double maximumFlow = systematicSensitivityAnalysisResult.getCnecMaxThresholdMap().getOrDefault(cnec, Double.NaN);
+        if (Double.isNaN(margin) || Double.isNaN(maximumFlow)) {
+            throw new RuntimeException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+        }
+        linearRangeActionRaoResult.updateResult(margin);
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, maximumFlow - margin, Double.NaN);
+    }
 }

@@ -83,18 +83,7 @@ public class LinearRangeActionRaoTest {
     public void getVersion() {
         assertEquals("1.0.0", linearRangeActionRao.getVersion());
     }
-
-    @Test
-    public void run() {
-        Network network = Importers.loadNetwork(
-                "TestCase12Nodes.uct",
-                getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
-        Crac crac = create();
-        String variantId = "variant-test";
-        assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
-    }
-
+    
     @Test
     public void runTest() {
         Network network = Importers.loadNetwork(
@@ -104,11 +93,13 @@ public class LinearRangeActionRaoTest {
         Crac crac = create();
         String variantId = "variant-test";
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
-        crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 1.0));
+        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecMarginMap.put(cnec, 1.0));
+        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecMaxThresholdMap.put(cnec, 500.));
 
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap));
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap));
         assertNotNull(linearRangeActionRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
     }
 
