@@ -83,7 +83,7 @@ public class LinearRangeActionRaoTest {
     public void getVersion() {
         assertEquals("1.0.0", linearRangeActionRao.getVersion());
     }
-    
+
     @Test
     public void runTest() {
         Network network = Importers.loadNetwork(
