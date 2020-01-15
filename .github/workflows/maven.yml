@@ -32,7 +32,7 @@ jobs:
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.organization=farao-community-ci
+          -Dsonar.organization=farao-community
           -Dsonar.projectKey=com.farao-community.farao:farao-core
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
