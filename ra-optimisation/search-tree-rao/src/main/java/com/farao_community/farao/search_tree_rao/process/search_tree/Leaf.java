@@ -15,6 +15,8 @@ import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,6 +31,8 @@ import static java.lang.StrictMath.abs;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class Leaf {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
     /**
      * Parent Leaf or null for root Leaf
@@ -132,6 +136,12 @@ class Leaf {
     void evaluate(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
         this.status = Status.EVALUATION_RUNNING;
         String leafNetworkVariant;
+
+        if (isRoot()) {
+            LOGGER.info("SearchTreeRao: evaluate root leaf");
+        } else {
+            LOGGER.info("SearchTreeRao: evaluate network action(s) " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
+        }
 
         // apply Network Actions
         try {

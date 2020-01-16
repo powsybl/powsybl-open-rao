@@ -48,8 +48,10 @@ public final class Tree {
         }
 
         Leaf optimalLeaf = rootLeaf;
-        boolean hasImproved;
-        do {
+        boolean hasImproved = true;
+
+        //TODO: generalize to handle different stop criterion
+        while (optimalLeaf.getCost() > 0 && hasImproved) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
@@ -67,8 +69,7 @@ public final class Tree {
                     optimalLeaf = currentLeaf;
                 }
             }
-            //TODO: generalize to handle different stop criterion
-        } while (optimalLeaf.getCost() > 0 && hasImproved);
+        }
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
