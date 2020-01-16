@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.farao_community.farao.search_tree_rao.mock.LinearRangeRaoMock.*;
+import static com.farao_community.farao.search_tree_rao.mock.LinearRaoMock.*;
 import static org.junit.Assert.*;
 
 /**
@@ -133,6 +133,9 @@ public class LeafTest {
 
         assertEquals(1, network.getVariantManager().getVariantIds().size());
         assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
+
+        // Test for getCost
+        assertEquals(1500, rootLeaf.getCost(), 1.0);
     }
 
     @Test

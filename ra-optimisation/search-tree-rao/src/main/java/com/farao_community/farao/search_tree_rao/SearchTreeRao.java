@@ -28,7 +28,7 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public String getName() {
-        return "Search Tree Rao";
+        return "SearchTreeRao";
     }
 
     @Override

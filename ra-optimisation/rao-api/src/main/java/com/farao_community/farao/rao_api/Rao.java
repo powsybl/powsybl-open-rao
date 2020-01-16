@@ -150,7 +150,7 @@ public final class Rao {
 
         // if no RAO implementation name is provided through the API we look for information
         // in platform configuration
-        String raOptimizerName = name != null ? name : platformConfig.getOptionalModuleConfig("rao-computation-parameters")
+        String raOptimizerName = name != null ? name : platformConfig.getOptionalModuleConfig("rao")
                 .flatMap(mc -> mc.getOptionalStringProperty("default"))
                 .orElse(null);
         RaoProvider provider;
