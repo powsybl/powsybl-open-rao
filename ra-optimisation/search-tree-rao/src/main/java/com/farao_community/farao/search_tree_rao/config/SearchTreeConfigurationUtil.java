@@ -55,8 +55,8 @@ public final class SearchTreeConfigurationUtil {
         }
 
         // check that RangeActionRao is not the Search Tree Rao
-        if (searchTreeRaoParameters.getRangeActionRao().equals("Search Tree Rao")) {
-            errors.add("Range action Rao cannot be the 'Search Tree Rao'");
+        if (searchTreeRaoParameters.getRangeActionRao().equals("SearchTreeRao")) {
+            errors.add("Range action Rao cannot be the 'SearchTreeRao'");
         }
 
         return errors;
