@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
-import static com.farao_community.farao.search_tree_rao.mock.LinearRangeRaoMock.*;
+import static com.farao_community.farao.search_tree_rao.mock.LinearRaoMock.*;
 import static org.junit.Assert.*;
 
 /**
