@@ -158,6 +158,9 @@ public final class SystematicSensitivityAnalysisService {
             return factors;
         };
 
+        if (factorsProvider.getFactors(network).size() == 0) {
+            return null;
+        }
         return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
     }
 
