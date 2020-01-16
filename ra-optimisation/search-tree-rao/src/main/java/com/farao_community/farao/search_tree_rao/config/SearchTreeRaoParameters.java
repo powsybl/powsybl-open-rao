@@ -15,7 +15,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
-    static final String DEFAULT_RANGE_ACTION_RAO = "Linear Range Action Rao";
+    static final String DEFAULT_RANGE_ACTION_RAO = "LinearRao";
 
     private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
 
