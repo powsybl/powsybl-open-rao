@@ -205,35 +205,33 @@ public class SystematicSensitivityAnalysisServiceTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction(
-            "id1",
-            "name1",
-            "operator1",
-            new ArrayList<>(Collections.singletonList(freeToUse)),
-            new ArrayList<>(Collections.singletonList(hvdcSetpoint))
-        );
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1");
+        networkAction1.addUsageRule(freeToUse);
+        networkAction1.addApplicableNetworkAction(hvdcSetpoint);
         networkAction1.addApplicableNetworkAction(topology2);
         ComplexNetworkAction networkAction2 = new ComplexNetworkAction(
             "id2",
             "name2",
-            "operator1",
-            new ArrayList<>(Collections.singletonList(freeToUse)),
-            new ArrayList<>(Collections.singletonList(pstSetpoint))
-        );
+            "operator1");
+        networkAction2.addUsageRule(freeToUse);
+        networkAction2.addApplicableNetworkAction(pstSetpoint);
 
         // RangeAction
-        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1");
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
-        rangeAction1.setRanges(ranges);
+        ranges.forEach(rangeAction1::addRange);
         rangeAction1.addRange(relativeFixedRange);
         List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Collections.singletonList(pstRange1));
-        rangeAction1.setApplicableRangeActions(elementaryRangeActions);
+        elementaryRangeActions.forEach(rangeAction1::addApplicableRangeAction);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Collections.singletonList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1");
+        usageRules.forEach(rangeAction2::addUsageRule);
+        ranges.forEach(rangeAction2::addRange);
+        rangeAction2.addApplicableRangeAction(pstRange1);
 
         Crac crac = new SimpleCrac("idCrac", "name");
 

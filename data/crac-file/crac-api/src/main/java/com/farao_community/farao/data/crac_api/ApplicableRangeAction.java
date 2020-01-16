@@ -7,11 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
-
-import java.util.Set;
 
 /**
  *  Generic object to implement a simple range action.
@@ -19,17 +16,8 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface ApplicableRangeAction {
+public interface ApplicableRangeAction extends ApplicableAction {
 
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
-
-    /**
-     * Gather all the network elements present in the applicable range action. It returns a set because network
-     * elements must not be duplicated inside an applicable range action and there is no defined order for network elements.
-     *
-     * @return A set of network elements.
-     */
-    @JsonIgnore
-    Set<NetworkElement> getNetworkElements();
 }
