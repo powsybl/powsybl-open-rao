@@ -27,6 +27,7 @@ import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
+import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_api.Side.*;
 import static org.junit.Assert.*;
 
@@ -57,7 +58,7 @@ public class CracFileTest {
         RelativeDynamicRange relativeDynamicRange = new RelativeDynamicRange(0, 1);
         relativeDynamicRange.setMin(100);
         relativeDynamicRange.setMax(1000);
-        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1);
+        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1, CENTERED_ON_ZERO);
         absoluteFixedRange.setMin(10);
         absoluteFixedRange.setMax(1000);
 
