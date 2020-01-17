@@ -140,7 +140,9 @@ class Leaf {
         if (isRoot()) {
             LOGGER.info("SearchTreeRao: evaluate root leaf");
         } else {
-            LOGGER.info("SearchTreeRao: evaluate network action(s) " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
+            String logInfo = "SearchTreeRao: evaluate network action(s)";
+            logInfo = logInfo.concat(networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
+            LOGGER.info(logInfo);
         }
 
         // apply Network Actions
