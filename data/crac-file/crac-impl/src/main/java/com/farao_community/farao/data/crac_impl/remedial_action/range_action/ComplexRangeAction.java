@@ -31,37 +31,33 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     private List<Range> ranges;
 
     @JsonProperty("applicableRangeActions")
-    private List<ApplicableRangeAction> applicableRangeActions;
+    private Set<ApplicableRangeAction> applicableRangeActions;
 
     @JsonCreator
     public ComplexRangeAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<Range> ranges,
-                              @JsonProperty("applicableRangeActions") List<ApplicableRangeAction> applicableRangeActions) {
+                              @JsonProperty("applicableRangeActions") Set<ApplicableRangeAction> applicableRangeActions) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
-        this.applicableRangeActions = applicableRangeActions;
+        this.applicableRangeActions = new HashSet<>(applicableRangeActions);
     }
 
-    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<Range> ranges, List<ApplicableRangeAction> applicableRangeActions) {
+    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<Range> ranges, Set<ApplicableRangeAction> applicableRangeActions) {
         this (id, id, operator, usageRules, ranges, applicableRangeActions);
     }
 
     public ComplexRangeAction(String id, String name, String operator) {
-        this (id, name, operator, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this (id, name, operator, new ArrayList<>(), new ArrayList<>(), new HashSet<>());
     }
 
     public ComplexRangeAction(String id, String operator) {
-        this (id, id, operator, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this (id, id, operator, new ArrayList<>(), new ArrayList<>(), new HashSet<>());
     }
 
     public List<Range> getRanges() {
         return ranges;
-    }
-
-    public void setRanges(List<Range> ranges) {
-        this.ranges = ranges;
     }
 
     @Override
@@ -74,10 +70,6 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public double getCurrentValue(Network network) {
         return 0;
-    }
-
-    public void setApplicableRangeActions(List<ApplicableRangeAction> applicableRangeActions) {
-        this.applicableRangeActions = applicableRangeActions;
     }
 
     @Override
@@ -103,5 +95,10 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @JsonProperty("applicableRangeActions")
     public void addApplicableRangeAction(ApplicableRangeAction elementaryRangeAction) {
         this.applicableRangeActions.add(elementaryRangeAction);
+    }
+
+    @Override
+    public Set<ApplicableRangeAction> getApplicableRangeActions() {
+        return applicableRangeActions;
     }
 }

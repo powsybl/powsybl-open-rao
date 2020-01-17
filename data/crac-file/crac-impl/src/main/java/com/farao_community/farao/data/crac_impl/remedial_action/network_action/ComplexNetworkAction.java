@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -17,7 +18,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Group of simple elementary remedial actions (setpoint, open/close, ...).
@@ -28,36 +31,40 @@ import java.util.List;
 public class ComplexNetworkAction extends AbstractRemedialAction implements NetworkAction {
 
     @JsonProperty("applicableNetworkActions")
-    private List<ApplicableNetworkAction> applicableNetworkActions;
+    private Set<ApplicableNetworkAction> applicableNetworkActions;
 
     @JsonCreator
     public ComplexNetworkAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
                                 @JsonProperty("operator") String operator,
                                 @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                @JsonProperty("applicableNetworkActions") List<ApplicableNetworkAction> applicableNetworkActions) {
+                                @JsonProperty("applicableNetworkActions") Set<ApplicableNetworkAction> applicableNetworkActions) {
         super(id, name, operator, usageRules);
         this.applicableNetworkActions = applicableNetworkActions;
     }
 
     public ComplexNetworkAction(String id, String name, String operator) {
-        this (id, name, operator, new ArrayList<>(), new ArrayList<>());
+        this (id, name, operator, new ArrayList<>(), new HashSet<>());
     }
 
     public ComplexNetworkAction(String id, String operator) {
-        this (id, id, operator, new ArrayList<>(), new ArrayList<>());
+        this (id, id, operator, new ArrayList<>(), new HashSet<>());
     }
 
-    public void setApplicableNetworkActions(List<ApplicableNetworkAction> applicableNetworkActions) {
-        this.applicableNetworkActions = applicableNetworkActions;
-    }
-
-    public List<ApplicableNetworkAction> getApplicableNetworkActions() {
+    @Override
+    public Set<ApplicableNetworkAction> getApplicableNetworkActions() {
         return applicableNetworkActions;
     }
 
     @Override
     public void apply(Network network) {
         applicableNetworkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
+    }
+
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        Set<NetworkElement> networkElements = new HashSet<>();
+        applicableNetworkActions.forEach(applicableNetworkAction -> networkElements.addAll(applicableNetworkAction.getNetworkElements()));
+        return networkElements;
     }
 
     @JsonProperty("applicableNetworkActions")

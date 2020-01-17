@@ -68,8 +68,7 @@ public class CracFileTest {
 
         // HvdcRange
         NetworkElement hvdc1 = new NetworkElement("idHvdc1", "My Hvdc 1");
-        HvdcRange hvdcRange1 = new HvdcRange(null);
-        hvdcRange1.setNetworkElement(hvdc1);
+        ApplicableRangeAction hvdcRange1 = new HvdcRange(hvdc1);
 
         // GeneratorRange
         NetworkElement generator1 = new NetworkElement("idGen1", "My Generator 1");
@@ -152,7 +151,7 @@ public class CracFileTest {
             "name1",
             "operator1",
             new ArrayList<>(Collections.singletonList(freeToUse)),
-            new ArrayList<>(Collections.singletonList(hvdcSetpoint))
+            new HashSet<>(Collections.singletonList(hvdcSetpoint))
         );
         networkAction1.addApplicableNetworkAction(topology2);
         ComplexNetworkAction networkAction2 = new ComplexNetworkAction(
@@ -160,22 +159,19 @@ public class CracFileTest {
             "name2",
             "operator1",
             new ArrayList<>(Collections.singletonList(freeToUse)),
-            new ArrayList<>(Collections.singletonList(pstSetpoint))
+            new HashSet<>(Collections.singletonList(pstSetpoint))
         );
 
         // RangeAction
-        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1");
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
-        rangeAction1.setRanges(ranges);
         rangeAction1.addRange(relativeFixedRange);
-        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Collections.singletonList(pstRange1));
-        rangeAction1.setApplicableRangeActions(elementaryRangeActions);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Collections.singletonList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, Collections.singleton(pstRange1));
 
         Crac crac = new SimpleCrac("idCrac", "name");
 
