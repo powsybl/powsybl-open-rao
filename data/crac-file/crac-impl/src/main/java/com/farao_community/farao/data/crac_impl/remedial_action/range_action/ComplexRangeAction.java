@@ -27,6 +27,9 @@ import java.util.Set;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexRangeAction extends AbstractRemedialAction implements RangeAction {
 
+    public static final double TEMP_MIN_VALUE = 0;
+    public static final double TEMP_MAX_VALUE = 0;
+
     @JsonProperty("ranges")
     private List<Range> ranges;
 
@@ -34,7 +37,8 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     private Set<ApplicableRangeAction> applicableRangeActions;
 
     @JsonCreator
-    public ComplexRangeAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
+    public ComplexRangeAction(@JsonProperty("id") String id,
+                              @JsonProperty("name") String name,
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<Range> ranges,
@@ -69,12 +73,12 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public double getMinValue(Network network) {
-        return 0;
+        return TEMP_MIN_VALUE;
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return 0;
+        return TEMP_MAX_VALUE;
     }
 
     @Override

@@ -224,6 +224,16 @@ public class CracFileTest {
         InjectionRange injectionRange1 = new InjectionRange(null);
         injectionRange1.setNetworkElement(generator1);
         assertEquals(1, injectionRange1.getNetworkElements().size());
+
+        NetworkAction na = crac.getNetworkAction("id1");
+        assertEquals("id1", na.getId());
+        assertEquals("name1", na.getName());
+        assertEquals("operator1", na.getOperator());
+        // "idRangeAction", "myRangeAction", "operator1");
+        RangeAction ra = crac.getRangeAction("idRangeAction");
+        assertEquals("idRangeAction", ra.getId());
+        assertEquals("myRangeAction", ra.getName());
+        assertEquals("operator1", ra.getOperator());
     }
 
     @Test

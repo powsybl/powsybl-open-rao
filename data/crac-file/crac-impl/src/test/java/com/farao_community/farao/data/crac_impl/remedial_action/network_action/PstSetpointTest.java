@@ -13,12 +13,24 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PstSetpointTest {
+
+    private String networkElementId = "BBE2AA1  BBE3AA1  1";
+
+    private PstSetpoint aPstSetpoint() {
+        PstSetpoint pstSetpoint = new PstSetpoint(
+                new NetworkElement(networkElementId, networkElementId),
+                12
+        );
+        return pstSetpoint;
+    }
 
     @Test
     public void basicMethods() {
@@ -63,5 +75,17 @@ public class PstSetpointTest {
         } catch (FaraoException e) {
             assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
         }
+    }
+
+    @Test
+    public void getNetworkElements() {
+        Network network = Importers.loadNetwork(
+                "TestCase12Nodes.uct",
+                getClass().getResourceAsStream("/TestCase12Nodes.uct")
+        );
+        PstSetpoint pstSetpoint = aPstSetpoint();
+        Set<NetworkElement> pstNetworkElements = pstSetpoint.getNetworkElements();
+        assertEquals(1, pstNetworkElements.size());
+        assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
     }
 }
