@@ -37,4 +37,9 @@ public class Countertrading implements ApplicableRangeAction {
         return new HashSet<>();
     }
 
+    @Override
+    public double getCurrentValue(Network network) {
+        return Double.NaN;
+    }
+
 }

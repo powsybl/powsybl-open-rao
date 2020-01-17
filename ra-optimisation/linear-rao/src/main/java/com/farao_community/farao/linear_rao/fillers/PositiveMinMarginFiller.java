@@ -8,9 +8,15 @@
 package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
+import com.farao_community.farao.linear_rao.LinearRaoData;
+import com.farao_community.farao.linear_rao.LinearRaoProblem;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class PositiveMinMarginFiller extends AbstractProblemFiller {
+    @Override
+    public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+
+    }
 }

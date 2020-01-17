@@ -14,9 +14,7 @@ public abstract class AbstractProblemFiller {
     private LinearRaoProblem linearRaoProblem;
     private LinearRaoData linearRaoData;
 
-    public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        //todo
-    }
+    public abstract void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData);
 
     public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         //todo

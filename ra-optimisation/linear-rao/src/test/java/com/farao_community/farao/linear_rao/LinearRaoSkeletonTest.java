@@ -7,9 +7,26 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
+import com.google.common.collect.Lists;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import guru.nidi.graphviz.attribute.SimpleLabel;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -27,12 +44,35 @@ public class LinearRaoSkeletonTest {
         assertNull(linearRaoProblem.negativePstShiftVariable(""));
         assertNotNull(linearRaoProblem.negativePstShiftVariables());
 
-        LinearRaoModeller linearRaoModeller = new LinearRaoModeller(null, null, null, null);
+        AbstractProblemFiller coreFiller = new CoreProblemFiller();
+        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        Crac crac = new SimpleCrac("crac-test");
+        State preventiveState = new SimpleState(Optional.empty(), new Instant("N", 0));
+        crac.addState(preventiveState);
+        crac.addCnec(new SimpleCnec(
+            "cnec-test",
+            new NetworkElement("network-element-test"),
+            new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 500),
+            preventiveState
+        ));
+        UsageRule usageRule = new FreeToUse(UsageMethod.AVAILABLE, crac.getPreventiveState());
+        Range range = new AbsoluteFixedRange(-16, 16);
+        ApplicableRangeAction applicableRangeAction = new PstRange(new NetworkElement("pst-test"));
+        RangeAction rangeAction = new ComplexRangeAction(
+            "pst-range-test",
+            "RTE",
+            Collections.singletonList(usageRule),
+            Collections.singletonList(range),
+            Collections.singletonList(applicableRangeAction)
+        );
+        crac.addRangeAction(rangeAction);
+        LinearRaoData linearRaoData = new LinearRaoData(crac, network, null);
+        LinearRaoModeller linearRaoModeller = new LinearRaoModeller(linearRaoData, Collections.singletonList(coreFiller), null, null);
         linearRaoModeller.buildProblem();
         linearRaoModeller.updateProblem(null);
         linearRaoModeller.solve();
 
-        LinearRaoData linearRaoData = new LinearRaoData(null, null, null);
+        //LinearRaoData linearRaoData = new LinearRaoData(null, null, null);
         linearRaoData.getCrac();
         linearRaoData.getNetwork();
         assertEquals(0.0, linearRaoData.getReferenceFlow(null), 1e-10);

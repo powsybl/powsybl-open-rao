@@ -32,4 +32,6 @@ public interface ApplicableRangeAction {
      */
     @JsonIgnore
     Set<NetworkElement> getNetworkElements();
+
+    double getCurrentValue(Network network);
 }

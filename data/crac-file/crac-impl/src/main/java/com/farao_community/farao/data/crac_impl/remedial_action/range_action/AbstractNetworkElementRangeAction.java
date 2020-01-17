@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.Set;
@@ -40,5 +41,10 @@ public abstract class AbstractNetworkElementRangeAction implements ApplicableRan
 
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
+        return Double.NaN;
     }
 }

@@ -71,6 +71,11 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         return set;
     }
 
+    @Override
+    public double getCurrentValue(Network network) {
+        return 0;
+    }
+
     public void setApplicableRangeActions(List<ApplicableRangeAction> applicableRangeActions) {
         this.applicableRangeActions = applicableRangeActions;
     }
