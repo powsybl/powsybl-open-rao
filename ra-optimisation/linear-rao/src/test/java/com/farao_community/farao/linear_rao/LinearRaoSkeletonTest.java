@@ -16,12 +16,9 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Com
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
-import com.google.common.collect.Lists;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import guru.nidi.graphviz.attribute.SimpleLabel;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -57,13 +54,13 @@ public class LinearRaoSkeletonTest {
         ));
         UsageRule usageRule = new FreeToUse(UsageMethod.AVAILABLE, crac.getPreventiveState());
         Range range = new AbsoluteFixedRange(-16, 16);
-        ApplicableRangeAction applicableRangeAction = new PstRange(new NetworkElement("pst-test"));
+        ApplicableRangeAction applicableRangeAction = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1"));
         RangeAction rangeAction = new ComplexRangeAction(
             "pst-range-test",
             "RTE",
             Collections.singletonList(usageRule),
             Collections.singletonList(range),
-            Collections.singletonList(applicableRangeAction)
+            Collections.singleton(applicableRangeAction)
         );
         crac.addRangeAction(rangeAction);
         LinearRaoData linearRaoData = new LinearRaoData(crac, network, null);

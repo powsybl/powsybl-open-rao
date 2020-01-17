@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,7 +45,7 @@ public abstract class AbstractNetworkElementRangeAction implements ApplicableRan
     }
 
     @Override
-    public double getCurrentValue(Network network) {
-        return Double.NaN;
+    public Map<NetworkElement, Double> getCurrentValues(Network network) {
+        return Collections.singletonMap(networkElement, Double.NaN);
     }
 }

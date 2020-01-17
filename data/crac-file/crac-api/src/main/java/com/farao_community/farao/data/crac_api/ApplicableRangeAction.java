@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_api;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Map;
+
 /**
  *  Generic object to implement a simple range action.
  *
@@ -21,5 +23,5 @@ public interface ApplicableRangeAction extends ApplicableAction {
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
 
-    double getCurrentValue(Network network);
+    Map<NetworkElement, Double> getCurrentValues(Network network);
 }

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,10 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Group of simultaneously applied range remedial actions.
@@ -68,23 +66,25 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
-    public double getCurrentValue(Network network) {
-        return 0;
-    }
-
-    @Override
     public double getMinValue(Network network) {
-        return 0;
+        return ranges.stream().map(range -> range.getMinValue(network)).max(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return 0;
+        return ranges.stream().map(range -> range.getMaxValue(network)).min(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
     public void apply(Network network, double setpoint) {
         applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
+    }
+
+    @Override
+    public Map<NetworkElement, Double> getCurrentValues(Network network) {
+        Map<NetworkElement, Double> values = new HashMap<>();
+        applicableRangeActions.forEach(applicableRangeAction -> values.putAll(applicableRangeAction.getCurrentValues(network)));
+        return values;
     }
 
     @JsonProperty("ranges")
