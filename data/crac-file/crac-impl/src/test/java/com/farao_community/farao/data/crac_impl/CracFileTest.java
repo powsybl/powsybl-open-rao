@@ -28,6 +28,7 @@ import java.util.*;
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
 import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
+import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
 import static com.farao_community.farao.data.crac_api.Side.*;
 import static org.junit.Assert.*;
 
@@ -61,6 +62,9 @@ public class CracFileTest {
         AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1, CENTERED_ON_ZERO);
         absoluteFixedRange.setMin(10);
         absoluteFixedRange.setMax(1000);
+        if (absoluteFixedRange.getRangeDefinition().equals(CENTERED_ON_ZERO)) {
+            absoluteFixedRange.setRangeDefinition(STARTS_AT_ONE);
+        }
 
         // PstRange
         NetworkElement pst1 = new NetworkElement("idPst1", "My Pst 1");
