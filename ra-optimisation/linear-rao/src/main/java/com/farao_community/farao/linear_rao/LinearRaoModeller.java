@@ -16,10 +16,6 @@ import java.util.List;
  */
 public class LinearRaoModeller {
 
-    static {
-        System.loadLibrary("jniortools");
-    }
-
     private LinearRaoProblem linearRaoProblem;
     private LinearRaoData linearRaoData;
     private List<AbstractProblemFiller> fillerList;

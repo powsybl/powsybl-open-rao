@@ -33,13 +33,7 @@ import static org.junit.Assert.*;
 public class LinearRaoSkeletonTest {
     @Test
     public void test() {
-        LinearRaoProblem linearRaoProblem = new LinearRaoProblem(1, true, new HashMap<>(), new HashMap<>(), new HashMap<>());
-        assertNull(linearRaoProblem.flowVariable(""));
-        assertNotNull(linearRaoProblem.flowVariables());
-        assertNull(linearRaoProblem.positivePstShiftVariable(""));
-        assertNotNull(linearRaoProblem.positivePstShiftVariables());
-        assertNull(linearRaoProblem.negativePstShiftVariable(""));
-        assertNotNull(linearRaoProblem.negativePstShiftVariables());
+        LinearRaoProblem linearRaoProblem = new LinearRaoProblem();
 
         AbstractProblemFiller coreFiller = new CoreProblemFiller();
         Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));

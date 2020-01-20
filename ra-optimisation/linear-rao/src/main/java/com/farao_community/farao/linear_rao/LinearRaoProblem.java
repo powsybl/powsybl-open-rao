@@ -7,79 +7,65 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearRaoProblem extends MPSolver {
 
-    private Map<String, MPVariable> flowVariablesMap;
-    private Map<String, MPVariable> positivePstShiftVariablesMap;
-    private Map<String, MPVariable> negativePstShiftVariablesMap;
+    static {
+        System.loadLibrary("jniortools");
+    }
 
     protected LinearRaoProblem() {
         super("linear rao", OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
-        flowVariablesMap = new HashMap<>();
-        positivePstShiftVariablesMap = new HashMap<>();
-        negativePstShiftVariablesMap = new HashMap<>();
     }
 
-    protected LinearRaoProblem(long cPtr, boolean cMemoryOwn, Map<String, MPVariable> flowVariablesMap, Map<String, MPVariable> positivePstShiftVariablesMap, Map<String, MPVariable> negativePstShiftVariablesMap) {
-        super(cPtr, cMemoryOwn);
-        this.flowVariablesMap = flowVariablesMap;
-        this.positivePstShiftVariablesMap = positivePstShiftVariablesMap;
-        this.negativePstShiftVariablesMap = negativePstShiftVariablesMap;
+    public void addCnec(String cnecId, double referenceFlow, double minFlow, double maxFlow) {
+        makeNumVar(minFlow, maxFlow, getFlowVariableId(cnecId));
+        makeConstraint(referenceFlow, referenceFlow, getFlowConstraintId(cnecId));
     }
 
-    public MPVariable flowVariable(String cnecId) {
-        return flowVariablesMap.get(cnecId);
+    private static String getFlowVariableId(String cnecId) {
+        return String.format("%s-variable", cnecId);
     }
 
-    public List<MPVariable> flowVariables() {
-        return new ArrayList<>(this.flowVariablesMap.values());
+    private static String getFlowConstraintId(String cnecId) {
+        return String.format("%s-constraint", cnecId);
     }
 
-    public MPVariable positivePstShiftVariable(String cnecId) {
-        return positivePstShiftVariablesMap.get(cnecId);
+    public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
+        makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariable(rangeActionId, networkElementId));
+        makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariable(rangeActionId, networkElementId));
     }
 
-    public List<MPVariable> positivePstShiftVariables() {
-        return new ArrayList<>(positivePstShiftVariablesMap.values());
+    private static String getPositiveRangeActionVariable(String rangeActionId, String networkElementId) {
+        return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
     }
 
-    public MPVariable negativePstShiftVariable(String cnecId) {
-        return negativePstShiftVariablesMap.get(cnecId);
+    private static String getNegativeRangeActionVariable(String rangeActionId, String networkElementId) {
+        return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
     }
 
-    public List<MPVariable> negativePstShiftVariables() {
-        return new ArrayList<>(negativePstShiftVariablesMap.values());
-    }
-
-    public void addFlowVariable(double minFlow, double maxFlow, String cnecId) {
-        flowVariablesMap.put(cnecId, makeNumVar(minFlow, maxFlow, createFlowVariableId(cnecId)));
-    }
-
-    private String createFlowVariableId(String cnecId) {
-        return cnecId;
-    }
-
-    public void addRangeActionVariable(double negativeVariation, double positiveVariation, String rangeActionId) {
-        positivePstShiftVariablesMap.put(rangeActionId, makeNumVar(0, positiveVariation, createPositiveRangeActionVariable(rangeActionId)));
-        negativePstShiftVariablesMap.put(rangeActionId, makeNumVar(0, negativeVariation, createNegativeRangeActionVariable(rangeActionId)));
-    }
-
-    private String createPositiveRangeActionVariable(String rangeActionId) {
-        return String.format("positive-%s", rangeActionId);
-    }
-
-    private String createNegativeRangeActionVariable(String rangeActionId) {
-        return String.format("negative-%s", rangeActionId);
+    public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
+        MPConstraint flowConstraint = lookupConstraintOrNull(getFlowConstraintId(cnecId));
+        if (flowConstraint == null) {
+            throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
+        }
+        MPVariable positiveRangeActionVariable = lookupVariableOrNull(getPositiveRangeActionVariable(rangeActionId, networkElementId));
+        MPVariable negativeRangeActionVariable = lookupVariableOrNull(getNegativeRangeActionVariable(rangeActionId, networkElementId));
+        if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
+            throw new FaraoException(String.format("Range action variable for %s on %s has not been defined yet.", rangeActionId, networkElementId));
+        }
+        flowConstraint.setCoefficient(
+            positiveRangeActionVariable,
+            -sensitivity);
+        flowConstraint.setCoefficient(
+            negativeRangeActionVariable,
+            sensitivity);
     }
 }

@@ -7,7 +7,9 @@
 
 package com.farao_community.farao.linear_rao.fillers;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
@@ -16,6 +18,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -23,29 +26,54 @@ import org.slf4j.LoggerFactory;
 public class CoreProblemFiller extends AbstractProblemFiller {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
 
+    private LinearRaoProblem linearRaoProblem;
+    private LinearRaoData linearRaoData;
+
     @Override
     public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        this.linearRaoData = linearRaoData;
+        this.linearRaoProblem = linearRaoProblem;
         Crac crac = linearRaoData.getCrac();
         Network network = linearRaoData.getNetwork();
-        crac.synchronize(linearRaoData.getNetwork());
-        crac.getCnecs().forEach(cnec -> linearRaoProblem.addFlowVariable(-LinearRaoProblem.infinity(), LinearRaoProblem.infinity(), cnec.getId()));
+
+        crac.synchronize(network);
         if (crac.getPreventiveState() != null) {
-            crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(rangeAction -> {
-                double minValue = rangeAction.getMinValue(network);
-                double maxValue = rangeAction.getMaxValue(network);
-                rangeAction.getApplicableRangeActions().forEach(applicableRangeAction ->
-                    applicableRangeAction.getCurrentValues(network).forEach((networkElement, currentValue) -> {
-                        if (currentValue >= minValue && currentValue <= maxValue) {
-                            linearRaoProblem.addRangeActionVariable(
-                                Math.abs(minValue - currentValue),
-                                Math.abs(maxValue - currentValue),
-                                String.format("%s - %s", rangeAction.getId(), networkElement.getId()));
-                        } else {
-                            LOGGER.info("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
-                        }
-                    }));
+            Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
+            rangeActions.forEach(this::fillRangeAction);
+            crac.getCnecs().forEach(cnec -> {
+                fillCnec(cnec);
+                rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
             });
         }
         linearRaoData.getCrac().desynchronize(); // To be sure it is always synchronized with the good network
+    }
+
+    private void fillCnec(Cnec cnec) {
+        linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec), -LinearRaoProblem.infinity(), LinearRaoProblem.infinity());
+    }
+
+    private void fillRangeAction(RangeAction rangeAction) {
+        double minValue = rangeAction.getMinValue(linearRaoData.getNetwork());
+        double maxValue = rangeAction.getMaxValue(linearRaoData.getNetwork());
+        rangeAction.getApplicableRangeActions().forEach(applicableRangeAction ->
+            applicableRangeAction.getCurrentValues(linearRaoData.getNetwork()).forEach((networkElement, currentValue) -> {
+                if (currentValue >= minValue && currentValue <= maxValue) {
+                    String rangeActionId = String.format("%s - %s", rangeAction.getId(), networkElement.getId());
+                    linearRaoProblem.addRangeActionVariable(
+                        rangeActionId, networkElement.getId(),
+                        Math.abs(minValue - currentValue), Math.abs(maxValue - currentValue));
+                } else {
+                    LOGGER.info("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
+                }
+            }));
+    }
+
+    private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
+        rangeAction.getApplicableRangeActions().forEach(applicableRangeAction ->
+            applicableRangeAction.getNetworkElements().forEach(networkElement ->
+                linearRaoProblem.addRangeActionFlowOnBranch(
+                    cnec.getId(), rangeAction.getId(), networkElement.getId(),
+                    linearRaoData.getSensitivity(cnec, rangeAction)
+                )));
     }
 }
