@@ -25,9 +25,6 @@ import java.util.Set;
 public class CoreProblemFiller extends AbstractProblemFiller {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
 
-    private LinearRaoProblem linearRaoProblem;
-    private LinearRaoData linearRaoData;
-
     @Override
     public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         this.linearRaoData = linearRaoData;
