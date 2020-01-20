@@ -22,7 +22,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.Assert.*;

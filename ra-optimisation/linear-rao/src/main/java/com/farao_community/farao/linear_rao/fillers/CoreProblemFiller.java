@@ -58,9 +58,8 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         rangeAction.getApplicableRangeActions().forEach(applicableRangeAction ->
             applicableRangeAction.getCurrentValues(linearRaoData.getNetwork()).forEach((networkElement, currentValue) -> {
                 if (currentValue >= minValue && currentValue <= maxValue) {
-                    String rangeActionId = String.format("%s - %s", rangeAction.getId(), networkElement.getId());
                     linearRaoProblem.addRangeActionVariable(
-                        rangeActionId, networkElement.getId(),
+                        rangeAction.getId(), networkElement.getId(),
                         Math.abs(minValue - currentValue), Math.abs(maxValue - currentValue));
                 } else {
                     LOGGER.info("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
