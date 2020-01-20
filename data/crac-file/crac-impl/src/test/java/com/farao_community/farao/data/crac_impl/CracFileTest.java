@@ -229,7 +229,7 @@ public class CracFileTest {
         assertEquals("id1", na.getId());
         assertEquals("name1", na.getName());
         assertEquals("operator1", na.getOperator());
-        // "idRangeAction", "myRangeAction", "operator1");
+
         RangeAction ra = crac.getRangeAction("idRangeAction");
         assertEquals("idRangeAction", ra.getId());
         assertEquals("myRangeAction", ra.getName());

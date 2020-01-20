@@ -28,9 +28,6 @@ import static org.junit.Assert.*;
  */
 public class ComplexRangeActionTest {
 
-    private static double MAX_VALUE = 0;
-    // private static double MIN_VALUE = 0;
-
     private ComplexRangeAction complexRangeAction;
     private ApplicableRangeAction mockedApplicableRangeAction;
     private ApplicableRangeAction anotherMockedApplicableRangeAction;
@@ -39,7 +36,7 @@ public class ComplexRangeActionTest {
     private Network mockedNetwork;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         String complexRangeActionId = "cra_id";
 
         String complexRangeActionName = "cra_name";

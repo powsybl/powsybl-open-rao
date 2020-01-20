@@ -12,7 +12,10 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -23,14 +26,6 @@ import static org.junit.Assert.*;
 public class PstSetpointTest {
 
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
-
-    private PstSetpoint aPstSetpoint() {
-        PstSetpoint pstSetpoint = new PstSetpoint(
-                new NetworkElement(networkElementId, networkElementId),
-                12
-        );
-        return pstSetpoint;
-    }
 
     @Test
     public void basicMethods() {
@@ -79,13 +74,12 @@ public class PstSetpointTest {
 
     @Test
     public void getNetworkElements() {
-        Network network = Importers.loadNetwork(
-                "TestCase12Nodes.uct",
-                getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
-        PstSetpoint pstSetpoint = aPstSetpoint();
-        Set<NetworkElement> pstNetworkElements = pstSetpoint.getNetworkElements();
-        assertEquals(1, pstNetworkElements.size());
+        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
+        Mockito.when(mockedNetworkElement.getId()).thenReturn(networkElementId);
+        double setpoint = 1;
+        PstSetpoint pstSetPoint = new PstSetpoint(mockedNetworkElement, setpoint);
+        Set<NetworkElement> pstNetworkElements = pstSetPoint.getNetworkElements();
+        assertEquals(setpoint, pstNetworkElements.size(),0);
         assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
     }
 }
