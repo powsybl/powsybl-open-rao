@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 public class RangeDefinitionTest {
 
     @Test
-    public void basicTest(){
+    public void basicTest() {
         assertEquals(2, RangeDefinition.values().length);
         RangeDefinition rangeDefinition1 = RangeDefinition.CENTERED_ON_ZERO;
         RangeDefinition rangeDefinition2 = RangeDefinition.STARTS_AT_ONE;
