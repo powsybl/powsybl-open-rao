@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -79,7 +77,7 @@ public class PstSetpointTest {
         double setpoint = 1;
         PstSetpoint pstSetPoint = new PstSetpoint(mockedNetworkElement, setpoint);
         Set<NetworkElement> pstNetworkElements = pstSetPoint.getNetworkElements();
-        assertEquals(setpoint, pstNetworkElements.size(),0);
+        assertEquals(setpoint, pstNetworkElements.size(), 0);
         assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
     }
 }
