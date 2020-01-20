@@ -69,4 +69,21 @@ public class LinearRaoProblem extends MPSolver {
             negativeRangeActionVariable,
             sensitivity);
     }
+
+    public void getMinPosMargin() {
+        makeNumVar(-MPSolver.infinity(), MPSolver.infinity(), "min-pos-margin");
+    }
+
+    public String getMinPosMarginId(String branch, String minMax) {
+        return String.format("min-pos-margin-%s-%s", branch, minMax);
+    }
+
+    public void addMinPosMargin(String cnecId, double min, double max) {
+        MPVariable flowVariable = lookupVariableOrNull(getFlowVariableId(cnecId));
+        MPConstraint flowConstraintMax = makeConstraint(-MPSolver.infinity(), max, getMinPosMarginId(cnecId, "max"));
+        flowConstraintMax.setCoefficient(flowVariable, 1);
+
+        MPConstraint flowConstraintMin = makeConstraint(-MPSolver.infinity(), -min, getMinPosMarginId(cnecId, "min"));
+        flowConstraintMin.setCoefficient(flowVariable, -1);
+    }
 }
