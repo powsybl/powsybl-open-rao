@@ -179,6 +179,12 @@ public interface Crac extends Identifiable, Synchronizable {
      */
     Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod);
 
+    /**
+     * @param id: id of the RangeAction to get
+     * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
+     */
+    RangeAction getRangeAction(String id);
+
     void addRangeAction(RangeAction rangeAction);
 
     // Network actions management
@@ -198,6 +204,12 @@ public interface Crac extends Identifiable, Synchronizable {
      * @return A set of network actions.
      */
     Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod);
+
+    /**
+     * @param id: id of the NetworkAction to get
+     * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
+     */
+    NetworkAction getNetworkAction(String id);
 
     void addNetworkAction(NetworkAction networkAction);
 

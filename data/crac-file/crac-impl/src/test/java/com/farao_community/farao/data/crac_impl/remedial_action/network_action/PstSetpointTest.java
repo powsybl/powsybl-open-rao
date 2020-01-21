@@ -12,6 +12,9 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -19,6 +22,8 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PstSetpointTest {
+
+    private String networkElementId = "BBE2AA1  BBE3AA1  1";
 
     @Test
     public void basicMethods() {
@@ -63,5 +68,16 @@ public class PstSetpointTest {
         } catch (FaraoException e) {
             assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
         }
+    }
+
+    @Test
+    public void getNetworkElements() {
+        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
+        Mockito.when(mockedNetworkElement.getId()).thenReturn(networkElementId);
+        double setpoint = 1;
+        PstSetpoint pstSetPoint = new PstSetpoint(mockedNetworkElement, setpoint);
+        Set<NetworkElement> pstNetworkElements = pstSetPoint.getNetworkElements();
+        assertEquals(setpoint, pstNetworkElements.size(), 0);
+        assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
     }
 }

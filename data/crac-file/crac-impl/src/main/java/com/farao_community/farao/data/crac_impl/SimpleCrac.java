@@ -235,10 +235,26 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
+    public NetworkAction getNetworkAction(String id) {
+        return networkActions.stream()
+                .filter(networkAction -> networkAction.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod) {
         return rangeActions.stream()
-            .filter(networkAction -> networkAction.getUsageMethod(network, state).equals(usageMethod))
+            .filter(rangeAction -> rangeAction.getUsageMethod(network, state).equals(usageMethod))
             .collect(Collectors.toSet());
+    }
+
+    @Override
+    public RangeAction getRangeAction(String id) {
+        return rangeActions.stream()
+                .filter(rangeAction ->  rangeAction.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

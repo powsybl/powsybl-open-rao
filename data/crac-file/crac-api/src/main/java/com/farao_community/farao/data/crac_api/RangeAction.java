@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.Set;
+
 /**
  * Remedial action interface specifying an action of type range
  * This means that there is a value to set and this value is not directly defined
@@ -17,5 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface RangeAction extends RemedialAction, ApplicableRangeAction, Range {
+public interface RangeAction extends ApplicableRangeAction, RemedialAction, Range {
+    Set<ApplicableRangeAction> getApplicableRangeActions();
 }
