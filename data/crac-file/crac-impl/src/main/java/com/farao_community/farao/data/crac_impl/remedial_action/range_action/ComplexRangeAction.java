@@ -32,7 +32,8 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     private Set<ApplicableRangeAction> applicableRangeActions;
 
     @JsonCreator
-    public ComplexRangeAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
+    public ComplexRangeAction(@JsonProperty("id") String id,
+                              @JsonProperty("name") String name,
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<Range> ranges,

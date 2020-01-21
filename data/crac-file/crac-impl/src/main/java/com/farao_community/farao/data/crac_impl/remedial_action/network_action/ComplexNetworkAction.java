@@ -34,12 +34,13 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
     private Set<ApplicableNetworkAction> applicableNetworkActions;
 
     @JsonCreator
-    public ComplexNetworkAction(@JsonProperty("id") String id, @JsonProperty("name") String name,
+    public ComplexNetworkAction(@JsonProperty("id") String id,
+                                @JsonProperty("name") String name,
                                 @JsonProperty("operator") String operator,
                                 @JsonProperty("usageRules") List<UsageRule> usageRules,
                                 @JsonProperty("applicableNetworkActions") Set<ApplicableNetworkAction> applicableNetworkActions) {
         super(id, name, operator, usageRules);
-        this.applicableNetworkActions = applicableNetworkActions;
+        this.applicableNetworkActions = new HashSet<>(applicableNetworkActions);
     }
 
     public ComplexNetworkAction(String id, String name, String operator) {

@@ -27,6 +27,8 @@ import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
+import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
+import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
 import static com.farao_community.farao.data.crac_api.Side.*;
 import static org.junit.Assert.*;
 
@@ -57,9 +59,12 @@ public class CracFileTest {
         RelativeDynamicRange relativeDynamicRange = new RelativeDynamicRange(0, 1);
         relativeDynamicRange.setMin(100);
         relativeDynamicRange.setMax(1000);
-        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1);
+        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1, CENTERED_ON_ZERO);
         absoluteFixedRange.setMin(10);
         absoluteFixedRange.setMax(1000);
+        if (absoluteFixedRange.getRangeDefinition().equals(CENTERED_ON_ZERO)) {
+            absoluteFixedRange.setRangeDefinition(STARTS_AT_ONE);
+        }
 
         // PstRange
         NetworkElement pst1 = new NetworkElement("idPst1", "My Pst 1");
@@ -224,6 +229,16 @@ public class CracFileTest {
         InjectionRange injectionRange1 = new InjectionRange(null);
         injectionRange1.setNetworkElement(generator1);
         assertEquals(1, injectionRange1.getNetworkElements().size());
+
+        NetworkAction na = crac.getNetworkAction("id1");
+        assertEquals("id1", na.getId());
+        assertEquals("name1", na.getName());
+        assertEquals("operator1", na.getOperator());
+
+        RangeAction ra = crac.getRangeAction("idRangeAction");
+        assertEquals("idRangeAction", ra.getId());
+        assertEquals("myRangeAction", ra.getName());
+        assertEquals("operator1", ra.getOperator());
     }
 
     @Test
