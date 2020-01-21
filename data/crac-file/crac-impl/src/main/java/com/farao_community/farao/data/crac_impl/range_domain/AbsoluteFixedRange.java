@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.range_domain;
 
+import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
@@ -18,9 +19,12 @@ import com.powsybl.iidm.network.Network;
  */
 public class AbsoluteFixedRange extends AbstractRange {
 
+    private RangeDefinition rangeDefinition;
+
     @JsonCreator
-    public AbsoluteFixedRange(@JsonProperty("min") double min, @JsonProperty("max") double max) {
+    public AbsoluteFixedRange(@JsonProperty("min") double min, @JsonProperty("max") double max, @JsonProperty("rangeDefinition") RangeDefinition rangeDefinition) {
         super(min, max);
+        this.rangeDefinition = rangeDefinition;
     }
 
     @Override
@@ -31,5 +35,13 @@ public class AbsoluteFixedRange extends AbstractRange {
     @Override
     public double getMaxValue(Network network) {
         return max;
+    }
+
+    public void setRangeDefinition(RangeDefinition rangeDefinition) {
+        this.rangeDefinition = rangeDefinition;
+    }
+
+    public RangeDefinition getRangeDefinition() {
+        return rangeDefinition;
     }
 }

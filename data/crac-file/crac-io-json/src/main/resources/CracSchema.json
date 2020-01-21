@@ -44,10 +44,6 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Cnec",
         "properties" : {
-          "criticalNetworkElement" : {
-            "type" : "object",
-            "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
-          },
           "state" : {
             "type" : "object",
             "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:State",
@@ -60,7 +56,7 @@
                     "type" : "string"
                   },
                   "seconds" : {
-                    "type" : "number"
+                    "type" : "integer"
                   },
                   "name" : {
                     "type" : "string"
@@ -88,6 +84,14 @@
               }
             }
           },
+          "criticalNetworkElement" : {
+            "type" : "object",
+            "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkElement"
+          },
+          "threshold" : {
+            "type" : "object",
+            "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:Threshold"
+          },
           "name" : {
             "type" : "string"
           },
@@ -103,21 +107,25 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:RangeAction",
         "properties" : {
-          "operator" : {
-            "type" : "string"
-          },
           "usageRules" : {
             "type" : "array",
             "items" : {
               "type" : "object",
               "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:UsageRule",
               "properties" : {
+                "state" : {
+                  "type" : "object",
+                  "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:State"
+                },
                 "usageMethod" : {
                   "type" : "string",
                   "enum" : [ "FORCED", "AVAILABLE", "UNAVAILABLE" ]
                 }
               }
             }
+          },
+          "operator" : {
+            "type" : "string"
           },
           "name" : {
             "type" : "string"
@@ -134,15 +142,15 @@
         "type" : "object",
         "id" : "urn:jsonschema:com:farao_community:farao:data:crac_api:NetworkAction",
         "properties" : {
-          "operator" : {
-            "type" : "string"
-          },
           "usageRules" : {
             "type" : "array",
             "items" : {
               "type" : "object",
               "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:UsageRule"
             }
+          },
+          "operator" : {
+            "type" : "string"
           },
           "name" : {
             "type" : "string"
@@ -152,10 +160,6 @@
           }
         }
       }
-    },
-    "preventiveState" : {
-      "type" : "object",
-      "$ref" : "urn:jsonschema:com:farao_community:farao:data:crac_api:State"
     }
   }
 }
