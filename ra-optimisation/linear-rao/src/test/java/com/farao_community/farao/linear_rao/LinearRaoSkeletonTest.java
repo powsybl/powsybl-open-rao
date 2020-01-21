@@ -46,7 +46,7 @@ public class LinearRaoSkeletonTest {
             preventiveState
         ));
         UsageRule usageRule = new FreeToUse(UsageMethod.AVAILABLE, crac.getPreventiveState());
-        Range range = new AbsoluteFixedRange(-16, 16);
+        Range range = new AbsoluteFixedRange(-16, 16, RangeDefinition.CENTERED_ON_ZERO);
         ApplicableRangeAction applicableRangeAction = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1"));
         RangeAction rangeAction = new ComplexRangeAction(
             "pst-range-test",
