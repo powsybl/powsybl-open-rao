@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -77,17 +78,29 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public double getMinValue(Network network) {
-        return 0;
+        double minValue = ranges.iterator().next().getMinValue(network);
+        for (Range range : ranges) {
+            minValue = Math.max(range.getMinValue(network), minValue);
+        }
+        return minValue;
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return 0;
+        double maxValue = ranges.iterator().next().getMaxValue(network);
+        for (Range range : ranges) {
+            maxValue = Math.min(range.getMaxValue(network), maxValue);
+        }
+        return maxValue;
     }
 
     @Override
     public void apply(Network network, double setpoint) {
-        applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
+        if (getMinValue(network) <= setpoint && setpoint <= getMaxValue(network)) {
+            applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
+        } else {
+            throw new FaraoException("Impossible to apply ComplexRangeAction " + getId() + " because setpoint value is out of boundaries");
+        }
     }
 
     @JsonProperty("ranges")
