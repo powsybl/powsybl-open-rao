@@ -36,6 +36,18 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
     }
 
     @Override
+    protected double getMinValueWithRange(Network network, AbstractRange range) {
+        // to implement - specific to InjectionRange
+        return 0;
+    }
+
+    @Override
+    public double getMaxValueWithRange(Network network, AbstractRange range) {
+        // to implement - specific to InjectionRange
+        return 0;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }

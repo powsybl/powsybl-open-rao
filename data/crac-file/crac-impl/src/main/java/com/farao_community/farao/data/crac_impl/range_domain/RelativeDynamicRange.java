@@ -23,10 +23,12 @@ public class RelativeDynamicRange extends AbstractRange {
         super(min, max);
     }
 
+    @Override
     public double getMinValue(Network network) {
         return 0;
     }
 
+    @Override
     public double getMaxValue(Network network) {
         return 0;
     }

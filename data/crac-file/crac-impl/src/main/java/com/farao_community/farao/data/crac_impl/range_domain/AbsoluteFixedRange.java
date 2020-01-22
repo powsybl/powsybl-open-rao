@@ -27,10 +27,12 @@ public class AbsoluteFixedRange extends AbstractRange {
         this.rangeDefinition = rangeDefinition;
     }
 
+    @Override
     public double getMinValue(Network network) {
         return min;
     }
 
+    @Override
     public double getMaxValue(Network network) {
         return max;
     }

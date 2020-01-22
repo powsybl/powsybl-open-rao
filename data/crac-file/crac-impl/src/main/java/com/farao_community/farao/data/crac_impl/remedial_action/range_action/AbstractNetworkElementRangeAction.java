@@ -44,20 +44,24 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
         this.networkElement = networkElement;
     }
 
+    protected abstract double getMinValueWithRange(Network network, AbstractRange range);
+
     public double getMinValue(Network network) {
         double minValue = Double.POSITIVE_INFINITY;
         for (AbstractRange range: ranges
              ) {
-            minValue = Math.min(range.getMinValue(network), minValue);
+            minValue = Math.min(getMinValueWithRange(network, range), minValue);
         }
         return minValue;
     }
+
+    protected abstract double getMaxValueWithRange(Network network, AbstractRange range);
 
     public double getMaxValue(Network network) {
         double maxValue = Double.NEGATIVE_INFINITY;
         for (AbstractRange range: ranges
         ) {
-            maxValue = Math.max(range.getMaxValue(network), maxValue);
+            maxValue = Math.max(getMaxValueWithRange(network, range), maxValue);
         }
         return maxValue;
     }

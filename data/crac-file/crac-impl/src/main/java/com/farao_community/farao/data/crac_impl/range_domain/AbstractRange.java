@@ -33,13 +33,9 @@ public abstract class AbstractRange {
         this.max = max;
     }
 
-    public double getMinValue(Network network) {
-        return 0;
-    }
+    public abstract double getMinValue(Network network);
 
-    public double getMaxValue(Network network) {
-        return 0;
-    }
+    public abstract double getMaxValue(Network network);
 
     public double getMin() {
         return min;

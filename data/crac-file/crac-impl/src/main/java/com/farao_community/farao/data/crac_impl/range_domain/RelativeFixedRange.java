@@ -23,10 +23,12 @@ public class RelativeFixedRange extends AbstractRange {
         super(min, max);
     }
 
+    @Override
     public double getMinValue(Network network) {
         return -100;
     }
 
+    @Override
     public double getMaxValue(Network network) {
         return -100;
     }

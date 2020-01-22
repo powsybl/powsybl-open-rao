@@ -46,7 +46,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
                               @JsonProperty("applicableRangeActions") Set<RangeAction> rangeActions) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
-        this.rangeActions = new HashSet<RangeAction>(rangeActions);
+        this.rangeActions = new HashSet<>(rangeActions);
     }
 
     public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<AbstractRange> ranges, Set<RangeAction> rangeActions) {

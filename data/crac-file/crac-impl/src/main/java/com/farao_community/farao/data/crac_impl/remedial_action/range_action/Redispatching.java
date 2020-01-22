@@ -94,12 +94,19 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     }
 
     @Override
+    protected double getMinValueWithRange(Network network, AbstractRange range) {
+        // to implement - specific to Redispatching
+        return 0;
+    }
+
+    @Override
     public double getMinValue(Network network) {
         return 0;
     }
 
     @Override
-    public double getMaxValue(Network network) {
+    public double getMaxValueWithRange(Network network, AbstractRange range) {
+        // to implement - specific to Redispatching
         return 0;
     }
 
