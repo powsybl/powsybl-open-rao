@@ -8,13 +8,17 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
+import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,11 +59,14 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
     /**
      * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
      *
-     * @param network: network to modify
+     * @param network network to modify
      */
     @Override
     public void apply(Network network) {
-        PstRange pst = new PstRange(getId(), getName(), getOperator(), getUsageRules(), networkElement);
+        AbsoluteFixedRange range = new AbsoluteFixedRange(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, RangeDefinition.CENTERED_ON_ZERO);
+        List<AbstractRange> ranges = new ArrayList<>();
+        ranges.add(range);
+        PstRange pst = new PstRange(getId(), getName(), getOperator(), getUsageRules(), ranges, networkElement);
         pst.apply(network, setpoint);
     }
 }

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -37,8 +38,9 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
                     @JsonProperty("name") String name,
                     @JsonProperty("operator") String operator,
                     @JsonProperty("usageRules") List<UsageRule> usageRules,
+                    @JsonProperty("ranges") List<AbstractRange> ranges,
                     @JsonProperty("networkElement") NetworkElement networkElement) {
-        super(id, name, operator, usageRules, networkElement);
+        super(id, name, operator, usageRules, ranges, networkElement);
     }
 
     @Override

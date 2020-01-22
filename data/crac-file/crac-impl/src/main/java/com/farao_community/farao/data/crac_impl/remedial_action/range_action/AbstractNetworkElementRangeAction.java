@@ -11,8 +11,10 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +28,8 @@ import java.util.Set;
  */
 public abstract class AbstractNetworkElementRangeAction extends AbstractRemedialAction implements RangeAction {
 
+    protected List<AbstractRange> ranges;
+
     protected NetworkElement networkElement;
 
     @JsonCreator
@@ -33,9 +37,29 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
                                              @JsonProperty("name") String name,
                                              @JsonProperty("operator") String operator,
                                              @JsonProperty("usageRules") List<UsageRule> usageRules,
+                                             @JsonProperty("ranges") List<AbstractRange> ranges,
                                              @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules);
+        this.ranges = ranges;
         this.networkElement = networkElement;
+    }
+
+    public double getMinValue(Network network) {
+        double minValue = Double.POSITIVE_INFINITY;
+        for (AbstractRange range: ranges
+             ) {
+            minValue = Math.min(range.getMinValue(network), minValue);
+        }
+        return minValue;
+    }
+
+    public double getMaxValue(Network network) {
+        double maxValue = Double.NEGATIVE_INFINITY;
+        for (AbstractRange range: ranges
+        ) {
+            maxValue = Math.max(range.getMaxValue(network), maxValue);
+        }
+        return maxValue;
     }
 
     public NetworkElement getNetworkElement() {

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -37,13 +38,14 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
                          @JsonProperty("name") String name,
                          @JsonProperty("operator") String operator,
                          @JsonProperty("usageRules") List<UsageRule> usageRules,
+                         @JsonProperty("ranges") List<AbstractRange> ranges,
                          @JsonProperty("minimumPower") double minimumPower,
                          @JsonProperty("maximumPower") double maximumPower,
                          @JsonProperty("targetPower") double targetPower,
                          @JsonProperty("startupCost") double startupCost,
                          @JsonProperty("marginalCost") double marginalCost,
                          @JsonProperty("generator") NetworkElement generator) {
-        super(id, name, operator, usageRules, generator);
+        super(id, name, operator, usageRules, ranges, generator);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
         this.targetPower = targetPower;

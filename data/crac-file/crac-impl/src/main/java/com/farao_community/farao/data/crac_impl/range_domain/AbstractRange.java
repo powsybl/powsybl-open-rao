@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Network;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -30,6 +31,14 @@ public abstract class AbstractRange {
     public AbstractRange(@JsonProperty("min") double min, @JsonProperty("max") double max) {
         this.min = min;
         this.max = max;
+    }
+
+    public double getMinValue(Network network) {
+        return 0;
+    }
+
+    public double getMaxValue(Network network) {
+        return 0;
     }
 
     public double getMin() {

@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -21,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeTest extends AbstractRemedialActionTest {
+public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
 
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
     private PstRange pstRange;
@@ -33,6 +32,7 @@ public class PstRangeTest extends AbstractRemedialActionTest {
                 "pst_range_name",
                 "pst_range_operator",
                 createUsageRules(),
+                createRanges(),
                 new NetworkElement(networkElementId, networkElementId));
         this.pstRange = pstRange;
     }
@@ -73,6 +73,7 @@ public class PstRangeTest extends AbstractRemedialActionTest {
                 "unknown_pstrange_name",
                 "unknown_pstrange_operator",
                 createUsageRules(),
+                createRanges(),
                 new NetworkElement("unknown pst", "unknown pst"));
         try {
             unknownPstRange.apply(network, 50);
@@ -93,6 +94,7 @@ public class PstRangeTest extends AbstractRemedialActionTest {
                 "not_pstrange_name",
                 "not_pstrange_operator",
                 createUsageRules(),
+                createRanges(),
                 new NetworkElement(notPstRangeElementId, notPstRangeElementId));
         try {
             notAPstRange.apply(network, 50);
