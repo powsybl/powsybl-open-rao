@@ -9,12 +9,15 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+
+import java.util.List;
 
 /**
  * Elementary PST range remedial action: choose the optimal value for a PST tap.
@@ -30,8 +33,22 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
      * @param networkElement: PST element to modify
      */
     @JsonCreator
-    public PstRange(@JsonProperty("networkElement") NetworkElement networkElement) {
-        super(networkElement);
+    public PstRange(@JsonProperty("id") String id,
+                    @JsonProperty("name") String name,
+                    @JsonProperty("operator") String operator,
+                    @JsonProperty("usageRules") List<UsageRule> usageRules,
+                    @JsonProperty("networkElement") NetworkElement networkElement) {
+        super(id, name, operator, usageRules, networkElement);
+    }
+
+    @Override
+    public double getMinValue(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxValue(Network network) {
+        return 0;
     }
 
     /**
@@ -43,6 +60,7 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
      */
     @Override
     public void apply(Network network, double setpoint) {
+        // TODO : check that the exception is already thrown by Powsybl
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(getNetworkElement().getId());
         if (transformer == null) {
             throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));

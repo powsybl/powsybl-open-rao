@@ -35,7 +35,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     private List<AbstractRange> ranges;
 
     @JsonProperty("applicableRangeActions")
-    private Set<ApplicableRangeAction> applicableRangeActions;
+    private Set<RangeAction> rangeActions;
 
     @JsonCreator
     public ComplexRangeAction(@JsonProperty("id") String id,
@@ -43,14 +43,14 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<AbstractRange> ranges,
-                              @JsonProperty("applicableRangeActions") Set<ApplicableRangeAction> applicableRangeActions) {
+                              @JsonProperty("applicableRangeActions") Set<RangeAction> rangeActions) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
-        this.applicableRangeActions = new HashSet<>(applicableRangeActions);
+        this.rangeActions = new HashSet<RangeAction>(rangeActions);
     }
 
-    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<AbstractRange> ranges, Set<ApplicableRangeAction> applicableRangeActions) {
-        this (id, id, operator, usageRules, ranges, applicableRangeActions);
+    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<AbstractRange> ranges, Set<RangeAction> rangeActions) {
+        this (id, id, operator, usageRules, ranges, rangeActions);
     }
 
     public ComplexRangeAction(String id, String name, String operator) {
@@ -68,7 +68,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public Set<NetworkElement> getNetworkElements() {
         Set<NetworkElement> set = new HashSet<>();
-        applicableRangeActions.forEach(applicableRangeAction -> set.addAll(applicableRangeAction.getNetworkElements()));
+        rangeActions.forEach(rangeAction -> set.addAll(rangeAction.getNetworkElements()));
         return set;
     }
 
@@ -84,7 +84,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public void apply(Network network, double setpoint) {
-        applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
+        rangeActions.forEach(rangeAction -> rangeAction.apply(network, setpoint));
     }
 
     @JsonProperty("ranges")
@@ -92,13 +92,13 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this.ranges.add(range);
     }
 
-    @JsonProperty("applicableRangeActions")
-    public void addApplicableRangeAction(ApplicableRangeAction elementaryRangeAction) {
-        this.applicableRangeActions.add(elementaryRangeAction);
+    @JsonProperty("rangeActions")
+    public void addRangeAction(RangeAction elementaryRangeAction) {
+        this.rangeActions.add(elementaryRangeAction);
     }
 
-    @Override
-    public Set<ApplicableRangeAction> getApplicableRangeActions() {
-        return applicableRangeActions;
+    // @Override
+    public Set<RangeAction> getRangeActions() {
+        return rangeActions;
     }
 }

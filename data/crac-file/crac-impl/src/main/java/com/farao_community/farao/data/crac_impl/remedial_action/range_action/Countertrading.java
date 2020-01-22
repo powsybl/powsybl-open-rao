@@ -7,12 +7,16 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
-import com.farao_community.farao.data.crac_api.ApplicableRangeAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,10 +25,24 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class Countertrading implements ApplicableRangeAction {
+public class Countertrading extends AbstractRemedialAction implements RangeAction {
 
     @JsonCreator
-    public Countertrading() {
+    public Countertrading(@JsonProperty("id") String id,
+                          @JsonProperty("name") String name,
+                          @JsonProperty("operator") String operator,
+                          @JsonProperty("usageRules") List<UsageRule> usageRules) {
+        super(id, name, operator, usageRules);
+    }
+
+    @Override
+    public double getMinValue(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxValue(Network network) {
+        return 0;
     }
 
     @Override

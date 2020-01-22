@@ -9,26 +9,55 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class TopologyTest {
+public class TopologyTest extends AbstractRemedialActionTest {
+
+    private String networkElementId = "FFR2AA1  DDE3AA1  1";
+    private Topology topologyOpen;
+    private Topology topologyClose;
+    private ArrayList<UsageRule> usageRules;
+
+    @Before
+    public void setUp() throws Exception {
+        usageRules = createUsageRules();
+        Topology topologyOpen = new Topology(
+                "topology_id",
+                "topology_name",
+                "topology_operator",
+                usageRules,
+                new NetworkElement(networkElementId, networkElementId),
+                ActionType.OPEN
+        );
+        Topology topologyClose = new Topology(
+                "topology_id",
+                "topology_name",
+                "topology_operator",
+                usageRules,
+                new NetworkElement(networkElementId, networkElementId),
+                ActionType.CLOSE
+        );
+        this.topologyClose = topologyClose;
+        this.topologyOpen = topologyOpen;
+    }
 
     @Test
     public void basicMethods() {
-        Topology topologyOpen = new Topology(
-            new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1"),
-            ActionType.OPEN
-        );
-        assertEquals(ActionType.OPEN, topologyOpen.getActionType());
 
+        assertEquals(ActionType.OPEN, topologyOpen.getActionType());
         topologyOpen.setActionType(ActionType.CLOSE);
         assertEquals(ActionType.CLOSE, topologyOpen.getActionType());
     }
@@ -39,25 +68,17 @@ public class TopologyTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        Topology topologyOpen = new Topology(
-            new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1"),
-            ActionType.OPEN
-        );
-        Topology topologyClose = new Topology(
-            new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1"),
-            ActionType.CLOSE
-        );
 
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
+        assertTrue(network.getBranch(networkElementId).getTerminal1().isConnected());
+        assertTrue(network.getBranch(networkElementId).getTerminal2().isConnected());
 
         topologyOpen.apply(network);
-        assertFalse(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
-        assertFalse(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
+        assertFalse(network.getBranch(networkElementId).getTerminal1().isConnected());
+        assertFalse(network.getBranch(networkElementId).getTerminal2().isConnected());
 
         topologyClose.apply(network);
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
+        assertTrue(network.getBranch(networkElementId).getTerminal1().isConnected());
+        assertTrue(network.getBranch(networkElementId).getTerminal2().isConnected());
     }
 
     @Test
@@ -66,9 +87,14 @@ public class TopologyTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
+        String nodeId = "FFR2AA1";
         Topology topologyOnNode = new Topology(
-            new NetworkElement("FFR2AA1", "FFR2AA1"),
-            ActionType.OPEN
+                "on_node_id",
+                "on_node_name",
+                "on_node_operator",
+                usageRules,
+                new NetworkElement(nodeId, nodeId),
+                ActionType.OPEN
         );
 
         try {
@@ -78,4 +104,5 @@ public class TopologyTest {
 
         }
     }
+
 }

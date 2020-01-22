@@ -8,12 +8,14 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,10 +33,17 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     private double marginalCost;
 
     @JsonCreator
-    public Redispatching(@JsonProperty("minimumPower") double minimumPower, @JsonProperty("maximumPower") double maximumPower,
-                         @JsonProperty("targetPower") double targetPower, @JsonProperty("startupCost") double startupCost,
-                         @JsonProperty("marginalCost") double marginalCost, @JsonProperty("generator") NetworkElement generator) {
-        super(generator);
+    public Redispatching(@JsonProperty("id") String id,
+                         @JsonProperty("name") String name,
+                         @JsonProperty("operator") String operator,
+                         @JsonProperty("usageRules") List<UsageRule> usageRules,
+                         @JsonProperty("minimumPower") double minimumPower,
+                         @JsonProperty("maximumPower") double maximumPower,
+                         @JsonProperty("targetPower") double targetPower,
+                         @JsonProperty("startupCost") double startupCost,
+                         @JsonProperty("marginalCost") double marginalCost,
+                         @JsonProperty("generator") NetworkElement generator) {
+        super(id, name, operator, usageRules, generator);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
         this.targetPower = targetPower;
@@ -80,6 +89,16 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
 
     public void setMarginalCost(double marginalCost) {
         this.marginalCost = marginalCost;
+    }
+
+    @Override
+    public double getMinValue(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxValue(Network network) {
+        return 0;
     }
 
     @Override

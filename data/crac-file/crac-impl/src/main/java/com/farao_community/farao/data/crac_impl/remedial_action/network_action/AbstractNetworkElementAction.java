@@ -7,12 +7,15 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
+import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,11 +23,16 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-abstract class AbstractNetworkElementAction implements ApplicableNetworkAction {
+abstract class AbstractNetworkElementAction extends AbstractRemedialAction implements NetworkAction {
     protected NetworkElement networkElement;
 
     @JsonCreator
-    public AbstractNetworkElementAction(@JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractNetworkElementAction(@JsonProperty("id") String id,
+                                        @JsonProperty("name") String name,
+                                        @JsonProperty("operator") String operator,
+                                        @JsonProperty("usageRules") List<UsageRule> usageRules,
+                                        @JsonProperty("networkElement") NetworkElement networkElement) {
+        super(id, name, operator, usageRules);
         this.networkElement = networkElement;
     }
 

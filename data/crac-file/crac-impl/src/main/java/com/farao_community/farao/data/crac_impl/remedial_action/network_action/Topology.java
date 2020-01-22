@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -16,6 +17,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
+
+import java.util.List;
 
 /**
  * Topological remedial action: open or close a network element.
@@ -28,8 +31,13 @@ public final class Topology extends AbstractNetworkElementAction {
     private ActionType actionType;
 
     @JsonCreator
-    public Topology(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("actionType") ActionType actionType) {
-        super(networkElement);
+    public Topology(@JsonProperty("id") String id,
+                    @JsonProperty("name") String name,
+                    @JsonProperty("operator") String operator,
+                    @JsonProperty("usageRules") List<UsageRule> usageRules,
+                    @JsonProperty("networkElement") NetworkElement networkElement,
+                    @JsonProperty("actionType") ActionType actionType) {
+        super(id, name, operator, usageRules, networkElement);
         this.actionType = actionType;
     }
 

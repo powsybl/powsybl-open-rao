@@ -8,11 +8,14 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.List;
 
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
@@ -31,8 +34,13 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
      * @param setpoint: value of the tap. That should be an int value, if not it will be truncated.
      */
     @JsonCreator
-    public PstSetpoint(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("setpoint") double setpoint) {
-        super(networkElement);
+    public PstSetpoint(@JsonProperty("id") String id,
+                       @JsonProperty("name") String name,
+                       @JsonProperty("operator") String operator,
+                       @JsonProperty("usageRules") List<UsageRule> usageRules,
+                       @JsonProperty("networkElement") NetworkElement networkElement,
+                       @JsonProperty("setpoint") double setpoint) {
+        super(id, name, operator, usageRules, networkElement);
         this.setpoint = setpoint;
     }
 
@@ -51,7 +59,7 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
      */
     @Override
     public void apply(Network network) {
-        PstRange pst = new PstRange(networkElement);
+        PstRange pst = new PstRange(getId(), getName(), getOperator(), getUsageRules(), networkElement);
         pst.apply(network, setpoint);
     }
 }

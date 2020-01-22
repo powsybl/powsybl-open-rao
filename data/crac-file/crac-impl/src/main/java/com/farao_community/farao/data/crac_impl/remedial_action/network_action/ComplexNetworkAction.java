@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.ApplicableNetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -31,16 +30,16 @@ import java.util.Set;
 public class ComplexNetworkAction extends AbstractRemedialAction implements NetworkAction {
 
     @JsonProperty("applicableNetworkActions")
-    private Set<ApplicableNetworkAction> applicableNetworkActions;
+    private Set<NetworkAction> networkActions;
 
     @JsonCreator
     public ComplexNetworkAction(@JsonProperty("id") String id,
                                 @JsonProperty("name") String name,
                                 @JsonProperty("operator") String operator,
                                 @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                @JsonProperty("applicableNetworkActions") Set<ApplicableNetworkAction> applicableNetworkActions) {
+                                @JsonProperty("networkActions") Set<NetworkAction> networkActions) {
         super(id, name, operator, usageRules);
-        this.applicableNetworkActions = new HashSet<>(applicableNetworkActions);
+        this.networkActions = new HashSet<NetworkAction>(networkActions);
     }
 
     public ComplexNetworkAction(String id, String name, String operator) {
@@ -51,25 +50,24 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
         this (id, id, operator, new ArrayList<>(), new HashSet<>());
     }
 
-    @Override
-    public Set<ApplicableNetworkAction> getApplicableNetworkActions() {
-        return applicableNetworkActions;
+    public Set<NetworkAction> getNetworkActions() {
+        return networkActions;
     }
 
     @Override
     public void apply(Network network) {
-        applicableNetworkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
+        networkActions.forEach(applicableNetworkAction -> applicableNetworkAction.apply(network));
     }
 
     @Override
     public Set<NetworkElement> getNetworkElements() {
         Set<NetworkElement> networkElements = new HashSet<>();
-        applicableNetworkActions.forEach(applicableNetworkAction -> networkElements.addAll(applicableNetworkAction.getNetworkElements()));
+        networkActions.forEach(applicableNetworkAction -> networkElements.addAll(applicableNetworkAction.getNetworkElements()));
         return networkElements;
     }
 
     @JsonProperty("applicableNetworkActions")
-    public void addApplicableNetworkAction(ApplicableNetworkAction networkAction) {
-        this.applicableNetworkActions.add(networkAction);
+    public void addApplicableNetworkAction(NetworkAction networkAction) {
+        this.networkActions.add(networkAction);
     }
 }

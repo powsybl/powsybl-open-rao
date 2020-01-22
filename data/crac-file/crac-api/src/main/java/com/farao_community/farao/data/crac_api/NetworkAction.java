@@ -7,7 +7,9 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
 
@@ -18,6 +20,17 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface NetworkAction extends RemedialAction, ApplicableNetworkAction {
-    Set<ApplicableNetworkAction> getApplicableNetworkActions();
+public interface NetworkAction extends RemedialAction {
+    // Set<NetworkAction> getNetworkActions();
+
+    /**
+     * Gather all the network elements present in the applicable range action. It returns a set because network
+     * elements must not be duplicated inside an applicable range action and there is no defined order for network elements.
+     *
+     * @return A set of network elements.
+     */
+    @JsonIgnore
+    Set<NetworkElement> getNetworkElements();
+
+    void apply(Network network);
 }

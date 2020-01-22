@@ -9,16 +9,33 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
+
 
 import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeTest {
+public class PstRangeTest extends AbstractRemedialActionTest {
+
+    private String networkElementId = "BBE2AA1  BBE3AA1  1";
+    private PstRange pstRange;
+
+    @Before
+    public void setUp() throws Exception {
+        PstRange pstRange = new PstRange(
+                "pst_range_id",
+                "pst_range_name",
+                "pst_range_operator",
+                createUsageRules(),
+                new NetworkElement(networkElementId, networkElementId));
+        this.pstRange = pstRange;
+    }
 
     @Test
     public void apply() {
@@ -26,11 +43,9 @@ public class PstRangeTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
-
-        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstRange.apply(network, 12);
-        assertEquals(-5, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -39,7 +54,6 @@ public class PstRangeTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
         try {
             pstRange.apply(network, 50);
             fail();
@@ -54,9 +68,14 @@ public class PstRangeTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange pstRange = new PstRange(new NetworkElement("unknown pst", "unknown pst"));
+        PstRange unknownPstRange = new PstRange(
+                "unknown_pstrange_id",
+                "unknown_pstrange_name",
+                "unknown_pstrange_operator",
+                createUsageRules(),
+                new NetworkElement("unknown pst", "unknown pst"));
         try {
-            pstRange.apply(network, 50);
+            unknownPstRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST unknown pst does not exist in the current network", e.getMessage());
@@ -67,14 +86,20 @@ public class PstRangeTest {
     public void applyOnTransformerWithNoPhaseShifter() {
         Network network = Importers.loadNetwork(
             "TestCase12Nodes_no_pst.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct")
-        );
-        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
+            getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
+        String notPstRangeElementId = "BBE2AA1  BBE3AA1  1";
+        PstRange notAPstRange = new PstRange(
+                "not_pstrange_id",
+                "not_pstrange_name",
+                "not_pstrange_operator",
+                createUsageRules(),
+                new NetworkElement(notPstRangeElementId, notPstRangeElementId));
         try {
-            pstRange.apply(network, 50);
+            notAPstRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
-            assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST, tap could not be changed", e.getMessage());
+            assertEquals("Transformer " + notPstRangeElementId + " is not a PST, tap could not be changed", e.getMessage());
         }
     }
+
 }
