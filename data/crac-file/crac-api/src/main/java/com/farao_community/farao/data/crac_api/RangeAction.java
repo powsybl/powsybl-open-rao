@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
 
@@ -19,6 +20,13 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface RangeAction extends ApplicableRangeAction, RemedialAction, Range {
+public interface RangeAction extends ApplicableRangeAction, RemedialAction {
     Set<ApplicableRangeAction> getApplicableRangeActions();
+
+    double getMinValue(Network network);
+
+    double getMaxValue(Network network);
+
+    // The setpoint is computed by an optimiser.
+    void apply(Network network, double setpoint);
 }

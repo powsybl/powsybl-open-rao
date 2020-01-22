@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -31,7 +32,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     public static final double TEMP_MAX_VALUE = 0;
 
     @JsonProperty("ranges")
-    private List<Range> ranges;
+    private List<AbstractRange> ranges;
 
     @JsonProperty("applicableRangeActions")
     private Set<ApplicableRangeAction> applicableRangeActions;
@@ -41,14 +42,14 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
                               @JsonProperty("name") String name,
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
-                              @JsonProperty("ranges") List<Range> ranges,
+                              @JsonProperty("ranges") List<AbstractRange> ranges,
                               @JsonProperty("applicableRangeActions") Set<ApplicableRangeAction> applicableRangeActions) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
         this.applicableRangeActions = new HashSet<>(applicableRangeActions);
     }
 
-    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<Range> ranges, Set<ApplicableRangeAction> applicableRangeActions) {
+    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<AbstractRange> ranges, Set<ApplicableRangeAction> applicableRangeActions) {
         this (id, id, operator, usageRules, ranges, applicableRangeActions);
     }
 
@@ -60,7 +61,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this (id, id, operator, new ArrayList<>(), new ArrayList<>(), new HashSet<>());
     }
 
-    public List<Range> getRanges() {
+    public List<AbstractRange> getRanges() {
         return ranges;
     }
 
@@ -87,7 +88,7 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @JsonProperty("ranges")
-    public void addRange(Range range) {
+    public void addRange(AbstractRange range) {
         this.ranges.add(range);
     }
 

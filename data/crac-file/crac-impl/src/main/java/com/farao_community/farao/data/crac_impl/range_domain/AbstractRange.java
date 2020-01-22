@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl.range_domain;
 
-import com.farao_community.farao.data.crac_api.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -22,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = RelativeDynamicRange.class, name = "relativeDynamicRange"),
         @JsonSubTypes.Type(value = RelativeFixedRange.class, name = "relativeFixedRange")
     })
-public abstract class AbstractRange implements Range {
+public abstract class AbstractRange {
 
     protected double min;
     protected double max;

@@ -14,7 +14,16 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * Interface to manage CRAC
+ * Interface to manage CRAC.
+ * It involves:
+ * <ul>
+ *     <li>{@link Instant} objects</li>
+ *     <li>{@link Contingency} objects</li>
+ *     <li>{@link State} objects: one of them represents the network without contingency applied and can be accessed with the getPreventiveState method</li>
+ *     <li>{@link Cnec} objects</li>
+ *     <li>{@link RangeAction} objects</li>
+ *     <li>{@link NetworkAction} objects</li>
+ * </ul>
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
