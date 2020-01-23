@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,11 +26,13 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-// public class ComplexRangeAction extends AbstractRemedialAction implements RangeAction {
-public class ComplexRangeAction extends AbstractNetworkElementRangeAction implements RangeAction {
+public class ComplexRangeAction extends AbstractRemedialAction implements RangeAction {
 
     public static final double TEMP_MIN_VALUE = 0;
     public static final double TEMP_MAX_VALUE = 0;
+
+    @JsonProperty("ranges")
+    private List<AbstractRange> ranges;
 
     @JsonProperty("applicableRangeActions")
     private Set<RangeAction> rangeActions;
@@ -41,7 +44,8 @@ public class ComplexRangeAction extends AbstractNetworkElementRangeAction implem
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<AbstractRange> ranges,
                               @JsonProperty("applicableRangeActions") Set<RangeAction> rangeActions) {
-        super(id, name, operator, usageRules, ranges, new NetworkElement(""));
+        super(id, name, operator, usageRules);
+        this.ranges = ranges;
         this.rangeActions = new HashSet<>(rangeActions);
     }
 
@@ -69,18 +73,8 @@ public class ComplexRangeAction extends AbstractNetworkElementRangeAction implem
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, AbstractRange range) {
-        return TEMP_MIN_VALUE;
-    }
-
-    @Override
     public double getMinValue(Network network) {
         return TEMP_MIN_VALUE;
-    }
-
-    @Override
-    protected double getMaxValueWithRange(Network network, AbstractRange range) {
-        return TEMP_MAX_VALUE;
     }
 
     @Override
@@ -91,6 +85,11 @@ public class ComplexRangeAction extends AbstractNetworkElementRangeAction implem
     @Override
     public void apply(Network network, double setpoint) {
         rangeActions.forEach(rangeAction -> rangeAction.apply(network, setpoint));
+    }
+
+    @JsonProperty("ranges")
+    public void addRange(AbstractRange range) {
+        this.ranges.add(range);
     }
 
     @JsonProperty("rangeActions")

@@ -41,13 +41,6 @@ public final class Topology extends AbstractNetworkElementAction {
         this.actionType = actionType;
     }
 
-    public Topology(@JsonProperty("networkElement") NetworkElement networkElement,
-                    @JsonProperty("actionType") ActionType actionType) {
-        super();
-        this.networkElement = networkElement;
-        this.actionType = actionType;
-    }
-
     public ActionType getActionType() {
         return actionType;
     }

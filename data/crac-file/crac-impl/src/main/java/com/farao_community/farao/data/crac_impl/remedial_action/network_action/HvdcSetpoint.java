@@ -37,14 +37,6 @@ public final class HvdcSetpoint extends AbstractNetworkElementAction {
         this.setpoint = setpoint;
     }
 
-    @JsonCreator
-    public HvdcSetpoint(@JsonProperty("networkElement") NetworkElement networkElement,
-                        @JsonProperty("setpoint") double setpoint) {
-        super();
-        this.networkElement = networkElement;
-        this.setpoint = setpoint;
-    }
-
     public double getSetpoint() {
         return setpoint;
     }

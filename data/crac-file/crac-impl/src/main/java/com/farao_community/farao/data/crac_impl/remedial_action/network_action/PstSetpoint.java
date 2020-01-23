@@ -48,13 +48,6 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
         this.setpoint = setpoint;
     }
 
-    public PstSetpoint(@JsonProperty("networkElement") NetworkElement networkElement,
-                       @JsonProperty("setpoint") double setpoint) {
-        super();
-        this.networkElement = networkElement;
-        this.setpoint = setpoint;
-    }
-
     public double getSetpoint() {
         return setpoint;
     }

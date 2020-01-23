@@ -31,7 +31,7 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.
      *
-     * @param networkElement PST element to modify
+     * @param networkElement: PST element to modify
      */
     @JsonCreator
     public PstRange(@JsonProperty("id") String id,
