@@ -27,12 +27,16 @@ public class LinearRaoProblem {
     }
 
     private MPSolver solver;
+    private List<MPVariable> flowVariables;
+    private List<MPConstraint> flowConstraints;
     private List<MPVariable> negativePstShiftVariables;
     private List<MPVariable> positivePstShiftVariables;
     private double penaltyCost = 1;
 
-    LinearRaoProblem(MPSolver mpSolver) {
+    public LinearRaoProblem(MPSolver mpSolver) {
         solver = mpSolver;
+        flowVariables = new ArrayList<>();
+        flowConstraints = new ArrayList<>();
         negativePstShiftVariables = new ArrayList<>();
         positivePstShiftVariables = new ArrayList<>();
     }
@@ -45,17 +49,47 @@ public class LinearRaoProblem {
         return solver;
     }
 
+    public MPVariable getFlowVariable(String cnecId) {
+        return flowVariables.stream()
+            .filter(variable -> variable.name().equals(getFlowVariableId(cnecId)))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public MPConstraint getFlowConstraint(String cnecId) {
+        return flowConstraints.stream()
+            .filter(variable -> variable.name().equals(getFlowConstraintId(cnecId)))
+            .findFirst()
+            .orElse(null);
+    }
+
     public List<MPVariable> getNegativePstShiftVariables() {
         return negativePstShiftVariables;
+    }
+
+    public MPVariable getNegativePstShiftVariable(String rancgeActionId, String networkElementId) {
+        return negativePstShiftVariables.stream()
+            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rancgeActionId, networkElementId)))
+            .findFirst()
+            .orElse(null);
     }
 
     public List<MPVariable> getPositivePstShiftVariables() {
         return positivePstShiftVariables;
     }
 
+    public MPVariable getPositivePstShiftVariable(String rancgeActionId, String networkElementId) {
+        return positivePstShiftVariables.stream()
+            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rancgeActionId, networkElementId)))
+            .findFirst()
+            .orElse(null);
+    }
+
     public void addCnec(String cnecId, double referenceFlow, double minFlow, double maxFlow) {
         MPVariable flowVariable = solver.makeNumVar(minFlow, maxFlow, getFlowVariableId(cnecId));
+        flowVariables.add(flowVariable);
         MPConstraint flowConstraint = solver.makeConstraint(referenceFlow, referenceFlow, getFlowConstraintId(cnecId));
+        flowConstraints.add(flowConstraint);
         flowConstraint.setCoefficient(flowVariable, 1);
     }
 
@@ -68,8 +102,8 @@ public class LinearRaoProblem {
     }
 
     public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
-        String negativeVariableName = getNegativeRangeActionVariable(rangeActionId, networkElementId);
-        String positiveVariableName = getPositiveRangeActionVariable(rangeActionId, networkElementId);
+        String negativeVariableName = getNegativeRangeActionVariableId(rangeActionId, networkElementId);
+        String positiveVariableName = getPositiveRangeActionVariableId(rangeActionId, networkElementId);
 
         solver.makeNumVar(0, maxNegativeVariation, negativeVariableName);
         solver.makeNumVar(0, maxPositiveVariation, positiveVariableName);
@@ -78,11 +112,11 @@ public class LinearRaoProblem {
         positivePstShiftVariables.add(solver.lookupVariableOrNull(positiveVariableName));
     }
 
-    private static String getPositiveRangeActionVariable(String rangeActionId, String networkElementId) {
+    private static String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
         return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
     }
 
-    private static String getNegativeRangeActionVariable(String rangeActionId, String networkElementId) {
+    private static String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
         return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
     }
 
@@ -91,8 +125,8 @@ public class LinearRaoProblem {
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
-        MPVariable positiveRangeActionVariable = solver.lookupVariableOrNull(getPositiveRangeActionVariable(rangeActionId, networkElementId));
-        MPVariable negativeRangeActionVariable = solver.lookupVariableOrNull(getNegativeRangeActionVariable(rangeActionId, networkElementId));
+        MPVariable positiveRangeActionVariable = solver.lookupVariableOrNull(getPositiveRangeActionVariableId(rangeActionId, networkElementId));
+        MPVariable negativeRangeActionVariable = solver.lookupVariableOrNull(getNegativeRangeActionVariableId(rangeActionId, networkElementId));
         if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
             throw new FaraoException(String.format("Range action variable for %s on %s has not been defined yet.", rangeActionId, networkElementId));
         }

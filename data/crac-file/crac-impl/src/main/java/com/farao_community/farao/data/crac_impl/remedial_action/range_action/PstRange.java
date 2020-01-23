@@ -16,9 +16,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * Elementary PST range remedial action: choose the optimal value for a PST tap.
  *
@@ -52,12 +49,6 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
         } else {
             throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
         }
-    }
-
-    @Override
-    public Map<NetworkElement, Double> getCurrentValues(Network network) {
-        PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
-        return Collections.singletonMap(networkElement, (double) phaseTapChanger.getTapPosition());
     }
 
     private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {

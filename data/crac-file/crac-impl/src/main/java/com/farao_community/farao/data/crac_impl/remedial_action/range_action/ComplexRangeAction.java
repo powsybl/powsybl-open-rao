@@ -81,13 +81,6 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         applicableRangeActions.forEach(applicableRangeAction -> applicableRangeAction.apply(network, setpoint));
     }
 
-    @Override
-    public Map<NetworkElement, Double> getCurrentValues(Network network) {
-        Map<NetworkElement, Double> values = new HashMap<>();
-        applicableRangeActions.forEach(applicableRangeAction -> values.putAll(applicableRangeAction.getCurrentValues(network)));
-        return values;
-    }
-
     @JsonProperty("ranges")
     public void addRange(Range range) {
         this.ranges.add(range);

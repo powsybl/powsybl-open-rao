@@ -21,6 +21,7 @@ import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -31,6 +32,7 @@ import static org.junit.Assert.*;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
+@Ignore
 public class LinearRaoSkeletonTest {
     private LinearRaoProblem linearRaoProblem;
 

@@ -35,11 +35,4 @@ public class Countertrading implements ApplicableRangeAction {
     public Set<NetworkElement> getNetworkElements() {
         return new HashSet<>();
     }
-
-    @Override
-    public Map<NetworkElement, Double> getCurrentValues(Network network) {
-        Map<NetworkElement, Double> values = new HashMap<>();
-        getNetworkElements().forEach(networkElement -> values.put(networkElement, Double.NaN));
-        return values;
-    }
 }
