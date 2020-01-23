@@ -6,107 +6,23 @@
  */
 package com.farao_community.farao.linear_rao.fillers;
 
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.linear_rao.LinearRaoData;
-import com.farao_community.farao.linear_rao.LinearRaoProblem;
-import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Identifiable;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class CoreProblemFillerTest {
-
-    private CoreProblemFiller coreProblemFiller;
-    private LinearRaoProblem linearRaoProblem;
-    private LinearRaoData linearRaoData;
-    private Crac crac;
-    private Network network;
-    private State preventiveState;
-
-    private final double currentAlpha = 1.;
-    private final double minAlpha = -3.;
-    private final double maxAlpha = 5.;
-
-    private RangeAction rangeAction = mock(RangeAction.class);
-    private NetworkElement networkElement = mock(NetworkElement.class);
-
-    private final double referenceFlow1 = 500.;
-    private final double referenceFlow2 = 300.;
-    private Cnec cnec1 = mock(Cnec.class);
-    private Cnec cnec2 = mock(Cnec.class);
+public class CoreProblemFillerTest extends FillerTest {
 
     @Before
     public void setUp() {
+        init();
         coreProblemFiller = new CoreProblemFiller();
-        MPSolverMock solver = new MPSolverMock();
-        linearRaoProblem = spy(new LinearRaoProblem(solver));
-        linearRaoData = mock(LinearRaoData.class);
-        crac = mock(Crac.class);
-        network = mock(Network.class);
-        preventiveState = mock(State.class);
-
-        when(linearRaoData.getCrac()).thenReturn(crac);
-        when(linearRaoData.getNetwork()).thenReturn(network);
-        when(crac.getPreventiveState()).thenReturn(preventiveState);
-    }
-
-    private void initRangeAction() {
-        final String rangeActionId = "range-action-id";
-        final String networkElementId = "network-element-id";
-        final int minTap = -10;
-        final int maxTap = 16;
-
-        ApplicableRangeAction applicableRangeAction = mock(ApplicableRangeAction.class);
-        TwoWindingsTransformer twoWindingsTransformer = mock(TwoWindingsTransformer.class);
-        PhaseTapChanger phaseTapChanger = mock(PhaseTapChanger.class);
-        PhaseTapChangerStep currentTapChanger = mock(PhaseTapChangerStep.class);
-        PhaseTapChangerStep minTapChanger = mock(PhaseTapChangerStep.class);
-        PhaseTapChangerStep maxTapChanger = mock(PhaseTapChangerStep.class);
-
-        when(crac.getRangeActions(network, preventiveState, UsageMethod.AVAILABLE)).thenReturn(Collections.singleton(rangeAction));
-        when(rangeAction.getMinValue(network)).thenReturn((double) minTap);
-        when(rangeAction.getMaxValue(network)).thenReturn((double) maxTap);
-        when(rangeAction.getApplicableRangeActions()).thenReturn(Collections.singleton(applicableRangeAction));
-        when(rangeAction.getId()).thenReturn(rangeActionId);
-        when(applicableRangeAction.getNetworkElements()).thenReturn(Collections.singleton(networkElement));
-        when(networkElement.getId()).thenReturn(networkElementId);
-        when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
-        when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
-        when(phaseTapChanger.getCurrentStep()).thenReturn(currentTapChanger);
-        when(phaseTapChanger.getStep(maxTap)).thenReturn(maxTapChanger);
-        when(phaseTapChanger.getStep(minTap)).thenReturn(minTapChanger);
-        when(currentTapChanger.getAlpha()).thenReturn(currentAlpha);
-        when(maxTapChanger.getAlpha()).thenReturn(maxAlpha);
-        when(minTapChanger.getAlpha()).thenReturn(minAlpha);
-    }
-
-    private void initCnec() {
-        when(cnec1.getId()).thenReturn("cnec1-id");
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(referenceFlow1);
-        when(cnec2.getId()).thenReturn("cnec2-id");
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(referenceFlow2);
-        Set<Cnec> cnecs = new HashSet<>();
-        cnecs.add(cnec1);
-        cnecs.add(cnec2);
-        when(crac.getCnecs()).thenReturn(cnecs);
-    }
-
-    private void initBoth() {
-        initRangeAction();
-        initCnec();
     }
 
     @Test
@@ -126,7 +42,7 @@ public class CoreProblemFillerTest {
     }
 
     @Test
-    public void fillWithCnec() {
+    public void fillWithCnec() throws SynchronizationException {
         initCnec();
         coreProblemFiller.fill(linearRaoProblem, linearRaoData);
 
@@ -154,7 +70,7 @@ public class CoreProblemFillerTest {
     }
 
     @Test
-    public void fillRaAndCnec() {
+    public void fillRaAndCnec() throws SynchronizationException {
         initBoth();
         coreProblemFiller.fill(linearRaoProblem, linearRaoData);
 
