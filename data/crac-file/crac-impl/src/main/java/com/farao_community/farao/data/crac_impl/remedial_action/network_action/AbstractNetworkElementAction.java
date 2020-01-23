@@ -23,7 +23,7 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-abstract class AbstractNetworkElementAction extends AbstractRemedialAction implements NetworkAction {
+public abstract class AbstractNetworkElementAction extends AbstractRemedialAction implements NetworkAction {
     protected NetworkElement networkElement;
 
     @JsonCreator
@@ -34,6 +34,10 @@ abstract class AbstractNetworkElementAction extends AbstractRemedialAction imple
                                         @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules);
         this.networkElement = networkElement;
+    }
+
+    public AbstractNetworkElementAction() {
+        super();
     }
 
     public NetworkElement getNetworkElement() {

@@ -37,6 +37,14 @@ public final class InjectionSetpoint extends AbstractNetworkElementAction {
         this.setpoint = setpoint;
     }
 
+    @JsonCreator
+    public InjectionSetpoint(@JsonProperty("networkElement") NetworkElement networkElement,
+                             @JsonProperty("setpoint")  double setpoint) {
+        super();
+        this.networkElement = networkElement;
+        this.setpoint = setpoint;
+    }
+
     public double getSetpoint() {
         return setpoint;
     }
