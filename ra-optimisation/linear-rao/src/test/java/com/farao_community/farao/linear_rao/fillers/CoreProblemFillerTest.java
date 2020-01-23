@@ -10,15 +10,12 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
-import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
