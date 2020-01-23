@@ -4,6 +4,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
+import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.*;
@@ -51,43 +53,25 @@ public class CoreProblemFillerTest {
         final String networkElementId = "network-element-id";
         final int minTap = -10;
         final int maxTap = 16;
-        final double currentAlpha = 1.;
-        final double minAlpha = -3.;
-        final double maxAlpha = 5.;
+        final int currentTap = 5;
 
-        RangeAction rangeAction = mock(RangeAction.class);
-        ApplicableRangeAction applicableRangeAction = mock(ApplicableRangeAction.class);
-        NetworkElement networkElement = mock(NetworkElement.class);
-        TwoWindingsTransformer twoWindingsTransformer = mock(TwoWindingsTransformer.class);
-        PhaseTapChanger phaseTapChanger = mock(PhaseTapChanger.class);
-        PhaseTapChangerStep currentTapChanger = mock(PhaseTapChangerStep.class);
-        PhaseTapChangerStep minTapChanger = mock(PhaseTapChangerStep.class);
-        PhaseTapChangerStep maxTapChanger = mock(PhaseTapChangerStep.class);
+        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, minTap, maxTap);
+        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
 
         when(crac.getRangeActions(network, preventiveState, UsageMethod.AVAILABLE)).thenReturn(Collections.singleton(rangeAction));
-        when(rangeAction.getMinValue(network)).thenReturn((double) minTap);
-        when(rangeAction.getMaxValue(network)).thenReturn((double) maxTap);
-        when(rangeAction.getApplicableRangeActions()).thenReturn(Collections.singleton(applicableRangeAction));
-        when(rangeAction.getId()).thenReturn(rangeActionId);
-        when(applicableRangeAction.getNetworkElements()).thenReturn(Collections.singleton(networkElement));
-        when(networkElement.getId()).thenReturn(networkElementId);
         when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
-        when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
-        when(phaseTapChanger.getCurrentStep()).thenReturn(currentTapChanger);
-        when(phaseTapChanger.getStep(maxTap)).thenReturn(maxTapChanger);
-        when(phaseTapChanger.getStep(minTap)).thenReturn(minTapChanger);
-        when(currentTapChanger.getAlpha()).thenReturn(currentAlpha);
-        when(maxTapChanger.getAlpha()).thenReturn(maxAlpha);
-        when(minTapChanger.getAlpha()).thenReturn(minAlpha);
 
         coreProblemFiller.fill(linearRaoProblem, linearRaoData);
 
-        MPVariable variableNegative = linearRaoProblem.getNegativePstShiftVariable(rangeAction.getId(), networkElement.getId());
+        double minAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(minTap).getAlpha();
+        double maxAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(maxTap).getAlpha();
+        double currentAlpha = twoWindingsTransformer.getPhaseTapChanger().getCurrentStep().getAlpha();
+        MPVariable variableNegative = linearRaoProblem.getNegativePstShiftVariable(rangeAction.getId(), networkElementId);
         assertNotNull(variableNegative);
         assertEquals(0, variableNegative.lb(), 0.01);
         assertEquals(Math.abs(currentAlpha - minAlpha), variableNegative.ub(), 0.01);
 
-        MPVariable variablePositive = linearRaoProblem.getPositivePstShiftVariable(rangeAction.getId(), networkElement.getId());
+        MPVariable variablePositive = linearRaoProblem.getPositivePstShiftVariable(rangeAction.getId(), networkElementId);
         assertNotNull(variablePositive);
         assertEquals(0, variablePositive.lb(), 0.01);
         assertEquals(Math.abs(currentAlpha - maxAlpha), variablePositive.ub(), 0.01);

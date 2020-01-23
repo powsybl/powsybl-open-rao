@@ -10,7 +10,17 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class TwoWindingTransformerMock implements TwoWindingsTransformer {
+public class TwoWindingsTransformerMock implements TwoWindingsTransformer {
+    private int lowTapPosition;
+    private int highTapPosition;
+    private int currentTapPosition;
+
+    public TwoWindingsTransformerMock(int lowTapPosition, int highTapPosition, int currentTapPosition) {
+        this.lowTapPosition = lowTapPosition;
+        this.highTapPosition = highTapPosition;
+        this.currentTapPosition = currentTapPosition;
+    }
+
     @Override
     public Substation getSubstation() {
         return null;
@@ -293,7 +303,7 @@ public class TwoWindingTransformerMock implements TwoWindingsTransformer {
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        return null;
+        return new PhaseTapChangerMock(lowTapPosition, highTapPosition, currentTapPosition);
     }
 
     @Override
