@@ -77,4 +77,9 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
+
+    @JsonProperty("ranges")
+    public void addRange(AbstractRange range) {
+        this.ranges.add(range);
+    }
 }
