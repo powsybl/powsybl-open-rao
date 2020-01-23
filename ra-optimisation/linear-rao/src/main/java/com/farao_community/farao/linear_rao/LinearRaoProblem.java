@@ -46,7 +46,7 @@ public class LinearRaoProblem {
         this(new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
     }
 
-    MPSolver getSolver() {
+    public MPSolver getSolver() {
         return solver;
     }
 

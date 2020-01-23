@@ -36,6 +36,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
         // Create the Minimum Positive Margin variable
         this.linearRaoProblem.getPosMinMargin();
 
+
         // Add all the constraints (2 per CNEC)
         crac.getCnecs().forEach(this::fillConstraintsCnec);
 
