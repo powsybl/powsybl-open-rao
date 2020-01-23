@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.SynchronizationException;
@@ -33,7 +34,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
         crac.synchronize(network);
 
         // Create the Minimum Positive Margin variable
-        this.linearRaoProblem.getMinPosMargin();
+        this.linearRaoProblem.getPosMinMargin();
 
         // Add all the constraints (2 per CNEC)
         crac.getCnecs().forEach(this::fillConstraintsCnec);
@@ -46,14 +47,14 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
 
     private void fillConstraintsCnec(Cnec cnec) {
         try {
-            linearRaoProblem.addMinPosMargin(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-Double.MAX_VALUE), cnec.getThreshold().getMaxThreshold().orElse(Double.MAX_VALUE));
+            linearRaoProblem.addPosMinMargin(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-Double.MAX_VALUE), cnec.getThreshold().getMaxThreshold().orElse(Double.MAX_VALUE));
         } catch (SynchronizationException e) {
-            e.printStackTrace();
+            throw new FaraoException(e);
         }
     }
 
     private void fillObjective() {
-        linearRaoProblem.getMinPosObjective();
+        linearRaoProblem.getPosMinObjective();
     }
 }
 

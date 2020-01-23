@@ -19,11 +19,13 @@ public class MPObjectiveMock extends MPObjective {
 
     private Map<String, Double> coefficients;
     private boolean isMinimization;
+    private boolean isMaximization;
 
     protected MPObjectiveMock() {
         super(0, true);
         coefficients = new HashMap<>();
         isMinimization = true;
+        isMaximization = true;
     }
 
     @Override
@@ -44,5 +46,10 @@ public class MPObjectiveMock extends MPObjective {
     @Override
     public void setMinimization() {
         isMinimization = true;
+    }
+
+    @Override
+    public void setMaximization() {
+        isMaximization = true;
     }
 }

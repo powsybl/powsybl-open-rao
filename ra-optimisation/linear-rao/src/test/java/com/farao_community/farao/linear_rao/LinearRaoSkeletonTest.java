@@ -17,12 +17,14 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
+import com.farao_community.farao.linear_rao.fillers.PositiveMinMarginFiller;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -43,6 +45,7 @@ public class LinearRaoSkeletonTest {
     @Test
     public void test() {
         AbstractProblemFiller coreFiller = new CoreProblemFiller();
+        AbstractProblemFiller pmmFiller = new PositiveMinMarginFiller();
         Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         Crac crac = new SimpleCrac("crac-test");
         State preventiveState = new SimpleState(Optional.empty(), new Instant("N", 0));
@@ -65,7 +68,7 @@ public class LinearRaoSkeletonTest {
         );
         crac.addRangeAction(rangeAction);
         LinearRaoData linearRaoData = new LinearRaoData(crac, network, null);
-        LinearRaoModeller linearRaoModeller = new LinearRaoModeller(linearRaoProblem, linearRaoData, Collections.singletonList(coreFiller), null, null);
+        LinearRaoModeller linearRaoModeller = new LinearRaoModeller(linearRaoProblem, linearRaoData, Arrays.asList(coreFiller, pmmFiller), null, null);
 
         linearRaoModeller.buildProblem();
         linearRaoModeller.updateProblem(null);
