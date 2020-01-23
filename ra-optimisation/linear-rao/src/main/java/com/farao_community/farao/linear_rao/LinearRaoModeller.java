@@ -22,8 +22,8 @@ public class LinearRaoModeller {
     private List<AbstractPostProcessor> postProcessorList;
     private RaoParameters raoParameters;
 
-    public LinearRaoModeller(LinearRaoData linearRaoData, List<AbstractProblemFiller> fillerList, List<AbstractPostProcessor> postProcessorList, RaoParameters raoParameters) {
-        this.linearRaoProblem = new LinearRaoProblem();
+    public LinearRaoModeller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<AbstractProblemFiller> fillerList, List<AbstractPostProcessor> postProcessorList, RaoParameters raoParameters) {
+        this.linearRaoProblem = linearRaoProblem;
         this.linearRaoData = linearRaoData;
         this.fillerList = fillerList;
         this.postProcessorList = postProcessorList;

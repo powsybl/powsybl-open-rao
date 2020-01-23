@@ -1,49 +1,60 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearRaoProblemTest {
-
+    private MPSolver solver;
     private LinearRaoProblem linearRaoProblem;
 
     @Before
     public void setUp() {
-        linearRaoProblem = new LinearRaoProblem();
+        solver = new MPSolverMock();
+        linearRaoProblem = spy(new LinearRaoProblem(solver));
     }
 
     @Test
     public void addCnec() {
-        assertNull(linearRaoProblem.lookupVariableOrNull("cnec-test-variable"));
-        assertNull(linearRaoProblem.lookupConstraintOrNull("cnec-test-constraint"));
         linearRaoProblem.addCnec("cnec-test", 500, -800, 800);
-        assertNotNull(linearRaoProblem.lookupVariableOrNull("cnec-test-variable"));
-        assertEquals(800, linearRaoProblem.lookupVariableOrNull("cnec-test-variable").ub(), 1);
-        assertNotNull(linearRaoProblem.lookupConstraintOrNull("cnec-test-constraint"));
-        assertEquals(-800, linearRaoProblem.lookupVariableOrNull("cnec-test-variable").lb(), 1);
-        assertEquals(1, linearRaoProblem.numVariables());
-        assertEquals(1, linearRaoProblem.numConstraints());
+
+        MPVariable variable = linearRaoProblem.getSolver().lookupVariableOrNull("cnec-test-variable");
+        assertEquals(-800, variable.lb(), 0.1);
+        assertEquals(800, variable.ub(), 0.1);
+
+        MPConstraint constraint = linearRaoProblem.getSolver().lookupConstraintOrNull("cnec-test-constraint");
+        assertEquals(500, constraint.lb(), 0.1);
+        assertEquals(500, constraint.ub(), 0.1);
+        assertEquals(1, constraint.getCoefficient(variable), 0.1);
+
+        assertEquals(1, linearRaoProblem.getSolver().numVariables());
+        assertEquals(1, linearRaoProblem.getSolver().numConstraints());
     }
 
     @Test
     public void addRangeActionVariable() {
-        assertNull(linearRaoProblem.lookupVariableOrNull("positive-range-action-test-network-element-test-variable"));
-        assertNull(linearRaoProblem.lookupVariableOrNull("negative-range-action-test-network-element-test-variable"));
         linearRaoProblem.addRangeActionVariable("range-action-test", "network-element-test", 12, 15);
-        assertNotNull(linearRaoProblem.lookupVariableOrNull("positive-range-action-test-network-element-test-variable"));
-        assertNotNull(linearRaoProblem.lookupVariableOrNull("negative-range-action-test-network-element-test-variable"));
-        assertEquals(0, linearRaoProblem.lookupVariableOrNull("positive-range-action-test-network-element-test-variable").lb(), 1);
-        assertEquals(15, linearRaoProblem.lookupVariableOrNull("positive-range-action-test-network-element-test-variable").ub(), 1);
-        assertEquals(0, linearRaoProblem.lookupVariableOrNull("negative-range-action-test-network-element-test-variable").lb(), 1);
-        assertEquals(12, linearRaoProblem.lookupVariableOrNull("negative-range-action-test-network-element-test-variable").ub(), 1);
-        assertEquals(2, linearRaoProblem.numVariables());
-        assertEquals(0, linearRaoProblem.numConstraints());
+
+        MPVariable positiveVariable = linearRaoProblem.getSolver().lookupVariableOrNull("positive-range-action-test-network-element-test-variable");
+        assertEquals(0, positiveVariable.lb(), 0.1);
+        assertEquals(15, positiveVariable.ub(), 0.1);
+
+        MPVariable negativeVariable = linearRaoProblem.getSolver().lookupVariableOrNull("negative-range-action-test-network-element-test-variable");
+        assertEquals(0, negativeVariable.lb(), 0.1);
+        assertEquals(12, negativeVariable.ub(), 0.1);
+
+        assertEquals(1, linearRaoProblem.getNegativePstShiftVariables().size());
+        assertEquals(1, linearRaoProblem.getPositivePstShiftVariables().size());
     }
 
     @Test
@@ -52,17 +63,12 @@ public class LinearRaoProblemTest {
         linearRaoProblem.addRangeActionVariable("range-action-test", "network-element-test", 12, 15);
         linearRaoProblem.addRangeActionFlowOnBranch("cnec-test", "range-action-test", "network-element-test", 0.2);
 
-        assertEquals(
-            -0.2,
-            linearRaoProblem.lookupConstraintOrNull("cnec-test-constraint")
-                .getCoefficient(linearRaoProblem.lookupVariableOrNull("positive-range-action-test-network-element-test-variable")),
-            0.01);
+        MPConstraint constraint = linearRaoProblem.getSolver().lookupConstraintOrNull("cnec-test-constraint");
+        MPVariable positiveVariable = linearRaoProblem.getSolver().lookupVariableOrNull("positive-range-action-test-network-element-test-variable");
+        MPVariable negativeVariable = linearRaoProblem.getSolver().lookupVariableOrNull("negative-range-action-test-network-element-test-variable");
 
-        assertEquals(
-            0.2,
-            linearRaoProblem.lookupConstraintOrNull("cnec-test-constraint")
-                .getCoefficient(linearRaoProblem.lookupVariableOrNull("negative-range-action-test-network-element-test-variable")),
-            0.01);
+        assertEquals(-0.2, constraint.getCoefficient(positiveVariable), 0.01);
+        assertEquals(0.2, constraint.getCoefficient(negativeVariable), 0.01);
     }
 
     @Test

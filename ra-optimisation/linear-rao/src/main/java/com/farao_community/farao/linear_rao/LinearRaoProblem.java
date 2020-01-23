@@ -8,6 +8,7 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
@@ -19,18 +20,29 @@ import java.util.List;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class LinearRaoProblem extends MPSolver {
+public class LinearRaoProblem {
 
     static {
-        System.loadLibrary("jniortools");
+        NativeLibraryLoader.loadNativeLibraries();
     }
 
-    private List<MPVariable> negativePstShiftVariables = new ArrayList<>();
-    private List<MPVariable> positivePstShiftVariables = new ArrayList<>();
+    private MPSolver solver;
+    private List<MPVariable> negativePstShiftVariables;
+    private List<MPVariable> positivePstShiftVariables;
     private double penaltyCost = 1;
 
+    LinearRaoProblem(MPSolver mpSolver) {
+        solver = mpSolver;
+        negativePstShiftVariables = new ArrayList<>();
+        positivePstShiftVariables = new ArrayList<>();
+    }
+
     protected LinearRaoProblem() {
-        super("linear rao", OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+        this(new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
+    }
+
+    MPSolver getSolver() {
+        return solver;
     }
 
     public List<MPVariable> getNegativePstShiftVariables() {
@@ -42,8 +54,8 @@ public class LinearRaoProblem extends MPSolver {
     }
 
     public void addCnec(String cnecId, double referenceFlow, double minFlow, double maxFlow) {
-        MPVariable flowVariable = makeNumVar(minFlow, maxFlow, getFlowVariableId(cnecId));
-        MPConstraint flowConstraint = makeConstraint(referenceFlow, referenceFlow, getFlowConstraintId(cnecId));
+        MPVariable flowVariable = solver.makeNumVar(minFlow, maxFlow, getFlowVariableId(cnecId));
+        MPConstraint flowConstraint = solver.makeConstraint(referenceFlow, referenceFlow, getFlowConstraintId(cnecId));
         flowConstraint.setCoefficient(flowVariable, 1);
     }
 
@@ -59,11 +71,11 @@ public class LinearRaoProblem extends MPSolver {
         String negativeVariableName = getNegativeRangeActionVariable(rangeActionId, networkElementId);
         String positiveVariableName = getPositiveRangeActionVariable(rangeActionId, networkElementId);
 
-        makeNumVar(0, maxNegativeVariation, negativeVariableName);
-        makeNumVar(0, maxPositiveVariation, positiveVariableName);
+        solver.makeNumVar(0, maxNegativeVariation, negativeVariableName);
+        solver.makeNumVar(0, maxPositiveVariation, positiveVariableName);
 
-        negativePstShiftVariables.add(lookupVariableOrNull(negativeVariableName));
-        positivePstShiftVariables.add(lookupVariableOrNull(positiveVariableName));
+        negativePstShiftVariables.add(solver.lookupVariableOrNull(negativeVariableName));
+        positivePstShiftVariables.add(solver.lookupVariableOrNull(positiveVariableName));
     }
 
     private static String getPositiveRangeActionVariable(String rangeActionId, String networkElementId) {
@@ -75,12 +87,12 @@ public class LinearRaoProblem extends MPSolver {
     }
 
     public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
-        MPConstraint flowConstraint = lookupConstraintOrNull(getFlowConstraintId(cnecId));
+        MPConstraint flowConstraint = solver.lookupConstraintOrNull(getFlowConstraintId(cnecId));
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
-        MPVariable positiveRangeActionVariable = lookupVariableOrNull(getPositiveRangeActionVariable(rangeActionId, networkElementId));
-        MPVariable negativeRangeActionVariable = lookupVariableOrNull(getNegativeRangeActionVariable(rangeActionId, networkElementId));
+        MPVariable positiveRangeActionVariable = solver.lookupVariableOrNull(getPositiveRangeActionVariable(rangeActionId, networkElementId));
+        MPVariable negativeRangeActionVariable = solver.lookupVariableOrNull(getNegativeRangeActionVariable(rangeActionId, networkElementId));
         if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
             throw new FaraoException(String.format("Range action variable for %s on %s has not been defined yet.", rangeActionId, networkElementId));
         }
@@ -93,7 +105,7 @@ public class LinearRaoProblem extends MPSolver {
     }
 
     public void getMinPosMargin() {
-        makeNumVar(-MPSolver.infinity(), MPSolver.infinity(), "min-pos-margin");
+        solver.makeNumVar(-MPSolver.infinity(), MPSolver.infinity(), "min-pos-margin");
     }
 
     public String getMinPosMarginId(String branch, String minMax) {
@@ -101,17 +113,17 @@ public class LinearRaoProblem extends MPSolver {
     }
 
     public void addMinPosMargin(String cnecId, double min, double max) {
-        MPVariable flowVariable = lookupVariableOrNull(getFlowVariableId(cnecId));
-        MPConstraint flowConstraintMax = makeConstraint(-MPSolver.infinity(), max, getMinPosMarginId(cnecId, "max"));
+        MPVariable flowVariable = solver.lookupVariableOrNull(getFlowVariableId(cnecId));
+        MPConstraint flowConstraintMax = solver.makeConstraint(-MPSolver.infinity(), max, getMinPosMarginId(cnecId, "max"));
         flowConstraintMax.setCoefficient(flowVariable, 1);
 
-        MPConstraint flowConstraintMin = makeConstraint(-MPSolver.infinity(), -min, getMinPosMarginId(cnecId, "min"));
+        MPConstraint flowConstraintMin = solver.makeConstraint(-MPSolver.infinity(), -min, getMinPosMarginId(cnecId, "min"));
         flowConstraintMin.setCoefficient(flowVariable, -1);
     }
 
     public void getMinPosObjective() {
-        MPObjective objective = objective();
-        objective.setCoefficient(lookupVariableOrNull("min-pos-margin"), 1);
+        MPObjective objective = solver.objective();
+        objective.setCoefficient(solver.lookupVariableOrNull("min-pos-margin"), 1);
         getNegativePstShiftVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -penaltyCost));
         getPositivePstShiftVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -penaltyCost));
         objective.setMaximization();
