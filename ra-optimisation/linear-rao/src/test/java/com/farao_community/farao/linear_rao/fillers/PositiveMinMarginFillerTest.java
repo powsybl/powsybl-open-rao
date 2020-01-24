@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
 public class PositiveMinMarginFillerTest extends FillerTest {
 
     private PositiveMinMarginFiller positiveMinMarginFiller;
@@ -33,8 +36,8 @@ public class PositiveMinMarginFillerTest extends FillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
-        positiveMinMarginFiller = new PositiveMinMarginFiller();
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        positiveMinMarginFiller = new PositiveMinMarginFiller(linearRaoProblem, linearRaoData);
     }
 
     @Test
@@ -66,11 +69,10 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
         when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
-        coreProblemFiller.fill(linearRaoProblem, linearRaoData);
-        positiveMinMarginFiller.fill(linearRaoProblem, linearRaoData);
-
-        assertEquals(-Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().lb(), 0.1);
-        assertEquals(Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().ub(), 0.1);
+        coreProblemFiller.fill();
+        positiveMinMarginFiller.fill();
+        assertEquals(-LinearRaoProblem.infinity(), linearRaoProblem.getMinimumMarginVariable().lb(), 0.1);
+        assertEquals(LinearRaoProblem.infinity(), linearRaoProblem.getMinimumMarginVariable().ub(), 0.1);
         assertEquals(cnec1MaxFlow, linearRaoProblem.getMinimumMarginConstraint(cnec1.getId(), "max").ub(), 0.1);
         assertEquals(-cnec1MinFlow, linearRaoProblem.getMinimumMarginConstraint(cnec1.getId(), "min").ub(), 0.1);
         assertEquals(cnec2MaxFlow, linearRaoProblem.getMinimumMarginConstraint(cnec2.getId(), "max").ub(), 0.1);
@@ -79,7 +81,7 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         MPObjective objective = linearRaoProblem.getObjective();
         assertTrue(objective.maximization());
         assertEquals(1, objective.getCoefficient(linearRaoProblem.getMinimumMarginVariable()), 0.1);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativePstShiftVariable(rangeActionId, networkElementId)), 0.01);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositivePstShiftVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId)), 0.01);
     }
 }

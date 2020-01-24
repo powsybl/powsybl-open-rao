@@ -24,10 +24,12 @@ import java.util.Set;
 public class CoreProblemFiller extends AbstractProblemFiller {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
 
+    public CoreProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        super(linearRaoProblem, linearRaoData);
+    }
+
     @Override
-    public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        this.linearRaoData = linearRaoData;
-        this.linearRaoProblem = linearRaoProblem;
+    public void fill() {
         Crac crac = linearRaoData.getCrac();
         Network network = linearRaoData.getNetwork();
 
@@ -44,7 +46,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     private void fillCnec(Cnec cnec) {
-        linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec), -Double.MAX_VALUE, Double.MAX_VALUE);
+        linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
     }
 
     /**

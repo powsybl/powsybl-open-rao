@@ -7,6 +7,7 @@
 package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
@@ -16,6 +17,8 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -23,12 +26,13 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
 public class CoreProblemFillerTest extends FillerTest {
 
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
     }
 
     @Test
@@ -56,26 +60,26 @@ public class CoreProblemFillerTest extends FillerTest {
         TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
         when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
-        coreProblemFiller.fill(linearRaoProblem, linearRaoData);
+        coreProblemFiller.fill();
 
         double minAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(minTap).getAlpha();
         double maxAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(maxTap).getAlpha();
         double currentAlpha = twoWindingsTransformer.getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        MPVariable variableRangeNegative = linearRaoProblem.getNegativePstShiftVariable(rangeAction.getId(), networkElementId);
+        MPVariable variableRangeNegative = linearRaoProblem.getNegativeRangeActionVariable(rangeAction.getId(), networkElementId);
         assertNotNull(variableRangeNegative);
         assertEquals(0, variableRangeNegative.lb(), 0.01);
         assertEquals(Math.abs(currentAlpha - minAlpha), variableRangeNegative.ub(), 0.01);
 
-        MPVariable variableRangePositive = linearRaoProblem.getPositivePstShiftVariable(rangeAction.getId(), networkElementId);
+        MPVariable variableRangePositive = linearRaoProblem.getPositiveRangeActionVariable(rangeAction.getId(), networkElementId);
         assertNotNull(variableRangePositive);
         assertEquals(0, variableRangePositive.lb(), 0.01);
         assertEquals(Math.abs(currentAlpha - maxAlpha), variableRangePositive.ub(), 0.01);
 
         MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1.getId());
         assertNotNull(flowVariable);
-        assertEquals(-Double.MAX_VALUE, flowVariable.lb(), 0.01);
-        assertEquals(Double.MAX_VALUE, flowVariable.ub(), 0.01);
+        assertEquals(-LinearRaoProblem.infinity(), flowVariable.lb(), 0.01);
+        assertEquals(LinearRaoProblem.infinity(), flowVariable.ub(), 0.01);
 
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1.getId());
         assertNotNull(flowConstraint);
@@ -87,8 +91,8 @@ public class CoreProblemFillerTest extends FillerTest {
 
         MPVariable flowVariable2 = linearRaoProblem.getFlowVariable(cnec2.getId());
         assertNotNull(flowVariable2);
-        assertEquals(-Double.MAX_VALUE, flowVariable2.lb(), 0.01);
-        assertEquals(Double.MAX_VALUE, flowVariable2.ub(), 0.01);
+        assertEquals(-LinearRaoProblem.infinity(), flowVariable2.lb(), 0.01);
+        assertEquals(LinearRaoProblem.infinity(), flowVariable2.ub(), 0.01);
 
         MPConstraint flowConstraint2 = linearRaoProblem.getFlowConstraint(cnec2.getId());
         assertNotNull(flowConstraint2);

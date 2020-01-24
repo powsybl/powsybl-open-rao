@@ -11,6 +11,8 @@ import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.powsybl.iidm.network.*;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +22,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@PrepareForTest(LinearRaoProblem.class)
 public class FillerTest {
 
     protected CoreProblemFiller coreProblemFiller;
@@ -33,6 +36,8 @@ public class FillerTest {
 
     protected void init() {
         MPSolverMock solver = new MPSolverMock();
+        PowerMockito.mockStatic(LinearRaoProblem.class);
+        when(LinearRaoProblem.infinity()).thenReturn(Double.MAX_VALUE);
         linearRaoProblem = spy(new LinearRaoProblem(solver));
         linearRaoData = mock(LinearRaoData.class);
         crac = mock(Crac.class);

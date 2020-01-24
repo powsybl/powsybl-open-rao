@@ -19,17 +19,13 @@ public final class NativeLibraryLoader {
     }
 
     public static synchronized void loadNativeLibraries() {
-        if (nativeLibrariesLoaded) {
-            return;
-        }
-
-        try {
-            if (nativeLibrariesLoaded) {
+        if (!nativeLibrariesLoaded) {
+            try {
                 System.loadLibrary("jniortools");
                 nativeLibrariesLoaded = true;
+            } catch (UnsatisfiedLinkError e) {
+                throw new FaraoException("Failed to load the library.");
             }
-        } catch (UnsatisfiedLinkError e) {
-            throw new FaraoException("Failed to load the library.");
         }
     }
 }

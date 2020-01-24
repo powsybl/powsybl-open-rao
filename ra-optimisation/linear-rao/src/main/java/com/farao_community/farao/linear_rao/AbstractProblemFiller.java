@@ -14,7 +14,12 @@ public abstract class AbstractProblemFiller {
     protected LinearRaoProblem linearRaoProblem;
     protected LinearRaoData linearRaoData;
 
-    public abstract void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData);
+    public AbstractProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        this.linearRaoProblem = linearRaoProblem;
+        this.linearRaoData = linearRaoData;
+    }
+
+    public abstract void fill();
 
     public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         //todo
