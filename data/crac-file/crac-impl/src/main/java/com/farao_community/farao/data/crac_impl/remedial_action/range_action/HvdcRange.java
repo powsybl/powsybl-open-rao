@@ -38,13 +38,13 @@ public final class HvdcRange extends AbstractNetworkElementRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to HvdcRange
-        return 0;
+        return tempValue;
     }
 
     @Override
     public double getMaxValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to HvdcRange
-        return 0;
+        return tempValue;
     }
 
     @Override

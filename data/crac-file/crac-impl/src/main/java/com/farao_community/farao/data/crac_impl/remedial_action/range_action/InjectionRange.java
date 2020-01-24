@@ -38,13 +38,13 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to InjectionRange
-        return 0;
+        return tempValue;
     }
 
     @Override
     public double getMaxValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to InjectionRange
-        return 0;
+        return tempValue;
     }
 
     @Override

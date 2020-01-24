@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public abstract class AbstractNetworkElementRangeAction extends AbstractRemedialAction implements RangeAction {
 
+    protected static int tempValue = 0;
+
     protected List<AbstractRange> ranges;
 
     protected NetworkElement networkElement;
