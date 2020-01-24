@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class MPSolverMock extends MPSolver {
 
+    private MPObjectiveMock objective;
     private List<MPConstraintMock> constraints;
     private List<MPVariableMock> variables;
 
@@ -84,7 +85,11 @@ public class MPSolverMock extends MPSolver {
 
     @Override
     public MPObjectiveMock objective() {
-        return new MPObjectiveMock();
+        if (objective == null) {
+            return new MPObjectiveMock();
+        } else {
+            return objective;
+        }
     }
 
     @Override

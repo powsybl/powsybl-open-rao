@@ -52,4 +52,9 @@ public class MPObjectiveMock extends MPObjective {
     public void setMaximization() {
         isMaximization = true;
     }
+
+    @Override
+    public boolean maximization() {
+        return isMaximization;
+    }
 }

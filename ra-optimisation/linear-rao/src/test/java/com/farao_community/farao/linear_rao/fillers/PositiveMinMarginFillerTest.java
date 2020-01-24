@@ -8,15 +8,18 @@ package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
+import com.google.ortools.linearsolver.MPObjective;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -66,11 +69,17 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         coreProblemFiller.fill(linearRaoProblem, linearRaoData);
         positiveMinMarginFiller.fill(linearRaoProblem, linearRaoData);
 
-        assertEquals(-Double.MAX_VALUE, linearRaoProblem.getSolver().lookupVariableOrNull("pos-min-margin").lb(), 0.1);
-        assertEquals(Double.MAX_VALUE, linearRaoProblem.getSolver().lookupVariableOrNull("pos-min-margin").ub(), 0.1);
-        assertEquals(cnec1MaxFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec1-id-max").ub(), 0.1);
-        assertEquals(-cnec1MinFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec1-id-min").ub(), 0.1);
-        assertEquals(cnec2MaxFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec2-id-max").ub(), 0.1);
-        assertEquals(-cnec2MinFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec2-id-min").ub(), 0.1);
+        assertEquals(-Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().lb(), 0.1);
+        assertEquals(Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().ub(), 0.1);
+        assertEquals(cnec1MaxFlow, linearRaoProblem.getMinimumMarginConstraint(cnec1.getId(), "max").ub(), 0.1);
+        assertEquals(-cnec1MinFlow, linearRaoProblem.getMinimumMarginConstraint(cnec1.getId(), "min").ub(), 0.1);
+        assertEquals(cnec2MaxFlow, linearRaoProblem.getMinimumMarginConstraint(cnec2.getId(), "max").ub(), 0.1);
+        assertEquals(-cnec2MinFlow, linearRaoProblem.getMinimumMarginConstraint(cnec2.getId(), "min").ub(), 0.1);
+
+        MPObjective objective = linearRaoProblem.getObjective();
+        assertTrue(objective.maximization());
+        assertEquals(1, objective.getCoefficient(linearRaoProblem.getMinimumMarginVariable()), 0.1);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativePstShiftVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositivePstShiftVariable(rangeActionId, networkElementId)), 0.01);
     }
 }

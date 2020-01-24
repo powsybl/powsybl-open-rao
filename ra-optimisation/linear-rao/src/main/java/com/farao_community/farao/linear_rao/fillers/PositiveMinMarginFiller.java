@@ -34,7 +34,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
         crac.synchronize(network);
 
         // Create the Minimum Positive Margin variable
-        this.linearRaoProblem.getPosMinMargin();
+        this.linearRaoProblem.addMinimumMarginVariable();
 
         // Add all the constraints (2 per CNEC)
         crac.getCnecs().forEach(this::fillConstraintsCnec);
@@ -47,7 +47,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
 
     private void fillConstraintsCnec(Cnec cnec) {
         try {
-            linearRaoProblem.addPosMinMargin(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-Double.MAX_VALUE), cnec.getThreshold().getMaxThreshold().orElse(Double.MAX_VALUE));
+            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-Double.MAX_VALUE), cnec.getThreshold().getMaxThreshold().orElse(Double.MAX_VALUE));
         } catch (SynchronizationException e) {
             throw new FaraoException(e);
         }

@@ -26,18 +26,22 @@ public class LinearRaoProblem {
         NativeLibraryLoader.loadNativeLibraries();
     }
 
+    public static final double PENALTY_COST = 0.1;
+
     private MPSolver solver;
+    private MPObjective objective;
     private List<MPVariable> flowVariables;
     private List<MPConstraint> flowConstraints;
+    private List<MPConstraint> minimumMarginConstraints;
     private List<MPVariable> negativePstShiftVariables;
     private List<MPVariable> positivePstShiftVariables;
-    private double penaltyCost = 1;
     private static final String POS_MIN_MARGIN = "pos-min-margin";
 
     public LinearRaoProblem(MPSolver mpSolver) {
         solver = mpSolver;
         flowVariables = new ArrayList<>();
         flowConstraints = new ArrayList<>();
+        minimumMarginConstraints = new ArrayList<>();
         negativePstShiftVariables = new ArrayList<>();
         positivePstShiftVariables = new ArrayList<>();
     }
@@ -84,6 +88,21 @@ public class LinearRaoProblem {
             .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rancgeActionId, networkElementId)))
             .findFirst()
             .orElse(null);
+    }
+
+    public MPConstraint getMinimumMarginConstraint(String cnecId, String minMax) {
+        return minimumMarginConstraints.stream()
+            .filter(constraint -> constraint.name().equals(getMinimumMarginConstraintId(cnecId, minMax)))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public MPVariable getMinimumMarginVariable() {
+        return solver.lookupVariableOrNull(POS_MIN_MARGIN);
+    }
+
+    public MPObjective getObjective() {
+        return objective;
     }
 
     public void addCnec(String cnecId, double referenceFlow, double minFlow, double maxFlow) {
@@ -139,28 +158,29 @@ public class LinearRaoProblem {
             sensitivity);
     }
 
-    public void getPosMinMargin() {
+    public void addMinimumMarginVariable() {
         solver.makeNumVar(-Double.MAX_VALUE, Double.MAX_VALUE, POS_MIN_MARGIN);
     }
 
-    public String getPosMinMarginId(String branch, String minMax) {
+    private static String getMinimumMarginConstraintId(String branch, String minMax) {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
     }
 
-    public void addPosMinMargin(String cnecId, double min, double max) {
+    public void addMinimumMarginConstraints(String cnecId, double min, double max) {
         MPVariable flowVariable = solver.lookupVariableOrNull(getFlowVariableId(cnecId));
-        MPConstraint flowConstraintMax = solver.makeConstraint(-Double.MAX_VALUE, max, getPosMinMarginId(cnecId, "max"));
-        flowConstraintMax.setCoefficient(flowVariable, 1);
-
-        MPConstraint flowConstraintMin = solver.makeConstraint(-Double.MAX_VALUE, -min, getPosMinMarginId(cnecId, "min"));
-        flowConstraintMin.setCoefficient(flowVariable, -1);
+        MPConstraint minimumMarginByMax = solver.makeConstraint(-Double.MAX_VALUE, max, getMinimumMarginConstraintId(cnecId, "max"));
+        minimumMarginByMax.setCoefficient(flowVariable, 1);
+        minimumMarginConstraints.add(minimumMarginByMax);
+        MPConstraint minimumMarginByMin = solver.makeConstraint(-Double.MAX_VALUE, -min, getMinimumMarginConstraintId(cnecId, "min"));
+        minimumMarginByMin.setCoefficient(flowVariable, -1);
+        minimumMarginConstraints.add(minimumMarginByMin);
     }
 
     public void getPosMinObjective() {
-        MPObjective objective = solver.objective();
+        objective = solver.objective();
         objective.setCoefficient(solver.lookupVariableOrNull(POS_MIN_MARGIN), 1);
-        getNegativePstShiftVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -penaltyCost));
-        getPositivePstShiftVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -penaltyCost));
+        getNegativePstShiftVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -PENALTY_COST));
+        getPositivePstShiftVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -PENALTY_COST));
         objective.setMaximization();
     }
 }
