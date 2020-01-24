@@ -13,15 +13,12 @@ import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
 import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static junit.framework.TestCase.assertTrue;
@@ -32,7 +29,6 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(LinearRaoProblem.class)
 public class PositiveMinMarginFillerTest extends FillerTest {
 
     private PositiveMinMarginFiller positiveMinMarginFiller;
@@ -40,8 +36,6 @@ public class PositiveMinMarginFillerTest extends FillerTest {
     @Before
     public void setUp() {
         init();
-        PowerMockito.mockStatic(LinearRaoProblem.class);
-        when(LinearRaoProblem.infinity()).thenReturn(Double.MAX_VALUE);
         coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
         positiveMinMarginFiller = new PositiveMinMarginFiller(linearRaoProblem, linearRaoData);
     }

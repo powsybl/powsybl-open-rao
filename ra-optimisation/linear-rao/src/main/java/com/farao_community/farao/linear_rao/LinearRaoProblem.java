@@ -165,23 +165,23 @@ public class LinearRaoProblem {
         objective.setMaximization();
     }
 
-    private static String getFlowVariableId(String cnecId) {
+    private String getFlowVariableId(String cnecId) {
         return String.format("%s-variable", cnecId);
     }
 
-    private static String getFlowConstraintId(String cnecId) {
+    private String getFlowConstraintId(String cnecId) {
         return String.format("%s-constraint", cnecId);
     }
 
-    private static String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
+    private String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
         return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
     }
 
-    private static String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
+    private String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
         return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
     }
 
-    private static String getMinimumMarginConstraintId(String branch, String minMax) {
+    private String getMinimumMarginConstraintId(String branch, String minMax) {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
     }
 }
