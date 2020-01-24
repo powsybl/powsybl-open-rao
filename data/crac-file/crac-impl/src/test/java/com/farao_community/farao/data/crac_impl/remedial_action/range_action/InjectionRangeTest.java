@@ -48,8 +48,8 @@ public class InjectionRangeTest extends AbstractNetworkElementRangeActionTest {
     public void getMinAndMaxValueWithRange() {
         Network mockedNetwork = Mockito.mock(Network.class);
         AbstractRange anyRange = Mockito.mock(AbstractRange.class);
-        assertEquals(InjectionRange.tempValue, injectionRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
-        assertEquals(InjectionRange.tempValue, injectionRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)

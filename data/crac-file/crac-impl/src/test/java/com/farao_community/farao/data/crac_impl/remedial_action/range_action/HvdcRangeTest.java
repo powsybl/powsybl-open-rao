@@ -11,6 +11,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -48,31 +49,9 @@ public class HvdcRangeTest extends AbstractNetworkElementRangeActionTest {
     public void getMinAndMaxValueWithSingleRange() {
         Network mockedNetwork = Mockito.mock(Network.class);
         AbstractRange anyRange = Mockito.mock(AbstractRange.class);
-        assertEquals(HvdcRange.tempValue, hvdcRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
-        assertEquals(HvdcRange.tempValue, hvdcRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
     }
-
-    /*@Test
-    public void getMinAndMaxValueWithMultipleRanges() {
-        AbsoluteFixedRange range1 = Mockito.mock(AbsoluteFixedRange.class);
-        RelativeFixedRange range2 = Mockito.mock(RelativeFixedRange.class);
-        hvdcRange.addRange(range1);
-        hvdcRange.addRange(range2);
-
-        Network mockedNetwork = Mockito.mock(Network.class);
-
-        AbstractRange initialRange = hvdcRange.ranges.get(0);
-        double expectedMinRange0 = -100;
-        Mockito.when(hvdcRange.getMinValueWithRange(mockedNetwork, initialRange)).thenReturn(expectedMinRange0);
-
-        double expectedMinRange1 = -5;
-        Mockito.when(hvdcRange.getMinValueWithRange(mockedNetwork, range1)).thenReturn(expectedMinRange1);
-
-        double expectedMinRange2 = -10;
-        Mockito.when(hvdcRange.getMinValueWithRange(mockedNetwork, range2)).thenReturn(expectedMinRange2);
-
-        assertEquals(Math.max(expectedMinRange1, expectedMinRange2), hvdcRange.getMaxValue(mockedNetwork), 0);
-    }*/
 
     @Test(expected = UnsupportedOperationException.class)
     public void apply() {
@@ -81,4 +60,10 @@ public class HvdcRangeTest extends AbstractNetworkElementRangeActionTest {
         hvdcRange.apply(mockedNetwork, anySetpoint);
     }
 
+    @Test
+    public void addRange() {
+        AbsoluteFixedRange range1 = Mockito.mock(AbsoluteFixedRange.class);
+        hvdcRange.addRange(range1);
+        assertEquals(2, hvdcRange.ranges.size(), 0);
+    }
 }

@@ -9,10 +9,12 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 
 import static org.junit.Assert.*;
@@ -104,4 +106,11 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
         }
     }
 
+    @Test
+    public void getMinAndMaxValueWithRange() {
+        Network network = Mockito.mock(Network.class);
+        AbstractRange range = Mockito.mock(AbstractRange.class);
+        assertEquals(0, pstRange.getMaxValueWithRange(network, range), 0);
+        assertEquals(0, pstRange.getMinValueWithRange(network, range), 0);
+    }
 }

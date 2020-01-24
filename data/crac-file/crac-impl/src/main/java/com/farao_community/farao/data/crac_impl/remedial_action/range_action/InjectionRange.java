@@ -25,6 +25,8 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class InjectionRange extends AbstractNetworkElementRangeAction {
 
+    protected static int injectionRangeTempValue = 0;
+
     @JsonCreator
     public InjectionRange(@JsonProperty("id") String id,
                           @JsonProperty("name") String name,
@@ -38,13 +40,13 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to InjectionRange
-        return tempValue;
+        return injectionRangeTempValue;
     }
 
     @Override
     public double getMaxValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to InjectionRange
-        return tempValue;
+        return injectionRangeTempValue;
     }
 
     @Override

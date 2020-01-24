@@ -25,6 +25,8 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class HvdcRange extends AbstractNetworkElementRangeAction {
 
+    protected static int hvdcRangeTempValue = 0;
+
     @JsonCreator
     public HvdcRange(@JsonProperty("id") String id,
                      @JsonProperty("name") String name,
@@ -38,13 +40,13 @@ public final class HvdcRange extends AbstractNetworkElementRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to HvdcRange
-        return tempValue;
+        return hvdcRangeTempValue;
     }
 
     @Override
     public double getMaxValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to HvdcRange
-        return tempValue;
+        return hvdcRangeTempValue;
     }
 
     @Override

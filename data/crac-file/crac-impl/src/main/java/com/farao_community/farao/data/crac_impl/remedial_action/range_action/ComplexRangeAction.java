@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,18 +46,6 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         super(id, name, operator, usageRules);
         this.ranges = ranges;
         this.rangeActions = new HashSet<>(rangeActions);
-    }
-
-    public ComplexRangeAction(String id, String operator, List<UsageRule> usageRules, List<AbstractRange> ranges, Set<RangeAction> rangeActions) {
-        this (id, id, operator, usageRules, ranges, rangeActions);
-    }
-
-    public ComplexRangeAction(String id, String name, String operator) {
-        this (id, name, operator, new ArrayList<>(), new ArrayList<>(), new HashSet<>());
-    }
-
-    public ComplexRangeAction(String id, String operator) {
-        this (id, id, operator, new ArrayList<>(), new ArrayList<>(), new HashSet<>());
     }
 
     public List<AbstractRange> getRanges() {

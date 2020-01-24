@@ -49,14 +49,4 @@ abstract public class AbstractNetworkElementRangeActionTest extends AbstractReme
         // doesnt work for the moment!!! don't know how to test it...
         // assertEquals(Math.max(expectedMinRange1, expectedMinRange2), mockedHvdcRange.getMinValue(mockedNetwork), 0);
     }
-
-    @Test
-    public void addRange() {
-        AbstractNetworkElementRangeAction abstractNetworkElementRangeAction = Mockito.mock(AbstractNetworkElementRangeAction.class);
-        AbsoluteFixedRange range1 = Mockito.mock(AbsoluteFixedRange.class);
-        RelativeFixedRange range2 = Mockito.mock(RelativeFixedRange.class);
-        abstractNetworkElementRangeAction.addRange(range1);
-        abstractNetworkElementRangeAction.addRange(range2);
-
-    }
 }
