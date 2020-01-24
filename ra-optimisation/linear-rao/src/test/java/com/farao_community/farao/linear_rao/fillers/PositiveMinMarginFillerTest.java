@@ -13,9 +13,11 @@ import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,8 +45,12 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         final double referenceFlow2 = 300.;
         final double cnec1toRangeSensitivity = 0.2;
         final double cnec2toRangeSensitivity = 0.5;
-        Cnec cnec1 = new CnecMock("cnec1-id", 0, 800);
-        Cnec cnec2 = new CnecMock("cnec2-id", 0, 800);
+        final double cnec1MaxFlow = 400.;
+        final double cnec2MaxFlow = 500.;
+        final double cnec1MinFlow = 10.;
+        final double cnec2MinFlow = 50.;
+        Cnec cnec1 = new CnecMock("cnec1-id", cnec1MinFlow, cnec1MaxFlow);
+        Cnec cnec2 = new CnecMock("cnec2-id", cnec2MinFlow, cnec2MaxFlow);
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(referenceFlow1);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(referenceFlow2);
 
@@ -59,5 +65,12 @@ public class PositiveMinMarginFillerTest extends FillerTest {
 
         coreProblemFiller.fill(linearRaoProblem, linearRaoData);
         positiveMinMarginFiller.fill(linearRaoProblem, linearRaoData);
+
+        assertEquals(-Double.MAX_VALUE, linearRaoProblem.getSolver().lookupVariableOrNull("pos-min-margin").lb(), 0.1);
+        assertEquals(Double.MAX_VALUE, linearRaoProblem.getSolver().lookupVariableOrNull("pos-min-margin").ub(), 0.1);
+        assertEquals(cnec1MaxFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec1-id-max").ub(), 0.1);
+        assertEquals(-cnec1MinFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec1-id-min").ub(), 0.1);
+        assertEquals(cnec2MaxFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec2-id-max").ub(), 0.1);
+        assertEquals(-cnec2MinFlow, linearRaoProblem.getSolver().lookupConstraintOrNull("pos-min-margin-cnec2-id-min").ub(), 0.1);
     }
 }
