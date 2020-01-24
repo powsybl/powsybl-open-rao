@@ -15,19 +15,18 @@ import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class PositiveMinMarginFiller extends AbstractProblemFiller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PositiveMinMarginFiller.class);
+
+    public PositiveMinMarginFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        super(linearRaoProblem, linearRaoData);
+    }
 
     @Override
-    public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        this.linearRaoData = linearRaoData;
-        this.linearRaoProblem = linearRaoProblem;
+    public void fill() {
         Crac crac = linearRaoData.getCrac();
         Network network = linearRaoData.getNetwork();
 
@@ -47,14 +46,14 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
 
     private void fillConstraintsCnec(Cnec cnec) {
         try {
-            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-Double.MAX_VALUE), cnec.getThreshold().getMaxThreshold().orElse(Double.MAX_VALUE));
+            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-LinearRaoProblem.infinity()), cnec.getThreshold().getMaxThreshold().orElse(LinearRaoProblem.infinity()));
         } catch (SynchronizationException e) {
             throw new FaraoException(e);
         }
     }
 
     private void fillObjective() {
-        linearRaoProblem.getPosMinObjective();
+        linearRaoProblem.addPosMinObjective();
     }
 }
 
