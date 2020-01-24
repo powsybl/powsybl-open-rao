@@ -30,14 +30,14 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(MPSolver.class)
+@PrepareForTest(LinearRaoProblem.class)
 public class CoreProblemFillerTest extends FillerTest {
 
     @Before
     public void setUp() {
         init();
-        PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
+        PowerMockito.mockStatic(LinearRaoProblem.class);
+        when(LinearRaoProblem.infinity()).thenReturn(Double.MAX_VALUE);
         coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
     }
 
