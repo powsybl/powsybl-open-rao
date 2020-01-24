@@ -8,7 +8,6 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
@@ -21,10 +20,6 @@ import java.util.List;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearRaoProblem {
-
-    static {
-        NativeLibraryLoader.loadNativeLibraries();
-    }
 
     public static double infinity() {
         return MPSolver.infinity();

@@ -12,11 +12,16 @@ import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
 import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -24,11 +29,15 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MPSolver.class)
 public class CoreProblemFillerTest extends FillerTest {
 
     @Before
     public void setUp() {
         init();
+        PowerMockito.mockStatic(MPSolver.class);
+        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
         coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
     }
 
