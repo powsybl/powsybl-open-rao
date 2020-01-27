@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@PrepareForTest(LinearRaoProblem.class)
+@PrepareForTest(MPSolver.class)
 public class FillerTest {
 
     protected CoreProblemFiller coreProblemFiller;
@@ -36,9 +37,9 @@ public class FillerTest {
 
     protected void init() {
         MPSolverMock solver = new MPSolverMock();
-        PowerMockito.mockStatic(LinearRaoProblem.class);
-        when(LinearRaoProblem.infinity()).thenReturn(Double.MAX_VALUE);
-        linearRaoProblem = spy(new LinearRaoProblem(solver));
+        PowerMockito.mockStatic(MPSolver.class);
+        when(MPSolver.infinity()).thenReturn(Double.MAX_VALUE);
+        linearRaoProblem = new LinearRaoProblem(solver);
         linearRaoData = mock(LinearRaoData.class);
         crac = mock(Crac.class);
         network = mock(Network.class);
