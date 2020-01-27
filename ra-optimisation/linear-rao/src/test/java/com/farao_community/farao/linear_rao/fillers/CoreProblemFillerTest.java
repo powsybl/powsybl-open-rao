@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -23,6 +25,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
 public class CoreProblemFillerTest extends FillerTest {
 
     @Before
