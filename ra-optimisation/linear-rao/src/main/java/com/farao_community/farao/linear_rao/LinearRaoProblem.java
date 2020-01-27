@@ -75,9 +75,9 @@ public class LinearRaoProblem {
         return negativeRangeActionVariables;
     }
 
-    public MPVariable getNegativeRangeActionVariable(String rancgeActionId, String networkElementId) {
+    public MPVariable getNegativeRangeActionVariable(String rangeActionId, String networkElementId) {
         return negativeRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rancgeActionId, networkElementId)))
+            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rangeActionId, networkElementId)))
             .findFirst()
             .orElse(null);
     }
@@ -86,9 +86,9 @@ public class LinearRaoProblem {
         return positiveRangeActionVariables;
     }
 
-    public MPVariable getPositiveRangeActionVariable(String rancgeActionId, String networkElementId) {
+    public MPVariable getPositiveRangeActionVariable(String rangeActionId, String networkElementId) {
         return positiveRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rancgeActionId, networkElementId)))
+            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rangeActionId, networkElementId)))
             .findFirst()
             .orElse(null);
     }
