@@ -15,12 +15,15 @@ import java.util.List;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearRaoModeller {
+
+    private LinearRaoProblem linearRaoProblem;
     private LinearRaoData linearRaoData;
     private List<AbstractProblemFiller> fillerList;
     private List<AbstractPostProcessor> postProcessorList;
     private RaoParameters raoParameters;
 
-    public LinearRaoModeller(LinearRaoData linearRaoData, List<AbstractProblemFiller> fillerList, List<AbstractPostProcessor> postProcessorList, RaoParameters raoParameters) {
+    public LinearRaoModeller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<AbstractProblemFiller> fillerList, List<AbstractPostProcessor> postProcessorList, RaoParameters raoParameters) {
+        this.linearRaoProblem = linearRaoProblem;
         this.linearRaoData = linearRaoData;
         this.fillerList = fillerList;
         this.postProcessorList = postProcessorList;
@@ -28,7 +31,7 @@ public class LinearRaoModeller {
     }
 
     public void buildProblem() {
-        //todo
+        fillerList.forEach(AbstractProblemFiller::fill);
     }
 
     public void updateProblem(LinearRaoData linearRaoData) {

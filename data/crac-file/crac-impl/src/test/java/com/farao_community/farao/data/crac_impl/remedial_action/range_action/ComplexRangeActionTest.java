@@ -48,8 +48,8 @@ public class ComplexRangeActionTest {
 
         mockedNetwork = Mockito.mock(Network.class);
         Range range = Mockito.mock(AbsoluteFixedRange.class);
-        Mockito.when(range.getMaxValue(mockedNetwork)).thenReturn(ComplexRangeAction.TEMP_MAX_VALUE);
-        Mockito.when(range.getMinValue(mockedNetwork)).thenReturn(ComplexRangeAction.TEMP_MIN_VALUE);
+        Mockito.when(range.getMaxValue(mockedNetwork)).thenReturn(1.);
+        Mockito.when(range.getMinValue(mockedNetwork)).thenReturn(0.);
         mockedRanges = new ArrayList<>(Collections.singletonList(range));
 
         mockedApplicableRangeAction = Mockito.mock(PstRange.class);
@@ -81,12 +81,12 @@ public class ComplexRangeActionTest {
 
     @Test
     public void getMinValue() {
-        assertEquals(ComplexRangeAction.TEMP_MIN_VALUE, complexRangeAction.getMinValue(mockedNetwork), 0.1);
+        assertEquals(0., complexRangeAction.getMinValue(mockedNetwork), 0.1);
     }
 
     @Test
     public void getMaxValue() {
-        assertEquals(ComplexRangeAction.TEMP_MAX_VALUE, complexRangeAction.getMaxValue(mockedNetwork), 0.1);
+        assertEquals(1., complexRangeAction.getMaxValue(mockedNetwork), 0.1);
     }
 
     @Test

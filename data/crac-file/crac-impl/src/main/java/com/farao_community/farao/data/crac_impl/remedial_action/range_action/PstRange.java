@@ -43,18 +43,23 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
      */
     @Override
     public void apply(Network network, double setpoint) {
+        PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
+        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
+            phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);
+        } else {
+            throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
+        }
+    }
+
+    private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(getNetworkElement().getId());
         if (transformer == null) {
             throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
         }
         PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
         if (phaseTapChanger == null) {
-            throw new FaraoException(String.format("Transformer %s is not a PST, tap could not be changed", networkElement.getId()));
+            throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a PstRange", networkElement.getId()));
         }
-        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
-            phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);
-        } else {
-            throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
-        }
+        return phaseTapChanger;
     }
 }
