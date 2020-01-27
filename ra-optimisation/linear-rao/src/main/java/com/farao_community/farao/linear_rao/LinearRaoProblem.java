@@ -117,14 +117,10 @@ public class LinearRaoProblem {
     }
 
     public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
-        String negativeVariableName = getNegativeRangeActionVariableId(rangeActionId, networkElementId);
-        String positiveVariableName = getPositiveRangeActionVariableId(rangeActionId, networkElementId);
-
-        solver.makeNumVar(0, maxNegativeVariation, negativeVariableName);
-        solver.makeNumVar(0, maxPositiveVariation, positiveVariableName);
-
-        negativeRangeActionVariables.add(solver.lookupVariableOrNull(negativeVariableName));
-        positiveRangeActionVariables.add(solver.lookupVariableOrNull(positiveVariableName));
+        MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId, networkElementId));
+        MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId, networkElementId));
+        negativeRangeActionVariables.add(negativeVariable);
+        positiveRangeActionVariables.add(positiveVariable);
     }
 
     public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
@@ -132,8 +128,8 @@ public class LinearRaoProblem {
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
-        MPVariable positiveRangeActionVariable = solver.lookupVariableOrNull(getPositiveRangeActionVariableId(rangeActionId, networkElementId));
-        MPVariable negativeRangeActionVariable = solver.lookupVariableOrNull(getNegativeRangeActionVariableId(rangeActionId, networkElementId));
+        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId, networkElementId);
         if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
             throw new FaraoException(String.format("Range action variable for %s on %s has not been defined yet.", rangeActionId, networkElementId));
         }
@@ -162,8 +158,8 @@ public class LinearRaoProblem {
     public void addPosMinObjective() {
         objective = solver.objective();
         objective.setCoefficient(getMinimumMarginVariable(), 1);
-        getNegativeRangeActionVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -PENALTY_COST));
-        getPositiveRangeActionVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -PENALTY_COST));
+        getNegativeRangeActionVariables().forEach(negativeRangeActionVariable -> objective.setCoefficient(negativeRangeActionVariable, -PENALTY_COST));
+        getPositiveRangeActionVariables().forEach(positiveRangeActionVariable -> objective.setCoefficient(positiveRangeActionVariable, -PENALTY_COST));
         objective.setMaximization();
     }
 
