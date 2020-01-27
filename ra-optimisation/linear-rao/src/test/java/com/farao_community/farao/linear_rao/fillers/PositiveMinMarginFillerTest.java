@@ -79,7 +79,7 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         MPObjective objective = linearRaoProblem.getObjective();
         assertTrue(objective.maximization());
         assertEquals(1, objective.getCoefficient(linearRaoProblem.getMinimumMarginVariable()), 0.1);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativePstShiftVariable(rangeActionId, networkElementId)), 0.01);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositivePstShiftVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId)), 0.01);
     }
 }

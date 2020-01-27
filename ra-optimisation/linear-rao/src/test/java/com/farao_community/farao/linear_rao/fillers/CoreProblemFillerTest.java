@@ -62,12 +62,12 @@ public class CoreProblemFillerTest extends FillerTest {
         double maxAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(maxTap).getAlpha();
         double currentAlpha = twoWindingsTransformer.getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        MPVariable variableRangeNegative = linearRaoProblem.getNegativePstShiftVariable(rangeAction.getId(), networkElementId);
+        MPVariable variableRangeNegative = linearRaoProblem.getNegativeRangeActionVariable(rangeAction.getId(), networkElementId);
         assertNotNull(variableRangeNegative);
         assertEquals(0, variableRangeNegative.lb(), 0.01);
         assertEquals(Math.abs(currentAlpha - minAlpha), variableRangeNegative.ub(), 0.01);
 
-        MPVariable variableRangePositive = linearRaoProblem.getPositivePstShiftVariable(rangeAction.getId(), networkElementId);
+        MPVariable variableRangePositive = linearRaoProblem.getPositiveRangeActionVariable(rangeAction.getId(), networkElementId);
         assertNotNull(variableRangePositive);
         assertEquals(0, variableRangePositive.lb(), 0.01);
         assertEquals(Math.abs(currentAlpha - maxAlpha), variableRangePositive.ub(), 0.01);

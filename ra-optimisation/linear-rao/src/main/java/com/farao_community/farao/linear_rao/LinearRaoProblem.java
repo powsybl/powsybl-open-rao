@@ -49,8 +49,8 @@ public class LinearRaoProblem {
         this(new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
     }
 
-    public MPSolver getSolver() {
-        return solver;
+    public List<MPVariable> getFlowVariables() {
+        return flowVariables;
     }
 
     public MPVariable getFlowVariable(String cnecId) {
@@ -75,7 +75,7 @@ public class LinearRaoProblem {
         return negativeRangeActionVariables;
     }
 
-    public MPVariable getNegativePstShiftVariable(String rancgeActionId, String networkElementId) {
+    public MPVariable getNegativeRangeActionVariable(String rancgeActionId, String networkElementId) {
         return negativeRangeActionVariables.stream()
             .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rancgeActionId, networkElementId)))
             .findFirst()
@@ -86,7 +86,7 @@ public class LinearRaoProblem {
         return positiveRangeActionVariables;
     }
 
-    public MPVariable getPositivePstShiftVariable(String rancgeActionId, String networkElementId) {
+    public MPVariable getPositiveRangeActionVariable(String rancgeActionId, String networkElementId) {
         return positiveRangeActionVariables.stream()
             .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rancgeActionId, networkElementId)))
             .findFirst()
