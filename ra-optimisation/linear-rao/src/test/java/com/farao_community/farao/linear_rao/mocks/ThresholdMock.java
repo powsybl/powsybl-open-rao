@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao.mocks;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.data.crac_api.Threshold;
+import com.farao_community.farao.data.crac_api.Unit;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
@@ -31,8 +32,24 @@ public class ThresholdMock implements Threshold {
     }
 
     @Override
+    public Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException {
+        return Optional.of(min);
+    }
+
+    @Override
     public Optional<Double> getMaxThreshold() throws SynchronizationException {
         return Optional.of(max);
+    }
+
+    @Override
+    public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
+        return Optional.of(max);
+    }
+
+
+    @Override
+    public Unit getUnit() {
+        return Unit.AMPERE;
     }
 
     @Override
