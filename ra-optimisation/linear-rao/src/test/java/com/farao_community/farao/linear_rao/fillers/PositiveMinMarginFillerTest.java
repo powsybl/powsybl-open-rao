@@ -33,8 +33,8 @@ public class PositiveMinMarginFillerTest extends FillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
-        positiveMinMarginFiller = new PositiveMinMarginFiller();
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        positiveMinMarginFiller = new PositiveMinMarginFiller(linearRaoProblem, linearRaoData);
     }
 
     @Test
@@ -66,8 +66,8 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
         when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
-        coreProblemFiller.fill(linearRaoProblem, linearRaoData);
-        positiveMinMarginFiller.fill(linearRaoProblem, linearRaoData);
+        coreProblemFiller.fill();
+        positiveMinMarginFiller.fill();
 
         assertEquals(-Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().lb(), 0.1);
         assertEquals(Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().ub(), 0.1);

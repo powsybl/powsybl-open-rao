@@ -31,7 +31,7 @@ public class LinearRaoModeller {
     }
 
     public void buildProblem() {
-        fillerList.forEach(filler -> filler.fill(linearRaoProblem, linearRaoData));
+        fillerList.forEach(AbstractProblemFiller::fill);
     }
 
     public void updateProblem(LinearRaoData linearRaoData) {

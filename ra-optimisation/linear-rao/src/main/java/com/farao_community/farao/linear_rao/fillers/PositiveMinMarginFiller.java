@@ -21,10 +21,12 @@ import com.powsybl.iidm.network.Network;
  */
 public class PositiveMinMarginFiller extends AbstractProblemFiller {
 
+    public PositiveMinMarginFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        super(linearRaoProblem, linearRaoData);
+    }
+
     @Override
-    public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        this.linearRaoData = linearRaoData;
-        this.linearRaoProblem = linearRaoProblem;
+    public void fill() {
         Crac crac = linearRaoData.getCrac();
         Network network = linearRaoData.getNetwork();
 

@@ -28,7 +28,7 @@ public class CoreProblemFillerTest extends FillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class CoreProblemFillerTest extends FillerTest {
         TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
         when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
-        coreProblemFiller.fill(linearRaoProblem, linearRaoData);
+        coreProblemFiller.fill();
 
         double minAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(minTap).getAlpha();
         double maxAlpha = twoWindingsTransformer.getPhaseTapChanger().getStep(maxTap).getAlpha();
