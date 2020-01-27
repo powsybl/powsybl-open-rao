@@ -8,7 +8,6 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
@@ -22,8 +21,8 @@ import java.util.List;
  */
 public class LinearRaoProblem {
 
-    static {
-        NativeLibraryLoader.loadNativeLibraries();
+    public static double infinity() {
+        return MPSolver.infinity();
     }
 
     public static final double PENALTY_COST = 0.1;
@@ -33,8 +32,8 @@ public class LinearRaoProblem {
     private List<MPVariable> flowVariables;
     private List<MPConstraint> flowConstraints;
     private List<MPConstraint> minimumMarginConstraints;
-    private List<MPVariable> negativePstShiftVariables;
-    private List<MPVariable> positivePstShiftVariables;
+    private List<MPVariable> negativeRangeActionVariables;
+    private List<MPVariable> positiveRangeActionVariables;
     private static final String POS_MIN_MARGIN = "pos-min-margin";
 
     public LinearRaoProblem(MPSolver mpSolver) {
@@ -42,8 +41,8 @@ public class LinearRaoProblem {
         flowVariables = new ArrayList<>();
         flowConstraints = new ArrayList<>();
         minimumMarginConstraints = new ArrayList<>();
-        negativePstShiftVariables = new ArrayList<>();
-        positivePstShiftVariables = new ArrayList<>();
+        negativeRangeActionVariables = new ArrayList<>();
+        positiveRangeActionVariables = new ArrayList<>();
     }
 
     protected LinearRaoProblem() {
@@ -61,6 +60,10 @@ public class LinearRaoProblem {
             .orElse(null);
     }
 
+    public List<MPConstraint> getFlowConstraints() {
+        return flowConstraints;
+    }
+
     public MPConstraint getFlowConstraint(String cnecId) {
         return flowConstraints.stream()
             .filter(variable -> variable.name().equals(getFlowConstraintId(cnecId)))
@@ -68,23 +71,23 @@ public class LinearRaoProblem {
             .orElse(null);
     }
 
-    public List<MPVariable> getNegativePstShiftVariables() {
-        return negativePstShiftVariables;
+    public List<MPVariable> getNegativeRangeActionVariables() {
+        return negativeRangeActionVariables;
     }
 
     public MPVariable getNegativePstShiftVariable(String rancgeActionId, String networkElementId) {
-        return negativePstShiftVariables.stream()
+        return negativeRangeActionVariables.stream()
             .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rancgeActionId, networkElementId)))
             .findFirst()
             .orElse(null);
     }
 
-    public List<MPVariable> getPositivePstShiftVariables() {
-        return positivePstShiftVariables;
+    public List<MPVariable> getPositiveRangeActionVariables() {
+        return positiveRangeActionVariables;
     }
 
     public MPVariable getPositivePstShiftVariable(String rancgeActionId, String networkElementId) {
-        return positivePstShiftVariables.stream()
+        return positiveRangeActionVariables.stream()
             .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rancgeActionId, networkElementId)))
             .findFirst()
             .orElse(null);
@@ -113,14 +116,6 @@ public class LinearRaoProblem {
         flowConstraint.setCoefficient(flowVariable, 1);
     }
 
-    private static String getFlowVariableId(String cnecId) {
-        return String.format("%s-variable", cnecId);
-    }
-
-    private static String getFlowConstraintId(String cnecId) {
-        return String.format("%s-constraint", cnecId);
-    }
-
     public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
         String negativeVariableName = getNegativeRangeActionVariableId(rangeActionId, networkElementId);
         String positiveVariableName = getPositiveRangeActionVariableId(rangeActionId, networkElementId);
@@ -128,16 +123,8 @@ public class LinearRaoProblem {
         solver.makeNumVar(0, maxNegativeVariation, negativeVariableName);
         solver.makeNumVar(0, maxPositiveVariation, positiveVariableName);
 
-        negativePstShiftVariables.add(solver.lookupVariableOrNull(negativeVariableName));
-        positivePstShiftVariables.add(solver.lookupVariableOrNull(positiveVariableName));
-    }
-
-    private static String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
-        return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
-    }
-
-    private static String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
-        return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
+        negativeRangeActionVariables.add(solver.lookupVariableOrNull(negativeVariableName));
+        positiveRangeActionVariables.add(solver.lookupVariableOrNull(positiveVariableName));
     }
 
     public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
@@ -162,10 +149,6 @@ public class LinearRaoProblem {
         solver.makeNumVar(-Double.MAX_VALUE, Double.MAX_VALUE, POS_MIN_MARGIN);
     }
 
-    private static String getMinimumMarginConstraintId(String branch, String minMax) {
-        return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
-    }
-
     public void addMinimumMarginConstraints(String cnecId, double min, double max) {
         MPVariable flowVariable = solver.lookupVariableOrNull(getFlowVariableId(cnecId));
         MPConstraint minimumMarginByMax = solver.makeConstraint(-Double.MAX_VALUE, max, getMinimumMarginConstraintId(cnecId, "max"));
@@ -176,11 +159,31 @@ public class LinearRaoProblem {
         minimumMarginConstraints.add(minimumMarginByMin);
     }
 
-    public void getPosMinObjective() {
+    public void addPosMinObjective() {
         objective = solver.objective();
         objective.setCoefficient(solver.lookupVariableOrNull(POS_MIN_MARGIN), 1);
-        getNegativePstShiftVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -PENALTY_COST));
-        getPositivePstShiftVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -PENALTY_COST));
+        getNegativeRangeActionVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -PENALTY_COST));
+        getPositiveRangeActionVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -PENALTY_COST));
         objective.setMaximization();
+    }
+
+    private String getFlowVariableId(String cnecId) {
+        return String.format("%s-variable", cnecId);
+    }
+
+    private String getFlowConstraintId(String cnecId) {
+        return String.format("%s-constraint", cnecId);
+    }
+
+    private String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
+        return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
+    }
+
+    private String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
+        return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
+    }
+
+    private String getMinimumMarginConstraintId(String branch, String minMax) {
+        return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
     }
 }

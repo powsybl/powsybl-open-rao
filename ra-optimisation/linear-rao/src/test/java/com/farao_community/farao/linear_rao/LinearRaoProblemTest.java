@@ -59,8 +59,8 @@ public class LinearRaoProblemTest {
         assertEquals(0, negativeVariable.lb(), 0.1);
         assertEquals(12, negativeVariable.ub(), 0.1);
 
-        assertEquals(1, linearRaoProblem.getNegativePstShiftVariables().size());
-        assertEquals(1, linearRaoProblem.getPositivePstShiftVariables().size());
+        assertEquals(1, linearRaoProblem.getNegativeRangeActionVariables().size());
+        assertEquals(1, linearRaoProblem.getPositiveRangeActionVariables().size());
     }
 
     @Test
