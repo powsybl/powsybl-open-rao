@@ -46,7 +46,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     private void fillCnec(Cnec cnec) {
-        linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec), -Double.MAX_VALUE, Double.MAX_VALUE);
+        linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
     }
 
     /**

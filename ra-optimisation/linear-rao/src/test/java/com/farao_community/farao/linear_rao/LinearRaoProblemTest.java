@@ -33,11 +33,11 @@ public class LinearRaoProblemTest {
     @Test
     public void addCnec() {
         String cnecId = "cnec-test";
-        linearRaoProblem.addCnec(cnecId, 500, -800, 800);
+        linearRaoProblem.addCnec(cnecId, 500);
 
         MPVariable variable = linearRaoProblem.getFlowVariable(cnecId);
-        assertEquals(-800, variable.lb(), 0.1);
-        assertEquals(800, variable.ub(), 0.1);
+        assertEquals(-Double.MAX_VALUE, variable.lb(), 0.1);
+        assertEquals(Double.MAX_VALUE, variable.ub(), 0.1);
 
         MPConstraint constraint = linearRaoProblem.getFlowConstraint(cnecId);
         assertEquals(500, constraint.lb(), 0.1);
@@ -71,8 +71,7 @@ public class LinearRaoProblemTest {
         String cnecId = "cnec-test";
         String rangeActionId = "range-action-test";
         String networkElementId = "network-element-test";
-        //linearRaoProblem.addCnec(cnecId, 500);
-        linearRaoProblem.addCnec(cnecId, 500, -800, 800);
+        linearRaoProblem.addCnec(cnecId, 500);
         linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
         linearRaoProblem.addRangeActionFlowOnBranch(cnecId, rangeActionId, networkElementId, 0.2);
 
@@ -102,8 +101,7 @@ public class LinearRaoProblemTest {
         String cnecId = "cnec-test";
         String rangeActionId = "range-action-test";
         String networkElementId = "network-element-test";
-        //linearRaoProblem.addCnec(cnecId, 500);
-        linearRaoProblem.addCnec(cnecId, 500, -800, 800);
+        linearRaoProblem.addCnec(cnecId, 500);
         try {
             linearRaoProblem.addRangeActionFlowOnBranch(cnecId, rangeActionId, networkElementId, 0.2);
         } catch (FaraoException e) {

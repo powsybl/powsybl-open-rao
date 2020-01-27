@@ -108,8 +108,8 @@ public class LinearRaoProblem {
         return objective;
     }
 
-    public void addCnec(String cnecId, double referenceFlow, double minFlow, double maxFlow) {
-        MPVariable flowVariable = solver.makeNumVar(minFlow, maxFlow, getFlowVariableId(cnecId));
+    public void addCnec(String cnecId, double referenceFlow) {
+        MPVariable flowVariable = solver.makeNumVar(-Double.MAX_VALUE, Double.MAX_VALUE, getFlowVariableId(cnecId));
         flowVariables.add(flowVariable);
         MPConstraint flowConstraint = solver.makeConstraint(referenceFlow, referenceFlow, getFlowConstraintId(cnecId));
         flowConstraints.add(flowConstraint);
