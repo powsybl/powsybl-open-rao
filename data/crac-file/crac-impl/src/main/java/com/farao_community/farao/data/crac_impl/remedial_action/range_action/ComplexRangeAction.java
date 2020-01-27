@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,10 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Group of simultaneously applied range remedial actions.
@@ -26,9 +24,6 @@ import java.util.Set;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexRangeAction extends AbstractRemedialAction implements RangeAction {
-
-    public static final double TEMP_MIN_VALUE = 0;
-    public static final double TEMP_MAX_VALUE = 0;
 
     @JsonProperty("ranges")
     private List<Range> ranges;
@@ -73,12 +68,12 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public double getMinValue(Network network) {
-        return TEMP_MIN_VALUE;
+        return ranges.stream().map(range -> range.getMinValue(network)).max(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return TEMP_MAX_VALUE;
+        return ranges.stream().map(range -> range.getMaxValue(network)).min(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
