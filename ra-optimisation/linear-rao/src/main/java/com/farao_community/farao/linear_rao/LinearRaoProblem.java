@@ -128,7 +128,7 @@ public class LinearRaoProblem {
     }
 
     public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
-        MPConstraint flowConstraint = solver.lookupConstraintOrNull(getFlowConstraintId(cnecId));
+        MPConstraint flowConstraint = getFlowConstraint(cnecId);
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
@@ -161,7 +161,7 @@ public class LinearRaoProblem {
 
     public void addPosMinObjective() {
         objective = solver.objective();
-        objective.setCoefficient(solver.lookupVariableOrNull(POS_MIN_MARGIN), 1);
+        objective.setCoefficient(getMinimumMarginVariable(), 1);
         getNegativeRangeActionVariables().forEach(negativePstShiftVariable -> objective.setCoefficient(negativePstShiftVariable, -PENALTY_COST));
         getPositiveRangeActionVariables().forEach(positivePstShiftVariable -> objective.setCoefficient(positivePstShiftVariable, -PENALTY_COST));
         objective.setMaximization();
