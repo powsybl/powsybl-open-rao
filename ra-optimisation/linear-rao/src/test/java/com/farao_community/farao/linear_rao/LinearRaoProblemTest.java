@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(LinearRaoProblem.class)
+@PrepareForTest(MPSolver.class)
 public class LinearRaoProblemTest {
     private MPSolver solver;
     private LinearRaoProblem linearRaoProblem;
@@ -33,9 +33,9 @@ public class LinearRaoProblemTest {
     @Before
     public void setUp() {
         solver = new MPSolverMock();
-        PowerMockito.mockStatic(LinearRaoProblem.class);
-        when(LinearRaoProblem.infinity()).thenReturn(Double.MAX_VALUE);
-        linearRaoProblem = spy(new LinearRaoProblem(solver));
+        PowerMockito.mockStatic(MPSolver.class);
+        when(MPSolver.infinity()).thenReturn(Double.MAX_VALUE);
+        linearRaoProblem = new LinearRaoProblem(solver);
     }
 
     @Test
