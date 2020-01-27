@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Direction;
-import com.farao_community.farao.data.crac_api.Side;
-import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Branch;
@@ -35,6 +32,36 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     protected Side side;
     protected Direction direction;
     protected double maxValue;
+    protected Optional<Double> voltageLevel;
+
+    protected Branch.Side getBranchSide() {
+        // TODO: manage matching between LEFT/RIGHT and ONE/TWO
+        if (side.equals(Side.LEFT)) {
+            return Branch.Side.ONE;
+        } else if (side.equals(Side.RIGHT)) {
+            return Branch.Side.TWO;
+        } else {
+            throw new FaraoException("Side is not defined");
+        }
+    }
+
+    protected double convertMwToAmps(double valueInMw) throws SynchronizationException {
+        if (voltageLevel.isPresent()) {
+            double ratio = voltageLevel.get() * Math.sqrt(3) / 1000;
+            return valueInMw / ratio;
+        } else {
+            throw new SynchronizationException("Voltage level is not defined.");
+        }
+    }
+
+    protected double convertAmpsToMw(double valueInA) throws SynchronizationException {
+        if (voltageLevel.isPresent()) {
+            double ratio = voltageLevel.get() * Math.sqrt(3) / 1000;
+            return valueInA * ratio;
+        } else {
+            throw new SynchronizationException("Voltage level is not defined.");
+        }
+    }
 
     public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
         super(unit);
@@ -68,15 +95,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     private Terminal getTerminal(Network network, Cnec cnec) {
-        // TODO: manage matching between LEFT/RIGHT and ONE/TWO
-        switch (side) {
-            case LEFT:
-                return network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(Branch.Side.ONE);
-            case RIGHT:
-                return network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(Branch.Side.TWO);
-            default:
-                throw new FaraoException("Side is not defined");
-        }
+        return network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide());
     }
 
     private static boolean isCnecDisconnected(Network network, Cnec cnec) {
@@ -102,6 +121,11 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public Optional<Double> getMinThreshold() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Double> getMinThreshold(Unit unit) {
         return Optional.empty();
     }
 

@@ -42,6 +42,11 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
+    public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
+        return Optional.empty();
+    }
+
+    @Override
     public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
         return false;
     }

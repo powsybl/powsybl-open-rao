@@ -23,7 +23,16 @@ public interface Threshold {
     Optional<Double> getMinThreshold() throws SynchronizationException;
 
     @JsonIgnore
+    Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException;
+
+    @JsonIgnore
     Optional<Double> getMaxThreshold() throws SynchronizationException;
+
+    @JsonIgnore
+    Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException;
+
+    @JsonIgnore
+    Unit getUnit();
 
     boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 

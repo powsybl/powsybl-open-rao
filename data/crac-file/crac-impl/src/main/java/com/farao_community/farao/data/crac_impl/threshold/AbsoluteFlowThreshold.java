@@ -39,6 +39,25 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
+    public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
+        if (unit == this.unit) {
+            return getMaxThreshold();
+        } else {
+            if (getMaxThreshold().isPresent()) {
+                if (unit.equals(Unit.AMPERE)) {
+                    return Optional.of(convertMwToAmps(getMaxThreshold().get()));
+                } else if (unit.equals(Unit.MEGAWATT)) {
+                    return Optional.of(convertAmpsToMw(getMaxThreshold().get()));
+                } else {
+                    throw new FaraoException("Unit of voltage threshold should be A or MW.");
+                }
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    @Override
     public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
         return false;
     }
@@ -64,10 +83,12 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
+        voltageLevel = Optional.of(network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV());
     }
 
     @Override
     public void desynchronize() {
+        voltageLevel = Optional.empty();
     }
 
     @Override
