@@ -46,7 +46,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
 
     private void fillConstraintsCnec(Cnec cnec) {
         try {
-            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-Double.MAX_VALUE), cnec.getThreshold().getMaxThreshold().orElse(Double.MAX_VALUE));
+            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-LinearRaoProblem.infinity()), cnec.getThreshold().getMaxThreshold().orElse(LinearRaoProblem.infinity()));
         } catch (SynchronizationException e) {
             throw new FaraoException(e);
         }

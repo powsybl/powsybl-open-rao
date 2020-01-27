@@ -44,8 +44,8 @@ public class LinearRaoProblemTest {
         linearRaoProblem.addCnec(cnecId, 500);
 
         MPVariable variable = linearRaoProblem.getFlowVariable(cnecId);
-        assertEquals(-Double.MAX_VALUE, variable.lb(), 0.1);
-        assertEquals(Double.MAX_VALUE, variable.ub(), 0.1);
+        assertEquals(-LinearRaoProblem.infinity(), variable.lb(), 0.1);
+        assertEquals(LinearRaoProblem.infinity(), variable.ub(), 0.1);
 
         MPConstraint constraint = linearRaoProblem.getFlowConstraint(cnecId);
         assertEquals(500, constraint.lb(), 0.1);

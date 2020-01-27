@@ -72,8 +72,8 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         coreProblemFiller.fill();
         positiveMinMarginFiller.fill();
 
-        assertEquals(-Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().lb(), 0.1);
-        assertEquals(Double.MAX_VALUE, linearRaoProblem.getMinimumMarginVariable().ub(), 0.1);
+        assertEquals(-LinearRaoProblem.infinity(), linearRaoProblem.getMinimumMarginVariable().lb(), 0.1);
+        assertEquals(LinearRaoProblem.infinity(), linearRaoProblem.getMinimumMarginVariable().ub(), 0.1);
         assertEquals(cnec1MaxFlow, linearRaoProblem.getMinimumMarginConstraint(cnec1.getId(), "max").ub(), 0.1);
         assertEquals(-cnec1MinFlow, linearRaoProblem.getMinimumMarginConstraint(cnec1.getId(), "min").ub(), 0.1);
         assertEquals(cnec2MaxFlow, linearRaoProblem.getMinimumMarginConstraint(cnec2.getId(), "max").ub(), 0.1);

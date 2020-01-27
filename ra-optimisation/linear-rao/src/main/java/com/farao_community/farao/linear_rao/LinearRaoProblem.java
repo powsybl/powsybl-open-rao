@@ -109,7 +109,7 @@ public class LinearRaoProblem {
     }
 
     public void addCnec(String cnecId, double referenceFlow) {
-        MPVariable flowVariable = solver.makeNumVar(-Double.MAX_VALUE, Double.MAX_VALUE, getFlowVariableId(cnecId));
+        MPVariable flowVariable = solver.makeNumVar(-infinity(), infinity(), getFlowVariableId(cnecId));
         flowVariables.add(flowVariable);
         MPConstraint flowConstraint = solver.makeConstraint(referenceFlow, referenceFlow, getFlowConstraintId(cnecId));
         flowConstraints.add(flowConstraint);
@@ -142,15 +142,15 @@ public class LinearRaoProblem {
     }
 
     public void addMinimumMarginVariable() {
-        solver.makeNumVar(-Double.MAX_VALUE, Double.MAX_VALUE, POS_MIN_MARGIN);
+        solver.makeNumVar(-infinity(), infinity(), POS_MIN_MARGIN);
     }
 
     public void addMinimumMarginConstraints(String cnecId, double min, double max) {
         MPVariable flowVariable = solver.lookupVariableOrNull(getFlowVariableId(cnecId));
-        MPConstraint minimumMarginByMax = solver.makeConstraint(-Double.MAX_VALUE, max, getMinimumMarginConstraintId(cnecId, "max"));
+        MPConstraint minimumMarginByMax = solver.makeConstraint(infinity(), max, getMinimumMarginConstraintId(cnecId, "max"));
         minimumMarginByMax.setCoefficient(flowVariable, 1);
         minimumMarginConstraints.add(minimumMarginByMax);
-        MPConstraint minimumMarginByMin = solver.makeConstraint(-Double.MAX_VALUE, -min, getMinimumMarginConstraintId(cnecId, "min"));
+        MPConstraint minimumMarginByMin = solver.makeConstraint(-infinity(), -min, getMinimumMarginConstraintId(cnecId, "min"));
         minimumMarginByMin.setCoefficient(flowVariable, -1);
         minimumMarginConstraints.add(minimumMarginByMin);
     }

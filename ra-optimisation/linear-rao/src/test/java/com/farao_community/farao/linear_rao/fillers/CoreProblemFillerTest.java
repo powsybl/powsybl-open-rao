@@ -7,6 +7,7 @@
 package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
 import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
@@ -77,8 +78,8 @@ public class CoreProblemFillerTest extends FillerTest {
 
         MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1.getId());
         assertNotNull(flowVariable);
-        assertEquals(-Double.MAX_VALUE, flowVariable.lb(), 0.01);
-        assertEquals(Double.MAX_VALUE, flowVariable.ub(), 0.01);
+        assertEquals(-LinearRaoProblem.infinity(), flowVariable.lb(), 0.01);
+        assertEquals(LinearRaoProblem.infinity(), flowVariable.ub(), 0.01);
 
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1.getId());
         assertNotNull(flowConstraint);
@@ -90,8 +91,8 @@ public class CoreProblemFillerTest extends FillerTest {
 
         MPVariable flowVariable2 = linearRaoProblem.getFlowVariable(cnec2.getId());
         assertNotNull(flowVariable2);
-        assertEquals(-Double.MAX_VALUE, flowVariable2.lb(), 0.01);
-        assertEquals(Double.MAX_VALUE, flowVariable2.ub(), 0.01);
+        assertEquals(-LinearRaoProblem.infinity(), flowVariable2.lb(), 0.01);
+        assertEquals(LinearRaoProblem.infinity(), flowVariable2.ub(), 0.01);
 
         MPConstraint flowConstraint2 = linearRaoProblem.getFlowConstraint(cnec2.getId());
         assertNotNull(flowConstraint2);
