@@ -34,6 +34,7 @@ public interface Threshold {
      * A Threshold is based on a given Unit (MEGAWATT, AMPERE, DEGREE or
      * KILOVOLT). This Unit can be retrieved by the getUnit() method.
      */
+    @Deprecated
     Unit getUnit();
 
     /**
@@ -45,6 +46,7 @@ public interface Threshold {
      * which can be obtained with getUnit().
      */
     @JsonIgnore
+    @Deprecated
     Optional<Double> getMinThreshold() throws SynchronizationException;
 
     /**
@@ -66,6 +68,7 @@ public interface Threshold {
      * which can be obtained with getUnit().
      */
     @JsonIgnore
+    @Deprecated
     Optional<Double> getMaxThreshold() throws SynchronizationException;
 
     /**

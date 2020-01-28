@@ -79,6 +79,17 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
+    public void getMinMaxThresholdWithUnauthorizedUnit() throws SynchronizationException {
+        try {
+            absoluteFlowThresholdAmps.getMaxThreshold(Unit.KILOVOLT);
+            fail();
+        } catch (FaraoException e) {
+            //should throw
+            assertTrue(e.getMessage().contains("AMPERE or MEGAWATT"));
+        }
+    }
+
+    @Test
     public void getMinMaxThresholdWithUnitUnsynchronized() {
         try {
             absoluteFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT);

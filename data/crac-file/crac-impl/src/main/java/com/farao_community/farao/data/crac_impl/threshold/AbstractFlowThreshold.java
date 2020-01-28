@@ -146,19 +146,17 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         if (unit == this.unit) {
             return getMaxThreshold();
         }
-        if (!getMaxThreshold().isPresent()) {
-            return Optional.empty();
+        Optional<Double> maxInNativeUnit = getMaxThreshold();
+        if (unit.equals(Unit.AMPERE)) {
+            // get AMPERE from a threshold in MEGAWATT
+            return maxInNativeUnit.isPresent() ? Optional.of(convertMwToAmps(maxInNativeUnit.get())) : Optional.empty();
+        } else if (unit.equals(Unit.MEGAWATT)) {
+            // get MEGAWATT from a threshold in AMPERE
+            return maxInNativeUnit.isPresent() ? Optional.of(convertAmpsToMw(maxInNativeUnit.get())) : Optional.empty();
         } else {
-            if (unit.equals(Unit.AMPERE)) {
-                // get AMPERE from a threshold in MEGAWATT
-                return Optional.of(convertMwToAmps(getMaxThreshold().get()));
-            } else if (unit.equals(Unit.MEGAWATT)) {
-                // get MEGAWATT from a threshold in AMPERE
-                return Optional.of(convertAmpsToMw(getMaxThreshold().get()));
-            } else {
-                throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE or MEGAWATT, %s is not a valid value", unit.toString()));
-            }
+            throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE or MEGAWATT, %s is not a valid value", unit.toString()));
         }
+
     }
 
     @Override

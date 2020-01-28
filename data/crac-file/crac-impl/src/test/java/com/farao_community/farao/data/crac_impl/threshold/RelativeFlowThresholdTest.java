@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  */
 public class RelativeFlowThresholdTest {
 
-    private static final double DOUBLE_TOL = 1.0;
+    private static final double DOUBLE_TOL = 0.5;
 
     private RelativeFlowThreshold relativeFlowThresholdAmps;
     private Cnec cnec1;
@@ -68,6 +68,18 @@ public class RelativeFlowThresholdTest {
 
         assertFalse(relativeFlowThresholdAmps.getMinThreshold(Unit.AMPERE).isPresent());
         assertFalse(relativeFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).isPresent());
+    }
+
+    @Test
+    public void getMinMaxThresholdWithUnauthorizedUnit() throws SynchronizationException {
+        try {
+            relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
+            relativeFlowThresholdAmps.getMaxThreshold(Unit.KILOVOLT);
+            fail();
+        } catch (FaraoException e) {
+            //should throw
+            assertTrue(e.getMessage().contains("AMPERE or MEGAWATT"));
+        }
     }
 
     @Test
