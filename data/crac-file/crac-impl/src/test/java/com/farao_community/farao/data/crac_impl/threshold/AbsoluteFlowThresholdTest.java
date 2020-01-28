@@ -109,7 +109,7 @@ public class AbsoluteFlowThresholdTest {
         // on cnec 2, after LF: 384.9 A = 266.7 MW
         // on cnec 3, after LF: 769.8 A
         assertEquals(500.0 - 384.9, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec1), DOUBLE_TOL);
-        assertEquals(1500.0 - 266.7, absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec2), DOUBLE_TOL);
+        assertEquals(1500.0 - (-266.7), absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec2), DOUBLE_TOL);
         assertEquals(500.0 - 769.8, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
     }
 
