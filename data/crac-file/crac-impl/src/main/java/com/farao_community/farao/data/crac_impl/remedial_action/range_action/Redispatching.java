@@ -94,6 +94,10 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     }
 
     @Override
+    public void synchronize(Network network) {
+    }
+
+    @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to Redispatching
         return 0;

@@ -9,7 +9,9 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,6 +45,27 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
 
+    public PstRange(String id,
+                    NetworkElement networkElement) {
+        super(id, networkElement);
+    }
+
+    @Override
+    public void synchronize(Network network) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        int highTapPosition = phaseTapChanger.getHighTapPosition();
+        int lowTapPosition = phaseTapChanger.getLowTapPosition();
+        RangeDefinition rangeDefinition;
+        if (lowTapPosition <= 0) {
+            rangeDefinition = RangeDefinition.CENTERED_ON_ZERO;
+        } else {
+            rangeDefinition = RangeDefinition.STARTS_AT_ONE;
+        }
+        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(lowTapPosition, highTapPosition, rangeDefinition);
+        addRange(absoluteFixedRange);
+    }
+
     @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to PstRange
@@ -70,7 +93,7 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
     @Override
     public void apply(Network network, double setpoint) {
         // TODO : check that the exception is already thrown by Powsybl
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(getNetworkElement().getId());
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
         if (transformer == null) {
             throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
         }

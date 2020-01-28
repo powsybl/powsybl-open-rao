@@ -81,7 +81,7 @@ public class ComplexNetworkActionTest {
     @Test
     public void addNetworkAction() {
         NetworkAction anotherNetworkAction = Mockito.mock(NetworkAction.class);
-        complexNetworkAction.addApplicableNetworkAction(anotherNetworkAction);
+        complexNetworkAction.addNetworkAction(anotherNetworkAction);
         Set<NetworkAction> expectedNetworkActions = new HashSet<>();
         expectedNetworkActions.add(mockedNetworkAction);
         expectedNetworkActions.add(anotherNetworkAction);

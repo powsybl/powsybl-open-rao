@@ -36,6 +36,12 @@ abstract class AbstractNetworkElementAction extends AbstractRemedialAction imple
         this.networkElement = networkElement;
     }
 
+    public AbstractNetworkElementAction(String id,
+                                        NetworkElement networkElement) {
+        super(id);
+        this.networkElement = networkElement;
+    }
+
     public NetworkElement getNetworkElement() {
         return networkElement;
     }

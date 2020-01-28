@@ -25,6 +25,8 @@ public class HvdcSetpointTest extends AbstractRemedialActionTest {
         String hvdcSetpointId = "id";
         ArrayList<UsageRule> usageRules = createUsageRules();
         NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+        hvdcSetpoint = new HvdcSetpoint(hvdcSetpointId, networkElement, hvdcSetpointValue);
+
         hvdcSetpointValue = 22;
         hvdcSetpoint = new HvdcSetpoint(
                 hvdcSetpointId,

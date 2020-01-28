@@ -8,17 +8,11 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,9 +21,15 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class PstSetpoint extends AbstractNetworkElementAction {
+public final class PstSetpoint extends AbstractSetpointNetworkAction {
 
-    private double setpoint;
+    public PstSetpoint(String id, String name, String operator, List<UsageRule> usageRules, NetworkElement networkElement, double setpoint) {
+        super(id, name, operator, usageRules, networkElement, setpoint);
+    }
+
+    public PstSetpoint(String id, NetworkElement networkElement, double setpoint) {
+        super(id, networkElement, setpoint);
+    }
 
     /**
      * Constructor of a remedial action on a PST to fix a tap
@@ -37,7 +37,7 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
      * @param networkElement: PST element to modify
      * @param setpoint: value of the tap. That should be an int value, if not it will be truncated.
      */
-    @JsonCreator
+/*    @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,
                        @JsonProperty("name") String name,
                        @JsonProperty("operator") String operator,
@@ -47,7 +47,7 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
         super(id, name, operator, usageRules, networkElement);
         this.setpoint = setpoint;
     }
-
+*/
     public double getSetpoint() {
         return setpoint;
     }
@@ -63,10 +63,7 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
      */
     @Override
     public void apply(Network network) {
-        AbsoluteFixedRange range = new AbsoluteFixedRange(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, RangeDefinition.CENTERED_ON_ZERO);
-        List<AbstractRange> ranges = new ArrayList<>();
-        ranges.add(range);
-        PstRange pst = new PstRange(getId(), getName(), getOperator(), getUsageRules(), ranges, networkElement);
+        PstRange pst = new PstRange(getId(), networkElement);
         pst.apply(network, setpoint);
     }
 }

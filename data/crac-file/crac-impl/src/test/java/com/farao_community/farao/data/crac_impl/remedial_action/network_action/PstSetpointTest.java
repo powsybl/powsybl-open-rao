@@ -9,14 +9,12 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -31,12 +29,11 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
 
     @Before
     public void setUp() throws Exception {
-        ArrayList<UsageRule> usageRules = createUsageRules();
         PstSetpoint pstSetpoint = new PstSetpoint(
                 "pstsetpoint_id",
                 "pstsetpoint_name",
                 "pstsetpoint_operator",
-                usageRules,
+                createUsageRules(),
                 new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
                 12
         );
@@ -69,13 +66,10 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
-                "out_of_bound_pstsetpoint_id",
-                "out_of_bound_pstsetpoint_name",
-                "out_of_bound_pstsetpoint_operator",
-                createUsageRules(),
+                "out_of_bound",
                 new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
-                50
-        );
+                50);
+
         try {
             pstSetpoint.apply(network);
             fail();

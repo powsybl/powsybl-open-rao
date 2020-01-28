@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -40,6 +41,12 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
+    }
+
+    public AbstractRemedialAction(String id) {
+        super(id, id);
+        this.operator = id;
+        usageRules = new ArrayList<>();
     }
 
     public void setOperator(String operator) {

@@ -28,4 +28,6 @@ public interface RangeAction extends RemedialAction {
 
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
+
+    void synchronize(Network network);
 }

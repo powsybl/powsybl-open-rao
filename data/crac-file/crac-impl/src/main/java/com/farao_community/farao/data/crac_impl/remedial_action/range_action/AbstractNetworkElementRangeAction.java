@@ -29,7 +29,6 @@ import java.util.Set;
 public abstract class AbstractNetworkElementRangeAction extends AbstractRemedialAction implements RangeAction {
 
     protected List<AbstractRange> ranges;
-
     protected NetworkElement networkElement;
 
     @JsonCreator
@@ -44,8 +43,17 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
         this.networkElement = networkElement;
     }
 
+    public AbstractNetworkElementRangeAction(String id,
+                                             NetworkElement networkElement) {
+        super(id);
+        this.networkElement = networkElement;
+    }
+
+    public abstract void synchronize(Network network);
+
     protected abstract double getMinValueWithRange(Network network, AbstractRange range);
 
+    @Override
     public double getMinValue(Network network) {
         double minValue = Double.POSITIVE_INFINITY;
         for (AbstractRange range: ranges
@@ -57,6 +65,7 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
 
     protected abstract double getMaxValueWithRange(Network network, AbstractRange range);
 
+    @Override
     public double getMaxValue(Network network) {
         double maxValue = Double.NEGATIVE_INFINITY;
         for (AbstractRange range: ranges
@@ -66,16 +75,8 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
         return maxValue;
     }
 
-    public NetworkElement getNetworkElement() {
-        return networkElement;
-    }
-
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
-    }
-
-    public void setNetworkElement(NetworkElement networkElement) {
-        this.networkElement = networkElement;
     }
 
     @JsonProperty("ranges")

@@ -74,6 +74,10 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         rangeActions.forEach(rangeAction -> rangeAction.apply(network, setpoint));
     }
 
+    public void synchronize(Network network) {
+        rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
+    }
+
     @JsonProperty("ranges")
     public void addRange(AbstractRange range) {
         this.ranges.add(range);

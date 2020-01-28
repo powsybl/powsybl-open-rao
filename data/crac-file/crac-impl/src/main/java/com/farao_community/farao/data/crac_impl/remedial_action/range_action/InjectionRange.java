@@ -38,6 +38,11 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
     }
 
     @Override
+    public void synchronize(Network network) {
+        // to implement - specific to InjectionRange
+    }
+
+    @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to InjectionRange
         return injectionRangeTempValue;

@@ -7,17 +7,14 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
-
-import java.util.Set;
 
 /**
  * Remedial action interface specifying a direct action on the network. <br/>
  * The Network Action is completely defined by itself.<br/>
- * It involves a Set of {@link NetworkElement}: an action will be triggered on each of these elements,
- * provided they belong to the {@link Network} given in parameter of the apply method.
+ * It involves a Set of {@link NetworkElement}s.<br/>
+ * When the apply method is called, an action is triggered on these NetworkElement.<br/>
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -25,13 +22,8 @@ import java.util.Set;
 public interface NetworkAction extends RemedialAction {
 
     /**
-     * Gather all the network elements present in the network action. It returns a set because network
-     * elements must not be duplicated inside a network action and there is no defined order for network elements.
-     *
-     * @return A set of network elements.
+     * Trigger the actions on the NetworkElements, in a given network.
+     * @param network The network in which the actions are triggered
      */
-    @JsonIgnore
-    Set<NetworkElement> getNetworkElements();
-
     void apply(Network network);
 }

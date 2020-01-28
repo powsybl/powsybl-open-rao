@@ -38,6 +38,11 @@ public final class HvdcRange extends AbstractNetworkElementRangeAction {
     }
 
     @Override
+    public void synchronize(Network network) {
+        // to implement - specific to HvdcRange
+    }
+
+    @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
         // to implement - specific to HvdcRange
         return hvdcRangeTempValue;
