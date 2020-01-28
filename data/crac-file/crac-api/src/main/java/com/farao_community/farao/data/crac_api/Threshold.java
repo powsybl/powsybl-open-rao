@@ -34,7 +34,6 @@ public interface Threshold {
      * A Threshold is based on a given Unit (MEGAWATT, AMPERE, DEGREE or
      * KILOVOLT). This Unit can be retrieved by the getUnit() method.
      */
-    @JsonIgnore
     Unit getUnit();
 
     /**
