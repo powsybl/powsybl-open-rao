@@ -65,6 +65,9 @@ public class RelativeFlowThresholdTest {
 
         assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.NaN), DOUBLE_TOL);
         assertEquals(300.0, relativeFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.NaN), DOUBLE_TOL);
+
+        assertFalse(relativeFlowThresholdAmps.getMinThreshold(Unit.AMPERE).isPresent());
+        assertFalse(relativeFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).isPresent());
     }
 
     @Test

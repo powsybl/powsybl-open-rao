@@ -86,7 +86,7 @@ public interface Threshold {
 
     /**
      * This function returns, for a given Network situation, a boolean which specify
-     * whether or not the minimum limit of the Threshold has been overcome.
+     * whether or not the maximum limit of the Threshold has been overcome.
      */
     boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
 
