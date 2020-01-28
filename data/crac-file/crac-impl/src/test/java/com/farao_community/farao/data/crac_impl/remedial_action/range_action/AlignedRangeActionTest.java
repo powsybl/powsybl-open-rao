@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
 import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
@@ -26,11 +25,9 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class ComplexRangeActionTest {
+public class AlignedRangeActionTest {
 
-    private ComplexRangeAction complexRangeAction;
-    private RangeAction mockedRangeAction;
-    private RangeAction anotherMockedRangeAction;
+    private AlignedRangeAction alignedRangeAction;
     private Set<NetworkElement> mockedNetworkElements;
     private List<AbstractRange> mockedRanges;
     private Network mockedNetwork;
@@ -48,51 +45,49 @@ public class ComplexRangeActionTest {
 
         mockedNetwork = Mockito.mock(Network.class);
         AbsoluteFixedRange range = Mockito.mock(AbsoluteFixedRange.class);
-        Mockito.when(range.getMaxValue(mockedNetwork)).thenReturn(ComplexRangeAction.TEMP_MAX_VALUE);
-        Mockito.when(range.getMinValue(mockedNetwork)).thenReturn(ComplexRangeAction.TEMP_MIN_VALUE);
+        Mockito.when(range.getMaxValue(mockedNetwork)).thenReturn(AlignedRangeAction.TEMP_MAX_VALUE);
+        Mockito.when(range.getMinValue(mockedNetwork)).thenReturn(AlignedRangeAction.TEMP_MIN_VALUE);
         mockedRanges = new ArrayList<>(Collections.singletonList(range));
 
-        mockedRangeAction = Mockito.mock(PstRange.class);
-        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
-        mockedNetworkElements = new HashSet<>(Collections.singleton(networkElement));
-        Mockito.when(mockedRangeAction.getNetworkElements()).thenReturn(mockedNetworkElements);
-        Set<RangeAction> rangeActions = Collections.singleton(mockedRangeAction);
+        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
+        mockedNetworkElements = new HashSet<>();
+        mockedNetworkElements.add(mockedNetworkElement);
 
-        complexRangeAction = new ComplexRangeAction(
+        alignedRangeAction = new AlignedRangeAction(
                 complexRangeActionId,
                 complexRangeActionName,
                 complexRangeActionOperator,
                 usageRuleList,
                 mockedRanges,
-                rangeActions
+                mockedNetworkElements
         );
 
     }
 
     @Test
     public void getRanges() {
-        assertEquals(mockedRanges, complexRangeAction.getRanges());
+        assertEquals(mockedRanges, alignedRangeAction.getRanges());
     }
 
     @Test
     public void getNetworkElements() {
-        assertEquals(mockedNetworkElements, complexRangeAction.getNetworkElements());
+        assertEquals(mockedNetworkElements, alignedRangeAction.getNetworkElements());
     }
 
     @Test
     public void getMinValue() {
-        assertEquals(ComplexRangeAction.TEMP_MIN_VALUE, complexRangeAction.getMinValue(mockedNetwork), 0.1);
+        assertEquals(AlignedRangeAction.TEMP_MIN_VALUE, alignedRangeAction.getMinValue(mockedNetwork), 0.1);
     }
 
     @Test
     public void getMaxValue() {
-        assertEquals(ComplexRangeAction.TEMP_MAX_VALUE, complexRangeAction.getMaxValue(mockedNetwork), 0.1);
+        assertEquals(AlignedRangeAction.TEMP_MAX_VALUE, alignedRangeAction.getMaxValue(mockedNetwork), 0.1);
     }
 
     @Test
     public void apply() {
         try {
-            complexRangeAction.apply(mockedNetwork, 5);
+            alignedRangeAction.apply(mockedNetwork, 5);
         } catch (Exception e) {
             fail();
         }
@@ -101,23 +96,14 @@ public class ComplexRangeActionTest {
     @Test
     public void addRange() {
         RelativeFixedRange anotherRange = Mockito.mock(RelativeFixedRange.class);
-        complexRangeAction.addRange(anotherRange);
-        assertEquals(2, complexRangeAction.getRanges().size());
+        alignedRangeAction.addRange(anotherRange);
+        assertEquals(2, alignedRangeAction.getRanges().size());
     }
 
     @Test
-    public void addApplicableRangeAction() {
-        anotherMockedRangeAction = Mockito.mock(HvdcRange.class);
-        complexRangeAction.addRangeAction(anotherMockedRangeAction);
-        assertEquals(2, complexRangeAction.getRangeActions().size());
-    }
-
-    @Test
-    public void getApplicableRangeActions() {
-        complexRangeAction.addRangeAction(anotherMockedRangeAction);
-        Set<RangeAction> expectedSet = new HashSet<>(Collections.singletonList(mockedRangeAction));
-        expectedSet.add(mockedRangeAction);
-        expectedSet.add(anotherMockedRangeAction);
-        assertEquals(expectedSet, complexRangeAction.getRangeActions());
+    public void addNetworkElement() {
+        NetworkElement anotherMockedNetworkElement = Mockito.mock(NetworkElement.class);
+        mockedNetworkElements.add(anotherMockedNetworkElement);
+        assertEquals(2, alignedRangeAction.getNetworkElements().size());
     }
 }

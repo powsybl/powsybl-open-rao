@@ -15,17 +15,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Group of simultaneously applied range remedial actions.
+ * Range remedial action with several {@link NetworkElement}s sharing common characteristics:
+ * id, name, operator, {@link UsageRule}s and {@link AbstractRange}s.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public class ComplexRangeAction extends AbstractRemedialAction implements RangeAction {
+public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
 
     public static final double TEMP_MIN_VALUE = 0;
     public static final double TEMP_MAX_VALUE = 0;
@@ -33,30 +33,23 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
     @JsonProperty("ranges")
     private List<AbstractRange> ranges;
 
-    @JsonProperty("applicableRangeActions")
-    private Set<RangeAction> rangeActions;
+    @JsonProperty("networkElements")
+    private Set<NetworkElement> networkElements;
 
     @JsonCreator
-    public ComplexRangeAction(@JsonProperty("id") String id,
+    public AlignedRangeAction(@JsonProperty("id") String id,
                               @JsonProperty("name") String name,
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<AbstractRange> ranges,
-                              @JsonProperty("applicableRangeActions") Set<RangeAction> rangeActions) {
+                              @JsonProperty("applicableRangeActions") Set<NetworkElement> networkElements) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
-        this.rangeActions = new HashSet<>(rangeActions);
+        this.networkElements = networkElements;
     }
 
     public List<AbstractRange> getRanges() {
         return ranges;
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        Set<NetworkElement> set = new HashSet<>();
-        rangeActions.forEach(rangeAction -> set.addAll(rangeAction.getNetworkElements()));
-        return set;
     }
 
     @Override
@@ -71,11 +64,11 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public void apply(Network network, double setpoint) {
-        rangeActions.forEach(rangeAction -> rangeAction.apply(network, setpoint));
+        // to implement
     }
 
     public void synchronize(Network network) {
-        rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
+        // to implement?
     }
 
     @JsonProperty("ranges")
@@ -83,13 +76,13 @@ public class ComplexRangeAction extends AbstractRemedialAction implements RangeA
         this.ranges.add(range);
     }
 
-    @JsonProperty("rangeActions")
-    public void addRangeAction(RangeAction elementaryRangeAction) {
-        this.rangeActions.add(elementaryRangeAction);
+    @JsonProperty("networkElement")
+    public void addNetworkElement(NetworkElement networkElement) {
+        this.networkElements.add(networkElement);
     }
 
-    // @Override
-    public Set<RangeAction> getRangeActions() {
-        return rangeActions;
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return networkElements;
     }
 }

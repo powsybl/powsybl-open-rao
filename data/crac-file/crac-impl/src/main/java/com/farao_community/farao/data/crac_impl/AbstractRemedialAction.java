@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -28,7 +28,7 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ComplexNetworkAction.class, name = "complexNetworkAction"),
-        @JsonSubTypes.Type(value = ComplexRangeAction.class, name = "complexRangeAction")
+        @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "complexRangeAction")
     })
 public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
     protected String operator;
