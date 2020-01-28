@@ -65,7 +65,7 @@ public class VoltageThreshold extends AbstractThreshold {
         if (unit.equals(KILOVOLT)) {
             return getMinThreshold();
         } else {
-            throw new FaraoException("Unit of voltage threshold should be kilovolt!");
+            throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
         }
     }
 
@@ -79,7 +79,7 @@ public class VoltageThreshold extends AbstractThreshold {
         if (unit.equals(KILOVOLT)) {
             return getMaxThreshold();
         } else {
-            throw new FaraoException("Unit of voltage threshold should be kilovolt!");
+            throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
         }
     }
 

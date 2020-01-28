@@ -173,7 +173,7 @@ public class OnConstraintTest {
             new SimpleCnec(
                 "cnec",
                 new NetworkElement("ne1"),
-                new RelativeFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.IN, 80),
+                new RelativeFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 80),
                 initialState
             )
         );
@@ -269,7 +269,7 @@ public class OnConstraintTest {
             new SimpleCnec(
                 "cnec",
                 new NetworkElement("ne1"),
-                new RelativeFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.IN, 80),
+                new RelativeFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.IN, 80),
                 initialState
             )
         );

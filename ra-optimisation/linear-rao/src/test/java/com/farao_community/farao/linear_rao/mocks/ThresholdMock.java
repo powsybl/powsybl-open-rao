@@ -46,7 +46,6 @@ public class ThresholdMock implements Threshold {
         return Optional.of(max);
     }
 
-
     @Override
     public Unit getUnit() {
         return Unit.AMPERE;
@@ -74,6 +73,5 @@ public class ThresholdMock implements Threshold {
 
     @Override
     public void desynchronize() {
-
     }
 }

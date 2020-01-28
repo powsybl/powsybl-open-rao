@@ -7,18 +7,19 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 
 /**
- * Limits of a flow through an equipment.
+ * Limits of a flow (in MEGAWATT or AMPERE) through a branch. Given as
+ * an absolute value.
  *
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
@@ -36,59 +37,6 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     @Override
     public Optional<Double> getMaxThreshold() {
         return Optional.of(maxValue);
-    }
-
-    @Override
-    public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
-        if (unit == this.unit) {
-            return getMaxThreshold();
-        } else {
-            if (getMaxThreshold().isPresent()) {
-                if (unit.equals(Unit.AMPERE)) {
-                    return Optional.of(convertMwToAmps(getMaxThreshold().get()));
-                } else if (unit.equals(Unit.MEGAWATT)) {
-                    return Optional.of(convertAmpsToMw(getMaxThreshold().get()));
-                } else {
-                    throw new FaraoException("Unit of voltage threshold should be A or MW.");
-                }
-            } else {
-                return Optional.empty();
-            }
-        }
-    }
-
-    @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
-        return false;
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) {
-        return computeMargin(network, cnec) < 0;
-    }
-
-    @Override
-    public double computeMargin(Network network, Cnec cnec) {
-        switch (unit) {
-            case AMPERE:
-                return maxValue - getI(network, cnec);
-            case MEGAWATT:
-                return maxValue - getP(network, cnec);
-            case DEGREE:
-            case KILOVOLT:
-            default:
-                throw new FaraoException("Incompatible type of unit between FlowThreshold and degree or kV");
-        }
-    }
-
-    @Override
-    public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = Optional.of(network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV());
-    }
-
-    @Override
-    public void desynchronize() {
-        voltageLevel = Optional.empty();
     }
 
     @Override
