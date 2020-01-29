@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public abstract class AbstractNetworkElementRangeAction extends AbstractRemedialAction implements RangeAction {
 
-    protected List<AbstractRange> ranges;
+    protected List<Range> ranges;
 
     public NetworkElement getNetworkElement() {
         return networkElement;
@@ -41,7 +41,7 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
                                              @JsonProperty("name") String name,
                                              @JsonProperty("operator") String operator,
                                              @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                             @JsonProperty("ranges") List<AbstractRange> ranges,
+                                             @JsonProperty("ranges") List<Range> ranges,
                                              @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
@@ -58,24 +58,24 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
         this.networkElement = networkElement;
     }
 
-    protected abstract double getMinValueWithRange(Network network, AbstractRange range);
+    protected abstract double getMinValueWithRange(Network network, Range range);
 
     @Override
     public double getMinValue(Network network) {
         double minValue = Double.POSITIVE_INFINITY;
-        for (AbstractRange range: ranges
+        for (Range range: ranges
              ) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
         }
         return minValue;
     }
 
-    protected abstract double getMaxValueWithRange(Network network, AbstractRange range);
+    protected abstract double getMaxValueWithRange(Network network, Range range);
 
     @Override
     public double getMaxValue(Network network) {
         double maxValue = Double.NEGATIVE_INFINITY;
-        for (AbstractRange range: ranges
+        for (Range range: ranges
         ) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
         }
@@ -87,7 +87,7 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
     }
 
     @JsonProperty("ranges")
-    public void addRange(AbstractRange range) {
+    public void addRange(Range range) {
         this.ranges.add(range);
     }
 

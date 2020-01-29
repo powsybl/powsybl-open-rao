@@ -9,9 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
-import com.farao_community.farao.data.crac_impl.range_domain.RelativeFixedRange;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -29,7 +27,7 @@ public class AlignedRangeActionTest {
 
     private AlignedRangeAction alignedRangeAction;
     private Set<NetworkElement> mockedNetworkElements;
-    private List<AbstractRange> mockedRanges;
+    private List<Range> mockedRanges;
     private Network mockedNetwork;
 
     @Before
@@ -44,9 +42,9 @@ public class AlignedRangeActionTest {
         List<UsageRule> usageRuleList = new ArrayList<>(Collections.singletonList(freeToUse));
 
         mockedNetwork = Mockito.mock(Network.class);
-        AbsoluteFixedRange range = Mockito.mock(AbsoluteFixedRange.class);
-        Mockito.when(range.getMaxValue(mockedNetwork)).thenReturn(AlignedRangeAction.TEMP_MAX_VALUE);
-        Mockito.when(range.getMinValue(mockedNetwork)).thenReturn(AlignedRangeAction.TEMP_MIN_VALUE);
+        Range range = Mockito.mock(Range.class);
+        Mockito.when(range.getMax()).thenReturn(AlignedRangeAction.TEMP_MAX_VALUE);
+        Mockito.when(range.getMin()).thenReturn(AlignedRangeAction.TEMP_MIN_VALUE);
 
         mockedRanges = new ArrayList<>(Collections.singletonList(range));
 
@@ -96,7 +94,7 @@ public class AlignedRangeActionTest {
 
     @Test
     public void addRange() {
-        RelativeFixedRange anotherRange = Mockito.mock(RelativeFixedRange.class);
+        Range anotherRange = Mockito.mock(Range.class);
         alignedRangeAction.addRange(anotherRange);
         assertEquals(2, alignedRangeAction.getRanges().size());
     }

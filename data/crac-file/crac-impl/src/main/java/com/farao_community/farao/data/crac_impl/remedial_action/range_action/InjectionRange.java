@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -32,7 +32,7 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
                           @JsonProperty("name") String name,
                           @JsonProperty("operator") String operator,
                           @JsonProperty("usageRules") List<UsageRule> usageRules,
-                          @JsonProperty("ranges") List<AbstractRange> ranges,
+                          @JsonProperty("ranges") List<Range> ranges,
                           @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
@@ -43,13 +43,13 @@ public final class InjectionRange extends AbstractNetworkElementRangeAction {
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, AbstractRange range) {
+    protected double getMinValueWithRange(Network network, Range range) {
         // to implement - specific to InjectionRange
         return injectionRangeTempValue;
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, AbstractRange range) {
+    public double getMaxValueWithRange(Network network, Range range) {
         // to implement - specific to InjectionRange
         return injectionRangeTempValue;
     }

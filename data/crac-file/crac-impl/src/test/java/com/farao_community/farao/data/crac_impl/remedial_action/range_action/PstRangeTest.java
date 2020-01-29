@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -112,11 +112,11 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
     @Test
     public void getMinAndMaxValueWithRange() {
         Network network = Mockito.mock(Network.class);
-        AbstractRange range = Mockito.mock(AbstractRange.class);
+        Range range = Mockito.mock(Range.class);
         TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
         PhaseTapChanger phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
-        Mockito.when(range.getMinValue(network)).thenReturn(3.0);
-        Mockito.when(range.getMaxValue(network)).thenReturn(3.0);
+        Mockito.when(range.getMin()).thenReturn(3.0);
+        Mockito.when(range.getMax()).thenReturn(3.0);
         Mockito.when(range.getRangeType()).thenReturn(RangeType.RELATIVE_FIXED);
         Mockito.when(network.getTwoWindingsTransformer(pstRange.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
         Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);

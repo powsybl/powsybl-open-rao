@@ -70,6 +70,6 @@ abstract class AbstractNetworkElementAction extends AbstractRemedialAction imple
 
     @Override
     public int hashCode() {
-        return String.format("%s%d", getId(), getNetworkElement().getId()).hashCode();
+        return String.format("%s%s", getId(), getNetworkElement().getId()).hashCode();
     }
 }

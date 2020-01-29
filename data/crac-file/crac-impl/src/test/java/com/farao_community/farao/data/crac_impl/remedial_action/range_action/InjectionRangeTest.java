@@ -11,13 +11,14 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -32,7 +33,7 @@ public class InjectionRangeTest extends AbstractNetworkElementRangeActionTest {
     public void setUp() throws Exception {
         String injectionRangeId = "id";
         ArrayList<UsageRule> usageRules = createUsageRules();
-        ArrayList<AbstractRange> ranges = createRanges();
+        List<Range> ranges = createRanges();
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         injectionRange = new InjectionRange(
                 injectionRangeId,
@@ -47,7 +48,7 @@ public class InjectionRangeTest extends AbstractNetworkElementRangeActionTest {
     @Test
     public void getMinAndMaxValueWithRange() {
         Network mockedNetwork = Mockito.mock(Network.class);
-        AbstractRange anyRange = Mockito.mock(AbstractRange.class);
+        Range anyRange = Mockito.mock(Range.class);
         assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
         assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
     }

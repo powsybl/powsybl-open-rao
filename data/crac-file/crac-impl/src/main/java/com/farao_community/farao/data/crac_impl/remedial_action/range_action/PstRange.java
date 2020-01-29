@@ -11,8 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange;
-import com.farao_community.farao.data.crac_impl.range_domain.AbstractRange;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -40,7 +40,7 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
                     @JsonProperty("name") String name,
                     @JsonProperty("operator") String operator,
                     @JsonProperty("usageRules") List<UsageRule> usageRules,
-                    @JsonProperty("ranges") List<AbstractRange> ranges,
+                    @JsonProperty("ranges") List<Range> ranges,
                     @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
@@ -62,24 +62,24 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
         } else {
             rangeDefinition = RangeDefinition.STARTS_AT_ONE;
         }
-        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(lowTapPosition, highTapPosition, rangeDefinition);
+        Range absoluteFixedRange = new Range(lowTapPosition, highTapPosition, RangeType.ABSOLUTE_FIXED, rangeDefinition);
         addRange(absoluteFixedRange);
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, AbstractRange range) {
+    protected double getMinValueWithRange(Network network, Range range) {
         // TODO: clarify the sign convention of relative fixed range
-        double minValue = -range.getMinValue(network);
+        double minValue = -range.getMin();
         return getExtremumValueWithRange(network, range, minValue);
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, AbstractRange range) {
-        double maxValue = range.getMaxValue(network);
+    public double getMaxValueWithRange(Network network, Range range) {
+        double maxValue = range.getMax();
         return getExtremumValueWithRange(network, range, maxValue);
     }
 
-    private double getExtremumValueWithRange(Network network, AbstractRange range, double extremumValue) {
+    private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {
         switch (range.getRangeType()) {
             case ABSOLUTE_FIXED:
                 return extremumValue;
