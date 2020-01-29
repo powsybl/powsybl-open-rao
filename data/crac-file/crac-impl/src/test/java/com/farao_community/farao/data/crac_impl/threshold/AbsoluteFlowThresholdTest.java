@@ -38,8 +38,8 @@ public class AbsoluteFlowThresholdTest {
 
     @Before
     public void setUp() {
-        absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.IN, 500.0);
-        absoluteFlowThresholdMW = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.IN, 1500.0);
+        absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        absoluteFlowThresholdMW = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.BOTH, 1500.0);
 
         cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 absoluteFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
@@ -55,11 +55,11 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThreshold() {
-        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold().orElse(Double.NaN), DOUBLE_TOL);
-        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold().orElse(Double.NaN), DOUBLE_TOL);
-        assertFalse(absoluteFlowThresholdAmps.getMinThreshold().isPresent());
-        assertFalse(absoluteFlowThresholdMW.getMinThreshold().isPresent());
+    public void getMinMaxThreshold() throws SynchronizationException {
+        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold().orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold().orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(-500.0, absoluteFlowThresholdAmps.getMinThreshold().orElse(Double.MIN_VALUE), DOUBLE_TOL);
+        assertEquals(-1500.0, absoluteFlowThresholdMW.getMinThreshold().orElse(Double.MIN_VALUE), DOUBLE_TOL);
     }
 
     @Test
@@ -67,15 +67,15 @@ public class AbsoluteFlowThresholdTest {
         absoluteFlowThresholdAmps.synchronize(networkWithtLf, cnec1);
         absoluteFlowThresholdMW.synchronize(networkWithtLf, cnec2);
 
-        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.NaN), DOUBLE_TOL);
-        assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.NaN), DOUBLE_TOL);
-        assertEquals(2165.1, absoluteFlowThresholdMW.getMaxThreshold(Unit.AMPERE).orElse(Double.NaN), DOUBLE_TOL);
-        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold(Unit.MEGAWATT).orElse(Double.NaN), DOUBLE_TOL);
+        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(2165.1, absoluteFlowThresholdMW.getMaxThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
 
-        assertFalse(absoluteFlowThresholdAmps.getMinThreshold(Unit.AMPERE).isPresent());
-        assertFalse(absoluteFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).isPresent());
-        assertFalse(absoluteFlowThresholdMW.getMinThreshold(Unit.AMPERE).isPresent());
-        assertFalse(absoluteFlowThresholdMW.getMinThreshold(Unit.MEGAWATT).isPresent());
+        assertEquals(-500.0, absoluteFlowThresholdAmps.getMinThreshold(Unit.AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
+        assertEquals(-346.4, absoluteFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
+        assertEquals(-2165.1, absoluteFlowThresholdMW.getMinThreshold(Unit.AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
+        assertEquals(-1500.0, absoluteFlowThresholdMW.getMinThreshold(Unit.MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
     }
 
     @Test
@@ -100,14 +100,13 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void isMinThresholdOvercome() {
-        // returns always false
-        assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithoutLf, cnec1));
+    public void isMinThresholdOvercome() throws SynchronizationException {
+        // on cnec 1, after LF: 384.9 A
         assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithtLf, cnec1));
     }
 
     @Test
-    public void isMaxThresholdOvercomeOk() throws Exception {
+    public void isMaxThresholdOvercomeOk() throws SynchronizationException {
         // on cnec 1, after LF: 384.9 A
         // on cnec 3, after LF: 769.8 A
         assertFalse(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec1));
@@ -117,10 +116,10 @@ public class AbsoluteFlowThresholdTest {
     @Test
     public void computeMarginOk() throws Exception {
         // on cnec 1, after LF: 384.9 A
-        // on cnec 2, after LF: 384.9 A = 266.7 MW
+        // on cnec 2, after LF: - 384.9 A = - 266.7 MW
         // on cnec 3, after LF: 769.8 A
         assertEquals(500.0 - 384.9, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec1), DOUBLE_TOL);
-        assertEquals(1500.0 - (-266.7), absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec2), DOUBLE_TOL);
+        assertEquals(-266.7 - (-1500), absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec2), DOUBLE_TOL);
         assertEquals(500.0 - 769.8, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
     }
 

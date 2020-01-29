@@ -8,13 +8,30 @@
 package com.farao_community.farao.data.crac_api;
 
 /**
- * Units
+ * Physical units
  *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public enum Unit {
-    AMPERE,
-    DEGREE,
-    MEGAWATT,
-    KILOVOLT
+    AMPERE("AMPERE", PhysicalParameter.FLOW),
+    DEGREE("DEGREE", PhysicalParameter.ANGLE),
+    MEGAWATT("MEGAWATT", PhysicalParameter.FLOW),
+    KILOVOLT("KILOVOLT", PhysicalParameter.VOLTAGE);
+
+    private String name;
+    private PhysicalParameter physicalParameter;
+
+    Unit(String name, PhysicalParameter physicalParameter) {
+        this.name = name;
+        this.physicalParameter = physicalParameter;
+    }
+
+    public String toString() {
+        return name;
+    }
+
+    public PhysicalParameter physicalParameter() {
+        return physicalParameter;
+    }
 }

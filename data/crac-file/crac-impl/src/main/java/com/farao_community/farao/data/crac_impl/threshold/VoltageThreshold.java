@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,6 +38,11 @@ public class VoltageThreshold extends AbstractThreshold {
         super(KILOVOLT);
         this.minValue = minValue;
         this.maxValue = maxValue;
+    }
+
+    @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.VOLTAGE;
     }
 
     public double getMinValue() {

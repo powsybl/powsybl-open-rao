@@ -31,11 +31,12 @@ import java.util.Optional;
 public interface Threshold {
 
     /**
-     * A Threshold is based on a given Unit (MEGAWATT, AMPERE, DEGREE or
-     * KILOVOLT). This Unit can be retrieved by the getUnit() method.
+     * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
+     * or ANGLE). This physical value can be retrieved by the getPhysicalParameter()
+     * method.
      */
-    @Deprecated
-    Unit getUnit();
+    @JsonIgnore
+    PhysicalParameter getPhysicalParameter();
 
     /**
      * If it is defined, this function returns the minimum limit of the Threshold,

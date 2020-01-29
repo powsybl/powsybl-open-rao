@@ -54,13 +54,91 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
         super(unit);
-        if (!unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT)) {
-            throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE or MEGAWATT, %s is not a valid value", unit.toString()));
+        if (!unit.physicalParameter().equals(PhysicalParameter.FLOW)) {
+            throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE, MEGAWATT or PERCENTAGE_OF_IMAX. %s is not a valid value", unit.toString()));
         }
         this.side = side;
         this.direction = direction;
         this.maxValue = Double.NaN;
         this.voltageLevel = Double.NaN;
+    }
+
+    @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.FLOW;
+    }
+
+    @Override
+    @Deprecated
+    public Optional<Double> getMinThreshold() throws SynchronizationException {
+        // TODO : handle cases where direction != Direction.BOTH
+        return Optional.of(-getAbsoluteMax());
+    }
+
+    @Override
+    public Optional<Double> getMinThreshold(Unit requestedUnit) throws SynchronizationException {
+        // TODO : handle cases where direction != Direction.BOTH
+        return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
+    }
+
+    @Override
+    @Deprecated
+    public Optional<Double> getMaxThreshold() throws SynchronizationException {
+        // TODO : handle cases where direction != Direction.BOTH
+        return Optional.of(getAbsoluteMax());
+    }
+
+    @Override
+    public Optional<Double> getMaxThreshold(Unit requestedUnit) throws SynchronizationException {
+        // TODO : handle cases where direction != Direction.BOTH
+        return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
+    }
+
+    @Override
+    public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
+        // todo : switch units if no I is available but P is available
+        double flow;
+        if (unit.equals(Unit.AMPERE)) {
+            flow = getI(network, cnec);
+        } else {
+            flow = getP(network, cnec);
+        }
+        return flow < getMinThreshold(unit).orElse(Double.MIN_VALUE);
+    }
+
+    @Override
+    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
+        // todo : switch units if no I is available but P is available
+        double flow;
+        if (unit.equals(Unit.AMPERE)) {
+            flow = getI(network, cnec);
+        } else {
+            flow = getP(network, cnec);
+        }
+        return flow > getMaxThreshold(unit).orElse(Double.MAX_VALUE);
+    }
+
+    @Override
+    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
+        // todo : switch units if no I is available but P is available
+        // todo : add a requested unit
+        double flow;
+        if (unit.equals(Unit.AMPERE)) {
+            flow = getI(network, cnec);
+        } else {
+            flow = getP(network, cnec);
+        }
+        return Math.min(getMaxThreshold(unit).orElse(Double.MAX_VALUE) - flow, flow - getMinThreshold(unit).orElse(Double.MIN_VALUE));
+    }
+
+    @Override
+    public void synchronize(Network network, Cnec cnec) {
+        voltageLevel = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+    }
+
+    @Override
+    public void desynchronize() {
+        voltageLevel = Double.NaN;
     }
 
     public Direction getDirection() {
@@ -87,6 +165,9 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         this.side = side;
     }
 
+    /**
+     * Convert the Farao Side of the Threshold, into a Powsybl Branch.Side
+     */
     protected Branch.Side getBranchSide() {
         // TODO: manage matching between LEFT/RIGHT and ONE/TWO
         if (side.equals(Side.LEFT)) {
@@ -98,15 +179,25 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         }
     }
 
+    /**
+     * Get the monitored Terminal of a Cnec.
+     */
     private Terminal getTerminal(Network network, Cnec cnec) {
         return network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide());
     }
 
+    /**
+     * Check if a Cnec is connected, on both side, to the network.
+     */
     private static boolean isCnecDisconnected(Network network, Cnec cnec) {
         Branch branch = network.getBranch(cnec.getCriticalNetworkElement().getId());
         return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
     }
 
+    /**
+     * Get the flow (in A) transmitted by Cnec in a given Network. Note that an I
+     * value exists in the Network only if an AC load-flow has been previously run.
+     */
     private double getI(Network network, Cnec cnec) {
         double i = isCnecDisconnected(network, cnec) ? 0 : getTerminal(network, cnec).getI();
         if (Double.isNaN(i)) {
@@ -115,6 +206,11 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         return i;
     }
 
+    /**
+     * Get the flow (in MW) transmitted by Cnec in a given Network. Note that an P
+     * value exists in the Network only if an load-flow (AC or DC) has been previously
+     * run.
+     */
     private double getP(Network network, Cnec cnec) {
         double p = isCnecDisconnected(network, cnec) ? 0 : getTerminal(network, cnec).getP();
         if (Double.isNaN(p)) {
@@ -123,85 +219,39 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         return p;
     }
 
-    private double convertMwToAmps(double valueInMw) throws SynchronizationException {
-        if (!Double.isNaN(voltageLevel)) {
-            double ratio = voltageLevel * Math.sqrt(3) / 1000;
-            return valueInMw / ratio;
+    /**
+     * Convert a flow value from MW to A, or vice versa. To do so, the voltage
+     * level of the Threshold is required. If the voltage level has not been
+     * synchronised, this method returns an error.
+     *
+     * The conversion formula is the following one :
+     * Flow(MW) = Flow(A) * sqrt(3) * Unom (kV) / 1000
+     */
+    private double convert(double value, Unit originUnit, Unit requestedUnit) throws SynchronizationException {
+        if (!requestedUnit.physicalParameter().equals(PhysicalParameter.FLOW)) {
+            throw new FaraoException(String.format("FlowThreshold can only be requested in AMPERE or MEGAWATT. %s is not a valid unit.", requestedUnit.toString()));
+        }
+        if (originUnit.equals(requestedUnit)) {
+            return value;
+        }
+        if (Double.isNaN(voltageLevel)) {
+            throw new SynchronizationException("FlowThreshold unit convesion : voltage level must be synchronised with a Network");
+        }
+        double ratio = voltageLevel * Math.sqrt(3) / 1000;
+        if (originUnit.equals(Unit.AMPERE) && requestedUnit.equals(Unit.MEGAWATT)) {
+            return value * ratio;
+        } else if (originUnit.equals(Unit.MEGAWATT) && requestedUnit.equals(Unit.AMPERE)) {
+            return value / ratio;
         } else {
-            throw new SynchronizationException("Voltage level has not been synchronised.");
+            throw new FaraoException(String.format("Conversion from %s to %s not handled", originUnit.toString(), requestedUnit.toString()));
         }
     }
 
-    protected double convertAmpsToMw(double valueInA) throws SynchronizationException {
-        if (!Double.isNaN(voltageLevel)) {
-            double ratio = voltageLevel * Math.sqrt(3) / 1000;
-            return valueInA * ratio;
-        } else {
-            throw new SynchronizationException("Voltage level has not been synchronised.");
-        }
-    }
-
-    @Override
-    public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
-        if (unit == this.unit) {
-            return getMaxThreshold();
-        }
-        Optional<Double> maxInNativeUnit = getMaxThreshold();
-        if (unit.equals(Unit.AMPERE)) {
-            // get AMPERE from a threshold in MEGAWATT
-            return maxInNativeUnit.isPresent() ? Optional.of(convertMwToAmps(maxInNativeUnit.get())) : Optional.empty();
-        } else if (unit.equals(Unit.MEGAWATT)) {
-            // get MEGAWATT from a threshold in AMPERE
-            return maxInNativeUnit.isPresent() ? Optional.of(convertAmpsToMw(maxInNativeUnit.get())) : Optional.empty();
-        } else {
-            throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE or MEGAWATT, %s is not a valid value", unit.toString()));
-        }
-
-    }
-
-    @Override
-    public Optional<Double> getMinThreshold() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Double> getMinThreshold(Unit unit) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
-        return false;
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        return computeMargin(network, cnec) < 0;
-    }
-
-    @Override
-    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
-        switch (unit) {
-            case AMPERE:
-                return maxValue - getI(network, cnec);
-            case MEGAWATT:
-                return maxValue - getP(network, cnec);
-            case DEGREE:
-            case KILOVOLT:
-            default:
-                throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE or MEGAWATT, %s is not a valid value", unit.toString()));
-        }
-    }
-
-    @Override
-    public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
-    }
-
-    @Override
-    public void desynchronize() {
-        voltageLevel = Double.NaN;
-    }
+    /**
+     * Get the maximum admissible flow, regardless of the direction in which
+     * the branch is monitored.
+     */
+    protected abstract double getAbsoluteMax() throws SynchronizationException;
 
     @Override
     public boolean equals(Object o) {

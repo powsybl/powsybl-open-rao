@@ -36,7 +36,7 @@ public class RelativeFlowThresholdTest {
     @Before
     public void setUp() {
 
-        relativeFlowThresholdAmps = new RelativeFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.IN, 60);
+        relativeFlowThresholdAmps = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
 
         cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 relativeFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
@@ -55,19 +55,19 @@ public class RelativeFlowThresholdTest {
         // relativeFlowThresholdAmps -> 60% * 721 A = 432 A
         // relativeFlowThresholdMW -> 75% * 500 MW = 375 MW
 
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold().orElse(Double.NaN), DOUBLE_TOL);
-        assertFalse(relativeFlowThresholdAmps.getMinThreshold().isPresent());
+        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold().orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold().orElse(Double.MIN_VALUE), DOUBLE_TOL);
     }
 
     @Test
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
         relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
 
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.NaN), DOUBLE_TOL);
-        assertEquals(300.0, relativeFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.NaN), DOUBLE_TOL);
+        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(300.0, relativeFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
 
-        assertFalse(relativeFlowThresholdAmps.getMinThreshold(Unit.AMPERE).isPresent());
-        assertFalse(relativeFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).isPresent());
+        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(-300.0, relativeFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
     }
 
     @Test
@@ -94,52 +94,42 @@ public class RelativeFlowThresholdTest {
 
     @Test
     public void isMinThresholdOvercome() throws Exception {
-        // returns always false
-        assertFalse(relativeFlowThresholdAmps.isMinThresholdOvercome(networkWithoutLf, cnec1));
+        relativeFlowThresholdAmps.synchronize(networkWithtLf, cnec1);
         assertFalse(relativeFlowThresholdAmps.isMinThresholdOvercome(networkWithtLf, cnec1));
-    }
-
-    @Test
-    public void isMaxThresholdOvercomeWithNoSynchronization() {
-        try {
-            relativeFlowThresholdAmps.isMaxThresholdOvercome(networkWithoutLf, cnec1);
-            fail();
-        } catch (SynchronizationException ignored) {
-        }
-    }
-
-    @Test
-    public void synchronize() {
-        assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
-        cnec1.synchronize(networkWithoutLf);
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxValue(), DOUBLE_TOL);
     }
 
     @Test
     public void isMaxThresholdOvercome() throws SynchronizationException {
         assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
 
-        cnec1.synchronize(networkWithtLf);
+        relativeFlowThresholdAmps.synchronize(networkWithtLf, cnec1);
         // relativeFlowThresholdAmps -> 60% * 721 A = 432.6 A
         // on cnec 1, after LF -> 384.9 A
         assertFalse(relativeFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec1));
 
-        cnec2.synchronize(networkWithtLf);
+        relativeFlowThresholdAmps.synchronize(networkWithtLf, cnec2);
         // relativeFlowThresholdAmps -> 60% * 721 A = 432.6 A
         // on cnec 2, after LF -> 769.8 A
         assertTrue(relativeFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec2));
     }
 
     @Test
+    public void synchronize() {
+        assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
+        relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
+        assertEquals(432.6, relativeFlowThresholdAmps.getMaxValue(), DOUBLE_TOL);
+    }
+
+    @Test
     public void computeMarginInAmpsOk() throws SynchronizationException {
         assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
 
-        cnec1.synchronize(networkWithtLf);
+        relativeFlowThresholdAmps.synchronize(networkWithtLf, cnec1);
         // relativeFlowThresholdAmps -> 60% * 721 A = 432 A
         // on cnec 1, after LF -> 384.9 A
         assertEquals(432.6 - 384.9, relativeFlowThresholdAmps.computeMargin(networkWithtLf, cnec1), DOUBLE_TOL);
 
-        cnec2.synchronize(networkWithtLf);
+        relativeFlowThresholdAmps.synchronize(networkWithtLf, cnec2);
         // relativeFlowThresholdAmps -> 60% * 721 A = 432 A
         // on cnec 2, after LF -> 769.8 A
         assertEquals(432.6 - 769.8, relativeFlowThresholdAmps.computeMargin(networkWithtLf, cnec2), DOUBLE_TOL);
@@ -156,7 +146,7 @@ public class RelativeFlowThresholdTest {
 
     @Test
     public void computeMarginNoData() throws SynchronizationException {
-        cnec1.synchronize(networkWithtLf);
+        relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
         try {
             relativeFlowThresholdAmps.computeMargin(networkWithoutLf, cnec1);
         } catch (FaraoException e) {

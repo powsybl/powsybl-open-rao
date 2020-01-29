@@ -13,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Optional;
-
 /**
  * Limits of a flow through a branch. Given as a percentage of the branch limit
  * defined in a Network.
@@ -32,23 +30,22 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     private double percentageOfMax;
 
     @JsonCreator
-    public RelativeFlowThreshold(@JsonProperty("unit") Unit unit,
-                                 @JsonProperty("side") Side side,
+    public RelativeFlowThreshold(@JsonProperty("side") Side side,
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("percentageOfMax") double percentageOfMax) {
-        super(unit, side, direction);
-        if (!unit.equals(Unit.AMPERE)) {
-            throw new FaraoException("RelativeFlowThreshold cannot handle a unit different than Unit.AMPERE.");
+        super(Unit.AMPERE, side, direction);
+        if (percentageOfMax < 0 || percentageOfMax > 100) {
+            throw new FaraoException("PercentageOfMax of RelativeFlowThresholds must be in [0, 100]");
         }
         this.percentageOfMax = percentageOfMax;
     }
 
     @Override
-    public Optional<Double> getMaxThreshold() throws SynchronizationException {
+    protected double getAbsoluteMax() throws SynchronizationException {
         if (Double.isNaN(maxValue)) {
             throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
         }
-        return Optional.of(maxValue);
+        return maxValue;
     }
 
     @Override
@@ -62,6 +59,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     @Override
     public void synchronize(Network network, Cnec cnec) {
         super.synchronize(network, cnec);
+        // compute maxValue, in Unit.AMPERE
         maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
     }
 

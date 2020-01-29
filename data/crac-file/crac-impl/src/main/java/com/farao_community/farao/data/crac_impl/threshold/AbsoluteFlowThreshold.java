@@ -7,12 +7,11 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.util.Optional;
 
 /**
  * Limits of a flow (in MEGAWATT or AMPERE) through a branch. Given as
@@ -31,12 +30,15 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("maxValue") double maxValue) {
         super(unit, side, direction);
+        if (maxValue < 0) {
+            throw new FaraoException("MaxValue of AbsoluteFlowThresholds must be positive.");
+        }
         this.maxValue = maxValue;
     }
 
     @Override
-    public Optional<Double> getMaxThreshold() {
-        return Optional.of(maxValue);
+    protected double getAbsoluteMax() {
+        return maxValue;
     }
 
     @Override
