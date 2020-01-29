@@ -40,8 +40,8 @@ public class CountertradingTest extends AbstractRemedialActionTest {
 
     @Test
     public void getMinAndMaxValue() {
-        assertEquals(Countertrading.tempValue, countertrading.getMinValue(mockedNetwork), 0);
-        assertEquals(Countertrading.tempValue, countertrading.getMaxValue(mockedNetwork), 0);
+        assertEquals(Countertrading.TEMP_VALUE, countertrading.getMinValue(mockedNetwork), 0);
+        assertEquals(Countertrading.TEMP_VALUE, countertrading.getMaxValue(mockedNetwork), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)

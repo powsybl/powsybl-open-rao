@@ -27,7 +27,7 @@ import java.util.Set;
 
 public class Countertrading extends AbstractRemedialAction implements RangeAction {
 
-    public static int tempValue = 0;
+    public final static int TEMP_VALUE = 0;
 
     @JsonCreator
     public Countertrading(@JsonProperty("id") String id,
@@ -39,12 +39,12 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
 
     @Override
     public double getMinValue(Network network) {
-        return tempValue;
+        return TEMP_VALUE;
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return tempValue;
+        return TEMP_VALUE;
     }
 
     @Override
