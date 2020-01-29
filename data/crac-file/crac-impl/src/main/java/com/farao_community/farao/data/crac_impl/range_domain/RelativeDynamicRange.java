@@ -21,6 +21,7 @@ public class RelativeDynamicRange extends AbstractRange {
     @JsonCreator
     public RelativeDynamicRange(@JsonProperty("min") double min, @JsonProperty("max") double max) {
         super(min, max);
+        this.rangeType = RangeType.RELATIVE_DYNAMIC;
     }
 
     @Override

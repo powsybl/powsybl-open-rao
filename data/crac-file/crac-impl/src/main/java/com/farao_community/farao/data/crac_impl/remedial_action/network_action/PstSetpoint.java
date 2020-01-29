@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
@@ -23,31 +25,29 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class PstSetpoint extends AbstractSetpointNetworkAction {
 
-    public PstSetpoint(String id, String name, String operator, List<UsageRule> usageRules, NetworkElement networkElement, double setpoint) {
-        super(id, name, operator, usageRules, networkElement, setpoint);
-    }
-
-    public PstSetpoint(String id, NetworkElement networkElement, double setpoint) {
-        super(id, networkElement, setpoint);
-    }
-
-    /**
-     * Constructor of a remedial action on a PST to fix a tap
-     *
-     * @param networkElement: PST element to modify
-     * @param setpoint: value of the tap. That should be an int value, if not it will be truncated.
-     */
-/*    @JsonCreator
+    @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,
                        @JsonProperty("name") String name,
                        @JsonProperty("operator") String operator,
                        @JsonProperty("usageRules") List<UsageRule> usageRules,
                        @JsonProperty("networkElement") NetworkElement networkElement,
                        @JsonProperty("setpoint") double setpoint) {
-        super(id, name, operator, usageRules, networkElement);
-        this.setpoint = setpoint;
+        super(id, name, operator, usageRules, networkElement, setpoint);
     }
-*/
+
+    /**
+     * Constructor of a remedial action on a PST to fix a tap
+     *
+     * @param id value used for id, name and operator
+     * @param networkElement PST element to modify
+     * @param setpoint value of the tap. That should be an int value, if not it will be truncated.
+     */
+    public PstSetpoint(@JsonProperty("id") String id,
+                       @JsonProperty("networkElement") NetworkElement networkElement,
+                       @JsonProperty("setpoint") double setpoint) {
+        super(id, networkElement, setpoint);
+    }
+
     public double getSetpoint() {
         return setpoint;
     }

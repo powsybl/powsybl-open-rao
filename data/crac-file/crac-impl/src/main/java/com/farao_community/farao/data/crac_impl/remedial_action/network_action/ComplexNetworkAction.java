@@ -42,11 +42,14 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
         this.networkActions = new HashSet<>(networkActions);
     }
 
-    public ComplexNetworkAction(String id, String name, String operator) {
+    public ComplexNetworkAction(@JsonProperty("id") String id,
+                                @JsonProperty("name") String name,
+                                @JsonProperty("operator") String operator) {
         this (id, name, operator, new ArrayList<>(), new HashSet<>());
     }
 
-    public ComplexNetworkAction(String id, String operator) {
+    public ComplexNetworkAction(@JsonProperty("id") String id,
+                                @JsonProperty("operator") String operator) {
         this (id, id, operator, new ArrayList<>(), new HashSet<>());
     }
 

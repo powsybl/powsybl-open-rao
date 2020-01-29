@@ -21,6 +21,7 @@ public class RelativeFixedRange extends AbstractRange {
     @JsonCreator
     public RelativeFixedRange(@JsonProperty("min") double min, @JsonProperty("max") double max) {
         super(min, max);
+        this.rangeType = RangeType.RELATIVE_FIXED;
     }
 
     @Override
@@ -32,4 +33,5 @@ public class RelativeFixedRange extends AbstractRange {
     public double getMaxValue(Network network) {
         return -100;
     }
+
 }

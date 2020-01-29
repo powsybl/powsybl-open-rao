@@ -24,6 +24,11 @@ import com.powsybl.iidm.network.Network;
     })
 public abstract class AbstractRange {
 
+    public RangeType getRangeType() {
+        return rangeType;
+    }
+
+    protected RangeType rangeType;
     protected double min;
     protected double max;
 

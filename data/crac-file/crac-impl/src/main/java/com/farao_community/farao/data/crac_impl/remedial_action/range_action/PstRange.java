@@ -68,19 +68,28 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
 
     @Override
     protected double getMinValueWithRange(Network network, AbstractRange range) {
-        // to implement - specific to PstRange
-        return 0;
-    }
-
-    @Override
-    public double getMinValue(Network network) {
-        return 0;
+        // TODO: clarify the sign convention of relative fixed range
+        double minValue = -range.getMinValue(network);
+        return getExtremumValueWithRange(network, range, minValue);
     }
 
     @Override
     public double getMaxValueWithRange(Network network, AbstractRange range) {
-        // to implement - specific to PstRange
-        return 0;
+        double maxValue = range.getMaxValue(network);
+        return getExtremumValueWithRange(network, range, maxValue);
+    }
+
+    private double getExtremumValueWithRange(Network network, AbstractRange range, double extremumValue) {
+        switch (range.getRangeType()) {
+            case ABSOLUTE_FIXED:
+                return extremumValue;
+            case RELATIVE_FIXED:
+                return getCurrentTapPosition(network) + extremumValue;
+            case RELATIVE_DYNAMIC:
+                throw new FaraoException("RelativeDynamicRanges are not handled for the moment");
+            default:
+                throw new FaraoException("Invalid range given in argument");
+        }
     }
 
     /**
@@ -106,5 +115,11 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
         } else {
             throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
         }
+    }
+
+    public int getCurrentTapPosition(Network network) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        return phaseTapChanger.getTapPosition();
     }
 }

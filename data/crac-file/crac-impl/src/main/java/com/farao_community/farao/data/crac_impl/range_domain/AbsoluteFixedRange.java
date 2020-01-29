@@ -25,6 +25,7 @@ public class AbsoluteFixedRange extends AbstractRange {
     public AbsoluteFixedRange(@JsonProperty("min") double min, @JsonProperty("max") double max, @JsonProperty("rangeDefinition") RangeDefinition rangeDefinition) {
         super(min, max);
         this.rangeDefinition = rangeDefinition;
+        this.rangeType = RangeType.ABSOLUTE_FIXED;
     }
 
     @Override

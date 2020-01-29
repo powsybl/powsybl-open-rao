@@ -11,6 +11,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -23,19 +24,20 @@ public abstract class AbstractSetpointNetworkAction extends AbstractNetworkEleme
 
     protected double setpoint;
 
+    @JsonCreator
     public AbstractSetpointNetworkAction(@JsonProperty("id") String id,
-                                        @JsonProperty("name") String name,
-                                        @JsonProperty("operator") String operator,
-                                        @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                        @JsonProperty("networkElement") NetworkElement networkElement,
-                                         double setpoint) {
+                                         @JsonProperty("name") String name,
+                                         @JsonProperty("operator") String operator,
+                                         @JsonProperty("usageRules") List<UsageRule> usageRules,
+                                         @JsonProperty("networkElement") NetworkElement networkElement,
+                                         @JsonProperty("setpoint") double setpoint) {
         super(id, name, operator, usageRules, networkElement);
         this.setpoint = setpoint;
     }
 
-    public AbstractSetpointNetworkAction(String id,
-                                         NetworkElement networkElement,
-                                         double setpoint) {
+    public AbstractSetpointNetworkAction(@JsonProperty("id") String id,
+                                         @JsonProperty("networkElement") NetworkElement networkElement,
+                                         @JsonProperty("setpoint") double setpoint) {
         super(id, networkElement);
         this.setpoint = setpoint;
     }

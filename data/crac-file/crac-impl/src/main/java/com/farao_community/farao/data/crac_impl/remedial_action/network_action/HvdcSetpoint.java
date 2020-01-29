@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
@@ -22,30 +24,21 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class HvdcSetpoint extends AbstractSetpointNetworkAction {
 
-    public HvdcSetpoint(String id, String name, String operator, List<UsageRule> usageRules, NetworkElement networkElement, double setpoint) {
-        super(id, name, operator, usageRules, networkElement, setpoint);
-    }
-
-    public HvdcSetpoint(String id, NetworkElement networkElement, double setpoint) {
-        super(id, networkElement, setpoint);
-    }
-
-    /*@JsonCreator
+    @JsonCreator
     public HvdcSetpoint(@JsonProperty("id") String id,
                         @JsonProperty("name") String name,
                         @JsonProperty("operator") String operator,
                         @JsonProperty("usageRules") List<UsageRule> usageRules,
                         @JsonProperty("networkElement") NetworkElement networkElement,
                         @JsonProperty("setpoint") double setpoint) {
-        super(id, name, operator, usageRules, networkElement);
-        this.setpoint = setpoint;
+        super(id, name, operator, usageRules, networkElement, setpoint);
     }
 
-    public HvdcSetpoint(String id,
-                        NetworkElement networkElement,
-                        double setpoint) {
+    public HvdcSetpoint(@JsonProperty("id") String id,
+                        @JsonProperty("networkElement") NetworkElement networkElement,
+                        @JsonProperty("setpoint") double setpoint) {
         super(id, networkElement, setpoint);
-    }*/
+    }
 
     public double getSetpoint() {
         return setpoint;

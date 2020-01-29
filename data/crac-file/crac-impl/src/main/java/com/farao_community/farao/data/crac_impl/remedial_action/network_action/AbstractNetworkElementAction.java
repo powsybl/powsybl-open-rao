@@ -36,8 +36,8 @@ abstract class AbstractNetworkElementAction extends AbstractRemedialAction imple
         this.networkElement = networkElement;
     }
 
-    public AbstractNetworkElementAction(String id,
-                                        NetworkElement networkElement) {
+    public AbstractNetworkElementAction(@JsonProperty("id") String id,
+                                        @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;
     }
