@@ -79,13 +79,11 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
-        rangeAction.getNetworkElements().forEach(networkElement -> {
-            linearRaoProblem.addRangeActionFlowOnBranch(
-                    cnec.getId(),
-                    rangeAction.getId(),
-                    networkElement.getId(),
-                    linearRaoData.getSensitivity(cnec, rangeAction)
-            );
-        });
+        rangeAction.getNetworkElements().forEach(networkElement ->
+                linearRaoProblem.addRangeActionFlowOnBranch(
+                        cnec.getId(),
+                        rangeAction.getId(),
+                        networkElement.getId(),
+                        linearRaoData.getSensitivity(cnec, rangeAction)));
     }
 }

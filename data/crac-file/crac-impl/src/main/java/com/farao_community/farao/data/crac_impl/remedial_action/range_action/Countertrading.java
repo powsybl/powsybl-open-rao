@@ -53,7 +53,7 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     }
 
     public void synchronize(Network network) {
-
+        //  countertrading is not implemented for the moment so this method is empty
     }
 
     @Override

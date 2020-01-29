@@ -58,8 +58,6 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
         this.networkElement = networkElement;
     }
 
-    public abstract void synchronize(Network network);
-
     protected abstract double getMinValueWithRange(Network network, AbstractRange range);
 
     @Override
@@ -91,5 +89,25 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
     @JsonProperty("ranges")
     public void addRange(AbstractRange range) {
         this.ranges.add(range);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractNetworkElementRangeAction otherAbstractNetworkElementRangeAction = (AbstractNetworkElementRangeAction) o;
+
+        return super.equals(o)
+                && networkElement == otherAbstractNetworkElementRangeAction.getNetworkElement()
+                && ranges == otherAbstractNetworkElementRangeAction.ranges;
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%s%d", getId(), networkElement.getId(), ranges.size()).hashCode();
     }
 }

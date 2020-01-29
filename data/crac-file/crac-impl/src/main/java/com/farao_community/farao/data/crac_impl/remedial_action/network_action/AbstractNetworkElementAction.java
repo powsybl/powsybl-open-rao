@@ -54,4 +54,22 @@ abstract class AbstractNetworkElementAction extends AbstractRemedialAction imple
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractNetworkElementAction otherAbstractNetworkElementAction = (AbstractNetworkElementAction) o;
+
+        return super.equals(o) && networkElement == otherAbstractNetworkElementAction.getNetworkElement();
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%d", getId(), getNetworkElement().getId()).hashCode();
+    }
 }

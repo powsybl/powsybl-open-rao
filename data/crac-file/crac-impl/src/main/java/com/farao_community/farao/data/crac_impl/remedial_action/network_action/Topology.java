@@ -65,4 +65,22 @@ public final class Topology extends AbstractNetworkElementAction {
             throw new NotImplementedException("Topological actions are only on branches for now");
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Topology otherInjectionSetpoint = (Topology) o;
+
+        return super.equals(o) && actionType == otherInjectionSetpoint.getActionType();
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%s", getId(), getActionType().toString()).hashCode();
+    }
 }

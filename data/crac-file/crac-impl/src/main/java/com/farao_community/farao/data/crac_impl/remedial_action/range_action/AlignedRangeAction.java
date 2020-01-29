@@ -84,4 +84,24 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     public Set<NetworkElement> getNetworkElements() {
         return networkElements;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AlignedRangeAction otherAlignedRangeAction = (AlignedRangeAction) o;
+
+        return super.equals(o)
+                && ranges == otherAlignedRangeAction.ranges
+                && networkElements == otherAlignedRangeAction.networkElements;
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%d%d", getId(), ranges.size(), networkElements.size()).hashCode();
+    }
 }

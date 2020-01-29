@@ -95,6 +95,7 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
 
     @Override
     public void synchronize(Network network) {
+        // to implement - specific to Redispatching
     }
 
     @Override
@@ -117,5 +118,33 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return new HashSet<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Redispatching otherRedispatching = (Redispatching) o;
+
+        return super.equals(o)
+                && minimumPower == otherRedispatching.minimumPower
+                && maximumPower == otherRedispatching.maximumPower
+                && targetPower == otherRedispatching.targetPower
+                && startupCost == otherRedispatching.startupCost
+                && marginalCost == otherRedispatching.marginalCost;
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%f%f%f%f%f", getId(),
+                marginalCost,
+                maximumPower,
+                minimumPower,
+                targetPower,
+                startupCost).hashCode();
     }
 }

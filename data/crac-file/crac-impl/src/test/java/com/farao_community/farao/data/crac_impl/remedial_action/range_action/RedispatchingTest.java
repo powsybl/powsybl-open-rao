@@ -50,30 +50,10 @@ public class RedispatchingTest extends AbstractNetworkElementRangeActionTest {
     }
 
     @Test
-    public void apply() {
-    }
-
-    @Test
-    public void getNetworkElements() {
-    }
-
-    @Test
     public void getMinAndMaxValueWithRange() {
         AbstractRange mockedAbstractRange = Mockito.mock(AbstractRange.class);
         Network mockedNetwork = Mockito.mock(Network.class);
         assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedAbstractRange), 0);
         assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedAbstractRange), 0);
-    }
-
-    @Test
-    public void testGetMinValue() {
-    }
-
-    @Test
-    public void testApply() {
-    }
-
-    @Test
-    public void testGetNetworkElements() {
     }
 }
