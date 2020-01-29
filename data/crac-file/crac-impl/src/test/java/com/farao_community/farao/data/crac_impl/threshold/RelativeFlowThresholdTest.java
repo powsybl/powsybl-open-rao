@@ -164,6 +164,7 @@ public class RelativeFlowThresholdTest {
         relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
         try {
             relativeFlowThresholdAmps.computeMargin(networkWithoutLf, cnec1);
+            fail();
         } catch (FaraoException e) {
             // should throw
         }

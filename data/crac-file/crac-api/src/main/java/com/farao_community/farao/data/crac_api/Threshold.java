@@ -43,8 +43,8 @@ public interface Threshold {
      * below which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
      * unbounded below.
-     * The returned value is given with the unit of measure of the Threshold,
-     * which can be obtained with getUnit().
+     * The returned value is given with the unit of measure of the Threshold.
+     * @deprecated to avoid any confusion with Threshold units
      */
     @JsonIgnore
     @Deprecated
@@ -65,8 +65,8 @@ public interface Threshold {
      * above which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
      * unbounded above.
-     * The returned value is given with the unit of measure of the Threshold,
-     * which can be obtained with getUnit().
+     * The returned value is given with the unit of measure of the Threshold.
+     * @deprecated to avoid any confusion with Threshold units
      */
     @JsonIgnore
     @Deprecated
