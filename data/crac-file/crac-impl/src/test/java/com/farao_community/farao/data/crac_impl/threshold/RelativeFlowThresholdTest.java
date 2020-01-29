@@ -51,13 +51,15 @@ public class RelativeFlowThresholdTest {
     public void forbiddenThresholdConstruction() {
         try {
             // forbidden value
-            new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, -1);
+            new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, -1);
+            fail();
         } catch (FaraoException e) {
             // should throw
         }
         try {
             // forbidden value
-            new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 101);
+            new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 101);
+            fail();
         } catch (FaraoException e) {
             // should throw
         }
@@ -93,7 +95,6 @@ public class RelativeFlowThresholdTest {
             fail();
         } catch (FaraoException e) {
             //should throw
-            assertTrue(e.getMessage().contains("AMPERE or MEGAWATT"));
         }
     }
 

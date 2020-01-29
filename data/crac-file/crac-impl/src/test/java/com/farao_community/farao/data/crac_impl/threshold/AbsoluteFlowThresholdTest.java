@@ -106,7 +106,6 @@ public class AbsoluteFlowThresholdTest {
             fail();
         } catch (FaraoException e) {
             //should throw
-            assertTrue(e.getMessage().contains("AMPERE or MEGAWATT"));
         }
     }
 

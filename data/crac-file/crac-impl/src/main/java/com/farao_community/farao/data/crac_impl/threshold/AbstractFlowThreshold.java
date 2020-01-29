@@ -54,9 +54,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
         super(unit);
-        if (!unit.physicalParameter().equals(PhysicalParameter.FLOW)) {
-            throw new FaraoException(String.format("Unit of flow threshold can only be AMPERE, MEGAWATT or PERCENTAGE_OF_IMAX. %s is not a valid value", unit.toString()));
-        }
+        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.side = side;
         this.direction = direction;
         this.maxValue = Double.NaN;
@@ -228,9 +226,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * Flow(MW) = Flow(A) * sqrt(3) * Unom (kV) / 1000
      */
     private double convert(double value, Unit originUnit, Unit requestedUnit) throws SynchronizationException {
-        if (!requestedUnit.physicalParameter().equals(PhysicalParameter.FLOW)) {
-            throw new FaraoException(String.format("FlowThreshold can only be requested in AMPERE or MEGAWATT. %s is not a valid unit.", requestedUnit.toString()));
-        }
+        requestedUnit.checkPhysicalParameter(PhysicalParameter.FLOW);
         if (originUnit.equals(requestedUnit)) {
             return value;
         }
