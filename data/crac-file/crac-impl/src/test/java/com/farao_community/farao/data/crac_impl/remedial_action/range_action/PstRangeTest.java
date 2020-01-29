@@ -105,7 +105,7 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
             notAPstRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
-            assertEquals("Transformer " + notPstRangeElementId + " is not a PST, tap could not be changed", e.getMessage());
+            assertEquals(String.format("Transformer %s is not a PST but is defined as a PstRange", notPstRangeElementId), e.getMessage());
         }
     }
 
@@ -118,7 +118,6 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
         Mockito.when(range.getMinValue(network)).thenReturn(3.0);
         Mockito.when(range.getMaxValue(network)).thenReturn(3.0);
         Mockito.when(range.getRangeType()).thenReturn(RangeType.RELATIVE_FIXED);
-        // Mockito.when(pstRange.getCurrentTapPosition(network)).thenReturn(10);
         Mockito.when(network.getTwoWindingsTransformer(pstRange.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
         Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
         Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10);

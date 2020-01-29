@@ -47,6 +47,7 @@ public class AlignedRangeActionTest {
         AbsoluteFixedRange range = Mockito.mock(AbsoluteFixedRange.class);
         Mockito.when(range.getMaxValue(mockedNetwork)).thenReturn(AlignedRangeAction.TEMP_MAX_VALUE);
         Mockito.when(range.getMinValue(mockedNetwork)).thenReturn(AlignedRangeAction.TEMP_MIN_VALUE);
+
         mockedRanges = new ArrayList<>(Collections.singletonList(range));
 
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);

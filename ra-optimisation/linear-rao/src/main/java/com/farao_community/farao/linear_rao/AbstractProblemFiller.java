@@ -11,12 +11,15 @@ package com.farao_community.farao.linear_rao;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public abstract class AbstractProblemFiller {
-    private LinearRaoProblem linearRaoProblem;
-    private LinearRaoData linearRaoData;
+    protected LinearRaoProblem linearRaoProblem;
+    protected LinearRaoData linearRaoData;
 
-    public void fill(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        //todo
+    public AbstractProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        this.linearRaoProblem = linearRaoProblem;
+        this.linearRaoData = linearRaoData;
     }
+
+    public abstract void fill();
 
     public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         //todo
