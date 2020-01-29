@@ -105,4 +105,10 @@ public class TopologyTest extends AbstractRemedialActionTest {
         }
     }
 
+    @Test
+    public void equals() {
+        assertEquals(topologyClose, topologyClose);
+        assertNotEquals(topologyClose, topologyOpen);
+    }
+
 }

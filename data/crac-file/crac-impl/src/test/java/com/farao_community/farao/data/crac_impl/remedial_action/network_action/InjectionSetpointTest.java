@@ -63,4 +63,12 @@ public class InjectionSetpointTest extends AbstractRemedialActionTest {
         Network mockedNetwork = Mockito.mock(Network.class);
         injectionSetpoint.apply(mockedNetwork);
     }
+
+    @Test
+    public void equals() {
+        assertEquals(injectionSetpoint, injectionSetpoint);
+        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+        InjectionSetpoint differentInjectionSetpoint = new InjectionSetpoint("anotherId", networkElement, 12.);
+        assertNotEquals(injectionSetpoint, differentInjectionSetpoint);
+    }
 }

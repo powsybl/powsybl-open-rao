@@ -37,6 +37,13 @@ public final class InjectionSetpoint extends AbstractNetworkElementAction {
         this.setpoint = setpoint;
     }
 
+    public InjectionSetpoint(String id,
+                             NetworkElement networkElement,
+                             double setpoint) {
+        super(id, networkElement);
+        this.setpoint = setpoint;
+    }
+
     public double getSetpoint() {
         return setpoint;
     }

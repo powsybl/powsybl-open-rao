@@ -53,6 +53,17 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
         this.marginalCost = marginalCost;
     }
 
+    public Redispatching(String id,
+                         NetworkElement generator,
+                         double anyValue) {
+        super(id, generator);
+        this.minimumPower = anyValue;
+        this.maximumPower = anyValue;
+        this.targetPower = anyValue;
+        this.startupCost = anyValue;
+        this.marginalCost = anyValue;
+    }
+
     public double getMinimumPower() {
         return minimumPower;
     }
@@ -140,11 +151,6 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
 
     @Override
     public int hashCode() {
-        return String.format("%s%f%f%f%f%f", getId(),
-                marginalCost,
-                maximumPower,
-                minimumPower,
-                targetPower,
-                startupCost).hashCode();
+        return String.format("%s%f%f%f%f%f", getId(), marginalCost, maximumPower, minimumPower, targetPower, startupCost).hashCode();
     }
 }

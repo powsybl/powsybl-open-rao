@@ -56,4 +56,12 @@ public class RedispatchingTest extends AbstractNetworkElementRangeActionTest {
         assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange), 0);
         assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange), 0);
     }
+
+    @Test
+    public void equals() {
+        assertEquals(redispatching, redispatching);
+        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+        Redispatching anotherRedispatching = new Redispatching("otherid", networkElement, 3.);
+        assertNotEquals(redispatching, anotherRedispatching);
+    }
 }
