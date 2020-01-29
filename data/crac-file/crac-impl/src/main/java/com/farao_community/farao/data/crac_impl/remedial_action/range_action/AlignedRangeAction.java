@@ -47,6 +47,12 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
         this.networkElements = networkElements;
     }
 
+    public AlignedRangeAction(String id) {
+        super(id);
+        this.ranges = new ArrayList<>();
+        this.networkElements = new HashSet<>();
+    }
+
     public List<Range> getRanges() {
         return ranges;
     }

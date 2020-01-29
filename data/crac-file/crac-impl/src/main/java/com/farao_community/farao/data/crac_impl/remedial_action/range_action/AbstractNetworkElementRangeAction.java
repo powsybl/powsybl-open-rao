@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,7 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
                                              @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;
+        this.ranges = new ArrayList<>();
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
@@ -62,7 +64,7 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
 
     @Override
     public double getMinValue(Network network) {
-        double minValue = Double.POSITIVE_INFINITY;
+        double minValue = Double.NEGATIVE_INFINITY;
         for (Range range: ranges
              ) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
@@ -74,7 +76,7 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
 
     @Override
     public double getMaxValue(Network network) {
-        double maxValue = Double.NEGATIVE_INFINITY;
+        double maxValue = Double.POSITIVE_INFINITY;
         for (Range range: ranges
         ) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);

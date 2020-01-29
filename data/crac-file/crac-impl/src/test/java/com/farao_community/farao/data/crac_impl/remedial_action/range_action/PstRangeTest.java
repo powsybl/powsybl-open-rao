@@ -30,16 +30,43 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
     private PstRange pstRange;
 
+    private Network network;
+    private PstRange pstRange1;
+
+    private Range range1;
+
     @Before
     public void setUp() throws Exception {
-        PstRange pstRange = new PstRange(
+        pstRange = new PstRange(
                 "pst_range_id",
                 "pst_range_name",
                 "pst_range_operator",
                 createUsageRules(),
                 createRanges(),
                 new NetworkElement(networkElementId, networkElementId));
-        this.pstRange = pstRange;
+
+        network = Mockito.mock(Network.class);
+        range1 = Mockito.mock(Range.class);
+
+        Mockito.when(range1.getRangeType()).thenReturn(RangeType.ABSOLUTE_FIXED);
+        Mockito.when(range1.getMin()).thenReturn(5.);
+        Mockito.when(range1.getMax()).thenReturn(13.);
+
+        Range range2 = Mockito.mock(Range.class);
+        Mockito.when(range2.getRangeType()).thenReturn(RangeType.RELATIVE_FIXED);
+        Mockito.when(range2.getMin()).thenReturn(7.);
+
+        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+
+        pstRange1 = new PstRange("id", networkElement);
+        pstRange1.addRange(range1);
+        pstRange1.addRange(range2);
+
+        TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
+        PhaseTapChanger phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
+        Mockito.when(network.getTwoWindingsTransformer(pstRange1.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
+        Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
+        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10); // then getMinValueWithRange(network, range2) will be 3
     }
 
     @Test
@@ -111,17 +138,13 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
 
     @Test
     public void getMinAndMaxValueWithRange() {
-        Network network = Mockito.mock(Network.class);
-        Range range = Mockito.mock(Range.class);
-        TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
-        PhaseTapChanger phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
-        Mockito.when(range.getMin()).thenReturn(3.0);
-        Mockito.when(range.getMax()).thenReturn(3.0);
-        Mockito.when(range.getRangeType()).thenReturn(RangeType.RELATIVE_FIXED);
-        Mockito.when(network.getTwoWindingsTransformer(pstRange.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
-        Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
-        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10);
-        assertEquals(13, pstRange.getMaxValueWithRange(network, range), 0);
-        assertEquals(7, pstRange.getMinValueWithRange(network, range), 0);
+        assertEquals(13, pstRange1.getMaxValueWithRange(network, range1), 0);
+        assertEquals(5, pstRange1.getMinValueWithRange(network, range1), 0);
+    }
+
+    @Test
+    public void getMinValue() {
+        assertEquals(5, pstRange1.getMinValue(network), 0);
+
     }
 }

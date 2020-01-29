@@ -68,8 +68,7 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
 
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
-        // TODO: clarify the sign convention of relative fixed range
-        double minValue = -range.getMin();
+        double minValue = range.getMin();
         return getExtremumValueWithRange(network, range, minValue);
     }
 
@@ -84,7 +83,8 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
             case ABSOLUTE_FIXED:
                 return extremumValue;
             case RELATIVE_FIXED:
-                return getCurrentTapPosition(network) + extremumValue;
+                // TODO: clarify the sign convention of relative fixed range
+                return getCurrentTapPosition(network) - extremumValue;
             case RELATIVE_DYNAMIC:
                 throw new FaraoException("RelativeDynamicRanges are not handled for the moment");
             default:

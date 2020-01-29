@@ -102,7 +102,14 @@ public class AlignedRangeActionTest {
     @Test
     public void addNetworkElement() {
         NetworkElement anotherMockedNetworkElement = Mockito.mock(NetworkElement.class);
-        mockedNetworkElements.add(anotherMockedNetworkElement);
+        alignedRangeAction.addNetworkElement((anotherMockedNetworkElement));
         assertEquals(2, alignedRangeAction.getNetworkElements().size());
+    }
+
+    @Test
+    public void equals() {
+        assertEquals(alignedRangeAction, alignedRangeAction);
+        AlignedRangeAction anotherAlignedRangeAction = new AlignedRangeAction("anotherid");
+        assertNotEquals(anotherAlignedRangeAction, alignedRangeAction);
     }
 }
