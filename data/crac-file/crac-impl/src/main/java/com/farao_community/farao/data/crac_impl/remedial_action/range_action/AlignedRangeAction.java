@@ -24,7 +24,7 @@ import java.util.*;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
 
     public static final double TEMP_MAX_VALUE = 10;

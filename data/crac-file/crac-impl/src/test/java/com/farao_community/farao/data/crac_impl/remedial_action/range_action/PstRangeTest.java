@@ -27,6 +27,9 @@ import static org.junit.Assert.*;
  */
 public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
 
+    private int pstLowTapPosition = 1;
+    private int pstHighTapPosition = 32;
+
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
     private PstRange pstRange;
 
@@ -67,6 +70,8 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
         Mockito.when(network.getTwoWindingsTransformer(pstRange1.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
         Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
         Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10); // then getMinValueWithRange(network, range2) will be 3
+        Mockito.when(phaseTapChanger.getHighTapPosition()).thenReturn(pstHighTapPosition);
+        Mockito.when(phaseTapChanger.getLowTapPosition()).thenReturn(pstLowTapPosition);
     }
 
     @Test
@@ -145,6 +150,11 @@ public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
     @Test
     public void getMinValue() {
         assertEquals(5, pstRange1.getMinValue(network), 0);
+    }
 
+    @Test
+    public void synchronize() {
+        pstRange1.synchronize(network);
+        assertEquals(3, pstRange1.ranges.size());
     }
 }
