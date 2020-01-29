@@ -55,6 +55,27 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
+    public void getPhysicalParameter() {
+        assertEquals(PhysicalParameter.FLOW, absoluteFlowThresholdAmps.getPhysicalParameter());
+    }
+
+    @Test
+    public void forbiddenThresholdConstruction() {
+        try {
+            // forbidden unit
+            new AbsoluteFlowThreshold(Unit.KILOVOLT, Side.LEFT, Direction.BOTH, 500);
+        } catch (FaraoException e) {
+            // should throw
+        }
+        try {
+            // forbidden value
+            new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, -500);
+        } catch (FaraoException e) {
+            // should throw
+        }
+    }
+
+    @Test
     public void getMinMaxThreshold() throws SynchronizationException {
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold().orElse(Double.MAX_VALUE), DOUBLE_TOL);
         assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold().orElse(Double.MAX_VALUE), DOUBLE_TOL);
@@ -135,10 +156,16 @@ public class AbsoluteFlowThresholdTest {
 
     @Test
     public void computeMarginDisconnectedLine() throws Exception {
-        // on cnec 3, after LF: 769.8 A
-        assertEquals(500.0 - 769.8, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        // terminal 1 disconnected
         networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        // terminal 2 disconnected
+        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
+        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
+        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        // both terminal disconnected
+        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
+        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
     }
 
     @Test

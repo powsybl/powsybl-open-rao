@@ -35,7 +35,6 @@ public class RelativeFlowThresholdTest {
 
     @Before
     public void setUp() {
-
         relativeFlowThresholdAmps = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
 
         cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
@@ -46,6 +45,22 @@ public class RelativeFlowThresholdTest {
 
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
         networkWithtLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
+    }
+
+    @Test
+    public void forbiddenThresholdConstruction() {
+        try {
+            // forbidden value
+            new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, -1);
+        } catch (FaraoException e) {
+            // should throw
+        }
+        try {
+            // forbidden value
+            new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 101);
+        } catch (FaraoException e) {
+            // should throw
+        }
     }
 
     @Test
