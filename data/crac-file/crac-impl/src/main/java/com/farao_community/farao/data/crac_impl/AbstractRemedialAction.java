@@ -99,4 +99,12 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         }
         return result;
     }
+
+    public void synchronize(Network network) {
+        // nothing to do except if specified in the child class
+    }
+
+    public void desynchronize() {
+        // nothing to do except if specified in the child class
+    }
 }

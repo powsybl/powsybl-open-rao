@@ -73,10 +73,6 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
         // to implement
     }
 
-    public void synchronize(Network network) {
-        // to implement?
-    }
-
     @JsonProperty("ranges")
     public void addRange(Range range) {
         this.ranges.add(range);

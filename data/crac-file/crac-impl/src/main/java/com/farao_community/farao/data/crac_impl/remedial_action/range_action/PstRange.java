@@ -9,10 +9,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -30,6 +28,8 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class PstRange extends AbstractElementaryRangeAction {
 
+    private int lowTapPosition;
+
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.
      *
@@ -43,32 +43,30 @@ public final class PstRange extends AbstractElementaryRangeAction {
                     @JsonProperty("ranges") List<Range> ranges,
                     @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
+        lowTapPosition = (int) Double.NaN;
     }
 
     public PstRange(String id,
                     NetworkElement networkElement) {
         super(id, networkElement);
+        lowTapPosition = (int) Double.NaN;
     }
 
     @Override
     public void synchronize(Network network) {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
         PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-        int highTapPosition = phaseTapChanger.getHighTapPosition();
-        int lowTapPosition = phaseTapChanger.getLowTapPosition();
-        RangeDefinition rangeDefinition;
-        if (lowTapPosition <= 0) {
-            rangeDefinition = RangeDefinition.CENTERED_ON_ZERO;
-        } else {
-            rangeDefinition = RangeDefinition.STARTS_AT_ONE;
-        }
-        Range absoluteFixedRange = new Range(lowTapPosition, highTapPosition, RangeType.ABSOLUTE_FIXED, rangeDefinition);
-        addRange(absoluteFixedRange);
+        lowTapPosition = phaseTapChanger.getLowTapPosition();
+    }
+
+    @Override
+    public void desynchronize() {
+        lowTapPosition = (int) Double.NaN;
     }
 
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
-        double minValue = range.getMin();
+        double minValue = -Math.abs(range.getMin());
         return getExtremumValueWithRange(network, range, minValue);
     }
 
@@ -79,16 +77,25 @@ public final class PstRange extends AbstractElementaryRangeAction {
     }
 
     private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {
+        double extremumValueWithRange = Double.NaN;
         switch (range.getRangeType()) {
             case ABSOLUTE_FIXED:
-                return extremumValue;
+                extremumValueWithRange = extremumValue;
+                break;
             case RELATIVE_FIXED:
                 // TODO: clarify the sign convention of relative fixed range
-                return getCurrentTapPosition(network) - extremumValue;
+                extremumValueWithRange = getCurrentTapPosition(network) + extremumValue;
+                break;
             case RELATIVE_DYNAMIC:
                 throw new FaraoException("RelativeDynamicRanges are not handled for the moment");
+        }
+        switch (range.getRangeDefinition()) {
+            case STARTS_AT_ONE:
+                return lowTapPosition + extremumValueWithRange;
+            case CENTERED_ON_ZERO:
+                return extremumValueWithRange;
             default:
-                throw new FaraoException("Invalid range given in argument");
+                throw new FaraoException("Unknown range definition");
         }
     }
 

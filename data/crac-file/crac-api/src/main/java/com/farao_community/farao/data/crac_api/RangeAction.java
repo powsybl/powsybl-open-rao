@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Network;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface RangeAction extends RemedialAction {
+public interface RangeAction extends RemedialAction, Synchronizable {
 
     double getMinValue(Network network);
 
@@ -28,6 +28,4 @@ public interface RangeAction extends RemedialAction {
 
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
-
-    void synchronize(Network network);
 }

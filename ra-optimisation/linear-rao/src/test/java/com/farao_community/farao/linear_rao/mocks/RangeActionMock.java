@@ -39,6 +39,11 @@ public class RangeActionMock implements RangeAction {
     }
 
     @Override
+    public void desynchronize() {
+        //
+    }
+
+    @Override
     public String getOperator() {
         return null;
     }
