@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -101,7 +103,7 @@ public final class SystematicSensitivityAnalysisService {
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             try {
                 cnecMarginMap.put(cnec, cnec.computeMargin(network));
-                Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold();
+                Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold(AMPERE);
                 maxThreshold.ifPresent(threshold -> cnecMaxThresholdMap.put(cnec, threshold));
             } catch (SynchronizationException | FaraoException e) {
                 //Hades config "hades2-default-parameters:" should be set to "dcMode: false"

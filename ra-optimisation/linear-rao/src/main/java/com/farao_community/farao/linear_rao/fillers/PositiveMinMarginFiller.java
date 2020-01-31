@@ -16,6 +16,8 @@ import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.powsybl.iidm.network.Network;
 
+import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
@@ -46,7 +48,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
 
     private void fillConstraintsCnec(Cnec cnec) {
         try {
-            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold().orElse(-LinearRaoProblem.infinity()), cnec.getThreshold().getMaxThreshold().orElse(LinearRaoProblem.infinity()));
+            linearRaoProblem.addMinimumMarginConstraints(cnec.getId(), cnec.getThreshold().getMinThreshold(MEGAWATT).orElse(-LinearRaoProblem.infinity()), cnec.getThreshold().getMaxThreshold(MEGAWATT).orElse(LinearRaoProblem.infinity()));
         } catch (SynchronizationException e) {
             throw new FaraoException(e);
         }
