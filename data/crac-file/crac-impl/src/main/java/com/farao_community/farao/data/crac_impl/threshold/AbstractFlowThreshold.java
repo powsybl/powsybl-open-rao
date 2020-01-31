@@ -101,7 +101,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         } else {
             flow = getP(network, cnec);
         }
-        return flow < getMinThreshold(unit).orElse(Double.MIN_VALUE);
+        return flow < getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY);
     }
 
     @Override
@@ -113,7 +113,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         } else {
             flow = getP(network, cnec);
         }
-        return flow > getMaxThreshold(unit).orElse(Double.MAX_VALUE);
+        return flow > getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY);
     }
 
     @Override
@@ -231,7 +231,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             return value;
         }
         if (Double.isNaN(voltageLevel)) {
-            throw new SynchronizationException("FlowThreshold unit convesion : voltage level must be synchronised with a Network");
+            throw new SynchronizationException("FlowThreshold unit conversion : voltage level must be synchronised with a Network");
         }
         double ratio = voltageLevel * Math.sqrt(3) / 1000;
         if (originUnit.equals(Unit.AMPERE) && requestedUnit.equals(Unit.MEGAWATT)) {

@@ -34,7 +34,7 @@ public class AbsoluteFlowThresholdTest {
     private Cnec cnec2;
     private Cnec cnec3;
     private Network networkWithoutLf;
-    private Network networkWithtLf;
+    private Network networkWithLf;
 
     @Before
     public void setUp() {
@@ -51,7 +51,7 @@ public class AbsoluteFlowThresholdTest {
                 absoluteFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
 
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
-        networkWithtLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
+        networkWithLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
     }
 
     @Test
@@ -85,8 +85,8 @@ public class AbsoluteFlowThresholdTest {
 
     @Test
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
-        absoluteFlowThresholdAmps.synchronize(networkWithtLf, cnec1);
-        absoluteFlowThresholdMW.synchronize(networkWithtLf, cnec2);
+        absoluteFlowThresholdAmps.synchronize(networkWithLf, cnec1);
+        absoluteFlowThresholdMW.synchronize(networkWithLf, cnec2);
 
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
         assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
@@ -122,15 +122,15 @@ public class AbsoluteFlowThresholdTest {
     @Test
     public void isMinThresholdOvercome() throws SynchronizationException {
         // on cnec 1, after LF: 384.9 A
-        assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithtLf, cnec1));
+        assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithLf, cnec1));
     }
 
     @Test
     public void isMaxThresholdOvercomeOk() throws SynchronizationException {
         // on cnec 1, after LF: 384.9 A
         // on cnec 3, after LF: 769.8 A
-        assertFalse(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec1));
-        assertTrue(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithtLf, cnec3));
+        assertFalse(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithLf, cnec1));
+        assertTrue(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithLf, cnec3));
     }
 
     @Test
@@ -138,9 +138,9 @@ public class AbsoluteFlowThresholdTest {
         // on cnec 1, after LF: 384.9 A
         // on cnec 2, after LF: - 384.9 A = - 266.7 MW
         // on cnec 3, after LF: 769.8 A
-        assertEquals(500.0 - 384.9, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec1), DOUBLE_TOL);
-        assertEquals(-266.7 - (-1500), absoluteFlowThresholdMW.computeMargin(networkWithtLf, cnec2), DOUBLE_TOL);
-        assertEquals(500.0 - 769.8, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        assertEquals(500.0 - 384.9, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec1), DOUBLE_TOL);
+        assertEquals(-266.7 - (-1500), absoluteFlowThresholdMW.computeMargin(networkWithLf, cnec2), DOUBLE_TOL);
+        assertEquals(500.0 - 769.8, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
     }
 
     @Test
@@ -156,15 +156,15 @@ public class AbsoluteFlowThresholdTest {
     @Test
     public void computeMarginDisconnectedLine() throws Exception {
         // terminal 1 disconnected
-        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
+        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
         // terminal 2 disconnected
-        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
-        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
-        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
+        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
         // both terminal disconnected
-        networkWithtLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithtLf, cnec3), DOUBLE_TOL);
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
+        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
     }
 
     @Test

@@ -27,7 +27,7 @@ public enum Unit {
         this.physicalParameter = physicalParameter;
     }
 
-    public PhysicalParameter physicalParameter() {
+    public PhysicalParameter getPhysicalParameter() {
         return physicalParameter;
     }
 

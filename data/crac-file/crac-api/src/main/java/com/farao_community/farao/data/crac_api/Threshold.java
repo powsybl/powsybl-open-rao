@@ -52,7 +52,7 @@ public interface Threshold {
 
     /**
      * If it is defined, this function returns the maximum limit of the Threshold,
-     * above which a Cnec cannot be operated securely. Otherwise, this function
+     * below which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
      * unbounded above.
      * The returned value is given with the Unit given in argument of the function.
@@ -62,7 +62,7 @@ public interface Threshold {
 
     /**
      * If it is defined, this function returns the maximum limit of the Threshold,
-     * above which a Cnec cannot be operated securely. Otherwise, this function
+     * below which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
      * unbounded above.
      * The returned value is given with the unit of measure of the Threshold.
