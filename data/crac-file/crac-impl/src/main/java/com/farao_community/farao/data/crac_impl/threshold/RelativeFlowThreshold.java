@@ -11,84 +11,61 @@ import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Optional;
-
 /**
+ * Limits of a flow through a branch. Given as a percentage of the branch limit
+ * defined in a Network.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
 
+    /**
+     * Percentage of the branch limit which shouldn't be overcome
+     */
     private double percentageOfMax;
 
     @JsonCreator
-    public RelativeFlowThreshold(@JsonProperty("unit") Unit unit,
-                                 @JsonProperty("side") Side side,
+    public RelativeFlowThreshold(@JsonProperty("side") Side side,
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("percentageOfMax") double percentageOfMax) {
-        super(unit, side, direction);
+        super(Unit.AMPERE, side, direction);
+        if (percentageOfMax < 0 || percentageOfMax > 100) {
+            throw new FaraoException("PercentageOfMax of RelativeFlowThresholds must be in [0, 100]");
+        }
         this.percentageOfMax = percentageOfMax;
     }
 
     @Override
-    public Optional<Double> getMaxThreshold() throws SynchronizationException {
+    protected double getAbsoluteMax() throws SynchronizationException {
         if (Double.isNaN(maxValue)) {
-            throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
+            throw new SynchronizationException("Relative flow threshold has not been synchronized with network");
         }
-        return Optional.of(maxValue);
-    }
-
-    @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
-        return false;
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        if (Double.isNaN(maxValue)) {
-            throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
-        }
-        return computeMargin(network, cnec) < 0;
+        return maxValue;
     }
 
     @Override
     public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
         if (Double.isNaN(maxValue)) {
-            throw new SynchronizationException("Relative flow threshold have not been synchronized with network");
+            throw new SynchronizationException("Relative flow threshold has not been synchronized with network");
         }
-        switch (unit) {
-            case AMPERE:
-                return maxValue - getI(network, cnec);
-            case MEGAWATT:
-                return maxValue - getP(network, cnec);
-            case DEGREE:
-            case KILOVOLT:
-            default:
-                throw new FaraoException("Incompatible type of unit between FlowThreshold and degree or kV");
-        }
+        return super.computeMargin(network, cnec);
     }
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-        // TODO: manage matching between LEFT/RIGHT and ONE/TWO
-        switch (side) {
-            case LEFT:
-                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.ONE).getPermanentLimit() * percentageOfMax / 100;
-                break;
-            case RIGHT:
-                maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(Branch.Side.TWO).getPermanentLimit() * percentageOfMax / 100;
-                break;
-            default:
-                throw new FaraoException("Side is not defined");
-        }
-
+        super.synchronize(network, cnec);
+        // compute maxValue, in Unit.AMPERE
+        maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
     }
 
     @Override
     public void desynchronize() {
+        super.desynchronize();
         maxValue = Double.NaN;
     }
 
