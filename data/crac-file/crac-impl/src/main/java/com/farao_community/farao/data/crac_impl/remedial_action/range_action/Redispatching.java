@@ -8,12 +8,15 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,7 +25,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class Redispatching extends AbstractNetworkElementRangeAction {
+public final class Redispatching extends AbstractElementaryRangeAction {
 
     private double minimumPower;
     private double maximumPower;
@@ -31,15 +34,34 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     private double marginalCost;
 
     @JsonCreator
-    public Redispatching(@JsonProperty("minimumPower") double minimumPower, @JsonProperty("maximumPower") double maximumPower,
-                         @JsonProperty("targetPower") double targetPower, @JsonProperty("startupCost") double startupCost,
-                         @JsonProperty("marginalCost") double marginalCost, @JsonProperty("generator") NetworkElement generator) {
-        super(generator);
+    public Redispatching(@JsonProperty("id") String id,
+                         @JsonProperty("name") String name,
+                         @JsonProperty("operator") String operator,
+                         @JsonProperty("usageRules") List<UsageRule> usageRules,
+                         @JsonProperty("ranges") List<Range> ranges,
+                         @JsonProperty("minimumPower") double minimumPower,
+                         @JsonProperty("maximumPower") double maximumPower,
+                         @JsonProperty("targetPower") double targetPower,
+                         @JsonProperty("startupCost") double startupCost,
+                         @JsonProperty("marginalCost") double marginalCost,
+                         @JsonProperty("generator") NetworkElement generator) {
+        super(id, name, operator, usageRules, ranges, generator);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
         this.targetPower = targetPower;
         this.startupCost = startupCost;
         this.marginalCost = marginalCost;
+    }
+
+    public Redispatching(String id,
+                         NetworkElement generator,
+                         double anyValue) {
+        super(id, generator);
+        this.minimumPower = anyValue;
+        this.maximumPower = anyValue;
+        this.targetPower = anyValue;
+        this.startupCost = anyValue;
+        this.marginalCost = anyValue;
     }
 
     public double getMinimumPower() {
@@ -83,6 +105,18 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     }
 
     @Override
+    protected double getMinValueWithRange(Network network, Range range) {
+        // to implement - specific to Redispatching
+        return 0;
+    }
+
+    @Override
+    public double getMaxValueWithRange(Network network, Range range) {
+        // to implement - specific to Redispatching
+        return 0;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }
@@ -90,5 +124,28 @@ public final class Redispatching extends AbstractNetworkElementRangeAction {
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return new HashSet<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Redispatching otherRedispatching = (Redispatching) o;
+
+        return super.equals(o)
+                && minimumPower == otherRedispatching.minimumPower
+                && maximumPower == otherRedispatching.maximumPower
+                && targetPower == otherRedispatching.targetPower
+                && startupCost == otherRedispatching.startupCost
+                && marginalCost == otherRedispatching.marginalCost;
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%f%f%f%f%f", getId(), marginalCost, maximumPower, minimumPower, targetPower, startupCost).hashCode();
     }
 }

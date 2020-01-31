@@ -9,16 +9,74 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
 
 import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeTest {
+public class PstRangeTest extends AbstractElementaryRangeActionTest {
+
+    private int pstLowTapPosition = -6;
+    private int pstHighTapPosition = 6;
+
+    private String networkElementId = "BBE2AA1  BBE3AA1  1";
+    private PstRange pstRange;
+
+    private Network network;
+    private PstRange pstRange1;
+
+    private Range range1;
+    private Range range2;
+
+    @Before
+    public void setUp() throws Exception {
+        pstRange = new PstRange(
+                "pst_range_id",
+                "pst_range_name",
+                "pst_range_operator",
+                createUsageRules(),
+                createRanges(),
+                new NetworkElement(networkElementId, networkElementId));
+
+        network = Mockito.mock(Network.class);
+        range1 = Mockito.mock(Range.class);
+
+        Mockito.when(range1.getRangeType()).thenReturn(RangeType.ABSOLUTE_FIXED);
+        Mockito.when(range1.getRangeDefinition()).thenReturn(RangeDefinition.STARTS_AT_ONE);
+        Mockito.when(range1.getMin()).thenReturn(5.);
+        Mockito.when(range1.getMax()).thenReturn(13.);
+
+        range2 = Mockito.mock(Range.class);
+        Mockito.when(range2.getRangeType()).thenReturn(RangeType.RELATIVE_FIXED);
+        Mockito.when(range2.getRangeDefinition()).thenReturn(RangeDefinition.STARTS_AT_ONE);
+        Mockito.when(range2.getMin()).thenReturn(7.);
+
+        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+
+        pstRange1 = new PstRange("id", networkElement);
+        pstRange1.addRange(range1);
+        pstRange1.addRange(range2);
+
+        TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
+        PhaseTapChanger phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
+        Mockito.when(network.getTwoWindingsTransformer(pstRange1.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
+        Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
+        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10); // then getMinValueWithRange(network, range2) will be 3
+        Mockito.when(phaseTapChanger.getHighTapPosition()).thenReturn(pstHighTapPosition);
+        Mockito.when(phaseTapChanger.getLowTapPosition()).thenReturn(pstLowTapPosition);
+    }
 
     @Test
     public void apply() {
@@ -26,11 +84,9 @@ public class PstRangeTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
-
-        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstRange.apply(network, 12);
-        assertEquals(-5, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -39,7 +95,6 @@ public class PstRangeTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
         try {
             pstRange.apply(network, 50);
             fail();
@@ -54,9 +109,15 @@ public class PstRangeTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange pstRange = new PstRange(new NetworkElement("unknown pst", "unknown pst"));
+        PstRange unknownPstRange = new PstRange(
+                "unknown_pstrange_id",
+                "unknown_pstrange_name",
+                "unknown_pstrange_operator",
+                createUsageRules(),
+                createRanges(),
+                new NetworkElement("unknown pst", "unknown pst"));
         try {
-            pstRange.apply(network, 50);
+            unknownPstRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST unknown pst does not exist in the current network", e.getMessage());
@@ -67,14 +128,37 @@ public class PstRangeTest {
     public void applyOnTransformerWithNoPhaseShifter() {
         Network network = Importers.loadNetwork(
             "TestCase12Nodes_no_pst.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct")
-        );
-        PstRange pstRange = new PstRange(new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"));
+            getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
+        String notPstRangeElementId = "BBE2AA1  BBE3AA1  1";
+        PstRange notAPstRange = new PstRange(
+                "not_pstrange_id",
+                "not_pstrange_name",
+                "not_pstrange_operator",
+                createUsageRules(),
+                createRanges(),
+                new NetworkElement(notPstRangeElementId, notPstRangeElementId));
         try {
-            pstRange.apply(network, 50);
+            notAPstRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
-            assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST but is defined as a PstRange", e.getMessage());
+            assertEquals(String.format("Transformer %s is not a PST but is defined as a PstRange", notPstRangeElementId), e.getMessage());
         }
+    }
+
+    @Test
+    public void getMinAndMaxValueWithRange() {
+        assertEquals(13, pstRange1.getMaxValueWithRange(network, range1), 0);
+        // assertEquals(3, pstRange1.getMinValueWithRange(network, range1), 0);
+    }
+
+    @Test
+    public void getMinValue() {
+        assertEquals(3, pstRange1.getMinValue(network), 0);
+    }
+
+    @Test
+    public void synchronize() {
+        pstRange1.synchronize(network);
+        assertEquals(2, pstRange1.ranges.size());
     }
 }
