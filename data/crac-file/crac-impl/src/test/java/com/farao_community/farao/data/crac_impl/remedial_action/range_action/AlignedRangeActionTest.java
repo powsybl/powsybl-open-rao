@@ -25,6 +25,8 @@ import static org.junit.Assert.*;
  */
 public class AlignedRangeActionTest {
 
+    private static final double TEMP_MAX_VALUE = 10;
+    private static final double TEMP_MIN_VALUE = -10;
     private AlignedRangeAction alignedRangeAction;
     private Set<NetworkElement> mockedNetworkElements;
     private List<Range> mockedRanges;
@@ -43,8 +45,8 @@ public class AlignedRangeActionTest {
 
         mockedNetwork = Mockito.mock(Network.class);
         Range range = Mockito.mock(Range.class);
-        Mockito.when(range.getMax()).thenReturn(AlignedRangeAction.TEMP_MAX_VALUE);
-        Mockito.when(range.getMin()).thenReturn(AlignedRangeAction.TEMP_MIN_VALUE);
+        Mockito.when(range.getMax()).thenReturn(TEMP_MAX_VALUE);
+        Mockito.when(range.getMin()).thenReturn(TEMP_MIN_VALUE);
 
         mockedRanges = new ArrayList<>(Collections.singletonList(range));
 
@@ -75,12 +77,12 @@ public class AlignedRangeActionTest {
 
     @Test
     public void getMinValue() {
-        assertEquals(AlignedRangeAction.TEMP_MIN_VALUE, alignedRangeAction.getMinValue(mockedNetwork), 0.1);
+        assertEquals(TEMP_MIN_VALUE, alignedRangeAction.getMinValue(mockedNetwork), 0.1);
     }
 
     @Test
     public void getMaxValue() {
-        assertEquals(AlignedRangeAction.TEMP_MAX_VALUE, alignedRangeAction.getMaxValue(mockedNetwork), 0.1);
+        assertEquals(TEMP_MAX_VALUE, alignedRangeAction.getMaxValue(mockedNetwork), 0.1);
     }
 
     @Test

@@ -23,7 +23,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import java.util.List;
 
 /**
- * Elementary PST range remedial action: choose the optimal value for a PST tap.
+ * Elementary PST range remedial action.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */

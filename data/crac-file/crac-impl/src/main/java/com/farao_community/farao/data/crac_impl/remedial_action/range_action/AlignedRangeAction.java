@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -21,14 +21,15 @@ import java.util.*;
 /**
  * Range remedial action with several {@link NetworkElement}s sharing common characteristics:
  * id, name, operator, {@link UsageRule}s and {@link Range}s.
+ * This class is not fully implemented. In the end it will be an abstract class and we will have children classes
+ * such as AlignedPstRange and AlignedHvdcRange. For the moment we keep it a concrete class in order to be able to
+ * test the methods we already implemented.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
 
-    public static final double TEMP_MAX_VALUE = 10;
-    public static final double TEMP_MIN_VALUE = -10;
     @JsonProperty("ranges")
     private List<Range> ranges;
 
