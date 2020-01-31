@@ -62,28 +62,18 @@ public class VoltageThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Optional<Double> getMinThreshold() throws SynchronizationException {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException {
         if (unit.equals(KILOVOLT)) {
-            return getMinThreshold();
+            return Optional.empty();
         } else {
             throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
         }
     }
 
     @Override
-    public Optional<Double> getMaxThreshold() throws SynchronizationException {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
         if (unit.equals(KILOVOLT)) {
-            return getMaxThreshold();
+            return Optional.empty();
         } else {
             throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
         }

@@ -39,18 +39,6 @@ public interface Threshold {
     PhysicalParameter getPhysicalParameter();
 
     /**
-     * If it is defined, this function returns the minimum limit of the Threshold,
-     * below which a Cnec cannot be operated securely. Otherwise, this function
-     * returns an empty Optional, which implicitly means that the Threshold is
-     * unbounded below.
-     * The returned value is given with the unit of measure of the Threshold.
-     * @deprecated to avoid any confusion with Threshold units
-     */
-    @JsonIgnore
-    @Deprecated
-    Optional<Double> getMinThreshold() throws SynchronizationException;
-
-    /**
      * If it is defined, this function returns the maximum limit of the Threshold,
      * below which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
@@ -63,18 +51,6 @@ public interface Threshold {
     /**
      * If it is defined, this function returns the maximum limit of the Threshold,
      * below which a Cnec cannot be operated securely. Otherwise, this function
-     * returns an empty Optional, which implicitly means that the Threshold is
-     * unbounded above.
-     * The returned value is given with the unit of measure of the Threshold.
-     * @deprecated to avoid any confusion with Threshold units
-     */
-    @JsonIgnore
-    @Deprecated
-    Optional<Double> getMaxThreshold() throws SynchronizationException;
-
-    /**
-     * If it is defined, this function returns the maximum limit of the Threshold,
-     * above which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
      * unbounded above.
      * The returned value is given with the unit given in argument of the function.

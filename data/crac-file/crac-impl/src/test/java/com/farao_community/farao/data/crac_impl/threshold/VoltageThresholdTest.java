@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
 import static org.junit.Assert.*;
 
 /**
@@ -31,15 +32,15 @@ public class VoltageThresholdTest {
     @Test
     public void getMinMaxThreshold() throws SynchronizationException {
         // for now, method always returns empty
-        assertFalse(voltageThreshold.getMinThreshold().isPresent());
-        assertFalse(voltageThreshold.getMaxThreshold().isPresent());
+        assertFalse(voltageThreshold.getMinThreshold(KILOVOLT).isPresent());
+        assertFalse(voltageThreshold.getMaxThreshold(KILOVOLT).isPresent());
     }
 
     @Test
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
         // for now, method always returns empty
-        assertFalse(voltageThreshold.getMinThreshold(Unit.KILOVOLT).isPresent());
-        assertFalse(voltageThreshold.getMaxThreshold(Unit.KILOVOLT).isPresent());
+        assertFalse(voltageThreshold.getMinThreshold(KILOVOLT).isPresent());
+        assertFalse(voltageThreshold.getMaxThreshold(KILOVOLT).isPresent());
     }
 
     @Test

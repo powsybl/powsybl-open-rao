@@ -17,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.Optional;
 
+import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
+import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
 import static org.junit.Assert.*;
 
 /**
@@ -72,19 +74,19 @@ public class RelativeFlowThresholdTest {
         // relativeFlowThresholdAmps -> 60% * 721 A = 432 A
         // relativeFlowThresholdMW -> 75% * 500 MW = 375 MW
 
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold().orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold().orElse(Double.MIN_VALUE), DOUBLE_TOL);
+        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold(AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
     }
 
     @Test
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
         relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
 
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(300.0, relativeFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(300.0, relativeFlowThresholdAmps.getMaxThreshold(MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
 
-        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold(Unit.AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(-300.0, relativeFlowThresholdAmps.getMinThreshold(Unit.MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(-300.0, relativeFlowThresholdAmps.getMinThreshold(MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
     }
 
     @Test
@@ -101,7 +103,7 @@ public class RelativeFlowThresholdTest {
     @Test
     public void getMinMaxThresholdWithUnitNotSynchronised()  {
         try {
-            relativeFlowThresholdAmps.getMaxThreshold(Unit.MEGAWATT);
+            relativeFlowThresholdAmps.getMaxThreshold(MEGAWATT);
             fail();
         } catch (SynchronizationException e) {
             // should throw, conversion cannot be made if voltage level has not been synchronised

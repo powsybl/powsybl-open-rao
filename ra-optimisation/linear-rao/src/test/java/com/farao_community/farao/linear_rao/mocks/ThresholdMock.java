@@ -24,18 +24,8 @@ public class ThresholdMock implements Threshold {
     }
 
     @Override
-    public Optional<Double> getMinThreshold() throws SynchronizationException {
-        return Optional.of(min);
-    }
-
-    @Override
     public Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException {
         return Optional.of(min);
-    }
-
-    @Override
-    public Optional<Double> getMaxThreshold() throws SynchronizationException {
-        return Optional.of(max);
     }
 
     @Override
