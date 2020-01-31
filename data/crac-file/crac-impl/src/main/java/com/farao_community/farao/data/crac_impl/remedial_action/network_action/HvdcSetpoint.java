@@ -8,10 +8,13 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.List;
 
 /**
  * HVDC setpoint remedial action: set an HVDC line's setpoint at a given value.
@@ -19,14 +22,22 @@ import com.powsybl.iidm.network.Network;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class HvdcSetpoint extends AbstractNetworkElementAction {
-
-    private double setpoint;
+public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
-    public HvdcSetpoint(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("setpoint") double setpoint) {
-        super(networkElement);
-        this.setpoint = setpoint;
+    public HvdcSetpoint(@JsonProperty("id") String id,
+                        @JsonProperty("name") String name,
+                        @JsonProperty("operator") String operator,
+                        @JsonProperty("usageRules") List<UsageRule> usageRules,
+                        @JsonProperty("networkElement") NetworkElement networkElement,
+                        @JsonProperty("setpoint") double setpoint) {
+        super(id, name, operator, usageRules, networkElement, setpoint);
+    }
+
+    public HvdcSetpoint(@JsonProperty("id") String id,
+                        @JsonProperty("networkElement") NetworkElement networkElement,
+                        @JsonProperty("setpoint") double setpoint) {
+        super(id, networkElement, setpoint);
     }
 
     public double getSetpoint() {

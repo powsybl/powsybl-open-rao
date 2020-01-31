@@ -8,17 +8,24 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Network;
 
-import java.util.Set;
 
 /**
- * Remedial action interface specifying an action of type range
- * This means that there is a value to set and this value is not directly defined
- * but define by a range.
+ * Remedial action interface specifying an action of type range. <br/>
+ * This means that there is a value to set and this value should be within a range. <br/>
+ * The apply method involves a {@link Network} and a double (setpoint's value),
+ * that's why there is a need to define this interface besides the {@link NetworkAction} interface
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public interface RangeAction extends ApplicableRangeAction, RemedialAction, Range {
-    Set<ApplicableRangeAction> getApplicableRangeActions();
+public interface RangeAction extends RemedialAction, Synchronizable {
+
+    double getMinValue(Network network);
+
+    double getMaxValue(Network network);
+
+    // The setpoint is computed by an optimiser.
+    void apply(Network network, double setpoint);
 }

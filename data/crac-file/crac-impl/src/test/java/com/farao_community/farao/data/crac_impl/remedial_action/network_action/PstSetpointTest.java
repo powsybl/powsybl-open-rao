@@ -9,10 +9,11 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.Set;
 
@@ -21,16 +22,27 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstSetpointTest {
+public class PstSetpointTest extends AbstractRemedialActionTest {
 
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
+    private PstSetpoint pstSetpoint;
+
+    @Before
+    public void setUp() throws Exception {
+        PstSetpoint pstSetpoint = new PstSetpoint(
+                "pstsetpoint_id",
+                "pstsetpoint_name",
+                "pstsetpoint_operator",
+                createUsageRules(),
+                new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
+                12
+        );
+        this.pstSetpoint = pstSetpoint;
+    }
 
     @Test
     public void basicMethods() {
-        PstSetpoint pstSetpoint = new PstSetpoint(
-            new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
-            12
-        );
+
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
         pstSetpoint.setSetpoint(0);
         assertEquals(0, pstSetpoint.getSetpoint(), 0);
@@ -42,14 +54,9 @@ public class PstSetpointTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstSetpoint pstSetpoint = new PstSetpoint(
-            new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
-            12
-        );
-
-        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
-        assertEquals(-5, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -59,9 +66,10 @@ public class PstSetpointTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
-            new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
-            50
-        );
+                "out_of_bound",
+                new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
+                50);
+
         try {
             pstSetpoint.apply(network);
             fail();
@@ -72,12 +80,8 @@ public class PstSetpointTest {
 
     @Test
     public void getNetworkElements() {
-        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
-        Mockito.when(mockedNetworkElement.getId()).thenReturn(networkElementId);
-        double setpoint = 1;
-        PstSetpoint pstSetPoint = new PstSetpoint(mockedNetworkElement, setpoint);
-        Set<NetworkElement> pstNetworkElements = pstSetPoint.getNetworkElements();
-        assertEquals(setpoint, pstNetworkElements.size(), 0);
+        Set<NetworkElement> pstNetworkElements = pstSetpoint.getNetworkElements();
         assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
     }
+
 }

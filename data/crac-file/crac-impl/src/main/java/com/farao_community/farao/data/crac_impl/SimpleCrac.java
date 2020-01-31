@@ -260,6 +260,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     @Override
     public void synchronize(Network network) {
         cnecs.forEach(cnec -> cnec.synchronize(network));
+        rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
     }
 
     @Override

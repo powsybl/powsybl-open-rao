@@ -59,33 +59,31 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     private void fillRangeAction(RangeAction rangeAction) {
         double minValue = rangeAction.getMinValue(linearRaoData.getNetwork());
         double maxValue = rangeAction.getMaxValue(linearRaoData.getNetwork());
-        rangeAction.getApplicableRangeActions().forEach(applicableRangeAction ->
-            applicableRangeAction.getNetworkElements().forEach(networkElement -> {
-                Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElement.getId());
-                if (pNetworkElement instanceof TwoWindingsTransformer) {
-                    TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
-                    double currentAlpha = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();
-                    double minAlpha = transformer.getPhaseTapChanger().getStep((int) minValue).getAlpha();
-                    double maxAlpha = transformer.getPhaseTapChanger().getStep((int) maxValue).getAlpha();
-                    if (currentAlpha >= minAlpha && currentAlpha <= maxAlpha) {
-                        linearRaoProblem.addRangeActionVariable(
+        rangeAction.getNetworkElements().forEach(networkElement -> {
+            Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElement.getId());
+            if (pNetworkElement instanceof TwoWindingsTransformer) {
+                TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
+                double currentAlpha = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();
+                double minAlpha = transformer.getPhaseTapChanger().getStep((int) minValue).getAlpha();
+                double maxAlpha = transformer.getPhaseTapChanger().getStep((int) maxValue).getAlpha();
+                if (currentAlpha >= minAlpha && currentAlpha <= maxAlpha) {
+                    linearRaoProblem.addRangeActionVariable(
                             rangeAction.getId(), networkElement.getId(),
                             Math.abs(minAlpha - currentAlpha), Math.abs(maxAlpha - currentAlpha));
-                    } else {
-                        LOGGER.warn("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
-                    }
                 } else {
-                    LOGGER.warn("Range action {} is not added to optimisation because this type of action is not already implemented", rangeAction.getName());
+                    LOGGER.warn("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
                 }
-            }));
+            }
+
+        });
     }
 
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
-        rangeAction.getApplicableRangeActions().forEach(applicableRangeAction ->
-            applicableRangeAction.getNetworkElements().forEach(networkElement ->
+        rangeAction.getNetworkElements().forEach(networkElement ->
                 linearRaoProblem.addRangeActionFlowOnBranch(
-                    cnec.getId(), rangeAction.getId(), networkElement.getId(),
-                    linearRaoData.getSensitivity(cnec, rangeAction)
-                )));
+                        cnec.getId(),
+                        rangeAction.getId(),
+                        networkElement.getId(),
+                        linearRaoData.getSensitivity(cnec, rangeAction)));
     }
 }

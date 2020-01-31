@@ -8,11 +8,14 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.List;
 
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
@@ -20,20 +23,29 @@ import com.powsybl.iidm.network.Network;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class PstSetpoint extends AbstractNetworkElementAction {
+public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
-    private double setpoint;
+    @JsonCreator
+    public PstSetpoint(@JsonProperty("id") String id,
+                       @JsonProperty("name") String name,
+                       @JsonProperty("operator") String operator,
+                       @JsonProperty("usageRules") List<UsageRule> usageRules,
+                       @JsonProperty("networkElement") NetworkElement networkElement,
+                       @JsonProperty("setpoint") double setpoint) {
+        super(id, name, operator, usageRules, networkElement, setpoint);
+    }
 
     /**
      * Constructor of a remedial action on a PST to fix a tap
      *
-     * @param networkElement: PST element to modify
-     * @param setpoint: value of the tap. That should be an int value, if not it will be truncated.
+     * @param id value used for id, name and operator
+     * @param networkElement PST element to modify
+     * @param setpoint value of the tap. That should be an int value, if not it will be truncated.
      */
-    @JsonCreator
-    public PstSetpoint(@JsonProperty("networkElement") NetworkElement networkElement, @JsonProperty("setpoint") double setpoint) {
-        super(networkElement);
-        this.setpoint = setpoint;
+    public PstSetpoint(@JsonProperty("id") String id,
+                       @JsonProperty("networkElement") NetworkElement networkElement,
+                       @JsonProperty("setpoint") double setpoint) {
+        super(id, networkElement, setpoint);
     }
 
     public double getSetpoint() {
@@ -47,11 +59,11 @@ public final class PstSetpoint extends AbstractNetworkElementAction {
     /**
      * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
      *
-     * @param network: network to modify
+     * @param network network to modify
      */
     @Override
     public void apply(Network network) {
-        PstRange pst = new PstRange(networkElement);
+        PstRange pst = new PstRange(getId(), networkElement);
         pst.apply(network, setpoint);
     }
 }

@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -16,13 +18,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
+import java.util.List;
+
 /**
- * Elementary PST range remedial action: choose the optimal value for a PST tap.
+ * Elementary PST range remedial action.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class PstRange extends AbstractNetworkElementRangeAction {
+public final class PstRange extends AbstractElementaryRangeAction {
+
+    private int lowTapPosition;
 
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.
@@ -30,8 +36,67 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
      * @param networkElement: PST element to modify
      */
     @JsonCreator
-    public PstRange(@JsonProperty("networkElement") NetworkElement networkElement) {
-        super(networkElement);
+    public PstRange(@JsonProperty("id") String id,
+                    @JsonProperty("name") String name,
+                    @JsonProperty("operator") String operator,
+                    @JsonProperty("usageRules") List<UsageRule> usageRules,
+                    @JsonProperty("ranges") List<Range> ranges,
+                    @JsonProperty("networkElement") NetworkElement networkElement) {
+        super(id, name, operator, usageRules, ranges, networkElement);
+        lowTapPosition = (int) Double.NaN;
+    }
+
+    public PstRange(String id,
+                    NetworkElement networkElement) {
+        super(id, networkElement);
+        lowTapPosition = (int) Double.NaN;
+    }
+
+    @Override
+    public void synchronize(Network network) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        lowTapPosition = phaseTapChanger.getLowTapPosition();
+    }
+
+    @Override
+    public void desynchronize() {
+        lowTapPosition = (int) Double.NaN;
+    }
+
+    @Override
+    protected double getMinValueWithRange(Network network, Range range) {
+        double minValue = -Math.abs(range.getMin());
+        return getExtremumValueWithRange(network, range, minValue);
+    }
+
+    @Override
+    public double getMaxValueWithRange(Network network, Range range) {
+        double maxValue = range.getMax();
+        return getExtremumValueWithRange(network, range, maxValue);
+    }
+
+    private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {
+        double extremumValueWithRange = Double.NaN;
+        switch (range.getRangeType()) {
+            case ABSOLUTE_FIXED:
+                extremumValueWithRange = extremumValue;
+                break;
+            case RELATIVE_FIXED:
+                // TODO: clarify the sign convention of relative fixed range
+                extremumValueWithRange = getCurrentTapPosition(network) + extremumValue;
+                break;
+            case RELATIVE_DYNAMIC:
+                throw new FaraoException("RelativeDynamicRanges are not handled for the moment");
+        }
+        switch (range.getRangeDefinition()) {
+            case STARTS_AT_ONE:
+                return lowTapPosition + extremumValueWithRange;
+            case CENTERED_ON_ZERO:
+                return extremumValueWithRange;
+            default:
+                throw new FaraoException("Unknown range definition");
+        }
     }
 
     /**
@@ -43,6 +108,7 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
      */
     @Override
     public void apply(Network network, double setpoint) {
+        // TODO : check that the exception is already thrown by Powsybl
         PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
         if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
             phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);
@@ -61,5 +127,11 @@ public final class PstRange extends AbstractNetworkElementRangeAction {
             throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a PstRange", networkElement.getId()));
         }
         return phaseTapChanger;
+    }
+
+    public int getCurrentTapPosition(Network network) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        return phaseTapChanger.getTapPosition();
     }
 }
