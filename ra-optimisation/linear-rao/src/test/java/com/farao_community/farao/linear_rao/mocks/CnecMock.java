@@ -45,12 +45,7 @@ public class CnecMock implements Cnec {
     }
 
     @Override
-    public boolean isMinThresholdViolated(Network network) throws SynchronizationException {
-        return false;
-    }
-
-    @Override
-    public boolean isMaxThresholdViolated(Network network) throws SynchronizationException {
+    public boolean isThresholdViolated(Network network) throws SynchronizationException {
         return false;
     }
 

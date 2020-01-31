@@ -7,6 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.PhysicalParameter;
+import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -37,6 +40,11 @@ public class VoltageThreshold extends AbstractThreshold {
         this.maxValue = maxValue;
     }
 
+    @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.VOLTAGE;
+    }
+
     public double getMinValue() {
         return minValue;
     }
@@ -54,13 +62,21 @@ public class VoltageThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Optional<Double> getMinThreshold() throws SynchronizationException {
-        return Optional.empty();
+    public Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException {
+        if (unit.equals(KILOVOLT)) {
+            return Optional.empty();
+        } else {
+            throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
+        }
     }
 
     @Override
-    public Optional<Double> getMaxThreshold() throws SynchronizationException {
-        return Optional.empty();
+    public Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException {
+        if (unit.equals(KILOVOLT)) {
+            return Optional.empty();
+        } else {
+            throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
+        }
     }
 
     @Override

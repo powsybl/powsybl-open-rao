@@ -78,13 +78,8 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     }
 
     @Override
-    public boolean isMinThresholdViolated(Network network) throws SynchronizationException {
-        return threshold.isMinThresholdOvercome(network, this);
-    }
-
-    @Override
-    public boolean isMaxThresholdViolated(Network network) throws SynchronizationException {
-        return threshold.isMaxThresholdOvercome(network, this);
+    public boolean isThresholdViolated(Network network) throws SynchronizationException {
+        return threshold.isMaxThresholdOvercome(network, this) || threshold.isMinThresholdOvercome(network, this);
     }
 
     @Override

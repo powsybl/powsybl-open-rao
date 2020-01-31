@@ -12,13 +12,13 @@ import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Network;
-
-import java.util.Optional;
 
 /**
- * Limits of a flow through an equipment.
+ * Limits of a flow (in MEGAWATT or AMPERE) through a branch. Given as
+ * an absolute value.
  *
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
@@ -30,44 +30,15 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("maxValue") double maxValue) {
         super(unit, side, direction);
+        if (maxValue < 0) {
+            throw new FaraoException("MaxValue of AbsoluteFlowThresholds must be positive.");
+        }
         this.maxValue = maxValue;
     }
 
     @Override
-    public Optional<Double> getMaxThreshold() {
-        return Optional.of(maxValue);
-    }
-
-    @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) {
-        return false;
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) {
-        return computeMargin(network, cnec) < 0;
-    }
-
-    @Override
-    public double computeMargin(Network network, Cnec cnec) {
-        switch (unit) {
-            case AMPERE:
-                return maxValue - getI(network, cnec);
-            case MEGAWATT:
-                return maxValue - getP(network, cnec);
-            case DEGREE:
-            case KILOVOLT:
-            default:
-                throw new FaraoException("Incompatible type of unit between FlowThreshold and degree or kV");
-        }
-    }
-
-    @Override
-    public void synchronize(Network network, Cnec cnec) {
-    }
-
-    @Override
-    public void desynchronize() {
+    protected double getAbsoluteMax() {
+        return maxValue;
     }
 
     @Override
