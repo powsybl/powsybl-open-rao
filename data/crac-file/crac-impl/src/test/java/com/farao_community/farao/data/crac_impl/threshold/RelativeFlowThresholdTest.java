@@ -68,17 +68,6 @@ public class RelativeFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThreshold() throws SynchronizationException {
-        relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
-
-        // relativeFlowThresholdAmps -> 60% * 721 A = 432 A
-        // relativeFlowThresholdMW -> 75% * 500 MW = 375 MW
-
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(-432.6, relativeFlowThresholdAmps.getMinThreshold(AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
-    }
-
-    @Test
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
         relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
 

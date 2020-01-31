@@ -78,14 +78,6 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThreshold() throws SynchronizationException {
-        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold(MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(-500.0, absoluteFlowThresholdAmps.getMinThreshold(AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
-        assertEquals(-1500.0, absoluteFlowThresholdMW.getMinThreshold(MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
-    }
-
-    @Test
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
         absoluteFlowThresholdAmps.synchronize(networkWithLf, cnec1);
         absoluteFlowThresholdMW.synchronize(networkWithLf, cnec2);
