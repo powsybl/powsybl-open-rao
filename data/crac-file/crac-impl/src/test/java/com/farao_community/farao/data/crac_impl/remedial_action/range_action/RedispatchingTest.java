@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RedispatchingTest extends AbstractNetworkElementRangeActionTest {
+public class RedispatchingTest extends AbstractElementaryRangeActionTest {
 
     private Redispatching redispatching;
     private NetworkElement generator;

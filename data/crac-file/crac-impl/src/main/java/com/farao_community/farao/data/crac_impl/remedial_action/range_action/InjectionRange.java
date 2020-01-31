@@ -23,7 +23,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class InjectionRange extends AbstractNetworkElementRangeAction {
+public final class InjectionRange extends AbstractElementaryRangeAction {
 
     protected static int injectionRangeTempValue = 0;
 

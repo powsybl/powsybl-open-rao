@@ -22,7 +22,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class InjectionSetpoint extends AbstractNetworkElementAction {
+public final class InjectionSetpoint extends AbstractElementaryNetworkAction {
 
     private double setpoint;
 

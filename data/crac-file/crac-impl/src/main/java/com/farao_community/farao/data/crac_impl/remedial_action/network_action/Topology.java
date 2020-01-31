@@ -26,7 +26,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class Topology extends AbstractNetworkElementAction {
+public final class Topology extends AbstractElementaryNetworkAction {
 
     private ActionType actionType;
 

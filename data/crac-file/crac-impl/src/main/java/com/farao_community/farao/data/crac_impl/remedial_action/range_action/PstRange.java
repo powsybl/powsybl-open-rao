@@ -28,7 +28,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class PstRange extends AbstractNetworkElementRangeAction {
+public final class PstRange extends AbstractElementaryRangeAction {
 
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.

@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public abstract class AbstractNetworkElementRangeAction extends AbstractRemedialAction implements RangeAction {
+public abstract class AbstractElementaryRangeAction extends AbstractRemedialAction implements RangeAction {
 
     protected List<Range> ranges;
 
@@ -38,19 +38,19 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
     protected NetworkElement networkElement;
 
     @JsonCreator
-    public AbstractNetworkElementRangeAction(@JsonProperty("id") String id,
-                                             @JsonProperty("name") String name,
-                                             @JsonProperty("operator") String operator,
-                                             @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                             @JsonProperty("ranges") List<Range> ranges,
-                                             @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryRangeAction(@JsonProperty("id") String id,
+                                         @JsonProperty("name") String name,
+                                         @JsonProperty("operator") String operator,
+                                         @JsonProperty("usageRules") List<UsageRule> usageRules,
+                                         @JsonProperty("ranges") List<Range> ranges,
+                                         @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules);
         this.ranges = ranges;
         this.networkElement = networkElement;
     }
 
-    public AbstractNetworkElementRangeAction(@JsonProperty("id") String id,
-                                             @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryRangeAction(@JsonProperty("id") String id,
+                                         @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;
         this.ranges = new ArrayList<>();
@@ -101,11 +101,11 @@ public abstract class AbstractNetworkElementRangeAction extends AbstractRemedial
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractNetworkElementRangeAction otherAbstractNetworkElementRangeAction = (AbstractNetworkElementRangeAction) o;
+        AbstractElementaryRangeAction otherAbstractElementaryRangeAction = (AbstractElementaryRangeAction) o;
 
         return super.equals(o)
-                && networkElement == otherAbstractNetworkElementRangeAction.getNetworkElement()
-                && ranges == otherAbstractNetworkElementRangeAction.ranges;
+                && networkElement == otherAbstractElementaryRangeAction.getNetworkElement()
+                && ranges == otherAbstractElementaryRangeAction.ranges;
     }
 
     @Override

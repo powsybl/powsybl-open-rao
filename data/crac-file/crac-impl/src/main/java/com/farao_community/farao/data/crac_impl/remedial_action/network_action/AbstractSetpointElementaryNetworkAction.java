@@ -20,24 +20,24 @@ import java.util.List;
  * This abstract class gathers methods and attributes commons to {@link HvdcSetpoint}s and {@link PstSetpoint}s.
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public abstract class AbstractSetpointNetworkAction extends AbstractNetworkElementAction {
+public abstract class AbstractSetpointElementaryNetworkAction extends AbstractElementaryNetworkAction {
 
     protected double setpoint;
 
     @JsonCreator
-    public AbstractSetpointNetworkAction(@JsonProperty("id") String id,
-                                         @JsonProperty("name") String name,
-                                         @JsonProperty("operator") String operator,
-                                         @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                         @JsonProperty("networkElement") NetworkElement networkElement,
-                                         @JsonProperty("setpoint") double setpoint) {
+    public AbstractSetpointElementaryNetworkAction(@JsonProperty("id") String id,
+                                                   @JsonProperty("name") String name,
+                                                   @JsonProperty("operator") String operator,
+                                                   @JsonProperty("usageRules") List<UsageRule> usageRules,
+                                                   @JsonProperty("networkElement") NetworkElement networkElement,
+                                                   @JsonProperty("setpoint") double setpoint) {
         super(id, name, operator, usageRules, networkElement);
         this.setpoint = setpoint;
     }
 
-    public AbstractSetpointNetworkAction(@JsonProperty("id") String id,
-                                         @JsonProperty("networkElement") NetworkElement networkElement,
-                                         @JsonProperty("setpoint") double setpoint) {
+    public AbstractSetpointElementaryNetworkAction(@JsonProperty("id") String id,
+                                                   @JsonProperty("networkElement") NetworkElement networkElement,
+                                                   @JsonProperty("setpoint") double setpoint) {
         super(id, networkElement);
         this.setpoint = setpoint;
     }

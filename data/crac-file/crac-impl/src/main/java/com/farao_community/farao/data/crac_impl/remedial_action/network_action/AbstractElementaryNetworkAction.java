@@ -23,21 +23,21 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-abstract class AbstractNetworkElementAction extends AbstractRemedialAction implements NetworkAction {
+abstract class AbstractElementaryNetworkAction extends AbstractRemedialAction implements NetworkAction {
     protected NetworkElement networkElement;
 
     @JsonCreator
-    public AbstractNetworkElementAction(@JsonProperty("id") String id,
-                                        @JsonProperty("name") String name,
-                                        @JsonProperty("operator") String operator,
-                                        @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                        @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryNetworkAction(@JsonProperty("id") String id,
+                                           @JsonProperty("name") String name,
+                                           @JsonProperty("operator") String operator,
+                                           @JsonProperty("usageRules") List<UsageRule> usageRules,
+                                           @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules);
         this.networkElement = networkElement;
     }
 
-    public AbstractNetworkElementAction(@JsonProperty("id") String id,
-                                        @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryNetworkAction(@JsonProperty("id") String id,
+                                           @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;
     }
@@ -63,9 +63,9 @@ abstract class AbstractNetworkElementAction extends AbstractRemedialAction imple
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractNetworkElementAction otherAbstractNetworkElementAction = (AbstractNetworkElementAction) o;
+        AbstractElementaryNetworkAction otherAbstractElementaryNetworkAction = (AbstractElementaryNetworkAction) o;
 
-        return super.equals(o) && networkElement == otherAbstractNetworkElementAction.getNetworkElement();
+        return super.equals(o) && networkElement == otherAbstractElementaryNetworkAction.getNetworkElement();
     }
 
     @Override

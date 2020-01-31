@@ -25,7 +25,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class Redispatching extends AbstractNetworkElementRangeAction {
+public final class Redispatching extends AbstractElementaryRangeAction {
 
     private double minimumPower;
     private double maximumPower;

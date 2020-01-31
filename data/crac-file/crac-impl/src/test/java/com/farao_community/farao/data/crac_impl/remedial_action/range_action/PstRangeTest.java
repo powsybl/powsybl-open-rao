@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeTest extends AbstractNetworkElementRangeActionTest {
+public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     private int pstLowTapPosition = 1;
     private int pstHighTapPosition = 32;
