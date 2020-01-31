@@ -12,6 +12,9 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * Generic object to define any simple action on a network element (setpoint, open/close, etc.).
  *
@@ -31,5 +34,10 @@ abstract class AbstractNetworkElementAction implements ApplicableNetworkAction {
 
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
+    }
+
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return Collections.singleton(networkElement);
     }
 }

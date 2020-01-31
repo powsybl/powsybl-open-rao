@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_api.ActionType.*;
 import static com.farao_community.farao.data.crac_api.Direction.*;
+import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
 import static com.farao_community.farao.data.crac_api.Side.*;
 import static org.junit.Assert.*;
 
@@ -58,7 +59,7 @@ public class JsonImportExportTest {
         RelativeDynamicRange relativeDynamicRange = new RelativeDynamicRange(0, 1);
         relativeDynamicRange.setMin(100);
         relativeDynamicRange.setMax(1000);
-        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1);
+        AbsoluteFixedRange absoluteFixedRange = new AbsoluteFixedRange(0, 1, STARTS_AT_ONE);
         absoluteFixedRange.setMin(10);
         absoluteFixedRange.setMax(1000);
 
@@ -148,23 +149,27 @@ public class JsonImportExportTest {
         onConstraint.setCnec(cnec1);
 
         // NetworkAction
-        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(hvdcSetpoint)));
+        ComplexNetworkAction networkAction1 = new ComplexNetworkAction("id1", "name1", "operator1");
         networkAction1.addApplicableNetworkAction(topology2);
-        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1", new ArrayList<>(Arrays.asList(freeToUse)), new ArrayList<>(Arrays.asList(pstSetpoint)));
+        networkAction1.addApplicableNetworkAction(hvdcSetpoint);
+        networkAction1.addUsageRule(freeToUse);
+        ComplexNetworkAction networkAction2 = new ComplexNetworkAction("id2", "name2", "operator1");
+        networkAction2.addApplicableNetworkAction(pstSetpoint);
 
         // RangeAction
-        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1", null, null, null);
+        ComplexRangeAction rangeAction1 = new ComplexRangeAction("idRangeAction", "myRangeAction", "operator1");
         List<Range> ranges = new ArrayList<>(Arrays.asList(absoluteFixedRange, relativeDynamicRange));
-        rangeAction1.setRanges(ranges);
+        rangeAction1.addRange(absoluteFixedRange);
         rangeAction1.addRange(relativeFixedRange);
-        List<ApplicableRangeAction> elementaryRangeActions = new ArrayList<>(Arrays.asList(pstRange1));
-        rangeAction1.setApplicableRangeActions(elementaryRangeActions);
+        rangeAction1.addApplicableRangeAction(pstRange1);
         rangeAction1.addApplicableRangeAction(hvdcRange1);
         List<UsageRule> usageRules =  new ArrayList<>(Arrays.asList(freeToUse, onConstraint));
         rangeAction1.setUsageRules(usageRules);
         rangeAction1.addUsageRule(onContingency);
 
-        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1", usageRules, ranges, new ArrayList<>(Arrays.asList(pstRange1)));
+        ComplexRangeAction rangeAction2 = new ComplexRangeAction("idRangeAction2", "myRangeAction2", "operator1");
+        rangeAction2.addApplicableRangeAction(pstRange1);
+        ranges.forEach(rangeAction2::addRange);
 
         Crac crac = new SimpleCrac("idCrac", "name");
 

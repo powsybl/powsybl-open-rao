@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Most generic interface for remedial actions
@@ -26,4 +28,13 @@ public interface RemedialAction extends Identifiable {
     List<UsageRule> getUsageRules();
 
     void addUsageRule(UsageRule usageRule);
+
+    /**
+     * Gather all the network elements present in the applicable range action. It returns a set because network
+     * elements must not be duplicated inside an applicable range action and there is no defined order for network elements.
+     *
+     * @return A set of network elements.
+     */
+    @JsonIgnore
+    Set<NetworkElement> getNetworkElements();
 }

@@ -74,7 +74,7 @@ public class PstRangeTest {
             pstRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
-            assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST, tap could not be changed", e.getMessage());
+            assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST but is defined as a PstRange", e.getMessage());
         }
     }
 }
