@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
 public class PositiveMinMarginFillerTest extends FillerTest {

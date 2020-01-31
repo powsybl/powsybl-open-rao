@@ -34,7 +34,7 @@ public class LinearRaoProblem {
     private List<MPConstraint> minimumMarginConstraints;
     private List<MPVariable> negativeRangeActionVariables;
     private List<MPVariable> positiveRangeActionVariables;
-    private static final String POS_MIN_MARGIN = "pos-min-margin";
+    public static final String POS_MIN_MARGIN = "pos-min-margin";
 
     public LinearRaoProblem(MPSolver mpSolver) {
         solver = mpSolver;

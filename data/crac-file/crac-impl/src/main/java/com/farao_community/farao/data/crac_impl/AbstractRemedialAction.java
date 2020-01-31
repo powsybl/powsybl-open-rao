@@ -9,13 +9,14 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ComplexNetworkAction.class, name = "complexNetworkAction"),
-        @JsonSubTypes.Type(value = ComplexRangeAction.class, name = "complexRangeAction")
+        @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "complexRangeAction")
     })
 public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
     protected String operator;
@@ -40,6 +41,12 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
+    }
+
+    public AbstractRemedialAction(String id) {
+        super(id, id);
+        this.operator = id;
+        usageRules = new ArrayList<>();
     }
 
     public void setOperator(String operator) {
@@ -91,5 +98,13 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
             result = 31 * result + rule.hashCode();
         }
         return result;
+    }
+
+    public void synchronize(Network network) {
+        // nothing to do except if specified in the child class
+    }
+
+    public void desynchronize() {
+        // nothing to do except if specified in the child class
     }
 }
