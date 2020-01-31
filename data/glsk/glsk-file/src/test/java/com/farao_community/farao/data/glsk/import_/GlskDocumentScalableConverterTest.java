@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -36,7 +37,7 @@ public class GlskDocumentScalableConverterTest {
     }
 
     private String getResourceAsPathString(String resource) {
-        return getClass().getResource(resource).getPath();
+        return new File(getClass().getResource(resource).getFile()).getAbsolutePath();
     }
 
     @Before

@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +43,7 @@ public class UcteGlskDocumentScalableConverterTest {
     }
 
     private String getResourceAsPathString(String resource) {
-        return getClass().getResource(resource).getPath();
+        return new File(getClass().getResource(resource).getFile()).getAbsolutePath();
     }
 
     @Test

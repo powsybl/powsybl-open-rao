@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +40,7 @@ public class GlskDocumentImporterTest {
     }
 
     private String getResourceAsPathString(String resource) {
-        return getClass().getResource(resource).getPath();
+        return new File(getClass().getResource(resource).getFile()).getAbsolutePath();
     }
 
     private InputStream getResourceAsInputStream(String resource) {

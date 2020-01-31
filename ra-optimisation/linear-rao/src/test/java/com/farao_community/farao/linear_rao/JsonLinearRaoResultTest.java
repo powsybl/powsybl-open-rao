@@ -13,10 +13,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
@@ -30,15 +29,20 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
     @Test
     public void roundTripTest() {
         // read
-        RaoComputationResult result = JsonRaoComputationResult.read(getClass().getResourceAsStream("/LinearRaoResults.json"));
+        RaoComputationResult result = JsonRaoComputationResult.read(Paths.get(new File(getClass().getResource("/LinearRaoResults.json").getFile()).getAbsolutePath()));
         assertNotNull(result.getExtension(LinearRaoResult.class));
 
         // write
-        OutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JsonRaoComputationResult.write(result, baos);
 
         //compare
-        compareTxt(getClass().getResourceAsStream("/LinearRaoResults.json"), baos.toString());
+        try {
+            String string = new String(Files.readAllBytes(Paths.get(new File(getClass().getResource("/LinearRaoResults.json").getFile()).getAbsolutePath())));
+            assertEquals(baos.toString(), string);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
