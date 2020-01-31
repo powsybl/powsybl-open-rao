@@ -124,7 +124,7 @@ public class LinearRaoTest {
 
         // Thresholds
         AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 1500);
-        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 30);
+        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.IN, 30);
 
         // CNECs
         SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);

@@ -7,14 +7,33 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.FaraoException;
+
 /**
- * Units
+ * Physical units
  *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public enum Unit {
-    AMPERE,
-    DEGREE,
-    MEGAWATT,
-    KILOVOLT
+    AMPERE(PhysicalParameter.FLOW),
+    DEGREE(PhysicalParameter.ANGLE),
+    MEGAWATT(PhysicalParameter.FLOW),
+    KILOVOLT(PhysicalParameter.VOLTAGE);
+
+    private PhysicalParameter physicalParameter;
+
+    Unit(PhysicalParameter physicalParameter) {
+        this.physicalParameter = physicalParameter;
+    }
+
+    public PhysicalParameter getPhysicalParameter() {
+        return physicalParameter;
+    }
+
+    public void checkPhysicalParameter(PhysicalParameter requestedPhysicalParameter) {
+        if (!requestedPhysicalParameter.equals(physicalParameter)) {
+            throw new FaraoException(String.format("%s Unit is not suited to measure a %s value.", this.toString(), requestedPhysicalParameter.toString()));
+        }
+    }
 }
