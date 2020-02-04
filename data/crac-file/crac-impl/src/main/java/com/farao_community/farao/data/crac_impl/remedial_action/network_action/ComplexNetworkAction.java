@@ -28,8 +28,6 @@ import java.util.Set;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class ComplexNetworkAction extends AbstractRemedialAction implements NetworkAction {
-
-    @JsonProperty("NetworkActions")
     private Set<NetworkAction> networkActions;
 
     @JsonCreator
@@ -69,7 +67,6 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
         return networkElements;
     }
 
-    @JsonProperty("networkAction")
     public void addNetworkAction(NetworkAction networkAction) {
         this.networkActions.add(networkAction);
     }
