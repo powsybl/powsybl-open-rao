@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -63,7 +63,7 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
      */
     @Override
     public void apply(Network network) {
-        PstRange pst = new PstRange(getId(), networkElement);
+        PstWithRange pst = new PstWithRange(getId(), networkElement);
         pst.apply(network, setpoint);
     }
 }

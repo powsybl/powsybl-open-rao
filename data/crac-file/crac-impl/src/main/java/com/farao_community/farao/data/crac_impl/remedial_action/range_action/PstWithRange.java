@@ -26,7 +26,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class PstRange extends AbstractElementaryRangeAction {
+public final class PstWithRange extends AbstractElementaryRangeAction implements com.farao_community.farao.data.crac_api.PstRange {
 
     private int lowTapPosition;
 
@@ -36,18 +36,18 @@ public final class PstRange extends AbstractElementaryRangeAction {
      * @param networkElement: PST element to modify
      */
     @JsonCreator
-    public PstRange(@JsonProperty("id") String id,
-                    @JsonProperty("name") String name,
-                    @JsonProperty("operator") String operator,
-                    @JsonProperty("usageRules") List<UsageRule> usageRules,
-                    @JsonProperty("ranges") List<Range> ranges,
-                    @JsonProperty("networkElement") NetworkElement networkElement) {
+    public PstWithRange(@JsonProperty("id") String id,
+                        @JsonProperty("name") String name,
+                        @JsonProperty("operator") String operator,
+                        @JsonProperty("usageRules") List<UsageRule> usageRules,
+                        @JsonProperty("ranges") List<Range> ranges,
+                        @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         lowTapPosition = (int) Double.NaN;
     }
 
-    public PstRange(String id,
-                    NetworkElement networkElement) {
+    public PstWithRange(String id,
+                        NetworkElement networkElement) {
         super(id, networkElement);
         lowTapPosition = (int) Double.NaN;
     }

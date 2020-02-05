@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,11 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     @Override
     public double getMaxValue(Network network) {
         return TEMP_VALUE;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+        return 0;
     }
 
     @Override
