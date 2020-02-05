@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.HashSet;
 import java.util.List;
@@ -113,6 +114,11 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         // to implement - specific to Redispatching
+        return 0;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
         return 0;
     }
 

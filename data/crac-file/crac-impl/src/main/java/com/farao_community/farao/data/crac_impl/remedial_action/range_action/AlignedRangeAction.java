@@ -15,6 +15,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import com.powsybl.sensitivity.SensitivityComputationResults;
+
 import java.util.*;
 
 
@@ -66,6 +69,11 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public double getMaxValue(Network network) {
         return ranges.stream().map(range -> range.getMax()).min(Double::compareTo).orElseThrow(FaraoException::new);
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+        return 0;
     }
 
     @Override
