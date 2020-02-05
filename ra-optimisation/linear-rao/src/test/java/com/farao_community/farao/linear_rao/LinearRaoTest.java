@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class, LinearRao.class})
+@PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class LinearRaoTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoTest.class);
 
@@ -105,18 +105,19 @@ public class LinearRaoTest {
 
         LinearRaoOptimizer linearRaoOptimizerMock = Mockito.mock(LinearRaoOptimizer.class);
 
-        List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<MonitoredBranchResult>();
-        List<RemedialActionResult> remedialActionResults = new ArrayList<RemedialActionResult>();
-        List<RemedialActionElementResult> remedialActionElementResultList = new ArrayList<RemedialActionElementResult>();
+        List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<>();
+        List<RemedialActionResult> remedialActionResults = new ArrayList<>();
+        List<RemedialActionElementResult> remedialActionElementResultList = new ArrayList<>();
         remedialActionElementResultList.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 5, 2, 10, 4));
         remedialActionResults.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList));
         PreContingencyResult preContingencyResult = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults);
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult);
 
         Mockito.when(linearRaoOptimizerMock.run()).thenReturn(raoComputationResult);
-        PowerMockito.whenNew(LinearRaoOptimizer.class).withAnyArguments().thenReturn(linearRaoOptimizerMock);
 
-        CompletableFuture<RaoComputationResult> linearRaoResult = linearRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
+        LinearRao linearRaoSpy = Mockito.spy(linearRao);
+        Mockito.doReturn(linearRaoOptimizerMock).when(linearRaoSpy).createLinearRaoOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        CompletableFuture<RaoComputationResult> linearRaoResult = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
         assertNotNull(linearRaoResult);
 
     }

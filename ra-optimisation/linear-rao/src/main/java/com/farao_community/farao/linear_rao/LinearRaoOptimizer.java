@@ -44,11 +44,11 @@ public class LinearRaoOptimizer {
 
         LinearRaoData linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
 
-        List<AbstractProblemFiller> fillerList = new ArrayList<AbstractProblemFiller>();
+        List<AbstractProblemFiller> fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new PositiveMinMarginFiller(linearRaoProblem, linearRaoData));
 
-        List <AbstractPostProcessor> postProcessorList = new ArrayList<AbstractPostProcessor>();
+        List <AbstractPostProcessor> postProcessorList = new ArrayList<>();
         postProcessorList.add(new PstTapPostProcessor());
         postProcessorList.add(new RaoResultPostProcessor());
 

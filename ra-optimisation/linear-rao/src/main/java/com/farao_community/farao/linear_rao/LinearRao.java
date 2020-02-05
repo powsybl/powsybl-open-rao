@@ -51,12 +51,12 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
-        List<RemedialActionResult> oldRemedialActions = new ArrayList<RemedialActionResult>();
+        List<RemedialActionResult> oldRemedialActions = new ArrayList<>();
         //TODO: iterations: fix value or param?
         int iterationsLeft = 10;
         systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         double oldObjectiveFunction = getMinMargin(crac);
-        LinearRaoOptimizer linearRaoOptimizer = new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, parameters);
+        LinearRaoOptimizer linearRaoOptimizer = createLinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, parameters);
         RaoComputationResult raoComputationResult = linearRaoOptimizer.run();
         // Get result RAs
         List<RemedialActionResult> newRemedialActions = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
@@ -96,11 +96,20 @@ public class LinearRao implements RaoProvider {
         return CompletableFuture.completedFuture(raoComputationResult);
     }
 
+    LinearRaoOptimizer createLinearRaoOptimizer(Crac crac,
+                                                        Network network,
+                                                        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                                                        ComputationManager computationManager,
+                                                        RaoParameters raoParameters) {
+        return new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, raoParameters);
+
+    }
+
     private boolean sameRemedialActionResultLists(List<RemedialActionResult> firstList, List<RemedialActionResult> secondList) {
         if (firstList.size() != secondList.size()) {
             return false;
         }
-        Set<String> firstSet = new HashSet<String>();
+        Set<String> firstSet = new HashSet<>();
         firstList.stream().forEach(remedialActionResult -> firstSet.add(remedialActionResult.getId()));
         for (RemedialActionResult remedialActionResult : secondList) {
             if (!firstSet.contains(remedialActionResult.getId())) {
