@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 
 import java.util.List;
@@ -36,9 +37,14 @@ public class LinearRaoModeller {
 
     public void updateProblem(LinearRaoData linearRaoData) {
         this.linearRaoData = linearRaoData;
+        fillerList.forEach(filler -> filler.update(linearRaoProblem, linearRaoData));
     }
 
-    public void solve() {
-        //todo
+    public RaoComputationResult solve() {
+        linearRaoProblem.solve();
+        RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
+        RaoComputationResult raoComputationResult = new RaoComputationResult(status);
+        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult));
+        return raoComputationResult;
     }
 }

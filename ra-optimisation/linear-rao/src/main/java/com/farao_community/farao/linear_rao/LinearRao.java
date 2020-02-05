@@ -10,10 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.ra_optimisation.ContingencyResult;
-import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
-import com.farao_community.farao.ra_optimisation.PreContingencyResult;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -54,9 +51,109 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
+        List<RemedialActionResult> oldRemedialActions = new ArrayList<RemedialActionResult>();
+        //TODO: iterations: fix value or param?
+        int iterationsLeft = 10;
         systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        RaoComputationResult raoComputationResult = buildRaoComputationResult(crac);
+        double oldObjectiveFunction = getMinMargin(crac);
+        LinearRaoOptimizer linearRaoOptimizer = new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, parameters);
+        RaoComputationResult raoComputationResult = linearRaoOptimizer.run();
+        // Get result RAs
+        List<RemedialActionResult> newRemedialActions = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
+        //TODO: manage CRA
+
+        String orginalNetwork = network.getVariantManager().getWorkingVariantId();
+
+        // While they are not the same as last iteration
+        while (!sameRemedialActionResultLists(newRemedialActions, oldRemedialActions) && iterationsLeft > 0) {
+            // Apply the RAs
+            createAndSwitchToNewVariant(network, orginalNetwork);
+            applyRAs(crac, network, newRemedialActions);
+
+            // Launch the sensitivity calculation
+            systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+
+            // Evaluate the obj function
+            double newObjectiveFunction = getMinMargin(crac);
+
+            // If result worse than before
+            if (newObjectiveFunction < oldObjectiveFunction) {
+                // TODO : limit the ranges
+                break;
+            }
+
+            // Recompute LP and get result RAs
+            linearRaoOptimizer.update(systematicSensitivityAnalysisResult);
+            raoComputationResult = linearRaoOptimizer.run();
+            oldRemedialActions = newRemedialActions;
+            newRemedialActions = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
+            //TODO: manage CRA
+            oldObjectiveFunction = newObjectiveFunction;
+            iterationsLeft -= 1;
+
+        }
+
         return CompletableFuture.completedFuture(raoComputationResult);
+    }
+
+    private boolean sameRemedialActionResultLists(List<RemedialActionResult> firstList, List<RemedialActionResult> secondList) {
+        if (firstList.size() != secondList.size()) {
+            return false;
+        }
+        Set<String> firstSet = new HashSet<String>();
+        firstList.stream().forEach(remedialActionResult -> firstSet.add(remedialActionResult.getId()));
+        for (RemedialActionResult remedialActionResult : secondList) {
+            if (!firstSet.contains(remedialActionResult.getId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
+        Objects.requireNonNull(referenceNetworkVariant);
+        if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
+            throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
+        }
+        String uniqueId = getUniqueVariantId(network);
+        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
+        network.getVariantManager().setWorkingVariant(uniqueId);
+        return uniqueId;
+    }
+
+    private String getUniqueVariantId(Network network) {
+        String uniqueId;
+        do {
+            uniqueId = UUID.randomUUID().toString();
+        } while (network.getVariantManager().getVariantIds().contains(uniqueId));
+        return uniqueId;
+    }
+
+    private void applyRAs(Crac crac, Network network, List<RemedialActionResult> raList) {
+        for (RemedialActionResult remedialActionResult : raList) {
+            for (RemedialActionElementResult remedialActionElementResult : remedialActionResult.getRemedialActionElementResults()) {
+                if (remedialActionElementResult instanceof PstElementResult) {
+                    crac.getRangeAction(remedialActionElementResult.getId()).apply(network, ((PstElementResult) remedialActionElementResult).getPostOptimisationTapPosition());
+                } else if (remedialActionElementResult instanceof RedispatchElementResult) {
+                    crac.getRangeAction(remedialActionElementResult.getId()).apply(network, ((RedispatchElementResult) remedialActionElementResult).getPostOptimisationTargetP());
+                }
+            }
+        }
+
+    }
+
+    private double getMinMargin(Crac crac) {
+        double minMargin = Double.POSITIVE_INFINITY;
+
+        for (Cnec cnec : crac.getCnecs()) {
+            double margin = systematicSensitivityAnalysisResult.getCnecMarginMap().getOrDefault(cnec, Double.NaN);
+            if (Double.isNaN(margin)) {
+                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+            }
+            minMargin = Math.min(minMargin, margin);
+        }
+
+        return minMargin;
     }
 
     private RaoComputationResult buildRaoComputationResult(Crac crac) {
