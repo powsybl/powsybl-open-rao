@@ -1,0 +1,45 @@
+{
+  "@c": ".SimpleCrac",
+  "id": "idCrac",
+  "name": "name",
+  "rangeActions": [
+    {
+      "@c": "com.farao_community.farao.data.crac_impl.remedial_action.range_action.ComplexRangeAction",
+      "id": "idRangeAction",
+      "name": "myRangeAction",
+      "operator": "operator1",
+      "usageRules": [
+        {
+          "@c": "com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse",
+          "usageMethod": "AVAILABLE",
+          "state": {
+            "@c": "com.farao_community.farao.data.crac_impl.SimpleState",
+            "instant": {
+              "@c": ".Instant",
+              "id": "initial",
+              "seconds": 0,
+              "name": "initial"
+            }
+          }
+        }
+      ],
+      "ranges": [
+        {
+          "@c": "com.farao_community.farao.data.crac_impl.range_domain.AbsoluteFixedRange",
+          "min": -16,
+          "max": 16
+        }
+      ],
+      "applicableRangeActions": [
+        {
+          "@c": "com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange",
+          "networkElement": {
+            "@c": ".NetworkElement",
+            "id": "BBE2AA1  BBE3AA1  1",
+            "name": "BBE2AA1  BBE3AA1  1"
+          }
+        }
+      ]
+    }
+  ]
+}
