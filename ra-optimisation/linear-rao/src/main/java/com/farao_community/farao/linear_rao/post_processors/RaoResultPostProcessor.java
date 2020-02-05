@@ -9,7 +9,6 @@ package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
-import com.farao_community.farao.linear_rao.LinearRao;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
@@ -27,10 +26,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoResultPostProcessor extends AbstractPostProcessor {
 
-    private static final double EPSILON = 1e-3;
+    private static final double PST_LIMITS_TOLERANCE = 1e-3;
 
     @Override
     public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult) {
@@ -42,9 +42,9 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                 String rangeActionName = rangeAction.getName();
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-                Optional<MPVariable> rangeActionVar = checkRangeAction(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId));
+                double rangeActionVar = getRangeActionVariation(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId));
 
-                if (rangeActionVar.isPresent()) {
+                if (Math.abs(rangeActionVar) > 0) {
                     Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElementId);
                     if (pNetworkElement instanceof TwoWindingsTransformer) {
                         TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
@@ -52,11 +52,13 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         double preOptimAngle = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();
                         int preOptimTap = transformer.getPhaseTapChanger().getTapPosition();
 
-                        double postOptimAngle = rangeActionVar.get().solutionValue();
+                        double postOptimAngle = preOptimAngle + rangeActionVar;
                         int postOptimTap = getClosestTapPosition(postOptimAngle, transformer);
 
-                        PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, postOptimAngle, postOptimTap);
-                        remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
+                        if (postOptimTap != preOptimTap) {
+                            PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, postOptimAngle, postOptimTap);
+                            remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
+                        }
                     }
                 }
             }
@@ -65,14 +67,8 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
         raoComputationResult.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionResults);
     }
 
-    private Optional<MPVariable> checkRangeAction(MPVariable negativeRangeActionVariable, MPVariable positiveRangeActionVariable) {
-        if (negativeRangeActionVariable.solutionValue() != 0) {
-            return Optional.of(negativeRangeActionVariable);
-        } else if (positiveRangeActionVariable.solutionValue() != 0) {
-            return Optional.of(positiveRangeActionVariable);
-        } else {
-            return Optional.empty();
-        }
+    private double getRangeActionVariation(MPVariable negativeRangeActionVariable, MPVariable positiveRangeActionVariable) {
+        return positiveRangeActionVariable.solutionValue() - negativeRangeActionVariable.solutionValue();
     }
 
     private int getClosestTapPosition(double finalAngle, TwoWindingsTransformer twoWindingsTransformer) {
@@ -90,7 +86,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
         }
 
         // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
-        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > EPSILON || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > EPSILON) {
+        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > PST_LIMITS_TOLERANCE || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > PST_LIMITS_TOLERANCE) {
             throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", finalAngle, minAngle, maxAngle, twoWindingsTransformer.getId()));
         }
         AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
