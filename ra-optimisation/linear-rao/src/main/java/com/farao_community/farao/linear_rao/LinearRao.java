@@ -101,7 +101,7 @@ public class LinearRao implements RaoProvider {
                                                         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
                                                         ComputationManager computationManager,
                                                         RaoParameters raoParameters) {
-        return new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, raoParameters);
+        return new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, raoParameters, new LinearRaoProblem());
 
     }
 

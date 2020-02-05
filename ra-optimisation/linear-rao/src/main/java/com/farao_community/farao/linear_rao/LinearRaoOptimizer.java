@@ -30,19 +30,19 @@ public class LinearRaoOptimizer {
     private Network network;
     private ComputationManager computationManager;
     private LinearRaoModeller linearRaoModeller;
+    private LinearRaoData linearRaoData;
 
     public LinearRaoOptimizer(Crac crac,
                               Network network,
                               SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
                               ComputationManager computationManager,
-                              RaoParameters raoParameters) {
+                              RaoParameters raoParameters,
+                              LinearRaoProblem linearRaoProblem) {
         this.crac = crac;
         this.network = network;
         this.computationManager = computationManager;
 
-        LinearRaoProblem linearRaoProblem = new LinearRaoProblem();
-
-        LinearRaoData linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
+        linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
 
         List<AbstractProblemFiller> fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
@@ -56,7 +56,7 @@ public class LinearRaoOptimizer {
     }
 
     public void update(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        LinearRaoData linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
+        linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         linearRaoModeller.updateProblem(linearRaoData);
     }
 
