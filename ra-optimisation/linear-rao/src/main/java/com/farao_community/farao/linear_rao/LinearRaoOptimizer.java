@@ -60,6 +60,10 @@ public class LinearRaoOptimizer {
         linearRaoModeller.updateProblem(linearRaoData);
     }
 
+    public LinearRaoData getLinearRaoData() {
+        return linearRaoData;
+    }
+
     public RaoComputationResult run() {
         linearRaoModeller.buildProblem();
         return linearRaoModeller.solve();

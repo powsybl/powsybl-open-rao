@@ -57,6 +57,7 @@ public class LinearRaoOptimizerTest {
     private LinearRaoOptimizer linearRaoOptimizer;
     private ComputationManager computationManager;
     private RaoParameters raoParameters;
+    private Crac crac;
 
     @Before
     public void setUp() {
@@ -70,7 +71,7 @@ public class LinearRaoOptimizerTest {
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
         LoadFlowService.init(loadFlowRunner, computationManager);
 
-        Crac crac = create();
+        crac = create();
 
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
@@ -91,7 +92,6 @@ public class LinearRaoOptimizerTest {
 
     @Test
     public void testUpdate() {
-        Crac crac = create();
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecMarginMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecMarginMap.put(cnec, 3.0));
@@ -99,6 +99,7 @@ public class LinearRaoOptimizerTest {
         crac.getCnecs().forEach(cnec -> cnecMaxThresholdMap.put(cnec, 700.0));
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
         linearRaoOptimizer.update(systematicSensitivityAnalysisResult);
+        assertEquals(697, linearRaoOptimizer.getLinearRaoData().getReferenceFlow(crac.getCnecs().iterator().next()), 0.1);
     }
 
     private static Crac create() {

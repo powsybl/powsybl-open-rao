@@ -52,11 +52,7 @@ public class LinearRaoModellerTest {
 
     @Test
     public void testSolve() {
-        assertNotNull(linearRaoModeller.solve());
-    }
-
-    @Test
-    public void testBuild() {
         linearRaoModeller.buildProblem();
+        assertNotNull(linearRaoModeller.solve());
     }
 }

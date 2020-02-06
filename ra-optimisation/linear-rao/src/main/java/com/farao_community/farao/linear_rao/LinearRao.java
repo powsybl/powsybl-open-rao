@@ -32,6 +32,7 @@ import static java.lang.String.format;
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
+    private static final int MAX_ITERATIONS = 10;
 
     private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
@@ -52,8 +53,7 @@ public class LinearRao implements RaoProvider {
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
         List<RemedialActionResult> oldRemedialActions = new ArrayList<>();
-        //TODO: iterations: fix value or param?
-        int iterationsLeft = 10;
+        int iterationsLeft = MAX_ITERATIONS;
         systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         double oldObjectiveFunction = getMinMargin(crac);
         LinearRaoOptimizer linearRaoOptimizer = createLinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, parameters);
