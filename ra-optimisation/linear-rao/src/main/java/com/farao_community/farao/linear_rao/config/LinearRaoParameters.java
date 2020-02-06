@@ -13,6 +13,8 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Objects;
 
+import static java.lang.Math.max;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -42,7 +44,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public LinearRaoParameters setMaxIterations(int maxIterations) {
-        this.maxIterations = maxIterations;
+        this.maxIterations = max(1, maxIterations);
         return this;
     }
 }
