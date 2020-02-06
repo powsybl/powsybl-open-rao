@@ -129,8 +129,8 @@ public class CracFileTest {
         assertEquals(1, simpleCrac.getContingencies().size());
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-contingency", 60))
         );
 
         assertEquals(2, simpleCrac.getStatesFromInstant("after-contingency").size());
@@ -140,8 +140,8 @@ public class CracFileTest {
         simpleCrac.getStates(instant).forEach(state -> assertSame(instant, state.getInstant()));
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-contingency-bis", 70))
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-contingency-bis", 70))
         );
 
         // Different states pointing at the same contingency object
@@ -176,18 +176,18 @@ public class CracFileTest {
         SimpleCrac simpleCrac = new SimpleCrac("test-crac");
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
+            new Instant("after-contingency", 60))
         );
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-contingency", 60))
         );
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-contingency-bis", 70))
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-contingency-bis", 70))
         );
 
         assertEquals(2, simpleCrac.getStatesFromInstant("after-contingency").size());
@@ -199,18 +199,18 @@ public class CracFileTest {
         SimpleCrac simpleCrac = new SimpleCrac("test-crac");
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
+            new Instant("after-contingency", 60))
         );
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-contingency", 60))
         );
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-contingency-bis", 70))
+            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-contingency-bis", 70))
         );
 
         assertEquals(1, simpleCrac.getStatesFromContingency("contingency").size());
@@ -222,8 +222,8 @@ public class CracFileTest {
         SimpleCrac simpleCrac = new SimpleCrac("test-crac");
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
+            new Instant("after-contingency", 60))
         );
 
         assertNotNull(simpleCrac.getState("contingency", "after-contingency"));
@@ -234,8 +234,8 @@ public class CracFileTest {
         SimpleCrac simpleCrac = new SimpleCrac("test-crac");
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
+            new Instant("after-contingency", 60))
         );
 
         assertNull(simpleCrac.getState("fail-contingency", "after-contingency"));
@@ -246,8 +246,8 @@ public class CracFileTest {
         SimpleCrac simpleCrac = new SimpleCrac("test-crac");
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-                new Instant("after-contingency", 60))
+            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
+            new Instant("after-contingency", 60))
         );
 
         assertNull(simpleCrac.getState("contingency", "fail-after-contingency"));
@@ -262,8 +262,8 @@ public class CracFileTest {
                 new NetworkElement("network-element-1"),
                 new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
                 new SimpleState(
-                        Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                        new Instant("after-co", 60)
+                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                    new Instant("after-co", 60)
                 )
         );
 
@@ -279,18 +279,18 @@ public class CracFileTest {
     public void testOrderedStates() {
         Crac simpleCrac = new SimpleCrac("simple-crac");
         State state1 = new SimpleState(
-                Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-                new Instant("auto", 60)
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
+            new Instant("auto", 60)
         );
 
         State state2 = new SimpleState(
-                Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-                new Instant("auto-later", 70)
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
+            new Instant("auto-later", 70)
         );
 
         State state3 = new SimpleState(
-                Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-                new Instant("curative", 120)
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
+            new Instant("curative", 120)
         );
 
         simpleCrac.addState(state3);
@@ -312,8 +312,8 @@ public class CracFileTest {
         );
 
         State state4 = new SimpleState(
-                Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-                new Instant("intermediate", 100)
+            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
+            new Instant("intermediate", 100)
         );
 
         simpleCrac.addState(state4);
@@ -360,8 +360,8 @@ public class CracFileTest {
                 new NetworkElement("network-element-1"),
                 new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
                 new SimpleState(
-                        Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                        new Instant("after-co", 60)
+                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                    new Instant("after-co", 60)
                 )
         );
 
@@ -377,8 +377,8 @@ public class CracFileTest {
         Crac simpleCrac = new SimpleCrac("simple-crac");
 
         simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-co", 60)
+            Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+            new Instant("after-co", 60)
         ));
 
         assertEquals(1, simpleCrac.getContingencies().size());
@@ -390,8 +390,8 @@ public class CracFileTest {
                 new NetworkElement("network-element-1"),
                 new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
                 new SimpleState(
-                        Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                        new Instant("after-co", 60)
+                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                    new Instant("after-co", 60)
                 )
         );
 
@@ -413,8 +413,8 @@ public class CracFileTest {
                 new NetworkElement("network-element-1"),
                 new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
                 new SimpleState(
-                        Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                        new Instant("after-co", 60)
+                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                    new Instant("after-co", 60)
                 )
         );
 
@@ -423,8 +423,8 @@ public class CracFileTest {
                 new NetworkElement("network-element-1"),
                 new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
                 new SimpleState(
-                        Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                        new Instant("after-co", 60)
+                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                    new Instant("after-co", 60)
                 )
         );
 

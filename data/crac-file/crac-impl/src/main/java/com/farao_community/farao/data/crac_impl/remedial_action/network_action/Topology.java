@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("topology")
 public final class Topology extends AbstractElementaryNetworkAction {
 
     private ActionType actionType;
@@ -38,6 +38,11 @@ public final class Topology extends AbstractElementaryNetworkAction {
                     @JsonProperty("networkElement") NetworkElement networkElement,
                     @JsonProperty("actionType") ActionType actionType) {
         super(id, name, operator, usageRules, networkElement);
+        this.actionType = actionType;
+    }
+
+    public Topology(String id, NetworkElement networkElement, ActionType actionType) {
+        super(id, networkElement);
         this.actionType = actionType;
     }
 
@@ -74,9 +79,8 @@ public final class Topology extends AbstractElementaryNetworkAction {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Topology otherInjectionSetpoint = (Topology) o;
-
-        return super.equals(o) && actionType == otherInjectionSetpoint.getActionType();
+        Topology topology = (Topology) o;
+        return super.equals(o) && actionType == topology.getActionType();
     }
 
     @Override

@@ -11,9 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
 import java.util.*;
 
@@ -27,12 +25,9 @@ import java.util.*;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+@JsonTypeName("aligned-range-action")
 public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
-
-    @JsonProperty("ranges")
     private List<Range> ranges;
-
     @JsonProperty("networkElements")
     private Set<NetworkElement> networkElements;
 
@@ -42,10 +37,10 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
                               @JsonProperty("operator") String operator,
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<Range> ranges,
-                              @JsonProperty("applicableRangeActions") Set<NetworkElement> networkElements) {
+                              @JsonProperty("networkElements") Set<NetworkElement> networkElements) {
         super(id, name, operator, usageRules);
-        this.ranges = ranges;
-        this.networkElements = networkElements;
+        this.ranges = new ArrayList<>(ranges);
+        this.networkElements = new HashSet<>(networkElements);
     }
 
     public AlignedRangeAction(String id) {
@@ -54,18 +49,23 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
         this.networkElements = new HashSet<>();
     }
 
-    public List<Range> getRanges() {
+    public final List<Range> getRanges() {
         return ranges;
     }
 
     @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return networkElements;
+    }
+
+    @Override
     public double getMinValue(Network network) {
-        return ranges.stream().map(range -> range.getMin()).max(Double::compareTo).orElseThrow(FaraoException::new);
+        return ranges.stream().map(Range::getMin).max(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return ranges.stream().map(range -> range.getMax()).min(Double::compareTo).orElseThrow(FaraoException::new);
+        return ranges.stream().map(Range::getMax).min(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
@@ -73,19 +73,12 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
         // to implement
     }
 
-    @JsonProperty("ranges")
     public void addRange(Range range) {
         this.ranges.add(range);
     }
 
-    @JsonProperty("networkElement")
     public void addNetworkElement(NetworkElement networkElement) {
         this.networkElements.add(networkElement);
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return networkElements;
     }
 
     @Override
@@ -97,10 +90,9 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
             return false;
         }
         AlignedRangeAction otherAlignedRangeAction = (AlignedRangeAction) o;
-
         return super.equals(o)
-                && ranges == otherAlignedRangeAction.ranges
-                && networkElements == otherAlignedRangeAction.networkElements;
+                && new HashSet<>(ranges).equals(new HashSet<>(otherAlignedRangeAction.ranges))
+                && networkElements.equals(otherAlignedRangeAction.networkElements);
     }
 
     @Override

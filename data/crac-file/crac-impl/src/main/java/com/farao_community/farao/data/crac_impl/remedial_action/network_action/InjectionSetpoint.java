@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -21,10 +21,8 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class InjectionSetpoint extends AbstractElementaryNetworkAction {
-
-    private double setpoint;
+@JsonTypeName("injection-setpoint")
+public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
     public InjectionSetpoint(@JsonProperty("id") String id,
@@ -33,15 +31,11 @@ public final class InjectionSetpoint extends AbstractElementaryNetworkAction {
                              @JsonProperty("usageRules") List<UsageRule> usageRules,
                              @JsonProperty("networkElement") NetworkElement networkElement,
                              @JsonProperty("setpoint")  double setpoint) {
-        super(id, name, operator, usageRules, networkElement);
-        this.setpoint = setpoint;
+        super(id, name, operator, usageRules, networkElement, setpoint);
     }
 
-    public InjectionSetpoint(String id,
-                             NetworkElement networkElement,
-                             double setpoint) {
-        super(id, networkElement);
-        this.setpoint = setpoint;
+    public InjectionSetpoint(String id, NetworkElement networkElement, double setpoint) {
+        super(id, networkElement, setpoint);
     }
 
     public double getSetpoint() {
@@ -66,7 +60,6 @@ public final class InjectionSetpoint extends AbstractElementaryNetworkAction {
             return false;
         }
         InjectionSetpoint otherInjectionSetpoint = (InjectionSetpoint) o;
-
         return super.equals(o) && setpoint == otherInjectionSetpoint.getSetpoint();
     }
 

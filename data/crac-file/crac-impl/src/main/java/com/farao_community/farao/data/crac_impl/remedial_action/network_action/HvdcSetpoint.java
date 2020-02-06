@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("hvdc-setpoint")
 public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
@@ -34,9 +34,7 @@ public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction 
         super(id, name, operator, usageRules, networkElement, setpoint);
     }
 
-    public HvdcSetpoint(@JsonProperty("id") String id,
-                        @JsonProperty("networkElement") NetworkElement networkElement,
-                        @JsonProperty("setpoint") double setpoint) {
+    public HvdcSetpoint(String id, NetworkElement networkElement, double setpoint) {
         super(id, networkElement, setpoint);
     }
 
@@ -51,5 +49,22 @@ public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction 
     @Override
     public void apply(Network network) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HvdcSetpoint otherHvdcSetpoint = (HvdcSetpoint) o;
+        return super.equals(o) && setpoint == otherHvdcSetpoint.getSetpoint();
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%f", getId(), setpoint).hashCode();
     }
 }

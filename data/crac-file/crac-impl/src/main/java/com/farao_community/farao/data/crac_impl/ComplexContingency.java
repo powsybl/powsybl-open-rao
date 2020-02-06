@@ -22,7 +22,7 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public class ComplexContingency extends AbstractIdentifiable implements Contingency {
 
     @JsonProperty("networkElements")

@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
-
     private Set<Instant> instants;
     private Set<Contingency> contingencies;
     private Set<State> states;
@@ -58,10 +57,6 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     final Set<Instant> getInstants() {
         return instants;
-    }
-
-    final Set<State> getStates() {
-        return states;
     }
 
     @Override
@@ -111,7 +106,12 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         }
     }
 
+    public final Set<State> getStates() {
+        return states;
+    }
+
     @Override
+    @JsonIgnore
     public State getPreventiveState() {
         return states.stream().filter(state -> !state.getContingency().isPresent()).findFirst().orElse(null);
     }

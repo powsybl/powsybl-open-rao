@@ -24,11 +24,10 @@ import java.util.Optional;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absoluteFlowThreshold"),
-        @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relativeFlowThreshold")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absolute-flow-threshold"),
+        @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold")
     })
 public abstract class AbstractFlowThreshold extends AbstractThreshold {
 

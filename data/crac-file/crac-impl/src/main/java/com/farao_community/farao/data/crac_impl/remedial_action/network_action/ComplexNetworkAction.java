@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -26,48 +26,47 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("complex-network-action")
 public class ComplexNetworkAction extends AbstractRemedialAction implements NetworkAction {
-    private Set<NetworkAction> networkActions;
+    private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
     @JsonCreator
     public ComplexNetworkAction(@JsonProperty("id") String id,
                                 @JsonProperty("name") String name,
                                 @JsonProperty("operator") String operator,
                                 @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                @JsonProperty("networkActions") Set<NetworkAction> networkActions) {
+                                @JsonProperty("elementaryNetworkActions") Set<AbstractElementaryNetworkAction> elementaryNetworkActions) {
         super(id, name, operator, usageRules);
-        this.networkActions = new HashSet<>(networkActions);
+        this.elementaryNetworkActions = new HashSet<>(elementaryNetworkActions);
     }
 
-    public ComplexNetworkAction(@JsonProperty("id") String id,
-                                @JsonProperty("name") String name,
-                                @JsonProperty("operator") String operator) {
-        this (id, name, operator, new ArrayList<>(), new HashSet<>());
+    public ComplexNetworkAction(String id, String name, String operator) {
+        super(id, name, operator, new ArrayList<>());
+        this.elementaryNetworkActions = new HashSet<>();
     }
 
-    public ComplexNetworkAction(@JsonProperty("id") String id,
-                                @JsonProperty("operator") String operator) {
-        this (id, id, operator, new ArrayList<>(), new HashSet<>());
+    public ComplexNetworkAction(String id, String operator) {
+        super(id, id, operator, new ArrayList<>());
+        this.elementaryNetworkActions = new HashSet<>();
     }
 
-    public Set<NetworkAction> getNetworkActions() {
-        return networkActions;
+    public Set<AbstractElementaryNetworkAction> getElementaryNetworkActions() {
+        return elementaryNetworkActions;
     }
 
     @Override
     public void apply(Network network) {
-        networkActions.forEach(networkAction -> networkAction.apply(network));
+        elementaryNetworkActions.forEach(networkAction -> networkAction.apply(network));
     }
 
     @Override
     public Set<NetworkElement> getNetworkElements() {
         Set<NetworkElement> networkElements = new HashSet<>();
-        networkActions.forEach(networkAction -> networkElements.addAll(networkAction.getNetworkElements()));
+        elementaryNetworkActions.forEach(networkAction -> networkElements.addAll(networkAction.getNetworkElements()));
         return networkElements;
     }
 
-    public void addNetworkAction(NetworkAction networkAction) {
-        this.networkActions.add(networkAction);
+    public void addNetworkAction(AbstractElementaryNetworkAction networkAction) {
+        this.elementaryNetworkActions.add(networkAction);
     }
 }

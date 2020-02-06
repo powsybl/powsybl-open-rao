@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -22,10 +21,8 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public class SimpleState implements State {
-
     private Contingency contingency;
     private Instant instant;
 

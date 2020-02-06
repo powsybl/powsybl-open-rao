@@ -58,4 +58,20 @@ public class RangeTest extends AbstractRemedialActionTest {
         assertEquals(RangeDefinition.CENTERED_ON_ZERO, relativeFixedRange.getRangeDefinition());
         assertEquals(RangeDefinition.STARTS_AT_ONE, absoluteFixedRange.getRangeDefinition());
     }
+
+    @Test
+    public void testEquals() {
+        Range range1 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+        Range range2 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+
+        assertEquals(range1, range2);
+    }
+
+    @Test
+    public void testHashCode() {
+        Range range1 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+        Range range2 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+
+        assertEquals(range1.hashCode(), range2.hashCode());
+    }
 }

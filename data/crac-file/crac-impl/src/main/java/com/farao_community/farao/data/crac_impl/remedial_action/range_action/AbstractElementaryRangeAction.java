@@ -14,12 +14,11 @@ import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Generic object to define any simple range action on a network element
@@ -27,14 +26,15 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PstRange.class, name = "pst-range"),
+        @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
+        @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
+        @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
+    })
 public abstract class AbstractElementaryRangeAction extends AbstractRemedialAction implements RangeAction {
-
     protected List<Range> ranges;
-
-    public NetworkElement getNetworkElement() {
-        return networkElement;
-    }
-
     protected NetworkElement networkElement;
 
     @JsonCreator
@@ -49,11 +49,22 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         this.networkElement = networkElement;
     }
 
-    public AbstractElementaryRangeAction(@JsonProperty("id") String id,
-                                         @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryRangeAction(String id, NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;
         this.ranges = new ArrayList<>();
+    }
+
+    public final List<Range> getRanges() {
+        return ranges;
+    }
+
+    public void addRange(Range range) {
+        this.ranges.add(range);
+    }
+
+    public NetworkElement getNetworkElement() {
+        return networkElement;
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
@@ -88,11 +99,6 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         return Collections.singleton(networkElement);
     }
 
-    @JsonProperty("ranges")
-    public void addRange(Range range) {
-        this.ranges.add(range);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -104,8 +110,8 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         AbstractElementaryRangeAction otherAbstractElementaryRangeAction = (AbstractElementaryRangeAction) o;
 
         return super.equals(o)
-                && networkElement == otherAbstractElementaryRangeAction.getNetworkElement()
-                && ranges == otherAbstractElementaryRangeAction.ranges;
+                && new HashSet<>(ranges).equals(new HashSet<>(otherAbstractElementaryRangeAction.getRanges()))
+                && networkElement.equals(otherAbstractElementaryRangeAction.getNetworkElement());
     }
 
     @Override

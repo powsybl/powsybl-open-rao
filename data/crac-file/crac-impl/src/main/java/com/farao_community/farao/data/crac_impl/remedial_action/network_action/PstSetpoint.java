@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("pst-setpoint")
 public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
@@ -42,9 +42,7 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
      * @param networkElement PST element to modify
      * @param setpoint value of the tap. That should be an int value, if not it will be truncated.
      */
-    public PstSetpoint(@JsonProperty("id") String id,
-                       @JsonProperty("networkElement") NetworkElement networkElement,
-                       @JsonProperty("setpoint") double setpoint) {
+    public PstSetpoint(String id, NetworkElement networkElement, double setpoint) {
         super(id, networkElement, setpoint);
     }
 
@@ -65,5 +63,22 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
     public void apply(Network network) {
         PstRange pst = new PstRange(getId(), networkElement);
         pst.apply(network, setpoint);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PstSetpoint otherPstSetpoint = (PstSetpoint) o;
+        return super.equals(o) && setpoint == otherPstSetpoint.getSetpoint();
+    }
+
+    @Override
+    public int hashCode() {
+        return String.format("%s%f", getId(), getSetpoint()).hashCode();
     }
 }

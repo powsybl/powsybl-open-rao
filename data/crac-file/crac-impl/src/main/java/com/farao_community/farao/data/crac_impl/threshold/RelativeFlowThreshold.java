@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.Network;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("relative-flow-threshold")
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
 
     /**

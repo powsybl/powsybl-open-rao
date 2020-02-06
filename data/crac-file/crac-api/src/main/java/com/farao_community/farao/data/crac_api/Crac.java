@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.Set;
@@ -56,7 +55,6 @@ public interface Crac extends Identifiable, Synchronizable {
      *
      * @return The preventive state of the problem definition.
      */
-    @JsonIgnore
     State getPreventiveState();
 
     /**
