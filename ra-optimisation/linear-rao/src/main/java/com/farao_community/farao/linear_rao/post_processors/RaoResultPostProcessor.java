@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.linear_rao.post_processors;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -16,13 +16,9 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -72,32 +68,8 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
     }
 
     private int getClosestTapPosition(double finalAngle, TwoWindingsTransformer twoWindingsTransformer) {
-        //todo : put into crac-impl
-        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
-
-        Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
-        for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
-            steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));
-        }
-        double minAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).min().orElse(Double.NaN);
-        double maxAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).max().orElse(Double.NaN);
-        if (Double.isNaN(minAngle) || Double.isNaN(maxAngle)) {
-            throw new FaraoException(String.format("Phase tap changer %s steps may be invalid", twoWindingsTransformer.getId()));
-        }
-
-        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
-        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > PST_LIMITS_TOLERANCE || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > PST_LIMITS_TOLERANCE) {
-            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", finalAngle, minAngle, maxAngle, twoWindingsTransformer.getId()));
-        }
-        AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
-        AtomicInteger approximatedTapPosition = new AtomicInteger(phaseTapChanger.getTapPosition());
-        steps.forEach((tapPosition, step) -> {
-            double diff = Math.abs(step.getAlpha() - finalAngle);
-            if (diff < angleDifference.get()) {
-                angleDifference.set(diff);
-                approximatedTapPosition.set(tapPosition);
-            }
-        });
-        return approximatedTapPosition.get();
+        //todo : put this method into crac-impl
+        //todo : make PstElementResultsPostProcessor().computeTapPosition() private again
+        return new PstElementResultsPostProcessor().computeTapPosition(finalAngle, twoWindingsTransformer.getPhaseTapChanger(), twoWindingsTransformer);
     }
 }
