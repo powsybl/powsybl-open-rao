@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.linear_rao.config;
 
+import com.farao_community.farao.rao_api.RaoParameters;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,5 +39,11 @@ public class LinearRaoParametersTest {
         raoParameters.setSensitivityComputationParameters(sensitivityComputationParameters);
 
         assertSame(sensitivityComputationParameters, raoParameters.getSensitivityComputationParameters());
+    }
+
+    @Test
+    public void setMaxIterations() {
+        raoParameters.setMaxIterations(99);
+        assertEquals(99, raoParameters.getMaxIterations());
     }
 }

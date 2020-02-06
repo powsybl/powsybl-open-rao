@@ -2,6 +2,7 @@
   "version" : "1.0",
   "extensions" : {
     "LinearRaoParameters" : {
+      "max-number-of-iterations" : 20,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {

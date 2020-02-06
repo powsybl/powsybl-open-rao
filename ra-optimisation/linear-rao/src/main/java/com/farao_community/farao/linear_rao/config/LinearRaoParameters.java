@@ -18,7 +18,10 @@ import java.util.Objects;
  */
 public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
+    static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
+
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+    private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
 
     @Override
     public String getName() {
@@ -31,6 +34,15 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     public LinearRaoParameters setSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
         this.sensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+        return this;
+    }
+
+    public int getMaxIterations() {
+        return maxIterations;
+    }
+
+    public LinearRaoParameters setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
         return this;
     }
 }
