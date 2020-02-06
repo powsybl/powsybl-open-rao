@@ -49,10 +49,11 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         int preOptimTap = transformer.getPhaseTapChanger().getTapPosition();
 
                         double postOptimAngle = preOptimAngle + rangeActionVar;
-                        int postOptimTap = getClosestTapPosition(postOptimAngle, transformer);
+                        int approximatedPostOptimTap = getClosestTapPosition(postOptimAngle, transformer);
+                        double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
-                        if (postOptimTap != preOptimTap) {
-                            PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, postOptimAngle, postOptimTap);
+                        if (approximatedPostOptimTap != preOptimTap) {
+                            PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, approximatedPostOptimAngle, approximatedPostOptimTap);
                             remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
                         }
                     }

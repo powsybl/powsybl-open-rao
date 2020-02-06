@@ -30,7 +30,8 @@ import static junit.framework.TestCase.*;
  */
 public class RaoResultPostProcessorTest {
 
-    private static final double DOUBLE_TOLERANCE = 0.1;
+    private static final double DOUBLE_TOLERANCE = 0.05;
+    private static final double ANGLE_TAP_APPROX_TOLERANCE = 0.5;
 
     private LinearRaoData linearRaoData;
     private LinearRaoProblem linearRaoProblem;
@@ -83,7 +84,7 @@ public class RaoResultPostProcessorTest {
         assertEquals(1, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPreOptimisationTapPosition());
         assertEquals(-12, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPostOptimisationTapPosition());
         assertEquals(0.39, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPreOptimisationAngle(), DOUBLE_TOLERANCE);
-        assertEquals(0.39 - 5.00, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPostOptimisationAngle(), DOUBLE_TOLERANCE);
+        assertEquals(0.39 - 5.00, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPostOptimisationAngle(), ANGLE_TAP_APPROX_TOLERANCE);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class RaoResultPostProcessorTest {
         assertEquals(1, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPreOptimisationTapPosition());
         assertEquals(14, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPostOptimisationTapPosition());
         assertEquals(0.39, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPreOptimisationAngle(), DOUBLE_TOLERANCE);
-        assertEquals(0.39 + 5.00, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPostOptimisationAngle(), DOUBLE_TOLERANCE);
+        assertEquals(0.39 + 5.00, ((PstElementResult) result.getPreContingencyResult().getRemedialActionResults().get(0).getRemedialActionElementResults().get(0)).getPostOptimisationAngle(), ANGLE_TAP_APPROX_TOLERANCE);
     }
 
     @Test
