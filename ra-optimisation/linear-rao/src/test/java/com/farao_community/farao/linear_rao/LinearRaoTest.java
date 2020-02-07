@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 
@@ -117,9 +118,19 @@ public class LinearRaoTest {
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoOptimizerMock).when(linearRaoSpy).createLinearRaoOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        CompletableFuture<RaoComputationResult> linearRaoResult = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
-        assertNotNull(linearRaoResult);
-
+        CompletableFuture<RaoComputationResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
+        assertNotNull(linearRaoResultCF);
+        try {
+            RaoComputationResult linearRaoResult = linearRaoResultCF.get();
+            assertEquals(490, linearRaoResult.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow(), .1);
+            assertEquals(499, linearRaoResult.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow(), .1);
+            assertEquals(1, linearRaoResult.getPreContingencyResult().getRemedialActionResults().size());
+            assertEquals("RA PST BE", linearRaoResult.getPreContingencyResult().getRemedialActionResults().get(0).getId());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private static Crac create() {
