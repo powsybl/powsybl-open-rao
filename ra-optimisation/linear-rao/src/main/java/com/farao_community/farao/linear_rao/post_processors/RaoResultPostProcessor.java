@@ -26,6 +26,8 @@ import java.util.*;
  */
 public class RaoResultPostProcessor extends AbstractPostProcessor {
 
+    private static final double PST_LIMITS_TOLERANCE = 1e-3;
+
     @Override
     public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult) {
 
@@ -47,10 +49,12 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         int preOptimTap = transformer.getPhaseTapChanger().getTapPosition();
 
                         double postOptimAngle = preOptimAngle + rangeActionVar;
-                        int postOptimTap = getClosestTapPosition(postOptimAngle, transformer);
 
-                        if (postOptimTap != preOptimTap) {
-                            PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, postOptimAngle, postOptimTap);
+                        int approximatedPostOptimTap = getClosestTapPosition(postOptimAngle, transformer);
+                        double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+
+                        if (approximatedPostOptimTap != preOptimTap) {
+                            PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, approximatedPostOptimAngle, approximatedPostOptimTap);
                             remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
                         }
                     }
