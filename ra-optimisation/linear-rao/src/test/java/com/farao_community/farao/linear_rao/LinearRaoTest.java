@@ -83,7 +83,7 @@ public class LinearRaoTest {
     }
 
     @Test
-    public void runTest() throws Exception {
+    public void runTest() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")

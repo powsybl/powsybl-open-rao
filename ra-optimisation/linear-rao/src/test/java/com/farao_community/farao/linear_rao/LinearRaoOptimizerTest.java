@@ -17,11 +17,9 @@ import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
-import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
@@ -34,10 +32,7 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +44,6 @@ import static org.junit.Assert.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class LinearRaoOptimizerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoTest.class);
 

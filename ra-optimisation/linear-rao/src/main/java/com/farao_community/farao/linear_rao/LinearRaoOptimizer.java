@@ -44,6 +44,7 @@ public class LinearRaoOptimizer {
 
         linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
 
+        // TODO : load the filler list from the config file and make sure they are ordered properly
         List<AbstractProblemFiller> fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new PositiveMinMarginFiller(linearRaoProblem, linearRaoData));

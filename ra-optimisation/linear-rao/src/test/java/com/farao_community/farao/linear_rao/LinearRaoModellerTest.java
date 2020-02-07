@@ -7,19 +7,15 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystem;
 import java.util.*;
@@ -29,16 +25,13 @@ import static org.junit.Assert.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class LinearRaoModellerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoTest.class);
-
     private LinearRaoModeller linearRaoModeller;
+    private LinearRaoProblem linearRaoProblemMock;
 
     @Before
     public void setUp() {
-        LinearRaoProblem linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
+        linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
         LinearRaoData linearRaoDataMock = Mockito.mock(LinearRaoData.class);
         List<AbstractProblemFiller> fillers = new ArrayList<>();
         List<AbstractPostProcessor> postProcessors = new ArrayList<>();
@@ -51,8 +44,22 @@ public class LinearRaoModellerTest {
     }
 
     @Test
-    public void testSolve() {
+    public void testOptimalSolve() {
+        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
+
         linearRaoModeller.buildProblem();
-        assertNotNull(linearRaoModeller.solve());
+        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
+        assertNotNull(raoComputationResult);
+        assertEquals(RaoComputationResult.Status.SUCCESS, raoComputationResult.getStatus());
+    }
+
+    @Test
+    public void testUnboundedSolve() {
+        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
+
+        linearRaoModeller.buildProblem();
+        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
+        assertNotNull(raoComputationResult);
+        assertEquals(RaoComputationResult.Status.FAILURE, raoComputationResult.getStatus());
     }
 }

@@ -185,7 +185,7 @@ public class LinearRaoProblem {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
     }
 
-    public void solve() {
-        solver.solve();
+    public Enum solve() {
+        return solver.solve();
     }
 }
