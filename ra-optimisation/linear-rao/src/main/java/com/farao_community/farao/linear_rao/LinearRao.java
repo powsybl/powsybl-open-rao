@@ -52,11 +52,11 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
-        List<RemedialActionResult> oldRemedialActionsResult = new ArrayList<>();
         int iterationsLeft = MAX_ITERATIONS;
         if (MAX_ITERATIONS == 0) {
-            // TODO: DO SOMETHING
+            return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.SUCCESS));
         }
+        List<RemedialActionResult> oldRemedialActionsResult = new ArrayList<>();
         systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         double oldObjectiveFunction = getMinMargin(crac);
         LinearRaoOptimizer linearRaoOptimizer = createLinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, parameters);
@@ -78,7 +78,7 @@ public class LinearRao implements RaoProvider {
             double newObjectiveFunction = getMinMargin(crac);
             if (newObjectiveFunction < oldObjectiveFunction) {
                 // TODO : limit the ranges
-                LOGGER.warn("Linear Optimization found a worse result after an iteration: from " + oldObjectiveFunction + " to " + newObjectiveFunction);
+                LOGGER.warn(String.format("Linear Optimization found a worse result after an iteration: from %f to %f", oldObjectiveFunction, newObjectiveFunction));
                 break;
             }
 
