@@ -116,7 +116,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+        voltageLevel = network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
     }
 
     @Override
@@ -166,14 +166,14 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * Get the monitored Terminal of a Cnec.
      */
     private Terminal getTerminal(Network network, Cnec cnec) {
-        return network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide());
+        return network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide());
     }
 
     /**
      * Check if a Cnec is connected, on both side, to the network.
      */
     private static boolean isCnecDisconnected(Network network, Cnec cnec) {
-        Branch branch = network.getBranch(cnec.getCriticalNetworkElement().getId());
+        Branch branch = network.getBranch(cnec.getNetworkElement().getId());
         return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
     }
 

@@ -60,7 +60,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     public void synchronize(Network network, Cnec cnec) {
         super.synchronize(network, cnec);
         // compute maxValue, in Unit.AMPERE
-        maxValue = network.getBranch(cnec.getCriticalNetworkElement().getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
+        maxValue = network.getBranch(cnec.getNetworkElement().getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
     }
 
     @Override

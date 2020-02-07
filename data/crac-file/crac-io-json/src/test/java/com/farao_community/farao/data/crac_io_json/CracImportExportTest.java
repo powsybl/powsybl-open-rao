@@ -7,19 +7,21 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
+
+import static com.farao_community.farao.data.crac_io_json.RoundTripUtil.roundTrip;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -30,25 +32,55 @@ public class CracImportExportTest {
     public void cracTest() {
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        State preventiveState = new SimpleState(Optional.empty(), new Instant("N", 0));
-        Contingency contingency = new ComplexContingency("contingencyId", Collections.singleton(new NetworkElement("neId")));
-        State postContingencyState = new SimpleState(Optional.of(contingency), new Instant("postContingencyId", 5));
+        Instant initialInstant = simpleCrac.addInstant("N", 0);
+        State preventiveState = simpleCrac.addState(null, initialInstant);
+        Contingency contingency = simpleCrac.addContingency("contingencyId", "neId");
+        simpleCrac.addContingency("contingency2Id", "neId1", "neId2");
+        Instant outageInstant = simpleCrac.addInstant("postContingencyId", 5);
+        State postContingencyState = simpleCrac.addState(contingency, outageInstant);
+        simpleCrac.addState("contingency2Id", "postContingencyId");
 
-        simpleCrac.addState(preventiveState);
-        simpleCrac.addState(postContingencyState);
+        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 500), preventiveState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", new RelativeFlowThreshold(Side.LEFT, Direction.IN, 30), preventiveState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 800), postContingencyState.getId());
 
-        simpleCrac.addCnec(new SimpleCnec("cnec1prev", new NetworkElement("neId1"), new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 500), preventiveState));
-        simpleCrac.addCnec(new SimpleCnec("cnec2prev", new NetworkElement("neId2"), new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 400), preventiveState));
-        simpleCrac.addCnec(new SimpleCnec("cnec1cur", new NetworkElement("neId1"), new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 800), postContingencyState));
+        List<UsageRule> usageRules = new ArrayList<>();
+        usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
+        usageRules.add(new OnConstraint(UsageMethod.UNAVAILABLE, preventiveState, preventiveCnec1));
+        usageRules.add(new OnContingency(UsageMethod.FORCED, postContingencyState, contingency));
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonExport jsonExport = new JsonExport();
-        jsonExport.exportCrac(simpleCrac, outputStream);
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            JsonImport jsonImport = new JsonImport();
-            Crac transformedCrac = jsonImport.importCrac(inputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        simpleCrac.addNetworkElement(new NetworkElement("pst"));
+        simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15));
+
+        Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
+        PstSetpoint pstSetpoint = new PstSetpoint(
+            "pstSetpointId",
+            "pstSetpointName",
+            "RTE",
+            new ArrayList<>(),
+            simpleCrac.getNetworkElement("neId"),
+            5
+        );
+        Topology topology = new Topology(
+            "topologyId",
+            "topologyName",
+            "RTE",
+            new ArrayList<>(),
+            simpleCrac.getNetworkElement("neId"),
+            ActionType.CLOSE
+        );
+        elementaryNetworkActions.add(pstSetpoint);
+        elementaryNetworkActions.add(topology);
+        ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction(
+            "complexNetworkActionId",
+            "complexNetworkActionName",
+            "RTE",
+            new ArrayList<>(),
+            elementaryNetworkActions
+        );
+        simpleCrac.addNetworkAction(complexNetworkAction);
+
+        SimpleCrac simpleCrac1 = roundTrip(simpleCrac, SimpleCrac.class);
+        int i = 1;
     }
 }

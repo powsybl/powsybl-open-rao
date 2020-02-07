@@ -10,9 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.Optional;
 
@@ -21,16 +19,22 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonIdentityInfo(scope = SimpleState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SimpleState implements State {
+    private String id;
     private Contingency contingency;
     private Instant instant;
 
     @JsonCreator
     public SimpleState(@JsonProperty("contingency") Optional<Contingency> contingency,
                        @JsonProperty("instant") Instant instant) {
+        this.id = (contingency.isPresent() ? contingency.get().getId() : "none") + "-" + instant.getId();
         this.contingency = contingency.orElse(null);
         this.instant = instant;
+    }
+
+    public final String getId() {
+        return id;
     }
 
     @Override

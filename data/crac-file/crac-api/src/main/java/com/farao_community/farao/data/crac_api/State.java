@@ -17,6 +17,8 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface State extends Comparable<State> {
 
+    String getId();
+
     Instant getInstant();
 
     Optional<Contingency> getContingency();

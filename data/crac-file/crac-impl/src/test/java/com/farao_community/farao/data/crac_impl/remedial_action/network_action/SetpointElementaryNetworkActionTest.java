@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class AbstractSetpointElementaryNetworkActionTest {
+public class SetpointElementaryNetworkActionTest {
     @Test
     public void testHashCode() {
         AbstractSetpointElementaryNetworkAction hvdcSetpoint = new HvdcSetpoint("hvdcId", new NetworkElement("neId"), 10);

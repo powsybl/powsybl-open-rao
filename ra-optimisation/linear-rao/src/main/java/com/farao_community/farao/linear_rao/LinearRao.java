@@ -98,6 +98,6 @@ public class LinearRao implements RaoProvider {
         }
         linearRaoResult.updateResult(margin);
         double flow = maximumFlow - margin;
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, flow, flow);
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), maximumFlow, flow, flow);
     }
 }

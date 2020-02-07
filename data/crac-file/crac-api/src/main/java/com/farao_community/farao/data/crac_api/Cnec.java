@@ -22,7 +22,7 @@ public interface Cnec extends Identifiable, Synchronizable {
 
     State getState();
 
-    NetworkElement getCriticalNetworkElement();
+    NetworkElement getNetworkElement();
 
     double computeMargin(Network network) throws SynchronizationException;
 

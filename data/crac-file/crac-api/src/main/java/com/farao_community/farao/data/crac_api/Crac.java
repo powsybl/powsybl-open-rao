@@ -29,6 +29,10 @@ import java.util.SortedSet;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface Crac extends Identifiable, Synchronizable {
 
+    Set<NetworkElement> getNetworkElements();
+
+    Set<Instant> getInstants();
+
     // Instants management
     Instant getInstant(String id);
 

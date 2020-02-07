@@ -38,7 +38,7 @@ public class LinearRaoData {
         for (NetworkElement networkElement : networkElements) {
             SensitivityValue value = systematicSensitivityAnalysisResult.getStateSensiMap().get(crac.getPreventiveState()).getSensitivityValues().stream()
                 .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getCriticalNetworkElement().getId()))
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getNetworkElement().getId()))
                 .findFirst()
                 .orElseThrow(FaraoException::new);
             sensitivity += value.getValue();

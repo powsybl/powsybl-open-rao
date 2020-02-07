@@ -272,7 +272,7 @@ public class CracFileTest {
         assertEquals(1, simpleCrac.getCnecs("co", "after-co").size());
         Cnec getCnec = simpleCrac.getCnecs("co", "after-co").iterator().next();
         assertEquals("cnec", getCnec.getId());
-        assertEquals("network-element-1", getCnec.getCriticalNetworkElement().getId());
+        assertEquals("network-element-1", getCnec.getNetworkElement().getId());
     }
 
     @Test

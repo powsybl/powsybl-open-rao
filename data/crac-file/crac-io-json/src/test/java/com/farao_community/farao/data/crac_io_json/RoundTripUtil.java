@@ -6,9 +6,11 @@
  */
 package com.farao_community.farao.data.crac_io_json;
 
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import java.io.ByteArrayInputStream;
@@ -41,6 +43,9 @@ public final class RoundTripUtil {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.registerModule(new Jdk8Module());
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(SimpleCrac.class, new SimpleCracDeserializer());
+            objectMapper.registerModule(module);
             return objectMapper.readValue(inputStream, objectClass);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
