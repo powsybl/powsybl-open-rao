@@ -46,14 +46,6 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
         super(id, networkElement, setpoint);
     }
 
-    public double getSetpoint() {
-        return setpoint;
-    }
-
-    public void setSetpoint(double setpoint) {
-        this.setpoint = setpoint;
-    }
-
     /**
      * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
      *
@@ -63,22 +55,5 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
     public void apply(Network network) {
         PstRange pst = new PstRange(getId(), networkElement);
         pst.apply(network, setpoint);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        PstSetpoint otherPstSetpoint = (PstSetpoint) o;
-        return super.equals(o) && setpoint == otherPstSetpoint.getSetpoint();
-    }
-
-    @Override
-    public int hashCode() {
-        return String.format("%s%f", getId(), getSetpoint()).hashCode();
     }
 }

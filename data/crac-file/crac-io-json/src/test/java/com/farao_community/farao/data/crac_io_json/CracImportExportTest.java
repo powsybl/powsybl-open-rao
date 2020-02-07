@@ -8,8 +8,10 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +36,10 @@ public class CracImportExportTest {
 
         simpleCrac.addState(preventiveState);
         simpleCrac.addState(postContingencyState);
+
+        simpleCrac.addCnec(new SimpleCnec("cnec1prev", new NetworkElement("neId1"), new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 500), preventiveState));
+        simpleCrac.addCnec(new SimpleCnec("cnec2prev", new NetworkElement("neId2"), new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 400), preventiveState));
+        simpleCrac.addCnec(new SimpleCnec("cnec1cur", new NetworkElement("neId1"), new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 800), postContingencyState));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonExport jsonExport = new JsonExport();

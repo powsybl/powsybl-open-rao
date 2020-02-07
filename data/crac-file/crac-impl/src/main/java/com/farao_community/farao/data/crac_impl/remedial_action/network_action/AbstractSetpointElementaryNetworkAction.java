@@ -46,4 +46,31 @@ public abstract class AbstractSetpointElementaryNetworkAction extends AbstractEl
         super(id, networkElement);
         this.setpoint = setpoint;
     }
+
+    public double getSetpoint() {
+        return setpoint;
+    }
+
+    public void setSetpoint(double setpoint) {
+        this.setpoint = setpoint;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractSetpointElementaryNetworkAction otherAbstractSetpointElementary = (AbstractSetpointElementaryNetworkAction) o;
+        return super.equals(otherAbstractSetpointElementary) && setpoint == otherAbstractSetpointElementary.setpoint;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) setpoint;
+        return result;
+    }
 }

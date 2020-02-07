@@ -38,33 +38,8 @@ public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAc
         super(id, networkElement, setpoint);
     }
 
-    public double getSetpoint() {
-        return setpoint;
-    }
-
-    public void setSetpoint(double setpoint) {
-        this.setpoint = setpoint;
-    }
-
     @Override
     public void apply(Network network) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        InjectionSetpoint otherInjectionSetpoint = (InjectionSetpoint) o;
-        return super.equals(o) && setpoint == otherInjectionSetpoint.getSetpoint();
-    }
-
-    @Override
-    public int hashCode() {
-        return String.format("%s%f", getId(), setpoint).hashCode();
     }
 }
