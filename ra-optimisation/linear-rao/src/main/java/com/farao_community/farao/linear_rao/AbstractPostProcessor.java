@@ -13,11 +13,6 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public abstract class AbstractPostProcessor {
-    private LinearRaoProblem linearRaoProblem;
-    private LinearRaoData linearRaoData;
-    private RaoComputationResult raoComputationResult;
 
-    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult) {
-        //todo
-    }
+    protected abstract void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult);
 }
