@@ -189,7 +189,7 @@ public class LinearRao implements RaoProvider {
     private RaoComputationResult buildRaoComputationResult(Crac crac, List<RemedialActionResult> raResultList) {
         LinearRaoResult resultExtension = new LinearRaoResult(LinearRaoResult.SecurityStatus.SECURED);
         PreContingencyResult preContingencyResult = createPreContingencyResultAndUpdateLinearRaoResult(crac, resultExtension, raResultList);
-        List<ContingencyResult> contingencyResults = createContingencyResultsAndUpdateLinearRaoResult(crac, resultExtension);
+        List<ContingencyResult> contingencyResults = new ArrayList<>();
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult, contingencyResults);
         raoComputationResult.addExtension(LinearRaoResult.class, resultExtension);
         LOGGER.info("LinearRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
@@ -204,17 +204,6 @@ public class LinearRao implements RaoProvider {
                 ));
         }
         return new PreContingencyResult(preContingencyMonitoredBranches, raResultList);
-    }
-
-    private List<ContingencyResult> createContingencyResultsAndUpdateLinearRaoResult(Crac crac, LinearRaoResult linearRaoResult) {
-        List<ContingencyResult> contingencyResults = new ArrayList<>();
-        crac.getContingencies().forEach(contingency -> {
-            List<MonitoredBranchResult> contingencyMonitoredBranches = new ArrayList<>();
-            crac.getStates(contingency).forEach(state -> crac.getCnecs(state).forEach(cnec ->
-                contingencyMonitoredBranches.add(createMonitoredBranchResultAndUpdateLinearRaoResult(cnec, linearRaoResult))));
-            contingencyResults.add(new ContingencyResult(contingency.getId(), contingency.getName(), contingencyMonitoredBranches));
-        });
-        return contingencyResults;
     }
 
     private MonitoredBranchResult createMonitoredBranchResultAndUpdateLinearRaoResult(Cnec cnec, LinearRaoResult linearRaoResult) {
