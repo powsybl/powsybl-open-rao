@@ -53,7 +53,7 @@ public class LinearRaoModeller {
         } else {
             RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
             raoComputationResult = new RaoComputationResult(status);
-            LOGGER.warn(String.format("Linear rao computation failed: MPSolver status is %s", solverResultStatus.name()));
+            LOGGER.warn("Linear rao computation failed: MPSolver status is {}", solverResultStatus.name());
         }
         return raoComputationResult;
     }

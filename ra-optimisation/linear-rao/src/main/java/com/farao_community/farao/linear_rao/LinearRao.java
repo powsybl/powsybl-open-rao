@@ -78,7 +78,7 @@ public class LinearRao implements RaoProvider {
             double newObjectiveFunction = getMinMargin(crac);
             if (newObjectiveFunction < oldObjectiveFunction) {
                 // TODO : limit the ranges
-                LOGGER.warn(String.format("Linear Optimization found a worse result after an iteration: from %f to %f", oldObjectiveFunction, newObjectiveFunction));
+                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", oldObjectiveFunction, newObjectiveFunction);
                 break;
             }
 
