@@ -46,14 +46,15 @@ public class LinearRaoModeller {
     public RaoComputationResult solve() {
         Enum solverResultStatus = linearRaoProblem.solve();
         RaoComputationResult raoComputationResult;
-        if (solverResultStatus.name().equals("OPTIMAL")) {
+        String solverResultStatusString = solverResultStatus.name();
+        if (solverResultStatusString.equals("OPTIMAL")) {
             RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
             raoComputationResult = new RaoComputationResult(status);
             postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult));
         } else {
             RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
             raoComputationResult = new RaoComputationResult(status);
-            LOGGER.warn("Linear rao computation failed: MPSolver status is {}", solverResultStatus.name());
+            LOGGER.warn("Linear rao computation failed: MPSolver status is {}", solverResultStatusString);
         }
         return raoComputationResult;
     }
