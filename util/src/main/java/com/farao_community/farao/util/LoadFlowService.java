@@ -6,12 +6,10 @@
  */
 package com.farao_community.farao.util;
 
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
@@ -19,28 +17,27 @@ import com.powsybl.loadflow.LoadFlowResult;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class LoadFlowService {
-    private static LoadFlowFactory loadFlowFactory;
+    private static LoadFlow.Runner loadFlowRunner;
     private static ComputationManager computationManager;
 
     private LoadFlowService() {
-        throw new AssertionError("Utility class should not be instanciated");
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
-    public static void init(LoadFlowFactory factory, ComputationManager computationManager) {
-        LoadFlowService.loadFlowFactory = factory;
+    public static void init(LoadFlow.Runner runner, ComputationManager computationManager) {
+        LoadFlowService.loadFlowRunner = runner;
         LoadFlowService.computationManager = computationManager;
     }
 
     public static LoadFlowResult runLoadFlow(Network network,
                                                 String workingStateId) {
         if (!initialised()) {
-            init(ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+            init(LoadFlow.find(), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
         }
-        LoadFlow computation = loadFlowFactory.create(network, computationManager, 1);
-        return computation.run(workingStateId, LoadFlowParameters.load()).join();
+        return loadFlowRunner.run(network, workingStateId, computationManager, LoadFlowParameters.load());
     }
 
     private static boolean initialised() {
-        return loadFlowFactory != null && computationManager != null;
+        return loadFlowRunner != null && computationManager != null;
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -31,6 +31,12 @@ public class ClosedOptimisationRaoParametersConfigLoader implements RaoComputati
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
             parameters.setSolverType(config.getStringProperty("solver-type", ClosedOptimisationRaoParameters.DEFAULT_SOLVER_TYPE));
+            parameters.setRelativeMipGap(config.getDoubleProperty("relative-mip-gap", ClosedOptimisationRaoParameters.DEFAULT_RELATIVE_MIP_GAP));
+            parameters.setMaxTimeInSeconds(config.getDoubleProperty("max-time-in-seconds", ClosedOptimisationRaoParameters.DEFAULT_MAX_TIME));
+            parameters.setOverloadPenaltyCost(config.getDoubleProperty("overload-penalty-cost", ClosedOptimisationRaoParameters.DEFAULT_OVERLOAD_PENALTY_COST));
+            parameters.setRdSensitivityThreshold(config.getDoubleProperty("redispatching-sensitivity-threshold", ClosedOptimisationRaoParameters.DEFAULT_RD_SENSITIVITY_SIGNIFICANCE_THRESHOLD));
+            parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", ClosedOptimisationRaoParameters.DEFAULT_PST_SENSITIVITY_SIGNIFICANCE_THRESHOLD));
+            parameters.setNumberOfParallelThreads(config.getIntProperty("number-of-parallel-threads", ClosedOptimisationRaoParameters.DEFAULT_NUMBER_OF_PARALLEL_THREADS));
             parameters.addAllFillers(config.getStringListProperty("problem-fillers"));
             parameters.addAllPreProcessors(config.getStringListProperty("pre-processors", Collections.emptyList()));
             parameters.addAllPostProcessors(config.getStringListProperty("post-processors", Collections.emptyList()));

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-core</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>farao-flow-decomposition</artifactId>
@@ -16,8 +16,6 @@
     <description>Flow decomposition feature</description>
 
     <modules>
-        <module>flow-decomposition-afs</module>
-        <module>flow-decomposition-afs-local</module>
         <module>flow-decomposition-api</module>
         <module>full-line-decomposition</module>
     </modules>

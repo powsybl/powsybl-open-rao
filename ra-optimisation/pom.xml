@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-core</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>farao-ra-optimisation</artifactId>
@@ -17,9 +17,10 @@
 
     <modules>
         <module>closed-optimisation-rao</module>
+        <module>linear-rao</module>
         <module>ra-optimisation-api</module>
-        <module>ra-optimisation-afs</module>
-        <module>ra-optimisation-afs-local</module>
+        <module>rao-api</module>
+        <module>search-tree-rao</module>
     </modules>
 
 </project>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -98,7 +98,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         });
     }
 
-    private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger, TwoWindingsTransformer twoWindingsTransformer) {
+    public int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger, TwoWindingsTransformer twoWindingsTransformer) {
         Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
         for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
             steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));

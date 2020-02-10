@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,6 +7,7 @@
 package com.farao_community.farao.closed_optimisation_rao;
 
 import com.farao_community.farao.closed_optimisation_rao.fillers.*;
+import com.farao_community.farao.closed_optimisation_rao.json.JsonClosedOptimisationRaoResultTest;
 import com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor;
 import com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor;
 import com.farao_community.farao.closed_optimisation_rao.post_processors.RedispatchElementResultsPostProcessor;
@@ -150,8 +151,11 @@ public class OptimisationFillersTest {
         List<String> fillerList = new ArrayList<>();
         fillerList.add(BranchMarginsPositivityConstraintFiller.class.getName());
         fillerList.add(BranchMarginsVariablesFiller.class.getName());
+        fillerList.add(BranchOverloadVariablesFiller.class.getName());
         fillerList.add(GeneratorRedispatchCostsFiller.class.getName());
         fillerList.add(GeneratorRedispatchVariablesFiller.class.getName());
+        fillerList.add(MinimizationObjectiveFiller.class.getName());
+        fillerList.add(OverloadPenaltyCostFiller.class.getName());
         fillerList.add(PstAngleImpactOnBranchFlowFiller.class.getName());
         fillerList.add(PstAngleVariablesFiller.class.getName());
         fillerList.add(RedispatchCostMinimizationObjectiveFiller.class.getName());
@@ -173,6 +177,7 @@ public class OptimisationFillersTest {
         Map<String, Double> pstSensitivities = new HashMap<>();
         Map<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
         Map<String, Double> referenceFlows = new HashMap<>();
+        Map<String, Double> constants = new HashMap<>();
 
         generatorSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_2", "GENERATOR_BE_1.1"), 0.3786);
         generatorSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_2", "GENERATOR_BE_1.2"), 0.3786);
@@ -191,9 +196,14 @@ public class OptimisationFillersTest {
         referenceFlows.put("MONITORED_FRANCE_BELGIUM_2", -533.333);
         referenceFlows.put("C1_MONITORED_FRANCE_BELGIUM_1", -800.000);
 
+        constants.put("overload_penalty_cost", 5000.0);
+        constants.put("rd_sensitivity_threshold", 0.05);
+        constants.put("pst_sensitivity_threshold", 5.0);
+
         data.put("pst_branch_sensitivities", pstSensitivities);
         data.put("generators_branch_sensitivities", generatorSensitivities);
         data.put("reference_flows", referenceFlows);
+        data.put("constants", constants);
         return data;
     }
 
@@ -202,6 +212,7 @@ public class OptimisationFillersTest {
         Map<Pair<String, String>, Double> pstSensitivities = new HashMap<>();
         Map<Pair<String, String>, Double> generatorSensitivities = new HashMap<>();
         Map<String, Double> referenceFlows = new HashMap<>();
+        Map<String, Double> constants = new HashMap<>();
 
         pstSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_1", "PST"), -69.81317138671875);
         pstSensitivities.put(Pair.of("MONITORED_FRANCE_BELGIUM_3", "PST"), -139.6263427734375);
@@ -233,9 +244,14 @@ public class OptimisationFillersTest {
         referenceFlows.put("C2_MONITORED_FRANCE_BELGIUM_2", -421.63226318359375);
         referenceFlows.put("C1_MONITORED_FRANCE_BELGIUM_3", -316.22418212890625);
 
+        constants.put("overload_penalty_cost", 5000.0);
+        constants.put("rd_sensitivity_threshold", 0.05);
+        constants.put("pst_sensitivity_threshold", 10.0);
+
         data.put("pst_branch_sensitivities", pstSensitivities);
         data.put("generators_branch_sensitivities", generatorSensitivities);
         data.put("reference_flows", referenceFlows);
+        data.put("constants", constants);
 
         return data;
     }

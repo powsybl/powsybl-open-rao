@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,13 +14,11 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Mohamed Zelmat {@literal <mohamed.zelmat at rte-france.com>}
@@ -60,9 +58,11 @@ public class JsonRaoComputationParametersTest extends AbstractConverterTest {
     @Test
     public void readError() throws IOException {
         try {
-            JsonRaoComputationParameters.read(getClass().getResourceAsStream("/RaoComputationParametersWithExtension.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
+            JsonRaoComputationParameters.read(getClass().getResourceAsStream("/RaoComputationParametersError.json"));
+            fail();
+        } catch (AssertionError e) {
+            // should throw
+            assertTrue(e.getMessage().contains("Unexpected field"));
         }
     }
 

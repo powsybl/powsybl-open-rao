@@ -9,13 +9,11 @@ package com.farao_community.farao.util;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
 
@@ -25,14 +23,12 @@ import static org.junit.Assert.*;
 public class LoadFlowServiceTest {
     @Test
     public void testLoadflowServiceInitialisation() {
-        LoadFlowFactory loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
-        LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
-        Mockito.when(loadFlowFactory.create(Mockito.any(), Mockito.any(), Mockito.anyInt())).thenReturn(loadFlow);
-        Mockito.when(loadFlow.run(Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), "")));
+        Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
 
-        LoadFlowService.init(loadFlowFactory, computationManager);
+        LoadFlowService.init(loadFlowRunner, computationManager);
         assertTrue(LoadFlowService.runLoadFlow(Mockito.mock(Network.class), "").isOk());
     }
 }

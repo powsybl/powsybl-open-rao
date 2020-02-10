@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,7 +10,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_file.CracFile;
@@ -40,9 +40,9 @@ public class FullLineDecomposition implements FlowDecomposition {
 
     private SensitivityComputationService sensitivityComputationService;
 
-    FullLineDecomposition(Network network, ComputationManager computationManager, LoadFlowFactory loadFlowFactory, SensitivityComputationFactory sensitivityComputationFactory) {
+    FullLineDecomposition(Network network, ComputationManager computationManager, LoadFlow.Runner loadFlowRunner, SensitivityComputationFactory sensitivityComputationFactory) {
         this.network = Objects.requireNonNull(network);
-        this.loadFlowService = new LoadFlowService(loadFlowFactory, computationManager);
+        this.loadFlowService = new LoadFlowService(loadFlowRunner, computationManager);
         this.sensitivityComputationService = new SensitivityComputationService(sensitivityComputationFactory, computationManager);
     }
 

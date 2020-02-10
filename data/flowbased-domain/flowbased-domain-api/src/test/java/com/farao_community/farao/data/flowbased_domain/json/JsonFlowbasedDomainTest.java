@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -71,7 +71,7 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         try {
             JsonFlowbasedDomain.read(getClass().getResourceAsStream("/notExistingFile.json"));
             fail();
-        } catch (UncheckedIOException e) {
+        } catch (Throwable e) {
             // Should throw
         }
     }

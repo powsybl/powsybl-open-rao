@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -52,6 +52,16 @@ public class PstAngleVariablesFiller extends AbstractOptimisationProblemFiller {
 
                 int lowTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMinStepRange() : pst.getMinStepRange() + phaseTapChanger.getTapPosition();
                 int highTapPosition = pst.getTypeOfLimit() == TypeOfLimit.ABSOLUTE ? pst.getMaxStepRange() : pst.getMaxStepRange() + phaseTapChanger.getTapPosition();
+
+                /*
+                 compare lowTapPosition and highTapPosition (coming from the CracFile), with the values given in the network
+                 this part should ideally be in a global quality check of the cracFile and not in the closed-optimisation-rao
+                 */
+                if (lowTapPosition < phaseTapChanger.getLowTapPosition() || highTapPosition > phaseTapChanger.getHighTapPosition()) {
+                    LOGGER.warn("The PST range of '{}' given in the cracFile [{};{}] has been restricted to match network definition [{};{}]", pst.getId(), lowTapPosition, highTapPosition, phaseTapChanger.getLowTapPosition(), phaseTapChanger.getHighTapPosition());
+                    lowTapPosition = Math.max(lowTapPosition, phaseTapChanger.getLowTapPosition());
+                    highTapPosition = Math.min(highTapPosition, phaseTapChanger.getHighTapPosition());
+                }
 
                 // Considering alpha is always between alpha low and alpha high
                 double alphaLowStep = phaseTapChanger.getStep(lowTapPosition).getAlpha();
