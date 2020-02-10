@@ -130,13 +130,13 @@ public class CracFileTest {
         assertEquals(1, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-1"));
         try {
-            simpleCrac.addContingency("contingency-1","ne2");
+            simpleCrac.addContingency("contingency-1", "ne2");
             fail();
         } catch (FaraoException e) {
             assertEquals("A contingency with the same ID and different network elements already exists.", e.getMessage());
         }
         try {
-            simpleCrac.addContingency("contingency-2","ne1");
+            simpleCrac.addContingency("contingency-2", "ne1");
         } catch (FaraoException e) {
             fail();
         }
