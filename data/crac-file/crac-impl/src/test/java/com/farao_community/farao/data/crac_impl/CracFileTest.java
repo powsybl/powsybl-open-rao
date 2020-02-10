@@ -67,12 +67,36 @@ public class CracFileTest {
     }
 
     @Test
+    public void testAddNetworkElementWithId() {
+        NetworkElement networkElement = simpleCrac.addNetworkElement("neID");
+        assertEquals(1, simpleCrac.getNetworkElements().size());
+        assertNotNull(simpleCrac.getNetworkElement("neID"));
+        assertSame(networkElement, simpleCrac.getNetworkElement("neID"));
+    }
+
+    @Test
+    public void testAddNetworkElementWithNetworkElement() {
+        NetworkElement networkElement = simpleCrac.addNetworkElement(new NetworkElement("neID"));
+        assertEquals(1, simpleCrac.getNetworkElements().size());
+        assertNotNull(simpleCrac.getNetworkElement("neID"));
+        assertSame(networkElement, simpleCrac.getNetworkElement("neID"));
+    }
+
+    @Test
     public void testGetInstant() {
         assertEquals(0, simpleCrac.getInstants().size());
     }
 
     @Test
-    public void testAddInstant() {
+    public void testAddInstantWithId() {
+        simpleCrac.addInstant("initial-instant", 0);
+        assertEquals(1, simpleCrac.getInstants().size());
+        assertNotNull(simpleCrac.getInstant("initial-instant"));
+        assertEquals(0, simpleCrac.getInstant("initial-instant").getSeconds());
+    }
+
+    @Test
+    public void testAddInstantWithInstant() {
         assertEquals(0, simpleCrac.getInstants().size());
         simpleCrac.addInstant(new Instant("initial-instant", 0));
         assertEquals(1, simpleCrac.getInstants().size());
@@ -101,6 +125,29 @@ public class CracFileTest {
     }
 
     @Test
+    public void testAddContingencyWithElements() {
+        simpleCrac.addContingency("contingency-1", "ne1", "ne2");
+        assertEquals(1, simpleCrac.getContingencies().size());
+        assertNotNull(simpleCrac.getContingency("contingency-1"));
+        try {
+            simpleCrac.addContingency("contingency-1","ne2");
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("A contingency with the same ID and different network elements already exists.", e.getMessage());
+        }
+        try {
+            simpleCrac.addContingency("contingency-2","ne1");
+        } catch (FaraoException e) {
+            fail();
+        }
+        assertEquals(2, simpleCrac.getContingencies().size());
+        simpleCrac.addContingency("contingency-3", "ne3");
+        assertEquals(3, simpleCrac.getContingencies().size());
+        assertNotNull(simpleCrac.getContingency("contingency-3"));
+        assertNull(simpleCrac.getContingency("contingency-fail"));
+    }
+
+    @Test
     public void testAddContingency() {
         assertEquals(0, simpleCrac.getContingencies().size());
         simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1"))));
@@ -122,6 +169,78 @@ public class CracFileTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-3"));
         assertNull(simpleCrac.getContingency("contingency-fail"));
+    }
+
+    @Test
+    public void addStatesWithIdFail() {
+        try {
+            simpleCrac.addState("contingency", "instant");
+            fail();
+        } catch (FaraoException e) {
+            // must throw
+        }
+    }
+
+    @Test
+    public void addStatesWithId() {
+        simpleCrac.addContingency("contingency", "neID");
+        simpleCrac.addInstant("instant", 5);
+        simpleCrac.addState("contingency", "instant");
+        assertNotNull(simpleCrac.getState("contingency-instant"));
+    }
+
+    @Test
+    public void addStatesWithIdPreventive() {
+        simpleCrac.addInstant("instant", 0);
+        simpleCrac.addState(null, "instant");
+        assertNotNull(simpleCrac.getState("none-instant"));
+    }
+
+    @Test
+    public void addStatesWithIdPreventiveFail() {
+        try {
+            simpleCrac.addState(null, "instant");
+            fail();
+        } catch (FaraoException e) {
+            // must throw
+        }
+    }
+
+    @Test
+    public void addStatesWithObjectFail() {
+        try {
+            simpleCrac.addState(new ComplexContingency(
+                "contingency", Collections.singleton(simpleCrac.addNetworkElement("neID"))
+            ), new Instant("instant", 5));
+            fail();
+        } catch (FaraoException e) {
+            // must throw
+        }
+    }
+
+    @Test
+    public void addStatesWithObject() {
+        Contingency contingency = simpleCrac.addContingency("contingency", "neID");
+        Instant instant = simpleCrac.addInstant("instant", 5);
+        simpleCrac.addState(contingency, instant);
+        assertNotNull(simpleCrac.getState("contingency-instant"));
+    }
+
+    @Test
+    public void addStatesWithObjectPreventive() {
+        Instant instant = simpleCrac.addInstant("instant", 0);
+        simpleCrac.addState(null, instant);
+        assertNotNull(simpleCrac.getState("none-instant"));
+    }
+
+    @Test
+    public void addStatesWithObjectPreventiveFail() {
+        try {
+            simpleCrac.addState(null, new Instant("instant", 5));
+            fail();
+        } catch (FaraoException e) {
+            // must throw
+        }
     }
 
     @Test

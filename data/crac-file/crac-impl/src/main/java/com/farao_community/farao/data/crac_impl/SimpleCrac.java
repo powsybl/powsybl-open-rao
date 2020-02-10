@@ -147,8 +147,8 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             networkElementsToAdd.add(addNetworkElement(networkElementId));
         }
         Contingency contingency = new ComplexContingency(id, networkElementsToAdd);
-        contingencies.add(contingency);
-        return contingency;
+        addContingency(contingency);
+        return Objects.requireNonNull(getContingency(contingency.getId()));
     }
 
     @Override
@@ -229,7 +229,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             if (instants.contains(instant)) {
                 state = new SimpleState(Optional.empty(), getInstant(instant.getId()));
             } else {
-                throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, instant.getId()));
+                throw new FaraoException(format("Please add %s to crac first", instant.getId()));
             }
         }
         states.add(state);
