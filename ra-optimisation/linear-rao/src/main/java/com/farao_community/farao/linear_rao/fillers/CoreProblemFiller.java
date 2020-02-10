@@ -45,6 +45,21 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         linearRaoData.getCrac().desynchronize(); // To be sure it is always synchronized with the good network
     }
 
+    @Override
+    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        Crac crac = linearRaoData.getCrac();
+        Network network = linearRaoData.getNetwork();
+
+        if (crac.getPreventiveState() != null) {
+            Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
+            rangeActions.forEach(rangeAction ->  updateRangeActionBounds(network, rangeAction));
+            crac.getCnecs().forEach(cnec -> {
+                linearRaoProblem.updateReferenceFlow(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
+                rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
+            });
+        }
+    }
+
     private void fillCnec(Cnec cnec) {
         linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
     }
@@ -85,5 +100,9 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                         rangeAction.getId(),
                         networkElement.getId(),
                         linearRaoData.getSensitivity(cnec, rangeAction)));
+    }
+
+    private void updateRangeActionBounds(Network network, RangeAction rangeAction) {
+
     }
 }

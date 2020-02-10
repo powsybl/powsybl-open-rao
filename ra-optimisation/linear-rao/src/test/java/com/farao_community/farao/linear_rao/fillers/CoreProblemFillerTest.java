@@ -102,4 +102,55 @@ public class CoreProblemFillerTest extends FillerTest {
         assertEquals(cnec2toRangeSensitivity, flowConstraint2.getCoefficient(variableRangeNegative), 0.1);
         assertEquals(-cnec2toRangeSensitivity, flowConstraint2.getCoefficient(variableRangePositive), 0.1);
     }
+
+    @Test
+    public void updateFiller() {
+        final String rangeActionId = "range-action-id";
+        final String networkElementId = "network-element-id";
+        final int minTap = -10;
+        final int maxTap = 16;
+        final int currentTap = 5;
+        final double referenceFlow1 = 500.;
+        final double referenceFlow2 = 300.;
+        final double cnec1toRangeSensitivity1 = 0.2;
+        final double cnec2toRangeSensitivity1 = 0.5;
+        final double cnec1toRangeSensitivity2 = 0.3;
+        final double cnec2toRangeSensitivity2 = 0.4;
+        Cnec cnec1 = new CnecMock("cnec1-id", 0, 800);
+        Cnec cnec2 = new CnecMock("cnec2-id", 0, 800);
+        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(referenceFlow1);
+        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(referenceFlow2);
+
+        cnecs.add(cnec1);
+        cnecs.add(cnec2);
+        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, minTap, maxTap);
+        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(cnec1toRangeSensitivity1, cnec1toRangeSensitivity2);
+        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(cnec2toRangeSensitivity1, cnec2toRangeSensitivity2);
+        rangeActions.add(rangeAction);
+        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
+        when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
+
+        coreProblemFiller.fill();
+
+        MPVariable variableRangeNegative = linearRaoProblem.getNegativeRangeActionVariable(rangeAction.getId(), networkElementId);
+        MPVariable variableRangePositive = linearRaoProblem.getPositiveRangeActionVariable(rangeAction.getId(), networkElementId);
+
+        MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1.getId());
+        assertNotNull(flowConstraint);
+        assertEquals(cnec1toRangeSensitivity1, flowConstraint.getCoefficient(variableRangeNegative), 0.1);
+        assertEquals(-cnec1toRangeSensitivity1, flowConstraint.getCoefficient(variableRangePositive), 0.1);
+
+        MPConstraint flowConstraint2 = linearRaoProblem.getFlowConstraint(cnec2.getId());
+        assertNotNull(flowConstraint2);
+        assertEquals(cnec2toRangeSensitivity1, flowConstraint2.getCoefficient(variableRangeNegative), 0.1);
+        assertEquals(-cnec2toRangeSensitivity1, flowConstraint2.getCoefficient(variableRangePositive), 0.1);
+
+        coreProblemFiller.update(linearRaoProblem, linearRaoData);
+
+        assertEquals(cnec1toRangeSensitivity2, flowConstraint.getCoefficient(variableRangeNegative), 0.1);
+        assertEquals(-cnec1toRangeSensitivity2, flowConstraint.getCoefficient(variableRangePositive), 0.1);
+
+        assertEquals(cnec2toRangeSensitivity2, flowConstraint2.getCoefficient(variableRangeNegative), 0.1);
+        assertEquals(-cnec2toRangeSensitivity2, flowConstraint2.getCoefficient(variableRangePositive), 0.1);
+    }
 }
