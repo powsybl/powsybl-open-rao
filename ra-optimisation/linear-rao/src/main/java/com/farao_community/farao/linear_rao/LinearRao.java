@@ -54,28 +54,31 @@ public class LinearRao implements RaoProvider {
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        postOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
         SystematicSensitivityAnalysisResult midOptimSensitivityAnalysisResult;
         List<RemedialActionResult> oldRemedialActionsResult = new ArrayList<>();
 
         int iterationsLeft = MAX_ITERATIONS;
-        if (iterationsLeft == 0) {
-            return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldRemedialActionsResult));
-        }
 
         double oldObjectiveFunction = getMinMargin(crac, preOptimSensitivityAnalysisResult);
-        LinearRaoOptimizer linearRaoOptimizer = createLinearRaoOptimizer(crac, network, preOptimSensitivityAnalysisResult, computationManager, parameters);
-        RaoComputationResult raoComputationResult = linearRaoOptimizer.run();
-        if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
-            return CompletableFuture.completedFuture(raoComputationResult);
-        }
-
-        List<RemedialActionResult> newRemedialActionsResult = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
-        //TODO: manage CRA
-
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
+        LinearRaoOptimizer linearRaoOptimizer = createLinearRaoOptimizer(crac, network, preOptimSensitivityAnalysisResult, parameters);
 
-        while (!sameRemedialActionResultLists(newRemedialActionsResult, oldRemedialActionsResult) && iterationsLeft > 0) {
+        RaoComputationResult raoComputationResult;
+        List<RemedialActionResult> newRemedialActionsResult;
+
+        while (iterationsLeft > 0) {
+            raoComputationResult = linearRaoOptimizer.run();
+            if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
+                return CompletableFuture.completedFuture(raoComputationResult);
+            }
+
+            newRemedialActionsResult = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
+            //TODO: manage CRA
+            if (sameRemedialActionResultLists(newRemedialActionsResult, oldRemedialActionsResult)) {
+                break;
+            }
+
             createAndSwitchToNewVariant(network, originalNetworkVariant);
             applyRAs(crac, network, newRemedialActionsResult);
             midOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
@@ -85,17 +88,11 @@ public class LinearRao implements RaoProvider {
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", oldObjectiveFunction, newObjectiveFunction);
                 break;
             }
+
             postOptimSensitivityAnalysisResult = midOptimSensitivityAnalysisResult;
             oldObjectiveFunction = newObjectiveFunction;
             oldRemedialActionsResult = newRemedialActionsResult;
-
             linearRaoOptimizer.update(midOptimSensitivityAnalysisResult);
-            raoComputationResult = linearRaoOptimizer.run();
-            if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
-                return CompletableFuture.completedFuture(raoComputationResult);
-            }
-            newRemedialActionsResult = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
-            //TODO: manage CRA
             iterationsLeft -= 1;
         }
 
@@ -105,9 +102,8 @@ public class LinearRao implements RaoProvider {
     LinearRaoOptimizer createLinearRaoOptimizer(Crac crac,
                                                         Network network,
                                                         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                                                        ComputationManager computationManager,
                                                         RaoParameters raoParameters) {
-        return new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, raoParameters, new LinearRaoProblem());
+        return new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, raoParameters, new LinearRaoProblem());
 
     }
 
@@ -115,7 +111,7 @@ public class LinearRao implements RaoProvider {
         RemedialActionElementResult remedialActionElementResult = remedialActionResult.getRemedialActionElementResults().get(0);
         if (remedialActionElementResult instanceof PstElementResult) {
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
-            return pstElementResult.getPostOptimisationAngle();
+            return pstElementResult.getPostOptimisationTapPosition();
         } else if (remedialActionElementResult instanceof RedispatchElementResult) {
             RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
             return redispatchElementResult.getPostOptimisationTargetP();
@@ -162,11 +158,7 @@ public class LinearRao implements RaoProvider {
     private void applyRAs(Crac crac, Network network, List<RemedialActionResult> raResultList) {
         for (RemedialActionResult remedialActionResult : raResultList) {
             for (RemedialActionElementResult remedialActionElementResult : remedialActionResult.getRemedialActionElementResults()) {
-                if (remedialActionElementResult instanceof PstElementResult) {
-                    crac.getRangeAction(remedialActionElementResult.getId()).apply(network, ((PstElementResult) remedialActionElementResult).getPostOptimisationTapPosition());
-                } else if (remedialActionElementResult instanceof RedispatchElementResult) {
-                    crac.getRangeAction(remedialActionElementResult.getId()).apply(network, ((RedispatchElementResult) remedialActionElementResult).getPostOptimisationTargetP());
-                }
+                crac.getRangeAction(remedialActionElementResult.getId()).apply(network, getRemedialActionResultValue(remedialActionResult));
             }
         }
 

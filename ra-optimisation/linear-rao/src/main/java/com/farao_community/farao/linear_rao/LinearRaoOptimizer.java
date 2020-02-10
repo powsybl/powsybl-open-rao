@@ -15,7 +15,6 @@ import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcess
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -28,19 +27,16 @@ public class LinearRaoOptimizer {
 
     private Crac crac;
     private Network network;
-    private ComputationManager computationManager;
     private LinearRaoModeller linearRaoModeller;
     private LinearRaoData linearRaoData;
 
     public LinearRaoOptimizer(Crac crac,
                               Network network,
                               SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                              ComputationManager computationManager,
                               RaoParameters raoParameters,
                               LinearRaoProblem linearRaoProblem) {
         this.crac = crac;
         this.network = network;
-        this.computationManager = computationManager;
 
         linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
 

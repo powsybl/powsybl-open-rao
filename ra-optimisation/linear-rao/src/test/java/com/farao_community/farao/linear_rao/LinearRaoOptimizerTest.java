@@ -8,7 +8,6 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
@@ -16,7 +15,6 @@ import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -80,7 +78,7 @@ public class LinearRaoOptimizerTest {
 
         LinearRaoProblem linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
 
-        linearRaoOptimizer = new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, computationManager, raoParameters, linearRaoProblemMock);
+        linearRaoOptimizer = new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, raoParameters, linearRaoProblemMock);
     }
 
     @Test
@@ -98,52 +96,22 @@ public class LinearRaoOptimizerTest {
     private static Crac create() {
         Crac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
-        ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
-                new HashSet<>(Arrays.asList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
-        crac.addContingency(contingency1);
-        ComplexContingency contingency2 = new ComplexContingency("Contingency FR1 FR2", "Trip of FFR1AA1 FFR2AA1 1",
-                new HashSet<>(Arrays.asList(new NetworkElement("FFR1AA1  FFR2AA1  1"))));
-        crac.addContingency(contingency2);
-
         // Instant
         Instant basecase = new Instant("initial", 0);
-        Instant defaut = new Instant("default", 60);
-        Instant curative = new Instant("curative", 1200);
 
         //NetworkElement
         NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1 name");
-        NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1 name");
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
-        State stateCurativeContingency1 = new SimpleState(Optional.of(contingency1), curative);
-        State stateCurativeContingency2 = new SimpleState(Optional.of(contingency2), curative);
 
         // Thresholds
         AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 1500);
-        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.IN, 30);
 
         // CNECs
         SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);
-        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, null, stateCurativeContingency1);
-        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, null, stateCurativeContingency2);
         cnec1basecase.setThreshold(thresholdAbsFlow);
-        cnec1stateCurativeContingency1.setThreshold(thresholdAbsFlow);
-        cnec1stateCurativeContingency2.setThreshold(thresholdAbsFlow);
-
-        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, null, stateBasecase);
-        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, null, stateCurativeContingency1);
-        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, null, stateCurativeContingency2);
-        cnec2basecase.setThreshold(thresholdRelativeFlow);
-        cnec2stateCurativeContingency1.setThreshold(thresholdRelativeFlow);
-        cnec2stateCurativeContingency2.setThreshold(thresholdRelativeFlow);
-
         crac.addCnec(cnec1basecase);
-        crac.addCnec(cnec1stateCurativeContingency1);
-        crac.addCnec(cnec1stateCurativeContingency2);
-        crac.addCnec(cnec2basecase);
-        crac.addCnec(cnec2stateCurativeContingency1);
-        crac.addCnec(cnec2stateCurativeContingency2);
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");

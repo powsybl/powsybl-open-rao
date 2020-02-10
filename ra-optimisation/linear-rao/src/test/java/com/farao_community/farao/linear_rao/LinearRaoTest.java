@@ -117,7 +117,7 @@ public class LinearRaoTest {
         Mockito.when(linearRaoOptimizerMock.run()).thenReturn(raoComputationResult);
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
-        Mockito.doReturn(linearRaoOptimizerMock).when(linearRaoSpy).createLinearRaoOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doReturn(linearRaoOptimizerMock).when(linearRaoSpy).createLinearRaoOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         CompletableFuture<RaoComputationResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
         assertNotNull(linearRaoResultCF);
         try {
