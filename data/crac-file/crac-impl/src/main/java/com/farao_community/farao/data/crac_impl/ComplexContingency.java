@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeName("complex-contingency")
 @JsonIdentityInfo(scope = ComplexContingency.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ComplexContingency extends AbstractIdentifiable implements Contingency {
 

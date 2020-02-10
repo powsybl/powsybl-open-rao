@@ -129,7 +129,7 @@ public class NetworkActionImportExportTest {
             "topologyName",
             "RTE",
             new ArrayList<>(),
-            new NetworkElement("neId"),
+            new NetworkElement("neId2"),
             ActionType.CLOSE
         );
         complexNetworkAction.addNetworkAction(pstSetpoint);
@@ -158,7 +158,7 @@ public class NetworkActionImportExportTest {
             "topologyName",
             "RTE",
             new ArrayList<>(),
-            new NetworkElement("neId"),
+            new NetworkElement("neId2"),
             ActionType.CLOSE
         );
         complexNetworkAction.addNetworkAction(pstSetpoint);
@@ -186,7 +186,7 @@ public class NetworkActionImportExportTest {
             "topologyName",
             "RTE",
             new ArrayList<>(),
-            new NetworkElement("neId"),
+            new NetworkElement("neId2"),
             ActionType.CLOSE
         );
         complexNetworkAction.addNetworkAction(pstSetpoint);
@@ -376,7 +376,7 @@ public class NetworkActionImportExportTest {
             "topologyName",
             "RTE",
             new ArrayList<>(),
-            new NetworkElement("neId"),
+            new NetworkElement("neId2"),
             ActionType.CLOSE
         );
         elementaryNetworkActions.add(pstSetpoint);

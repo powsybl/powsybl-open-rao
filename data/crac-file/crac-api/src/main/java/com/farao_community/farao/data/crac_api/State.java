@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface State extends Comparable<State> {
 
     String getId();

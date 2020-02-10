@@ -19,6 +19,7 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
+@JsonTypeName("simple-state")
 @JsonIdentityInfo(scope = SimpleState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SimpleState implements State {
     private String id;

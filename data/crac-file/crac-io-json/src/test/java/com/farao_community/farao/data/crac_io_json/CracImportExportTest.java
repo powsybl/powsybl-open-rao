@@ -8,20 +8,32 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.farao_community.farao.data.crac_io_json.RoundTripUtil.roundTrip;
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -58,7 +70,7 @@ public class CracImportExportTest {
             "pstSetpointName",
             "RTE",
             new ArrayList<>(),
-            simpleCrac.getNetworkElement("neId"),
+            simpleCrac.getNetworkElement("pst"),
             5
         );
         Topology topology = new Topology(
@@ -80,7 +92,37 @@ public class CracImportExportTest {
         );
         simpleCrac.addNetworkAction(complexNetworkAction);
 
-        SimpleCrac simpleCrac1 = roundTrip(simpleCrac, SimpleCrac.class);
-        int i = 1;
+        simpleCrac.addRangeAction(new PstRange(
+            "pstRangeId",
+            "pstRangeName",
+            "RTE",
+            Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
+            Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
+                new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO)),
+            simpleCrac.getNetworkElement("pst")
+        ));
+
+        simpleCrac.addRangeAction(new AlignedRangeAction(
+            "alignedRangeId",
+            "alignedRangeName",
+            "RTE",
+            Collections.singletonList(new OnConstraint(UsageMethod.AVAILABLE, preventiveState, preventiveCnec1)),
+            Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO)),
+            Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
+        ));
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        CracExporters.exportCrac(simpleCrac, "Json", outputStream);
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+            Crac crac = CracImporters.importCrac("unknown.json", inputStream);
+            assertEquals(crac.getNetworkElements().size(), 5);
+            assertEquals(crac.getInstants().size(), 2);
+            assertEquals(crac.getContingencies().size(), 2);
+            assertEquals(crac.getCnecs().size(), 3);
+            assertEquals(crac.getRangeActions().size(), 2);
+            assertEquals(crac.getNetworkActions().size(), 2);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

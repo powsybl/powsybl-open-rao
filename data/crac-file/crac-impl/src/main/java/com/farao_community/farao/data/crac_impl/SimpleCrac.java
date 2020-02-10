@@ -23,7 +23,7 @@ import static java.lang.String.format;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("simple-crac")
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
@@ -67,8 +67,9 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     public NetworkElement addNetworkElement(String networkElementId) {
-        if (networkElements.stream().anyMatch(networkElementPresent -> networkElementPresent.getId().equals(networkElementId))) {
-            throw new FaraoException("A network element with the same ID but a different name already exists.");
+        if (networkElements.stream().anyMatch(networkElement -> networkElement.getId().equals(networkElementId)
+            && !networkElement.getName().equals(networkElementId))) {
+            throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElementId));
         }
         NetworkElement networkElement = new NetworkElement(networkElementId);
         networkElements.add(networkElement);
@@ -77,24 +78,19 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement networkElement = new NetworkElement(networkElementId, networkElementName);
-        // If no strictly equal elements are present in the Crac
-        if (networkElements.stream().noneMatch(networkElementPresent -> networkElementPresent.equals(networkElement))) {
-            if (networkElements.stream().anyMatch(networkElementPresent -> networkElementPresent.getId().equals(networkElement.getId()))) {
-                throw new FaraoException("A network element with the same ID but a different name already exists.");
-            }
-            networkElements.add(networkElement);
-        }
-        return networkElement;
+        return addNetworkElement(networkElement);
     }
 
-    public void addNetworkElement(NetworkElement networkElement) {
+    public NetworkElement addNetworkElement(NetworkElement networkElement) {
         // If no strictly equal elements are present in the Crac
         if (networkElements.stream().noneMatch(networkElementPresent -> networkElementPresent.equals(networkElement))) {
-            if (networkElements.stream().anyMatch(networkElementPresent -> networkElementPresent.getId().equals(networkElement.getId()))) {
-                throw new FaraoException("A network element with the same ID but a different name already exists.");
-            }
             networkElements.add(networkElement);
+        } else {
+            if (!getNetworkElement(networkElement.getId()).getName().equals(networkElement.getName())) {
+                throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElement.getId()));
+            }
         }
+        return networkElement;
     }
 
     public final NetworkElement getNetworkElement(String id) {
@@ -116,7 +112,6 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     public Instant addInstant(String id, int seconds) {
         Instant instant = new Instant(id, seconds);
-        // If no strictly equal elements are present in the Crac
         checkAndAddInstant(instant);
         return instant;
     }
@@ -338,20 +333,13 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     @Override
     public void addCnec(Cnec cnec) {
         addState(cnec.getState());
-        addNetworkElement(cnec.getNetworkElement());
-        Optional<Contingency> contingency = cnec.getState().getContingency();
-        State state;
-        if (contingency.isPresent()) {
-            state = getState(contingency.get(), cnec.getState().getInstant());
-        } else {
-            state = getPreventiveState();
-        }
+        NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement());
         cnecs.add(new SimpleCnec(
             cnec.getId(),
             cnec.getName(),
-            getNetworkElement(cnec.getNetworkElement().getId()),
+            networkElement,
             cnec.getThreshold(),
-            state
+            getState(cnec.getState().getId())
         ));
     }
 
