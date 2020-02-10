@@ -38,36 +38,11 @@ public class CracFileTest {
     }
 
     @Test
-    public void testAddNetworkElementWithId() {
-        simpleCrac.addNetworkElement("neID");
-        assertEquals(1, simpleCrac.getNetworkElements().size());
-        assertNotNull(simpleCrac.getNetworkElement("neID"));
-    }
-
-    @Test
-    public void testAddNetworkElementWithIdFail() {
-        simpleCrac.addNetworkElement("neID", "neName");
-        try {
-            simpleCrac.addNetworkElement("neID");
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("A network element with the same ID (neID) but a different name already exists.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testAddNetworkElementWithIdTwice() {
-        simpleCrac.addNetworkElement("neID");
-        simpleCrac.addNetworkElement("neID");
-        assertEquals(1, simpleCrac.getNetworkElements().size());
-        assertNotNull(simpleCrac.getNetworkElement("neID"));
-    }
-
-    @Test
     public void testAddNetworkElementWithIdAndName() {
-        simpleCrac.addNetworkElement("neID", "neName");
+        NetworkElement networkElement = simpleCrac.addNetworkElement("neID", "neName");
         assertEquals(1, simpleCrac.getNetworkElements().size());
         assertNotNull(simpleCrac.getNetworkElement("neID"));
+        assertSame(networkElement, simpleCrac.getNetworkElement("neID"));
     }
 
     @Test
@@ -83,10 +58,12 @@ public class CracFileTest {
 
     @Test
     public void testAddNetworkElementWithIdAndNameTwice() {
-        simpleCrac.addNetworkElement("neID", "neName");
-        simpleCrac.addNetworkElement("neID", "neName");
+        NetworkElement networkElement1 = simpleCrac.addNetworkElement("neID", "neName");
+        NetworkElement networkElement2 = simpleCrac.addNetworkElement("neID", "neName");
         assertEquals(1, simpleCrac.getNetworkElements().size());
         assertNotNull(simpleCrac.getNetworkElement("neID"));
+        assertSame(networkElement1, networkElement2);
+        assertSame(networkElement1, simpleCrac.getNetworkElement("neID"));
     }
 
     @Test

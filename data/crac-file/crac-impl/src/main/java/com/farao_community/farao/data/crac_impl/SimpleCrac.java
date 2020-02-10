@@ -25,6 +25,7 @@ import static java.lang.String.format;
  */
 @JsonTypeName("simple-crac")
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
+    private final static String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first";
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
     private Set<Contingency> contingencies;
@@ -67,32 +68,22 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     public NetworkElement addNetworkElement(String networkElementId) {
-        if (networkElements.stream().anyMatch(networkElement -> networkElement.getId().equals(networkElementId)
-            && !networkElement.getName().equals(networkElementId))) {
-            throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElementId));
-        }
-        // A new element is created, if it's equal to an already existing one, it won't be added to the set
-        // So in the end the element inside crac set has to be picked to be returned
-        NetworkElement networkElement = new NetworkElement(networkElementId);
-        networkElements.add(networkElement);
-        return getNetworkElement(networkElementId);
-    }
-
-    public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
-        NetworkElement networkElement = new NetworkElement(networkElementId, networkElementName);
-        return addNetworkElement(networkElement);
+        return addNetworkElement(networkElementId, networkElementId);
     }
 
     public NetworkElement addNetworkElement(NetworkElement networkElement) {
-        // If no strictly equal elements are present in the Crac
-        if (networkElements.stream().noneMatch(networkElementPresent -> networkElementPresent.equals(networkElement))) {
-            networkElements.add(networkElement);
-        } else {
-            if (!getNetworkElement(networkElement.getId()).getName().equals(networkElement.getName())) {
-                throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElement.getId()));
-            }
+        return addNetworkElement(networkElement.getId(), networkElement.getName());
+    }
+
+    public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
+        NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
+        if (cracNetworkElement == null) {
+            cracNetworkElement = new NetworkElement(networkElementId, networkElementName);
+        } else if (!cracNetworkElement.getName().equals(networkElementName)) {
+            throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElementId));
         }
-        return getNetworkElement(networkElement.getId());
+        networkElements.add(cracNetworkElement);
+        return cracNetworkElement;
     }
 
     public final NetworkElement getNetworkElement(String id) {
@@ -150,11 +141,11 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     public Contingency addContingency(String id, String... networkElementIds) {
-        Set<NetworkElement> networkElements = new HashSet<>();
+        Set<NetworkElement> networkElementsToAdd = new HashSet<>();
         for (String networkElementId: networkElementIds) {
-            networkElements.add(addNetworkElement(networkElementId));
+            networkElementsToAdd.add(addNetworkElement(networkElementId));
         }
-        Contingency contingency = new ComplexContingency(id, networkElements);
+        Contingency contingency = new ComplexContingency(id, networkElementsToAdd);
         contingencies.add(contingency);
         return contingency;
     }
@@ -231,13 +222,13 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             if (contingencies.contains(contingency) && instants.contains(instant)) {
                 state = new SimpleState(Optional.of(getContingency(contingency.getId())), getInstant(instant.getId()));
             } else {
-                throw new FaraoException(format("Please add %s and %s to crac first", contingency.getId(), instant.getId()));
+                throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, contingency.getId(), instant.getId()));
             }
         } else {
             if (instants.contains(instant)) {
                 state = new SimpleState(Optional.empty(), getInstant(instant.getId()));
             } else {
-                throw new FaraoException(format("Please add %s to crac first", instant.getId()));
+                throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, instant.getId()));
             }
         }
         states.add(state);
@@ -250,7 +241,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             if (getContingency(contingencyId) != null && getInstant(instantId) != null) {
                 state = new SimpleState(Optional.of(getContingency(contingencyId)), getInstant(instantId));
             } else {
-                throw new FaraoException(format("Please add %s and %s to crac first", contingencyId, instantId));
+                throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, contingencyId, instantId));
             }
         } else {
             if (getInstant(instantId) != null) {
@@ -316,7 +307,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     public Cnec addCnec(String id, NetworkElement networkElement, AbstractThreshold abstractThreshold, State state) {
         if (!networkElements.contains(networkElement) || !states.contains(state)) {
-            throw new FaraoException(format("Please add %s and %s to crac first", networkElement.getId(), state.getId()));
+            throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElement.getId(), state.getId()));
         }
         Cnec cnec = new SimpleCnec(id, networkElement, abstractThreshold, state);
         cnecs.add(cnec);
@@ -325,7 +316,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     public Cnec addCnec(String id, String networkElementId, AbstractThreshold abstractThreshold, String stateId) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
-            throw new FaraoException(format("Please add %s and %s to crac first", networkElementId, stateId));
+            throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
         Cnec cnec = new SimpleCnec(id, getNetworkElement(networkElementId), abstractThreshold, getState(stateId));
         cnecs.add(cnec);
@@ -357,10 +348,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void addNetworkAction(NetworkAction networkAction) {
-        List<UsageRule> usageRules = networkAction.getUsageRules().stream().map(usageRule -> {
-            addState(usageRule.getState());
-            return usageRule;
-        }).collect(Collectors.toList());
+        networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.add(networkAction);
     }
