@@ -25,7 +25,8 @@ import static java.lang.String.format;
  */
 @JsonTypeName("simple-crac")
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
-    private final static String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first";
+    private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first";
+
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
     private Set<Contingency> contingencies;

@@ -28,16 +28,16 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
-    private final static String NETWORK_ELEMENT = "networkElement";
-    private final static String NETWORK_ELEMENTS = "networkElements";
-    private final static String ID = "id";
-    private final static String NAME = "name";
-    private final static String OPERATOR = "operator";
-    private final static String CONTINGENCY = "contingency";
-    private final static String STATE = "state";
-    private final static String USAGE_METHOD = "usageMethod";
-    private final static String SETPOINT = "setpoint";
-    private final static String TYPE = "type";
+    private static final String NETWORK_ELEMENT = "networkElement";
+    private static final String NETWORK_ELEMENTS = "networkElements";
+    private static final String ID = "id";
+    private static final String NAME = "name";
+    private static final String OPERATOR = "operator";
+    private static final String CONTINGENCY = "contingency";
+    private static final String STATE = "state";
+    private static final String USAGE_METHOD = "usageMethod";
+    private static final String SETPOINT = "setpoint";
+    private static final String TYPE = "type";
 
     public SimpleCracDeserializer() {
         this(null);
