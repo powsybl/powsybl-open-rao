@@ -7,55 +7,54 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.farao_community.farao.rao_api.RaoParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
+import com.farao_community.farao.linear_rao.fillers.PositiveMinMarginFiller;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearRaoModeller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoModeller.class);
-
     private LinearRaoProblem linearRaoProblem;
+    private Crac crac;
+    private Network network;
     private LinearRaoData linearRaoData;
     private List<AbstractProblemFiller> fillerList;
-    private List<AbstractPostProcessor> postProcessorList;
-    private RaoParameters raoParameters;
 
-    public LinearRaoModeller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<AbstractProblemFiller> fillerList, List<AbstractPostProcessor> postProcessorList, RaoParameters raoParameters) {
+    public LinearRaoModeller(Crac crac,
+                             Network network,
+                             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                             LinearRaoProblem linearRaoProblem) {
+        this.crac = crac;
+        this.network = network;
+        this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         this.linearRaoProblem = linearRaoProblem;
-        this.linearRaoData = linearRaoData;
-        this.fillerList = fillerList;
-        this.postProcessorList = postProcessorList;
-        this.raoParameters = raoParameters;
+
+        fillerList = new ArrayList<>();
+        fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
+        fillerList.add(new PositiveMinMarginFiller(linearRaoProblem, linearRaoData));
     }
 
-    public void buildProblem() {
+    public LinearRaoProblem buildProblem() {
         fillerList.forEach(AbstractProblemFiller::fill);
+        return linearRaoProblem;
     }
 
-    public void updateProblem(LinearRaoData linearRaoData) {
-        this.linearRaoData = linearRaoData;
+    LinearRaoData getData() {
+        return linearRaoData;
+    }
+
+    public void updateProblem(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         fillerList.forEach(filler -> filler.update(linearRaoProblem, linearRaoData));
     }
 
-    public RaoComputationResult solve() {
-        Enum solverResultStatus = linearRaoProblem.solve();
-        RaoComputationResult raoComputationResult;
-        String solverResultStatusString = solverResultStatus.name();
-        if (solverResultStatusString.equals("OPTIMAL")) {
-            RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
-            raoComputationResult = new RaoComputationResult(status);
-            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult));
-        } else {
-            RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
-            raoComputationResult = new RaoComputationResult(status);
-            LOGGER.warn("Linear rao computation failed: MPSolver status is {}", solverResultStatusString);
-        }
-        return raoComputationResult;
+    public LinearRaoProblem getLinearRaoProblem() {
+        return linearRaoProblem;
     }
 }

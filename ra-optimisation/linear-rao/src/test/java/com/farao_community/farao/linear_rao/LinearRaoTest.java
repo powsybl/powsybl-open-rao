@@ -104,8 +104,6 @@ public class LinearRaoTest {
                 .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap1, cnecMaxThresholdMap),
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap2, cnecMaxThresholdMap));
 
-        LinearRaoOptimizer linearRaoOptimizerMock = Mockito.mock(LinearRaoOptimizer.class);
-
         List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<>();
         List<RemedialActionResult> remedialActionResults = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList = new ArrayList<>();
@@ -114,10 +112,13 @@ public class LinearRaoTest {
         PreContingencyResult preContingencyResult = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults);
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult);
 
-        Mockito.when(linearRaoOptimizerMock.run()).thenReturn(raoComputationResult);
+        LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
+        LinearRaoProblem linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
+        Mockito.when(linearRaoModellerMock.buildProblem()).thenReturn(linearRaoProblemMock);
+        Mockito.when(linearRaoProblemMock.solve(Mockito.any(), Mockito.any())).thenReturn(raoComputationResult);
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
-        Mockito.doReturn(linearRaoOptimizerMock).when(linearRaoSpy).createLinearRaoOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());
         CompletableFuture<RaoComputationResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
         assertNotNull(linearRaoResultCF);
         try {

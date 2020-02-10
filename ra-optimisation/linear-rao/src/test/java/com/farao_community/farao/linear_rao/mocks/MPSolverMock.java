@@ -114,13 +114,4 @@ public class MPSolverMock extends MPSolver {
     public void randomSolve() {
         variables.forEach(MPVariableMock::setRandomSolutionValue);
     }
-
-    public enum ResultStatusMock {
-        OPTIMAL,
-        FEASIBLE,
-        INFEASIBLE,
-        UNBOUNDED,
-        ABNORMAL,
-        NOT_SOLVED
-    }
 }

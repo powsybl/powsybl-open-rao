@@ -7,17 +7,14 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.nio.file.FileSystem;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -32,34 +29,27 @@ public class LinearRaoModellerTest {
     @Before
     public void setUp() {
         linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
-        LinearRaoData linearRaoDataMock = Mockito.mock(LinearRaoData.class);
-        List<AbstractProblemFiller> fillers = new ArrayList<>();
-        List<AbstractPostProcessor> postProcessors = new ArrayList<>();
 
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        RaoParameters raoParameters = RaoParameters.load(platformConfig);
+        Crac cracMock = Mockito.mock(Crac.class);
+        Network networkMock = Mockito.mock(Network.class);
+        SystematicSensitivityAnalysisResult sensitivityResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
 
-        linearRaoModeller = new LinearRaoModeller(linearRaoProblemMock, linearRaoDataMock, fillers, postProcessors, raoParameters);
+        linearRaoModeller = new LinearRaoModeller(cracMock, networkMock, sensitivityResultMock, linearRaoProblemMock);
     }
 
     @Test
-    public void testOptimalSolve() {
-        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
+    public void updateTest() {
+        Cnec cnecMock = Mockito.mock(Cnec.class);
+        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
+        cnecMarginMap.put(cnecMock, 10.0);
+        Map<Cnec, Double> cnecThresholdMap = new HashMap<>();
+        cnecThresholdMap.put(cnecMock, 500.0);
+        SystematicSensitivityAnalysisResult sensitivityAnalysisResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        Mockito.when(sensitivityAnalysisResultMock.getCnecMarginMap()).thenReturn(cnecMarginMap);
+        Mockito.when(sensitivityAnalysisResultMock.getCnecMaxThresholdMap()).thenReturn(cnecThresholdMap);
 
-        linearRaoModeller.buildProblem();
-        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
-        assertNotNull(raoComputationResult);
-        assertEquals(RaoComputationResult.Status.SUCCESS, raoComputationResult.getStatus());
+        linearRaoModeller.updateProblem(sensitivityAnalysisResultMock);
+        assertEquals(490.0, linearRaoModeller.getData().getReferenceFlow(cnecMock), 0.1);
     }
 
-    @Test
-    public void testUnboundedSolve() {
-        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
-
-        linearRaoModeller.buildProblem();
-        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
-        assertNotNull(raoComputationResult);
-        assertEquals(RaoComputationResult.Status.FAILURE, raoComputationResult.getStatus());
-    }
 }

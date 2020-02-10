@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -62,13 +63,16 @@ public class LinearRao implements RaoProvider {
 
         double oldObjectiveFunction = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
-        LinearRaoOptimizer linearRaoOptimizer = createLinearRaoOptimizer(crac, network, preOptimSensitivityAnalysisResult, parameters);
+        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
+        LinearRaoProblem linearRaoProblem = linearRaoModeller.buildProblem();
+        List<AbstractPostProcessor> postProcessorList = new ArrayList<>();
+        postProcessorList.add(new RaoResultPostProcessor());
 
         RaoComputationResult raoComputationResult;
         List<RemedialActionResult> newRemedialActionsResult;
 
         while (iterationsLeft > 0) {
-            raoComputationResult = linearRaoOptimizer.run();
+            raoComputationResult = linearRaoProblem.solve(postProcessorList, new LinearRaoData(crac, network, postOptimSensitivityAnalysisResult));
             if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
                 return CompletableFuture.completedFuture(raoComputationResult);
             }
@@ -92,18 +96,17 @@ public class LinearRao implements RaoProvider {
             postOptimSensitivityAnalysisResult = midOptimSensitivityAnalysisResult;
             oldObjectiveFunction = newObjectiveFunction;
             oldRemedialActionsResult = newRemedialActionsResult;
-            linearRaoOptimizer.update(midOptimSensitivityAnalysisResult);
+            linearRaoModeller.updateProblem(midOptimSensitivityAnalysisResult);
             iterationsLeft -= 1;
         }
 
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldRemedialActionsResult));
     }
 
-    LinearRaoOptimizer createLinearRaoOptimizer(Crac crac,
-                                                        Network network,
-                                                        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                                                        RaoParameters raoParameters) {
-        return new LinearRaoOptimizer(crac, network, systematicSensitivityAnalysisResult, raoParameters, new LinearRaoProblem());
+    LinearRaoModeller createLinearRaoModeller(Crac crac,
+                                              Network network,
+                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem());
 
     }
 
