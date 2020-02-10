@@ -71,9 +71,11 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             && !networkElement.getName().equals(networkElementId))) {
             throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElementId));
         }
+        // A new element is created, if it's equal to an already existing one, it won't be added to the set
+        // So in the end the element inside crac set has to be picked to be returned
         NetworkElement networkElement = new NetworkElement(networkElementId);
         networkElements.add(networkElement);
-        return networkElement;
+        return getNetworkElement(networkElementId);
     }
 
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
@@ -90,7 +92,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
                 throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElement.getId()));
             }
         }
-        return networkElement;
+        return getNetworkElement(networkElement.getId());
     }
 
     public final NetworkElement getNetworkElement(String id) {
