@@ -7,15 +7,14 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -38,18 +37,22 @@ public class LinearRaoModellerTest {
     }
 
     @Test
-    public void updateTest() {
-        Cnec cnecMock = Mockito.mock(Cnec.class);
-        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
-        cnecMarginMap.put(cnecMock, 10.0);
-        Map<Cnec, Double> cnecThresholdMap = new HashMap<>();
-        cnecThresholdMap.put(cnecMock, 500.0);
-        SystematicSensitivityAnalysisResult sensitivityAnalysisResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
-        Mockito.when(sensitivityAnalysisResultMock.getCnecMarginMap()).thenReturn(cnecMarginMap);
-        Mockito.when(sensitivityAnalysisResultMock.getCnecMaxThresholdMap()).thenReturn(cnecThresholdMap);
+    public void testOptimalSolve() {
+        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
 
-        linearRaoModeller.updateProblem(sensitivityAnalysisResultMock);
-        assertEquals(490.0, linearRaoModeller.getData().getReferenceFlow(cnecMock), 0.1);
+        linearRaoModeller.buildProblem();
+        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
+        assertNotNull(raoComputationResult);
+        assertEquals(RaoComputationResult.Status.SUCCESS, raoComputationResult.getStatus());
     }
 
+    @Test
+    public void testUnboundedSolve() {
+        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
+
+        linearRaoModeller.buildProblem();
+        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
+        assertNotNull(raoComputationResult);
+        assertEquals(RaoComputationResult.Status.FAILURE, raoComputationResult.getStatus());
+    }
 }

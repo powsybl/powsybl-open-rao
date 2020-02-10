@@ -8,13 +8,10 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +20,6 @@ import java.util.List;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearRaoProblem {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoProblem.class);
 
     public static double infinity() {
         return MPSolver.infinity();
@@ -189,18 +185,7 @@ public class LinearRaoProblem {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
     }
 
-    public RaoComputationResult solve(List<AbstractPostProcessor> postProcessorList, LinearRaoData linearRaoData) {
-        String solverResultStatusString = solver.solve().name();
-        RaoComputationResult raoComputationResult;
-        if (solverResultStatusString.equals("OPTIMAL")) {
-            RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
-            raoComputationResult = new RaoComputationResult(status);
-            postProcessorList.forEach(postProcessor -> postProcessor.process(this, linearRaoData, raoComputationResult));
-        } else {
-            RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
-            raoComputationResult = new RaoComputationResult(status);
-            LOGGER.warn("Linear rao computation failed: MPSolver status is {}", solverResultStatusString);
-        }
-        return raoComputationResult;
+    public Enum solve() {
+        return solver.solve();
     }
 }

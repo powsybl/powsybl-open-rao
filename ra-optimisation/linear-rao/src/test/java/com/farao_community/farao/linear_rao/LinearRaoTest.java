@@ -113,9 +113,7 @@ public class LinearRaoTest {
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult);
 
         LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
-        LinearRaoProblem linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
-        Mockito.when(linearRaoModellerMock.buildProblem()).thenReturn(linearRaoProblemMock);
-        Mockito.when(linearRaoProblemMock.solve(Mockito.any(), Mockito.any())).thenReturn(raoComputationResult);
+        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult);
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());

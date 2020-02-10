@@ -64,7 +64,7 @@ public class LinearRao implements RaoProvider {
         double oldObjectiveFunction = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
-        LinearRaoProblem linearRaoProblem = linearRaoModeller.buildProblem();
+        linearRaoModeller.buildProblem();
         List<AbstractPostProcessor> postProcessorList = new ArrayList<>();
         postProcessorList.add(new RaoResultPostProcessor());
 
@@ -72,7 +72,7 @@ public class LinearRao implements RaoProvider {
         List<RemedialActionResult> newRemedialActionsResult;
 
         while (iterationsLeft > 0) {
-            raoComputationResult = linearRaoProblem.solve(postProcessorList, new LinearRaoData(crac, network, postOptimSensitivityAnalysisResult));
+            raoComputationResult = linearRaoModeller.solve();
             if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
                 return CompletableFuture.completedFuture(raoComputationResult);
             }
