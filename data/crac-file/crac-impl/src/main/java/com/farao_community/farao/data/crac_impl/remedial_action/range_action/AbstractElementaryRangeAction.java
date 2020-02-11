@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -15,6 +16,7 @@ import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,6 +93,13 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     @JsonProperty("ranges")
     public void addRange(Range range) {
         this.ranges.add(range);
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+        return sensitivityComputationResults.getSensitivityValues().stream()
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
+            .findFirst().orElseThrow(FaraoException::new).getValue();
     }
 
     @Override
