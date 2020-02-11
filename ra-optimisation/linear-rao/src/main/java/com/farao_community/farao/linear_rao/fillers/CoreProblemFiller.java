@@ -11,11 +11,17 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.ra_optimisation.PstElementResult;
+import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
+import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
+import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,13 +52,13 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) {
         Crac crac = linearRaoData.getCrac();
         Network network = linearRaoData.getNetwork();
 
         if (crac.getPreventiveState() != null) {
             Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            rangeActions.forEach(rangeAction ->  updateRangeActionBounds(network, rangeAction));
+            remedialActionResultList.forEach(remedialActionResult -> updateRangeActionBounds(crac, network, remedialActionResult));
             crac.getCnecs().forEach(cnec -> {
                 linearRaoProblem.updateReferenceFlow(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
                 rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
@@ -102,7 +108,27 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                         linearRaoData.getSensitivity(cnec, rangeAction)));
     }
 
-    private void updateRangeActionBounds(Network network, RangeAction rangeAction) {
+    private double getRemedialActionResultValue(RemedialActionElementResult remedialActionElementResult) {
+        if (remedialActionElementResult instanceof PstElementResult) {
+            PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
+            return pstElementResult.getPostOptimisationAngle() - pstElementResult.getPreOptimisationAngle();
+        } else if (remedialActionElementResult instanceof RedispatchElementResult) {
+            RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
+            return redispatchElementResult.getPostOptimisationTargetP() - redispatchElementResult.getPreOptimisationTargetP();
+        }
+        return 0;
+    }
 
+    private void updateRangeActionBounds(Crac crac, Network network, RemedialActionResult remedialActionResult) {
+        List<RemedialActionElementResult> remedialActionElementResultList = remedialActionResult.getRemedialActionElementResults();
+        for (RemedialActionElementResult remedialActionElementResult : remedialActionElementResultList) {
+            RangeAction rangeAction = crac.getRangeAction(remedialActionElementResult.getId());
+            rangeAction.getNetworkElements().forEach(networkElement ->
+                    linearRaoProblem.updateRangeActionBounds(
+                            rangeAction.getId(),
+                            networkElement.getId(),
+                            getRemedialActionResultValue(remedialActionElementResult)
+                            ));
+        }
     }
 }

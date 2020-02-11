@@ -110,4 +110,44 @@ public class LinearRaoProblemTest {
             assertEquals("Range action variable for range-action-test on network-element-test has not been defined yet.", e.getMessage());
         }
     }
+
+    @Test
+    public void updateReferenceFlow() {
+        String cnecId = "cnec-test";
+        linearRaoProblem.addCnec(cnecId, 500);
+        linearRaoProblem.updateReferenceFlow(cnecId, 400);
+
+        MPVariable variable = linearRaoProblem.getFlowVariable(cnecId);
+        assertEquals(-LinearRaoProblem.infinity(), variable.lb(), 0.1);
+        assertEquals(LinearRaoProblem.infinity(), variable.ub(), 0.1);
+
+        MPConstraint constraint = linearRaoProblem.getFlowConstraint(cnecId);
+        assertEquals(400, constraint.lb(), 0.1);
+        assertEquals(400, constraint.ub(), 0.1);
+        assertEquals(1, constraint.getCoefficient(variable), 0.1);
+
+        assertEquals(1, linearRaoProblem.getFlowVariables().size());
+        assertEquals(1, linearRaoProblem.getFlowConstraints().size());
+    }
+
+    @Test
+    public void updateRangeActionBounds() {
+        String rangeActionId = "range-action-test";
+        String networkElementId = "network-element-test";
+        linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
+
+        linearRaoProblem.updateRangeActionBounds(rangeActionId, networkElementId, 4);
+        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId);
+        assertEquals(0, positiveVariable.lb(), 0.1);
+        assertEquals(11, positiveVariable.ub(), 0.1);
+        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId);
+        assertEquals(0, negativeVariable.lb(), 0.1);
+        assertEquals(16, negativeVariable.ub(), 0.1);
+
+        linearRaoProblem.updateRangeActionBounds(rangeActionId, networkElementId, -6);
+        assertEquals(0, positiveVariable.lb(), 0.1);
+        assertEquals(17, positiveVariable.ub(), 0.1);
+        assertEquals(0, negativeVariable.lb(), 0.1);
+        assertEquals(10, negativeVariable.ub(), 0.1);
+    }
 }
