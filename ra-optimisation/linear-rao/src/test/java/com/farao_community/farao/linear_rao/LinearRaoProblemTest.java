@@ -75,7 +75,7 @@ public class LinearRaoProblemTest {
         String networkElementId = "network-element-test";
         linearRaoProblem.addCnec(cnecId, 500);
         linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
-        linearRaoProblem.addRangeActionFlowOnBranch(cnecId, rangeActionId, networkElementId, 0.2);
+        linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, networkElementId, 0.2);
 
         MPConstraint constraint = linearRaoProblem.getFlowConstraint(cnecId);
         MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId);
@@ -92,7 +92,7 @@ public class LinearRaoProblemTest {
         String networkElementId = "network-element-test";
         linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
         try {
-            linearRaoProblem.addRangeActionFlowOnBranch(cnecId, rangeActionId, networkElementId, 0.2);
+            linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, networkElementId, 0.2);
         } catch (FaraoException e) {
             assertEquals("Flow variable on cnec-test has not been defined yet.", e.getMessage());
         }
@@ -105,7 +105,7 @@ public class LinearRaoProblemTest {
         String networkElementId = "network-element-test";
         linearRaoProblem.addCnec(cnecId, 500);
         try {
-            linearRaoProblem.addRangeActionFlowOnBranch(cnecId, rangeActionId, networkElementId, 0.2);
+            linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, networkElementId, 0.2);
         } catch (FaraoException e) {
             assertEquals("Range action variable for range-action-test on network-element-test has not been defined yet.", e.getMessage());
         }
