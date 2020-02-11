@@ -13,6 +13,9 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +96,12 @@ public class LinearRaoProblem {
             .orElse(null);
     }
 
+    /**
+     * @param cnecId id of the considered cnec
+     * @param minMax can take two values: "min" or "max" depending on the expected MPConstraint
+     * @return the MPConstraint ensuring that the minimal margin is smaller than the
+     * minimum or maximum margin of the considered cnec, or null if this MPConstraint doesn't exist
+     */
     public MPConstraint getMinimumMarginConstraint(String cnecId, String minMax) {
         return minimumMarginConstraints.stream()
             .filter(constraint -> constraint.name().equals(getMinimumMarginConstraintId(cnecId, minMax)))
@@ -108,6 +117,12 @@ public class LinearRaoProblem {
         return objective;
     }
 
+    /**
+     * Creates a flow variable corresponding to the flow on the considered Cnec and add it to the flowVariables attribute.
+     * Creates a flow constraint so that the flow on this Cnec is equal to the reference flow
+     * @param cnecId id of the considered Cnec
+     * @param referenceFlow initial active flow on the cnec (prior to linear optimization)
+     */
     public void addCnec(String cnecId, double referenceFlow) {
         MPVariable flowVariable = solver.makeNumVar(-infinity(), infinity(), getFlowVariableId(cnecId));
         flowVariables.add(flowVariable);
@@ -116,6 +131,17 @@ public class LinearRaoProblem {
         flowConstraint.setCoefficient(flowVariable, 1);
     }
 
+    /**
+     * Creates two {@link MPVariable}s corresponding to the {@link RangeAction} and its {@link NetworkElement} considered:
+     * <ul>
+     *     <li>one for the positive variation, which is between 0 and maxPositiveVariation</li>
+     *     <li>one for the negative variation, which is between 0 and maxNegativeVariation</li>
+     * </ul>
+     * @param rangeActionId id of the range action considered
+     * @param networkElementId id of the network element considered
+     * @param maxNegativeVariation maximum value that the negative variation of this range can take (positive or null)
+     * @param maxPositiveVariation maximum value that the positive variation of this range can take (positive or null)
+     */
     public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
         MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId, networkElementId));
         MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId, networkElementId));
@@ -123,7 +149,18 @@ public class LinearRaoProblem {
         positiveRangeActionVariables.add(positiveVariable);
     }
 
-    public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
+    /**
+     * Updates the cnec flow constraint with two coefficients related to the range action:
+     * <ul>
+     *     <li>one for the positive range action variable</li>
+     *     <li>one for the negative range action variable</li>
+     * </ul>
+     * @param cnecId id of the cnec considered
+     * @param rangeActionId if of the range action considered
+     * @param networkElementId if of the network element associated to the range action considered
+     * @param sensitivity sensitivity coefficient of the flow on the cnec after a variation of the range action (TODO: clarify unit in the javadoc)
+     */
+    public void updateFlowConstraintsWithRangeAction(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
         MPConstraint flowConstraint = getFlowConstraint(cnecId);
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
@@ -145,6 +182,16 @@ public class LinearRaoProblem {
         solver.makeNumVar(-infinity(), infinity(), POS_MIN_MARGIN);
     }
 
+    /**
+     * Adds two constraints to the minimum margin variable, related to a Cnec:
+     * <ul>
+     *     <li>one related to the minimal flow on the Cnec</li>
+     *     <li>one related to the maximal flow on the Cnec</li>
+     * </ul>
+     * @param cnecId id of the Cnec considered
+     * @param minFlow minimal flow on the Cnec considered
+     * @param maxFlow maximal flow on the Cnec considered
+     */
     public void addMinimumMarginConstraints(String cnecId, double minFlow, double maxFlow) {
         MPVariable flowVariable = getFlowVariable(cnecId);
         MPConstraint minimumMarginByMax = solver.makeConstraint(-infinity(), maxFlow, getMinimumMarginConstraintId(cnecId, "max"));
@@ -157,6 +204,10 @@ public class LinearRaoProblem {
         minimumMarginConstraints.add(minimumMarginByMin);
     }
 
+    /**
+     * Creates the objective function which maximizes the minimum margin variable taking into account
+     * penalty costs associated to the use of range actions.
+     */
     public void addPosMinObjective() {
         objective = solver.objective();
         objective.setCoefficient(getMinimumMarginVariable(), 1);
@@ -181,7 +232,13 @@ public class LinearRaoProblem {
         return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
     }
 
-    private String getMinimumMarginConstraintId(String branch, String minMax) {
-        return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
+    /**
+     * @param cnecId id of the considered cnec
+     * @param minMax can take two values: "min" or "max" depending on the expected MPConstraint
+     * @return the id of the MPConstraint ensuring that the minimal margin is smaller than the
+     * minimum or maximum margin of the considered cnec.
+     */
+    private String getMinimumMarginConstraintId(String cnecId, String minMax) {
+        return String.format("%s-%s-%s", POS_MIN_MARGIN, cnecId, minMax);
     }
 }
