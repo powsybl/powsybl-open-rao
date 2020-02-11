@@ -184,7 +184,7 @@ public class LinearRaoProblem {
     private String getMinimumMarginConstraintId(String branch, String minMax) {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, branch, minMax);
     }
-  
+
     public void updateReferenceFlow(String cnecId, double referenceFlow) {
         getFlowConstraint(cnecId).setBounds(referenceFlow, referenceFlow);
     }
@@ -194,7 +194,7 @@ public class LinearRaoProblem {
         MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId, networkElementId);
         positiveRangeActionVariable.setUb(positiveRangeActionVariable.ub() - initialPositionChange);
         negativeRangeActionVariable.setUb(negativeRangeActionVariable.ub() + initialPositionChange);
-    } 
+    }
 
     public Enum solve() {
         return solver.solve();

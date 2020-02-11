@@ -93,7 +93,7 @@ public class LinearRao implements RaoProvider {
             postOptimSensitivityAnalysisResult = midOptimSensitivityAnalysisResult;
             oldScore = newScore;
             oldRemedialActionsResult = newRemedialActionsResult;
-            linearRaoModeller.updateProblem(midOptimSensitivityAnalysisResult);
+            linearRaoModeller.updateProblem(midOptimSensitivityAnalysisResult, newRemedialActionsResult);
             iterationsLeft -= 1;
         }
 
