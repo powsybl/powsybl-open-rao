@@ -238,4 +238,8 @@ public class LinearRaoProblem {
     private String getMinimumMarginConstraintId(String cnecId, String minMax) {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, cnecId, minMax);
     }
+
+    public Enum solve() {
+        return solver.solve();
+    }
 }
