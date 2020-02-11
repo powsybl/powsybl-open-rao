@@ -393,82 +393,8 @@ public final class MinRamAdjustmentExampleGenerator {
         };
     }
 
-    static LoadFlowFactory loadFlowFactory() {
-        return new LoadFlowFactoryMock();
-    }
-
     static SensitivityComputationFactory sensitivityComputationFactory() {
         return new SensitivityComputationFactoryMock();
-    }
-
-    /**
-     * Load flow provider dedicated for this test case.
-     * It ** ONLY ** works in basecase and in N-1 FR-BE.
-     */
-    @AutoService(LoadFlowFactory.class)
-    public static class LoadFlowFactoryMock implements LoadFlowFactory {
-        private final Map<String, Double> expectedFref;
-
-        public LoadFlowFactoryMock() {
-            expectedFref = getExpectedFref();
-        }
-
-        @Override
-        public LoadFlow create(Network network, ComputationManager computationManager, int i) {
-            return new LoadFlow() {
-                @Override
-                public CompletableFuture<LoadFlowResult> run(String workingVariantId, LoadFlowParameters loadFlowParameters) {
-                    String initialVariantId = network.getVariantManager().getWorkingVariantId();
-                    network.getVariantManager().setWorkingVariant(workingVariantId);
-                    if (network.getLine("FR-BE").getTerminal1().isConnected() && network.getLine("FR-BE").getTerminal2().isConnected()) {
-                        fillPreContingencyResult(network);
-                    } else {
-                        fillPostContingencyResult(network);
-                    }
-                    network.getVariantManager().setWorkingVariant(initialVariantId);
-                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
-                }
-
-                @Override
-                public String getName() {
-                    return "MockLoadflow";
-                }
-
-                @Override
-                public String getVersion() {
-                    return "1.0.0";
-                }
-            };
-        }
-
-        private void fillPreContingencyResult(Network network) {
-            network.getLineStream().forEach(line -> {
-                double fref = expectedFref.get(line.getId());
-                line.getTerminal1().setP(fref);
-                line.getTerminal2().setP(-fref);
-            });
-        }
-
-        private void fillPostContingencyResult(Network network) {
-            network.getLineStream().forEach(line -> {
-                double fref = expectedFref.get("N-1 FR-BE / " + line.getId());
-                line.getTerminal1().setP(fref);
-                line.getTerminal2().setP(-fref);
-            });
-        }
-
-        private Map<String, Double> getExpectedFref() {
-            Map<String, Double> expectedFrefByBranch = new HashMap<>();
-            expectedFrefByBranch.put("FR-BE", 50.);
-            expectedFrefByBranch.put("FR-DE", 50.);
-            expectedFrefByBranch.put("BE-NL", 50.);
-            expectedFrefByBranch.put("DE-NL", 50.);
-            expectedFrefByBranch.put("N-1 FR-BE / FR-BE", 0.);
-            expectedFrefByBranch.put("N-1 FR-BE / FR-DE", 100.);
-            expectedFrefByBranch.put("N-1 FR-BE / BE-NL", 0.);
-            expectedFrefByBranch.put("N-1 FR-BE / DE-NL", 100.);
-            return expectedFrefByBranch;
-        }
     }
 
     @AutoService(SensitivityComputationFactory.class)
