@@ -58,7 +58,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
 
         if (crac.getPreventiveState() != null) {
             Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            remedialActionResultList.forEach(remedialActionResult -> updateRangeActionBounds(crac, network, remedialActionResult));
+            remedialActionResultList.forEach(remedialActionResult -> updateRangeActionBounds(crac, remedialActionResult));
             crac.getCnecs().forEach(cnec -> {
                 linearRaoProblem.updateReferenceFlow(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
                 rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
@@ -119,7 +119,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         return 0;
     }
 
-    private void updateRangeActionBounds(Crac crac, Network network, RemedialActionResult remedialActionResult) {
+    private void updateRangeActionBounds(Crac crac, RemedialActionResult remedialActionResult) {
         List<RemedialActionElementResult> remedialActionElementResultList = remedialActionResult.getRemedialActionElementResults();
         for (RemedialActionElementResult remedialActionElementResult : remedialActionElementResultList) {
             RangeAction rangeAction = crac.getRangeAction(remedialActionElementResult.getId());
