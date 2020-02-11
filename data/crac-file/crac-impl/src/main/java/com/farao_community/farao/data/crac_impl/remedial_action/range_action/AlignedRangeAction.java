@@ -63,12 +63,12 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public double getMinValue(Network network) {
-        return ranges.stream().map(range -> range.getMin()).max(Double::compareTo).orElseThrow(FaraoException::new);
+        return ranges.stream().map(Range::getMin).max(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return ranges.stream().map(range -> range.getMax()).min(Double::compareTo).orElseThrow(FaraoException::new);
+        return ranges.stream().map(Range::getMax).min(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override

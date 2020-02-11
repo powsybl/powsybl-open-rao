@@ -66,16 +66,6 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     protected abstract double getMinValueWithRange(Network network, Range range);
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        return 0;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        return 0;
-    }
-
-    @Override
     public double getMinValue(Network network) {
         double minValue = Double.NEGATIVE_INFINITY;
         for (Range range: ranges
@@ -110,6 +100,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return sensitivityComputationResults.getSensitivityValues().stream()
             .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getCriticalNetworkElement().getId()))
             .findFirst().orElseThrow(FaraoException::new).getValue();
     }
 

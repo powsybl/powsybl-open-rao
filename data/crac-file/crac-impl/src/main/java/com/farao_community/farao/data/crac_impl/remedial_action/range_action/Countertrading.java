@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class Countertrading extends AbstractRemedialAction implements RangeAction {
 
-    public final static int TEMP_VALUE = 0;
+    public static final int TEMP_VALUE = 0;
 
     @JsonCreator
     public Countertrading(@JsonProperty("id") String id,
@@ -51,17 +51,17 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
 
     @Override
     public double getMaxNegativeVariation(Network network) {
-        return 0;
+        return TEMP_VALUE;
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
-        return 0;
+        return TEMP_VALUE;
     }
 
     @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
-        return 0;
+        return TEMP_VALUE;
     }
 
     @Override

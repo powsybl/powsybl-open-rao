@@ -13,7 +13,10 @@ import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.List;
 
@@ -50,8 +53,22 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
     }
 
     @Override
+    public double getMaxNegativeVariation(Network network) {
+        return Math.abs(getMinValue(network) - getCurrentSetpoint(network));
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return Math.abs(getMaxValue(network) - getCurrentSetpoint(network));
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }
 
+    public double getCurrentSetpoint(Network network) {
+        HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
+        return hvdcLine.getActivePowerSetpoint();
+    }
 }
