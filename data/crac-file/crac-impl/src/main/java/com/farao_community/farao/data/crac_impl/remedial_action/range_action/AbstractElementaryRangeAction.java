@@ -49,20 +49,8 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         this.networkElement = networkElement;
     }
 
-    public AbstractElementaryRangeAction(String id, String name, String operator, List<Range> ranges, NetworkElement networkElement) {
-        super(id, name, operator);
-        this.ranges = ranges;
-        this.networkElement = networkElement;
-    }
-
     public AbstractElementaryRangeAction(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator);
-        this.ranges = new ArrayList<>();
-        this.networkElement = networkElement;
-    }
-
-    public AbstractElementaryRangeAction(String id, String operator, NetworkElement networkElement) {
-        super(id, operator);
         this.ranges = new ArrayList<>();
         this.networkElement = networkElement;
     }

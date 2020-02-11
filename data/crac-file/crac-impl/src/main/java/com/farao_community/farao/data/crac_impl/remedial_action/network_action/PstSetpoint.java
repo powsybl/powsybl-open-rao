@@ -39,10 +39,6 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
         super(id, name, operator, networkElement, setpoint);
     }
 
-    public PstSetpoint(String id, String operator, NetworkElement networkElement, double setpoint) {
-        super(id, operator, networkElement, setpoint);
-    }
-
     /**
      * Constructor of a remedial action on a PST to fix a tap
      *

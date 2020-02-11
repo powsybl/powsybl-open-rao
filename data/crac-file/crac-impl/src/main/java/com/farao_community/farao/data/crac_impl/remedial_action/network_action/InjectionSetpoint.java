@@ -38,10 +38,6 @@ public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAc
         super(id, name, operator, networkElement, setpoint);
     }
 
-    public InjectionSetpoint(String id, String operator, NetworkElement networkElement, double setpoint) {
-        super(id, operator, networkElement, setpoint);
-    }
-
     public InjectionSetpoint(String id, NetworkElement networkElement, double setpoint) {
         super(id, networkElement, setpoint);
     }

@@ -53,45 +53,13 @@ public final class Redispatching extends AbstractElementaryRangeAction {
         this.marginalCost = marginalCost;
     }
 
-    public Redispatching(String id, String name, String operator, List<Range> ranges, double minimumPower,
-                         double maximumPower, double targetPower, double startupCost, double marginalCost,
-                         NetworkElement generator) {
-        super(id, name, operator, ranges, generator);
-        this.minimumPower = minimumPower;
-        this.maximumPower = maximumPower;
-        this.targetPower = targetPower;
-        this.startupCost = startupCost;
-        this.marginalCost = marginalCost;
-    }
-
-    public Redispatching(String id, String name, String operator, double minimumPower, double maximumPower,
-                         double targetPower, double startupCost, double marginalCost, NetworkElement generator) {
+    public Redispatching(String id, String name, String operator, double anyValue, NetworkElement generator) {
         super(id, name, operator, generator);
-        this.minimumPower = minimumPower;
-        this.maximumPower = maximumPower;
-        this.targetPower = targetPower;
-        this.startupCost = startupCost;
-        this.marginalCost = marginalCost;
-    }
-
-    public Redispatching(String id, String operator, double minimumPower, double maximumPower, double targetPower,
-                         double startupCost, double marginalCost, NetworkElement generator) {
-        super(id, operator, generator);
-        this.minimumPower = minimumPower;
-        this.maximumPower = maximumPower;
-        this.targetPower = targetPower;
-        this.startupCost = startupCost;
-        this.marginalCost = marginalCost;
-    }
-
-    public Redispatching(String id, double minimumPower, double maximumPower, double targetPower, double startupCost,
-                         double marginalCost, NetworkElement generator) {
-        super(id, generator);
-        this.minimumPower = minimumPower;
-        this.maximumPower = maximumPower;
-        this.targetPower = targetPower;
-        this.startupCost = startupCost;
-        this.marginalCost = marginalCost;
+        this.minimumPower = anyValue;
+        this.maximumPower = anyValue;
+        this.targetPower = anyValue;
+        this.startupCost = anyValue;
+        this.marginalCost = anyValue;
     }
 
     public Redispatching(String id, NetworkElement generator, double anyValue) {

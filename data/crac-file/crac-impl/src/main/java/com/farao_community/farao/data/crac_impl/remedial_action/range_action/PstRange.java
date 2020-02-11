@@ -46,16 +46,8 @@ public final class PstRange extends AbstractElementaryRangeAction {
         lowTapPosition = (int) Double.NaN;
     }
 
-    public PstRange(String id, String name, String operator, List<Range> ranges, NetworkElement networkElement) {
-        super(id, name, operator, ranges, networkElement);
-    }
-
     public PstRange(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
-    }
-
-    public PstRange(String id, String operator, NetworkElement networkElement) {
-        super(id, operator, networkElement);
     }
 
     public PstRange(String id, NetworkElement networkElement) {

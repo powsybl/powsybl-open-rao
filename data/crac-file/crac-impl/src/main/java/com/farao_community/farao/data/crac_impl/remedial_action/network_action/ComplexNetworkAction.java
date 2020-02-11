@@ -54,11 +54,6 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
         this.elementaryNetworkActions = new HashSet<>();
     }
 
-    public ComplexNetworkAction(String id) {
-        super(id);
-        this.elementaryNetworkActions = new HashSet<>();
-    }
-
     public Set<AbstractElementaryNetworkAction> getElementaryNetworkActions() {
         return elementaryNetworkActions;
     }

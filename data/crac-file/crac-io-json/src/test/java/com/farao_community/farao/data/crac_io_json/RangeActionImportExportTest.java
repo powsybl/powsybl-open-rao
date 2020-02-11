@@ -95,10 +95,6 @@ public class RangeActionImportExportTest {
             "redispatchingName",
             "RTE",
             10,
-            100,
-            80,
-            23,
-            5,
             new NetworkElement("generatorId")
         );
         Redispatching transformedRedispatching = roundTrip(redispatching, Redispatching.class);
@@ -148,10 +144,6 @@ public class RangeActionImportExportTest {
             "redispatchingName",
             "RTE",
             10,
-            100,
-            80,
-            23,
-            5,
             new NetworkElement("generatorId")
         );
         AbstractElementaryRangeAction transformedAbstractElementaryRangeAction = roundTrip(abstractElementaryRangeAction, AbstractElementaryRangeAction.class);
@@ -201,10 +193,6 @@ public class RangeActionImportExportTest {
             "redispatchingName",
             "RTE",
             10,
-            100,
-            80,
-            23,
-            5,
             new NetworkElement("generatorId")
         );
         AbstractRemedialAction transformedAbstractRemedialAction = roundTrip(abstractRemedialAction, AbstractRemedialAction.class);
