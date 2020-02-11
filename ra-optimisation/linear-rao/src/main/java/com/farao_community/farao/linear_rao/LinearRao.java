@@ -61,7 +61,7 @@ public class LinearRao implements RaoProvider {
 
         int iterationsLeft = MAX_ITERATIONS;
 
-        double oldObjectiveFunction = getMinMargin(crac, preOptimSensitivityAnalysisResult);
+        double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
@@ -86,21 +86,21 @@ public class LinearRao implements RaoProvider {
             createAndSwitchToNewVariant(network, originalNetworkVariant);
             applyRAs(crac, network, newRemedialActionsResult);
             midOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-            double newObjectiveFunction = getMinMargin(crac, midOptimSensitivityAnalysisResult);
-            if (newObjectiveFunction < oldObjectiveFunction) {
+            double newScore = getMinMargin(crac, midOptimSensitivityAnalysisResult);
+            if (newScore < oldScore) {
                 // TODO : limit the ranges
-                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", oldObjectiveFunction, newObjectiveFunction);
+                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", oldScore, newScore);
                 break;
             }
 
             postOptimSensitivityAnalysisResult = midOptimSensitivityAnalysisResult;
-            oldObjectiveFunction = newObjectiveFunction;
+            oldScore = newScore;
             oldRemedialActionsResult = newRemedialActionsResult;
             linearRaoModeller.updateProblem(midOptimSensitivityAnalysisResult);
             iterationsLeft -= 1;
         }
 
-        return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldRemedialActionsResult));
+        return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldRemedialActionsResult, oldScore));
     }
 
     LinearRaoModeller createLinearRaoModeller(Crac crac,
@@ -139,15 +139,11 @@ public class LinearRao implements RaoProvider {
         return true;
     }
 
-    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
+    private void createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
         Objects.requireNonNull(referenceNetworkVariant);
-        if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
-            throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
-        }
         String uniqueId = getUniqueVariantId(network);
         network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
         network.getVariantManager().setWorkingVariant(uniqueId);
-        return uniqueId;
     }
 
     private String getUniqueVariantId(Network network) {
@@ -181,8 +177,9 @@ public class LinearRao implements RaoProvider {
         return minMargin;
     }
 
-    private RaoComputationResult buildRaoComputationResult(Crac crac, List<RemedialActionResult> raResultList) {
-        LinearRaoResult resultExtension = new LinearRaoResult(LinearRaoResult.SecurityStatus.SECURED);
+    private RaoComputationResult buildRaoComputationResult(Crac crac, List<RemedialActionResult> raResultList, double minMargin) {
+        LinearRaoResult resultExtension = new LinearRaoResult(
+                minMargin >= 0 ? LinearRaoResult.SecurityStatus.SECURED : LinearRaoResult.SecurityStatus.UNSECURED);
         PreContingencyResult preContingencyResult = createPreContingencyResultAndUpdateLinearRaoResult(crac, resultExtension, raResultList);
         List<ContingencyResult> contingencyResults = createContingencyResultsAndUpdateLinearRaoResult(crac, resultExtension);
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult, contingencyResults);
