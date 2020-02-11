@@ -119,7 +119,7 @@ public class LinearRao implements RaoProvider {
             RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
             return redispatchElementResult.getPostOptimisationTargetP();
         }
-        return 0;
+        throw new FaraoException("Range action type of " + remedialActionElementResult.getId() + " is not supported yet");
     }
 
     private boolean sameRemedialActionResultLists(List<RemedialActionResult> firstList, List<RemedialActionResult> secondList) {
