@@ -62,7 +62,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             linearRaoProblem.addRangeActionFlowOnBranch(
                 cnec.getId(),
                 rangeAction.getId(),
-                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(preventiveState)));
+                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(preventiveState), cnec));
         }
     }
 }

@@ -16,13 +16,18 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
+import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -60,14 +65,18 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(referenceFlow1);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(referenceFlow2);
 
+        SensitivityComputationResults sensitivityComputationResults = mock(SensitivityComputationResults.class);
+        when(linearRaoData.getSensitivityComputationResults(preventiveState)).thenReturn(sensitivityComputationResults);
+        Map<Cnec, Double> sensitivities = new HashMap<>();
+        sensitivities.put(cnec1, cnec1toRangeSensitivity);
+        sensitivities.put(cnec2, cnec2toRangeSensitivity);
+
         cnecs.add(cnec1);
         cnecs.add(cnec2);
-        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, minTap, maxTap);
+        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, minTap, maxTap, sensitivities);
         when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(cnec1toRangeSensitivity);
         when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(cnec2toRangeSensitivity);
         rangeActions.add(rangeAction);
-        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
-        when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
         coreProblemFiller.fill();
         positiveMinMarginFiller.fill();
@@ -81,7 +90,7 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         MPObjective objective = linearRaoProblem.getObjective();
         assertTrue(objective.maximization());
         assertEquals(1, objective.getCoefficient(linearRaoProblem.getMinimumMarginVariable()), 0.1);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId)), 0.01);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositiveRangeActionVariable(rangeActionId)), 0.01);
     }
 }

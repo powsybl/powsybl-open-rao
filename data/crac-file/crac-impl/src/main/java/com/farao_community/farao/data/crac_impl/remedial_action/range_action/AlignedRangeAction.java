@@ -72,7 +72,7 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
-    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return 0;
     }
 

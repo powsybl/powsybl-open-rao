@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao.mocks;
 import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.*;
 
@@ -20,12 +21,14 @@ public class RangeActionMock implements RangeAction {
     private NetworkElement networkElement;
     private double minValue;
     private double maxValue;
+    private Map<Cnec, Double> sensitivityValues;
 
-    public RangeActionMock(String id, String networkElementId, double minValue, double maxValue) {
+    public RangeActionMock(String id, String networkElementId, double minValue, double maxValue, Map<Cnec, Double> sensitivityValues) {
         this.id = id;
         networkElement = new NetworkElement(networkElementId);
         this.minValue = minValue;
         this.maxValue = maxValue;
+        this.sensitivityValues = sensitivityValues;
     }
 
     @Override
@@ -78,6 +81,11 @@ public class RangeActionMock implements RangeAction {
     @Override
     public double getMaxValue(Network network) {
         return maxValue;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        return sensitivityValues.get(cnec);
     }
 
     @Override

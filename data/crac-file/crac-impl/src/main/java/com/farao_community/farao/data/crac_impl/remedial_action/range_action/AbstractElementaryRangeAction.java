@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -96,7 +97,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     }
 
     @Override
-    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return sensitivityComputationResults.getSensitivityValues().stream()
             .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
             .findFirst().orElseThrow(FaraoException::new).getValue();
