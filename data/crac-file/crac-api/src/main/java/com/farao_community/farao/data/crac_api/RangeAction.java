@@ -27,6 +27,10 @@ public interface RangeAction extends RemedialAction, Synchronizable {
 
     double getMaxValue(Network network);
 
+    double getMaxNegativeVariation(Network network);
+
+    double getMaxPositiveVariation(Network network);
+
     double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec);
 
     // The setpoint is computed by an optimiser.
