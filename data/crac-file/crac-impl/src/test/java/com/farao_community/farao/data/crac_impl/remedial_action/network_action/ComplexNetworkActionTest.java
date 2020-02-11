@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class ComplexNetworkActionTest {
 
     private ComplexNetworkAction complexNetworkAction;
-    private NetworkAction mockedNetworkAction;
+    private AbstractElementaryNetworkAction mockedNetworkAction;
     private Set<NetworkElement> mockedNetworkElements;
 
     @Before
@@ -38,11 +38,11 @@ public class ComplexNetworkActionTest {
         UsageRule freeToUse = Mockito.mock(FreeToUse.class);
         List<UsageRule> usageRuleList = new ArrayList<>(Collections.singletonList(freeToUse));
 
-        mockedNetworkAction = Mockito.mock(PstSetpoint.class);
+        mockedNetworkAction = Mockito.mock(AbstractElementaryNetworkAction.class);
         NetworkElement networkElement = Mockito.mock(NetworkElement.class);
         mockedNetworkElements = new HashSet<>(Collections.singleton(networkElement));
         Mockito.when(mockedNetworkAction.getNetworkElements()).thenReturn(mockedNetworkElements);
-        Set<NetworkAction> applicableNetworkActions = Collections.singleton(mockedNetworkAction);
+        Set<AbstractElementaryNetworkAction> applicableNetworkActions = Collections.singleton(mockedNetworkAction);
 
         complexNetworkAction = new ComplexNetworkAction(
                 complexNetworkActionId,
@@ -59,7 +59,7 @@ public class ComplexNetworkActionTest {
         Set<NetworkAction> applicableNetworkActions = Collections.singleton(mockedNetworkAction);
         assertEquals(
                 applicableNetworkActions,
-                complexNetworkAction.getNetworkActions()
+                complexNetworkAction.getElementaryNetworkActions()
         );
     }
 
@@ -80,12 +80,12 @@ public class ComplexNetworkActionTest {
 
     @Test
     public void addNetworkAction() {
-        NetworkAction anotherNetworkAction = Mockito.mock(NetworkAction.class);
+        AbstractElementaryNetworkAction anotherNetworkAction = Mockito.mock(AbstractElementaryNetworkAction.class);
         complexNetworkAction.addNetworkAction(anotherNetworkAction);
         Set<NetworkAction> expectedNetworkActions = new HashSet<>();
         expectedNetworkActions.add(mockedNetworkAction);
         expectedNetworkActions.add(anotherNetworkAction);
-        assertEquals(expectedNetworkActions, complexNetworkAction.getNetworkActions());
+        assertEquals(expectedNetworkActions, complexNetworkAction.getElementaryNetworkActions());
 
     }
 }

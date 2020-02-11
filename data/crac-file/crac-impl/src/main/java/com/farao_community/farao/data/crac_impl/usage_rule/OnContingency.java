@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * The remedial action is available only after a specific contingency, with a given method
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("on-contingency")
 public final class OnContingency extends AbstractUsageRule {
 
     private Contingency contingency;
