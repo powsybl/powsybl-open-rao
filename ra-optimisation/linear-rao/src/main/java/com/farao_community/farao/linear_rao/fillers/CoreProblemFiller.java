@@ -100,9 +100,14 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         });
     }
 
+    /**
+     * Adds a range action variable
+     * @param cnec
+     * @param rangeAction
+     */
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
         rangeAction.getNetworkElements().forEach(networkElement ->
-                linearRaoProblem.addRangeActionFlowOnBranch(
+                linearRaoProblem.updateFlowConstraintsWithRangeAction(
                         cnec.getId(),
                         rangeAction.getId(),
                         networkElement.getId(),
