@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +28,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -56,7 +54,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             ActionType.CLOSE
         );
@@ -83,7 +80,6 @@ public class NetworkActionImportExportTest {
             "hvdcId",
             "hvdcName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             200
         );
@@ -98,7 +94,6 @@ public class NetworkActionImportExportTest {
             "injectionId",
             "injectionName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             500
         );
@@ -112,15 +107,12 @@ public class NetworkActionImportExportTest {
         ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction(
             "complexNetworkActionId",
             "complexNetworkActionName",
-            "RTE",
-            new ArrayList<>(),
-            new HashSet<>()
+            "RTE"
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -128,7 +120,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId2"),
             ActionType.CLOSE
         );
@@ -149,7 +140,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -157,7 +147,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId2"),
             ActionType.CLOSE
         );
@@ -177,7 +166,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -185,7 +173,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId2"),
             ActionType.CLOSE
         );
@@ -201,7 +188,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -216,7 +202,6 @@ public class NetworkActionImportExportTest {
             "hvdcId",
             "hvdcName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             200
         );
@@ -231,7 +216,6 @@ public class NetworkActionImportExportTest {
             "injectionId",
             "injectionName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             500
         );
@@ -246,7 +230,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -261,7 +244,6 @@ public class NetworkActionImportExportTest {
             "hvdcId",
             "hvdcName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             200
         );
@@ -276,7 +258,6 @@ public class NetworkActionImportExportTest {
             "injectionId",
             "injectionName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             500
         );
@@ -291,7 +272,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             ActionType.CLOSE
         );
@@ -306,7 +286,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -321,7 +300,6 @@ public class NetworkActionImportExportTest {
             "hvdcId",
             "hvdcName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             200
         );
@@ -336,7 +314,6 @@ public class NetworkActionImportExportTest {
             "injectionId",
             "injectionName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             500
         );
@@ -351,7 +328,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             ActionType.CLOSE
         );
@@ -367,7 +343,6 @@ public class NetworkActionImportExportTest {
             "pstSetpointId",
             "pstSetpointName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId"),
             5
         );
@@ -375,7 +350,6 @@ public class NetworkActionImportExportTest {
             "topologyId",
             "topologyName",
             "RTE",
-            new ArrayList<>(),
             new NetworkElement("neId2"),
             ActionType.CLOSE
         );
@@ -385,7 +359,6 @@ public class NetworkActionImportExportTest {
             "complexNetworkActionId",
             "complexNetworkActionName",
             "RTE",
-            new ArrayList<>(),
             elementaryNetworkActions
         );
 

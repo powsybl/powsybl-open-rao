@@ -37,6 +37,22 @@ public final class InjectionRange extends AbstractElementaryRangeAction {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
 
+    public InjectionRange(String id, String name, String operator, List<Range> ranges, NetworkElement networkElement) {
+        super(id, name, operator, ranges, networkElement);
+    }
+
+    public InjectionRange(String id, String name, String operator, NetworkElement networkElement) {
+        super(id, name, operator, networkElement);
+    }
+
+    public InjectionRange(String id, String operator, NetworkElement networkElement) {
+        super(id, operator, networkElement);
+    }
+
+    public InjectionRange(String id, NetworkElement networkElement) {
+        super(id, networkElement);
+    }
+
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         // to implement - specific to InjectionRange

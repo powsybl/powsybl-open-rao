@@ -41,6 +41,16 @@ public final class Topology extends AbstractElementaryNetworkAction {
         this.actionType = actionType;
     }
 
+    public Topology(String id, String name, String operator, NetworkElement networkElement, ActionType actionType) {
+        super(id, name, operator, networkElement);
+        this.actionType = actionType;
+    }
+
+    public Topology(String id, String operator, NetworkElement networkElement, ActionType actionType) {
+        super(id, operator, networkElement);
+        this.actionType = actionType;
+    }
+
     public Topology(String id, NetworkElement networkElement, ActionType actionType) {
         super(id, networkElement);
         this.actionType = actionType;

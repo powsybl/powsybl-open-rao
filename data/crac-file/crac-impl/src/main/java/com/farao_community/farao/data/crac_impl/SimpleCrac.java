@@ -25,7 +25,10 @@ import static java.lang.String.format;
  */
 @JsonTypeName("simple-crac")
 public class SimpleCrac extends AbstractIdentifiable implements Crac {
-    private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first";
+    private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first.";
+    private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
+    private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
+    private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
 
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
@@ -76,12 +79,22 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         return addNetworkElement(networkElement.getId(), networkElement.getName());
     }
 
+    /**
+     * This method add a network element to the crac internal set and returns a network element of this set.
+     * If an element with the same data is already added, the element of the internal set will be returned,
+     * otherwise it is created and then returned. An error is thrown when an element with an already
+     * existing ID is added with a different name.
+     *
+     * @param networkElementId: network element ID as in network files
+     * @param networkElementName: network element name for more human readable name
+     * @return a network element object that is already defined in the crac
+     */
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
             cracNetworkElement = new NetworkElement(networkElementId, networkElementName);
         } else if (!cracNetworkElement.getName().equals(networkElementName)) {
-            throw new FaraoException(format("A network element with the same ID (%s) but a different name already exists.", networkElementId));
+            throw new FaraoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
         }
         networkElements.add(cracNetworkElement);
         return cracNetworkElement;
@@ -157,7 +170,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         if (contingencies.stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
             // If an element with the same ID is present
             if (contingencies.stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
-                throw new FaraoException("A contingency with the same ID and different network elements already exists.");
+                throw new FaraoException(format(SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE, contingency.getId()));
             }
             /*
              * A contingency contains several network elements to trip. When adding a contingency, all the contained
@@ -169,12 +182,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
              */
             Set<NetworkElement> networkElementsFromInternalSet = new HashSet<>();
             for (NetworkElement networkElement : contingency.getNetworkElements()) {
-                if (networkElements.contains(networkElement)) {
-                    networkElementsFromInternalSet.add(getNetworkElement(networkElement.getId()));
-                } else {
-                    networkElements.add(new NetworkElement(networkElement.getId(), networkElement.getName()));
-                    networkElementsFromInternalSet.add(getNetworkElement(networkElement.getId()));
-                }
+                networkElementsFromInternalSet.add(addNetworkElement(networkElement.getId(), networkElement.getName()));
             }
             contingencies.add(new ComplexContingency(contingency.getId(), contingency.getName(), networkElementsFromInternalSet));
         }
@@ -229,7 +237,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             if (instants.contains(instant)) {
                 state = new SimpleState(Optional.empty(), getInstant(instant.getId()));
             } else {
-                throw new FaraoException(format("Please add %s to crac first", instant.getId()));
+                throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, instant.getId()));
             }
         }
         states.add(state);
@@ -248,7 +256,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             if (getInstant(instantId) != null) {
                 state = new SimpleState(Optional.empty(), getInstant(instantId));
             } else {
-                throw new FaraoException(format("Please add %s to crac first", instantId));
+                throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, instantId));
             }
         }
         states.add(state);

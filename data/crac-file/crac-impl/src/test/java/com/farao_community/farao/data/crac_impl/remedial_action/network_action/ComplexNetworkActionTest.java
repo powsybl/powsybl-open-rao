@@ -42,7 +42,7 @@ public class ComplexNetworkActionTest {
         NetworkElement networkElement = Mockito.mock(NetworkElement.class);
         mockedNetworkElements = new HashSet<>(Collections.singleton(networkElement));
         Mockito.when(mockedNetworkAction.getNetworkElements()).thenReturn(mockedNetworkElements);
-        Set<AbstractElementaryNetworkAction> applicableNetworkActions = (Set<AbstractElementaryNetworkAction>) Collections.singleton(mockedNetworkAction);
+        Set<AbstractElementaryNetworkAction> applicableNetworkActions = Collections.singleton(mockedNetworkAction);
 
         complexNetworkAction = new ComplexNetworkAction(
                 complexNetworkActionId,

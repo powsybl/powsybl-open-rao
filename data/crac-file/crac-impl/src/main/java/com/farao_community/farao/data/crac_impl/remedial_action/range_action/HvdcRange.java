@@ -37,6 +37,22 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
 
+    public HvdcRange(String id, String name, String operator, List<Range> ranges, NetworkElement networkElement) {
+        super(id, name, operator, ranges, networkElement);
+    }
+
+    public HvdcRange(String id, String name, String operator, NetworkElement networkElement) {
+        super(id, name, operator, networkElement);
+    }
+
+    public HvdcRange(String id, String operator, NetworkElement networkElement) {
+        super(id, operator, networkElement);
+    }
+
+    public HvdcRange(String id, NetworkElement networkElement) {
+        super(id, networkElement);
+    }
+
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         // to implement - specific to HvdcRange

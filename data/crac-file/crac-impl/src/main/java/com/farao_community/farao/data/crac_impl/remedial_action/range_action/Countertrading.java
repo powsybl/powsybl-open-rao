@@ -38,6 +38,18 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
         super(id, name, operator, usageRules);
     }
 
+    public Countertrading(String id, String name, String operator) {
+        super(id, name, operator);
+    }
+
+    public Countertrading(String id, String operator) {
+        super(id, operator);
+    }
+
+    public Countertrading(String id) {
+        super(id);
+    }
+
     @Override
     public double getMinValue(Network network) {
         return TEMP_VALUE;

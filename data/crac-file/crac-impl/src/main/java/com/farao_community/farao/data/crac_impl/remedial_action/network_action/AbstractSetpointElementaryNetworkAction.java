@@ -42,6 +42,16 @@ public abstract class AbstractSetpointElementaryNetworkAction extends AbstractEl
         this.setpoint = setpoint;
     }
 
+    public AbstractSetpointElementaryNetworkAction(String id, String name, String operator, NetworkElement networkElement, double setpoint) {
+        super(id, name, operator, networkElement);
+        this.setpoint = setpoint;
+    }
+
+    public AbstractSetpointElementaryNetworkAction(String id, String operator, NetworkElement networkElement, double setpoint) {
+        super(id, operator, networkElement);
+        this.setpoint = setpoint;
+    }
+
     public AbstractSetpointElementaryNetworkAction(String id, NetworkElement networkElement, double setpoint) {
         super(id, networkElement);
         this.setpoint = setpoint;

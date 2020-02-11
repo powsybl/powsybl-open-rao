@@ -50,11 +50,23 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
                                   @JsonProperty("usageRules") List<UsageRule> usageRules) {
         super(id, name);
         this.operator = operator;
-        this.usageRules = usageRules;
+        this.usageRules = new ArrayList<>(usageRules);
+    }
+
+    public AbstractRemedialAction(String id, String name, String operator) {
+        super(id, name);
+        this.operator = operator;
+        this.usageRules = new ArrayList<>();
+    }
+
+    public AbstractRemedialAction(String id, String operator) {
+        super(id);
+        this.operator = operator;
+        this.usageRules = new ArrayList<>();
     }
 
     public AbstractRemedialAction(String id) {
-        super(id, id);
+        super(id);
         this.operator = "";
         usageRules = new ArrayList<>();
     }

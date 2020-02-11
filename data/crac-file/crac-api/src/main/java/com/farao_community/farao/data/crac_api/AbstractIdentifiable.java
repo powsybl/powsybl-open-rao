@@ -27,6 +27,10 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
         this.name = name;
     }
 
+    public AbstractIdentifiable(String id) {
+        this(id, id);
+    }
+
     @Override
     public String getId() {
         return id;

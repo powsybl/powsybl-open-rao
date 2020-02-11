@@ -32,8 +32,6 @@ public class RangeActionImportExportTest {
             "pstRangeId",
             "pstRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         PstRange transformedPstRange = roundTrip(pstRange, PstRange.class);
@@ -46,8 +44,6 @@ public class RangeActionImportExportTest {
             "hvdcRangeId",
             "hvdcRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         HvdcRange transformedHvdcRange = roundTrip(hvdcRange, HvdcRange.class);
@@ -60,8 +56,6 @@ public class RangeActionImportExportTest {
             "injectionRangeId",
             "injectionRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         InjectionRange transformedInjectionRange = roundTrip(injectionRange, InjectionRange.class);
@@ -77,8 +71,6 @@ public class RangeActionImportExportTest {
             "alignedRangeActionId",
             "alignedRangeActionName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             networkElements
         );
         AlignedRangeAction transformedAlignedRangeAction = roundTrip(alignedRangeAction, AlignedRangeAction.class);
@@ -90,8 +82,7 @@ public class RangeActionImportExportTest {
         Countertrading countertrading = new Countertrading(
             "countertradingId",
             "countertradingName",
-            "RTE",
-            new ArrayList<>()
+            "RTE"
         );
         Countertrading transformedCountertrading = roundTrip(countertrading, Countertrading.class);
         assertEquals(transformedCountertrading, countertrading);
@@ -103,8 +94,6 @@ public class RangeActionImportExportTest {
             "redispatchingId",
             "redispatchingName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             10,
             100,
             80,
@@ -122,8 +111,6 @@ public class RangeActionImportExportTest {
             "pstRangeId",
             "pstRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         AbstractElementaryRangeAction transformedAbstractElementaryRangeAction = roundTrip(abstractElementaryRangeAction, AbstractElementaryRangeAction.class);
@@ -136,8 +123,6 @@ public class RangeActionImportExportTest {
             "hvdcRangeId",
             "hvdcRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         AbstractElementaryRangeAction transformedAbstractElementaryRangeAction = roundTrip(abstractElementaryRangeAction, AbstractElementaryRangeAction.class);
@@ -150,8 +135,6 @@ public class RangeActionImportExportTest {
             "injectionRangeId",
             "injectionRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         AbstractElementaryRangeAction transformedAbstractElementaryRangeAction = roundTrip(abstractElementaryRangeAction, AbstractElementaryRangeAction.class);
@@ -164,8 +147,6 @@ public class RangeActionImportExportTest {
             "redispatchingId",
             "redispatchingName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             10,
             100,
             80,
@@ -183,8 +164,6 @@ public class RangeActionImportExportTest {
             "pstRangeId",
             "pstRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         AbstractRemedialAction transformedAbstractRemedialAction = roundTrip(abstractRemedialAction, AbstractRemedialAction.class);
@@ -197,8 +176,6 @@ public class RangeActionImportExportTest {
             "hvdcRangeId",
             "hvdcRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         AbstractRemedialAction transformedAbstractRemedialAction = roundTrip(abstractRemedialAction, AbstractRemedialAction.class);
@@ -211,8 +188,6 @@ public class RangeActionImportExportTest {
             "injectionRangeId",
             "injectionRangeName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             new NetworkElement("neId")
         );
         AbstractRemedialAction transformedAbstractRemedialAction = roundTrip(abstractRemedialAction, AbstractRemedialAction.class);
@@ -225,8 +200,6 @@ public class RangeActionImportExportTest {
             "redispatchingId",
             "redispatchingName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             10,
             100,
             80,
@@ -243,8 +216,7 @@ public class RangeActionImportExportTest {
         AbstractRemedialAction abstractRemedialAction = new Countertrading(
             "countertradingId",
             "countertradingName",
-            "RTE",
-            new ArrayList<>()
+            "RTE"
         );
         AbstractRemedialAction transformedAbstractRemedialAction = roundTrip(abstractRemedialAction, AbstractRemedialAction.class);
         assertEquals(transformedAbstractRemedialAction, abstractRemedialAction);
@@ -259,8 +231,6 @@ public class RangeActionImportExportTest {
             "alignedRangeActionId",
             "alignedRangeActionName",
             "RTE",
-            new ArrayList<>(),
-            new ArrayList<>(),
             networkElements
         );
         AbstractRemedialAction transformedAbstractRemedialAction = roundTrip(abstractRemedialAction, AbstractRemedialAction.class);
@@ -281,7 +251,6 @@ public class RangeActionImportExportTest {
             "alignedRangeActionId",
             "alignedRangeActionName",
             "RTE",
-            new ArrayList<>(),
             ranges,
             networkElements
         );

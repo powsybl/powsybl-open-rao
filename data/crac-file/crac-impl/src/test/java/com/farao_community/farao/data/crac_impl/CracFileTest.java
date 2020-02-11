@@ -133,7 +133,7 @@ public class CracFileTest {
             simpleCrac.addContingency("contingency-1", "ne2");
             fail();
         } catch (FaraoException e) {
-            assertEquals("A contingency with the same ID and different network elements already exists.", e.getMessage());
+            assertEquals("A contingency with the same ID (contingency-1) but a different network elements already exists.", e.getMessage());
         }
         try {
             simpleCrac.addContingency("contingency-2", "ne1");
@@ -157,7 +157,7 @@ public class CracFileTest {
             simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne2"))));
             fail();
         } catch (FaraoException e) {
-            assertEquals("A contingency with the same ID and different network elements already exists.", e.getMessage());
+            assertEquals("A contingency with the same ID (contingency-1) but a different network elements already exists.", e.getMessage());
         }
         try {
             simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("ne1"))));

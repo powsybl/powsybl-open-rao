@@ -16,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,13 +39,23 @@ public class ComplexNetworkAction extends AbstractRemedialAction implements Netw
         this.elementaryNetworkActions = new HashSet<>(elementaryNetworkActions);
     }
 
+    public ComplexNetworkAction(String id, String name, String operator, Set<AbstractElementaryNetworkAction> elementaryNetworkActions) {
+        super(id, name, operator);
+        this.elementaryNetworkActions = new HashSet<>(elementaryNetworkActions);
+    }
+
     public ComplexNetworkAction(String id, String name, String operator) {
-        super(id, name, operator, new ArrayList<>());
+        super(id, name, operator);
         this.elementaryNetworkActions = new HashSet<>();
     }
 
     public ComplexNetworkAction(String id, String operator) {
-        super(id, id, operator, new ArrayList<>());
+        super(id, operator);
+        this.elementaryNetworkActions = new HashSet<>();
+    }
+
+    public ComplexNetworkAction(String id) {
+        super(id);
         this.elementaryNetworkActions = new HashSet<>();
     }
 

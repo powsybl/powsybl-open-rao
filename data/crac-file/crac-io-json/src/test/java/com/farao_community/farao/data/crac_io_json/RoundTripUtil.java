@@ -28,6 +28,16 @@ public final class RoundTripUtil {
 
     }
 
+    /**
+     * This utilitary class enable to export an object through ObjectMapper in an OutputStream
+     * and then re-import this stream as the object. The purpose is to see if the whole export/import
+     * process works fine.
+     *
+     * @param object: object to export/import
+     * @param objectClass: class of the object
+     * @param <T>: type of the object
+     * @return the object exported and re-imported
+     */
     static <T> T roundTrip(T object, Class<T> objectClass) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {

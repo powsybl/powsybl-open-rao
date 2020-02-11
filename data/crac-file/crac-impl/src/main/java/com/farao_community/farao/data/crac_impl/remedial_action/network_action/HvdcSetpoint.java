@@ -34,6 +34,14 @@ public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction 
         super(id, name, operator, usageRules, networkElement, setpoint);
     }
 
+    public HvdcSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint) {
+        super(id, name, operator, networkElement, setpoint);
+    }
+
+    public HvdcSetpoint(String id, String operator, NetworkElement networkElement, double setpoint) {
+        super(id, operator, networkElement, setpoint);
+    }
+
     public HvdcSetpoint(String id, NetworkElement networkElement, double setpoint) {
         super(id, networkElement, setpoint);
     }

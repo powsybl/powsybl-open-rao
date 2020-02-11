@@ -45,6 +45,16 @@ public abstract class AbstractElementaryNetworkAction extends AbstractRemedialAc
         this.networkElement = networkElement;
     }
 
+    public AbstractElementaryNetworkAction(String id, String name, String operator, NetworkElement networkElement) {
+        super(id, name, operator);
+        this.networkElement = networkElement;
+    }
+
+    public AbstractElementaryNetworkAction(String id, String operator, NetworkElement networkElement) {
+        super(id, operator);
+        this.networkElement = networkElement;
+    }
+
     public AbstractElementaryNetworkAction(String id, NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;

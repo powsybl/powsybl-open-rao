@@ -43,6 +43,28 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
         this.networkElements = new HashSet<>(networkElements);
     }
 
+    public AlignedRangeAction(String id, String name, String operator, List<Range> ranges, Set<NetworkElement> networkElements) {
+        super(id, name, operator);
+        this.ranges = ranges;
+        this.networkElements = new HashSet<>(networkElements);
+    }
+
+    public AlignedRangeAction(String id, String name, String operator, Set<NetworkElement> networkElements) {
+        this(id, name, operator, new ArrayList<>(), networkElements);
+    }
+
+    public AlignedRangeAction(String id, String operator, Set<NetworkElement> networkElements) {
+        super(id, operator);
+        this.ranges = new ArrayList<>();
+        this.networkElements = new HashSet<>(networkElements);
+    }
+
+    public AlignedRangeAction(String id, Set<NetworkElement> networkElements) {
+        super(id);
+        this.ranges = new ArrayList<>();
+        this.networkElements = new HashSet<>(networkElements);
+    }
+
     public AlignedRangeAction(String id) {
         super(id);
         this.ranges = new ArrayList<>();
