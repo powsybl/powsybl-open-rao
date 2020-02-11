@@ -67,13 +67,18 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = -Math.abs(range.getMin());
-        return getExtremumValueWithRange(network, range, minValue);
+        return convertTapToAngle(network, (int) getExtremumValueWithRange(network, range, minValue));
     }
 
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return getExtremumValueWithRange(network, range, maxValue);
+        return convertTapToAngle(network, (int) getExtremumValueWithRange(network, range, maxValue));
+    }
+
+    private double convertTapToAngle(Network network, int tap) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        return transformer.getPhaseTapChanger().getStep(tap).getAlpha();
     }
 
     private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {

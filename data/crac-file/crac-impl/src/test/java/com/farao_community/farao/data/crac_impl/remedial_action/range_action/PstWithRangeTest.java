@@ -10,18 +10,18 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_impl.mocks.TwoWindingsTransformerMock;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     private int pstLowTapPosition = -6;
-    private int pstHighTapPosition = 6;
+    private int pstHighTapPosition = 12;
 
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
     private PstWithRange pstWithRange;
@@ -69,13 +69,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         pstWithRange1.addRange(range1);
         pstWithRange1.addRange(range2);
 
-        TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
-        PhaseTapChanger phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
+        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(pstLowTapPosition, pstHighTapPosition, 10);  // then getMinValueWithRange(network, range2) will be 3
         Mockito.when(network.getTwoWindingsTransformer(pstWithRange1.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
-        Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
-        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10); // then getMinValueWithRange(network, range2) will be 3
-        Mockito.when(phaseTapChanger.getHighTapPosition()).thenReturn(pstHighTapPosition);
-        Mockito.when(phaseTapChanger.getLowTapPosition()).thenReturn(pstLowTapPosition);
     }
 
     @Test
@@ -147,13 +142,12 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void getMinAndMaxValueWithRange() {
-        assertEquals(13, pstWithRange1.getMaxValueWithRange(network, range1), 0);
-        // assertEquals(3, pstRange1.getMinValueWithRange(network, range1), 0);
+        assertEquals(0.13, pstWithRange1.getMaxValueWithRange(network, range1), 0);
     }
 
     @Test
     public void getMinValue() {
-        assertEquals(3, pstWithRange1.getMinValue(network), 0);
+        assertEquals(0.03, pstWithRange1.getMinValue(network), 0);
     }
 
     @Test
