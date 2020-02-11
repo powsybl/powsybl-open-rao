@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
@@ -118,7 +119,7 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     }
 
     @Override
-    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return 0;
     }
 

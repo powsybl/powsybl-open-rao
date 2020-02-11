@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao.mocks;
 import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.*;
 
@@ -78,6 +79,21 @@ public class RangeActionMock implements RangeAction {
     @Override
     public double getMaxValue(Network network) {
         return maxValue;
+    }
+
+    @Override
+    public double getMaxNegativeVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        return 0;
     }
 
     @Override

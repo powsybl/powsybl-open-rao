@@ -72,7 +72,17 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
-    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+    public double getMaxNegativeVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return 0;
     }
 

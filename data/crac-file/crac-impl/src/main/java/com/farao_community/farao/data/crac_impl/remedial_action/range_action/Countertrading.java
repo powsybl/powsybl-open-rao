@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -49,7 +50,17 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     }
 
     @Override
-    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults) {
+    public double getMaxNegativeVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return 0;
     }
 
