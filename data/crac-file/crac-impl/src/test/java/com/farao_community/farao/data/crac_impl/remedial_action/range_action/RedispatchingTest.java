@@ -64,4 +64,10 @@ public class RedispatchingTest extends AbstractElementaryRangeActionTest {
         Redispatching anotherRedispatching = new Redispatching("otherid", networkElement, 3.);
         assertNotEquals(redispatching, anotherRedispatching);
     }
+
+    @Test
+    public void alternativeConstructor() {
+        Redispatching redispatching = new Redispatching("id", "name", "operator", 10, new NetworkElement("neID"));
+        assertEquals("id", redispatching.getId());
+    }
 }

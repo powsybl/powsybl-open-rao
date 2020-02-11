@@ -49,4 +49,29 @@ public class Range {
     public RangeDefinition getRangeDefinition() {
         return rangeDefinition;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Range otherRange = (Range) o;
+        return rangeDefinition.equals(otherRange.rangeDefinition)
+                && rangeType.equals(otherRange.rangeType)
+                && min == otherRange.min
+                && max == otherRange.max;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        result = 31 * result + rangeDefinition.hashCode();
+        result = 31 * result + rangeType.hashCode();
+        result = 31 * result + (int) min;
+        result = 31 * result + (int) max;
+        return result;
+    }
 }

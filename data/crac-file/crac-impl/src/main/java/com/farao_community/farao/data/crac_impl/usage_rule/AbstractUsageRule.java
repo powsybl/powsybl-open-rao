@@ -20,11 +20,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FreeToUse.class, name = "freeToUse"),
-        @JsonSubTypes.Type(value = OnConstraint.class, name = "onConstraint"),
-        @JsonSubTypes.Type(value = OnContingency.class, name = "onContingency")
+        @JsonSubTypes.Type(value = FreeToUse.class, name = "free-to-use"),
+        @JsonSubTypes.Type(value = OnConstraint.class, name = "on-constraint"),
+        @JsonSubTypes.Type(value = OnContingency.class, name = "on-contingency")
     })
 public abstract class AbstractUsageRule implements UsageRule {
 

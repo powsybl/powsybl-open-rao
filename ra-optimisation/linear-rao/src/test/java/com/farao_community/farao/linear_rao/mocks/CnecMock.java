@@ -30,7 +30,7 @@ public class CnecMock implements Cnec {
     }
 
     @Override
-    public NetworkElement getCriticalNetworkElement() {
+    public NetworkElement getNetworkElement() {
         return null;
     }
 

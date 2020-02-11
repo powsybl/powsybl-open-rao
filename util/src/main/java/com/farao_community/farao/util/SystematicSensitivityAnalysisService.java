@@ -151,7 +151,7 @@ public final class SystematicSensitivityAnalysisService {
             crac.getCnecs().forEach(cnec -> {
                 String monitoredBranchId = cnec.getId();
                 String monitoredBranchName = cnec.getName();
-                String branchId = cnec.getCriticalNetworkElement().getId();
+                String branchId = cnec.getNetworkElement().getId();
                 BranchFlow branchFlow = new BranchFlow(monitoredBranchId, monitoredBranchName, branchId);
                 psts.forEach(twt -> {
                     String twtId = twt.getId();

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
@@ -24,7 +24,7 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("redispatching")
 public final class Redispatching extends AbstractElementaryRangeAction {
 
     private double minimumPower;
@@ -53,9 +53,16 @@ public final class Redispatching extends AbstractElementaryRangeAction {
         this.marginalCost = marginalCost;
     }
 
-    public Redispatching(String id,
-                         NetworkElement generator,
-                         double anyValue) {
+    public Redispatching(String id, String name, String operator, double anyValue, NetworkElement generator) {
+        super(id, name, operator, generator);
+        this.minimumPower = anyValue;
+        this.maximumPower = anyValue;
+        this.targetPower = anyValue;
+        this.startupCost = anyValue;
+        this.marginalCost = anyValue;
+    }
+
+    public Redispatching(String id, NetworkElement generator, double anyValue) {
         super(id, generator);
         this.minimumPower = anyValue;
         this.maximumPower = anyValue;

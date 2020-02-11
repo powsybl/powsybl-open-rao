@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("injection-range")
 public final class InjectionRange extends AbstractElementaryRangeAction {
 
     protected static int injectionRangeTempValue = 0;
@@ -35,6 +35,10 @@ public final class InjectionRange extends AbstractElementaryRangeAction {
                           @JsonProperty("ranges") List<Range> ranges,
                           @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
+    }
+
+    public InjectionRange(String id, String name, String operator, NetworkElement networkElement) {
+        super(id, name, operator, networkElement);
     }
 
     @Override

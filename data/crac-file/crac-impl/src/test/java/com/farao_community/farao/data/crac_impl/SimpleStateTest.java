@@ -28,8 +28,8 @@ public class SimpleStateTest {
     public void create() {
         NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
         state =  new SimpleState(
-                Optional.of(new ComplexContingency("contingencyId", "contingencyName", Collections.singleton(networkElement))),
-                new Instant("curative", 12)
+            Optional.of(new ComplexContingency("contingencyId", "contingencyName", Collections.singleton(networkElement))),
+            new Instant("curative", 12)
         );
     }
 

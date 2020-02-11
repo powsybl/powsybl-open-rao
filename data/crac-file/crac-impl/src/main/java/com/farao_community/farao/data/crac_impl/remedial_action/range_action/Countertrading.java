@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
@@ -24,7 +25,7 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
+@JsonTypeName("countertrading")
 public class Countertrading extends AbstractRemedialAction implements RangeAction {
 
     public final static int TEMP_VALUE = 0;
@@ -35,6 +36,10 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
                           @JsonProperty("operator") String operator,
                           @JsonProperty("usageRules") List<UsageRule> usageRules) {
         super(id, name, operator, usageRules);
+    }
+
+    public Countertrading(String id, String name, String operator) {
+        super(id, name, operator);
     }
 
     @Override

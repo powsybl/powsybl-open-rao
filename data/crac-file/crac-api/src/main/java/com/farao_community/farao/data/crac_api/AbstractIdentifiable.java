@@ -15,7 +15,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
 
     private final String id;
@@ -25,6 +25,10 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
     public AbstractIdentifiable(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public AbstractIdentifiable(String id) {
+        this(id, id);
     }
 
     @Override

@@ -13,6 +13,8 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,14 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-abstract class AbstractElementaryNetworkAction extends AbstractRemedialAction implements NetworkAction {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PstSetpoint.class, name = "pst-setpoint"),
+        @JsonSubTypes.Type(value = HvdcSetpoint.class, name = "hvdc-setpoint"),
+        @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
+        @JsonSubTypes.Type(value = Topology.class, name = "topology")
+    })
+public abstract class AbstractElementaryNetworkAction extends AbstractRemedialAction implements NetworkAction {
     protected NetworkElement networkElement;
 
     @JsonCreator
@@ -36,8 +45,12 @@ abstract class AbstractElementaryNetworkAction extends AbstractRemedialAction im
         this.networkElement = networkElement;
     }
 
-    public AbstractElementaryNetworkAction(@JsonProperty("id") String id,
-                                           @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryNetworkAction(String id, String name, String operator, NetworkElement networkElement) {
+        super(id, name, operator);
+        this.networkElement = networkElement;
+    }
+
+    public AbstractElementaryNetworkAction(String id, NetworkElement networkElement) {
         super(id);
         this.networkElement = networkElement;
     }
@@ -63,13 +76,14 @@ abstract class AbstractElementaryNetworkAction extends AbstractRemedialAction im
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractElementaryNetworkAction otherAbstractElementaryNetworkAction = (AbstractElementaryNetworkAction) o;
-
-        return super.equals(o) && networkElement == otherAbstractElementaryNetworkAction.getNetworkElement();
+        AbstractElementaryNetworkAction otherAbstractElementary = (AbstractElementaryNetworkAction) o;
+        return super.equals(otherAbstractElementary) && networkElement.equals(otherAbstractElementary.networkElement);
     }
 
     @Override
     public int hashCode() {
-        return String.format("%s%s", getId(), getNetworkElement().getId()).hashCode();
+        int result = super.hashCode();
+        result = 31 * result + networkElement.hashCode();
+        return result;
     }
 }

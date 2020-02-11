@@ -217,6 +217,6 @@ public class LinearRao implements RaoProvider {
         linearRaoResult.updateResult(marginPostOptim);
         double preOptimFlow = maximumFlow - marginPreOptim;
         double postOptimFlow = maximumFlow - marginPostOptim;
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getCriticalNetworkElement().getId(), maximumFlow, preOptimFlow, postOptimFlow);
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), maximumFlow, preOptimFlow, postOptimFlow);
     }
 }

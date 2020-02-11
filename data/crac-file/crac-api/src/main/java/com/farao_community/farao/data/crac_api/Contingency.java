@@ -16,7 +16,7 @@ import java.util.Set;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Contingency extends Identifiable {
 
     /**
