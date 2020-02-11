@@ -13,9 +13,6 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,7 +129,7 @@ public class LinearRaoProblem {
     }
 
     /**
-     * Creates two {@link MPVariable}s corresponding to the {@link RangeAction} and its {@link NetworkElement} considered:
+     * Creates two {@link MPVariable}s corresponding to the RangeAction and its NetworkElement considered:
      * <ul>
      *     <li>one for the positive variation, which is between 0 and maxPositiveVariation</li>
      *     <li>one for the negative variation, which is between 0 and maxNegativeVariation</li>
