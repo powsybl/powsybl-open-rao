@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
@@ -116,7 +117,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
             return redispatchElementResult.getPostOptimisationTargetP() - redispatchElementResult.getPreOptimisationTargetP();
         }
-        return 0;
+        throw new FaraoException("Range action type of " + remedialActionElementResult.getId() + " is not supported yet");
     }
 
     private void updateRangeActionBounds(Crac crac, RemedialActionResult remedialActionResult) {
