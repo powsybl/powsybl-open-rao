@@ -12,8 +12,10 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -40,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystem;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 
@@ -47,7 +51,7 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(SystematicSensitivityAnalysisService.class)
+@PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class LinearRaoTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoTest.class);
 
@@ -87,15 +91,45 @@ public class LinearRaoTest {
         );
         Crac crac = create();
         String variantId = "variant-test";
+
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
-        crac.getCnecs().forEach(cnec -> cnecMarginMap.put(cnec, 1.0));
+        Map<Cnec, Double> cnecMarginMap1 = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecMarginMap1.put(cnec, 1.0));
+        Map<Cnec, Double> cnecMarginMap2 = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecMarginMap2.put(cnec, 10.0));
         Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecMaxThresholdMap.put(cnec, 500.));
-
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap));
-        assertNotNull(linearRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters)); //need to change "dcMode" for Hades..
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap1, cnecMaxThresholdMap),
+                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap2, cnecMaxThresholdMap));
+
+        List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<>();
+        List<RemedialActionResult> remedialActionResults = new ArrayList<>();
+        List<RemedialActionElementResult> remedialActionElementResultList = new ArrayList<>();
+        remedialActionElementResultList.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 5, 2, 10, 4));
+        remedialActionResults.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList));
+        PreContingencyResult preContingencyResult = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults);
+        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult);
+
+        LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
+        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult);
+
+        LinearRao linearRaoSpy = Mockito.spy(linearRao);
+        Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());
+        CompletableFuture<RaoComputationResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
+        assertNotNull(linearRaoResultCF);
+        try {
+            RaoComputationResult linearRaoResult = linearRaoResultCF.get();
+            assertEquals(490, linearRaoResult.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow(), .1);
+            assertEquals(499, linearRaoResult.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow(), .1);
+            assertEquals(1, linearRaoResult.getPreContingencyResult().getRemedialActionResults().size());
+            assertEquals("RA PST BE", linearRaoResult.getPreContingencyResult().getRemedialActionResults().get(0).getId());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private static Crac create() {
@@ -147,6 +181,11 @@ public class LinearRaoTest {
         crac.addCnec(cnec2basecase);
         crac.addCnec(cnec2stateCurativeContingency1);
         crac.addCnec(cnec2stateCurativeContingency2);
+
+        // RAs
+        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
+        PstRange pstRange = new PstRange("BBE2AA1  BBE3AA1  1", pstElement);
+        crac.addRangeAction(pstRange);
 
         return crac;
     }
