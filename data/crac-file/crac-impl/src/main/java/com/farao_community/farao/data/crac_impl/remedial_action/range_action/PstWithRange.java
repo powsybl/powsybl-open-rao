@@ -78,12 +78,12 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
 
     @Override
     public double getMaxNegativeVariation(Network network) {
-        return Math.abs(getMinValue(network) - convertTapToAngle(network, getCurrentTapPosition(network)));
+        return Math.abs(convertTapToAngle(network, (int) getMinValue(network)) - convertTapToAngle(network, getCurrentTapPosition(network)));
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
-        return Math.abs(getMaxValue(network) - convertTapToAngle(network, getCurrentTapPosition(network)));
+        return Math.abs(convertTapToAngle(network, (int) getMaxValue(network))  - convertTapToAngle(network, getCurrentTapPosition(network)));
     }
 
     private double convertTapToAngle(Network network, int tap) {
