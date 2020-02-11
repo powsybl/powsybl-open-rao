@@ -10,7 +10,6 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -65,8 +64,6 @@ public class LinearRao implements RaoProvider {
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
-        List<AbstractPostProcessor> postProcessorList = new ArrayList<>();
-        postProcessorList.add(new RaoResultPostProcessor());
 
         RaoComputationResult raoComputationResult;
         List<RemedialActionResult> newRemedialActionsResult;
@@ -103,6 +100,7 @@ public class LinearRao implements RaoProvider {
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldRemedialActionsResult, oldScore));
     }
 
+    //defined to be able to run unit tests
     LinearRaoModeller createLinearRaoModeller(Crac crac,
                                               Network network,
                                               SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
