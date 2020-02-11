@@ -8,12 +8,10 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.util.Set;
@@ -30,6 +28,10 @@ public class LinearRaoData {
         this.crac = crac;
         this.network = network;
         this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+    }
+
+    public SensitivityComputationResults getSensitivityComputationResults(State state) {
+        return systematicSensitivityAnalysisResult.getStateSensiMap().get(state);
     }
 
     public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
