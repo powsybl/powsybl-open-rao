@@ -8,15 +8,16 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * Element of the network in the CRAC file.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonIdentityInfo(scope = NetworkElement.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class NetworkElement extends AbstractIdentifiable {
 
     @JsonCreator
