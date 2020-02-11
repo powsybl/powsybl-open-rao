@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -21,10 +21,8 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-public final class InjectionSetpoint extends AbstractElementaryNetworkAction {
-
-    private double setpoint;
+@JsonTypeName("injection-setpoint")
+public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
     public InjectionSetpoint(@JsonProperty("id") String id,
@@ -33,45 +31,19 @@ public final class InjectionSetpoint extends AbstractElementaryNetworkAction {
                              @JsonProperty("usageRules") List<UsageRule> usageRules,
                              @JsonProperty("networkElement") NetworkElement networkElement,
                              @JsonProperty("setpoint")  double setpoint) {
-        super(id, name, operator, usageRules, networkElement);
-        this.setpoint = setpoint;
+        super(id, name, operator, usageRules, networkElement, setpoint);
     }
 
-    public InjectionSetpoint(String id,
-                             NetworkElement networkElement,
-                             double setpoint) {
-        super(id, networkElement);
-        this.setpoint = setpoint;
+    public InjectionSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint) {
+        super(id, name, operator, networkElement, setpoint);
     }
 
-    public double getSetpoint() {
-        return setpoint;
-    }
-
-    public void setSetpoint(double setpoint) {
-        this.setpoint = setpoint;
+    public InjectionSetpoint(String id, NetworkElement networkElement, double setpoint) {
+        super(id, networkElement, setpoint);
     }
 
     @Override
     public void apply(Network network) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        InjectionSetpoint otherInjectionSetpoint = (InjectionSetpoint) o;
-
-        return super.equals(o) && setpoint == otherInjectionSetpoint.getSetpoint();
-    }
-
-    @Override
-    public int hashCode() {
-        return String.format("%s%f", getId(), setpoint).hashCode();
     }
 }
