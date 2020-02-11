@@ -29,6 +29,8 @@ import java.util.Set;
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public final class Redispatching extends AbstractElementaryRangeAction {
 
+    public static final int TEMP_VALUE_REDISPATCH = 0;
+
     private double minimumPower;
     private double maximumPower;
     private double targetPower;
@@ -121,19 +123,19 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     @Override
     public double getMaxNegativeVariation(Network network) {
         // to implement - specific to Redispatching
-        return 0;
+        return TEMP_VALUE_REDISPATCH;
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
         // to implement - specific to Redispatching
-        return 0;
+        return TEMP_VALUE_REDISPATCH;
     }
 
     @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         // to implement - specific to Redispatching
-        return 0;
+        return TEMP_VALUE_REDISPATCH;
     }
 
     @Override

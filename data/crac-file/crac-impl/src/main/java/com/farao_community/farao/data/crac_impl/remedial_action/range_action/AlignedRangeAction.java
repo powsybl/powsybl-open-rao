@@ -33,6 +33,8 @@ import java.util.*;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
 
+    public static final int TEMP_VALUE_ARA = 0;
+
     @JsonProperty("ranges")
     private List<Range> ranges;
 
@@ -74,19 +76,19 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public double getMaxNegativeVariation(Network network) {
         // to implement
-        return 0;
+        return TEMP_VALUE_ARA;
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
         // to implement
-        return 0;
+        return TEMP_VALUE_ARA;
     }
 
     @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         // to implement
-        return 0;
+        return TEMP_VALUE_ARA;
     }
 
     @Override
