@@ -19,13 +19,15 @@ import java.util.*;
 public class RangeActionMock implements RangeAction {
     private String id;
     private NetworkElement networkElement;
+    private double currentValue;
     private double minValue;
     private double maxValue;
     private Map<Cnec, Double> sensitivityValues;
 
-    public RangeActionMock(String id, String networkElementId, double minValue, double maxValue, Map<Cnec, Double> sensitivityValues) {
+    public RangeActionMock(String id, String networkElementId, double currentValue, double minValue, double maxValue, Map<Cnec, Double> sensitivityValues) {
         this.id = id;
         networkElement = new NetworkElement(networkElementId);
+        this.currentValue = currentValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.sensitivityValues = sensitivityValues;
@@ -81,6 +83,16 @@ public class RangeActionMock implements RangeAction {
     @Override
     public double getMaxValue(Network network) {
         return maxValue;
+    }
+
+    @Override
+    public double getMaxNegativeVariation(Network network) {
+        return Math.abs(currentValue - minValue);
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return Math.abs(currentValue - maxValue);
     }
 
     @Override

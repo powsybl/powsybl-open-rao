@@ -66,6 +66,16 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     protected abstract double getMinValueWithRange(Network network, Range range);
 
     @Override
+    public double getMaxNegativeVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return 0;
+    }
+
+    @Override
     public double getMinValue(Network network) {
         double minValue = Double.NEGATIVE_INFINITY;
         for (Range range: ranges

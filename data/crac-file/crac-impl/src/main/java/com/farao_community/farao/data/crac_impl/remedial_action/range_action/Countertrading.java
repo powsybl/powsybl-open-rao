@@ -50,6 +50,16 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     }
 
     @Override
+    public double getMaxNegativeVariation(Network network) {
+        return 0;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return 0;
+    }
+
+    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return 0;
     }

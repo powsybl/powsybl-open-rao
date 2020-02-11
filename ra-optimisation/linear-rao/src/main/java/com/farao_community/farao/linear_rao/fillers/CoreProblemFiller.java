@@ -11,9 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Set;
@@ -52,8 +50,8 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     private void fillRangeAction(RangeAction rangeAction) {
         linearRaoProblem.addRangeActionVariable(
             rangeAction.getId(),
-            rangeAction.getMinValue(linearRaoData.getNetwork()),
-            rangeAction.getMaxValue(linearRaoData.getNetwork()));
+            rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
+            rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
     }
 
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
