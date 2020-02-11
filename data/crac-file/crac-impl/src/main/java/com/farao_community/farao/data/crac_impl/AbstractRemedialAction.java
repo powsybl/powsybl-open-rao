@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -25,32 +25,50 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ComplexNetworkAction.class, name = "complexNetworkAction"),
-        @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "complexRangeAction")
+        @JsonSubTypes.Type(value = PstSetpoint.class, name = "pst-setpoint"),
+        @JsonSubTypes.Type(value = HvdcSetpoint.class, name = "hvdc-setpoint"),
+        @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
+        @JsonSubTypes.Type(value = Topology.class, name = "topology"),
+        @JsonSubTypes.Type(value = ComplexNetworkAction.class, name = "complex-network-action"),
+        @JsonSubTypes.Type(value = PstRange.class, name = "pst-range"),
+        @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
+        @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
+        @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching"),
+        @JsonSubTypes.Type(value = Countertrading.class, name = "countertrading"),
+        @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "aligned-range-action")
     })
 public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
     protected String operator;
     protected List<UsageRule> usageRules;
 
     @JsonCreator
-    public AbstractRemedialAction(@JsonProperty("id") String id,  @JsonProperty("name") String name,
+    public AbstractRemedialAction(@JsonProperty("id") String id,
+                                  @JsonProperty("name") String name,
                                   @JsonProperty("operator") String operator,
                                   @JsonProperty("usageRules") List<UsageRule> usageRules) {
         super(id, name);
         this.operator = operator;
-        this.usageRules = usageRules;
+        this.usageRules = new ArrayList<>(usageRules);
+    }
+
+    public AbstractRemedialAction(String id, String name, String operator) {
+        super(id, name);
+        this.operator = operator;
+        this.usageRules = new ArrayList<>();
+    }
+
+    public AbstractRemedialAction(String id, String operator) {
+        super(id);
+        this.operator = operator;
+        this.usageRules = new ArrayList<>();
     }
 
     public AbstractRemedialAction(String id) {
-        super(id, id);
-        this.operator = id;
+        super(id);
+        this.operator = "";
         usageRules = new ArrayList<>();
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
     }
 
     @Override
@@ -58,17 +76,16 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
         return operator;
     }
 
-    public void setUsageRules(List<UsageRule> usageRules) {
-        this.usageRules = usageRules;
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 
     @Override
-    public List<UsageRule> getUsageRules() {
+    public final List<UsageRule> getUsageRules() {
         return usageRules;
     }
 
     @Override
-    @JsonProperty("usageRules")
     public void addUsageRule(UsageRule usageRule) {
         usageRules.add(usageRule);
     }

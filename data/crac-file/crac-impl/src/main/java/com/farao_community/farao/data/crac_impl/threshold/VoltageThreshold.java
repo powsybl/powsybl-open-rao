@@ -12,9 +12,9 @@ import com.farao_community.farao.data.crac_api.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.SynchronizationException;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -27,7 +27,7 @@ import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("voltage-threshold")
 public class VoltageThreshold extends AbstractThreshold {
 
     private double minValue;
