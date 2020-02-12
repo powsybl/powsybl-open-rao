@@ -57,6 +57,8 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         Crac crac = linearRaoData.getCrac();
         Network network = linearRaoData.getNetwork();
 
+        crac.synchronize(network);
+
         if (crac.getPreventiveState() != null) {
             Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             remedialActionResultList.forEach(remedialActionResult -> updateRangeActionBounds(crac, remedialActionResult));
@@ -65,6 +67,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                 rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
             });
         }
+        crac.desynchronize();
     }
 
     private void fillCnec(Cnec cnec) {
