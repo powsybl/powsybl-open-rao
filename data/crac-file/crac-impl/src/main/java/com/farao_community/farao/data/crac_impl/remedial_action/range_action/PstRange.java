@@ -56,6 +56,10 @@ public final class PstRange extends AbstractElementaryRangeAction {
 
     public PstRange(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
+        lowTapPosition = (int) Double.NaN;
+        highTapPosition = (int) Double.NaN;
+        initialTapPosition = (int) Double.NaN;
+        currentTapPosition = (int) Double.NaN;
     }
 
     public PstRange(String id, NetworkElement networkElement) {
@@ -81,8 +85,7 @@ public final class PstRange extends AbstractElementaryRangeAction {
     public void setReferenceValue(Network network) {
         synchronize(network);
         initialTapPosition = currentTapPosition;
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
-        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
         lowTapPosition = phaseTapChanger.getLowTapPosition();
         highTapPosition = phaseTapChanger.getHighTapPosition();
         Range physicalRange = new Range(lowTapPosition,
@@ -95,16 +98,16 @@ public final class PstRange extends AbstractElementaryRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
-        return getExtremumValueWithRange(network, range, minValue);
+        return getExtremumValueWithRange(range, minValue);
     }
 
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return getExtremumValueWithRange(network, range, maxValue);
+        return getExtremumValueWithRange(range, maxValue);
     }
 
-    private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {
+    private double getExtremumValueWithRange(Range range, double extremumValue) {
         switch (range.getRangeType()) {
             case ABSOLUTE_FIXED:
                 switch (range.getRangeDefinition()) {
@@ -118,7 +121,6 @@ public final class PstRange extends AbstractElementaryRangeAction {
             case RELATIVE_FIXED:
                 return initialTapPosition + extremumValue;
             case RELATIVE_DYNAMIC:
-                // return getCurrentTapPosition(network) + extremumValue;
                 return currentTapPosition + extremumValue;
             default:
                 throw new FaraoException("Unknown range type");
