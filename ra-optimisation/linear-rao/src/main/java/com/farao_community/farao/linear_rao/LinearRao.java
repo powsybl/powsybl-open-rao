@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -33,7 +34,6 @@ import static java.lang.String.format;
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
-    private static final int MAX_ITERATIONS = 10;
     private static final double MIN_CHANGE_THRESHOLD = 0.0001;
 
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
@@ -63,7 +63,11 @@ public class LinearRao implements RaoProvider {
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         createAndSwitchToNewVariant(network, originalNetworkVariant);
 
-        int iterationsLeft = MAX_ITERATIONS;
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        if (linearRaoParameters == null) {
+            throw new FaraoException("rao parameters is missing linear rao parameters extension");
+        }
+        int iterationsLeft = linearRaoParameters.getMaxIterations();
 
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
