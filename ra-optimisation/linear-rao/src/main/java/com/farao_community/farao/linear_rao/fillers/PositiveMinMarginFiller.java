@@ -62,6 +62,8 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) { }
+    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) {
+        // Objective does not change, and the constraints on the min margin are modified by the core problem filler
+    }
 }
 
