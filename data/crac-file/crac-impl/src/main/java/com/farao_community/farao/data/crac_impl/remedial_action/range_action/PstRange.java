@@ -111,7 +111,7 @@ public final class PstRange extends AbstractElementaryRangeAction {
                     case STARTS_AT_ONE:
                         return lowTapPosition + extremumValue - 1;
                     case CENTERED_ON_ZERO:
-                        return (lowTapPosition + highTapPosition) / 2 + extremumValue;
+                        return ((double) lowTapPosition + highTapPosition) / 2 + extremumValue;
                     default:
                         throw new FaraoException("Unknown range definition");
                 }
