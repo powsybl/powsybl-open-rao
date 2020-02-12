@@ -104,6 +104,8 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
     public void pstOtherConstructor() {
         PstRange pstRange1 = new PstRange("id", networkElement);
         assertEquals("", pstRange1.getOperator());
+        PstRange pstRange2 = new PstRange("id", "name", "operator", networkElement);
+        assertEquals("operator", pstRange2.getOperator());
     }
 
     @Test
