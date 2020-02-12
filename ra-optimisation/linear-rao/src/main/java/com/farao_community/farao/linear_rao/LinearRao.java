@@ -138,7 +138,7 @@ public class LinearRao implements RaoProvider {
             if (remedialActionElementResult instanceof PstElementResult) {
                 PstElementResult newPstElementResult = (PstElementResult) remedialActionElementResult;
                 PstElementResult oldPstElementResult = (PstElementResult) oldRAResultElementMap.get(remedialActionElementResult.getId());
-                double totalChange = Math.abs(newPstElementResult.getPostOptimisationAngle() - oldPstElementResult.getPreOptimisationAngle());
+                double totalChange = newPstElementResult.getPostOptimisationAngle() - oldPstElementResult.getPreOptimisationAngle();
                 if (Math.abs(totalChange) > MIN_CHANGE_THRESHOLD) {
                     combinedRAResultElementList.add(new PstElementResult(oldPstElementResult.getId(),
                             oldPstElementResult.getPreOptimisationAngle(),
