@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("pst-range")
 public final class PstRange extends AbstractElementaryRangeAction {
 
     private int lowTapPosition;
@@ -54,8 +54,11 @@ public final class PstRange extends AbstractElementaryRangeAction {
         currentTapPosition = (int) Double.NaN;
     }
 
-    public PstRange(String id,
-                    NetworkElement networkElement) {
+    public PstRange(String id, String name, String operator, NetworkElement networkElement) {
+        super(id, name, operator, networkElement);
+    }
+
+    public PstRange(String id, NetworkElement networkElement) {
         super(id, networkElement);
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;

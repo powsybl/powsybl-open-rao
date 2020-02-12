@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl.usage_rule;
 import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * The remedial action is available only after a specific constraint, with a given method
@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("on-constraint")
 public final class OnConstraint extends AbstractUsageRule {
 
     private Cnec cnec;

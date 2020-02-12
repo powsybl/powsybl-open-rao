@@ -9,10 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -20,29 +17,30 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeName("simple-cnec")
+@JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SimpleCnec extends AbstractIdentifiable implements Cnec {
-    private NetworkElement criticalNetworkElement;
+    private NetworkElement networkElement;
     private Threshold threshold;
     private State state;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
-                      @JsonProperty("criticalNetworkElement") NetworkElement criticalNetworkElement,
+                      @JsonProperty("networkElement") NetworkElement networkElement,
                       @JsonProperty("threshold") Threshold threshold, @JsonProperty("state") State state) {
         super(id, name);
-        this.criticalNetworkElement = criticalNetworkElement;
+        this.networkElement = networkElement;
         this.threshold = threshold;
         this.state = state;
     }
 
-    public SimpleCnec(String id, NetworkElement criticalNetworkElement, AbstractThreshold threshold, State state) {
-        this(id, id, criticalNetworkElement, threshold, state);
+    public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
+        this(id, id, networkElement, threshold, state);
     }
 
     @Override
-    public NetworkElement getCriticalNetworkElement() {
-        return criticalNetworkElement;
+    public NetworkElement getNetworkElement() {
+        return networkElement;
     }
 
     @Override
@@ -50,8 +48,8 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return threshold.computeMargin(network, this);
     }
 
-    public void setCriticalNetworkElement(NetworkElement criticalNetworkElement) {
-        this.criticalNetworkElement = criticalNetworkElement;
+    public void setNetworkElement(NetworkElement networkElement) {
+        this.networkElement = networkElement;
     }
 
     @Override
@@ -101,14 +99,14 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
             return false;
         }
         SimpleCnec cnec = (SimpleCnec) o;
-        return super.equals(cnec) && criticalNetworkElement.equals(cnec.getCriticalNetworkElement())
+        return super.equals(cnec) && networkElement.equals(cnec.getNetworkElement())
             && state.equals(cnec.getState()) && threshold.equals(cnec.getThreshold());
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + criticalNetworkElement.hashCode();
+        result = 31 * result + networkElement.hashCode();
         result = 31 * result + state.hashCode();
         result = 31 * result + threshold.hashCode();
         return result;

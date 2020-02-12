@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import java.util.Set;
@@ -27,8 +26,12 @@ import java.util.SortedSet;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Crac extends Identifiable, Synchronizable {
+
+    Set<NetworkElement> getNetworkElements();
+
+    Set<Instant> getInstants();
 
     // Instants management
     Instant getInstant(String id);
@@ -56,7 +59,6 @@ public interface Crac extends Identifiable, Synchronizable {
      *
      * @return The preventive state of the problem definition.
      */
-    @JsonIgnore
     State getPreventiveState();
 
     /**
