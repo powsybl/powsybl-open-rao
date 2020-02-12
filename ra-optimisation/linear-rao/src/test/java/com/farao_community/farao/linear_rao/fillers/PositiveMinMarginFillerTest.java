@@ -71,8 +71,6 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         cnecs.add(cnec1);
         cnecs.add(cnec2);
         RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, currentAlpha, minAlpha, maxAlpha, sensitivities);
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(cnec1toRangeSensitivity);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(cnec2toRangeSensitivity);
         rangeActions.add(rangeAction);
 
         coreProblemFiller.fill();
