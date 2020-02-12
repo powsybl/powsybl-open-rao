@@ -9,8 +9,10 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -29,6 +31,9 @@ import java.util.List;
 public final class PstRange extends AbstractElementaryRangeAction {
 
     private int lowTapPosition;
+    private int highTapPosition;
+    private int initialTapPosition;
+    private int currentTapPosition;
 
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.
@@ -44,60 +49,81 @@ public final class PstRange extends AbstractElementaryRangeAction {
                     @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         lowTapPosition = (int) Double.NaN;
+        highTapPosition = (int) Double.NaN;
+        initialTapPosition = (int) Double.NaN;
+        currentTapPosition = (int) Double.NaN;
     }
 
     public PstRange(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
+        lowTapPosition = (int) Double.NaN;
+        highTapPosition = (int) Double.NaN;
+        initialTapPosition = (int) Double.NaN;
+        currentTapPosition = (int) Double.NaN;
     }
 
     public PstRange(String id, NetworkElement networkElement) {
         super(id, networkElement);
+        lowTapPosition = (int) Double.NaN;
+        highTapPosition = (int) Double.NaN;
+        initialTapPosition = (int) Double.NaN;
+        currentTapPosition = (int) Double.NaN;
     }
 
     @Override
     public void synchronize(Network network) {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
         PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-        lowTapPosition = phaseTapChanger.getLowTapPosition();
+        currentTapPosition = phaseTapChanger.getTapPosition();
     }
 
     @Override
     public void desynchronize() {
-        lowTapPosition = (int) Double.NaN;
+        currentTapPosition = (int) Double.NaN;
+    }
+
+    public void setReferenceValue(Network network) {
+        synchronize(network);
+        initialTapPosition = currentTapPosition;
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
+        lowTapPosition = phaseTapChanger.getLowTapPosition();
+        highTapPosition = phaseTapChanger.getHighTapPosition();
+        Range physicalRange = new Range(lowTapPosition,
+                highTapPosition,
+                RangeType.ABSOLUTE_FIXED,
+                RangeDefinition.CENTERED_ON_ZERO);
+        addRange(physicalRange);
     }
 
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
-        double minValue = -Math.abs(range.getMin());
-        return getExtremumValueWithRange(network, range, minValue);
+        double minValue = range.getMin();
+        return getExtremumValueWithRange(range, minValue);
     }
 
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return getExtremumValueWithRange(network, range, maxValue);
+        return getExtremumValueWithRange(range, maxValue);
     }
 
-    private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {
-        double extremumValueWithRange = Double.NaN;
+    private double getExtremumValueWithRange(Range range, double extremumValue) {
         switch (range.getRangeType()) {
             case ABSOLUTE_FIXED:
-                extremumValueWithRange = extremumValue;
-                break;
+                switch (range.getRangeDefinition()) {
+                    case STARTS_AT_ONE:
+                        return lowTapPosition + extremumValue - 1;
+                    case CENTERED_ON_ZERO:
+                        return ((double) lowTapPosition + highTapPosition) / 2 + extremumValue;
+                    default:
+                        throw new FaraoException("Unknown range definition");
+                }
             case RELATIVE_FIXED:
-                // TODO: clarify the sign convention of relative fixed range
-                extremumValueWithRange = getCurrentTapPosition(network) + extremumValue;
-                break;
+                return initialTapPosition + extremumValue;
             case RELATIVE_DYNAMIC:
-                throw new FaraoException("RelativeDynamicRanges are not handled for the moment");
-        }
-        switch (range.getRangeDefinition()) {
-            case STARTS_AT_ONE:
-                return lowTapPosition + extremumValueWithRange;
-            case CENTERED_ON_ZERO:
-                return extremumValueWithRange;
+                return currentTapPosition + extremumValue;
             default:
-                throw new FaraoException("Unknown range definition");
+                throw new FaraoException("Unknown range type");
         }
     }
 
@@ -129,11 +155,5 @@ public final class PstRange extends AbstractElementaryRangeAction {
             throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a PstRange", networkElement.getId()));
         }
         return phaseTapChanger;
-    }
-
-    public int getCurrentTapPosition(Network network) {
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
-        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-        return phaseTapChanger.getTapPosition();
     }
 }

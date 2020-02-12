@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
@@ -407,6 +409,13 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     @Override
     public void desynchronize() {
         cnecs.forEach(Synchronizable::desynchronize);
+    }
+
+    @Override
+    public void setReferenceValues(Network network) {
+        rangeActions.stream()
+                .filter(rangeAction -> rangeAction instanceof PstRange)
+                .forEach(rangeAction -> ((PstRange) rangeAction).setReferenceValue(network));
     }
 
     @Override
