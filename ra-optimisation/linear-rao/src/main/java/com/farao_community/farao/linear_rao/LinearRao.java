@@ -56,18 +56,18 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        if (linearRaoParameters == null) {
+            throw new FaraoException("rao parameters is missing linear rao parameters extension");
+        }
+        int iterationsLeft = linearRaoParameters.getMaxIterations();
+
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         createAndSwitchToNewVariant(network, originalNetworkVariant);
-
-        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
-        if (linearRaoParameters == null) {
-            throw new FaraoException("rao parameters is missing linear rao parameters extension");
-        }
-        int iterationsLeft = linearRaoParameters.getMaxIterations();
 
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
