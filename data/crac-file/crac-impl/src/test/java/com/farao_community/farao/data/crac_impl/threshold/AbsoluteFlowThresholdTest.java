@@ -32,9 +32,13 @@ public class AbsoluteFlowThresholdTest {
 
     private AbsoluteFlowThreshold absoluteFlowThresholdAmps;
     private AbsoluteFlowThreshold absoluteFlowThresholdMW;
+    private AbsoluteFlowThreshold absoluteFlowThresholdMWIn;
+    private AbsoluteFlowThreshold absoluteFlowThresholdMWOut;
     private Cnec cnec1;
     private Cnec cnec2;
     private Cnec cnec3;
+    private Cnec cnec4;
+    private Cnec cnec5;
     private Network networkWithoutLf;
     private Network networkWithLf;
 
@@ -42,6 +46,8 @@ public class AbsoluteFlowThresholdTest {
     public void setUp() {
         absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
         absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.BOTH, 1500.0);
+        absoluteFlowThresholdMWIn = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.IN, 1500.0);
+        absoluteFlowThresholdMWOut = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.OUT, 1500.0);
 
         cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 absoluteFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
@@ -51,6 +57,12 @@ public class AbsoluteFlowThresholdTest {
 
         cnec3 = new SimpleCnec("cnec3", "cnec3", new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"),
                 absoluteFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
+
+        cnec4 = new SimpleCnec("cnec4", "cnec4", new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"),
+                absoluteFlowThresholdMWIn, new SimpleState(Optional.empty(), new Instant("initial", 0)));
+
+        cnec5 = new SimpleCnec("cnec5", "cnec5", new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"),
+                absoluteFlowThresholdMWOut, new SimpleState(Optional.empty(), new Instant("initial", 0)));
 
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
         networkWithLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
@@ -81,6 +93,8 @@ public class AbsoluteFlowThresholdTest {
     public void getMinMaxThresholdWithUnit() throws SynchronizationException {
         absoluteFlowThresholdAmps.synchronize(networkWithLf, cnec1);
         absoluteFlowThresholdMW.synchronize(networkWithLf, cnec2);
+        absoluteFlowThresholdMWIn.synchronize(networkWithLf, cnec4);
+        absoluteFlowThresholdMWOut.synchronize(networkWithLf, cnec5);
 
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
         assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
@@ -91,6 +105,11 @@ public class AbsoluteFlowThresholdTest {
         assertEquals(-346.4, absoluteFlowThresholdAmps.getMinThreshold(MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
         assertEquals(-2165.1, absoluteFlowThresholdMW.getMinThreshold(AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
         assertEquals(-1500.0, absoluteFlowThresholdMW.getMinThreshold(MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
+
+        assertEquals(-1500.0, absoluteFlowThresholdMWIn.getMinThreshold(MEGAWATT).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteFlowThresholdMWIn.getMaxThreshold(MEGAWATT).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(Double.NEGATIVE_INFINITY, absoluteFlowThresholdMWOut.getMinThreshold(MEGAWATT).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(1500.0, absoluteFlowThresholdMWOut.getMaxThreshold(MEGAWATT).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
     }
 
     @Test
