@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.ra_optimisation.*;
@@ -208,7 +208,7 @@ public class LinearRaoTest {
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstRange pstRange = new PstRange("BBE2AA1  BBE3AA1  1", pstElement);
+        PstRange pstRange = new PstWithRange("BBE2AA1  BBE3AA1  1", pstElement);
         crac.addRangeAction(pstRange);
 
         return crac;

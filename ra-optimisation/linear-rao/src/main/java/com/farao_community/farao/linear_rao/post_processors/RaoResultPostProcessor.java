@@ -8,6 +8,7 @@
 package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor;
+import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -38,11 +39,11 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                 String rangeActionName = rangeAction.getName();
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-                double rangeActionVar = getRangeActionVariation(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId));
+                double rangeActionVar = getRangeActionVariation(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId));
 
                 if (Math.abs(rangeActionVar) > 0) {
                     Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElementId);
-                    if (pNetworkElement instanceof TwoWindingsTransformer) {
+                    if (rangeAction instanceof PstRange) {
                         TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
 
                         double preOptimAngle = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();

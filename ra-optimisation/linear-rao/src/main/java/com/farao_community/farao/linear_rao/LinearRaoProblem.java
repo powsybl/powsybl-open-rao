@@ -75,9 +75,9 @@ public class LinearRaoProblem {
         return negativeRangeActionVariables;
     }
 
-    public MPVariable getNegativeRangeActionVariable(String rangeActionId, String networkElementId) {
+    public MPVariable getNegativeRangeActionVariable(String rangeActionId) {
         return negativeRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rangeActionId, networkElementId)))
+            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rangeActionId)))
             .findFirst()
             .orElse(null);
     }
@@ -86,9 +86,9 @@ public class LinearRaoProblem {
         return positiveRangeActionVariables;
     }
 
-    public MPVariable getPositiveRangeActionVariable(String rangeActionId, String networkElementId) {
+    public MPVariable getPositiveRangeActionVariable(String rangeActionId) {
         return positiveRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rangeActionId, networkElementId)))
+            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rangeActionId)))
             .findFirst()
             .orElse(null);
     }
@@ -135,13 +135,12 @@ public class LinearRaoProblem {
      *     <li>one for the negative variation, which is between 0 and maxNegativeVariation</li>
      * </ul>
      * @param rangeActionId id of the range action considered
-     * @param networkElementId id of the network element considered
      * @param maxNegativeVariation maximum value that the negative variation of this range can take (positive or null)
      * @param maxPositiveVariation maximum value that the positive variation of this range can take (positive or null)
      */
-    public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
-        MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId, networkElementId));
-        MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId, networkElementId));
+    public void addRangeActionVariable(String rangeActionId, double maxNegativeVariation, double maxPositiveVariation) {
+        MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId));
+        MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId));
         negativeRangeActionVariables.add(negativeVariable);
         positiveRangeActionVariables.add(positiveVariable);
     }
@@ -154,18 +153,17 @@ public class LinearRaoProblem {
      * </ul>
      * @param cnecId id of the cnec considered
      * @param rangeActionId if of the range action considered
-     * @param networkElementId if of the network element associated to the range action considered
      * @param sensitivity sensitivity coefficient of the flow on the cnec after a variation of the range action (TODO: clarify unit in the javadoc)
      */
-    public void updateFlowConstraintsWithRangeAction(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
+    public void updateFlowConstraintsWithRangeAction(String cnecId, String rangeActionId, double sensitivity) {
         MPConstraint flowConstraint = getFlowConstraint(cnecId);
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
-        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId, networkElementId);
-        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
+        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
         if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
-            throw new FaraoException(String.format("Range action variable for %s on %s has not been defined yet.", rangeActionId, networkElementId));
+            throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeActionId));
         }
         flowConstraint.setCoefficient(
             positiveRangeActionVariable,
@@ -221,12 +219,12 @@ public class LinearRaoProblem {
         return String.format("%s-constraint", cnecId);
     }
 
-    private String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
-        return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
+    private String getPositiveRangeActionVariableId(String rangeActionId) {
+        return String.format("positive-%s-variable", rangeActionId);
     }
 
-    private String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
-        return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
+    private String getNegativeRangeActionVariableId(String rangeActionId) {
+        return String.format("negative-%s-variable", rangeActionId);
     }
 
     /**
@@ -243,9 +241,9 @@ public class LinearRaoProblem {
         getFlowConstraint(cnecId).setBounds(referenceFlow, referenceFlow);
     }
 
-    public void updateRangeActionBounds(String rangeActionId, String networkElementId, double optimisationVariation) {
-        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId, networkElementId);
-        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId, networkElementId);
+    public void updateRangeActionBounds(String rangeActionId, double optimisationVariation) {
+        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
+        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
         positiveRangeActionVariable.setUb(positiveRangeActionVariable.ub() - optimisationVariation);
         negativeRangeActionVariable.setUb(negativeRangeActionVariable.ub() + optimisationVariation);
     }

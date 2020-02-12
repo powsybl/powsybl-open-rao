@@ -16,9 +16,7 @@ import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,33 +72,11 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
     }
 
-    /**
-     * We are making two assumptions here. Range actions must be only PST actions to be put in optimization problem
-     * and min and max values returned by range action getMinValue and getMaxValue methods must return PST taps.
-     * This is a temporary patch waiting for evolutions of crac api.
-     *
-     * @param rangeAction: range action to be put in optimisation problem.
-     */
     private void fillRangeAction(RangeAction rangeAction) {
-        double minValue = rangeAction.getMinValue(linearRaoData.getNetwork());
-        double maxValue = rangeAction.getMaxValue(linearRaoData.getNetwork());
-        rangeAction.getNetworkElements().forEach(networkElement -> {
-            Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElement.getId());
-            if (pNetworkElement instanceof TwoWindingsTransformer) {
-                TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
-                double currentAlpha = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();
-                double minAlpha = transformer.getPhaseTapChanger().getStep((int) minValue).getAlpha();
-                double maxAlpha = transformer.getPhaseTapChanger().getStep((int) maxValue).getAlpha();
-                if (currentAlpha >= minAlpha && currentAlpha <= maxAlpha) {
-                    linearRaoProblem.addRangeActionVariable(
-                            rangeAction.getId(), networkElement.getId(),
-                            Math.abs(minAlpha - currentAlpha), Math.abs(maxAlpha - currentAlpha));
-                } else {
-                    LOGGER.warn("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
-                }
-            }
-
-        });
+        linearRaoProblem.addRangeActionVariable(
+            rangeAction.getId(),
+            rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
+            rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
     }
 
     /**
@@ -109,12 +85,13 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      * @param rangeAction
      */
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
-        rangeAction.getNetworkElements().forEach(networkElement ->
-                linearRaoProblem.updateFlowConstraintsWithRangeAction(
-                        cnec.getId(),
-                        rangeAction.getId(),
-                        networkElement.getId(),
-                        linearRaoData.getSensitivity(cnec, rangeAction)));
+        State preventiveState = linearRaoData.getCrac().getPreventiveState();
+        if (preventiveState != null) {
+            linearRaoProblem.updateFlowConstraintsWithRangeAction(
+                cnec.getId(),
+                rangeAction.getId(),
+                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(preventiveState), cnec));
+        }
     }
 
     private double getRemedialActionResultVariation(RemedialActionElementResult remedialActionElementResult) {
@@ -132,12 +109,9 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         List<RemedialActionElementResult> remedialActionElementResultList = remedialActionResult.getRemedialActionElementResults();
         for (RemedialActionElementResult remedialActionElementResult : remedialActionElementResultList) {
             RangeAction rangeAction = crac.getRangeAction(remedialActionElementResult.getId());
-            rangeAction.getNetworkElements().forEach(networkElement ->
-                    linearRaoProblem.updateRangeActionBounds(
-                            rangeAction.getId(),
-                            networkElement.getId(),
-                            getRemedialActionResultVariation(remedialActionElementResult)
-                            ));
+            linearRaoProblem.updateRangeActionBounds(
+                rangeAction.getId(),
+                getRemedialActionResultVariation(remedialActionElementResult));
         }
     }
 }

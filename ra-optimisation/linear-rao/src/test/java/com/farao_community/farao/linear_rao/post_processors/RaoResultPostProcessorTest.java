@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
@@ -44,7 +44,7 @@ public class RaoResultPostProcessorTest {
         // arrange input data
         // Arrange linearRaoData
         Crac crac = new SimpleCrac("cracName");
-        crac.addRangeAction(new PstRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1")));
+        crac.addRangeAction(new PstWithRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1")));
 
         Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
@@ -55,8 +55,8 @@ public class RaoResultPostProcessorTest {
         linearRaoProblem = Mockito.mock(LinearRaoProblem.class);
         negativeRangeActionActivation = Mockito.mock(MPVariable.class);
         positiveRangeActionActivation = Mockito.mock(MPVariable.class);
-        Mockito.when(linearRaoProblem.getNegativeRangeActionVariable("idPstRa", "BBE2AA1  BBE3AA1  1")).thenReturn(negativeRangeActionActivation);
-        Mockito.when(linearRaoProblem.getPositiveRangeActionVariable("idPstRa", "BBE2AA1  BBE3AA1  1")).thenReturn(positiveRangeActionActivation);
+        Mockito.when(linearRaoProblem.getNegativeRangeActionVariable("idPstRa")).thenReturn(negativeRangeActionActivation);
+        Mockito.when(linearRaoProblem.getPositiveRangeActionVariable("idPstRa")).thenReturn(positiveRangeActionActivation);
     }
 
     @Test

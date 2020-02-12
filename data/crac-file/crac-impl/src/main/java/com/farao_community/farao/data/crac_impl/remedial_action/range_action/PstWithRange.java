@@ -25,8 +25,8 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("pst-range")
-public final class PstRange extends AbstractElementaryRangeAction {
+@JsonTypeName("pst-with-range")
+public final class PstWithRange extends AbstractElementaryRangeAction implements com.farao_community.farao.data.crac_api.PstRange {
 
     private int lowTapPosition;
 
@@ -36,21 +36,21 @@ public final class PstRange extends AbstractElementaryRangeAction {
      * @param networkElement: PST element to modify
      */
     @JsonCreator
-    public PstRange(@JsonProperty("id") String id,
-                    @JsonProperty("name") String name,
-                    @JsonProperty("operator") String operator,
-                    @JsonProperty("usageRules") List<UsageRule> usageRules,
-                    @JsonProperty("ranges") List<Range> ranges,
-                    @JsonProperty("networkElement") NetworkElement networkElement) {
+    public PstWithRange(@JsonProperty("id") String id,
+                        @JsonProperty("name") String name,
+                        @JsonProperty("operator") String operator,
+                        @JsonProperty("usageRules") List<UsageRule> usageRules,
+                        @JsonProperty("ranges") List<Range> ranges,
+                        @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         lowTapPosition = (int) Double.NaN;
     }
 
-    public PstRange(String id, String name, String operator, NetworkElement networkElement) {
+    public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
     }
 
-    public PstRange(String id, NetworkElement networkElement) {
+    public PstWithRange(String id, NetworkElement networkElement) {
         super(id, networkElement);
     }
 
@@ -69,13 +69,28 @@ public final class PstRange extends AbstractElementaryRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = -Math.abs(range.getMin());
-        return getExtremumValueWithRange(network, range, minValue);
+        return convertTapToAngle(network, (int) getExtremumValueWithRange(network, range, minValue));
     }
 
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return getExtremumValueWithRange(network, range, maxValue);
+        return convertTapToAngle(network, (int) getExtremumValueWithRange(network, range, maxValue));
+    }
+
+    @Override
+    public double getMaxNegativeVariation(Network network) {
+        return Math.abs(convertTapToAngle(network, (int) getMinValue(network)) - convertTapToAngle(network, getCurrentTapPosition(network)));
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return Math.abs(convertTapToAngle(network, (int) getMaxValue(network))  - convertTapToAngle(network, getCurrentTapPosition(network)));
+    }
+
+    private double convertTapToAngle(Network network, int tap) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        return transformer.getPhaseTapChanger().getStep(tap).getAlpha();
     }
 
     private double getExtremumValueWithRange(Network network, Range range, double extremumValue) {
