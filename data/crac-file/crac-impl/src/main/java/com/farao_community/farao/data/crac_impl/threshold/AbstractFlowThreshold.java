@@ -67,21 +67,19 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) throws SynchronizationException {
-        switch (direction) {
-            case OUT:
-                return Optional.of(Double.NEGATIVE_INFINITY);
-            default:
-                return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
+        if (direction == Direction.OUT) {
+            return Optional.of(Double.NEGATIVE_INFINITY);
+        } else { // Direction.IN and Direction.BOTH
+            return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
         }
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) throws SynchronizationException {
-        switch (direction) {
-            case IN:
-                return Optional.of(Double.POSITIVE_INFINITY);
-            default:
-                return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
+        if (direction == Direction.IN) {
+            return Optional.of(Double.POSITIVE_INFINITY);
+        } else { // Direction.OUT and Direction.BOTH
+            return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
         }
     }
 
