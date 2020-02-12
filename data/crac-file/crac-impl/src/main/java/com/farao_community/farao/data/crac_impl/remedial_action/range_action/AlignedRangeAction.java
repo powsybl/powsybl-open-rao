@@ -15,6 +15,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import com.powsybl.sensitivity.SensitivityComputationResults;
+
 import java.util.*;
 
 
@@ -29,6 +32,8 @@ import java.util.*;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
+
+    public static final int TEMP_VALUE_ARA = 0;
 
     @JsonProperty("ranges")
     private List<Range> ranges;
@@ -60,12 +65,30 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
 
     @Override
     public double getMinValue(Network network) {
-        return ranges.stream().map(range -> range.getMin()).max(Double::compareTo).orElseThrow(FaraoException::new);
+        return ranges.stream().map(Range::getMin).max(Double::compareTo).orElseThrow(FaraoException::new);
     }
 
     @Override
     public double getMaxValue(Network network) {
-        return ranges.stream().map(range -> range.getMax()).min(Double::compareTo).orElseThrow(FaraoException::new);
+        return ranges.stream().map(Range::getMax).min(Double::compareTo).orElseThrow(FaraoException::new);
+    }
+
+    @Override
+    public double getMaxNegativeVariation(Network network) {
+        // to implement
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        // to implement
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        // to implement
+        return TEMP_VALUE_ARA;
     }
 
     @Override

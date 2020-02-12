@@ -10,39 +10,39 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_impl.mocks.TwoWindingsTransformerMock;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeTest extends AbstractElementaryRangeActionTest {
+public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     private int pstLowTapPosition = -6;
-    private int pstHighTapPosition = 6;
+    private int pstHighTapPosition = 12;
 
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
-    private PstRange pstRange;
+    private PstWithRange pstWithRange;
 
     private Network network;
-    private PstRange pstRange1;
+    private PstWithRange pstWithRange1;
 
     private Range range1;
     private Range range2;
 
     @Before
     public void setUp() throws Exception {
-        pstRange = new PstRange(
+        pstWithRange = new PstWithRange(
                 "pst_range_id",
                 "pst_range_name",
                 "pst_range_operator",
@@ -65,17 +65,12 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
         NetworkElement networkElement = Mockito.mock(NetworkElement.class);
 
-        pstRange1 = new PstRange("id", networkElement);
-        pstRange1.addRange(range1);
-        pstRange1.addRange(range2);
+        pstWithRange1 = new PstWithRange("id", networkElement);
+        pstWithRange1.addRange(range1);
+        pstWithRange1.addRange(range2);
 
-        TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
-        PhaseTapChanger phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
-        Mockito.when(network.getTwoWindingsTransformer(pstRange1.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
-        Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
-        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(10); // then getMinValueWithRange(network, range2) will be 3
-        Mockito.when(phaseTapChanger.getHighTapPosition()).thenReturn(pstHighTapPosition);
-        Mockito.when(phaseTapChanger.getLowTapPosition()).thenReturn(pstLowTapPosition);
+        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(pstLowTapPosition, pstHighTapPosition, 10);  // then getMinValueWithRange(network, range2) will be 3
+        Mockito.when(network.getTwoWindingsTransformer(pstWithRange1.getNetworkElement().getId())).thenReturn(twoWindingsTransformer);
     }
 
     @Test
@@ -85,7 +80,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
-        pstRange.apply(network, 12);
+        pstWithRange.apply(network, 12);
         assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
@@ -96,7 +91,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         try {
-            pstRange.apply(network, 50);
+            pstWithRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
@@ -109,7 +104,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange unknownPstRange = new PstRange(
+        PstWithRange unknownPstWithRange = new PstWithRange(
                 "unknown_pstrange_id",
                 "unknown_pstrange_name",
                 "unknown_pstrange_operator",
@@ -117,7 +112,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
                 createRanges(),
                 new NetworkElement("unknown pst", "unknown pst"));
         try {
-            unknownPstRange.apply(network, 50);
+            unknownPstWithRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST unknown pst does not exist in the current network", e.getMessage());
@@ -130,7 +125,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             "TestCase12Nodes_no_pst.uct",
             getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         String notPstRangeElementId = "BBE2AA1  BBE3AA1  1";
-        PstRange notAPstRange = new PstRange(
+        PstWithRange notAPstWithRange = new PstWithRange(
                 "not_pstrange_id",
                 "not_pstrange_name",
                 "not_pstrange_operator",
@@ -138,7 +133,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
                 createRanges(),
                 new NetworkElement(notPstRangeElementId, notPstRangeElementId));
         try {
-            notAPstRange.apply(network, 50);
+            notAPstWithRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals(String.format("Transformer %s is not a PST but is defined as a PstRange", notPstRangeElementId), e.getMessage());
@@ -147,18 +142,17 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void getMinAndMaxValueWithRange() {
-        assertEquals(13, pstRange1.getMaxValueWithRange(network, range1), 0);
-        // assertEquals(3, pstRange1.getMinValueWithRange(network, range1), 0);
+        assertEquals(0.13, pstWithRange1.getMaxValueWithRange(network, range1), 0);
     }
 
     @Test
     public void getMinValue() {
-        assertEquals(3, pstRange1.getMinValue(network), 0);
+        assertEquals(0.03, pstWithRange1.getMinValue(network), 0);
     }
 
     @Test
     public void synchronize() {
-        pstRange1.synchronize(network);
-        assertEquals(2, pstRange1.ranges.size());
+        pstWithRange1.synchronize(network);
+        assertEquals(2, pstWithRange1.ranges.size());
     }
 }

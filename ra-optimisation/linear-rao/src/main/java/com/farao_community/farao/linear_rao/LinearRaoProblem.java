@@ -75,9 +75,9 @@ public class LinearRaoProblem {
         return negativeRangeActionVariables;
     }
 
-    public MPVariable getNegativeRangeActionVariable(String rangeActionId, String networkElementId) {
+    public MPVariable getNegativeRangeActionVariable(String rangeActionId) {
         return negativeRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rangeActionId, networkElementId)))
+            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rangeActionId)))
             .findFirst()
             .orElse(null);
     }
@@ -86,9 +86,9 @@ public class LinearRaoProblem {
         return positiveRangeActionVariables;
     }
 
-    public MPVariable getPositiveRangeActionVariable(String rangeActionId, String networkElementId) {
+    public MPVariable getPositiveRangeActionVariable(String rangeActionId) {
         return positiveRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rangeActionId, networkElementId)))
+            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rangeActionId)))
             .findFirst()
             .orElse(null);
     }
@@ -116,22 +116,22 @@ public class LinearRaoProblem {
         flowConstraint.setCoefficient(flowVariable, 1);
     }
 
-    public void addRangeActionVariable(String rangeActionId, String networkElementId, double maxNegativeVariation, double maxPositiveVariation) {
-        MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId, networkElementId));
-        MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId, networkElementId));
+    public void addRangeActionVariable(String rangeActionId, double maxNegativeVariation, double maxPositiveVariation) {
+        MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId));
+        MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId));
         negativeRangeActionVariables.add(negativeVariable);
         positiveRangeActionVariables.add(positiveVariable);
     }
 
-    public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, String networkElementId, double sensitivity) {
+    public void addRangeActionFlowOnBranch(String cnecId, String rangeActionId, double sensitivity) {
         MPConstraint flowConstraint = getFlowConstraint(cnecId);
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
-        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId, networkElementId);
-        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
+        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
         if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
-            throw new FaraoException(String.format("Range action variable for %s on %s has not been defined yet.", rangeActionId, networkElementId));
+            throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeActionId));
         }
         flowConstraint.setCoefficient(
             positiveRangeActionVariable,
@@ -173,12 +173,12 @@ public class LinearRaoProblem {
         return String.format("%s-constraint", cnecId);
     }
 
-    private String getPositiveRangeActionVariableId(String rangeActionId, String networkElementId) {
-        return String.format("positive-%s-%s-variable", rangeActionId, networkElementId);
+    private String getPositiveRangeActionVariableId(String rangeActionId) {
+        return String.format("positive-%s-variable", rangeActionId);
     }
 
-    private String getNegativeRangeActionVariableId(String rangeActionId, String networkElementId) {
-        return String.format("negative-%s-%s-variable", rangeActionId, networkElementId);
+    private String getNegativeRangeActionVariableId(String rangeActionId) {
+        return String.format("negative-%s-variable", rangeActionId);
     }
 
     private String getMinimumMarginConstraintId(String branch, String minMax) {

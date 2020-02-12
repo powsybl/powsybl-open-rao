@@ -7,16 +7,10 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityValue;
-
-import java.util.Set;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -32,18 +26,8 @@ public class LinearRaoData {
         this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
     }
 
-    public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
-        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
-        double sensitivity = 0;
-        for (NetworkElement networkElement : networkElements) {
-            SensitivityValue value = systematicSensitivityAnalysisResult.getStateSensiMap().get(crac.getPreventiveState()).getSensitivityValues().stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getCriticalNetworkElement().getId()))
-                .findFirst()
-                .orElseThrow(FaraoException::new);
-            sensitivity += value.getValue();
-        }
-        return sensitivity;
+    public SensitivityComputationResults getSensitivityComputationResults(State state) {
+        return systematicSensitivityAnalysisResult.getStateSensiMap().get(state);
     }
 
     public double getReferenceFlow(Cnec cnec) {
