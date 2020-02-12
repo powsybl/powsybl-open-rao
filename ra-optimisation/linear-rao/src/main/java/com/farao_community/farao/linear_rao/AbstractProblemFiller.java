@@ -25,7 +25,5 @@ public abstract class AbstractProblemFiller {
 
     public abstract void fill();
 
-    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) {
-        //todo
-    }
+    public abstract void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList);
 }

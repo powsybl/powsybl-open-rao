@@ -34,6 +34,7 @@ import static java.lang.String.format;
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
     private static final int MAX_ITERATIONS = 10;
+    private static final double MIN_CHANGE_THRESHOLD = 0.0001;
 
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
     private SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
@@ -57,7 +58,7 @@ public class LinearRao implements RaoProvider {
                                                        RaoParameters parameters) {
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
-        SystematicSensitivityAnalysisResult midOptimSensitivityAnalysisResult;
+        SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         createAndSwitchToNewVariant(network, originalNetworkVariant);
@@ -86,17 +87,17 @@ public class LinearRao implements RaoProvider {
 
             updateRAResultHistoryList(newRemedialActionsResult);
             applyRAs(crac, network, newRemedialActionsResult);
-            midOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-            double newScore = getMinMargin(crac, midOptimSensitivityAnalysisResult);
+            tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+            double newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             if (newScore < oldScore) {
                 // TODO : limit the ranges
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", oldScore, newScore);
                 break;
             }
 
-            postOptimSensitivityAnalysisResult = midOptimSensitivityAnalysisResult;
+            postOptimSensitivityAnalysisResult = tempSensitivityAnalysisResult;
             oldScore = newScore;
-            linearRaoModeller.updateProblem(midOptimSensitivityAnalysisResult, newRemedialActionsResult);
+            linearRaoModeller.updateProblem(tempSensitivityAnalysisResult, newRemedialActionsResult);
             iterationsLeft -= 1;
         }
 
@@ -138,7 +139,7 @@ public class LinearRao implements RaoProvider {
                 PstElementResult newPstElementResult = (PstElementResult) remedialActionElementResult;
                 PstElementResult oldPstElementResult = (PstElementResult) oldRAResultElementMap.get(remedialActionElementResult.getId());
                 double totalChange = Math.abs(newPstElementResult.getPostOptimisationAngle() - oldPstElementResult.getPreOptimisationAngle());
-                if (Math.abs(totalChange) > 0.0001) {
+                if (Math.abs(totalChange) > MIN_CHANGE_THRESHOLD) {
                     combinedRAResultElementList.add(new PstElementResult(oldPstElementResult.getId(),
                             oldPstElementResult.getPreOptimisationAngle(),
                             oldPstElementResult.getPreOptimisationTapPosition(),
@@ -149,7 +150,7 @@ public class LinearRao implements RaoProvider {
                 RedispatchElementResult newRedispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
                 RedispatchElementResult oldRedispatchElementResult = (RedispatchElementResult) oldRAResultElementMap.get(remedialActionElementResult.getId());
                 double totalChange = newRedispatchElementResult.getPostOptimisationTargetP() - oldRedispatchElementResult.getPreOptimisationTargetP();
-                if (Math.abs(totalChange) > 0.0001) {
+                if (Math.abs(totalChange) > MIN_CHANGE_THRESHOLD) {
                     combinedRAResultElementList.add(new RedispatchElementResult(oldRedispatchElementResult.getId(),
                             oldRedispatchElementResult.getPreOptimisationTargetP(),
                             newRedispatchElementResult.getPostOptimisationTargetP(),

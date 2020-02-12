@@ -114,7 +114,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                         linearRaoData.getSensitivity(cnec, rangeAction)));
     }
 
-    private double getRemedialActionResultValue(RemedialActionElementResult remedialActionElementResult) {
+    private double getRemedialActionResultVariation(RemedialActionElementResult remedialActionElementResult) {
         if (remedialActionElementResult instanceof PstElementResult) {
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
             return pstElementResult.getPostOptimisationAngle() - pstElementResult.getPreOptimisationAngle();
@@ -133,7 +133,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                     linearRaoProblem.updateRangeActionBounds(
                             rangeAction.getId(),
                             networkElement.getId(),
-                            getRemedialActionResultValue(remedialActionElementResult)
+                            getRemedialActionResultVariation(remedialActionElementResult)
                             ));
         }
     }
