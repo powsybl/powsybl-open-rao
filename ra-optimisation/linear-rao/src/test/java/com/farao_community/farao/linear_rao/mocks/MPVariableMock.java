@@ -42,6 +42,16 @@ public class MPVariableMock extends MPVariable {
     }
 
     @Override
+    public void setLb(double lb) {
+        this.lb = lb;
+    }
+
+    @Override
+    public void setUb(double ub) {
+        this.ub = ub;
+    }
+
+    @Override
     public String name() {
         return name;
     }

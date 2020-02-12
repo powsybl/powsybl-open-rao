@@ -61,6 +61,12 @@ public class MPConstraintMock extends MPConstraint {
     }
 
     @Override
+    public void setBounds(double lb, double ub) {
+        this.lb = lb;
+        this.ub = ub;
+    }
+
+    @Override
     public double getCoefficient(MPVariable var) {
         return coefficients.get(var.name());
     }

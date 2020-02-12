@@ -13,6 +13,7 @@ import com.farao_community.farao.linear_rao.fillers.PositiveMinMarginFiller;
 import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;
 import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -57,9 +58,9 @@ public class LinearRaoModeller {
         fillerList.forEach(AbstractProblemFiller::fill);
     }
 
-    public void updateProblem(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    public void updateProblem(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, List<RemedialActionResult> remedialActionResultList) {
         this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
-        fillerList.forEach(filler -> filler.update(linearRaoProblem, linearRaoData));
+        fillerList.forEach(filler -> filler.update(linearRaoProblem, linearRaoData, remedialActionResultList));
     }
 
     public RaoComputationResult solve() {

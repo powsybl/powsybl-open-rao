@@ -7,15 +7,22 @@
 
 package com.farao_community.farao.linear_rao.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.ra_optimisation.PstElementResult;
+import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
+import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
+import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -43,6 +50,24 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             });
         }
         linearRaoData.getCrac().desynchronize(); // To be sure it is always synchronized with the good network
+    }
+
+    @Override
+    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) {
+        Crac crac = linearRaoData.getCrac();
+        Network network = linearRaoData.getNetwork();
+
+        crac.synchronize(network);
+
+        if (crac.getPreventiveState() != null) {
+            Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
+            remedialActionResultList.forEach(remedialActionResult -> updateRangeActionBounds(crac, remedialActionResult));
+            crac.getCnecs().forEach(cnec -> {
+                linearRaoProblem.updateReferenceFlow(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
+                rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
+            });
+        }
+        crac.desynchronize();
     }
 
     private void fillCnec(Cnec cnec) {
@@ -90,5 +115,29 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                         rangeAction.getId(),
                         networkElement.getId(),
                         linearRaoData.getSensitivity(cnec, rangeAction)));
+    }
+
+    private double getRemedialActionResultVariation(RemedialActionElementResult remedialActionElementResult) {
+        if (remedialActionElementResult instanceof PstElementResult) {
+            PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
+            return pstElementResult.getPostOptimisationAngle() - pstElementResult.getPreOptimisationAngle();
+        } else if (remedialActionElementResult instanceof RedispatchElementResult) {
+            RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
+            return redispatchElementResult.getPostOptimisationTargetP() - redispatchElementResult.getPreOptimisationTargetP();
+        }
+        throw new FaraoException("Range action type of " + remedialActionElementResult.getId() + " is not supported yet");
+    }
+
+    private void updateRangeActionBounds(Crac crac, RemedialActionResult remedialActionResult) {
+        List<RemedialActionElementResult> remedialActionElementResultList = remedialActionResult.getRemedialActionElementResults();
+        for (RemedialActionElementResult remedialActionElementResult : remedialActionElementResultList) {
+            RangeAction rangeAction = crac.getRangeAction(remedialActionElementResult.getId());
+            rangeAction.getNetworkElements().forEach(networkElement ->
+                    linearRaoProblem.updateRangeActionBounds(
+                            rangeAction.getId(),
+                            networkElement.getId(),
+                            getRemedialActionResultVariation(remedialActionElementResult)
+                            ));
+        }
     }
 }
