@@ -46,8 +46,8 @@ public class AbsoluteFlowThresholdTest {
     public void setUp() {
         absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
         absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.BOTH, 1500.0);
-        absoluteFlowThresholdMWIn = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.IN, 1500.0);
-        absoluteFlowThresholdMWOut = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.OUT, 1500.0);
+        absoluteFlowThresholdMWIn = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.OPPOSITE, 1500.0);
+        absoluteFlowThresholdMWOut = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.DIRECT, 1500.0);
 
         cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 absoluteFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
@@ -96,15 +96,15 @@ public class AbsoluteFlowThresholdTest {
         absoluteFlowThresholdMWIn.synchronize(networkWithLf, cnec4);
         absoluteFlowThresholdMWOut.synchronize(networkWithLf, cnec5);
 
-        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(2165.1, absoluteFlowThresholdMW.getMaxThreshold(AMPERE).orElse(Double.MAX_VALUE), DOUBLE_TOL);
-        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold(MEGAWATT).orElse(Double.MAX_VALUE), DOUBLE_TOL);
+        assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(2165.1, absoluteFlowThresholdMW.getMaxThreshold(AMPERE).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(1500.0, absoluteFlowThresholdMW.getMaxThreshold(MEGAWATT).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
 
-        assertEquals(-500.0, absoluteFlowThresholdAmps.getMinThreshold(AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
-        assertEquals(-346.4, absoluteFlowThresholdAmps.getMinThreshold(MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
-        assertEquals(-2165.1, absoluteFlowThresholdMW.getMinThreshold(AMPERE).orElse(Double.MIN_VALUE), DOUBLE_TOL);
-        assertEquals(-1500.0, absoluteFlowThresholdMW.getMinThreshold(MEGAWATT).orElse(Double.MIN_VALUE), DOUBLE_TOL);
+        assertEquals(-500.0, absoluteFlowThresholdAmps.getMinThreshold(AMPERE).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(-346.4, absoluteFlowThresholdAmps.getMinThreshold(MEGAWATT).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(-2165.1, absoluteFlowThresholdMW.getMinThreshold(AMPERE).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
+        assertEquals(-1500.0, absoluteFlowThresholdMW.getMinThreshold(MEGAWATT).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
 
         assertEquals(-1500.0, absoluteFlowThresholdMWIn.getMinThreshold(MEGAWATT).orElse(Double.NEGATIVE_INFINITY), DOUBLE_TOL);
         assertEquals(Double.POSITIVE_INFINITY, absoluteFlowThresholdMWIn.getMaxThreshold(MEGAWATT).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
