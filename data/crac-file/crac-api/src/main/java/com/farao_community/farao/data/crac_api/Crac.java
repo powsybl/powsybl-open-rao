@@ -226,4 +226,12 @@ public interface Crac extends Identifiable, Synchronizable {
 
     // General methods
     void generateValidityReport(Network network);
+
+    /**
+     * This sets some values related to the network that shall remain the same during the whole computation
+     * (in opposition to the values updated in the synchronize method, that can change during the computation).
+     * For instance: initial tap of a Phase Shift Transformer...
+     * @param network - the network where to get the values.
+     */
+    void setReferenceValues(Network network);
 }
