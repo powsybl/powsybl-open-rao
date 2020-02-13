@@ -131,7 +131,6 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
         int newTapPosition = initialTapPosition + 5;
         phaseTapChanger.setTapPosition(newTapPosition);
-        pst.synchronize(network);
         assertEquals(phaseTapChanger.getStep(newTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(newTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
     }
@@ -146,7 +145,6 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
         int newTapPosition = initialTapPosition + 5;
         phaseTapChanger.setTapPosition(newTapPosition);
-        pst.synchronize(network);
         assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
     }

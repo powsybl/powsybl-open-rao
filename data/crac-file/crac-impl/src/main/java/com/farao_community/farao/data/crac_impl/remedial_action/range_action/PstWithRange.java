@@ -10,10 +10,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -34,7 +32,6 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     private int lowTapPosition;
     private int highTapPosition;
     private int initialTapPosition;
-    private int currentTapPosition;
 
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.
@@ -52,7 +49,6 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;
         initialTapPosition = (int) Double.NaN;
-        currentTapPosition = (int) Double.NaN;
     }
 
     public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
@@ -60,7 +56,6 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;
         initialTapPosition = (int) Double.NaN;
-        currentTapPosition = (int) Double.NaN;
     }
 
     public PstWithRange(String id, NetworkElement networkElement) {
@@ -68,44 +63,43 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;
         initialTapPosition = (int) Double.NaN;
-        currentTapPosition = (int) Double.NaN;
-    }
-
-    @Override
-    public void synchronize(Network network) {
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
-        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-        currentTapPosition = phaseTapChanger.getTapPosition();
-    }
-
-    @Override
-    public void desynchronize() {
-        currentTapPosition = (int) Double.NaN;
     }
 
     public void setReferenceValue(Network network) {
-        synchronize(network);
-        initialTapPosition = currentTapPosition;
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
+        initialTapPosition = phaseTapChanger.getTapPosition();
         lowTapPosition = phaseTapChanger.getLowTapPosition();
         highTapPosition = phaseTapChanger.getHighTapPosition();
-        Range physicalRange = new Range(lowTapPosition,
-                highTapPosition,
-                RangeType.ABSOLUTE_FIXED,
-                RangeDefinition.CENTERED_ON_ZERO);
-        addRange(physicalRange);
+    }
+
+    @Override
+    public double getMinValue(Network network) {
+        double minValue = convertTapToAngle(network, lowTapPosition);
+        for (Range range: ranges) {
+            minValue = Math.max(getMinValueWithRange(network, range), minValue);
+        }
+        return minValue;
+    }
+
+    @Override
+    public double getMaxValue(Network network) {
+        double maxValue = convertTapToAngle(network, highTapPosition);
+        for (Range range: ranges) {
+            maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
+        }
+        return maxValue;
     }
 
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
-        return convertTapToAngle(network, (int) getExtremumValueWithRange(range, minValue));
+        return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
     }
 
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return convertTapToAngle(network, (int) getExtremumValueWithRange(range, maxValue));
+        return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
     }
 
     @Override
@@ -127,7 +121,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         return transformer.getPhaseTapChanger().getStep(tap).getAlpha();
     }
 
-    private double getExtremumValueWithRange(Range range, double extremumValue) {
+    private double getExtremumValueWithRange(Range range, double currentTapPosition, double extremumValue) {
         switch (range.getRangeType()) {
             case ABSOLUTE_FIXED:
                 switch (range.getRangeDefinition()) {
