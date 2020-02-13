@@ -13,6 +13,9 @@ import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
+
+import com.powsybl.sensitivity.SensitivityComputationResults;
+
 import java.util.*;
 
 
@@ -27,6 +30,10 @@ import java.util.*;
  */
 @JsonTypeName("aligned-range-action")
 public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
+
+    public static final int TEMP_VALUE_ARA = 0;
+
+    @JsonProperty("ranges")
     private List<Range> ranges;
     @JsonProperty("networkElements")
     private Set<NetworkElement> networkElements;
@@ -76,6 +83,24 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     @Override
     public double getMaxValue(Network network) {
         return ranges.stream().map(Range::getMax).min(Double::compareTo).orElseThrow(FaraoException::new);
+    }
+
+    @Override
+    public double getMaxNegativeVariation(Network network) {
+        // to implement
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        // to implement
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        // to implement
+        return TEMP_VALUE_ARA;
     }
 
     @Override

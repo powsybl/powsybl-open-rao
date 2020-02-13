@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_impl.mocks.TwoWindingsTransformerMock;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.powsybl.iidm.import_.Importers;
@@ -20,21 +21,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeTest extends AbstractElementaryRangeActionTest {
+public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     private int pstLowTapPosition = -16;
     private int pstHighTapPosition = 16;
 
     private String networkElementId = "BBE2AA1  BBE3AA1  1";
-    private PstRange pstRange;
+    private PstWithRange pstWithRange;
 
     private Network network;
+    private PstWithRange pstWithRange1;
 
     private NetworkElement networkElement;
     private PhaseTapChanger phaseTapChanger;
@@ -59,7 +61,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Before
     public void setUp() throws Exception {
-        pstRange = new PstRange(
+        pstWithRange = new PstWithRange(
                 "pst_range_id",
                 "pst_range_name",
                 "pst_range_operator",
@@ -102,9 +104,9 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstOtherConstructor() {
-        PstRange pstRange1 = new PstRange("id", networkElement);
+        PstWithRange pstRange1 = new PstWithRange("id", networkElement);
         assertEquals("", pstRange1.getOperator());
-        PstRange pstRange2 = new PstRange("id", "name", "operator", networkElement);
+        PstWithRange pstRange2 = new PstWithRange("id", "name", "operator", networkElement);
         assertEquals("operator", pstRange2.getOperator());
     }
 
@@ -115,7 +117,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
-        pstRange.apply(network, 12);
+        pstWithRange.apply(network, 12);
         assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
@@ -126,7 +128,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         try {
-            pstRange.apply(network, 50);
+            pstWithRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
@@ -139,7 +141,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             "TestCase12Nodes.uct",
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        PstRange unknownPstRange = new PstRange(
+        PstWithRange unknownPstWithRange = new PstWithRange(
                 "unknown_pstrange_id",
                 "unknown_pstrange_name",
                 "unknown_pstrange_operator",
@@ -147,7 +149,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
                 createRanges(),
                 new NetworkElement("unknown pst", "unknown pst"));
         try {
-            unknownPstRange.apply(network, 50);
+            unknownPstWithRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST unknown pst does not exist in the current network", e.getMessage());
@@ -160,7 +162,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
             "TestCase12Nodes_no_pst.uct",
             getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         String notPstRangeElementId = "BBE2AA1  BBE3AA1  1";
-        PstRange notAPstRange = new PstRange(
+        PstWithRange notAPstWithRange = new PstWithRange(
                 "not_pstrange_id",
                 "not_pstrange_name",
                 "not_pstrange_operator",
@@ -168,7 +170,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
                 createRanges(),
                 new NetworkElement(notPstRangeElementId, notPstRangeElementId));
         try {
-            notAPstRange.apply(network, 50);
+            notAPstWithRange.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals(String.format("Transformer %s is not a PST but is defined as a PstRange", notPstRangeElementId), e.getMessage());
@@ -177,7 +179,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstWithoutSpecificRange() {
-        PstRange pstRangeWithoutSpecificRange = new PstRange("id", networkElement);
+        PstWithRange pstRangeWithoutSpecificRange = new PstWithRange("id", networkElement);
         pstRangeWithoutSpecificRange.setReferenceValue(network);
         assertEquals(pstHighTapPosition, pstRangeWithoutSpecificRange.getMaxValue(network), 0);
         assertEquals(pstLowTapPosition, pstRangeWithoutSpecificRange.getMinValue(network), 0);
@@ -185,7 +187,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstWithAbsoluteStartOneRange() {
-        PstRange pstRangeWithAbsoluteRange = new PstRange("id", networkElement);
+        PstWithRange pstRangeWithAbsoluteRange = new PstWithRange("id", networkElement);
         pstRangeWithAbsoluteRange.addRange(absoluteStartOneRange);
         pstRangeWithAbsoluteRange.setReferenceValue(network);
         assertEquals(pstLowTapPosition + absoluteStartOneRangeMax - 1, pstRangeWithAbsoluteRange.getMaxValue(network), 0);
@@ -194,7 +196,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstWithAbsoluteCenteredZeroRange() {
-        PstRange pstRangeWithAbsoluteRange = new PstRange("id", networkElement);
+        PstWithRange pstRangeWithAbsoluteRange = new PstWithRange("id", networkElement);
         pstRangeWithAbsoluteRange.addRange(absoluteCenteredZeroRange);
         pstRangeWithAbsoluteRange.setReferenceValue(network);
         assertEquals(((double) pstLowTapPosition + pstHighTapPosition) / 2 + absoluteCenteredZeroRangeMax, pstRangeWithAbsoluteRange.getMaxValue(network), 0);
@@ -203,7 +205,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstWithRelativeDynamicRange() {
-        PstRange pstRangeWithRelativeDynamicRange = new PstRange("id", networkElement);
+        PstWithRange pstRangeWithRelativeDynamicRange = new PstWithRange("id", networkElement);
         pstRangeWithRelativeDynamicRange.addRange(relativeDynamicRange);
         pstRangeWithRelativeDynamicRange.setReferenceValue(network);
         assertEquals(initialTapPosition + relativeDynamicRangeMin, pstRangeWithRelativeDynamicRange.getMinValue(network), 0);
@@ -217,7 +219,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstWithRelativeFixedRange() {
-        PstRange pstRangeWithRelativeFixedRange = new PstRange("id", networkElement);
+        PstWithRange pstRangeWithRelativeFixedRange = new PstWithRange("id", networkElement);
         pstRangeWithRelativeFixedRange.addRange(relativeFixedRange);
         pstRangeWithRelativeFixedRange.setReferenceValue(network);
         assertEquals(initialTapPosition + relativeFixedRangeMin, pstRangeWithRelativeFixedRange.getMinValue(network), 0);
@@ -226,7 +228,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void pstWithSeveralRanges() {
-        PstRange pstRangeWithSeveralRanges = new PstRange("id", networkElement);
+        PstWithRange pstRangeWithSeveralRanges = new PstWithRange("id", networkElement);
         pstRangeWithSeveralRanges.addRange(absoluteCenteredZeroRange);
         pstRangeWithSeveralRanges.addRange(absoluteStartOneRange);
         pstRangeWithSeveralRanges.addRange(relativeFixedRange);

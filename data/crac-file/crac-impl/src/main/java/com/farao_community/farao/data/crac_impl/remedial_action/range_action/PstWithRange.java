@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
@@ -27,8 +28,8 @@ import java.util.List;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("pst-range")
-public final class PstRange extends AbstractElementaryRangeAction {
+@JsonTypeName("pst-with-range")
+public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
 
     private int lowTapPosition;
     private int highTapPosition;
@@ -41,12 +42,12 @@ public final class PstRange extends AbstractElementaryRangeAction {
      * @param networkElement: PST element to modify
      */
     @JsonCreator
-    public PstRange(@JsonProperty("id") String id,
-                    @JsonProperty("name") String name,
-                    @JsonProperty("operator") String operator,
-                    @JsonProperty("usageRules") List<UsageRule> usageRules,
-                    @JsonProperty("ranges") List<Range> ranges,
-                    @JsonProperty("networkElement") NetworkElement networkElement) {
+    public PstWithRange(@JsonProperty("id") String id,
+                        @JsonProperty("name") String name,
+                        @JsonProperty("operator") String operator,
+                        @JsonProperty("usageRules") List<UsageRule> usageRules,
+                        @JsonProperty("ranges") List<Range> ranges,
+                        @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;
@@ -54,7 +55,7 @@ public final class PstRange extends AbstractElementaryRangeAction {
         currentTapPosition = (int) Double.NaN;
     }
 
-    public PstRange(String id, String name, String operator, NetworkElement networkElement) {
+    public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;
@@ -62,7 +63,7 @@ public final class PstRange extends AbstractElementaryRangeAction {
         currentTapPosition = (int) Double.NaN;
     }
 
-    public PstRange(String id, NetworkElement networkElement) {
+    public PstWithRange(String id, NetworkElement networkElement) {
         super(id, networkElement);
         lowTapPosition = (int) Double.NaN;
         highTapPosition = (int) Double.NaN;
@@ -98,13 +99,32 @@ public final class PstRange extends AbstractElementaryRangeAction {
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
-        return getExtremumValueWithRange(range, minValue);
+        return convertTapToAngle(network, (int) getExtremumValueWithRange(range, minValue));
     }
 
     @Override
     public double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return getExtremumValueWithRange(range, maxValue);
+        return convertTapToAngle(network, (int) getExtremumValueWithRange(range, maxValue));
+    }
+
+    @Override
+    public double getMaxNegativeVariation(Network network) {
+        return Math.abs(convertTapToAngle(network, (int) getMinValue(network)) - convertTapToAngle(network, getCurrentTapPosition(network)));
+    }
+
+    @Override
+    public double getMaxPositiveVariation(Network network) {
+        return Math.abs(convertTapToAngle(network, (int) getMaxValue(network))  - convertTapToAngle(network, getCurrentTapPosition(network)));
+    }
+
+    private int getCurrentTapPosition(Network network) {
+        return network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger().getTapPosition();
+    }
+
+    private double convertTapToAngle(Network network, int tap) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+        return transformer.getPhaseTapChanger().getStep(tap).getAlpha();
     }
 
     private double getExtremumValueWithRange(Range range, double extremumValue) {
