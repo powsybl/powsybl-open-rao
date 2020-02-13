@@ -31,7 +31,7 @@ import java.util.*;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = PstRange.class, name = "pst-range"),
+        @JsonSubTypes.Type(value = PstWithRange.class, name = "pst-with-range"),
         @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
@@ -112,7 +112,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return sensitivityComputationResults.getSensitivityValues().stream()
             .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
-            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getCriticalNetworkElement().getId()))
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getNetworkElement().getId()))
             .findFirst().orElseThrow(FaraoException::new).getValue();
     }
 

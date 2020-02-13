@@ -10,13 +10,9 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
-<<<<<<< HEAD
-import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
-=======
->>>>>>> crac-api-with-optimisation
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityComputationResults;
@@ -26,13 +22,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
-=======
 import java.util.HashMap;
 import java.util.Map;
->>>>>>> crac-api-with-optimisation
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -145,24 +138,28 @@ public class CoreProblemFillerTest extends FillerTest {
         List<RemedialActionResult> remedialActionResultList = new ArrayList<>();
         remedialActionResultList.add(remedialActionResult);
 
+        Map<Cnec, Double> sensitivities = new HashMap<>();
+        sensitivities.put(cnec1, cnec1toRangeSensitivity1);
+        sensitivities.put(cnec2, cnec2toRangeSensitivity1);
+
         cnecs.add(cnec1);
         cnecs.add(cnec2);
-        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, minTap, maxTap);
+        RangeActionMock rangeAction = new RangeActionMock(rangeActionId, networkElementId, currentTap, minTap, maxTap, sensitivities);
         when(crac.getRangeAction(Mockito.any())).thenReturn(rangeAction);
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(cnec1toRangeSensitivity1, cnec1toRangeSensitivity2);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(cnec2toRangeSensitivity1, cnec2toRangeSensitivity2);
         rangeActions.add(rangeAction);
-        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
-        when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
         coreProblemFiller.fill();
 
-        MPVariable variableRangeNegative = linearRaoProblem.getNegativeRangeActionVariable(rangeAction.getId(), networkElementId);
-        MPVariable variableRangePositive = linearRaoProblem.getPositiveRangeActionVariable(rangeAction.getId(), networkElementId);
+        MPVariable variableRangeNegative = linearRaoProblem.getNegativeRangeActionVariable(rangeAction.getId());
+        MPVariable variableRangePositive = linearRaoProblem.getPositiveRangeActionVariable(rangeAction.getId());
 
         double maxNegativeVariation = variableRangeNegative.ub();
         double maxPositiveVariation = variableRangePositive.ub();
 
+        Map<Cnec, Double> sensitivities2 = new HashMap<>();
+        sensitivities2.put(cnec1, cnec1toRangeSensitivity2);
+        sensitivities2.put(cnec2, cnec2toRangeSensitivity2);
+        rangeAction.setSensitivityValues(sensitivities2);
         coreProblemFiller.update(linearRaoProblem, linearRaoData, remedialActionResultList);
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1.getId());
         assertNotNull(flowConstraint);

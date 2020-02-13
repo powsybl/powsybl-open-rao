@@ -38,7 +38,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                 String rangeActionName = rangeAction.getName();
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-                double rangeActionVar = getRangeActionVariation(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId));
+                double rangeActionVar = getRangeActionVariation(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId));
 
                 if (Math.abs(rangeActionVar) > 0) {
                     Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElementId);
