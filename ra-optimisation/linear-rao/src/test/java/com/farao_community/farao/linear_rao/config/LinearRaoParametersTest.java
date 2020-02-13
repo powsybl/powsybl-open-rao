@@ -44,4 +44,13 @@ public class LinearRaoParametersTest {
         raoParameters.setMaxIterations(99);
         assertEquals(99, raoParameters.getMaxIterations());
     }
+
+    @Test
+    public void setSkipLinearRao() {
+        // check default value
+        assertEquals(false, raoParameters.getSkipLinearRao());
+
+        raoParameters.setSkipLinearRao(true);
+        assertEquals(true, raoParameters.getSkipLinearRao());
+    }
 }

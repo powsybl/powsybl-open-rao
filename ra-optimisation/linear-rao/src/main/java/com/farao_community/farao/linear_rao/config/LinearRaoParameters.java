@@ -21,9 +21,11 @@ import static java.lang.Math.max;
 public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
+    static final boolean DEFAULT_SKIP_LINEAR_RAO = false;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
     private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
+    private boolean skipLinearRao = DEFAULT_SKIP_LINEAR_RAO;
 
     @Override
     public String getName() {
@@ -39,12 +41,21 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
         return this;
     }
 
+    public LinearRaoParameters setSkipLinearRao(boolean skipLinearRao) {
+        this.skipLinearRao = skipLinearRao;
+        return this;
+    }
+
+    public boolean getSkipLinearRao() {
+        return skipLinearRao;
+    }
+
     public int getMaxIterations() {
         return maxIterations;
     }
 
     public LinearRaoParameters setMaxIterations(int maxIterations) {
-        this.maxIterations = max(1, maxIterations);
+        this.maxIterations = max(0, maxIterations);
         return this;
     }
 }

@@ -64,12 +64,17 @@ public class LinearRao implements RaoProvider {
 
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
+        double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
+
+        if (linearRaoParameters.getSkipLinearRao() || linearRaoParameters.getMaxIterations() == 0) {
+            return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
+        }
+
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         createAndSwitchToNewVariant(network, originalNetworkVariant);
 
-        double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
 
