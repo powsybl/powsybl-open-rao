@@ -29,6 +29,8 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
 
         jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
 
+        jsonGenerator.writeBooleanField("skip-linear-rao", linearRaoParameters.getSkipLinearRao());
+
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
 
@@ -44,6 +46,10 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                 case "max-number-of-iterations":
                     jsonParser.nextToken();
                     linearRaoParameters.setMaxIterations(jsonParser.getIntValue());
+                    break;
+                case "skip-linear-rao":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setSkipLinearRao(jsonParser.getBooleanValue());
                     break;
                 case "sensitivity-parameters":
                     jsonParser.nextToken();

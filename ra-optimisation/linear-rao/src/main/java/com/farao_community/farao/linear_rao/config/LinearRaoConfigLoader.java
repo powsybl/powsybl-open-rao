@@ -31,6 +31,7 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
             parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", LinearRaoParameters.DEFAULT_MAX_NUMBER_OF_ITERATIONS));
+            parameters.setSkipLinearRao(config.getBooleanProperty("skip-linear-rao", LinearRaoParameters.DEFAULT_SKIP_LINEAR_RAO));
         }
         return parameters;
     }
