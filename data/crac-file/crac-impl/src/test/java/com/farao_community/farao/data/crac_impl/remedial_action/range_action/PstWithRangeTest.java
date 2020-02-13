@@ -15,10 +15,8 @@ import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -27,78 +25,22 @@ import static org.junit.Assert.fail;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
-
-    private int pstLowTapPosition = -16;
-    private int pstHighTapPosition = 16;
-
-    private String networkElementId = "BBE2AA1  BBE3AA1  1";
-    private PstWithRange pstWithRange;
-
+    private String networkElementId;
+    private PstWithRange pst;
     private Network network;
-    private PstWithRange pstWithRange1;
-
-    private NetworkElement networkElement;
     private PhaseTapChanger phaseTapChanger;
-
-    private int initialTapPosition;
-
-    private int absoluteStartOneRangeMin;
-    private int absoluteStartOneRangeMax;
-    private Range absoluteStartOneRange;
-
-    private int absoluteCenteredZeroRangeMin;
-    private int absoluteCenteredZeroRangeMax;
-    private Range absoluteCenteredZeroRange;
-
-    private int relativeDynamicRangeMin;
-    private int relativeDynamicRangeMax;
-    private Range relativeDynamicRange;
-
-    private int relativeFixedRangeMin;
-    private int relativeFixedRangeMax;
-    private Range relativeFixedRange;
+    private NetworkElement networkElement;
 
     @Before
-    public void setUp() throws Exception {
-        pstWithRange = new PstWithRange(
-                "pst_range_id",
-                "pst_range_name",
-                "pst_range_operator",
-                createUsageRules(),
-                createRanges(),
-                new NetworkElement(networkElementId, networkElementId));
-
-        network = Mockito.mock(Network.class);
-
-        networkElement = Mockito.mock(NetworkElement.class);
-        Mockito.when(networkElement.getId()).thenReturn(networkElementId);
-
-        TwoWindingsTransformer twoWindingsTransformer = Mockito.mock(TwoWindingsTransformer.class);
-        phaseTapChanger = Mockito.mock(PhaseTapChanger.class);
-        Mockito.when(network.getTwoWindingsTransformer(networkElement.getId())).thenReturn(twoWindingsTransformer);
-        Mockito.when(twoWindingsTransformer.getPhaseTapChanger()).thenReturn(phaseTapChanger);
-
-        initialTapPosition = 2;
-
-        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(initialTapPosition); // then getMinValueWithRange(network, range2) will be 3
-        Mockito.when(phaseTapChanger.getHighTapPosition()).thenReturn(pstHighTapPosition);
-        Mockito.when(phaseTapChanger.getLowTapPosition()).thenReturn(pstLowTapPosition);
-
-        absoluteStartOneRangeMin = 4;
-        absoluteStartOneRangeMax = 22;
-        absoluteStartOneRange = new Range(absoluteStartOneRangeMin, absoluteStartOneRangeMax, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
-
-        absoluteCenteredZeroRangeMin = -4;
-        absoluteCenteredZeroRangeMax = +6;
-        absoluteCenteredZeroRange = new Range(absoluteCenteredZeroRangeMin, absoluteCenteredZeroRangeMax, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO);
-
-        relativeDynamicRangeMin = -6;
-        relativeDynamicRangeMax = 3;
-        relativeDynamicRange = new Range(relativeDynamicRangeMin, relativeDynamicRangeMax, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO);
-
-        relativeFixedRangeMin = -3;
-        relativeFixedRangeMax = 3;
-        relativeFixedRange = new Range(relativeFixedRangeMin, relativeFixedRangeMax, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO);
+    public void setUp() {
+        network = Importers.loadNetwork(
+            "TestCase12Nodes.uct",
+            getClass().getResourceAsStream("/TestCase12Nodes.uct")
+        );
+        networkElementId = "BBE2AA1  BBE3AA1  1";
+        networkElement = new NetworkElement(networkElementId);
+        pst = new PstWithRange("pst_range_id", networkElement);
+        phaseTapChanger = network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger();
     }
 
     @Test
@@ -111,23 +53,15 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void apply() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
-        pstWithRange.apply(network, 12);
+        pst.apply(network, 12);
         assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
     public void applyOutOfBound() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
         try {
-            pstWithRange.apply(network, 50);
+            pst.apply(network, 50);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
@@ -136,16 +70,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void applyOnUnknownPst() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
         PstWithRange unknownPstWithRange = new PstWithRange(
                 "unknown_pstrange_id",
-                "unknown_pstrange_name",
-                "unknown_pstrange_operator",
-                createUsageRules(),
-                createRanges(),
                 new NetworkElement("unknown pst", "unknown pst"));
         try {
             unknownPstWithRange.apply(network, 50);
@@ -161,13 +87,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
             "TestCase12Nodes_no_pst.uct",
             getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         String notPstRangeElementId = "BBE2AA1  BBE3AA1  1";
-        PstWithRange notAPstWithRange = new PstWithRange(
-                "not_pstrange_id",
-                "not_pstrange_name",
-                "not_pstrange_operator",
-                createUsageRules(),
-                createRanges(),
-                new NetworkElement(notPstRangeElementId, notPstRangeElementId));
+        PstWithRange notAPstWithRange = new PstWithRange("not_pstrange_id", networkElement);
         try {
             notAPstWithRange.apply(network, 50);
             fail();
@@ -180,66 +100,54 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     public void pstWithoutSpecificRange() {
         PstWithRange pstRangeWithoutSpecificRange = new PstWithRange("id", networkElement);
         pstRangeWithoutSpecificRange.setReferenceValue(network);
-        assertEquals(pstHighTapPosition, pstRangeWithoutSpecificRange.getMaxValue(network), 0);
-        assertEquals(pstLowTapPosition, pstRangeWithoutSpecificRange.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMaxValue(network), 0);
     }
 
     @Test
     public void pstWithAbsoluteStartOneRange() {
-        PstWithRange pstRangeWithAbsoluteRange = new PstWithRange("id", networkElement);
-        pstRangeWithAbsoluteRange.addRange(absoluteStartOneRange);
-        pstRangeWithAbsoluteRange.setReferenceValue(network);
-        assertEquals(pstLowTapPosition + absoluteStartOneRangeMax - 1, pstRangeWithAbsoluteRange.getMaxValue(network), 0);
-        assertEquals(pstLowTapPosition + absoluteStartOneRangeMin - 1, pstRangeWithAbsoluteRange.getMinValue(network), 0);
+        pst.addRange(new Range(3, 13, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE));
+        pst.setReferenceValue(network);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pst.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pst.getMaxValue(network), 0);
     }
 
     @Test
     public void pstWithAbsoluteCenteredZeroRange() {
-        PstWithRange pstRangeWithAbsoluteRange = new PstWithRange("id", networkElement);
-        pstRangeWithAbsoluteRange.addRange(absoluteCenteredZeroRange);
-        pstRangeWithAbsoluteRange.setReferenceValue(network);
-        assertEquals(((double) pstLowTapPosition + pstHighTapPosition) / 2 + absoluteCenteredZeroRangeMax, pstRangeWithAbsoluteRange.getMaxValue(network), 0);
-        assertEquals(((double) pstLowTapPosition + pstHighTapPosition) / 2 + absoluteCenteredZeroRangeMin, pstRangeWithAbsoluteRange.getMinValue(network), 0);
+        pst.addRange(new Range(-3, 3, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
+        pst.setReferenceValue(network);
+        int neutralTap = (phaseTapChanger.getHighTapPosition() + phaseTapChanger.getLowTapPosition()) / 2;
+        assertEquals(phaseTapChanger.getStep(neutralTap - 3).getAlpha(), pst.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(neutralTap + 3).getAlpha(), pst.getMaxValue(network), 0);
     }
 
     @Test
     public void pstWithRelativeDynamicRange() {
-        PstWithRange pstRangeWithRelativeDynamicRange = new PstWithRange("id", networkElement);
-        pstRangeWithRelativeDynamicRange.addRange(relativeDynamicRange);
-        pstRangeWithRelativeDynamicRange.setReferenceValue(network);
-        assertEquals(initialTapPosition + relativeDynamicRangeMin, pstRangeWithRelativeDynamicRange.getMinValue(network), 0);
-        assertEquals(initialTapPosition + relativeDynamicRangeMax, pstRangeWithRelativeDynamicRange.getMaxValue(network), 0);
-        int updatedInitialTapPosition = 13;
-        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(updatedInitialTapPosition);
-        pstRangeWithRelativeDynamicRange.synchronize(network);
-        assertEquals(updatedInitialTapPosition + relativeDynamicRangeMin, pstRangeWithRelativeDynamicRange.getMinValue(network), 0);
-        assertEquals(updatedInitialTapPosition + relativeDynamicRangeMax, pstRangeWithRelativeDynamicRange.getMaxValue(network), 0);
+        pst.addRange(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO));
+        pst.setReferenceValue(network);
+        int initialTapPosition = phaseTapChanger.getTapPosition();
+        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
+
+        int newTapPosition = initialTapPosition + 5;
+        phaseTapChanger.setTapPosition(newTapPosition);
+        pst.synchronize(network);
+        assertEquals(phaseTapChanger.getStep(newTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(newTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
     }
 
     @Test
     public void pstWithRelativeFixedRange() {
-        PstWithRange pstRangeWithRelativeFixedRange = new PstWithRange("id", networkElement);
-        pstRangeWithRelativeFixedRange.addRange(relativeFixedRange);
-        pstRangeWithRelativeFixedRange.setReferenceValue(network);
-        assertEquals(initialTapPosition + relativeFixedRangeMin, pstRangeWithRelativeFixedRange.getMinValue(network), 0);
-        assertEquals(initialTapPosition + relativeFixedRangeMax, pstRangeWithRelativeFixedRange.getMaxValue(network), 0);
-    }
+        pst.addRange(new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
+        pst.setReferenceValue(network);
+        int initialTapPosition = phaseTapChanger.getTapPosition();
+        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
 
-    @Test
-    public void pstWithSeveralRanges() {
-        PstWithRange pstRangeWithSeveralRanges = new PstWithRange("id", networkElement);
-        pstRangeWithSeveralRanges.addRange(absoluteCenteredZeroRange);
-        pstRangeWithSeveralRanges.addRange(absoluteStartOneRange);
-        pstRangeWithSeveralRanges.addRange(relativeFixedRange);
-        pstRangeWithSeveralRanges.addRange(relativeDynamicRange);
-        pstRangeWithSeveralRanges.setReferenceValue(network);
-        pstRangeWithSeveralRanges.synchronize(network);
-        assertEquals(initialTapPosition + relativeFixedRangeMin, pstRangeWithSeveralRanges.getMinValue(network), 0);
-        assertEquals(initialTapPosition + relativeFixedRangeMax, pstRangeWithSeveralRanges.getMaxValue(network), 0);
-        int anotherInitialTapPosition = 1;
-        Mockito.when(phaseTapChanger.getTapPosition()).thenReturn(anotherInitialTapPosition);
-        pstRangeWithSeveralRanges.synchronize(network);
-        assertEquals(initialTapPosition + relativeFixedRangeMin, pstRangeWithSeveralRanges.getMinValue(network), 0);
-        assertEquals(anotherInitialTapPosition + relativeDynamicRangeMax, pstRangeWithSeveralRanges.getMaxValue(network), 0);
+        int newTapPosition = initialTapPosition + 5;
+        phaseTapChanger.setTapPosition(newTapPosition);
+        pst.synchronize(network);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
     }
 }

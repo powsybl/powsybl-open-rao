@@ -85,8 +85,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     @Override
     public double getMinValue(Network network) {
         double minValue = Double.NEGATIVE_INFINITY;
-        for (Range range: ranges
-             ) {
+        for (Range range: ranges) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
         }
         return minValue;
@@ -97,8 +96,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     @Override
     public double getMaxValue(Network network) {
         double maxValue = Double.POSITIVE_INFINITY;
-        for (Range range: ranges
-        ) {
+        for (Range range: ranges) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
         }
         return maxValue;
