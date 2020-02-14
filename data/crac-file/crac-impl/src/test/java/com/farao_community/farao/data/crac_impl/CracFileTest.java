@@ -396,7 +396,7 @@ public class CracFileTest {
         Cnec cnec = new SimpleCnec(
                 "cnec",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
+                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -477,7 +477,7 @@ public class CracFileTest {
         Cnec cnec1 = new SimpleCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
+                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
                 new SimpleState(Optional.empty(), new Instant("initial-instant", 0))
         );
 
@@ -491,7 +491,7 @@ public class CracFileTest {
         Cnec cnec2 = new SimpleCnec(
                 "cnec2",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
+                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -519,7 +519,7 @@ public class CracFileTest {
         Cnec cnec = new SimpleCnec(
                 "cnec2",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
+                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -540,7 +540,7 @@ public class CracFileTest {
         Cnec cnec1 = new SimpleCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
+                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -550,7 +550,7 @@ public class CracFileTest {
         Cnec cnec2 = new SimpleCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, IN, 1000.),
+                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
