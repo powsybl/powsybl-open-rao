@@ -1,0 +1,62 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.farao_community.farao.linear_rao.config;
+
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.RaoParameters;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Utility class designed to check availability of all plugins listed in the
+ * RAO parameters, and to interpret them in different contexts of the linear
+ * RAO.
+ *
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
+public final class LinearRaoConfigurationUtil {
+
+    private LinearRaoConfigurationUtil() {
+        throw new AssertionError("Utility class should not be instanciated");
+    }
+
+    /**
+     * Validates RAO parameters compatibility with platform available plugins.
+     * Return a list of errors, that is empty if the configuration is correct.
+     *
+     * @param raoParameters RAO parameters
+     * @return a list of configuration issues
+     */
+    public static List<String> checkLinearRaoConfiguration(RaoParameters raoParameters) {
+        List<String> errors = new ArrayList<>();
+
+        // Check that correct extension is provided
+        // Return directly if the extension is not provided
+        try {
+            getLinearRaoParameters(raoParameters);
+        } catch (FaraoException e) {
+            errors.add(e.getMessage());
+            return errors;
+        }
+
+        return errors;
+    }
+
+    /**
+     * Get LinearRaoParameters from a RaoParameters
+     * Throws a FaraoException if it does not exists
+     */
+    public static LinearRaoParameters getLinearRaoParameters(RaoParameters raoParameters) {
+        LinearRaoParameters linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
+        if (Objects.isNull(linearRaoParameters)) {
+            throw new FaraoException("Linear Rao parameters not available");
+        }
+        return linearRaoParameters;
+    }
+}
