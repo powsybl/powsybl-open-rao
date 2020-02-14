@@ -150,7 +150,6 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
      */
     @Override
     public void apply(Network network, double setpoint) {
-        // TODO : check that the exception is already thrown by Powsybl
         PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
         if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
             phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);

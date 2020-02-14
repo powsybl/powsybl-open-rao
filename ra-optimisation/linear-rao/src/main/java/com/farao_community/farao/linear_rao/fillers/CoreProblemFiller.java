@@ -27,7 +27,6 @@ import java.util.Set;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class CoreProblemFiller extends AbstractProblemFiller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
 
     public CoreProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         super(linearRaoProblem, linearRaoData);

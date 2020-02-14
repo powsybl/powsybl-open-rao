@@ -241,7 +241,7 @@ public class LinearRaoProblem {
         getFlowConstraint(cnecId).setBounds(referenceFlow, referenceFlow);
     }
 
-    public void updateRangeActionBounds(String rangeActionId, String networkElementId, double optimisationVariation) {
+    public void updateRangeActionBounds(String rangeActionId, double optimisationVariation) {
         MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
         MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
         positiveRangeActionVariable.setUb(positiveRangeActionVariable.ub() - optimisationVariation);
