@@ -63,7 +63,7 @@ rao:
 
 linear-rao-parameters:
     max-number-of-iterations: 10
-    skip-linear-rao: false
+    security-analysis-without-rao: false
 
 search-tree-rao-paramters:
     range-action-rao : LinearRao

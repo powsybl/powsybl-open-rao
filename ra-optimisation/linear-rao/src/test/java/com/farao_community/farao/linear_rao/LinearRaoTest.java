@@ -98,7 +98,8 @@ public class LinearRaoTest {
             linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, brokenParameters);
         } catch (FaraoException e) {
             errorCaught = true;
-            assertEquals("rao parameters is missing linear rao parameters extension", e.getMessage());
+            assertEquals("There are some issues in RAO parameters:\n" +
+                    "Linear Rao parameters not available", e.getMessage());
         }
         assertTrue(errorCaught);
     }

@@ -3,7 +3,7 @@
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,
-      "skip-linear-rao" : true,
+      "security-analysis-without-rao" : true,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {

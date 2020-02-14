@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -56,17 +57,20 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
-        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
-        if (linearRaoParameters == null) {
-            throw new FaraoException("rao parameters is missing linear rao parameters extension");
+        // quality check
+        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
+        if (!configQualityCheck.isEmpty()) {
+            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
+
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
         int iterationsLeft = linearRaoParameters.getMaxIterations();
 
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
 
-        if (linearRaoParameters.getSkipLinearRao() || linearRaoParameters.getMaxIterations() == 0) {
+        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0) {
             return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
         }
 
