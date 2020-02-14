@@ -27,6 +27,10 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
     public void serialize(LinearRaoParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
+        jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
+
+        jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.getSecurityAnalysisWithoutRao());
+
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
 
@@ -39,11 +43,18 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
+                case "max-number-of-iterations":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setMaxIterations(jsonParser.getIntValue());
+                    break;
+                case "security-analysis-without-rao":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setSecurityAnalysisWithoutRao(jsonParser.getBooleanValue());
+                    break;
                 case "sensitivity-parameters":
                     jsonParser.nextToken();
                     JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, linearRaoParameters.getSensitivityComputationParameters());
                     break;
-
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }

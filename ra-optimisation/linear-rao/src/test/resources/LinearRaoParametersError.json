@@ -2,6 +2,7 @@
   "version" : "1.0",
   "extensions" : {
     "LinearRaoParameters" : {
+      "unknownParameter" : true,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {
@@ -11,7 +12,6 @@
           "phaseShifterRegulationOn" : false,
           "noGeneratorReactiveLimits" : false,
           "specificCompatibility" : false,
-          "unknownParameter" : true
         }
       }
     }

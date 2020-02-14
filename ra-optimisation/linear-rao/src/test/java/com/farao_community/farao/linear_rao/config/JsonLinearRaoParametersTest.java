@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.linear_rao.config;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.powsybl.commons.AbstractConverterTest;
@@ -24,6 +25,8 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
+        parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
+        parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParameters.json");
     }
 
@@ -32,7 +35,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         try {
             JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersError.json"));
             fail();
-        } catch (AssertionError e) {
+        } catch (FaraoException e) {
             // should throw
             assertTrue(e.getMessage().contains("Unexpected field"));
         }

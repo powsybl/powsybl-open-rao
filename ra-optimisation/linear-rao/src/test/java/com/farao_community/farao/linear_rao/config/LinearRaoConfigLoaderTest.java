@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao.config;
 
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Before;
@@ -18,7 +19,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -42,8 +47,13 @@ public class LinearRaoConfigLoaderTest {
         PowerMockito.mockStatic(SensitivityComputationParameters.class);
         BDDMockito.given(SensitivityComputationParameters.load(platformConfig)).willReturn(sensitivityComputationParameters);
 
+        ModuleConfig linearRaoParametersModule = Mockito.mock(ModuleConfig.class);
+        Mockito.when(linearRaoParametersModule.getIntProperty(eq("max-number-of-iterations"), anyInt())).thenReturn(25);
+        Mockito.when(platformConfig.getOptionalModuleConfig("linear-rao-parameters")).thenReturn(Optional.of(linearRaoParametersModule));
+
         LinearRaoParameters raoParameters = configLoader.load(platformConfig);
         assertSame(sensitivityComputationParameters, raoParameters.getSensitivityComputationParameters());
+        assertEquals(25, raoParameters.getMaxIterations());
     }
 
     @Test
