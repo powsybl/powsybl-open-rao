@@ -170,4 +170,20 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         }
         return phaseTapChanger;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

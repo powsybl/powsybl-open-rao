@@ -131,6 +131,11 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
 
     @Override
     public int hashCode() {
-        return String.format("%s%s%d", getId(), networkElement.getId(), ranges.size()).hashCode();
+        int result = super.hashCode();
+        for (Range range : ranges) {
+            result = 31 * result + range.hashCode();
+        }
+        result = 31 * result + networkElement.hashCode();
+        return result;
     }
 }
