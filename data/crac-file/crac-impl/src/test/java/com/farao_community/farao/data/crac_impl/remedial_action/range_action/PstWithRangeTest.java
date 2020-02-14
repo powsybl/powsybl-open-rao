@@ -18,8 +18,7 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -49,6 +48,16 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         assertEquals("", pstRange1.getOperator());
         PstWithRange pstRange2 = new PstWithRange("id", "name", "operator", networkElement);
         assertEquals("operator", pstRange2.getOperator());
+    }
+
+    @Test
+    public void pstEquals() {
+        PstWithRange pstRange1 = new PstWithRange("pst_range_id", networkElement);
+        assertEquals(pst.hashCode(), pstRange1.hashCode());
+        assertEquals(pst, pstRange1);
+        PstWithRange pstDifferent = new PstWithRange("pst_range_id_2", new NetworkElement("neOther"));
+        assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
+        assertNotEquals(pst, pstDifferent);
     }
 
     @Test

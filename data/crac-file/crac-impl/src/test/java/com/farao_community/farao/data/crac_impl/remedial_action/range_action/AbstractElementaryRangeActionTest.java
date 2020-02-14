@@ -1,7 +1,11 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -43,5 +47,20 @@ abstract public class AbstractElementaryRangeActionTest extends AbstractRemedial
 
         // doesnt work for the moment!!! don't know how to test it...
         // assertEquals(Math.max(expectedMinRange1, expectedMinRange2), mockedHvdcRange.getMinValue(mockedNetwork), 0);
+    }
+
+    @Test
+    public void abstractElementaryEquals() {
+        Range range = new Range(1, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+        AbstractElementaryRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        pst.addRange(range);
+        AbstractElementaryRangeAction pstRange1 = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        pstRange1.addRange(range);
+        assertEquals(pst.hashCode(), pstRange1.hashCode());
+        assertEquals(pst, pstRange1);
+        AbstractElementaryRangeAction pstDifferent = new PstWithRange("pst_range_id_2", new NetworkElement("neOther"));
+        pstDifferent.addRange(new Range(1, 10, RangeType.RELATIVE_FIXED, RangeDefinition.STARTS_AT_ONE) );
+        assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
+        assertNotEquals(pst, pstDifferent);
     }
 }
