@@ -63,7 +63,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void apply() {
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
-        pst.apply(network, 12);
+        pst.apply(network, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getStep(12).getAlpha());
         assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
@@ -73,7 +73,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
             pst.apply(network, 50);
             fail();
         } catch (FaraoException e) {
-            assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
+            assertEquals("Angle value", e.getMessage().substring(0, 11)); // In order to avoid numeric values in the expected String
         }
     }
 

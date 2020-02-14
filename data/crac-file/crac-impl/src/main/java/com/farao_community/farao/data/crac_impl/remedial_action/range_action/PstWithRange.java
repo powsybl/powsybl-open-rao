@@ -17,9 +17,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Elementary PST range remedial action.
@@ -32,6 +37,8 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     private int lowTapPosition;
     private int highTapPosition;
     private int initialTapPosition;
+
+    private static final double EPSILON = 1e-3;
 
     /**
      * Constructor of a remedial action on a PST. The value of the tap to set will be specify at the application.
@@ -145,21 +152,22 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
      * Change tap position of the PST pointed by the network element.
      *
      * @param network: network to modify
-     * @param setpoint: tap value to set on the PST. Even if defined as a double here the setpoint
-     *                is a tap value so it's an int, if not it will be truncated.
+     * @param finalAngle: angle value to set on the PST.
      */
     @Override
-    public void apply(Network network, double setpoint) {
+    public void apply(Network network, double finalAngle) {
+
         PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
+        int setpoint = computeTapPosition(finalAngle, phaseTapChanger);
         if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
-            phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);
+            phaseTapChanger.setTapPosition(setpoint + phaseTapChanger.getLowTapPosition() - 1);
         } else {
             throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
         }
     }
 
     private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(getNetworkElement().getId());
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
         if (transformer == null) {
             throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
         }
@@ -168,6 +176,34 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
             throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a PstRange", networkElement.getId()));
         }
         return phaseTapChanger;
+    }
+
+    public int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger) {
+
+        Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
+        for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
+            steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));
+        }
+        double minAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).min().orElse(Double.NaN);
+        double maxAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).max().orElse(Double.NaN);
+        if (Double.isNaN(minAngle) || Double.isNaN(maxAngle)) {
+            throw new FaraoException(String.format("Phase tap changer %s steps may be invalid", networkElement.getId()));
+        }
+
+        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
+        if (finalAngle < minAngle && Math.abs(finalAngle - minAngle) > EPSILON || finalAngle > maxAngle && Math.abs(finalAngle - maxAngle) > EPSILON) {
+            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", finalAngle, minAngle, maxAngle, networkElement.getId()));
+        }
+        AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
+        AtomicInteger approximatedTapPosition = new AtomicInteger(phaseTapChanger.getTapPosition());
+        steps.forEach((tapPosition, step) -> {
+            double diff = Math.abs(step.getAlpha() - finalAngle);
+            if (diff < angleDifference.get()) {
+                angleDifference.set(diff);
+                approximatedTapPosition.set(tapPosition);
+            }
+        });
+        return approximatedTapPosition.get();
     }
 
     @Override

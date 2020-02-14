@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 
 import java.util.List;
 
@@ -58,6 +60,13 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
     @Override
     public void apply(Network network) {
         PstWithRange pst = new PstWithRange(getId(), networkElement);
-        pst.apply(network, setpoint);
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
+
+        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
+            double angleSetpoint = phaseTapChanger.getStep((int) setpoint).getAlpha();
+            pst.apply(network, angleSetpoint);
+        } else {
+            throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
+        }
     }
 }

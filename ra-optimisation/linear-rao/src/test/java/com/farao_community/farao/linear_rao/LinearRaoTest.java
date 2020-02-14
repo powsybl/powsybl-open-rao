@@ -111,14 +111,14 @@ public class LinearRaoTest {
 
         List<RemedialActionResult> remedialActionResults1 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList1 = new ArrayList<>();
-        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 5., 2, 10., 4));
+        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 3., 4));
         remedialActionResults1.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList1));
         PreContingencyResult preContingencyResult1 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults1);
         RaoComputationResult raoComputationResult1 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult1);
 
         List<RemedialActionResult> remedialActionResults2 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList2 = new ArrayList<>();
-        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 10., 4, 8., 3));
+        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 3., 4, 2., 3));
         remedialActionResults2.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList2));
         PreContingencyResult preContingencyResult2 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults2);
         RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
@@ -145,9 +145,9 @@ public class LinearRaoTest {
             assertTrue(remedialActionElementResult instanceof PstElementResult);
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
             assertEquals("BBE2AA1  BBE3AA1  1", pstElementResult.getId());
-            assertEquals(5., pstElementResult.getPreOptimisationAngle(), 0.01);
+            assertEquals(1., pstElementResult.getPreOptimisationAngle(), 0.01);
             assertEquals(2, pstElementResult.getPreOptimisationTapPosition());
-            assertEquals(8., pstElementResult.getPostOptimisationAngle(), 0.01);
+            assertEquals(2., pstElementResult.getPostOptimisationAngle(), 0.01);
             assertEquals(3, pstElementResult.getPostOptimisationTapPosition());
         } catch (InterruptedException e) {
             e.printStackTrace();
