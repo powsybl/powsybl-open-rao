@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
@@ -15,6 +16,7 @@ import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
@@ -81,6 +83,25 @@ public class LinearRaoTest {
     @Test
     public void getVersion() {
         assertEquals("1.0.0", linearRao.getVersion());
+    }
+
+    @Test
+    public void testBrokenParameters() {
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+        RaoParameters brokenParameters = RaoParameters.load(platformConfig);
+        brokenParameters.removeExtension(LinearRaoParameters.class);
+
+        boolean errorCaught = false;
+        try {
+            linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, brokenParameters);
+        } catch (FaraoException e) {
+            errorCaught = true;
+            assertEquals("There are some issues in RAO parameters:\n" +
+                    "Linear Rao parameters not available", e.getMessage());
+        }
+        assertTrue(errorCaught);
     }
 
     @Test

@@ -13,12 +13,19 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Objects;
 
+import static java.lang.Math.max;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
+    static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
+    static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
+
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+    private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
+    private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
 
     @Override
     public String getName() {
@@ -31,6 +38,24 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     public LinearRaoParameters setSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
         this.sensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+        return this;
+    }
+
+    public LinearRaoParameters setSecurityAnalysisWithoutRao(boolean securityAnalysisWithoutRao) {
+        this.securityAnalysisWithoutRao = securityAnalysisWithoutRao;
+        return this;
+    }
+
+    public boolean getSecurityAnalysisWithoutRao() {
+        return securityAnalysisWithoutRao;
+    }
+
+    public int getMaxIterations() {
+        return maxIterations;
+    }
+
+    public LinearRaoParameters setMaxIterations(int maxIterations) {
+        this.maxIterations = max(0, maxIterations);
         return this;
     }
 }
