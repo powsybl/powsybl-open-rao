@@ -26,8 +26,6 @@ import java.util.*;
  */
 public class RaoResultPostProcessor extends AbstractPostProcessor {
 
-    private static final double PST_LIMITS_TOLERANCE = 1e-3;
-
     @Override
     public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult) {
 

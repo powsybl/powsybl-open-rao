@@ -17,8 +17,6 @@ import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -108,12 +106,9 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         List<RemedialActionElementResult> remedialActionElementResultList = remedialActionResult.getRemedialActionElementResults();
         for (RemedialActionElementResult remedialActionElementResult : remedialActionElementResultList) {
             RangeAction rangeAction = crac.getRangeAction(remedialActionElementResult.getId());
-            rangeAction.getNetworkElements().forEach(networkElement ->
-                    linearRaoProblem.updateRangeActionBounds(
-                            rangeAction.getId(),
-                            networkElement.getId(),
-                            getRemedialActionResultVariation(remedialActionElementResult)
-                            ));
+            linearRaoProblem.updateRangeActionBounds(
+                rangeAction.getId(),
+                getRemedialActionResultVariation(remedialActionElementResult));
         }
     }
 }

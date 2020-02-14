@@ -132,10 +132,9 @@ public class LinearRaoProblemTest {
     @Test
     public void updateRangeActionBounds() {
         String rangeActionId = "range-action-test";
-        String networkElementId = "network-element-test";
         linearRaoProblem.addRangeActionVariable(rangeActionId, 12, 15);
 
-        linearRaoProblem.updateRangeActionBounds(rangeActionId, networkElementId, 4);
+        linearRaoProblem.updateRangeActionBounds(rangeActionId, 4);
         MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId);
         assertEquals(0, positiveVariable.lb(), 0.1);
         assertEquals(11, positiveVariable.ub(), 0.1);
@@ -143,7 +142,7 @@ public class LinearRaoProblemTest {
         assertEquals(0, negativeVariable.lb(), 0.1);
         assertEquals(16, negativeVariable.ub(), 0.1);
 
-        linearRaoProblem.updateRangeActionBounds(rangeActionId, networkElementId, -6);
+        linearRaoProblem.updateRangeActionBounds(rangeActionId, -6);
         assertEquals(0, positiveVariable.lb(), 0.1);
         assertEquals(17, positiveVariable.ub(), 0.1);
         assertEquals(0, negativeVariable.lb(), 0.1);
