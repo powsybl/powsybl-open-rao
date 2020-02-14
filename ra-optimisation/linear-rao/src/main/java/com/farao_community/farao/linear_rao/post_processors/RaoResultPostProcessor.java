@@ -47,6 +47,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         int preOptimTap = transformer.getPhaseTapChanger().getTapPosition();
 
                         double postOptimAngle = preOptimAngle + rangeActionVar;
+
                         int approximatedPostOptimTap = getClosestTapPosition(postOptimAngle, transformer);
                         double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
