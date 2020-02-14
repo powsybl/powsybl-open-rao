@@ -38,9 +38,8 @@ public final class LinearRaoConfigurationUtil {
 
         // Check that correct extension is provided
         // Return directly if the extension is not provided
-        LinearRaoParameters linearRaoParameters;
         try {
-            linearRaoParameters = getLinearRaoParameters(raoParameters);
+            getLinearRaoParameters(raoParameters);
         } catch (FaraoException e) {
             errors.add(e.getMessage());
             return errors;
