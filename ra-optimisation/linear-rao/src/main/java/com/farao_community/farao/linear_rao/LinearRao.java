@@ -97,7 +97,7 @@ public class LinearRao implements RaoProvider {
 
             postOptimSensitivityAnalysisResult = tempSensitivityAnalysisResult;
             oldScore = newScore;
-            linearRaoModeller.updateProblem(tempSensitivityAnalysisResult, newRemedialActionsResult);
+            linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult, newRemedialActionsResult.stream().map(RemedialActionResult::getId).collect(Collectors.toList()));
             iterationsLeft -= 1;
         }
 
@@ -116,7 +116,7 @@ public class LinearRao implements RaoProvider {
         RemedialActionElementResult remedialActionElementResult = remedialActionResult.getRemedialActionElementResults().get(0);
         if (remedialActionElementResult instanceof PstElementResult) {
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
-            return pstElementResult.getPostOptimisationTapPosition();
+            return pstElementResult.getPostOptimisationAngle();
         } else if (remedialActionElementResult instanceof RedispatchElementResult) {
             RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
             return redispatchElementResult.getPostOptimisationTargetP();

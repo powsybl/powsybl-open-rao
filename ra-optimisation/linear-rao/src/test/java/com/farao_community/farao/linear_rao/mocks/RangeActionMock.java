@@ -37,6 +37,10 @@ public class RangeActionMock implements RangeAction {
         this.sensitivityValues = sensitivityValues;
     }
 
+    public void setCurrentValue(double currentValue) {
+        this.currentValue = currentValue;
+    }
+
     @Override
     public void apply(Network network, double setpoint) {
 

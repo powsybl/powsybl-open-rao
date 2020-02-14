@@ -26,6 +26,14 @@ public class LinearRaoData {
         this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
     }
 
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+
+    public void setSystematicSensitivityAnalysisResult(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+    }
+
     public SensitivityComputationResults getSensitivityComputationResults(State state) {
         return systematicSensitivityAnalysisResult.getStateSensiMap().get(state);
     }

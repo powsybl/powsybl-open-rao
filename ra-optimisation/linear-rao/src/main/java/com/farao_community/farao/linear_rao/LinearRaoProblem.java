@@ -241,11 +241,11 @@ public class LinearRaoProblem {
         getFlowConstraint(cnecId).setBounds(referenceFlow, referenceFlow);
     }
 
-    public void updateRangeActionBounds(String rangeActionId, double optimisationVariation) {
+    public void updateRangeActionBounds(String rangeActionId, double maxNegativeVariation, double maxPositiveVariation) {
         MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
         MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
-        positiveRangeActionVariable.setUb(positiveRangeActionVariable.ub() - optimisationVariation);
-        negativeRangeActionVariable.setUb(negativeRangeActionVariable.ub() + optimisationVariation);
+        negativeRangeActionVariable.setUb(maxNegativeVariation);
+        positiveRangeActionVariable.setUb(maxPositiveVariation);
     }
 
     public Enum solve() {

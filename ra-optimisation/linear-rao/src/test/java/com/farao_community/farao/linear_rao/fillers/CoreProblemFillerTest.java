@@ -10,9 +10,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
-import com.farao_community.farao.ra_optimisation.PstElementResult;
-import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
-import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityComputationResults;
@@ -22,10 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -113,9 +107,9 @@ public class CoreProblemFillerTest extends FillerTest {
     public void updateFiller() {
         final String rangeActionId = "range-action-id";
         final String networkElementId = "network-element-id";
-        final int minTap = -10;
-        final int maxTap = 16;
-        final int currentTap = 5;
+        final double minAngle = -2.6;
+        final double maxAngle = 4.2;
+        final double initialAngle = 0.2;
         final double referenceFlow11 = 500.;
         final double referenceFlow12 = 600.;
         final double referenceFlow21 = 300.;
@@ -129,14 +123,8 @@ public class CoreProblemFillerTest extends FillerTest {
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(referenceFlow11, referenceFlow12);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(referenceFlow21, referenceFlow22);
 
-        final double preOptimAngle = 0.1;
         final double angleChange = 0.3;
-        PstElementResult pstElementResult = new PstElementResult("range-action-id", preOptimAngle, 3, preOptimAngle + angleChange, 6);
-        List<RemedialActionElementResult> remedialActionElementResultList = new ArrayList<>();
-        remedialActionElementResultList.add(pstElementResult);
-        RemedialActionResult remedialActionResult = new RemedialActionResult("rem-action-res", "rem-action-res-name", true, remedialActionElementResultList);
-        List<RemedialActionResult> remedialActionResultList = new ArrayList<>();
-        remedialActionResultList.add(remedialActionResult);
+        List<String> activatedRemedialActionIds = Collections.singletonList(rangeActionId);
 
         Map<Cnec, Double> sensitivities = new HashMap<>();
         sensitivities.put(cnec1, cnec1toRangeSensitivity1);
@@ -144,7 +132,7 @@ public class CoreProblemFillerTest extends FillerTest {
 
         cnecs.add(cnec1);
         cnecs.add(cnec2);
-        RangeActionMock rangeAction = new RangeActionMock(rangeActionId, networkElementId, currentTap, minTap, maxTap, sensitivities);
+        RangeActionMock rangeAction = new RangeActionMock(rangeActionId, networkElementId, initialAngle, minAngle, maxAngle, sensitivities);
         when(crac.getRangeAction(Mockito.any())).thenReturn(rangeAction);
         rangeActions.add(rangeAction);
 
@@ -160,7 +148,9 @@ public class CoreProblemFillerTest extends FillerTest {
         sensitivities2.put(cnec1, cnec1toRangeSensitivity2);
         sensitivities2.put(cnec2, cnec2toRangeSensitivity2);
         rangeAction.setSensitivityValues(sensitivities2);
-        coreProblemFiller.update(linearRaoProblem, linearRaoData, remedialActionResultList);
+        rangeAction.setCurrentValue(initialAngle + angleChange);
+        coreProblemFiller.update(activatedRemedialActionIds);
+
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1.getId());
         assertNotNull(flowConstraint);
         MPConstraint flowConstraint2 = linearRaoProblem.getFlowConstraint(cnec2.getId());
@@ -178,6 +168,5 @@ public class CoreProblemFillerTest extends FillerTest {
 
         assertEquals(maxNegativeVariation + angleChange, variableRangeNegative.ub(), 0.01);
         assertEquals(maxPositiveVariation - angleChange, variableRangePositive.ub(), 0.01);
-
     }
 }
