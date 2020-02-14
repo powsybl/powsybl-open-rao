@@ -7,6 +7,10 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.ra_optimisation.RemedialActionResult;
+
+import java.util.List;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -21,7 +25,5 @@ public abstract class AbstractProblemFiller {
 
     public abstract void fill();
 
-    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        //todo
-    }
+    public abstract void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList);
 }

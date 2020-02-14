@@ -19,10 +19,11 @@ import com.powsybl.iidm.network.Network;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltageThreshold")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absolute-flow-threshold"),
+        @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold"),
+        @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltage-threshold")
     })
 public abstract class AbstractThreshold implements Threshold {
     protected Unit unit;

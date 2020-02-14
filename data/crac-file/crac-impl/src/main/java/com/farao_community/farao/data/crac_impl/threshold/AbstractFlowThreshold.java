@@ -24,11 +24,10 @@ import java.util.Optional;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absoluteFlowThreshold"),
-        @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relativeFlowThreshold")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absolute-flow-threshold"),
+        @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold")
     })
 public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
@@ -68,14 +67,20 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) throws SynchronizationException {
-        // TODO : handle cases where direction != Direction.BOTH
-        return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
+        if (direction == Direction.DIRECT) {
+            return Optional.empty();
+        } else { // Direction.OPPOSITE and Direction.BOTH
+            return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
+        }
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) throws SynchronizationException {
-        // TODO : handle cases where direction != Direction.BOTH
-        return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
+        if (direction == Direction.OPPOSITE) {
+            return Optional.empty();
+        } else { // Direction.DIRECT and Direction.BOTH
+            return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
+        }
     }
 
     @Override
@@ -112,12 +117,12 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         } else {
             flow = getP(network, cnec);
         }
-        return Math.min(getMaxThreshold(unit).orElse(Double.MAX_VALUE) - flow, flow - getMinThreshold(unit).orElse(Double.MIN_VALUE));
+        return Math.min(getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - flow, flow - getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
     }
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+        voltageLevel = network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
     }
 
     @Override
@@ -167,14 +172,14 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * Get the monitored Terminal of a Cnec.
      */
     private Terminal getTerminal(Network network, Cnec cnec) {
-        return network.getBranch(cnec.getCriticalNetworkElement().getId()).getTerminal(getBranchSide());
+        return network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide());
     }
 
     /**
      * Check if a Cnec is connected, on both side, to the network.
      */
     private static boolean isCnecDisconnected(Network network, Cnec cnec) {
-        Branch branch = network.getBranch(cnec.getCriticalNetworkElement().getId());
+        Branch branch = network.getBranch(cnec.getNetworkElement().getId());
         return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
     }
 
