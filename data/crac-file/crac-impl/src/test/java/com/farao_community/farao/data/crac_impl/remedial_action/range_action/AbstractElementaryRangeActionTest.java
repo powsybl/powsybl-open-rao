@@ -5,7 +5,6 @@ import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -59,7 +58,7 @@ abstract public class AbstractElementaryRangeActionTest extends AbstractRemedial
         assertEquals(pst.hashCode(), pstRange1.hashCode());
         assertEquals(pst, pstRange1);
         AbstractElementaryRangeAction pstDifferent = new PstWithRange("pst_range_id_2", new NetworkElement("neOther"));
-        pstDifferent.addRange(new Range(1, 10, RangeType.RELATIVE_FIXED, RangeDefinition.STARTS_AT_ONE) );
+        pstDifferent.addRange(new Range(1, 10, RangeType.RELATIVE_FIXED, RangeDefinition.STARTS_AT_ONE));
         assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
         assertNotEquals(pst, pstDifferent);
     }
