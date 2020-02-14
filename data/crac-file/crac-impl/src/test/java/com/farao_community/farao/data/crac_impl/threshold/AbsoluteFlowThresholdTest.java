@@ -114,54 +114,6 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void isMinThresholdOvercome() throws SynchronizationException {
-        // on cnec 1, after LF: 384.9 A
-        assertFalse(absoluteFlowThresholdAmps.isMinThresholdOvercome(networkWithLf, cnec1));
-    }
-
-    @Test
-    public void isMaxThresholdOvercomeOk() throws SynchronizationException {
-        // on cnec 1, after LF: 384.9 A
-        // on cnec 3, after LF: 769.8 A
-        assertFalse(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithLf, cnec1));
-        assertTrue(absoluteFlowThresholdAmps.isMaxThresholdOvercome(networkWithLf, cnec3));
-    }
-
-    @Test
-    public void computeMarginOk() throws Exception {
-        // on cnec 1, after LF: 384.9 A
-        // on cnec 2, after LF: - 384.9 A = - 266.7 MW
-        // on cnec 3, after LF: 769.8 A
-        assertEquals(500.0 - 384.9, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec1), DOUBLE_TOL);
-        assertEquals(-266.7 - (-1500), absoluteFlowThresholdMW.computeMargin(networkWithLf, cnec2), DOUBLE_TOL);
-        assertEquals(500.0 - 769.8, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
-    }
-
-    @Test
-    public void computeMarginNoData() throws Exception {
-        try {
-            absoluteFlowThresholdAmps.computeMargin(networkWithoutLf, cnec1);
-            fail();
-        } catch (FaraoException e) {
-            //should throw
-        }
-    }
-
-    @Test
-    public void computeMarginDisconnectedLine() throws Exception {
-        // terminal 1 disconnected
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
-        // terminal 2 disconnected
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
-        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
-        // both terminal disconnected
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, absoluteFlowThresholdAmps.computeMargin(networkWithLf, cnec3), DOUBLE_TOL);
-    }
-
-    @Test
     public void synchronize() {
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxValue(), 1);
         cnec1.synchronize(networkWithoutLf);

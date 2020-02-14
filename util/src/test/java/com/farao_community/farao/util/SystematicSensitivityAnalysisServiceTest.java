@@ -27,6 +27,8 @@ import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +70,9 @@ public class SystematicSensitivityAnalysisServiceTest {
     @Test
     public void testSensiSAresult() {
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
-        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
+        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
         assertNotNull(result);
-        assertNotNull(result.getCnecMarginMap());
         assertNotNull(result.getStateSensiMap());
     }
 
@@ -87,6 +87,23 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        // Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl());
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Network network = (Network) args[0];
+                network.getBranches().forEach(branch -> {
+                    branch.getTerminal1().setP(120.);
+                    branch.getTerminal2().setP(120.);
+                }
+                    );
+                return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
+            }
+        }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        LoadFlowService.init(loadFlowRunner, computationManager);
+
         SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         assertNotNull(result);
     }

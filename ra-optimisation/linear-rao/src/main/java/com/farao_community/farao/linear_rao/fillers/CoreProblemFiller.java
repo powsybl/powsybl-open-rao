@@ -117,7 +117,8 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                         linearRaoData.getSensitivity(cnec, rangeAction)));
     }
 
-    private double getRemedialActionResultVariation(RemedialActionElementResult remedialActionElementResult) {
+    private double getRemedialActionResultVariation(RemedialActionResult remedialActionResult) {
+        RemedialActionElementResult remedialActionElementResult = remedialActionResult.getRemedialActionElementResults().get(0);
         if (remedialActionElementResult instanceof PstElementResult) {
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
             return pstElementResult.getPostOptimisationAngle() - pstElementResult.getPreOptimisationAngle();
@@ -129,15 +130,12 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     private void updateRangeActionBounds(Crac crac, RemedialActionResult remedialActionResult) {
-        List<RemedialActionElementResult> remedialActionElementResultList = remedialActionResult.getRemedialActionElementResults();
-        for (RemedialActionElementResult remedialActionElementResult : remedialActionElementResultList) {
-            RangeAction rangeAction = crac.getRangeAction(remedialActionElementResult.getId());
-            rangeAction.getNetworkElements().forEach(networkElement ->
-                    linearRaoProblem.updateRangeActionBounds(
-                            rangeAction.getId(),
-                            networkElement.getId(),
-                            getRemedialActionResultVariation(remedialActionElementResult)
-                            ));
-        }
+        RangeAction rangeAction = crac.getRangeAction(remedialActionResult.getId());
+        rangeAction.getNetworkElements().forEach(networkElement ->
+                linearRaoProblem.updateRangeActionBounds(
+                        rangeAction.getId(),
+                        networkElement.getId(),
+                        getRemedialActionResultVariation(remedialActionResult)
+                        ));
     }
 }

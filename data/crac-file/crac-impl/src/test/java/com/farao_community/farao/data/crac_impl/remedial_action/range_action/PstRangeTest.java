@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -116,7 +117,7 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
         );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstRange.apply(network, 12);
-        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
+        assertEquals(12, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -128,8 +129,8 @@ public class PstRangeTest extends AbstractElementaryRangeActionTest {
         try {
             pstRange.apply(network, 50);
             fail();
-        } catch (FaraoException e) {
-            assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
+        } catch (PowsyblException e) {
+            // should throw
         }
     }
 

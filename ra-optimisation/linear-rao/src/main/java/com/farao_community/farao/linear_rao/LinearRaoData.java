@@ -36,20 +36,18 @@ public class LinearRaoData {
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         double sensitivity = 0;
         for (NetworkElement networkElement : networkElements) {
-            SensitivityValue value = systematicSensitivityAnalysisResult.getStateSensiMap().get(crac.getPreventiveState()).getSensitivityValues().stream()
+            SensitivityValue value = systematicSensitivityAnalysisResult.getStateSensiMap().get(cnec.getState()).getSensitivityValues().stream()
                 .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getNetworkElement().getId()))
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId()))
                 .findFirst()
-                .orElseThrow(FaraoException::new);
+                .orElseThrow(() -> new FaraoException(String.format("sensitivity not found for %s %s", cnec.getId(), rangeAction.getId())));
             sensitivity += value.getValue();
         }
         return sensitivity;
     }
 
     public double getReferenceFlow(Cnec cnec) {
-        double margin = systematicSensitivityAnalysisResult.getCnecMarginMap().get(cnec);
-        double maxFlow = systematicSensitivityAnalysisResult.getCnecMaxThresholdMap().get(cnec);
-        return maxFlow - margin;
+        return systematicSensitivityAnalysisResult.getCnecFlowMap().get(cnec);
     }
 
     public double getTargetValue(RangeAction rangeAction) {

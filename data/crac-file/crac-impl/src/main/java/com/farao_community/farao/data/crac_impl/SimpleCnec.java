@@ -7,10 +7,14 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * Critical network element and contingency.
@@ -43,9 +47,17 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return networkElement;
     }
 
-    @Override
     public double computeMargin(Network network) throws SynchronizationException {
-        return threshold.computeMargin(network, this);
+        // todo : switch units if no I is available but P is available
+        // todo : add a requested unit
+        double flow;
+        Unit unit = ((AbstractThreshold) threshold).getUnit();
+        if (unit.equals(Unit.AMPERE)) {
+            flow = getI(network);
+        } else {
+            flow = getP(network);
+        }
+        return Math.min(threshold.getMaxThreshold(unit).orElse(Double.MAX_VALUE) - flow, flow - threshold.getMinThreshold(unit).orElse(Double.MIN_VALUE));
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
@@ -75,9 +87,37 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return !state.getContingency().isPresent();
     }
 
+    /**
+     * Get the monitored Terminal of a Cnec.
+     */
+    private Terminal getTerminal(Network network) {
+        return network.getBranch(getNetworkElement().getId()).getTerminal(((AbstractFlowThreshold) threshold).getBranchSide()); // this is dirty but we can assume that this method will be used only if the threshold of the cnec is an abstractflowthreshold
+    }
+
+    /**
+     * Check if a Cnec is connected, on both side, to the network.
+     */
+    private boolean isCnecDisconnected(Network network) {
+        Branch branch = network.getBranch(getNetworkElement().getId());
+        return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
+    }
+
     @Override
-    public boolean isThresholdViolated(Network network) throws SynchronizationException {
-        return threshold.isMaxThresholdOvercome(network, this) || threshold.isMinThresholdOvercome(network, this);
+    public double getI(Network network) {
+        double i = isCnecDisconnected(network) ? 0 : getTerminal(network).getI();
+        if (Double.isNaN(i)) {
+            throw new FaraoException(String.format("No intensity (I) data available for CNEC %s", getName()));
+        }
+        return i;
+    }
+
+    @Override
+    public double getP(Network network) {
+        double p = isCnecDisconnected(network) ? 0 : getTerminal(network).getP();
+        if (Double.isNaN(p)) {
+            throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", getName()));
+        }
+        return p;
     }
 
     @Override

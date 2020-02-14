@@ -136,13 +136,13 @@ public final class PstRange extends AbstractElementaryRangeAction {
      */
     @Override
     public void apply(Network network, double setpoint) {
-        // TODO : check that the exception is already thrown by Powsybl
         PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
-        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
+        /*if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
             phaseTapChanger.setTapPosition((int) setpoint + phaseTapChanger.getLowTapPosition() - 1);
         } else {
             throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
-        }
+        }*/
+        phaseTapChanger.setTapPosition((int) setpoint);
     }
 
     private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {

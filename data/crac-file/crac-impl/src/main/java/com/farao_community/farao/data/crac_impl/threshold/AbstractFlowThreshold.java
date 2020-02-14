@@ -9,11 +9,11 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 
 import java.util.Optional;
 
@@ -78,43 +78,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        // todo : switch units if no I is available but P is available
-        double flow;
-        if (unit.equals(Unit.AMPERE)) {
-            flow = getI(network, cnec);
-        } else {
-            flow = getP(network, cnec);
-        }
-        return flow < getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY);
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        // todo : switch units if no I is available but P is available
-        double flow;
-        if (unit.equals(Unit.AMPERE)) {
-            flow = getI(network, cnec);
-        } else {
-            flow = getP(network, cnec);
-        }
-        return flow > getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY);
-    }
-
-    @Override
-    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
-        // todo : switch units if no I is available but P is available
-        // todo : add a requested unit
-        double flow;
-        if (unit.equals(Unit.AMPERE)) {
-            flow = getI(network, cnec);
-        } else {
-            flow = getP(network, cnec);
-        }
-        return Math.min(getMaxThreshold(unit).orElse(Double.MAX_VALUE) - flow, flow - getMinThreshold(unit).orElse(Double.MIN_VALUE));
-    }
-
-    @Override
     public void synchronize(Network network, Cnec cnec) {
         voltageLevel = network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
     }
@@ -151,7 +114,8 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     /**
      * Convert the Farao Side of the Threshold, into a Powsybl Branch.Side
      */
-    protected Branch.Side getBranchSide() {
+    @JsonIgnore
+    public Branch.Side getBranchSide() {
         // TODO: manage matching between LEFT/RIGHT and ONE/TWO
         if (side.equals(Side.LEFT)) {
             return Branch.Side.ONE;
@@ -160,46 +124,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         } else {
             throw new FaraoException("Side is not defined");
         }
-    }
-
-    /**
-     * Get the monitored Terminal of a Cnec.
-     */
-    private Terminal getTerminal(Network network, Cnec cnec) {
-        return network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide());
-    }
-
-    /**
-     * Check if a Cnec is connected, on both side, to the network.
-     */
-    private static boolean isCnecDisconnected(Network network, Cnec cnec) {
-        Branch branch = network.getBranch(cnec.getNetworkElement().getId());
-        return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
-    }
-
-    /**
-     * Get the flow (in A) transmitted by Cnec in a given Network. Note that an I
-     * value exists in the Network only if an AC load-flow has been previously run.
-     */
-    private double getI(Network network, Cnec cnec) {
-        double i = isCnecDisconnected(network, cnec) ? 0 : getTerminal(network, cnec).getI();
-        if (Double.isNaN(i)) {
-            throw new FaraoException(String.format("No intensity (I) data available for CNEC %s", cnec.getName()));
-        }
-        return i;
-    }
-
-    /**
-     * Get the flow (in MW) transmitted by Cnec in a given Network. Note that an P
-     * value exists in the Network only if an load-flow (AC or DC) has been previously
-     * run.
-     */
-    private double getP(Network network, Cnec cnec) {
-        double p = isCnecDisconnected(network, cnec) ? 0 : getTerminal(network, cnec).getP();
-        if (Double.isNaN(p)) {
-            throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", cnec.getName()));
-        }
-        return p;
     }
 
     /**

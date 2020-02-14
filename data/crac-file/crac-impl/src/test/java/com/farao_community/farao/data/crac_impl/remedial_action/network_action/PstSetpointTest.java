@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
-        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
+        assertEquals(12, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -73,8 +73,8 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (FaraoException e) {
-            assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
+        } catch (PowsyblException e) {
+            // should throw
         }
     }
 

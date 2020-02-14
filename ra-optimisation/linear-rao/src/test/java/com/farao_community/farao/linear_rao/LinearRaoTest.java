@@ -101,11 +101,17 @@ public class LinearRaoTest {
         crac.getCnecs().forEach(cnec -> cnecMarginMap3.put(cnec, 10.0));
         Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecMaxThresholdMap.put(cnec, 500.));
+        Map<Cnec, Double> cnecFlowMap1 = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap2 = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap3 = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecFlowMap1.put(cnec, 499.));
+        crac.getCnecs().forEach(cnec -> cnecFlowMap2.put(cnec, 495.));
+        crac.getCnecs().forEach(cnec -> cnecFlowMap3.put(cnec, 490.));
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap1, cnecMaxThresholdMap),
-                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap2, cnecMaxThresholdMap),
-                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap3, cnecMaxThresholdMap));
+                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap1),
+                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2),
+                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3));
 
         List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<>();
 
@@ -208,7 +214,7 @@ public class LinearRaoTest {
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstRange pstRange = new PstRange("BBE2AA1  BBE3AA1  1", pstElement);
+        PstRange pstRange = new PstRange("RA PST BE", pstElement);
         crac.addRangeAction(pstRange);
 
         return crac;

@@ -28,5 +28,16 @@ public interface Cnec extends Identifiable, Synchronizable {
 
     Threshold getThreshold();
 
-    boolean isThresholdViolated(Network network) throws SynchronizationException;
+    /**
+     * Get the flow (in A) transmitted by Cnec in a given Network. Note that an I
+     * value exists in the Network only if an AC load-flow has been previously run.
+     */
+    double getI(Network network);
+
+    /**
+     * Get the flow (in MW) transmitted by Cnec in a given Network. Note that an P
+     * value exists in the Network only if an load-flow (AC or DC) has been previously
+     * run.
+     */
+    double getP(Network network);
 }

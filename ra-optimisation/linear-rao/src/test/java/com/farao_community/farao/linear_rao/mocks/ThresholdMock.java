@@ -39,21 +39,6 @@ public class ThresholdMock implements Threshold {
     }
 
     @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        return false;
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        return false;
-    }
-
-    @Override
-    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
-        return 0;
-    }
-
-    @Override
     public void synchronize(Network network, Cnec cnec) {
 
     }
