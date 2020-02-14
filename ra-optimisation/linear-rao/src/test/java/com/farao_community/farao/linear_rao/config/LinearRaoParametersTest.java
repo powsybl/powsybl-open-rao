@@ -38,4 +38,19 @@ public class LinearRaoParametersTest {
 
         assertSame(sensitivityComputationParameters, raoParameters.getSensitivityComputationParameters());
     }
+
+    @Test
+    public void setMaxIterations() {
+        raoParameters.setMaxIterations(99);
+        assertEquals(99, raoParameters.getMaxIterations());
+    }
+
+    @Test
+    public void setSecurityAnalysisWithoutRao() {
+        // check default value
+        assertEquals(false, raoParameters.getSecurityAnalysisWithoutRao());
+
+        raoParameters.setSecurityAnalysisWithoutRao(true);
+        assertEquals(true, raoParameters.getSecurityAnalysisWithoutRao());
+    }
 }

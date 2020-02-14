@@ -10,6 +10,8 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -33,7 +35,6 @@ import static java.lang.String.format;
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
-    private static final int MAX_ITERATIONS = 10;
     private static final double MIN_CHANGE_THRESHOLD = 0.0001;
 
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
@@ -56,16 +57,28 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
+        // quality check
+        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
+        if (!configQualityCheck.isEmpty()) {
+            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
+        }
+
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        int iterationsLeft = linearRaoParameters.getMaxIterations();
+
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
+        double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
+
+        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0) {
+            return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
+        }
+
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         createAndSwitchToNewVariant(network, originalNetworkVariant);
 
-        int iterationsLeft = MAX_ITERATIONS;
-
-        double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
 
