@@ -156,14 +156,9 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
      */
     @Override
     public void apply(Network network, double finalAngle) {
-
         PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
         int setpoint = computeTapPosition(finalAngle, phaseTapChanger);
-        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
-            phaseTapChanger.setTapPosition(setpoint + phaseTapChanger.getLowTapPosition() - 1);
-        } else {
-            throw new FaraoException("PST cannot be set because setpoint is out of PST boundaries");
-        }
+        phaseTapChanger.setTapPosition(setpoint);
     }
 
     private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {
