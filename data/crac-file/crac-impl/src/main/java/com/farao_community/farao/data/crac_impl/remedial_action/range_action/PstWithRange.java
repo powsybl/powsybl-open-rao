@@ -178,6 +178,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         return phaseTapChanger;
     }
 
+    @Override
     public int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger) {
 
         Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();

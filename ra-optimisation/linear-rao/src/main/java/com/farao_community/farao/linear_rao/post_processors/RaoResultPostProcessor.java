@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.linear_rao.post_processors;
 
-import com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor;
+import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -47,7 +47,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         int preOptimTap = transformer.getPhaseTapChanger().getTapPosition();
 
                         double postOptimAngle = preOptimAngle + rangeActionVar;
-                        int approximatedPostOptimTap = getClosestTapPosition(postOptimAngle, transformer);
+                        int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(postOptimAngle, transformer.getPhaseTapChanger());
                         double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                         if (approximatedPostOptimTap != preOptimTap) {
@@ -64,11 +64,5 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
 
     private double getRangeActionVariation(MPVariable negativeRangeActionVariable, MPVariable positiveRangeActionVariable) {
         return positiveRangeActionVariable.solutionValue() - negativeRangeActionVariable.solutionValue();
-    }
-
-    private int getClosestTapPosition(double finalAngle, TwoWindingsTransformer twoWindingsTransformer) {
-        //todo : put this method into crac-impl
-        //todo : make PstElementResultsPostProcessor().computeTapPosition() private again
-        return new PstElementResultsPostProcessor().computeTapPosition(finalAngle, twoWindingsTransformer.getPhaseTapChanger(), twoWindingsTransformer);
     }
 }
