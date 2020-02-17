@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.C
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
@@ -52,9 +52,9 @@ public class CracImportExportTest {
         State postContingencyState = simpleCrac.addState(contingency, outageInstant);
         simpleCrac.addState("contingency2Id", "postContingencyId");
 
-        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 500), preventiveState.getId());
-        simpleCrac.addCnec("cnec2prev", "neId2", new RelativeFlowThreshold(Side.LEFT, Direction.IN, 30), preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 800), postContingencyState.getId());
+        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500), preventiveState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30), preventiveState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800), postContingencyState.getId());
 
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
@@ -92,7 +92,7 @@ public class CracImportExportTest {
         );
         simpleCrac.addNetworkAction(complexNetworkAction);
 
-        simpleCrac.addRangeAction(new PstRange(
+        simpleCrac.addRangeAction(new PstWithRange(
             "pstRangeId",
             "pstRangeName",
             "RTE",

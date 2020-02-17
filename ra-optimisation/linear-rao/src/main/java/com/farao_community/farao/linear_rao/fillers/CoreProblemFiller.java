@@ -7,20 +7,10 @@
 
 package com.farao_community.farao.linear_rao.fillers;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
-import com.farao_community.farao.ra_optimisation.PstElementResult;
-import com.farao_community.farao.ra_optimisation.RedispatchElementResult;
-import com.farao_community.farao.ra_optimisation.RemedialActionElementResult;
-import com.farao_community.farao.ra_optimisation.RemedialActionResult;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -29,7 +19,6 @@ import java.util.Set;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class CoreProblemFiller extends AbstractProblemFiller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
 
     public CoreProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         super(linearRaoProblem, linearRaoData);
@@ -38,104 +27,77 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     @Override
     public void fill() {
         Crac crac = linearRaoData.getCrac();
-        Network network = linearRaoData.getNetwork();
-
-        crac.synchronize(network);
         if (crac.getPreventiveState() != null) {
-            Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
+            Set<RangeAction> rangeActions = crac.getRangeActions(linearRaoData.getNetwork(), crac.getPreventiveState(), UsageMethod.AVAILABLE);
             rangeActions.forEach(this::fillRangeAction);
             crac.getCnecs().forEach(cnec -> {
                 fillCnec(cnec);
                 rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
             });
         }
-        linearRaoData.getCrac().desynchronize(); // To be sure it is always synchronized with the good network
     }
 
     @Override
-    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) {
+    public void update(List<String> activatedRangeActionIds) {
         Crac crac = linearRaoData.getCrac();
-        Network network = linearRaoData.getNetwork();
-
-        crac.synchronize(network);
-
         if (crac.getPreventiveState() != null) {
-            Set<RangeAction> rangeActions = crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            remedialActionResultList.forEach(remedialActionResult -> updateRangeActionBounds(crac, remedialActionResult));
+            Set<RangeAction> rangeActions = crac.getRangeActions(linearRaoData.getNetwork(), crac.getPreventiveState(), UsageMethod.AVAILABLE);
+            activatedRangeActionIds.forEach(this::updateRangeActionBounds);
             crac.getCnecs().forEach(cnec -> {
                 linearRaoProblem.updateReferenceFlow(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
                 rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
             });
         }
-        crac.desynchronize();
     }
 
+    /**
+     * Adds a cnec variable
+     *
+     * @param cnec: cnec to add to optimisation problem
+     */
     private void fillCnec(Cnec cnec) {
         linearRaoProblem.addCnec(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
     }
 
     /**
-     * We are making two assumptions here. Range actions must be only PST actions to be put in optimization problem
-     * and min and max values returned by range action getMinValue and getMaxValue methods must return PST taps.
-     * This is a temporary patch waiting for evolutions of crac api.
+     * Adds a range action variable
      *
-     * @param rangeAction: range action to be put in optimisation problem.
+     * @param rangeAction: range action to add to optimisation problem
      */
     private void fillRangeAction(RangeAction rangeAction) {
-        double minValue = rangeAction.getMinValue(linearRaoData.getNetwork());
-        double maxValue = rangeAction.getMaxValue(linearRaoData.getNetwork());
-        rangeAction.getNetworkElements().forEach(networkElement -> {
-            Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElement.getId());
-            if (pNetworkElement instanceof TwoWindingsTransformer) {
-                TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
-                double currentAlpha = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();
-                double minAlpha = transformer.getPhaseTapChanger().getStep((int) minValue).getAlpha();
-                double maxAlpha = transformer.getPhaseTapChanger().getStep((int) maxValue).getAlpha();
-                if (currentAlpha >= minAlpha && currentAlpha <= maxAlpha) {
-                    linearRaoProblem.addRangeActionVariable(
-                            rangeAction.getId(), networkElement.getId(),
-                            Math.abs(minAlpha - currentAlpha), Math.abs(maxAlpha - currentAlpha));
-                } else {
-                    LOGGER.warn("Range action {} is not added to optimisation because current value is already out of bound", rangeAction.getName());
-                }
-            }
-
-        });
+        linearRaoProblem.addRangeActionVariable(
+            rangeAction.getId(),
+            rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
+            rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
     }
 
     /**
-     * Adds a range action variable
-     * @param cnec
-     * @param rangeAction
+     * Updates a cnec constraint with the influence of a range action.
+     * Example: flow on a cnec depends on the set point of a PST
+     *
+     * @param cnec: cnec being influenced by the range action
+     * @param rangeAction: range action which influences the cnec flow
      */
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
-        rangeAction.getNetworkElements().forEach(networkElement ->
-                linearRaoProblem.updateFlowConstraintsWithRangeAction(
-                        cnec.getId(),
-                        rangeAction.getId(),
-                        networkElement.getId(),
-                        linearRaoData.getSensitivity(cnec, rangeAction)));
-    }
-
-    private double getRemedialActionResultVariation(RemedialActionResult remedialActionResult) {
-        RemedialActionElementResult remedialActionElementResult = remedialActionResult.getRemedialActionElementResults().get(0);
-        if (remedialActionElementResult instanceof PstElementResult) {
-            PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
-            return pstElementResult.getPostOptimisationAngle() - pstElementResult.getPreOptimisationAngle();
-        } else if (remedialActionElementResult instanceof RedispatchElementResult) {
-            RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
-            return redispatchElementResult.getPostOptimisationTargetP() - redispatchElementResult.getPreOptimisationTargetP();
+        State preventiveState = linearRaoData.getCrac().getPreventiveState();
+        if (preventiveState != null) {
+            linearRaoProblem.updateFlowConstraintsWithRangeAction(
+                cnec.getId(),
+                rangeAction.getId(),
+                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(preventiveState), cnec));
         }
-        throw new FaraoException("Range action type of " + remedialActionElementResult.getId() + " is not supported yet");
     }
 
-    private void updateRangeActionBounds(Crac crac, RemedialActionResult remedialActionResult) {
-        RangeAction rangeAction = crac.getRangeAction(remedialActionResult.getId());
-        rangeAction.getNetworkElements().forEach(networkElement ->
-                linearRaoProblem.updateRangeActionBounds(
-                        rangeAction.getId(),
-                        networkElement.getId(),
-                        getRemedialActionResultVariation(remedialActionResult)
-                        ));
+    /**
+     * Updates range action boundaries when it has been activated and so set to a new set point.
+     *
+     * @param activatedRangeActionId: id of the range action that has been modified
+     */
+    private void updateRangeActionBounds(String activatedRangeActionId) {
+        RangeAction rangeAction = linearRaoData.getCrac().getRangeAction(activatedRangeActionId);
+        linearRaoProblem.updateRangeActionBounds(
+            rangeAction.getId(),
+            rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
+            rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
     }
 }

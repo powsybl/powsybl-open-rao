@@ -24,25 +24,20 @@ import static org.junit.Assert.*;
  */
 public class PstSetpointTest extends AbstractRemedialActionTest {
 
-    private String networkElementId = "BBE2AA1  BBE3AA1  1";
+    private String networkElementId;
     private PstSetpoint pstSetpoint;
 
     @Before
-    public void setUp() throws Exception {
-        PstSetpoint pstSetpoint = new PstSetpoint(
-                "pstsetpoint_id",
-                "pstsetpoint_name",
-                "pstsetpoint_operator",
-                createUsageRules(),
-                new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
-                12
-        );
-        this.pstSetpoint = pstSetpoint;
+    public void setUp() {
+        networkElementId = "BBE2AA1  BBE3AA1  1";
+        pstSetpoint = new PstSetpoint(
+            "pstsetpoint_id",
+            new NetworkElement(networkElementId),
+            12);
     }
 
     @Test
     public void basicMethods() {
-
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
         pstSetpoint.setSetpoint(0);
         assertEquals(0, pstSetpoint.getSetpoint(), 0);
@@ -67,7 +62,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
                 "out_of_bound",
-                new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
+                new NetworkElement(networkElementId),
                 50);
 
         try {

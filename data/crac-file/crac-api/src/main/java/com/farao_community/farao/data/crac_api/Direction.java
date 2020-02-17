@@ -13,7 +13,7 @@ package com.farao_community.farao.data.crac_api;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public enum Direction {
-    IN,
-    OUT,
+    DIRECT,
+    OPPOSITE,
     BOTH
 }

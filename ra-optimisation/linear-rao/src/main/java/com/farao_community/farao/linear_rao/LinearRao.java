@@ -10,8 +10,9 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -35,7 +36,6 @@ import static java.lang.String.format;
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
-    private static final int MAX_ITERATIONS = 10;
     private static final double MIN_CHANGE_THRESHOLD = 0.0001;
 
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
@@ -58,24 +58,30 @@ public class LinearRao implements RaoProvider {
                                                        String variantId,
                                                        ComputationManager computationManager,
                                                        RaoParameters parameters) {
+        // quality check
+        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
+        if (!configQualityCheck.isEmpty()) {
+            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
+        }
+
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        int iterationsLeft = linearRaoParameters.getMaxIterations();
+
         // setReferenceValue (only once!!)
         crac.setReferenceValues(network);
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
+        double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
+
+        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0) {
+            return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
+        }
+
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
         String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
         createAndSwitchToNewVariant(network, originalNetworkVariant);
 
-        int iterationsLeft = MAX_ITERATIONS;
-
-        double oldScore = 0;
-        crac.synchronize(network);
-        try {
-            oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
-        } catch (SynchronizationException e) {
-            e.printStackTrace();
-        }
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
 
@@ -98,13 +104,7 @@ public class LinearRao implements RaoProvider {
             updateRAResultHistoryList(newRemedialActionsResult);
             applyRAs(crac, network, newRemedialActionsResult);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-            double newScore = 0;
-            crac.synchronize(network);
-            try {
-                newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
-            } catch (SynchronizationException e) {
-                throw new FaraoException(e);
-            }
+            double newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             if (newScore < oldScore) {
                 // TODO : limit the ranges
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", oldScore, newScore);
@@ -113,10 +113,10 @@ public class LinearRao implements RaoProvider {
 
             postOptimSensitivityAnalysisResult = tempSensitivityAnalysisResult;
             oldScore = newScore;
-            linearRaoModeller.updateProblem(tempSensitivityAnalysisResult, newRemedialActionsResult);
+            linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult, newRemedialActionsResult.stream().map(RemedialActionResult::getId).collect(Collectors.toList()));
             iterationsLeft -= 1;
         }
-        crac.desynchronize();
+
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
     }
 
@@ -132,7 +132,7 @@ public class LinearRao implements RaoProvider {
         RemedialActionElementResult remedialActionElementResult = remedialActionResult.getRemedialActionElementResults().get(0);
         if (remedialActionElementResult instanceof PstElementResult) {
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
-            return pstElementResult.getPostOptimisationTapPosition();
+            return pstElementResult.getPostOptimisationAngle();
         } else if (remedialActionElementResult instanceof RedispatchElementResult) {
             RedispatchElementResult redispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
             return redispatchElementResult.getPostOptimisationTargetP();
@@ -279,7 +279,7 @@ public class LinearRao implements RaoProvider {
         double margin1 = 0;
         double margin2 = 0;
         double limitingThreshold = 0;
-        try {
+
             margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - postOptimFlow;
             margin2 = postOptimFlow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
             if (margin1 < margin2) {
@@ -287,9 +287,6 @@ public class LinearRao implements RaoProvider {
             } else {
                 limitingThreshold = cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
             }
-        } catch (SynchronizationException e) {
-            e.printStackTrace();
-        }
 
         double marginPostOptim =  Math.min(margin1, margin2);
         linearRaoResult.updateResult(marginPostOptim);

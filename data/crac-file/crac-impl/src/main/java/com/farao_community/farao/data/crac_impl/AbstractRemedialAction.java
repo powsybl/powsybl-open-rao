@@ -32,7 +32,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
         @JsonSubTypes.Type(value = Topology.class, name = "topology"),
         @JsonSubTypes.Type(value = ComplexNetworkAction.class, name = "complex-network-action"),
-        @JsonSubTypes.Type(value = PstRange.class, name = "pst-range"),
+        @JsonSubTypes.Type(value = PstWithRange.class, name = "pst-with-range"),
         @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching"),

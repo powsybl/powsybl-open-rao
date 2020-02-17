@@ -7,14 +7,16 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.LoadFlowService;
@@ -84,6 +86,25 @@ public class LinearRaoTest {
     }
 
     @Test
+    public void testBrokenParameters() {
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+        RaoParameters brokenParameters = RaoParameters.load(platformConfig);
+        brokenParameters.removeExtension(LinearRaoParameters.class);
+
+        boolean errorCaught = false;
+        try {
+            linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, brokenParameters);
+        } catch (FaraoException e) {
+            errorCaught = true;
+            assertEquals("There are some issues in RAO parameters:\n" +
+                    "Linear Rao parameters not available", e.getMessage());
+        }
+        assertTrue(errorCaught);
+    }
+
+    @Test
     public void runTest() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
@@ -117,14 +138,14 @@ public class LinearRaoTest {
 
         List<RemedialActionResult> remedialActionResults1 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList1 = new ArrayList<>();
-        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 5., 2, 10., 4));
+        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 3., 4));
         remedialActionResults1.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList1));
         PreContingencyResult preContingencyResult1 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults1);
         RaoComputationResult raoComputationResult1 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult1);
 
         List<RemedialActionResult> remedialActionResults2 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList2 = new ArrayList<>();
-        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 10., 4, 8., 3));
+        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 3., 4, 2., 3));
         remedialActionResults2.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList2));
         PreContingencyResult preContingencyResult2 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults2);
         RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
@@ -151,9 +172,9 @@ public class LinearRaoTest {
             assertTrue(remedialActionElementResult instanceof PstElementResult);
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
             assertEquals("BBE2AA1  BBE3AA1  1", pstElementResult.getId());
-            assertEquals(5., pstElementResult.getPreOptimisationAngle(), 0.01);
+            assertEquals(1., pstElementResult.getPreOptimisationAngle(), 0.01);
             assertEquals(2, pstElementResult.getPreOptimisationTapPosition());
-            assertEquals(8., pstElementResult.getPostOptimisationAngle(), 0.01);
+            assertEquals(2., pstElementResult.getPostOptimisationAngle(), 0.01);
             assertEquals(3, pstElementResult.getPostOptimisationTapPosition());
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -187,8 +208,8 @@ public class LinearRaoTest {
         State stateCurativeContingency2 = new SimpleState(Optional.of(contingency2), curative);
 
         // Thresholds
-        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 1500);
-        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.IN, 30);
+        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 1500);
+        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30);
 
         // CNECs
         SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);
@@ -214,7 +235,7 @@ public class LinearRaoTest {
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstRange pstRange = new PstRange("RA PST BE", pstElement);
+        PstRange pstRange = new PstWithRange("RA PST BE", pstElement);
         crac.addRangeAction(pstRange);
 
         return crac;
