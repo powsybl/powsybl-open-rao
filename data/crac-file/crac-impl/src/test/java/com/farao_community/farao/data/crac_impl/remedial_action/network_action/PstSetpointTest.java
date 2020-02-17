@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -31,9 +31,9 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     public void setUp() {
         networkElementId = "BBE2AA1  BBE3AA1  1";
         pstSetpoint = new PstSetpoint(
-            "pstsetpoint_id",
-            new NetworkElement(networkElementId),
-            12);
+                "pstsetpoint_id",
+                new NetworkElement(networkElementId),
+                12);
     }
 
     @Test
@@ -46,19 +46,19 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     @Test
     public void apply() {
         Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
+                "TestCase12Nodes.uct",
+                getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
-        assertEquals(12, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
+        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
     public void applyOutOfBound() {
         Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
+                "TestCase12Nodes.uct",
+                getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
                 "out_of_bound",
@@ -68,8 +68,8 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         try {
             pstSetpoint.apply(network);
             fail();
-        } catch (PowsyblException e) {
-            // should throw
+        } catch (FaraoException e) {
+            assertEquals(String.format("Tap value 33 not in the range of high and low tap positions [-16,16] of the phase tap changer %s steps", networkElementId), e.getMessage());
         }
     }
 

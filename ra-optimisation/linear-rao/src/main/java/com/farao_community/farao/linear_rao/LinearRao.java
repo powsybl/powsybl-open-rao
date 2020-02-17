@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -71,6 +72,7 @@ public class LinearRao implements RaoProvider {
         crac.setReferenceValues(network);
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
+        crac.synchronize(network);
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
 
         if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0) {
@@ -104,6 +106,7 @@ public class LinearRao implements RaoProvider {
             updateRAResultHistoryList(newRemedialActionsResult);
             applyRAs(crac, network, newRemedialActionsResult);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+            crac.synchronize(network);
             double newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             if (newScore < oldScore) {
                 // TODO : limit the ranges
@@ -220,21 +223,23 @@ public class LinearRao implements RaoProvider {
 
     }
 
-    private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) throws SynchronizationException {
+    private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         double minMargin = Double.POSITIVE_INFINITY;
-
-        for (Cnec cnec : crac.getCnecs()) {
-            double margin;
-            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
-            double margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - flow;
-            double margin2 = flow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-            margin = Math.min(margin1, margin2);
-            if (Double.isNaN(margin)) {
-                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+        try {
+            for (Cnec cnec : crac.getCnecs()) {
+                double margin;
+                double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+                double margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - flow;
+                double margin2 = flow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+                margin = Math.min(margin1, margin2);
+                if (Double.isNaN(margin)) {
+                    throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+                }
+                minMargin = Math.min(minMargin, margin);
             }
-            minMargin = Math.min(minMargin, margin);
+        } catch (SynchronizationException e) {
+            throw new FaraoException(e);
         }
-
         return minMargin;
     }
 
@@ -273,23 +278,25 @@ public class LinearRao implements RaoProvider {
     private MonitoredBranchResult createMonitoredBranchResultAndUpdateLinearRaoResult(Cnec cnec, LinearRaoResult linearRaoResult) {
         double preOptimFlow = preOptimSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
         double postOptimFlow = postOptimSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+
         if (Double.isNaN(preOptimFlow) || Double.isNaN(postOptimFlow)) {
             throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
         }
-        double margin1 = 0;
-        double margin2 = 0;
-        double limitingThreshold = 0;
 
-            margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - postOptimFlow;
-            margin2 = postOptimFlow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+        double limitingThreshold;
+        try {
+            double margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - postOptimFlow;
+            double margin2 = postOptimFlow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
             if (margin1 < margin2) {
                 limitingThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
             } else {
                 limitingThreshold = cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
             }
-
-        double marginPostOptim =  Math.min(margin1, margin2);
-        linearRaoResult.updateResult(marginPostOptim);
+            double marginPostOptim =  Math.min(margin1, margin2);
+            linearRaoResult.updateResult(marginPostOptim);
+        } catch (SynchronizationException e) {
+            throw new FaraoException(e);
+        }
         return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), limitingThreshold, preOptimFlow, postOptimFlow);
     }
 }
