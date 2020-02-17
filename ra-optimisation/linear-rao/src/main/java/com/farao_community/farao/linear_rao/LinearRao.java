@@ -99,10 +99,11 @@ public class LinearRao implements RaoProvider {
             applyRAs(crac, network, newRemedialActionsResult);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
             double newScore = 0;
+            crac.synchronize(network);
             try {
                 newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             } catch (SynchronizationException e) {
-                e.printStackTrace();
+                throw new FaraoException(e);
             }
             if (newScore < oldScore) {
                 // TODO : limit the ranges
