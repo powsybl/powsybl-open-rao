@@ -110,8 +110,8 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         return sensitivityComputationResults.getSensitivityValues().stream()
             .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
-            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getNetworkElement().getId()))
-            .findFirst().orElseThrow(FaraoException::new).getValue();
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId()))
+            .findFirst().orElseThrow(() -> new FaraoException(String.format("No sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), this.getId()))).getValue();
     }
 
     @Override

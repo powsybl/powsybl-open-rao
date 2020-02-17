@@ -79,13 +79,10 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      * @param rangeAction: range action which influences the cnec flow
      */
     private void updateCnecConstraintWithRangeAction(Cnec cnec, RangeAction rangeAction) {
-        State preventiveState = linearRaoData.getCrac().getPreventiveState();
-        if (preventiveState != null) {
-            linearRaoProblem.updateFlowConstraintsWithRangeAction(
+        linearRaoProblem.updateFlowConstraintsWithRangeAction(
                 cnec.getId(),
                 rangeAction.getId(),
-                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(preventiveState), cnec));
-        }
+                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(cnec.getState()), cnec));
     }
 
     /**
