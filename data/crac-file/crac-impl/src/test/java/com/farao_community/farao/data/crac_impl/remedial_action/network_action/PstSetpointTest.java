@@ -24,25 +24,20 @@ import static org.junit.Assert.*;
  */
 public class PstSetpointTest extends AbstractRemedialActionTest {
 
-    private String networkElementId = "BBE2AA1  BBE3AA1  1";
+    private String networkElementId;
     private PstSetpoint pstSetpoint;
 
     @Before
-    public void setUp() throws Exception {
-        PstSetpoint pstSetpoint = new PstSetpoint(
-                "pstsetpoint_id",
-                "pstsetpoint_name",
-                "pstsetpoint_operator",
-                createUsageRules(),
-                new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
-                12
-        );
-        this.pstSetpoint = pstSetpoint;
+    public void setUp() {
+        networkElementId = "BBE2AA1  BBE3AA1  1";
+        pstSetpoint = new PstSetpoint(
+            "pstsetpoint_id",
+            new NetworkElement(networkElementId),
+            12);
     }
 
     @Test
     public void basicMethods() {
-
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
         pstSetpoint.setSetpoint(0);
         assertEquals(0, pstSetpoint.getSetpoint(), 0);
@@ -67,14 +62,14 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
                 "out_of_bound",
-                new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1"),
+                new NetworkElement(networkElementId),
                 50);
 
         try {
             pstSetpoint.apply(network);
             fail();
         } catch (FaraoException e) {
-            assertEquals("PST cannot be set because setpoint is out of PST boundaries", e.getMessage());
+            assertEquals(String.format("Tap value 33 not in the range of high and low tap positions [-16,16] of the phase tap changer %s steps", networkElementId), e.getMessage());
         }
     }
 
