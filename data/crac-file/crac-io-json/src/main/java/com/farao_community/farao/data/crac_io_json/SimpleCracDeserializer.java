@@ -158,8 +158,8 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
                     networkElements
                 ));
                 break;
-            case "pst-range":
-                simpleCrac.addRangeAction(new PstRange(
+            case "pst-with-range":
+                simpleCrac.addRangeAction(new PstWithRange(
                     rangeAction.get(ID).asText(),
                     rangeAction.get(NAME).asText(),
                     rangeAction.get(OPERATOR).asText(),

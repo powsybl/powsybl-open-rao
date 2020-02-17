@@ -54,13 +54,13 @@ public class LinearRaoProblemTest {
     public void addRangeActionVariable() {
         String rangeActionId = "range-action-test";
         String networkElementId = "network-element-test";
-        linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
+        linearRaoProblem.addRangeActionVariable(rangeActionId, 12, 15);
 
-        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId);
         assertEquals(0, positiveVariable.lb(), 0.1);
         assertEquals(15, positiveVariable.ub(), 0.1);
 
-        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId);
         assertEquals(0, negativeVariable.lb(), 0.1);
         assertEquals(12, negativeVariable.ub(), 0.1);
 
@@ -74,12 +74,12 @@ public class LinearRaoProblemTest {
         String rangeActionId = "range-action-test";
         String networkElementId = "network-element-test";
         linearRaoProblem.addCnec(cnecId, 500);
-        linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
-        linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, networkElementId, 0.2);
+        linearRaoProblem.addRangeActionVariable(rangeActionId, 12, 15);
+        linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, 0.2);
 
         MPConstraint constraint = linearRaoProblem.getFlowConstraint(cnecId);
-        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId);
-        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId);
+        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId);
 
         assertEquals(-0.2, constraint.getCoefficient(positiveVariable), 0.01);
         assertEquals(0.2, constraint.getCoefficient(negativeVariable), 0.01);
@@ -90,9 +90,9 @@ public class LinearRaoProblemTest {
         String cnecId = "cnec-test";
         String rangeActionId = "range-action-test";
         String networkElementId = "network-element-test";
-        linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
+        linearRaoProblem.addRangeActionVariable(rangeActionId, 12, 15);
         try {
-            linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, networkElementId, 0.2);
+            linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, 0.2);
         } catch (FaraoException e) {
             assertEquals("Flow variable on cnec-test has not been defined yet.", e.getMessage());
         }
@@ -102,12 +102,11 @@ public class LinearRaoProblemTest {
     public void addRangeActionFlowOnBranchWithRangeActionFailure() {
         String cnecId = "cnec-test";
         String rangeActionId = "range-action-test";
-        String networkElementId = "network-element-test";
         linearRaoProblem.addCnec(cnecId, 500);
         try {
-            linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, networkElementId, 0.2);
+            linearRaoProblem.updateFlowConstraintsWithRangeAction(cnecId, rangeActionId, 0.2);
         } catch (FaraoException e) {
-            assertEquals("Range action variable for range-action-test on network-element-test has not been defined yet.", e.getMessage());
+            assertEquals("Range action variable for range-action-test has not been defined yet.", e.getMessage());
         }
     }
 
@@ -133,18 +132,17 @@ public class LinearRaoProblemTest {
     @Test
     public void updateRangeActionBounds() {
         String rangeActionId = "range-action-test";
-        String networkElementId = "network-element-test";
-        linearRaoProblem.addRangeActionVariable(rangeActionId, networkElementId, 12, 15);
+        linearRaoProblem.addRangeActionVariable(rangeActionId, 12, 15);
 
-        linearRaoProblem.updateRangeActionBounds(rangeActionId, networkElementId, 4);
-        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId);
+        linearRaoProblem.updateRangeActionBounds(rangeActionId, 16, 11);
+        MPVariable positiveVariable = linearRaoProblem.getPositiveRangeActionVariable(rangeActionId);
         assertEquals(0, positiveVariable.lb(), 0.1);
         assertEquals(11, positiveVariable.ub(), 0.1);
-        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId);
+        MPVariable negativeVariable = linearRaoProblem.getNegativeRangeActionVariable(rangeActionId);
         assertEquals(0, negativeVariable.lb(), 0.1);
         assertEquals(16, negativeVariable.ub(), 0.1);
 
-        linearRaoProblem.updateRangeActionBounds(rangeActionId, networkElementId, -6);
+        linearRaoProblem.updateRangeActionBounds(rangeActionId, 10, 17);
         assertEquals(0, positiveVariable.lb(), 0.1);
         assertEquals(17, positiveVariable.ub(), 0.1);
         assertEquals(0, negativeVariable.lb(), 0.1);

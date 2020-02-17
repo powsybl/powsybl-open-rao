@@ -98,7 +98,7 @@ public class PstElementResultsPostProcessor implements OptimisationPostProcessor
         });
     }
 
-    public int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger, TwoWindingsTransformer twoWindingsTransformer) {
+    private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger, TwoWindingsTransformer twoWindingsTransformer) {
         Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
         for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
             steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));

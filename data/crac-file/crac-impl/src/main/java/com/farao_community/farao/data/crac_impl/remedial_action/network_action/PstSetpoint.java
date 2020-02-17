@@ -7,13 +7,14 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 
 import java.util.List;
 
@@ -44,7 +45,8 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
      *
      * @param id value used for id, name and operator
      * @param networkElement PST element to modify
-     * @param setpoint value of the tap. That should be an int value, if not it will be truncated.
+     * @param setpoint value of the tap. That should be an int value, if not it will be truncated. The convention is in
+     *                 "starts at 1" meaning we have to put a set point as if the lowest position of the PST tap is 1
      */
     public PstSetpoint(String id, NetworkElement networkElement, double setpoint) {
         super(id, networkElement, setpoint);
@@ -57,7 +59,16 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
      */
     @Override
     public void apply(Network network) {
-        PstRange pst = new PstRange(getId(), networkElement);
-        pst.apply(network, setpoint);
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
+        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
+            phaseTapChanger.setTapPosition(phaseTapChanger.getLowTapPosition() + (int) setpoint - 1);
+        } else {
+            throw new FaraoException(String.format(
+                "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
+                phaseTapChanger.getLowTapPosition() + (int) setpoint - 1,
+                phaseTapChanger.getLowTapPosition(),
+                phaseTapChanger.getHighTapPosition(),
+                networkElement.getId()));
+        }
     }
 }

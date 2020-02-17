@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.*;
 
@@ -28,7 +31,7 @@ import java.util.*;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = PstRange.class, name = "pst-range"),
+        @JsonSubTypes.Type(value = PstWithRange.class, name = "pst-with-range"),
         @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
@@ -82,8 +85,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     @Override
     public double getMinValue(Network network) {
         double minValue = Double.NEGATIVE_INFINITY;
-        for (Range range: ranges
-             ) {
+        for (Range range: ranges) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
         }
         return minValue;
@@ -94,8 +96,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     @Override
     public double getMaxValue(Network network) {
         double maxValue = Double.POSITIVE_INFINITY;
-        for (Range range: ranges
-        ) {
+        for (Range range: ranges) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
         }
         return maxValue;
@@ -103,6 +104,14 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
 
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        return sensitivityComputationResults.getSensitivityValues().stream()
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getNetworkElement().getId()))
+            .findFirst().orElseThrow(FaraoException::new).getValue();
     }
 
     @Override
@@ -122,6 +131,11 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
 
     @Override
     public int hashCode() {
-        return String.format("%s%s%d", getId(), networkElement.getId(), ranges.size()).hashCode();
+        int result = super.hashCode();
+        for (Range range : ranges) {
+            result = 31 * result + range.hashCode();
+        }
+        result = 31 * result + networkElement.hashCode();
+        return result;
     }
 }

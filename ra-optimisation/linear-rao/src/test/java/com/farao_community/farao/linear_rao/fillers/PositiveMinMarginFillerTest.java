@@ -11,18 +11,20 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.CnecMock;
 import com.farao_community.farao.linear_rao.mocks.RangeActionMock;
-import com.farao_community.farao.linear_rao.mocks.TwoWindingsTransformerMock;
 import com.google.ortools.linearsolver.MPObjective;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
+import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,9 +46,9 @@ public class PositiveMinMarginFillerTest extends FillerTest {
     public void fillWithRangeAction() {
         final String rangeActionId = "range-action-id";
         final String networkElementId = "network-element-id";
-        final int minTap = -10;
-        final int maxTap = 16;
-        final int currentTap = 5;
+        final double minAlpha = -0.5;
+        final double maxAlpha = 0.8;
+        final double currentAlpha = 0.2;
         final double referenceFlow1 = 500.;
         final double referenceFlow2 = 300.;
         final double cnec1toRangeSensitivity = 0.2;
@@ -60,14 +62,16 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(referenceFlow1);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(referenceFlow2);
 
+        SensitivityComputationResults sensitivityComputationResults = mock(SensitivityComputationResults.class);
+        when(linearRaoData.getSensitivityComputationResults(preventiveState)).thenReturn(sensitivityComputationResults);
+        Map<Cnec, Double> sensitivities = new HashMap<>();
+        sensitivities.put(cnec1, cnec1toRangeSensitivity);
+        sensitivities.put(cnec2, cnec2toRangeSensitivity);
+
         cnecs.add(cnec1);
         cnecs.add(cnec2);
-        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, minTap, maxTap);
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(cnec1toRangeSensitivity);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(cnec2toRangeSensitivity);
+        RangeAction rangeAction = new RangeActionMock(rangeActionId, networkElementId, currentAlpha, minAlpha, maxAlpha, sensitivities);
         rangeActions.add(rangeAction);
-        TwoWindingsTransformer twoWindingsTransformer = new TwoWindingsTransformerMock(minTap, maxTap, currentTap);
-        when(network.getIdentifiable(networkElementId)).thenReturn((Identifiable) twoWindingsTransformer);
 
         coreProblemFiller.fill();
         positiveMinMarginFiller.fill();
@@ -81,7 +85,7 @@ public class PositiveMinMarginFillerTest extends FillerTest {
         MPObjective objective = linearRaoProblem.getObjective();
         assertTrue(objective.maximization());
         assertEquals(1, objective.getCoefficient(linearRaoProblem.getMinimumMarginVariable()), 0.1);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId, networkElementId)), 0.01);
-        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositiveRangeActionVariable(rangeActionId, networkElementId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId)), 0.01);
+        assertEquals(-LinearRaoProblem.PENALTY_COST, objective.getCoefficient(linearRaoProblem.getPositiveRangeActionVariable(rangeActionId)), 0.01);
     }
 }

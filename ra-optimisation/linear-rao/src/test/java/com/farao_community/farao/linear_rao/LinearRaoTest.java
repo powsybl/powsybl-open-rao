@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -132,14 +132,14 @@ public class LinearRaoTest {
 
         List<RemedialActionResult> remedialActionResults1 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList1 = new ArrayList<>();
-        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 5., 2, 10., 4));
+        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 3., 4));
         remedialActionResults1.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList1));
         PreContingencyResult preContingencyResult1 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults1);
         RaoComputationResult raoComputationResult1 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult1);
 
         List<RemedialActionResult> remedialActionResults2 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList2 = new ArrayList<>();
-        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 10., 4, 8., 3));
+        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 3., 4, 2., 3));
         remedialActionResults2.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList2));
         PreContingencyResult preContingencyResult2 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults2);
         RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
@@ -166,9 +166,9 @@ public class LinearRaoTest {
             assertTrue(remedialActionElementResult instanceof PstElementResult);
             PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
             assertEquals("BBE2AA1  BBE3AA1  1", pstElementResult.getId());
-            assertEquals(5., pstElementResult.getPreOptimisationAngle(), 0.01);
+            assertEquals(1., pstElementResult.getPreOptimisationAngle(), 0.01);
             assertEquals(2, pstElementResult.getPreOptimisationTapPosition());
-            assertEquals(8., pstElementResult.getPostOptimisationAngle(), 0.01);
+            assertEquals(2., pstElementResult.getPostOptimisationAngle(), 0.01);
             assertEquals(3, pstElementResult.getPostOptimisationTapPosition());
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -229,7 +229,7 @@ public class LinearRaoTest {
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstRange pstRange = new PstRange("BBE2AA1  BBE3AA1  1", pstElement);
+        PstWithRange pstRange = new PstWithRange("BBE2AA1  BBE3AA1  1", pstElement);
         crac.addRangeAction(pstRange);
 
         return crac;

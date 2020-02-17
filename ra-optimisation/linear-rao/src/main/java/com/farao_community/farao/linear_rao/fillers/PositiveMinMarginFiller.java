@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
-import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -62,7 +61,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, List<RemedialActionResult> remedialActionResultList) {
+    public void update(List<String> activatedRangeActionIds) {
         // Objective does not change, and the constraints on the min margin are modified by the core problem filler
     }
 }
