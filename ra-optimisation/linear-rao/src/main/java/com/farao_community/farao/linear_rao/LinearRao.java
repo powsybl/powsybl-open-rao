@@ -119,7 +119,7 @@ public class LinearRao implements RaoProvider {
             linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult, newRemedialActionsResult.stream().map(RemedialActionResult::getId).collect(Collectors.toList()));
             iterationsLeft -= 1;
         }
-
+        crac.synchronize(network);
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
     }
 
@@ -287,12 +287,8 @@ public class LinearRao implements RaoProvider {
         try {
             double margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - postOptimFlow;
             double margin2 = postOptimFlow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-            if (margin1 < margin2) {
-                limitingThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-            } else {
-                limitingThreshold = cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-            }
             double marginPostOptim =  Math.min(margin1, margin2);
+            limitingThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(-cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new));
             linearRaoResult.updateResult(marginPostOptim);
         } catch (SynchronizationException e) {
             throw new FaraoException(e);
