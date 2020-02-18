@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
-import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -261,89 +260,89 @@ final class ExampleGenerator {
         return network;
     }
 
-    static CracFile cracFile() {
-        return CracFile.builder()
-            .id("Test")
-            .name("Test")
-            .sourceFormat("code")
-            .preContingency(
-                PreContingency.builder()
-                    .monitoredBranches(
-                        Arrays.asList(
-                            MonitoredBranch.builder()
-                                .id("FR-BE")
-                                .name("FR-BE")
-                                .branchId("FR-BE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("FR-DE")
-                                .name("FR-DE")
-                                .branchId("FR-DE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("BE-NL")
-                                .name("BE-NL")
-                                .branchId("BE-NL")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("DE-NL")
-                                .name("DE-NL")
-                                .branchId("DE-NL")
-                                .fmax(100)
-                                .build()
-                        )
-                    )
-                .build()
-        )
-        .contingencies(
-            Collections.singletonList(
-                Contingency.builder()
-                    .id("N-1 FR-BE")
-                    .name("N-1 FR-BE")
-                    .contingencyElements(
-                        Collections.singletonList(
-                            ContingencyElement.builder()
-                                .name("N-1 FR-BE")
-                                .elementId("FR-BE")
-                                .build()
-                        )
-                    )
-                    .monitoredBranches(
-                        Arrays.asList(
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / FR-BE")
-                                .name("N-1 FR-BE / FR-BE")
-                                .branchId("FR-BE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / FR-DE")
-                                .name("N-1 FR-BE / FR-DE")
-                                .branchId("FR-DE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / BE-NL")
-                                .name("N-1 FR-BE / BE-NL")
-                                .branchId("BE-NL")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / DE-NL")
-                                .name("N-1 FR-BE / DE-NL")
-                                .branchId("DE-NL")
-                                .fmax(100)
-                                .build()
-                        )
-                    )
-                    .build()
-            )
-        )
-        .build();
-    }
+//    static SimpleCrac crac() {
+//        return CracFile.builder()
+//            .id("Test")
+//            .name("Test")
+//            .sourceFormat("code")
+//            .preContingency(
+//                PreContingency.builder()
+//                    .monitoredBranches(
+//                        Arrays.asList(
+//                            MonitoredBranch.builder()
+//                                .id("FR-BE")
+//                                .name("FR-BE")
+//                                .branchId("FR-BE")
+//                                .fmax(100)
+//                                .build(),
+//                            MonitoredBranch.builder()
+//                                .id("FR-DE")
+//                                .name("FR-DE")
+//                                .branchId("FR-DE")
+//                                .fmax(100)
+//                                .build(),
+//                            MonitoredBranch.builder()
+//                                .id("BE-NL")
+//                                .name("BE-NL")
+//                                .branchId("BE-NL")
+//                                .fmax(100)
+//                                .build(),
+//                            MonitoredBranch.builder()
+//                                .id("DE-NL")
+//                                .name("DE-NL")
+//                                .branchId("DE-NL")
+//                                .fmax(100)
+//                                .build()
+//                        )
+//                    )
+//                .build()
+//        )
+//        .contingencies(
+//            Collections.singletonList(
+//                Contingency.builder()
+//                    .id("N-1 FR-BE")
+//                    .name("N-1 FR-BE")
+//                    .contingencyElements(
+//                        Collections.singletonList(
+//                            ContingencyElement.builder()
+//                                .name("N-1 FR-BE")
+//                                .elementId("FR-BE")
+//                                .build()
+//                        )
+//                    )
+//                    .monitoredBranches(
+//                        Arrays.asList(
+//                            MonitoredBranch.builder()
+//                                .id("N-1 FR-BE / FR-BE")
+//                                .name("N-1 FR-BE / FR-BE")
+//                                .branchId("FR-BE")
+//                                .fmax(100)
+//                                .build(),
+//                            MonitoredBranch.builder()
+//                                .id("N-1 FR-BE / FR-DE")
+//                                .name("N-1 FR-BE / FR-DE")
+//                                .branchId("FR-DE")
+//                                .fmax(100)
+//                                .build(),
+//                            MonitoredBranch.builder()
+//                                .id("N-1 FR-BE / BE-NL")
+//                                .name("N-1 FR-BE / BE-NL")
+//                                .branchId("BE-NL")
+//                                .fmax(100)
+//                                .build(),
+//                            MonitoredBranch.builder()
+//                                .id("N-1 FR-BE / DE-NL")
+//                                .name("N-1 FR-BE / DE-NL")
+//                                .branchId("DE-NL")
+//                                .fmax(100)
+//                                .build()
+//                        )
+//                    )
+//                    .build()
+//            )
+//        )
+//        .build();
+//    }
 
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();

@@ -7,8 +7,7 @@
 package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_file.CracFile;
-import com.farao_community.farao.data.crac_file.MonitoredBranch;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPreContingency;
@@ -35,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.util.ContingencyUtil.applyContingency;
+import static com.farao_community.farao.util.SystematicSensitivityAnalysisService.applyContingencyInCrac;
 
 /**
  * Flowbased computation implementation
@@ -57,9 +56,9 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
     }
 
     @Override
-    public CompletableFuture<FlowBasedComputationResult> run(Network network, CracFile cracFile, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowBasedComputationParameters parameters) {
+    public CompletableFuture<FlowBasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowBasedComputationParameters parameters) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(cracFile);
+        Objects.requireNonNull(crac);
         Objects.requireNonNull(glskProvider);
         Objects.requireNonNull(computationManager);
         Objects.requireNonNull(workingVariantId);
@@ -70,35 +69,45 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
 
         Map<String, Double> referenceFlows = Collections.synchronizedMap(new HashMap<>());
         Map<String, Map<String, Double>> ptdfs = Collections.synchronizedMap(new HashMap<>());
-        computePtdf(network, cracFile, glskProvider, computationManager, referenceFlows, ptdfs);
+        computeAllPtdf(network, crac, glskProvider, computationManager, referenceFlows, ptdfs);
 
-        FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResultImpl(FlowBasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(cracFile, referenceFlows, ptdfs));
+        FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResultImpl(FlowBasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, referenceFlows, ptdfs));
 
         network.getVariantManager().setWorkingVariant(initialVariantId);
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private List<SensitivityFactor> generateSensitivityFactorsProvider(Network network, List<MonitoredBranch> monitoredBranches, GlskProvider glskProvider) {
+    private List<SensitivityFactor> generateSensitivityFactorsProvider(Network network, Set<Cnec> cnecs, GlskProvider glskProvider) {
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
-        monitoredBranches.forEach(branch -> mapCountryLinearGlsk.values().stream().map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(branch.getId(), branch.getName(), branch.getBranchId()), linearGlsk)).forEach(factors::add));
+        cnecs.forEach(cnec -> mapCountryLinearGlsk.values().stream()
+                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId()), linearGlsk))
+                .forEach(factors::add));
         return factors;
     }
 
-    private Map<String, Map<String, Double>> computePtdf(Network network, CracFile cracFile, GlskProvider glskProvider, ComputationManager computationManager, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
-        computePtdf(network, cracFile.getPreContingency().getMonitoredBranches(), glskProvider, referenceFlows, ptdfs);
+    private Map<String, Map<String, Double>> computeAllPtdf(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+        crac.synchronize(network);
+        Set<Cnec> preventivecnecs = crac.getCnecs(crac.getPreventiveState());
+        computePtdf(network, preventivecnecs, glskProvider, referenceFlows, ptdfs, null);
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
-            variantsPool.submit(() -> cracFile.getContingencies().parallelStream().forEach(contingency -> {
+            variantsPool.submit(() -> crac.getContingencies().parallelStream().forEach(contingency -> {
                 // Create contingency variant
                 try {
+                    Set<State> states = new HashSet<>();
+                    Set<Cnec> cnecscontingency = new HashSet<>();
+                    states.addAll(crac.getStates(contingency));
+                    states.forEach(state -> {
+                        cnecscontingency.addAll(crac.getCnecs(state));
+                    });
                     LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
-                    applyContingency(network, computationManager, contingency);
+                    applyContingencyInCrac(network, computationManager, contingency);
 
-                    computePtdf(network, contingency.getMonitoredBranches(), glskProvider, referenceFlows, ptdfs);
+                    computePtdf(network, cnecscontingency, glskProvider, referenceFlows, ptdfs, contingency);
                     variantsPool.releaseUsedVariant(workingVariant);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -110,11 +119,13 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
             throw new FaraoException(e);
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
+        crac.desynchronize();
         return ptdfs;
     }
 
-    private void computePtdf(Network network, List<MonitoredBranch> monitoredBranches, GlskProvider glskProvider, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
-        SensitivityFactorsProvider factorsProvider = net -> generateSensitivityFactorsProvider(net, monitoredBranches, glskProvider);
+    private void computePtdf(Network network, Set<Cnec> cnecs, GlskProvider glskProvider, Map<String, Double> referenceFlows,
+                             Map<String, Map<String, Double>> ptdfs, Contingency contingency) {
+        SensitivityFactorsProvider factorsProvider = net -> generateSensitivityFactorsProvider(net, cnecs, glskProvider);
         SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
         sensiResults.getSensitivityValues().forEach(sensitivityValue -> addSensitivityValue(sensitivityValue, referenceFlows, ptdfs));
     }
@@ -132,40 +143,54 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
         referenceFlows.put(branchId, referenceFlow);
     }
 
-    private DataDomain buildFlowbasedDomain(CracFile cracFile, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+    private DataDomain buildFlowbasedDomain(Crac crac, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
         return DataDomain.builder()
                 .id(UUID.randomUUID().toString())
                 .name("FlowBased results")
                 .description("")
                 .sourceFormat("code")
-                .dataPreContingency(buildDataPreContingency(cracFile, referenceFlows, ptdfs))
+                .dataPreContingency(buildDataPreContingency(crac, referenceFlows, ptdfs))
                 .build();
     }
 
-    private DataPreContingency buildDataPreContingency(CracFile cracFile, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+    private DataPreContingency buildDataPreContingency(Crac crac, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
         return DataPreContingency.builder()
-                .dataMonitoredBranches(buildDataMonitoredBranches(cracFile, referenceFlows, ptdfs))
+                .dataMonitoredBranches(buildDataMonitoredBranches(crac, referenceFlows, ptdfs))
                 .build();
     }
 
-    private List<DataMonitoredBranch> buildDataMonitoredBranches(CracFile cracFile, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+    private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+        Set<Cnec> preventivecnecs = crac.getCnecs(crac.getPreventiveState());
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
-        cracFile.getPreContingency().getMonitoredBranches().forEach(monitoredBranch -> branchResultList.add(buildDataMonitoredBranch(monitoredBranch, referenceFlows, ptdfs)));
+        preventivecnecs.forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, referenceFlows, ptdfs)));
 
-        cracFile.getContingencies().forEach(contingency -> {
-            contingency.getMonitoredBranches().forEach(monitoredBranch -> branchResultList.add(buildDataMonitoredBranch(monitoredBranch, referenceFlows, ptdfs)));
+        crac.getContingencies().forEach(contingency -> {
+            Set<State> states = new HashSet<>();
+            Set<Cnec> cnecscontingency = new HashSet<>();
+            states.addAll(crac.getStates(contingency));
+            states.forEach(state -> {
+                cnecscontingency.addAll(crac.getCnecs(state));
+            });
+            cnecscontingency.forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, referenceFlows, ptdfs)));
         });
         return branchResultList;
     }
 
-    private DataMonitoredBranch buildDataMonitoredBranch(MonitoredBranch branch, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+    private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
+        Optional<Double> maxThreshold = null;
+        try {
+            maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.AMPERE);
+        } catch (SynchronizationException e) {
+            e.printStackTrace();
+        }
+        double fmax = maxThreshold.orElse(Double.MAX_VALUE);
         return new DataMonitoredBranch(
-                branch.getId(),
-                branch.getName(),
-                branch.getBranchId(),
-                branch.getFmax(),
-                referenceFlows.get(branch.getId()),
-                buildDataPtdfPerCountry(branch.getId(), ptdfs)
+                cnec.getId(),
+                cnec.getName(),
+                cnec.getNetworkElement().getId(),
+                fmax,
+                referenceFlows.get(cnec.getId()),
+                buildDataPtdfPerCountry(cnec.getId(), ptdfs)
         );
     }
 
