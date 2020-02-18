@@ -28,13 +28,13 @@ import static org.junit.Assert.assertEquals;
 public class RangeActionImportExportTest {
     @Test
     public void pstRangeJsonCreator() {
-        PstRange pstRange = new PstRange(
+        PstWithRange pstRange = new PstWithRange(
             "pstRangeId",
             "pstRangeName",
             "RTE",
             new NetworkElement("neId")
         );
-        PstRange transformedPstRange = roundTrip(pstRange, PstRange.class);
+        PstWithRange transformedPstRange = roundTrip(pstRange, PstWithRange.class);
         assertEquals(transformedPstRange, pstRange);
     }
 
@@ -103,7 +103,7 @@ public class RangeActionImportExportTest {
 
     @Test
     public void abstractElementaryRangeActionWithPstJsonCreator() {
-        AbstractElementaryRangeAction abstractElementaryRangeAction = new PstRange(
+        AbstractElementaryRangeAction abstractElementaryRangeAction = new PstWithRange(
             "pstRangeId",
             "pstRangeName",
             "RTE",
@@ -152,7 +152,7 @@ public class RangeActionImportExportTest {
 
     @Test
     public void abstractRemedialActionWithPstJsonCreator() {
-        AbstractRemedialAction abstractRemedialAction = new PstRange(
+        AbstractRemedialAction abstractRemedialAction = new PstWithRange(
             "pstRangeId",
             "pstRangeName",
             "RTE",
