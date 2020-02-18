@@ -75,7 +75,7 @@ public class LinearRao implements RaoProvider {
         crac.synchronize(network);
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
 
-        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0) {
+        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
         }
 
