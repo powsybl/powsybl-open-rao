@@ -6,8 +6,8 @@
  */
 package com.farao_community.farao.flowbased_computation.tools;
 
-import com.farao_community.farao.data.crac_file.CracFile;
-import com.farao_community.farao.data.crac_file.json.JsonCracFile;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
@@ -141,7 +141,7 @@ public class FlowBasedComputationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws IOException {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
-        Path cracFile = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
+        Path cracFilePath = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
         Path glskFile = context.getFileSystem().getPath(line.getOptionValue(GLSK_FILE_OPTION));
         Path outputFile = null;
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
@@ -150,7 +150,7 @@ public class FlowBasedComputationTool implements Tool {
         Instant instant = Instant.parse(line.getOptionValue(INSTANT));
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
-        CracFile cracProvider = JsonCracFile.read(Files.newInputStream(cracFile));
+        Crac crac = CracImporters.importCrac(cracFilePath);
         //TODO : handling also Ucte format
         GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
@@ -159,7 +159,7 @@ public class FlowBasedComputationTool implements Tool {
             JsonFlowBasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        FlowBasedComputationResult result = FlowBasedComputation.run(network, cracProvider, cimGlskProvider, computationManager, parameters);
+        FlowBasedComputationResult result = FlowBasedComputation.run(network, crac, cimGlskProvider, computationManager, parameters);
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.getFlowBasedDomain(), Files.newOutputStream(outputFile));
         }
