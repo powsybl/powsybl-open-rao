@@ -48,8 +48,9 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>com.farao-community.farao</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-impl</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
