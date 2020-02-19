@@ -47,9 +47,9 @@ public class LinearRaoData {
         return systematicSensitivityAnalysisResult.getCnecFlowMap().get(cnec);
     }
 
-    public double getTargetValue(RangeAction rangeAction) {
-        //todo
-        return 0.0;
+    public double getCurrentValue(RangeAction rangeAction) {
+        //todo : put this method in the crac-api to make it other-than-PST proof
+        return network.getTwoWindingsTransformer(rangeAction.getNetworkElements().iterator().next().getId()).getPhaseTapChanger().getCurrentStep().getAlpha();
     }
 
     public Crac getCrac() {

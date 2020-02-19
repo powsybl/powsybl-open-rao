@@ -42,7 +42,6 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         Crac crac = linearRaoData.getCrac();
         if (crac.getPreventiveState() != null) {
             Set<RangeAction> rangeActions = crac.getRangeActions(linearRaoData.getNetwork(), crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            activatedRangeActionIds.forEach(this::updateRangeActionBounds);
             crac.getCnecs().forEach(cnec -> {
                 linearRaoProblem.updateReferenceFlow(cnec.getId(), linearRaoData.getReferenceFlow(cnec));
                 rangeActions.forEach(rangeAction -> updateCnecConstraintWithRangeAction(cnec, rangeAction));
@@ -66,9 +65,10 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      */
     private void fillRangeAction(RangeAction rangeAction) {
         linearRaoProblem.addRangeActionVariable(
-            rangeAction.getId(),
-            rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
-            rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
+                rangeAction.getId(),
+                linearRaoData.getCurrentValue(rangeAction),
+                rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
+                rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
     }
 
     /**
@@ -82,19 +82,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         linearRaoProblem.updateFlowConstraintsWithRangeAction(
                 cnec.getId(),
                 rangeAction.getId(),
-                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(cnec.getState()), cnec));
-    }
-
-    /**
-     * Updates range action boundaries when it has been activated and so set to a new set point.
-     *
-     * @param activatedRangeActionId: id of the range action that has been modified
-     */
-    private void updateRangeActionBounds(String activatedRangeActionId) {
-        RangeAction rangeAction = linearRaoData.getCrac().getRangeAction(activatedRangeActionId);
-        linearRaoProblem.updateRangeActionBounds(
-            rangeAction.getId(),
-            rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork()),
-            rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork()));
+                rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(cnec.getState()), cnec),
+                linearRaoData.getCurrentValue(rangeAction));
     }
 }

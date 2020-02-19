@@ -25,15 +25,14 @@ public class LinearRaoProblem {
         return MPSolver.infinity();
     }
 
-    public static final double PENALTY_COST = 0.1;
+    public static final double PENALTY_COST = 1;
 
     private MPSolver solver;
     private MPObjective objective;
     private List<MPVariable> flowVariables;
     private List<MPConstraint> flowConstraints;
     private List<MPConstraint> minimumMarginConstraints;
-    private List<MPVariable> negativeRangeActionVariables;
-    private List<MPVariable> positiveRangeActionVariables;
+    private List<MPVariable> rangeActionValueVariables;
     private List<MPVariable> absoluteRangeActionVariationVariables;
     private List<MPConstraint> absoluteRangeActionVariationConstraints;
     public static final String POS_MIN_MARGIN = "pos-min-margin";
@@ -43,8 +42,9 @@ public class LinearRaoProblem {
         flowVariables = new ArrayList<>();
         flowConstraints = new ArrayList<>();
         minimumMarginConstraints = new ArrayList<>();
-        negativeRangeActionVariables = new ArrayList<>();
-        positiveRangeActionVariables = new ArrayList<>();
+        rangeActionValueVariables = new ArrayList<>();
+        absoluteRangeActionVariationVariables = new ArrayList<>();
+        absoluteRangeActionVariationConstraints = new ArrayList<>();
     }
 
     protected LinearRaoProblem() {
@@ -73,24 +73,13 @@ public class LinearRaoProblem {
             .orElse(null);
     }
 
-    public List<MPVariable> getNegativeRangeActionVariables() {
-        return negativeRangeActionVariables;
+    public List<MPVariable> getRangeActionValueVariables() {
+        return rangeActionValueVariables;
     }
 
-    public MPVariable getNegativeRangeActionVariable(String rangeActionId) {
-        return negativeRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getNegativeRangeActionVariableId(rangeActionId)))
-            .findFirst()
-            .orElse(null);
-    }
-
-    public List<MPVariable> getPositiveRangeActionVariables() {
-        return positiveRangeActionVariables;
-    }
-
-    public MPVariable getPositiveRangeActionVariable(String rangeActionId) {
-        return positiveRangeActionVariables.stream()
-            .filter(variable -> variable.name().equals(getPositiveRangeActionVariableId(rangeActionId)))
+    public MPVariable getRangeActionValueVariable(String rangeActionId) {
+        return rangeActionValueVariables.stream()
+            .filter(variable -> variable.name().equals(getRangeActionValueVariableId(rangeActionId)))
             .findFirst()
             .orElse(null);
     }
@@ -110,6 +99,10 @@ public class LinearRaoProblem {
 
     public MPVariable getMinimumMarginVariable() {
         return solver.lookupVariableOrNull(POS_MIN_MARGIN);
+    }
+
+    public List<MPVariable> getAboluteRangeActionVariationVariables() {
+        return absoluteRangeActionVariationVariables;
     }
 
     public MPVariable getAboluteRangeActionVariationVariable(String rangeActionId) {
@@ -145,20 +138,35 @@ public class LinearRaoProblem {
     }
 
     /**
-     * Creates two {@link MPVariable}s corresponding to the RangeAction and its NetworkElement considered:
+     * Creates three {@link MPVariable}s corresponding to the RangeAction and its NetworkElement considered:
      * <ul>
-     *     <li>one for the positive variation, which is between 0 and maxPositiveVariation</li>
-     *     <li>one for the negative variation, which is between 0 and maxNegativeVariation</li>
+     *     <li>one for the positive variation of the Range Action compared to the previous iteration of the
+     *     LinearModeller, which is between 0 and maxPositiveVariation</li>
+     *     <li>one for the negative variation of the Range Action compared to the previous iteration of the
+     *     LinearModeller, which is between 0 and maxNegativeVariation</li>
+     *     <li>one for the absolute variation compared to the initial situation provided to the LinearModeller</li>
      * </ul>
      * @param rangeActionId id of the range action considered
      * @param maxNegativeVariation maximum value that the negative variation of this range can take (positive or null)
      * @param maxPositiveVariation maximum value that the positive variation of this range can take (positive or null)
      */
-    public void addRangeActionVariable(String rangeActionId, double maxNegativeVariation, double maxPositiveVariation) {
-        MPVariable negativeVariable = solver.makeNumVar(0, maxNegativeVariation, getNegativeRangeActionVariableId(rangeActionId));
-        MPVariable positiveVariable = solver.makeNumVar(0, maxPositiveVariation, getPositiveRangeActionVariableId(rangeActionId));
-        negativeRangeActionVariables.add(negativeVariable);
-        positiveRangeActionVariables.add(positiveVariable);
+    public void addRangeActionVariable(String rangeActionId, double initialRangeActionValue, double maxNegativeVariation, double maxPositiveVariation) {
+        MPVariable valueVariable = solver.makeNumVar(initialRangeActionValue - maxNegativeVariation, initialRangeActionValue + maxPositiveVariation, getRangeActionValueVariableId(rangeActionId));
+        MPVariable absoluteVariationVariable = solver.makeNumVar(0, infinity(), getAboluteRangeActionVariationVariableId(rangeActionId));
+
+        MPConstraint absoluteVariationConstraintNegative = solver.makeConstraint(-initialRangeActionValue, infinity(), getAboluteRangeActionVariationConstraintId(rangeActionId, "min"));
+        MPConstraint absoluteVariationConstraintPositive = solver.makeConstraint(initialRangeActionValue, infinity(), getAboluteRangeActionVariationConstraintId(rangeActionId, "max"));
+
+        absoluteVariationConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
+        absoluteVariationConstraintNegative.setCoefficient(valueVariable, -1);
+
+        absoluteVariationConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
+        absoluteVariationConstraintPositive.setCoefficient(valueVariable, 1);
+
+        rangeActionValueVariables.add(valueVariable);
+        absoluteRangeActionVariationVariables.add(absoluteVariationVariable);
+        absoluteRangeActionVariationConstraints.add(absoluteVariationConstraintNegative);
+        absoluteRangeActionVariationConstraints.add(absoluteVariationConstraintPositive);
     }
 
     /**
@@ -171,22 +179,22 @@ public class LinearRaoProblem {
      * @param rangeActionId if of the range action considered
      * @param sensitivity sensitivity coefficient of the flow on the cnec after a variation of the range action (TODO: clarify unit in the javadoc)
      */
-    public void updateFlowConstraintsWithRangeAction(String cnecId, String rangeActionId, double sensitivity) {
+    public void updateFlowConstraintsWithRangeAction(String cnecId, String rangeActionId, double sensitivity, double currentRangeActionValue) {
         MPConstraint flowConstraint = getFlowConstraint(cnecId);
         if (flowConstraint == null) {
             throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnecId));
         }
-        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
-        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
-        if (positiveRangeActionVariable == null || negativeRangeActionVariable == null) {
+        MPVariable rangeActionValueVariable = getRangeActionValueVariable(rangeActionId);
+        if (rangeActionValueVariable == null) {
             throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeActionId));
         }
+
+        flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentRangeActionValue);
+        flowConstraint.setUb(flowConstraint.ub() - sensitivity * currentRangeActionValue);
+
         flowConstraint.setCoefficient(
-            positiveRangeActionVariable,
-            -sensitivity);
-        flowConstraint.setCoefficient(
-            negativeRangeActionVariable,
-            sensitivity);
+                rangeActionValueVariable,
+                -sensitivity);
     }
 
     public void addMinimumMarginVariable() {
@@ -222,8 +230,7 @@ public class LinearRaoProblem {
     public void addPosMinObjective() {
         objective = solver.objective();
         objective.setCoefficient(getMinimumMarginVariable(), 1);
-        getNegativeRangeActionVariables().forEach(negativeRangeActionVariable -> objective.setCoefficient(negativeRangeActionVariable, -PENALTY_COST));
-        getPositiveRangeActionVariables().forEach(positiveRangeActionVariable -> objective.setCoefficient(positiveRangeActionVariable, -PENALTY_COST));
+        getAboluteRangeActionVariationVariables().forEach(negativeRangeActionVariable -> objective.setCoefficient(negativeRangeActionVariable, -PENALTY_COST));
         objective.setMaximization();
     }
 
@@ -235,12 +242,8 @@ public class LinearRaoProblem {
         return String.format("%s-constraint", cnecId);
     }
 
-    private String getPositiveRangeActionVariableId(String rangeActionId) {
-        return String.format("positive-%s-variable", rangeActionId);
-    }
-
-    private String getNegativeRangeActionVariableId(String rangeActionId) {
-        return String.format("negative-%s-variable", rangeActionId);
+    private String getRangeActionValueVariableId(String rangeActionId) {
+        return String.format("%s-value-variable", rangeActionId);
     }
 
     /**
@@ -263,13 +266,6 @@ public class LinearRaoProblem {
 
     public void updateReferenceFlow(String cnecId, double referenceFlow) {
         getFlowConstraint(cnecId).setBounds(referenceFlow, referenceFlow);
-    }
-
-    public void updateRangeActionBounds(String rangeActionId, double maxNegativeVariation, double maxPositiveVariation) {
-        MPVariable positiveRangeActionVariable = getPositiveRangeActionVariable(rangeActionId);
-        MPVariable negativeRangeActionVariable = getNegativeRangeActionVariable(rangeActionId);
-        negativeRangeActionVariable.setUb(maxNegativeVariation);
-        positiveRangeActionVariable.setUb(maxPositiveVariation);
     }
 
     public Enum solve() {
