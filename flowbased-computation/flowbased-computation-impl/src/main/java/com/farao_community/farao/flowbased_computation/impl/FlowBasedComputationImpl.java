@@ -89,7 +89,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
     private Map<String, Map<String, Double>> computeAllPtdf(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
         crac.synchronize(network);
         Set<Cnec> preventivecnecs = crac.getCnecs(crac.getPreventiveState());
-        computePtdf(network, preventivecnecs, glskProvider, referenceFlows, ptdfs, null);
+        computePtdf(network, preventivecnecs, glskProvider, referenceFlows, ptdfs);
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
@@ -107,7 +107,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
                     network.getVariantManager().setWorkingVariant(workingVariant);
                     applyContingencyInCrac(network, computationManager, contingency);
 
-                    computePtdf(network, cnecscontingency, glskProvider, referenceFlows, ptdfs, contingency);
+                    computePtdf(network, cnecscontingency, glskProvider, referenceFlows, ptdfs);
                     variantsPool.releaseUsedVariant(workingVariant);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -123,8 +123,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
         return ptdfs;
     }
 
-    private void computePtdf(Network network, Set<Cnec> cnecs, GlskProvider glskProvider, Map<String, Double> referenceFlows,
-                             Map<String, Map<String, Double>> ptdfs, Contingency contingency) {
+    private void computePtdf(Network network, Set<Cnec> cnecs, GlskProvider glskProvider, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
         SensitivityFactorsProvider factorsProvider = net -> generateSensitivityFactorsProvider(net, cnecs, glskProvider);
         SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
         sensiResults.getSensitivityValues().forEach(sensitivityValue -> addSensitivityValue(sensitivityValue, referenceFlows, ptdfs));
