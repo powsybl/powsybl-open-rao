@@ -185,6 +185,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
             );
         } catch (SynchronizationException e) {
             LOGGER.error(e.getMessage());
+            return null;
         }
     }
 
