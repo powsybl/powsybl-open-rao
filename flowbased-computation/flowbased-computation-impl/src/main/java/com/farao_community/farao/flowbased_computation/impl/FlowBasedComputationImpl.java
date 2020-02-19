@@ -99,9 +99,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
                     Set<State> states = new HashSet<>();
                     Set<Cnec> cnecscontingency = new HashSet<>();
                     states.addAll(crac.getStates(contingency));
-                    states.forEach(state -> {
-                        cnecscontingency.addAll(crac.getCnecs(state));
-                    });
+                    states.forEach(state -> cnecscontingency.addAll(crac.getCnecs(state)));
                     LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
@@ -167,30 +165,27 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
             Set<State> states = new HashSet<>();
             Set<Cnec> cnecscontingency = new HashSet<>();
             states.addAll(crac.getStates(contingency));
-            states.forEach(state -> {
-                cnecscontingency.addAll(crac.getCnecs(state));
-            });
+            states.forEach(state -> cnecscontingency.addAll(crac.getCnecs(state)));
             cnecscontingency.forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, referenceFlows, ptdfs)));
         });
         return branchResultList;
     }
 
     private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
-        Optional<Double> maxThreshold = null;
         try {
-            maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT);
+            Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT);
+            double fmax = maxThreshold.orElse(Double.POSITIVE_INFINITY);
+            return new DataMonitoredBranch(
+                    cnec.getId(),
+                    cnec.getName(),
+                    cnec.getNetworkElement().getId(),
+                    fmax,
+                    referenceFlows.get(cnec.getId()),
+                    buildDataPtdfPerCountry(cnec.getId(), ptdfs)
+            );
         } catch (SynchronizationException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
-        double fmax = maxThreshold.orElse(Double.MAX_VALUE);
-        return new DataMonitoredBranch(
-                cnec.getId(),
-                cnec.getName(),
-                cnec.getNetworkElement().getId(),
-                fmax,
-                referenceFlows.get(cnec.getId()),
-                buildDataPtdfPerCountry(cnec.getId(), ptdfs)
-        );
     }
 
     private List<DataPtdfPerCountry> buildDataPtdfPerCountry(String branchId, Map<String, Map<String, Double>> ptdfs) {
