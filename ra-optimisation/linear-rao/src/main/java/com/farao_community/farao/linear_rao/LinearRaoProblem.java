@@ -34,6 +34,8 @@ public class LinearRaoProblem {
     private List<MPConstraint> minimumMarginConstraints;
     private List<MPVariable> negativeRangeActionVariables;
     private List<MPVariable> positiveRangeActionVariables;
+    private List<MPVariable> absoluteRangeActionVariationVariables;
+    private List<MPConstraint> absoluteRangeActionVariationConstraints;
     public static final String POS_MIN_MARGIN = "pos-min-margin";
 
     public LinearRaoProblem(MPSolver mpSolver) {
@@ -108,6 +110,20 @@ public class LinearRaoProblem {
 
     public MPVariable getMinimumMarginVariable() {
         return solver.lookupVariableOrNull(POS_MIN_MARGIN);
+    }
+
+    public MPVariable getAboluteRangeActionVariationVariable(String rangeActionId) {
+        return absoluteRangeActionVariationVariables.stream()
+                .filter(variable -> variable.name().equals(getAboluteRangeActionVariationVariableId(rangeActionId)))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public MPConstraint getAboluteRangeActionVariationConstraint(String rangeActionId, String minMax) {
+        return absoluteRangeActionVariationConstraints.stream()
+                .filter(constraint -> constraint.name().equals(getAboluteRangeActionVariationConstraintId(rangeActionId, minMax)))
+                .findFirst()
+                .orElse(null);
     }
 
     public MPObjective getObjective() {
@@ -235,6 +251,14 @@ public class LinearRaoProblem {
      */
     private String getMinimumMarginConstraintId(String cnecId, String minMax) {
         return String.format("%s-%s-%s", POS_MIN_MARGIN, cnecId, minMax);
+    }
+
+    public String getAboluteRangeActionVariationVariableId(String rangeActionId) {
+        return String.format("%s-absolute-variation-variable", rangeActionId);
+    }
+
+    private String getAboluteRangeActionVariationConstraintId(String rangeActionId, String minMax) {
+        return String.format("%s-%s-absolute-variation-constraint", rangeActionId, minMax);
     }
 
     public void updateReferenceFlow(String cnecId, double referenceFlow) {
