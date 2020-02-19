@@ -6,6 +6,12 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -18,6 +24,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
 
 /**
  * Test case is a 4 nodes network, with 4 countries.
@@ -260,89 +268,47 @@ final class ExampleGenerator {
         return network;
     }
 
-//    static SimpleCrac crac() {
-//        return CracFile.builder()
-//            .id("Test")
-//            .name("Test")
-//            .sourceFormat("code")
-//            .preContingency(
-//                PreContingency.builder()
-//                    .monitoredBranches(
-//                        Arrays.asList(
-//                            MonitoredBranch.builder()
-//                                .id("FR-BE")
-//                                .name("FR-BE")
-//                                .branchId("FR-BE")
-//                                .fmax(100)
-//                                .build(),
-//                            MonitoredBranch.builder()
-//                                .id("FR-DE")
-//                                .name("FR-DE")
-//                                .branchId("FR-DE")
-//                                .fmax(100)
-//                                .build(),
-//                            MonitoredBranch.builder()
-//                                .id("BE-NL")
-//                                .name("BE-NL")
-//                                .branchId("BE-NL")
-//                                .fmax(100)
-//                                .build(),
-//                            MonitoredBranch.builder()
-//                                .id("DE-NL")
-//                                .name("DE-NL")
-//                                .branchId("DE-NL")
-//                                .fmax(100)
-//                                .build()
-//                        )
-//                    )
-//                .build()
-//        )
-//        .contingencies(
-//            Collections.singletonList(
-//                Contingency.builder()
-//                    .id("N-1 FR-BE")
-//                    .name("N-1 FR-BE")
-//                    .contingencyElements(
-//                        Collections.singletonList(
-//                            ContingencyElement.builder()
-//                                .name("N-1 FR-BE")
-//                                .elementId("FR-BE")
-//                                .build()
-//                        )
-//                    )
-//                    .monitoredBranches(
-//                        Arrays.asList(
-//                            MonitoredBranch.builder()
-//                                .id("N-1 FR-BE / FR-BE")
-//                                .name("N-1 FR-BE / FR-BE")
-//                                .branchId("FR-BE")
-//                                .fmax(100)
-//                                .build(),
-//                            MonitoredBranch.builder()
-//                                .id("N-1 FR-BE / FR-DE")
-//                                .name("N-1 FR-BE / FR-DE")
-//                                .branchId("FR-DE")
-//                                .fmax(100)
-//                                .build(),
-//                            MonitoredBranch.builder()
-//                                .id("N-1 FR-BE / BE-NL")
-//                                .name("N-1 FR-BE / BE-NL")
-//                                .branchId("BE-NL")
-//                                .fmax(100)
-//                                .build(),
-//                            MonitoredBranch.builder()
-//                                .id("N-1 FR-BE / DE-NL")
-//                                .name("N-1 FR-BE / DE-NL")
-//                                .branchId("DE-NL")
-//                                .fmax(100)
-//                                .build()
-//                        )
-//                    )
-//                    .build()
-//            )
-//        )
-//        .build();
-//    }
+    static Crac crac() {
+        SimpleCrac crac = new SimpleCrac("Test", "Test");
+
+        NetworkElement networkElementFrBe = new NetworkElement("FR-BE", "FR-BE");
+        NetworkElement networkElementFrDe = new NetworkElement("FR-DE", "FR-DE");
+        NetworkElement networkElementBeNl = new NetworkElement("BE-NL", "BE-NL");
+        NetworkElement networkElementDeNl = new NetworkElement("DE-NL", "DE-NL");
+        AbsoluteFlowThreshold absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.BOTH, 100);
+
+        Contingency contingency = new ComplexContingency("N-1 FR-BE", "N-1 FR-BE", Collections.singleton(networkElementFrBe));
+
+        // add preventive state
+        State preState = new SimpleState(Optional.empty(), new Instant("initial-instant", -1));
+        crac.addState(preState); // add preventive state
+
+        // add post contingency state
+        State postContingencyState = new SimpleState(Optional.of(contingency), new Instant("PostContingency-instant", 1));
+        crac.addState(postContingencyState);
+
+        //pre state cnec
+        Cnec cnecPreFrBe = new SimpleCnec("FR-BE", "FR-BE", networkElementFrBe, absoluteFlowThresholdMW, preState);
+        Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, absoluteFlowThresholdMW, preState);
+        Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, absoluteFlowThresholdMW, preState);
+        Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, absoluteFlowThresholdMW, preState);
+        crac.addCnec(cnecPreFrBe);
+        crac.addCnec(cnecPreFrDe);
+        crac.addCnec(cnecPreBeNl);
+        crac.addCnec(cnecPreDeNl);
+
+        //post contingency state cnec
+        Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, absoluteFlowThresholdMW, postContingencyState);
+        Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, absoluteFlowThresholdMW, postContingencyState);
+        Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, absoluteFlowThresholdMW, postContingencyState);
+        Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, absoluteFlowThresholdMW, postContingencyState);
+        crac.addCnec(cnecPostFrBe);
+        crac.addCnec(cnecPostFrDe);
+        crac.addCnec(cnecPostBeNl);
+        crac.addCnec(cnecPostDeNl);
+
+        return crac;
+    }
 
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();

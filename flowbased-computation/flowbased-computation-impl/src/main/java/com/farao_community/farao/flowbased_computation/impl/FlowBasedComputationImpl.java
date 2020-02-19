@@ -178,7 +178,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
     private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
         Optional<Double> maxThreshold = null;
         try {
-            maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.AMPERE);
+            maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT);
         } catch (SynchronizationException e) {
             e.printStackTrace();
         }
