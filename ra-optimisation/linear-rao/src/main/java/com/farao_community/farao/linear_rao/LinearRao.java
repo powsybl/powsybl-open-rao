@@ -74,6 +74,7 @@ public class LinearRao implements RaoProvider {
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
         crac.synchronize(network);
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
+        remedialActionResultHistoryMap = new HashMap<>();
 
         if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
@@ -89,7 +90,6 @@ public class LinearRao implements RaoProvider {
 
         RaoComputationResult raoComputationResult;
         List<RemedialActionResult> newRemedialActionsResult;
-        remedialActionResultHistoryMap = new HashMap<>();
 
         while (iterationsLeft > 0) {
             raoComputationResult = linearRaoModeller.solve();
