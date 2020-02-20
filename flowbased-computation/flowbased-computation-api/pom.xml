@@ -27,11 +27,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-file-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.farao-community.farao</groupId>
             <artifactId>farao-crac-io-api</artifactId>
             <version>${project.version}</version>
