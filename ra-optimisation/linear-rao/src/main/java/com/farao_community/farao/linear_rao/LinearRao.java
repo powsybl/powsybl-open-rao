@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_api.CnecExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
@@ -230,6 +231,10 @@ public class LinearRao implements RaoProvider {
         } catch (SynchronizationException e) {
             throw new FaraoException(e);
         }
+
+        CnecExtension cnecExtension = new CnecExtension(preOptimFlow, postOptimFlow);
+        cnec.addExtension(CnecExtension.class, cnecExtension);
+
         return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), limitingThreshold, preOptimFlow, postOptimFlow);
     }
 }

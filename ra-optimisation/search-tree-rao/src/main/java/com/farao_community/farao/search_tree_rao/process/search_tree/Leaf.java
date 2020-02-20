@@ -7,8 +7,7 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.Rao;
@@ -50,6 +49,7 @@ class Leaf {
      * Impact of the network action
      */
     private RaoComputationResult raoResult;
+    private Crac crac;
 
     /**
      * Status of the leaf's Network Action evaluation
@@ -70,6 +70,7 @@ class Leaf {
         this.parentLeaf = null;
         this.networkActions = new ArrayList<>(); //! root leaf has no network action
         this.raoResult = null;
+        this.crac = null;
         this.status = Status.CREATED;
     }
 
@@ -84,6 +85,7 @@ class Leaf {
         this.networkActions = networkActionList;
 
         this.raoResult = null;
+        this.crac = null;
         this.status = Status.CREATED;
     }
 
@@ -103,6 +105,13 @@ class Leaf {
      */
     RaoComputationResult getRaoResult() {
         return raoResult;
+    }
+
+    /**
+     * Crac getter
+     */
+    Crac getCrac() {
+        return crac;
     }
 
     /**
@@ -158,6 +167,7 @@ class Leaf {
         try {
             RaoComputationResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant);
             this.raoResult = results;
+            this.crac = crac;
             this.status = buildStatus(results);
             deleteVariant(network, leafNetworkVariant);
 
@@ -209,10 +219,23 @@ class Leaf {
         return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPostOptimisationFlow());
     }
 
-    public double getCost() {
-        Objects.requireNonNull(raoResult);
+    private static double computeMargin(Cnec cnec) {
+        try {
+            return Math.abs(cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).get()) - Math.abs(cnec.getExtension(CnecExtension.class).getFlowAfterOptim());
+        } catch (SynchronizationException e) {
+            return Double.MAX_VALUE;
+        }
+    }
+
+    public double getOldCost()  {
+        Objects.requireNonNull(crac);
         double preContingencyMargin = raoResult.getPreContingencyResult().getMonitoredBranchResults().stream().map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
         double contingencyMargin = raoResult.getContingencyResults().stream().flatMap(contingencyResult -> contingencyResult.getMonitoredBranchResults().stream()).map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
         return -StrictMath.min(preContingencyMargin, contingencyMargin);
+    }
+
+    public double getCost()  {
+        Objects.requireNonNull(crac);
+        return -crac.getCnecs().stream().map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
     }
 }
