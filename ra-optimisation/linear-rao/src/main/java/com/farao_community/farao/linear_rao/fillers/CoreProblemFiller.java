@@ -71,8 +71,8 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     private void buildRangeActionSetPointVariables() {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
             double initialSetPoint = linearRaoData.getCurrentValue(rangeAction);
-            double maxPosVariation = rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork());
             double maxNegVariation = rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork());
+            double maxPosVariation = rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork());
             linearRaoProblem.addRangeActionSetPointVariable(initialSetPoint - maxNegVariation, initialSetPoint + maxPosVariation, rangeAction);
         });
     }
