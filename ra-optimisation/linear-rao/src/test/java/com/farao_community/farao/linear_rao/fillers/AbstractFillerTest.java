@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @PrepareForTest(MPSolver.class)
-public abstract class AbstractFillerTest {
+abstract class AbstractFillerTest {
 
     static final double DOUBLE_TOLERANCE = 0.1;
 
@@ -64,7 +64,7 @@ public abstract class AbstractFillerTest {
     Crac crac;
     Network network;
 
-    protected void init() {
+    void init() {
 
         // arrange some data for all fillers test
         // crac and network

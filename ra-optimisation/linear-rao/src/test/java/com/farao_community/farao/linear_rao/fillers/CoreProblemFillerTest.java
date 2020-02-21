@@ -142,7 +142,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
 
         // fill the problem
-        coreProblemFiller.update(new ArrayList<>());
+        coreProblemFiller.update();
     }
 
     @Test
