@@ -145,16 +145,13 @@ public class LinearRaoTest {
 
         List<RemedialActionResult> remedialActionResults2 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList2 = new ArrayList<>();
-        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 3., 4, 2., 3));
+        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 2., 3));
         remedialActionResults2.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList2));
         PreContingencyResult preContingencyResult2 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults2);
         RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
 
-        PreContingencyResult preContingencyResult3 = new PreContingencyResult(emptyMonitoredBranchResultList, new ArrayList<>());
-        RaoComputationResult raoComputationResult3 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult3);
-
         LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
-        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult1, raoComputationResult2, raoComputationResult3);
+        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult1, raoComputationResult2);
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());

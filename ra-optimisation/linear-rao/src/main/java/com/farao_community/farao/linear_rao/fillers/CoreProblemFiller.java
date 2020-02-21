@@ -15,8 +15,6 @@ import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.List;
-
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -40,7 +38,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(List<String> activatedRangeActionIds) {
+    public void update() {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints();
     }
