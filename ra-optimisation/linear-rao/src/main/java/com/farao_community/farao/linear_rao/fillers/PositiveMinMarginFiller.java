@@ -16,7 +16,6 @@ import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
@@ -52,7 +51,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(List<String> activatedRangeActionIds) {
+    public void update() {
         // Objective does not change, nothing to do
     }
 
@@ -65,11 +64,6 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
         linearRaoProblem.addMinimumMarginVariable(-linearRaoProblem.infinity(), linearRaoProblem.infinity());
     }
 
-    @Override
-    public void update() {
-        // Objective does not change, and the constraints on the min margin are modified by the core problem filler
-}
-  
     /**
      * Build two minimum margin constraints for each Cnec c.
      * The minimum margin constraints ensure that the minimum margin variable is below
