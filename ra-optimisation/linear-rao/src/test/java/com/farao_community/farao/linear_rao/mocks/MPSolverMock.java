@@ -28,6 +28,7 @@ public class MPSolverMock extends MPSolver {
         super(0, false);
         constraints = new ArrayList<>();
         variables = new ArrayList<>();
+        objective = new MPObjectiveMock();
     }
 
     @Override
@@ -85,11 +86,7 @@ public class MPSolverMock extends MPSolver {
 
     @Override
     public MPObjectiveMock objective() {
-        if (objective == null) {
-            return new MPObjectiveMock();
-        } else {
-            return objective;
-        }
+        return objective;
     }
 
     @Override
