@@ -37,23 +37,19 @@ public class LinearRaoModellerTest {
         linearRaoModeller = new LinearRaoModeller(cracMock, networkMock, sensitivityResultMock, linearRaoProblemMock);
     }
 
-    @Ignore
     @Test
     public void testOptimalSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
 
-        linearRaoModeller.buildProblem();
         RaoComputationResult raoComputationResult = linearRaoModeller.solve();
         assertNotNull(raoComputationResult);
         assertEquals(RaoComputationResult.Status.SUCCESS, raoComputationResult.getStatus());
     }
 
-    @Ignore
     @Test
     public void testUnboundedSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
 
-        linearRaoModeller.buildProblem();
         RaoComputationResult raoComputationResult = linearRaoModeller.solve();
         assertNotNull(raoComputationResult);
         assertEquals(RaoComputationResult.Status.FAILURE, raoComputationResult.getStatus());
