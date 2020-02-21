@@ -10,12 +10,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -72,12 +74,12 @@ public final class Tree {
         }
 
         //TODO: refactor output format
-        return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
+        return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf, crac));
     }
 
-    static RaoComputationResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
+    static RaoComputationResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf, Crac crac) {
 
-        RaoComputationResult output = new RaoComputationResult(optimalLeaf.getRaoResult().getStatus(), buildPreContingencyResult(rootLeaf, optimalLeaf));
+        RaoComputationResult output = new RaoComputationResult(optimalLeaf.getRaoResult().getStatus(), buildPreContingencyResult(rootLeaf, optimalLeaf, crac));
 
         optimalLeaf.getRaoResult().getContingencyResults().forEach(contingencyResult ->
                 output.addContingencyResult(buildContingencyResult(contingencyResult, rootLeaf)));
@@ -87,7 +89,8 @@ public final class Tree {
         return output;
     }
 
-    private static PreContingencyResult buildPreContingencyResult(Leaf rootLeaf, Leaf optimalLeaf) {
+    @SuppressWarnings("checkstyle:RegexpSingleline")
+    private static PreContingencyResult buildPreContingencyResult(Leaf rootLeaf, Leaf optimalLeaf, Crac crac) {
         RaoComputationResult outputRoot = rootLeaf.getRaoResult();
         RaoComputationResult outputOptimal = optimalLeaf.getRaoResult();
 
@@ -106,6 +109,31 @@ public final class Tree {
         // preventive Network Actions
         optimalLeaf.getNetworkActions().forEach(na -> {
             remedialActionResultList.add(new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na)));
+        });
+
+        HashMap<String, ArrayList<RemedialActionElementResult>> remedialActionElementResultListMapping = new HashMap<>();
+        crac.getRangeActions().forEach(rangeAction -> {
+            // TODO: handle other range actions
+            if (rangeAction instanceof PstWithRange) {
+                String pstWithRangeId = rangeAction.getId();
+                optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResults()
+                        .forEach(remedialActionResult -> {
+                            remedialActionResult.getRemedialActionElementResults()
+                                    .forEach(remedialActionElementResult -> {
+                                        if (remedialActionElementResult.getId().equals(pstWithRangeId)) {
+                                            ArrayList<RemedialActionElementResult> pstElementResults = new ArrayList<>();
+                                            pstElementResults.add(remedialActionElementResult);
+                                            remedialActionElementResultListMapping.put(pstWithRangeId, pstElementResults);
+                                        }
+                                    });
+                        });
+                ArrayList<RemedialActionElementResult> pstElementResults = remedialActionElementResultListMapping.get(pstWithRangeId);
+                remedialActionResultList.add(new RemedialActionResult(
+                        rangeAction.getId(),
+                        rangeAction.getName(),
+                        true,
+                        pstElementResults));
+            }
         });
 
         return new PreContingencyResult(monitoredBranchResultList, remedialActionResultList);
