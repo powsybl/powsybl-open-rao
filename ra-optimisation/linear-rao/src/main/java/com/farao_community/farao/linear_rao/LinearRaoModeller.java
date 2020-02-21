@@ -56,7 +56,7 @@ public class LinearRaoModeller {
     public void updateProblem(Network network, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         linearRaoData.setNetwork(network);
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        fillerList.forEach(filler -> filler.update());
+        fillerList.forEach(AbstractProblemFiller::update);
     }
 
     public RaoComputationResult solve() {
