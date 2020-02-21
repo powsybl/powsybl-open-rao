@@ -12,6 +12,7 @@ import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @PrepareForTest(MPSolver.class)
 public class FillerTest {
@@ -32,28 +34,30 @@ public class FillerTest {
     protected LinearRaoData linearRaoData;
     protected Crac crac;
     protected Network network;
-    protected State preventiveState;
-    protected Set<RangeAction> rangeActions;
-    protected Set<Cnec> cnecs;
+
+    protected static final String RANGE_ACTION_ID = "PRA_PST_BE";
+    protected static final String CNEC_1_ID = "Tieline BE FR - N - preventive";
+    protected static final String CNEC_2_ID = "Tieline BE FR - Défaut - N-1 NL1-NL3";
+
 
     protected void init() {
+
+        // arrange some data for all fillers test
+        // crac and network
+        crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
+        network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        crac.setReferenceValues(network);
+        crac.synchronize(network);
+
+        // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
         when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
         linearRaoProblem = new LinearRaoProblem(solver);
-        linearRaoData = mock(LinearRaoData.class);
-        crac = mock(Crac.class);
-        network = mock(Network.class);
-        preventiveState = mock(State.class);
-        rangeActions = new HashSet<>();
-        cnecs = new HashSet<>();
 
+        // LinearRaoData
+        linearRaoData = mock(LinearRaoData.class);
         when(linearRaoData.getCrac()).thenReturn(crac);
         when(linearRaoData.getNetwork()).thenReturn(network);
-        when(crac.getPreventiveState()).thenReturn(preventiveState);
-        when(crac.getRangeActions()).thenReturn(rangeActions);
-        when(crac.getCnecs()).thenReturn(cnecs);
-
-        crac = CracImporters.importCrac("crac-test.json", getClass().getResourceAsStream("/crac-test.json"));
     }
 }

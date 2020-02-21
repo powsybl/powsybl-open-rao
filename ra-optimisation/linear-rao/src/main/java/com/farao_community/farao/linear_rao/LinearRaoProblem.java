@@ -146,4 +146,8 @@ public class LinearRaoProblem {
     public Enum solve() {
         return solver.solve();
     }
+
+    public MPSolver getSolver() {
+        return solver;
+    }
 }

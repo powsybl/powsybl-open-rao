@@ -86,8 +86,7 @@ public class LinearRaoProblemTest {
     }
 
     @Test
-    public void rangeActionAbsoluteVariationConstraintTest()
-    {
+    public void rangeActionAbsoluteVariationConstraintTest() {
         assertNull(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE));
         assertNull(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE));
         linearRaoProblem.addAboluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
