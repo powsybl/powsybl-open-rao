@@ -16,8 +16,6 @@ import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-
 import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
 
 /**
@@ -61,7 +59,7 @@ public class PositiveMinMarginFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(List<String> activatedRangeActionIds) {
+    public void update() {
         // Objective does not change, and the constraints on the min margin are modified by the core problem filler
     }
 }

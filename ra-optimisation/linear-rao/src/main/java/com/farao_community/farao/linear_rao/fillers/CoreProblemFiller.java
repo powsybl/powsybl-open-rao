@@ -12,7 +12,6 @@ import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,7 +37,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(List<String> activatedRangeActionIds) {
+    public void update() {
         Crac crac = linearRaoData.getCrac();
         if (crac.getPreventiveState() != null) {
             Set<RangeAction> rangeActions = crac.getRangeActions(linearRaoData.getNetwork(), crac.getPreventiveState(), UsageMethod.AVAILABLE);

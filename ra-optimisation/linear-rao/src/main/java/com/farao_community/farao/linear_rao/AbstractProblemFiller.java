@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.linear_rao;
 
-import java.util.List;
-
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -23,5 +21,5 @@ public abstract class AbstractProblemFiller {
 
     public abstract void fill();
 
-    public abstract void update(List<String> activatedRangeActionIds);
+    public abstract void update();
 }

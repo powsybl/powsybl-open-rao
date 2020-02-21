@@ -53,10 +53,10 @@ public class LinearRaoModeller {
         fillerList.forEach(AbstractProblemFiller::fill);
     }
 
-    public void updateProblem(Network network, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, List<String> activatedRangeActionIds) {
+    public void updateProblem(Network network, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         linearRaoData.setNetwork(network);
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        fillerList.forEach(filler -> filler.update(activatedRangeActionIds));
+        fillerList.forEach(filler -> filler.update());
     }
 
     public RaoComputationResult solve() {
