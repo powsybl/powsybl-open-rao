@@ -32,15 +32,15 @@ import static org.mockito.Mockito.when;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-public class PositiveMinMarginFillerTest extends AbstractFillerTest {
+public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
-    private PositiveMinMarginFiller positiveMinMarginFiller;
+    private MaxMinMarginFiller maxMinMarginFiller;
 
     @Before
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
-        positiveMinMarginFiller = new PositiveMinMarginFiller(linearRaoProblem, linearRaoData);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearRaoProblem, linearRaoData);
     }
 
     private void fillProblemWithFiller() throws IOException {
@@ -58,7 +58,7 @@ public class PositiveMinMarginFillerTest extends AbstractFillerTest {
 
         // fill the problem : the core filler is required
         coreProblemFiller.fill();
-        positiveMinMarginFiller.fill();
+        maxMinMarginFiller.fill();
     }
 
     @Test

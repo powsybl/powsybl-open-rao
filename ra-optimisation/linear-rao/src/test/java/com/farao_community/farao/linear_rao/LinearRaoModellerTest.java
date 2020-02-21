@@ -13,7 +13,6 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 

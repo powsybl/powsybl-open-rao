@@ -9,7 +9,7 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
-import com.farao_community.farao.linear_rao.fillers.PositiveMinMarginFiller;
+import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
 import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;
 import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
@@ -42,7 +42,7 @@ public class LinearRaoModeller {
         // TODO : load the filler list from the config file and make sure they are ordered properly
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
-        fillerList.add(new PositiveMinMarginFiller(linearRaoProblem, linearRaoData));
+        fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
 
         postProcessorList = new ArrayList<>();
         postProcessorList.add(new PstTapPostProcessor());
