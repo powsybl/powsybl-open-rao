@@ -7,14 +7,12 @@
 package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
-import groovy.json.internal.IO;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
