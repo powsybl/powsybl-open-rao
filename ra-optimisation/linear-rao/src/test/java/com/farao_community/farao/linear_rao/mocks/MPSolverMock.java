@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertFalse;
 
 /**
+ * This class is used to mock MPSolver objects in the unit test of this package.
+ * It is necessary to bypass the JNI binding of the or-tools MPSolver object.
+ *
+ * MPSolverMock handles the creation and browsing of the variables and constraints
+ * usually defined within a MPSolver.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MPSolverMock extends MPSolver {

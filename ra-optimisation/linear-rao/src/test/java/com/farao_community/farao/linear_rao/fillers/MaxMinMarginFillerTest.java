@@ -6,12 +6,15 @@
  */
 package com.farao_community.farao.linear_rao.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
+import groovy.json.internal.IO;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,4 +102,30 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(5, linearRaoProblem.getSolver().numVariables());
         assertEquals(8, linearRaoProblem.getSolver().numConstraints());
     }
+
+    @Test
+    public void fillWithMissingFlowVariables() {
+        try {
+            // AbsoluteRangeActionVariables present, but no the FlowVariables
+            linearRaoProblem.addAboluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
+            maxMinMarginFiller.fill();
+            fail();
+        } catch (FaraoException e) {
+            assertTrue(e.getMessage().contains("Flow variable"));
+        }
+    }
+
+    @Test
+    public void fillWithMissingRangeActionVariables() {
+        try {
+            // FlowVariables present , but not the absoluteRangeActionVariables present,
+            linearRaoProblem.addFlowVariable(0.0, 0.0, cnec1);
+            linearRaoProblem.addFlowVariable(0.0, 0.0, cnec2);
+            maxMinMarginFiller.fill();
+            fail();
+        } catch (FaraoException e) {
+            assertTrue(e.getMessage().contains("Range action variable"));
+        }
+    }
 }
+
