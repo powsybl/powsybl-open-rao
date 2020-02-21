@@ -7,6 +7,7 @@
 package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
@@ -38,7 +39,7 @@ public class FillerTest {
     protected void init() {
         MPSolverMock solver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenReturn(Double.MAX_VALUE);
+        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
         linearRaoProblem = new LinearRaoProblem(solver);
         linearRaoData = mock(LinearRaoData.class);
         crac = mock(Crac.class);
@@ -50,7 +51,9 @@ public class FillerTest {
         when(linearRaoData.getCrac()).thenReturn(crac);
         when(linearRaoData.getNetwork()).thenReturn(network);
         when(crac.getPreventiveState()).thenReturn(preventiveState);
-        when(crac.getRangeActions(network, preventiveState, UsageMethod.AVAILABLE)).thenReturn(rangeActions);
+        when(crac.getRangeActions()).thenReturn(rangeActions);
         when(crac.getCnecs()).thenReturn(cnecs);
+
+        crac = CracImporters.importCrac("crac-test.json", getClass().getResourceAsStream("/crac-test.json"));
     }
 }
