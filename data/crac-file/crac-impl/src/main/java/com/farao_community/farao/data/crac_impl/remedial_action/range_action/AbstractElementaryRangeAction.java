@@ -20,8 +20,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityValue;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Generic object to define any simple range action on a network element
@@ -108,10 +110,18 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
 
     @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
-        return sensitivityComputationResults.getSensitivityValues().stream()
+        Stream<SensitivityValue> sensitivityValueStream = sensitivityComputationResults.getSensitivityValues().stream()
             .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(networkElement.getId()))
-            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId()))
-            .findFirst().orElseThrow(() -> new FaraoException(String.format("No sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), this.getId()))).getValue();
+            .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId()));
+
+        if (sensitivityValueStream.count() > 1) {
+            throw new FaraoException(String.format("More than one sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), this.getId()));
+        }
+        if (!sensitivityValueStream.findFirst().isPresent()) {
+            throw new FaraoException(String.format("No sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), this.getId()));
+        }
+
+        return sensitivityValueStream.findFirst().get().getValue();
     }
 
     @Override

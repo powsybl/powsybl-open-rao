@@ -44,8 +44,8 @@ public class SimpleCnecTest {
         State state = Mockito.mock(State.class);
 
         // arrange Cnecs
-        cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"), threshold, state);
-        cnec2 = new SimpleCnec("cnec2", "cnec2", new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"), threshold, state);
+        cnec1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), threshold, state);
+        cnec2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), threshold, state);
 
         // create LF
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
@@ -120,9 +120,30 @@ public class SimpleCnecTest {
         assertEquals(300.0 + 266.67, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
 
         // flow = -266.67 MW
-        // threshold = [300 ; +inf]
+        // threshold = [-300 ; +inf]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-300.0));
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
         assertEquals(300.0 - 266.67, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void computeMarginDisconnectedBranch() throws SynchronizationException {
+
+        Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
+        Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));
+        Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(500.0));
+
+        // terminal 1 disconnected
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
+        assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+
+        // terminal 2 disconnected
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
+        assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+
+        // both terminal disconnected
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
+        assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
     }
 }

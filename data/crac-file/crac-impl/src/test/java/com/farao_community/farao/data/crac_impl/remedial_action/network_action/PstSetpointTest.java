@@ -31,9 +31,9 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     public void setUp() {
         networkElementId = "BBE2AA1  BBE3AA1  1";
         pstSetpoint = new PstSetpoint(
-                "pstsetpoint_id",
-                new NetworkElement(networkElementId),
-                12);
+            "pstsetpoint_id",
+            new NetworkElement(networkElementId),
+            12);
     }
 
     @Test
@@ -46,8 +46,8 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     @Test
     public void apply() {
         Network network = Importers.loadNetwork(
-                "TestCase12Nodes.uct",
-                getClass().getResourceAsStream("/TestCase12Nodes.uct")
+            "TestCase12Nodes.uct",
+            getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
@@ -57,13 +57,13 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     @Test
     public void applyOutOfBound() {
         Network network = Importers.loadNetwork(
-                "TestCase12Nodes.uct",
-                getClass().getResourceAsStream("/TestCase12Nodes.uct")
+            "TestCase12Nodes.uct",
+            getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
-                "out_of_bound",
-                new NetworkElement(networkElementId),
-                50);
+            "out_of_bound",
+            new NetworkElement(networkElementId),
+            50);
 
         try {
             pstSetpoint.apply(network);
