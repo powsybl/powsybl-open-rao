@@ -29,7 +29,7 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
 
         jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
 
-        jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.getSecurityAnalysisWithoutRao());
+        jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
 
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);

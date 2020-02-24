@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao.post_processors;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.linear_rao.LinearRaoData;
@@ -16,6 +17,7 @@ import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -35,34 +37,50 @@ public class RaoResultPostProcessorTest {
 
     private LinearRaoData linearRaoData;
     private LinearRaoProblem linearRaoProblem;
-    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
-    private MPVariable negativeRangeActionActivation;
-    private MPVariable positiveRangeActionActivation;
+    private MPVariable rangeActionSetPoint;
+    private MPVariable rangeActionAbsoluteVariation;
+    private MPConstraint absoluteRangeActionVariationConstraint;
 
     @Before
     public void setUp() {
         // arrange input data
-        // Arrange linearRaoData
         Crac crac = new SimpleCrac("cracName");
-        crac.addRangeAction(new PstWithRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1")));
+        RangeAction rangeAction = new PstWithRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+        crac.addRangeAction(rangeAction);
 
         Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
 
+        // Arrange linearRaoData
         linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
 
         // Arrange linearRaoProblem
         linearRaoProblem = Mockito.mock(LinearRaoProblem.class);
-        negativeRangeActionActivation = Mockito.mock(MPVariable.class);
-        positiveRangeActionActivation = Mockito.mock(MPVariable.class);
-        Mockito.when(linearRaoProblem.getNegativeRangeActionVariable("idPstRa")).thenReturn(negativeRangeActionActivation);
-        Mockito.when(linearRaoProblem.getPositiveRangeActionVariable("idPstRa")).thenReturn(positiveRangeActionActivation);
+        rangeActionSetPoint = Mockito.mock(MPVariable.class);
+        rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
+        absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class); // the "current value" of the range action is "stored" in the lb of this constraint
+        Mockito.when(linearRaoProblem.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
+        Mockito.when(linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
+        Mockito.when(linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE)).thenReturn(absoluteRangeActionVariationConstraint);
     }
 
     @Test
-    public void fillPstResultWithNoActivation() {
-        Mockito.when(negativeRangeActionActivation.solutionValue()).thenReturn(0.0);
-        Mockito.when(positiveRangeActionActivation.solutionValue()).thenReturn(0.0);
+    public void fillPstResultWithNoActivationAndNeutralRangeAction() {
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.0);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
+
+        RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
+        new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result);
+
+        assertTrue(result.getPreContingencyResult().getRemedialActionResults().isEmpty());
+    }
+
+    @Test
+    public void fillPstResultWithNoActivationAndInitialRangeActionSetPoint() {
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(5.0);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result);
@@ -72,8 +90,9 @@ public class RaoResultPostProcessorTest {
 
     @Test
     public void fillPstResultWithNegativeActivation() {
-        Mockito.when(negativeRangeActionActivation.solutionValue()).thenReturn(5.0);
-        Mockito.when(positiveRangeActionActivation.solutionValue()).thenReturn(0.0);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 - 5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result);
@@ -89,8 +108,9 @@ public class RaoResultPostProcessorTest {
 
     @Test
     public void fillPstResultWithPositiveActivation() {
-        Mockito.when(negativeRangeActionActivation.solutionValue()).thenReturn(0.0);
-        Mockito.when(positiveRangeActionActivation.solutionValue()).thenReturn(5.0);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result);
@@ -106,8 +126,9 @@ public class RaoResultPostProcessorTest {
 
     @Test
     public void fillPstResultWithAngleTooHigh() {
-        Mockito.when(negativeRangeActionActivation.solutionValue()).thenReturn(99.0); // value out of PST Range
-        Mockito.when(positiveRangeActionActivation.solutionValue()).thenReturn(0.0);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 99.0); // value out of PST Range
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(99.0);
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         try {

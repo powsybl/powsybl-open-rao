@@ -24,9 +24,31 @@ public interface Cnec extends Identifiable, Synchronizable {
 
     NetworkElement getNetworkElement();
 
+
+    /**
+     * This function returns, for a given Network situation, the margin of the Threshold.
+     * The margin is the distance, given with the unit of measure of the Threshold, from
+     * the actual monitored physical parameter of a Cnec to the Threshold limits. If it is
+     * positive, it means that the limits of the Threshold are respected. If it is negative,
+     * it means that that a limit of the Threshold has been overcome.
+     *
+     * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
+     */
     double computeMargin(Network network) throws SynchronizationException;
 
     Threshold getThreshold();
 
-    boolean isThresholdViolated(Network network) throws SynchronizationException;
+    /**
+     * Get the flow (in A) transmitted by Cnec in a given Network. Note that an I
+     * value exists in the Network only if an AC load-flow has been previously run.
+     * If no value is present in the network, throws a FaraoException.
+     */
+    double getI(Network network);
+
+    /**
+     * Get the flow (in MW) transmitted by Cnec in a given Network. Note that an P
+     * value exists in the Network only if an load-flow (AC or DC) has been previously
+     * run. If no value is present in the network, throws a FaraoException.
+     */
+    double getP(Network network);
 }

@@ -205,6 +205,7 @@ class Leaf {
     }
 
     private static double computeMargin(MonitoredBranchResult monitoredBranchResult) {
+        //todo : adjust when Cnec is monitored in one direction, or wait for new output structure
         return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPostOptimisationFlow());
     }
 

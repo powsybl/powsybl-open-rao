@@ -58,29 +58,6 @@ public interface Threshold {
     @JsonIgnore
     Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException;
 
-    /**
-     * This function returns, for a given Network situation, a boolean which specify
-     * whether or not the minimum limit of the Threshold has been overcome.
-     */
-    boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
-
-    /**
-     * This function returns, for a given Network situation, a boolean which specify
-     * whether or not the maximum limit of the Threshold has been overcome.
-     */
-    boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException;
-
-    /**
-     * This function returns, for a given Network situation, the margin of the Threshold.
-     * The margin is the distance, given with the unit of measure of the Threshold, from
-     * the actual monitored physical parameter of a Cnec to the Threshold limits. If it is
-     * positive, it means that the limits of the Threshold are respected. If it is negative,
-     * it means that that a limit of the Threshold has been overcome.
-     *
-     * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
-     */
-    double computeMargin(Network network, Cnec cnec) throws SynchronizationException;
-
     void synchronize(Network network, Cnec cnec);
 
     void desynchronize();

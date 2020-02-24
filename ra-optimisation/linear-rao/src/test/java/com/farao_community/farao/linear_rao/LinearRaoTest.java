@@ -122,11 +122,17 @@ public class LinearRaoTest {
         crac.getCnecs().forEach(cnec -> cnecMarginMap3.put(cnec, 10.0));
         Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecMaxThresholdMap.put(cnec, 500.));
+        Map<Cnec, Double> cnecFlowMap1 = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap2 = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap3 = new HashMap<>();
+        crac.getCnecs().forEach(cnec -> cnecFlowMap1.put(cnec, 499.));
+        crac.getCnecs().forEach(cnec -> cnecFlowMap2.put(cnec, 495.));
+        crac.getCnecs().forEach(cnec -> cnecFlowMap3.put(cnec, 490.));
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap1, cnecMaxThresholdMap),
-                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap2, cnecMaxThresholdMap),
-                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap3, cnecMaxThresholdMap));
+                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap1),
+                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2),
+                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3));
 
         List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<>();
 
@@ -139,16 +145,13 @@ public class LinearRaoTest {
 
         List<RemedialActionResult> remedialActionResults2 = new ArrayList<>();
         List<RemedialActionElementResult> remedialActionElementResultList2 = new ArrayList<>();
-        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 3., 4, 2., 3));
+        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 2., 3));
         remedialActionResults2.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList2));
         PreContingencyResult preContingencyResult2 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults2);
         RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
 
-        PreContingencyResult preContingencyResult3 = new PreContingencyResult(emptyMonitoredBranchResultList, new ArrayList<>());
-        RaoComputationResult raoComputationResult3 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult3);
-
         LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
-        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult1, raoComputationResult2, raoComputationResult3);
+        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult1, raoComputationResult2);
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());
@@ -202,8 +205,8 @@ public class LinearRaoTest {
         State stateCurativeContingency2 = new SimpleState(Optional.of(contingency2), curative);
 
         // Thresholds
-        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 1500);
-        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30);
+        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.BOTH, 1500);
+        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 30);
 
         // CNECs
         SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);
@@ -229,7 +232,7 @@ public class LinearRaoTest {
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstWithRange pstRange = new PstWithRange("BBE2AA1  BBE3AA1  1", pstElement);
+        PstRange pstRange = new PstWithRange("RA PST BE", pstElement);
         crac.addRangeAction(pstRange);
 
         return crac;

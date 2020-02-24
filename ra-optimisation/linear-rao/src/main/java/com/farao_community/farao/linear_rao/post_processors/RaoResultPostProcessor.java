@@ -14,8 +14,6 @@ import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.ra_optimisation.PstElementResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
-import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.*;
@@ -36,18 +34,19 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                 String rangeActionName = rangeAction.getName();
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-                double rangeActionVar = getRangeActionVariation(linearRaoProblem.getNegativeRangeActionVariable(rangeActionId), linearRaoProblem.getPositiveRangeActionVariable(rangeActionId));
+                double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
+                double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
 
-                if (Math.abs(rangeActionVar) > 0) {
-                    Identifiable pNetworkElement = linearRaoData.getNetwork().getIdentifiable(networkElementId);
-                    if (pNetworkElement instanceof TwoWindingsTransformer) {
-                        TwoWindingsTransformer transformer = (TwoWindingsTransformer) pNetworkElement;
+                if (rangeActionVar > 0) {
+                    if (rangeAction instanceof PstRange) {
 
-                        double preOptimAngle = transformer.getPhaseTapChanger().getCurrentStep().getAlpha();
-                        int preOptimTap = transformer.getPhaseTapChanger().getTapPosition();
+                        TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
-                        double postOptimAngle = preOptimAngle + rangeActionVar;
-                        int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(postOptimAngle, transformer.getPhaseTapChanger());
+                        //todo : get pre optim angle and tap with a cleaner manner
+                        double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
+                        int preOptimTap = ((PstRange) rangeAction).computeTapPosition(preOptimAngle, transformer.getPhaseTapChanger());
+
+                        int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(rangeActionVal, transformer.getPhaseTapChanger());
                         double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                         if (approximatedPostOptimTap != preOptimTap) {
@@ -60,9 +59,5 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
         );
 
         raoComputationResult.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionResults);
-    }
-
-    private double getRangeActionVariation(MPVariable negativeRangeActionVariable, MPVariable positiveRangeActionVariable) {
-        return positiveRangeActionVariable.solutionValue() - negativeRangeActionVariable.solutionValue();
     }
 }

@@ -10,6 +10,8 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.SynchronizationException;
+import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
@@ -25,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -39,7 +40,7 @@ public class LinearRao implements RaoProvider {
 
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
     private SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
-    private Map<String, RemedialActionResult> remedialActionResultHistoryMap;
+    private List<RemedialActionResult> oldRemedialActionResultList = new ArrayList<>();
 
     @Override
     public String getName() {
@@ -64,43 +65,41 @@ public class LinearRao implements RaoProvider {
         }
 
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
-        int iterationsLeft = linearRaoParameters.getMaxIterations();
 
+        // setReferenceValue (only once!!)
+        crac.setReferenceValues(network);
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
+        crac.synchronize(network);
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
 
-        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0) {
+        if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
         }
 
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
-        String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
-        createAndSwitchToNewVariant(network, originalNetworkVariant);
-
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
 
         RaoComputationResult raoComputationResult;
-        List<RemedialActionResult> newRemedialActionsResult;
-        remedialActionResultHistoryMap = new HashMap<>();
+        List<RemedialActionResult> newRemedialActionsResultList;
 
-        while (iterationsLeft > 0) {
+        for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             raoComputationResult = linearRaoModeller.solve();
             if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
                 return CompletableFuture.completedFuture(raoComputationResult);
             }
 
-            newRemedialActionsResult = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
+            newRemedialActionsResultList = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
             //TODO: manage CRA
-            if (newRemedialActionsResult.isEmpty()) {
+            if (sameRemedialActionResultLists(oldRemedialActionResultList, newRemedialActionsResultList)) {
                 break;
             }
 
-            updateRAResultHistoryList(newRemedialActionsResult);
-            applyRAs(crac, network, newRemedialActionsResult);
+            applyRAs(crac, network, newRemedialActionsResultList);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+            crac.synchronize(network);
             double newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             if (newScore < oldScore) {
                 // TODO : limit the ranges
@@ -110,10 +109,10 @@ public class LinearRao implements RaoProvider {
 
             postOptimSensitivityAnalysisResult = tempSensitivityAnalysisResult;
             oldScore = newScore;
-            linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult, newRemedialActionsResult.stream().map(RemedialActionResult::getId).collect(Collectors.toList()));
-            iterationsLeft -= 1;
+            oldRemedialActionResultList = newRemedialActionsResultList;
+            linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult);
         }
-
+        crac.synchronize(network);
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
     }
 
@@ -137,106 +136,54 @@ public class LinearRao implements RaoProvider {
         throw new FaraoException("Range action type of " + remedialActionElementResult.getId() + " is not supported yet");
     }
 
-    private RemedialActionResult combineRAResults(RemedialActionResult oldRemedialActionResult, RemedialActionResult newRemedialActionResult) {
-        //mapping the old RA elements to their IDs
-        Map<String, RemedialActionElementResult> oldRAResultElementMap = oldRemedialActionResult.getRemedialActionElementResults().stream()
-                .collect(Collectors.toMap(RemedialActionElementResult::getId, remedialActionElementResult -> remedialActionElementResult));
-        //initializing an empty RA element list which will contain the combination of the elements from both RAs
-        List<RemedialActionElementResult> combinedRAResultElementList = new ArrayList<>();
-        /*
-        For each RA element of the second RA, we create a new RA element combining that RA element and the corresponding
-          one from the first RA (as long as they dont cancel each other out)
-        */
-        for (RemedialActionElementResult remedialActionElementResult : newRemedialActionResult.getRemedialActionElementResults()) {
-            if (remedialActionElementResult instanceof PstElementResult) {
-                PstElementResult newPstElementResult = (PstElementResult) remedialActionElementResult;
-                PstElementResult oldPstElementResult = (PstElementResult) oldRAResultElementMap.get(remedialActionElementResult.getId());
-                double totalChange = newPstElementResult.getPostOptimisationAngle() - oldPstElementResult.getPreOptimisationAngle();
-                if (Math.abs(totalChange) > MIN_CHANGE_THRESHOLD) {
-                    combinedRAResultElementList.add(new PstElementResult(oldPstElementResult.getId(),
-                            oldPstElementResult.getPreOptimisationAngle(),
-                            oldPstElementResult.getPreOptimisationTapPosition(),
-                            newPstElementResult.getPostOptimisationAngle(),
-                            newPstElementResult.getPostOptimisationTapPosition()));
-                }
-            } else if (remedialActionElementResult instanceof RedispatchElementResult) {
-                RedispatchElementResult newRedispatchElementResult = (RedispatchElementResult) remedialActionElementResult;
-                RedispatchElementResult oldRedispatchElementResult = (RedispatchElementResult) oldRAResultElementMap.get(remedialActionElementResult.getId());
-                double totalChange = newRedispatchElementResult.getPostOptimisationTargetP() - oldRedispatchElementResult.getPreOptimisationTargetP();
-                if (Math.abs(totalChange) > MIN_CHANGE_THRESHOLD) {
-                    combinedRAResultElementList.add(new RedispatchElementResult(oldRedispatchElementResult.getId(),
-                            oldRedispatchElementResult.getPreOptimisationTargetP(),
-                            newRedispatchElementResult.getPostOptimisationTargetP(),
-                            oldRedispatchElementResult.getRedispatchCost()));
-                }
+    private boolean sameRemedialActionResultLists(List<RemedialActionResult> firstList, List<RemedialActionResult> secondList) {
+        if (firstList.size() != secondList.size()) {
+            return false;
+        }
+        Map<String, Double> firstMap = new HashMap<>();
+        for (RemedialActionResult remedialActionResult : firstList) {
+            firstMap.put(remedialActionResult.getId(), getRemedialActionResultPostOptimisationValue(remedialActionResult));
+        }
+        for (RemedialActionResult remedialActionResult : secondList) {
+            if (!firstMap.containsKey(remedialActionResult.getId()) ||
+                    Math.abs(firstMap.get(remedialActionResult.getId()) - getRemedialActionResultPostOptimisationValue(remedialActionResult)) > MIN_CHANGE_THRESHOLD) {
+                return false;
             }
         }
-        return new RemedialActionResult(oldRemedialActionResult.getId(), oldRemedialActionResult.getName(), oldRemedialActionResult.isApplied(), combinedRAResultElementList);
-    }
-
-    private void updateRAResultHistoryList(List<RemedialActionResult> newRemedialActionResultList) {
-        /*
-        If an element is in the new list but not the history, we add it to the history.
-        If it is in both lists (they will be set to different values) we combine them using the combineRAResults method.
-          If they end up canceling each other out (for instance the old RA could set a tap from 4 to 8 and the new RA
-          could set the same tap from 8 to 4), the combined RA will be empty and we remove it from the history.
-        */
-        for (RemedialActionResult remedialActionResult : newRemedialActionResultList) {
-            if (!remedialActionResultHistoryMap.containsKey(remedialActionResult.getId())) {
-                remedialActionResultHistoryMap.put(remedialActionResult.getId(), remedialActionResult);
-            } else {
-                RemedialActionResult combinedRemedialActionResult = combineRAResults(remedialActionResultHistoryMap.get(remedialActionResult.getId()), remedialActionResult);
-                if (combinedRemedialActionResult.getRemedialActionElementResults().isEmpty()) {
-                    remedialActionResultHistoryMap.remove(combinedRemedialActionResult.getId());
-                } else {
-                    remedialActionResultHistoryMap.put(combinedRemedialActionResult.getId(), combinedRemedialActionResult);
-                }
-            }
-        }
-    }
-
-    private void createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
-        Objects.requireNonNull(referenceNetworkVariant);
-        String uniqueId = getUniqueVariantId(network);
-        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
-        network.getVariantManager().setWorkingVariant(uniqueId);
-    }
-
-    private String getUniqueVariantId(Network network) {
-        String uniqueId;
-        do {
-            uniqueId = UUID.randomUUID().toString();
-        } while (network.getVariantManager().getVariantIds().contains(uniqueId));
-        return uniqueId;
+        return true;
     }
 
     private void applyRAs(Crac crac, Network network, List<RemedialActionResult> raResultList) {
         for (RemedialActionResult remedialActionResult : raResultList) {
-            for (RemedialActionElementResult remedialActionElementResult : remedialActionResult.getRemedialActionElementResults()) {
-                crac.getRangeAction(remedialActionElementResult.getId()).apply(network, getRemedialActionResultPostOptimisationValue(remedialActionResult));
-            }
+            crac.getRangeAction(remedialActionResult.getId()).apply(network, getRemedialActionResultPostOptimisationValue(remedialActionResult));
         }
 
     }
 
     private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         double minMargin = Double.POSITIVE_INFINITY;
-
-        for (Cnec cnec : crac.getCnecs()) {
-            double margin = systematicSensitivityAnalysisResult.getCnecMarginMap().getOrDefault(cnec, Double.NaN);
-            if (Double.isNaN(margin)) {
-                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+        try {
+            for (Cnec cnec : crac.getCnecs()) {
+                double margin;
+                double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+                double margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - flow;
+                double margin2 = flow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+                margin = Math.min(margin1, margin2);
+                if (Double.isNaN(margin)) {
+                    throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+                }
+                minMargin = Math.min(minMargin, margin);
             }
-            minMargin = Math.min(minMargin, margin);
+        } catch (SynchronizationException e) {
+            throw new FaraoException(e);
         }
-
         return minMargin;
     }
 
     private RaoComputationResult buildRaoComputationResult(Crac crac, double minMargin) {
         LinearRaoResult resultExtension = new LinearRaoResult(
                 minMargin >= 0 ? LinearRaoResult.SecurityStatus.SECURED : LinearRaoResult.SecurityStatus.UNSECURED);
-        PreContingencyResult preContingencyResult = createPreContingencyResultAndUpdateLinearRaoResult(crac, resultExtension, new ArrayList<>(remedialActionResultHistoryMap.values()));
+        PreContingencyResult preContingencyResult = createPreContingencyResultAndUpdateLinearRaoResult(crac, resultExtension, oldRemedialActionResultList);
         List<ContingencyResult> contingencyResults = createContingencyResultsAndUpdateLinearRaoResult(crac, resultExtension);
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult, contingencyResults);
         raoComputationResult.addExtension(LinearRaoResult.class, resultExtension);
@@ -266,15 +213,23 @@ public class LinearRao implements RaoProvider {
     }
 
     private MonitoredBranchResult createMonitoredBranchResultAndUpdateLinearRaoResult(Cnec cnec, LinearRaoResult linearRaoResult) {
-        double marginPreOptim = preOptimSensitivityAnalysisResult.getCnecMarginMap().getOrDefault(cnec, Double.NaN);
-        double marginPostOptim = postOptimSensitivityAnalysisResult.getCnecMarginMap().getOrDefault(cnec, Double.NaN);
-        double maximumFlow = preOptimSensitivityAnalysisResult.getCnecMaxThresholdMap().getOrDefault(cnec, Double.NaN);
-        if (Double.isNaN(marginPreOptim) || Double.isNaN(marginPostOptim) || Double.isNaN(maximumFlow)) {
+        double preOptimFlow = preOptimSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+        double postOptimFlow = postOptimSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+
+        if (Double.isNaN(preOptimFlow) || Double.isNaN(postOptimFlow)) {
             throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
         }
-        linearRaoResult.updateResult(marginPostOptim);
-        double preOptimFlow = maximumFlow - marginPreOptim;
-        double postOptimFlow = maximumFlow - marginPostOptim;
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), maximumFlow, preOptimFlow, postOptimFlow);
+
+        double limitingThreshold;
+        try {
+            double margin1 = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - postOptimFlow;
+            double margin2 = postOptimFlow - cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+            double marginPostOptim =  Math.min(margin1, margin2);
+            limitingThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT).orElse(-cnec.getThreshold().getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new));
+            linearRaoResult.updateResult(marginPostOptim);
+        } catch (SynchronizationException e) {
+            throw new FaraoException(e);
+        }
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), limitingThreshold, preOptimFlow, postOptimFlow);
     }
 }

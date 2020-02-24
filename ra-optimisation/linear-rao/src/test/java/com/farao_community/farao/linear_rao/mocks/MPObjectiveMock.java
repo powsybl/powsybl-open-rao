@@ -24,8 +24,8 @@ public class MPObjectiveMock extends MPObjective {
     protected MPObjectiveMock() {
         super(0, true);
         coefficients = new HashMap<>();
-        isMinimization = true;
-        isMaximization = true;
+        isMinimization = false;
+        isMaximization = false;
     }
 
     @Override
@@ -57,4 +57,10 @@ public class MPObjectiveMock extends MPObjective {
     public boolean maximization() {
         return isMaximization;
     }
+
+    @Override
+    public boolean minimization() {
+        return isMinimization;
+    }
+
 }
