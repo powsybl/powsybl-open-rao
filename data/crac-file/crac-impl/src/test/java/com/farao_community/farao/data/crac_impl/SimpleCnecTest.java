@@ -89,17 +89,16 @@ public class SimpleCnecTest {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.AMPERE);
 
-        // flow = 384.90 A
+        double flow = 384.90; //A
         // threshold = [-500;500]
         Mockito.when(threshold.getMinThreshold(Unit.AMPERE)).thenReturn(Optional.of(-500.0));
         Mockito.when(threshold.getMaxThreshold(Unit.AMPERE)).thenReturn(Optional.of(500.0));
-        assertEquals(500.0 - 384.90, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+        assertEquals(500.0 - flow, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
 
-        // flow = 384.90 I
         // threshold = [-inf ; 300]
         Mockito.when(threshold.getMinThreshold(Unit.AMPERE)).thenReturn(Optional.empty());
         Mockito.when(threshold.getMaxThreshold(Unit.AMPERE)).thenReturn(Optional.of(300.0));
-        assertEquals(300.0 - 384.90, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+        assertEquals(300.0 - flow, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -107,23 +106,21 @@ public class SimpleCnecTest {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
 
-        // flow = -266.67 MW
+        double flow = -266.67; //MW
         // threshold = [-500;500]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(500.0));
-        assertEquals(500.0 - 266.67, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+        assertEquals(flow - (-500.0), cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
 
-        // flow = -266.67 MW
         // threshold = [-inf ; 300]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(300.0));
-        assertEquals(300.0 + 266.67, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+        assertEquals(300.0 - flow, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
 
-        // flow = -266.67 MW
         // threshold = [-300 ; +inf]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-300.0));
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
-        assertEquals(300.0 - 266.67, cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+        assertEquals(flow - (-300.0), cnec1.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
     }
 
     @Test
