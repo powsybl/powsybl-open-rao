@@ -139,7 +139,7 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
     private void fillObjectiveWithRangeActionPenaltyCost() {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
 
-            MPVariable absoluteVariationVariable = linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction);
+            MPVariable absoluteVariationVariable = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             if (absoluteVariationVariable == null) {
                 throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));

@@ -21,7 +21,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -74,7 +73,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action absolute variation variable
-        MPVariable absoluteVariationVariable = linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction);
+        MPVariable absoluteVariationVariable = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
         assertEquals(Double.POSITIVE_INFINITY, absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
@@ -108,8 +107,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC2_IT1, flowConstraint2.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints
-        MPConstraint absoluteVariationConstraint1 = linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
-        MPConstraint absoluteVariationConstraint2 = linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
+        MPConstraint absoluteVariationConstraint1 = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
+        MPConstraint absoluteVariationConstraint2 = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
         assertNotNull(absoluteVariationConstraint1);
         assertNotNull(absoluteVariationConstraint2);
         assertEquals(-currentAlpha, absoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);

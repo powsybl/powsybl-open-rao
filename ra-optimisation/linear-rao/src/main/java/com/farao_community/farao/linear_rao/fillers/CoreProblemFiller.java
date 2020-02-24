@@ -68,10 +68,9 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      */
     private void buildRangeActionSetPointVariables() {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
-            double initialSetPoint = linearRaoData.getCurrentValue(rangeAction);
-            double maxNegVariation = rangeAction.getMaxNegativeVariation(linearRaoData.getNetwork());
-            double maxPosVariation = rangeAction.getMaxPositiveVariation(linearRaoData.getNetwork());
-            linearRaoProblem.addRangeActionSetPointVariable(initialSetPoint - maxNegVariation, initialSetPoint + maxPosVariation, rangeAction);
+            double minSetPoint = rangeAction.getMinValue(linearRaoData.getNetwork());
+            double maxSetPoint = rangeAction.getMaxValue(linearRaoData.getNetwork());
+            linearRaoProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
         });
     }
 
@@ -85,7 +84,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      */
     private void buildRangeActionAbsoluteVariationVariables() {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction ->
-                linearRaoProblem.addAboluteRangeActionVariationVariable(0, linearRaoProblem.infinity(), rangeAction)
+                linearRaoProblem.addAbsoluteRangeActionVariationVariable(0, linearRaoProblem.infinity(), rangeAction)
         );
     }
 
@@ -173,11 +172,11 @@ public class CoreProblemFiller extends AbstractProblemFiller {
     private void buildRangeActionConstraints() {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
             double initialSetPoint = linearRaoData.getCurrentValue(rangeAction);
-            MPConstraint varConstraintNegative = linearRaoProblem.addAboluteRangeActionVariationConstraint(-initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
-            MPConstraint varConstraintPositive = linearRaoProblem.addAboluteRangeActionVariationConstraint(initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
+            MPConstraint varConstraintNegative = linearRaoProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
+            MPConstraint varConstraintPositive = linearRaoProblem.addAbsoluteRangeActionVariationConstraint(initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
 
             MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
-            MPVariable absoluteVariationVariable = linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction);
+            MPVariable absoluteVariationVariable = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
             varConstraintNegative.setCoefficient(setPointVariable, -1);

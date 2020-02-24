@@ -38,7 +38,7 @@ public final class Tree {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    public static CompletableFuture<RaoComputationResult>  search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+    public static CompletableFuture<RaoComputationResult> search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 

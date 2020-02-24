@@ -67,7 +67,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         fillProblemWithFiller();
 
         MPVariable flowCnec1 = linearRaoProblem.getFlowVariable(cnec1);
-        MPVariable absoluteVariation = linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction);
+        MPVariable absoluteVariation = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
         // check minimum margin variable
         MPVariable minimumMargin = linearRaoProblem.getMinimumMarginVariable();
@@ -105,7 +105,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     public void fillWithMissingFlowVariables() {
         try {
             // AbsoluteRangeActionVariables present, but no the FlowVariables
-            linearRaoProblem.addAboluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
+            linearRaoProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
             maxMinMarginFiller.fill();
             fail();
         } catch (FaraoException e) {

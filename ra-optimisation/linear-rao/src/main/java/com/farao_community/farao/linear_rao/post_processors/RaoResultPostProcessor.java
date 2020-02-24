@@ -34,7 +34,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                 String rangeActionName = rangeAction.getName();
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-                double rangeActionVar = linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction).solutionValue();
+                double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
                 double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
 
                 if (rangeActionVar > 0) {
@@ -43,7 +43,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
                         //todo : get pre optim angle and tap with a cleaner manner
-                        double preOptimAngle = linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
+                        double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
                         int preOptimTap = ((PstRange) rangeAction).computeTapPosition(preOptimAngle, transformer.getPhaseTapChanger());
 
                         int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(rangeActionVal, transformer.getPhaseTapChanger());

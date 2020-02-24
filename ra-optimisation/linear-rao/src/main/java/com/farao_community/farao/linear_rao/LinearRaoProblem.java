@@ -91,27 +91,27 @@ public class LinearRaoProblem {
         return solver.lookupVariableOrNull(rangeActionSetPointVariableId(rangeAction));
     }
 
-    public String aboluteRangeActionVariationVariableId(RangeAction rangeAction) {
+    public String absoluteRangeActionVariationVariableId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public MPVariable addAboluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {
-        return solver.makeNumVar(lb, ub, aboluteRangeActionVariationVariableId(rangeAction));
+    public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {
+        return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction));
     }
 
-    public MPVariable getAboluteRangeActionVariationVariable(RangeAction rangeAction) {
-        return solver.lookupVariableOrNull(aboluteRangeActionVariationVariableId(rangeAction));
+    public MPVariable getAbsoluteRangeActionVariationVariable(RangeAction rangeAction) {
+        return solver.lookupVariableOrNull(absoluteRangeActionVariationVariableId(rangeAction));
     }
 
     private String absoluteRangeActionVariationConstraintId(RangeAction rangeAction, AbsExtension positiveOrNegative) {
         return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public MPConstraint addAboluteRangeActionVariationConstraint(double lb, double ub, RangeAction rangeAction, AbsExtension positiveOrNegative) {
+    public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction rangeAction, AbsExtension positiveOrNegative) {
         return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
     }
 
-    public MPConstraint getAboluteRangeActionVariationConstraint(RangeAction rangeAction, AbsExtension positiveOrNegative) {
+    public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction rangeAction, AbsExtension positiveOrNegative) {
         return solver.lookupConstraintOrNull(absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
     }
 

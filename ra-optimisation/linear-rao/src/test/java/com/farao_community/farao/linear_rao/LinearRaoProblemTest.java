@@ -78,23 +78,23 @@ public class LinearRaoProblemTest {
 
     @Test
     public void rangeActionAbsoluteVariationVariableTest() {
-        assertNull(linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction));
-        linearRaoProblem.addAboluteRangeActionVariationVariable(LB, UB, rangeAction);
-        assertNotNull(linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction));
-        assertEquals(LB, linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction));
+        linearRaoProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction);
+        assertNotNull(linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction));
+        assertEquals(LB, linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void rangeActionAbsoluteVariationConstraintTest() {
-        assertNull(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE));
-        assertNull(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE));
-        linearRaoProblem.addAboluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
-        linearRaoProblem.addAboluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
-        assertNotNull(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE));
-        assertNotNull(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE));
-        assertEquals(LB, linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE));
+        assertNull(linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE));
+        linearRaoProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
+        linearRaoProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
+        assertNotNull(linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE));
+        assertNotNull(linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE));
+        assertEquals(LB, linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test

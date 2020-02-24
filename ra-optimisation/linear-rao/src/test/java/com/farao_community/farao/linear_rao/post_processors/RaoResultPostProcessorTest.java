@@ -60,8 +60,8 @@ public class RaoResultPostProcessorTest {
         rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
         absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class); // the "current value" of the range action is "stored" in the lb of this constraint
         Mockito.when(linearRaoProblem.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
-        Mockito.when(linearRaoProblem.getAboluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
-        Mockito.when(linearRaoProblem.getAboluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE)).thenReturn(absoluteRangeActionVariationConstraint);
+        Mockito.when(linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
+        Mockito.when(linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE)).thenReturn(absoluteRangeActionVariationConstraint);
     }
 
     @Test

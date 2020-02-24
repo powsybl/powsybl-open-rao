@@ -65,7 +65,6 @@ public class LinearRao implements RaoProvider {
         }
 
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
-        int iterationsLeft = linearRaoParameters.getMaxIterations();
 
         // setReferenceValue (only once!!)
         crac.setReferenceValues(network);
@@ -74,7 +73,7 @@ public class LinearRao implements RaoProvider {
         crac.synchronize(network);
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
 
-        if (linearRaoParameters.getSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
+        if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
         }
 
@@ -86,7 +85,7 @@ public class LinearRao implements RaoProvider {
         RaoComputationResult raoComputationResult;
         List<RemedialActionResult> newRemedialActionsResultList;
 
-        while (iterationsLeft > 0) {
+        for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             raoComputationResult = linearRaoModeller.solve();
             if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
                 return CompletableFuture.completedFuture(raoComputationResult);
@@ -112,7 +111,6 @@ public class LinearRao implements RaoProvider {
             oldScore = newScore;
             oldRemedialActionResultList = newRemedialActionsResultList;
             linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult);
-            iterationsLeft -= 1;
         }
         crac.synchronize(network);
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));

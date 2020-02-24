@@ -46,7 +46,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
         return this;
     }
 
-    public boolean getSecurityAnalysisWithoutRao() {
+    public boolean isSecurityAnalysisWithoutRao() {
         return securityAnalysisWithoutRao;
     }
 
