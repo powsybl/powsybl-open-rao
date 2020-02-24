@@ -12,11 +12,8 @@ import com.farao_community.farao.data.crac_api.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Optional;
 
@@ -77,21 +74,6 @@ public class VoltageThreshold extends AbstractThreshold {
         } else {
             throw new FaraoException(String.format("Unit of voltage threshold should be KILOVOLT, %s is not a valid value", unit.toString()));
         }
-    }
-
-    @Override
-    public boolean isMinThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        throw new NotImplementedException("Voltage threshold not implemented");
-    }
-
-    @Override
-    public boolean isMaxThresholdOvercome(Network network, Cnec cnec) throws SynchronizationException {
-        throw new NotImplementedException("Voltage threshold not implemented");
-    }
-
-    @Override
-    public double computeMargin(Network network, Cnec cnec) throws SynchronizationException {
-        return 0;
     }
 
     public boolean equals(Object o) {

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
@@ -35,18 +36,20 @@ public class LinearRaoData {
     }
 
     public SensitivityComputationResults getSensitivityComputationResults(State state) {
-        return systematicSensitivityAnalysisResult.getStateSensiMap().get(state);
+        SensitivityComputationResults out = systematicSensitivityAnalysisResult.getStateSensiMap().get(state);
+        if (out == null) {
+            throw new FaraoException(String.format("No SensitivityComputationResults found for state %s", state.getId()));
+        }
+        return out;
     }
 
     public double getReferenceFlow(Cnec cnec) {
-        double margin = systematicSensitivityAnalysisResult.getCnecMarginMap().get(cnec);
-        double maxFlow = systematicSensitivityAnalysisResult.getCnecMaxThresholdMap().get(cnec);
-        return maxFlow - margin;
+        return systematicSensitivityAnalysisResult.getCnecFlowMap().get(cnec);
     }
 
-    public double getTargetValue(RangeAction rangeAction) {
-        //todo
-        return 0.0;
+    public double getCurrentValue(RangeAction rangeAction) {
+        //todo : put this method in the crac-api to make it other-than-PST proof
+        return network.getTwoWindingsTransformer(rangeAction.getNetworkElements().iterator().next().getId()).getPhaseTapChanger().getCurrentStep().getAlpha();
     }
 
     public Crac getCrac() {

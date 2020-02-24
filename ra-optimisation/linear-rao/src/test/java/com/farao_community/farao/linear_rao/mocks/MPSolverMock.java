@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertFalse;
 
 /**
+ * This class is used to mock MPSolver objects in the unit test of this package.
+ * It is necessary to bypass the JNI binding of the or-tools MPSolver object.
+ *
+ * MPSolverMock handles the creation and browsing of the variables and constraints
+ * usually defined within a MPSolver.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MPSolverMock extends MPSolver {
@@ -28,6 +34,7 @@ public class MPSolverMock extends MPSolver {
         super(0, false);
         constraints = new ArrayList<>();
         variables = new ArrayList<>();
+        objective = new MPObjectiveMock();
     }
 
     @Override
@@ -85,11 +92,7 @@ public class MPSolverMock extends MPSolver {
 
     @Override
     public MPObjectiveMock objective() {
-        if (objective == null) {
-            return new MPObjectiveMock();
-        } else {
-            return objective;
-        }
+        return objective;
     }
 
     @Override
