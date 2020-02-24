@@ -57,7 +57,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         } else {
             flow = getP(network);
         }
-        return Math.min(threshold.getMaxThreshold(unit).orElse(Double.MAX_VALUE) - flow, flow - threshold.getMinThreshold(unit).orElse(Double.MIN_VALUE));
+        return Math.min(threshold.getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - flow, flow - threshold.getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
