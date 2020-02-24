@@ -153,14 +153,6 @@ public class LinearRao implements RaoProvider {
         return true;
     }
 
-    private String getUniqueVariantId(Network network) {
-        String uniqueId;
-        do {
-            uniqueId = UUID.randomUUID().toString();
-        } while (network.getVariantManager().getVariantIds().contains(uniqueId));
-        return uniqueId;
-    }
-
     private void applyRAs(Crac crac, Network network, List<RemedialActionResult> raResultList) {
         for (RemedialActionResult remedialActionResult : raResultList) {
             crac.getRangeAction(remedialActionResult.getId()).apply(network, getRemedialActionResultPostOptimisationValue(remedialActionResult));

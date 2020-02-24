@@ -118,7 +118,7 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         if (sensitivityValueStream.size() > 1) {
             throw new FaraoException(String.format("More than one sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), this.getId()));
         }
-        if (sensitivityValueStream.size() < 1) {
+        if (sensitivityValueStream.isEmpty()) {
             throw new FaraoException(String.format("No sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), this.getId()));
         }
 
