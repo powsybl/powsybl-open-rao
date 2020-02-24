@@ -80,9 +80,6 @@ public class LinearRao implements RaoProvider {
 
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
-        String originalNetworkVariant = network.getVariantManager().getWorkingVariantId();
-        createAndSwitchToNewVariant(network, originalNetworkVariant);
-
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
 
@@ -101,7 +98,6 @@ public class LinearRao implements RaoProvider {
                 break;
             }
 
-            createAndSwitchToNewVariant(network, originalNetworkVariant);
             applyRAs(crac, network, newRemedialActionsResultList);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
             crac.synchronize(network);
@@ -157,13 +153,6 @@ public class LinearRao implements RaoProvider {
             }
         }
         return true;
-    }
-
-    private void createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
-        Objects.requireNonNull(referenceNetworkVariant);
-        String uniqueId = getUniqueVariantId(network);
-        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
-        network.getVariantManager().setWorkingVariant(uniqueId);
     }
 
     private String getUniqueVariantId(Network network) {
