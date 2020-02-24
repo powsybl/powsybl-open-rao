@@ -31,9 +31,7 @@ public class RelativeFlowThresholdTest {
 
     private RelativeFlowThreshold relativeFlowThresholdAmps;
     private Cnec cnec1;
-    private Cnec cnec2;
     private Network networkWithoutLf;
-    private Network networkWithLf;
 
     @Before
     public void setUp() {
@@ -42,11 +40,7 @@ public class RelativeFlowThresholdTest {
         cnec1 = new SimpleCnec("cnec1", "cnec1", new NetworkElement("FRANCE_BELGIUM_1", "FRANCE_BELGIUM_1"),
                 relativeFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
 
-        cnec2 = new SimpleCnec("cnec2", "cnec2", new NetworkElement("FRANCE_BELGIUM_2", "FRANCE_BELGIUM_2"),
-                relativeFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
-
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
-        networkWithLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
     }
 
     @Test
