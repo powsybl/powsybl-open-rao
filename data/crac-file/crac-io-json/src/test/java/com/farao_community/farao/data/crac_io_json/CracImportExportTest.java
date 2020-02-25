@@ -61,6 +61,9 @@ public class CracImportExportTest {
         usageRules.add(new OnConstraint(UsageMethod.UNAVAILABLE, preventiveState, preventiveCnec1));
         usageRules.add(new OnContingency(UsageMethod.FORCED, postContingencyState, contingency));
 
+        CnecExtension cnecExtension = new CnecExtension(-1234, 1234);
+        preventiveCnec1.addExtension(CnecExtension.class, cnecExtension);
+
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
         simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15));
 

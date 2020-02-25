@@ -38,4 +38,8 @@ public class CnecExtension extends AbstractExtension<Cnec> {
     public double getFlowAfterOptim() {
         return flowAfterOptim;
     }
+
+    public void setFlowBeforeOptim(double flowBeforeOptim) { this.flowBeforeOptim = flowBeforeOptim; }
+
+    public void setFlowAfterOptim(double flowAfterOptim) { this.flowAfterOptim = flowAfterOptim; }
 }

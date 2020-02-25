@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -19,6 +21,14 @@ import com.powsybl.iidm.network.Network;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Cnec extends Identifiable<Cnec>, Synchronizable {
+
+    /**
+     * A configuration loader interface for the RaoComputationResult extensions loaded
+     *
+     * @param <E> The extension class
+     */
+    interface ExtensionSerializer<E extends Extension<Cnec>> extends ExtensionJsonSerializer<Cnec, E> {
+    }
 
     State getState();
 
