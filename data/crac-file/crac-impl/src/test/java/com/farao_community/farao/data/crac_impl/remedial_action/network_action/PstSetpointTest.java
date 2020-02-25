@@ -61,9 +61,9 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
             getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         PstSetpoint pstSetpoint = new PstSetpoint(
-                "out_of_bound",
-                new NetworkElement(networkElementId),
-                50);
+            "out_of_bound",
+            new NetworkElement(networkElementId),
+            50);
 
         try {
             pstSetpoint.apply(network);

@@ -17,24 +17,19 @@ import java.util.Map;
  */
 public class SystematicSensitivityAnalysisResult {
     private Map<State, SensitivityComputationResults> stateSensiMap;
-    private Map<Cnec, Double> cnecMarginMap;
-    private Map<Cnec, Double> cnecMaxThresholdMap;
+    private Map<Cnec, Double> cnecFlowMap;
 
-    public SystematicSensitivityAnalysisResult(Map<State, SensitivityComputationResults> stateSensiMap, Map<Cnec, Double> cnecMarginMap, Map<Cnec, Double> cnecMaxThresholdMap) {
+    public SystematicSensitivityAnalysisResult(Map<State, SensitivityComputationResults> stateSensiMap, Map<Cnec, Double> cnecFlowMap) {
         this.stateSensiMap = stateSensiMap;
-        this.cnecMarginMap = cnecMarginMap;
-        this.cnecMaxThresholdMap = cnecMaxThresholdMap;
+        this.cnecFlowMap = cnecFlowMap;
     }
 
     public Map<State, SensitivityComputationResults> getStateSensiMap() {
         return stateSensiMap;
     }
 
-    public Map<Cnec, Double> getCnecMarginMap() {
-        return cnecMarginMap;
+    public Map<Cnec, Double> getCnecFlowMap() {
+        return cnecFlowMap;
     }
 
-    public Map<Cnec, Double> getCnecMaxThresholdMap() {
-        return cnecMaxThresholdMap;
-    }
 }

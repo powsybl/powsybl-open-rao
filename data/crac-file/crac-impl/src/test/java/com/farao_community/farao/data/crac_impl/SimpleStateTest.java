@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-
 public class SimpleStateTest {
     private SimpleState state;
 

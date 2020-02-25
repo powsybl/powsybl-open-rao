@@ -48,9 +48,9 @@ public class LinearRaoParametersTest {
     @Test
     public void setSecurityAnalysisWithoutRao() {
         // check default value
-        assertEquals(false, raoParameters.getSecurityAnalysisWithoutRao());
+        assertEquals(false, raoParameters.isSecurityAnalysisWithoutRao());
 
         raoParameters.setSecurityAnalysisWithoutRao(true);
-        assertEquals(true, raoParameters.getSecurityAnalysisWithoutRao());
+        assertEquals(true, raoParameters.isSecurityAnalysisWithoutRao());
     }
 }
