@@ -18,19 +18,6 @@
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-api</artifactId>
             <version>${project.version}</version>

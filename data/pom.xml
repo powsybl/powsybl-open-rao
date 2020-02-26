@@ -20,5 +20,7 @@
         <module>flow-decomposition-results</module>
         <module>crac-file</module>
         <module>glsk</module>
+        <module>crac</module>
+        <module>crac-io</module>
     </modules>
 </project>
