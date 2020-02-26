@@ -6,12 +6,9 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
-
 import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -49,16 +46,8 @@ public class TreeTest {
         Mockito.when(leafOptimal.getNetworkActions()).thenReturn(Collections.singletonList(na));
         Mockito.when(leafOptimal.getCost()).thenReturn(0.0);
 
-        // Mock Crac
-        Crac crac = Mockito.mock(Crac.class);
-        RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        String rangeActionId = "PRA_PST_BE";
-        Mockito.when(crac.getRangeActions()).thenReturn(Collections.singleton(rangeAction));
-        Mockito.when(rangeAction.getId()).thenReturn(rangeActionId);
-        Mockito.when(rangeAction.getName()).thenReturn(rangeActionId);
-
         // build output
-        RaoComputationResult result = Tree.buildOutput(leafRoot, leafOptimal, crac);
+        RaoComputationResult result = Tree.buildOutput(leafRoot, leafOptimal);
 
         assertEquals(2, result.getPreContingencyResult().getMonitoredBranchResults().size());
         assertEquals("MONITORED_BRANCH_1", result.getPreContingencyResult().getMonitoredBranchResults().get(0).getId());

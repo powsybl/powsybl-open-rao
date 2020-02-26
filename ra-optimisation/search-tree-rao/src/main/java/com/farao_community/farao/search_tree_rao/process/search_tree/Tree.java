@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -73,12 +72,12 @@ public final class Tree {
         }
 
         //TODO: refactor output format
-        return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf, crac));
+        return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
     }
 
-    static RaoComputationResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf, Crac crac) {
+    static RaoComputationResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
 
-        RaoComputationResult output = new RaoComputationResult(optimalLeaf.getRaoResult().getStatus(), buildPreContingencyResult(rootLeaf, optimalLeaf, crac));
+        RaoComputationResult output = new RaoComputationResult(optimalLeaf.getRaoResult().getStatus(), buildPreContingencyResult(rootLeaf, optimalLeaf));
 
         optimalLeaf.getRaoResult().getContingencyResults().forEach(contingencyResult ->
                 output.addContingencyResult(buildContingencyResult(contingencyResult, rootLeaf)));
@@ -88,7 +87,7 @@ public final class Tree {
         return output;
     }
 
-    private static PreContingencyResult buildPreContingencyResult(Leaf rootLeaf, Leaf optimalLeaf, Crac crac) {
+    private static PreContingencyResult buildPreContingencyResult(Leaf rootLeaf, Leaf optimalLeaf) {
         RaoComputationResult outputRoot = rootLeaf.getRaoResult();
         RaoComputationResult outputOptimal = optimalLeaf.getRaoResult();
 
@@ -109,8 +108,7 @@ public final class Tree {
                 new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na))));
 
         // preventive Range Actions
-        crac.getRangeActions().forEach(rangeAction -> remedialActionResultList.add(
-                new RemedialActionResult(rangeAction.getId(), rangeAction.getName(), true, getRemedialActionElementResult(rangeAction, optimalLeaf))));
+        remedialActionResultList.addAll(optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResults());
 
         return new PreContingencyResult(monitoredBranchResultList, remedialActionResultList);
     }
@@ -142,12 +140,6 @@ public final class Tree {
         ArrayList<RemedialActionElementResult> raer = new ArrayList<>();
         raer.add(new TopologicalActionElementResult(na.getId(), TopologicalActionElementResult.TopologicalState.OPEN));
         return raer;
-    }
-
-    private static List<RemedialActionElementResult> getRemedialActionElementResult(RangeAction rangeAction, Leaf optimalLeaf) {
-        String rangeActionId = rangeAction.getId();
-        RemedialActionResult remedialActionResult = optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResultById(rangeActionId);
-        return new ArrayList<>(remedialActionResult.getRemedialActionElementResults());
     }
 
     private static SearchTreeRaoResult buildExtension(Leaf optimalLeaf) {
