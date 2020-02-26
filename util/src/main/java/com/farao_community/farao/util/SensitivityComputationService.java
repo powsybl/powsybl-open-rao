@@ -6,11 +6,15 @@
  */
 package com.farao_community.farao.util;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -35,7 +39,12 @@ public final class SensitivityComputationService {
             init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
         }
         SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
-        return computation.run(factorsProvider, workingStateId, SensitivityComputationParameters.load()).join();
+        CompletableFuture<SensitivityComputationResults> results = computation.run(factorsProvider, workingStateId, SensitivityComputationParameters.load());
+        try {
+            return results.join();
+        } catch (CompletionException e) {
+            throw new FaraoException("Sensitivity computation failed");
+        }
     }
 
     private static boolean initialised() {
