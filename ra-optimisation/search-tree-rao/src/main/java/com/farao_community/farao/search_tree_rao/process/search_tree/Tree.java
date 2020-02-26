@@ -105,14 +105,12 @@ public final class Tree {
         });
 
         // preventive Network Actions
-        optimalLeaf.getNetworkActions().forEach(na -> {
-            remedialActionResultList.add(new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na)));
-        });
+        optimalLeaf.getNetworkActions().forEach(na -> remedialActionResultList.add(
+                new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na))));
 
         // preventive Range Actions
-        crac.getRangeActions().forEach(rangeAction -> {
-            remedialActionResultList.add(new RemedialActionResult(rangeAction.getId(), rangeAction.getName(), true, getRemedialActionElementResult(rangeAction, optimalLeaf)));
-        });
+        crac.getRangeActions().forEach(rangeAction -> remedialActionResultList.add(
+                new RemedialActionResult(rangeAction.getId(), rangeAction.getName(), true, getRemedialActionElementResult(rangeAction, optimalLeaf))));
 
         return new PreContingencyResult(monitoredBranchResultList, remedialActionResultList);
     }
