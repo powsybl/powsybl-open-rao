@@ -88,7 +88,6 @@ public final class Tree {
         return output;
     }
 
-    @SuppressWarnings("checkstyle:RegexpSingleline")
     private static PreContingencyResult buildPreContingencyResult(Leaf rootLeaf, Leaf optimalLeaf, Crac crac) {
         RaoComputationResult outputRoot = rootLeaf.getRaoResult();
         RaoComputationResult outputOptimal = optimalLeaf.getRaoResult();
