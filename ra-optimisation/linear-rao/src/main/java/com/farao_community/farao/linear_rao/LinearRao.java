@@ -113,7 +113,11 @@ public class LinearRao implements RaoProvider {
             linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult);
         }
         crac.synchronize(network);
-        return CompletableFuture.completedFuture(buildRaoComputationResult(crac, oldScore));
+        RaoComputationResult linearRaoComputationResult = buildRaoComputationResult(crac, oldScore);
+        preOptimSensitivityAnalysisResult = null;
+        postOptimSensitivityAnalysisResult = null;
+        oldRemedialActionResultList = new ArrayList<>();
+        return CompletableFuture.completedFuture(linearRaoComputationResult);
     }
 
     //defined to be able to run unit tests
