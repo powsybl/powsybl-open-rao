@@ -19,20 +19,21 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class PreContingencyResultTest extends AbstractRemedialActionTest {
+public class PreContingencyResultTest {
 
     private String remedialActionResultId = "id";
     private PreContingencyResult preContingencyResult;
+    private RemedialActionResult remedialActionResult;
 
     @Test
     public void getRemedialActionResultById() {
-        assertEquals(1, preContingencyResult.getRemedialActionResultById(remedialActionResultId));
+        assertEquals(remedialActionResult, preContingencyResult.getRemedialActionResultById(remedialActionResultId));
     }
 
     @Before
     public void setUp() {
         ArrayList<RemedialActionResult> remedialActionResults = new ArrayList<>();
-        RemedialActionResult remedialActionResult = Mockito.mock(RemedialActionResult.class);
+        remedialActionResult = Mockito.mock(RemedialActionResult.class);
         Mockito.when(remedialActionResult.getId()).thenReturn(remedialActionResultId);
         remedialActionResults.add(remedialActionResult);
 
