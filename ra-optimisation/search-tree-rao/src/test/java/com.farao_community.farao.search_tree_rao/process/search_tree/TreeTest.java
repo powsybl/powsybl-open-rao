@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
 
@@ -50,6 +51,11 @@ public class TreeTest {
 
         // Mock Crac
         Crac crac = Mockito.mock(Crac.class);
+        RangeAction rangeAction = Mockito.mock(RangeAction.class);
+        String rangeActionId = "PRA_PST_BE";
+        Mockito.when(crac.getRangeActions()).thenReturn(Collections.singleton(rangeAction));
+        Mockito.when(rangeAction.getId()).thenReturn(rangeActionId);
+        Mockito.when(rangeAction.getName()).thenReturn(rangeActionId);
 
         // build output
         RaoComputationResult result = Tree.buildOutput(leafRoot, leafOptimal, crac);
@@ -65,8 +71,9 @@ public class TreeTest {
         assertEquals(115.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPreOptimisationFlow(), DOUBLE_TOLERANCE);
         assertEquals(98.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
 
-        assertEquals(1, result.getPreContingencyResult().getRemedialActionResults().size());
+        assertEquals(2, result.getPreContingencyResult().getRemedialActionResults().size());
         assertEquals("RA1", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());
+        assertEquals("PRA_PST_BE", result.getPreContingencyResult().getRemedialActionResults().get(1).getId());
 
         assertNotNull(result.getExtension(SearchTreeRaoResult.class));
         assertEquals(SearchTreeRaoResult.ComputationStatus.SECURE, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
