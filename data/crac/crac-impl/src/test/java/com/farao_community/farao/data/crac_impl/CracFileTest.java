@@ -311,7 +311,7 @@ public class CracFileTest {
 
     @Test
     public void testGetStatesWithPreventiveInstantId() {
-        assertNull(simpleCrac.getStatesFromInstant("initial-instant"));
+        assertEquals(0, simpleCrac.getStatesFromInstant("initial-instant").size());
 
         simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant", 0)));
         assertNotNull(simpleCrac.getStatesFromInstant("initial-instant"));

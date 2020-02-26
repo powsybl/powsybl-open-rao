@@ -72,12 +72,14 @@ public class AbsoluteFlowThresholdTest {
         try {
             // forbidden unit
             new AbsoluteFlowThreshold(Unit.KILOVOLT, Side.LEFT, Direction.BOTH, 500);
+            fail();
         } catch (FaraoException e) {
             // should throw
         }
         try {
             // forbidden value
             new AbsoluteFlowThreshold(AMPERE, Side.LEFT, Direction.BOTH, -500);
+            fail();
         } catch (FaraoException e) {
             // should throw
         }

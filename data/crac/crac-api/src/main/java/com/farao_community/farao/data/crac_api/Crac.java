@@ -9,8 +9,11 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Interface to manage CRAC.
@@ -105,7 +108,7 @@ public interface Crac extends Identifiable, Synchronizable {
         if (getInstant(id) != null) {
             return getStates(getInstant(id));
         } else {
-            return null;
+            return new HashSet<>();
         }
     }
 
@@ -121,7 +124,7 @@ public interface Crac extends Identifiable, Synchronizable {
         if (getContingency(id) != null) {
             return getStates(getContingency(id));
         } else {
-            return null;
+            return new TreeSet<>();
         }
     }
 
@@ -166,7 +169,7 @@ public interface Crac extends Identifiable, Synchronizable {
         if (getState(contingencyId, instantId) != null) {
             return getCnecs(getState(contingencyId, instantId));
         } else {
-            return null;
+            return new HashSet<>();
         }
     }
 

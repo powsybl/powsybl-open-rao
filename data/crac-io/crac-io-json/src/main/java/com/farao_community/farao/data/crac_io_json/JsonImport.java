@@ -18,10 +18,6 @@ import com.google.auto.service.AutoService;
 import java.io.*;
 
 import org.apache.commons.io.FilenameUtils;
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.loader.SchemaLoader;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -32,16 +28,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  */
 @AutoService(CracImporter.class)
 public class JsonImport implements CracImporter {
-
-    private static final String CRAC_FILE_SCHEMA_JSON = "/CracSchema.json";
     private static final String JSON_EXTENSION = "json";
-    private static final Schema SCHEMA_JSON;
-
-    static {
-        JSONObject jsonSchema = new JSONObject(
-            new JSONTokener(JsonImport.class.getResourceAsStream(CRAC_FILE_SCHEMA_JSON)));
-        SCHEMA_JSON = SchemaLoader.load(jsonSchema);
-    }
 
     @Override
     public Crac importCrac(InputStream inputStream) {
@@ -59,10 +46,10 @@ public class JsonImport implements CracImporter {
 
     @Override
     public boolean exists(String fileName, InputStream inputStream) {
-        return validCracFile(fileName, inputStream);
+        return validCracFile(fileName);
     }
 
-    private boolean validCracFile(String fileName, InputStream inputStream) {
+    private boolean validCracFile(String fileName) {
         return FilenameUtils.getExtension(fileName).equals(JSON_EXTENSION);
     }
 }

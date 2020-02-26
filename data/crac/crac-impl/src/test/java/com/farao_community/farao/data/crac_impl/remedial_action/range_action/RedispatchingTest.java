@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public class RedispatchingTest extends AbstractElementaryRangeActionTest {
+    private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Redispatching redispatching;
     private NetworkElement generator;
@@ -47,6 +48,11 @@ public class RedispatchingTest extends AbstractElementaryRangeActionTest {
         redispatching.setTargetPower(redispatching.getTargetPower() + 1);
         redispatching.setStartupCost(redispatching.getStartupCost() + 1);
         redispatching.setMarginalCost(redispatching.getMarginalCost() + 1);
+        assertEquals(minPower + 1, redispatching.getMinimumPower(), DOUBLE_TOLERANCE);
+        assertEquals(maxPower + 1, redispatching.getMaximumPower(), DOUBLE_TOLERANCE);
+        assertEquals(targetPower + 1, redispatching.getTargetPower(), DOUBLE_TOLERANCE);
+        assertEquals(startupCost + 1, redispatching.getStartupCost(), DOUBLE_TOLERANCE);
+        assertEquals(marginalCost + 1, redispatching.getMarginalCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
