@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
@@ -111,31 +110,26 @@ public final class Tree {
             remedialActionResultList.add(new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na)));
         });
 
+        // preventive Range Actions
         HashMap<String, ArrayList<RemedialActionElementResult>> remedialActionElementResultListMapping = new HashMap<>();
         crac.getRangeActions().forEach(rangeAction -> {
-            // TODO: handle other range actions
-            if (rangeAction instanceof PstWithRange) {
-                String pstWithRangeId = rangeAction.getId();
-                optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResults()
-                        .forEach(remedialActionResult -> {
-                            if (remedialActionResult.getId().equals(pstWithRangeId)) {
-                                remedialActionResult.getRemedialActionElementResults()
-                                        .forEach(remedialActionElementResult -> {
-                                            ArrayList<RemedialActionElementResult> pstElementResults = new ArrayList<>();
-                                            pstElementResults.add(remedialActionElementResult);
-                                            remedialActionElementResultListMapping.put(pstWithRangeId, pstElementResults);
-                                        });
-                            }
-
-                        });
-                ArrayList<RemedialActionElementResult> pstElementResults = remedialActionElementResultListMapping.get(pstWithRangeId);
-                remedialActionResultList.add(new RemedialActionResult(
-                        rangeAction.getId(),
-                        rangeAction.getName(),
-                        true,
-                        pstElementResults));
-            }
-        });
+            String rangeActionId = rangeAction.getId();
+            // get the remedialActionElementResults associated to this RangeAction and add it to the mapping
+            RemedialActionResult remedialActionResult = optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResultById(rangeActionId);
+            remedialActionResult.getRemedialActionElementResults()
+                    .forEach(remedialActionElementResult -> {
+                        ArrayList<RemedialActionElementResult> remedialActionElementResults = new ArrayList<>();
+                        remedialActionElementResults.add(remedialActionElementResult);
+                        remedialActionElementResultListMapping.put(rangeActionId, remedialActionElementResults);
+                    });
+            ArrayList<RemedialActionElementResult> remedialActionElementResults = remedialActionElementResultListMapping.get(rangeActionId);
+            remedialActionResultList.add(new RemedialActionResult(
+                    rangeAction.getId(),
+                    rangeAction.getName(),
+                    true,
+                    remedialActionElementResults));
+        }
+        );
 
         return new PreContingencyResult(monitoredBranchResultList, remedialActionResultList);
     }

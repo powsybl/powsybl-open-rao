@@ -6,9 +6,12 @@
  */
 package com.farao_community.farao.ra_optimisation;
 
+import com.farao_community.farao.commons.FaraoException;
+
 import java.beans.ConstructorProperties;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -42,6 +45,16 @@ public class PreContingencyResult {
 
     public List<RemedialActionResult> getRemedialActionResults() {
         return remedialActionResults;
+    }
+
+    public RemedialActionResult getRemedialActionResultById(String remedialActionResultId) {
+        Optional<RemedialActionResult> optionalRemedialActionResult = getRemedialActionResults().stream()
+                .filter(remedialActionResult -> remedialActionResult.getId().equals(remedialActionResultId)).findFirst();
+        if (optionalRemedialActionResult.isPresent()) {
+            return optionalRemedialActionResult.get();
+        } else {
+            throw new FaraoException(String.format("No result found for Remedial Action %s", remedialActionResultId));
+        }
     }
 
 }
