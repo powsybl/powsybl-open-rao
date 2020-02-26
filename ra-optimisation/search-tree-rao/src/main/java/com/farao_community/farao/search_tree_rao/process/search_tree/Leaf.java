@@ -150,6 +150,7 @@ class Leaf {
             leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
             networkActions.forEach(na -> na.apply(network));
         } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
             return;
         }
@@ -162,6 +163,7 @@ class Leaf {
             deleteVariant(network, leafNetworkVariant);
 
         } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
             deleteVariant(network, leafNetworkVariant);
         }
