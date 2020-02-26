@@ -118,14 +118,15 @@ public final class Tree {
                 String pstWithRangeId = rangeAction.getId();
                 optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResults()
                         .forEach(remedialActionResult -> {
-                            remedialActionResult.getRemedialActionElementResults()
-                                    .forEach(remedialActionElementResult -> {
-                                        if (remedialActionElementResult.getId().equals(pstWithRangeId)) {
+                            if (remedialActionResult.getId().equals(pstWithRangeId)) {
+                                remedialActionResult.getRemedialActionElementResults()
+                                        .forEach(remedialActionElementResult -> {
                                             ArrayList<RemedialActionElementResult> pstElementResults = new ArrayList<>();
                                             pstElementResults.add(remedialActionElementResult);
                                             remedialActionElementResultListMapping.put(pstWithRangeId, pstElementResults);
-                                        }
-                                    });
+                                        });
+                            }
+
                         });
                 ArrayList<RemedialActionElementResult> pstElementResults = remedialActionElementResultListMapping.get(pstWithRangeId);
                 remedialActionResultList.add(new RemedialActionResult(
