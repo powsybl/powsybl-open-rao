@@ -155,7 +155,12 @@ public final class SystematicSensitivityAnalysisService {
         if (factorsProvider.getFactors(network).isEmpty()) {
             return null;
         }
-        return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+        try {
+            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+        } catch (FaraoException e) {
+            return null;
+        }
+
     }
 
     private static boolean isPst(Network network, NetworkElement networkElement) {
