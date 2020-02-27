@@ -67,7 +67,7 @@ public class LinearRao implements RaoProvider {
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
 
         // setReferenceValue (only once!!)
-        crac.setReferenceValues(network);
+        crac.synchronize(network);
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);

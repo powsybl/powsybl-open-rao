@@ -46,7 +46,7 @@ public class SearchTreeRao implements RaoProvider {
         }
 
         // set Crac reference values
-        crac.setReferenceValues(network);
+        crac.synchronize(network);
 
         // run optimisation
         RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
