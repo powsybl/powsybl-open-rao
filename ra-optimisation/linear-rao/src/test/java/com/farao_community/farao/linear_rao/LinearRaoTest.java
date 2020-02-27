@@ -111,6 +111,7 @@ public class LinearRaoTest {
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         Crac crac = create();
+        crac.synchronize(network);
         String variantId = "variant-test";
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();

@@ -9,7 +9,6 @@ package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.SynchronizationException;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -88,13 +87,8 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-
-            try {
-                minFlow = cnec.getThreshold().getMinThreshold(MEGAWATT);
-                maxFlow = cnec.getThreshold().getMaxThreshold(MEGAWATT);
-            } catch (SynchronizationException e) {
-                throw new FaraoException(String.format("Min/max threshold of cnec %s cannot be obtained as they are not synchronised", cnec.getId()));
-            }
+            minFlow = cnec.getThreshold().getMinThreshold(MEGAWATT);
+            maxFlow = cnec.getThreshold().getMaxThreshold(MEGAWATT);
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), -minFlow.get(), cnec, LinearRaoProblem.MarginExtension.BELOW_THRESHOLD);
