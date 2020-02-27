@@ -417,13 +417,6 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         isSynchronized = false;
     }
 
-    /*@Override
-    public void setReferenceValues(Network network) {
-        rangeActions.stream()
-                .filter(rangeAction -> rangeAction instanceof PstRange)
-                .forEach(rangeAction -> ((PstRange) rangeAction).setReferenceValue(network));
-    }*/
-
     @Override
     public void generateValidityReport(Network network) {
         throw new UnsupportedOperationException();
