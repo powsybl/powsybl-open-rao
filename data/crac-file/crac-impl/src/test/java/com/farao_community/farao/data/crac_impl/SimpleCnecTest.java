@@ -85,7 +85,7 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void computeMarginInAmpereOk() throws SynchronizationException {
+    public void computeMarginInAmpereOk() {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.AMPERE);
 
@@ -102,7 +102,7 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void computeMarginInMegawattOk() throws SynchronizationException {
+    public void computeMarginInMegawattOk() {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
 
@@ -124,7 +124,7 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void computeMarginDisconnectedBranch() throws SynchronizationException {
+    public void computeMarginDisconnectedBranch() {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));

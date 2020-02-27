@@ -66,7 +66,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Optional<Double> getMinThreshold(Unit requestedUnit) throws SynchronizationException {
+    public Optional<Double> getMinThreshold(Unit requestedUnit) {
         if (direction == Direction.DIRECT) {
             return Optional.empty();
         } else { // Direction.OPPOSITE and Direction.BOTH
@@ -75,7 +75,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Optional<Double> getMaxThreshold(Unit requestedUnit) throws SynchronizationException {
+    public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         if (direction == Direction.OPPOSITE) {
             return Optional.empty();
         } else { // Direction.DIRECT and Direction.BOTH
@@ -85,7 +85,15 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+        voltageLevel = checkAndGetValidBranch(network, cnec).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+    }
+
+    protected Branch checkAndGetValidBranch(Network network, Cnec cnec) {
+        Branch branch = network.getBranch(cnec.getNetworkElement().getId());
+        if (branch == null) {
+            throw new FaraoException(String.format("Branch %s does not exist in the current network", cnec.getNetworkElement().getId()));
+        }
+        return branch;
     }
 
     @Override
@@ -140,7 +148,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * The conversion formula is the following one :
      * Flow(MW) = Flow(A) * sqrt(3) * Unom (kV) / 1000
      */
-    private double convert(double value, Unit originUnit, Unit requestedUnit) throws SynchronizationException {
+    private double convert(double value, Unit originUnit, Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(PhysicalParameter.FLOW);
         if (originUnit.equals(requestedUnit)) {
             return value;
@@ -162,7 +170,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * Get the maximum admissible flow, regardless of the direction in which
      * the branch is monitored.
      */
-    protected abstract double getAbsoluteMax() throws SynchronizationException;
+    protected abstract double getAbsoluteMax();
 
     @Override
     public boolean equals(Object o) {

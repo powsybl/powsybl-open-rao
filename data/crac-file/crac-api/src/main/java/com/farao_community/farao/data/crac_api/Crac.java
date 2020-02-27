@@ -233,5 +233,5 @@ public interface Crac extends Identifiable, Synchronizable {
      * For instance: initial tap of a Phase Shift Transformer...
      * @param network - the network where to get the values.
      */
-    void setReferenceValues(Network network);
+    //void setReferenceValues(Network network);
 }

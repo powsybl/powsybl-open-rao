@@ -72,11 +72,19 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         initialTapPosition = (int) Double.NaN;
     }
 
-    public void setReferenceValue(Network network) {
+    @Override
+    public void synchronize(Network network) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
         initialTapPosition = phaseTapChanger.getTapPosition();
         lowTapPosition = phaseTapChanger.getLowTapPosition();
         highTapPosition = phaseTapChanger.getHighTapPosition();
+    }
+
+    @Override
+    public void desynchronize() {
+        initialTapPosition = (int) Double.NaN;
+        lowTapPosition = (int) Double.NaN;
+        highTapPosition = (int) Double.NaN;
     }
 
     @Override

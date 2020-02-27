@@ -84,7 +84,7 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnit() {
         absoluteFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
         absoluteFlowThresholdMW.synchronize(networkWithoutLf, cnec2);
         absoluteFlowThresholdMWIn.synchronize(networkWithoutLf, cnec4);
@@ -107,7 +107,7 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnauthorizedUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnauthorizedUnit() {
         try {
             absoluteFlowThresholdAmps.getMaxThreshold(Unit.KILOVOLT);
             fail();

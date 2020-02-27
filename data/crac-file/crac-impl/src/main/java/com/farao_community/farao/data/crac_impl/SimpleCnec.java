@@ -47,7 +47,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return networkElement;
     }
 
-    public double computeMargin(Network network) throws SynchronizationException {
+    public double computeMargin(Network network) {
         // todo : switch units if no I is available but P is available
         // todo : add a requested unit
         double flow;

@@ -35,8 +35,6 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
 
     @Override
     public void fill() {
-        linearRaoData.getCrac().synchronize(linearRaoData.getNetwork());
-
         // build variables
         buildMinimumMarginVariable();
 
@@ -46,8 +44,6 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
         // complete objective
         fillObjectiveWithMinMargin();
         fillObjectiveWithRangeActionPenaltyCost();
-
-        linearRaoData.getCrac().desynchronize();
     }
 
     @Override

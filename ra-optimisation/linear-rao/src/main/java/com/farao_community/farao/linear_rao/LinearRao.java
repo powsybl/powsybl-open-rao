@@ -70,7 +70,6 @@ public class LinearRao implements RaoProvider {
         crac.setReferenceValues(network);
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
-        crac.synchronize(network);
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
 
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
@@ -99,7 +98,6 @@ public class LinearRao implements RaoProvider {
 
             applyRAs(crac, network, newRemedialActionsResultList);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-            crac.synchronize(network);
             double newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             if (newScore < oldScore) {
                 // TODO : limit the ranges
@@ -112,7 +110,6 @@ public class LinearRao implements RaoProvider {
             oldRemedialActionResultList = newRemedialActionsResultList;
             linearRaoModeller.updateProblem(network, tempSensitivityAnalysisResult);
         }
-        crac.synchronize(network);
         RaoComputationResult linearRaoComputationResult = buildRaoComputationResult(crac, oldScore);
         preOptimSensitivityAnalysisResult = null;
         postOptimSensitivityAnalysisResult = null;

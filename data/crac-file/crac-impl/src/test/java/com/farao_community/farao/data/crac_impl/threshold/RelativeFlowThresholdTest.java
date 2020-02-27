@@ -62,7 +62,7 @@ public class RelativeFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnit() {
         relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
 
         assertEquals(432.6, relativeFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
@@ -73,7 +73,7 @@ public class RelativeFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnauthorizedUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnauthorizedUnit() {
         try {
             relativeFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
             relativeFlowThresholdAmps.getMaxThreshold(Unit.KILOVOLT);

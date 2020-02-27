@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.FaraoException;
+
 /**
  * Some methods in the Crac require other information contained in the network.
  * So these methods require that the Crac has been previously synchronized with the network
@@ -16,7 +18,7 @@ package com.farao_community.farao.data.crac_api;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SynchronizationException extends Exception {
+public class SynchronizationException extends FaraoException {
 
     public SynchronizationException(String message) {
         super(message);

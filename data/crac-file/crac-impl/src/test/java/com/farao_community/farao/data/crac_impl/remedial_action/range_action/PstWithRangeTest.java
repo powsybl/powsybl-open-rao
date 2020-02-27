@@ -108,7 +108,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void pstWithoutSpecificRange() {
         PstWithRange pstRangeWithoutSpecificRange = new PstWithRange("id", networkElement);
-        pstRangeWithoutSpecificRange.setReferenceValue(network);
+        pstRangeWithoutSpecificRange.synchronize(network);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMaxValue(network), 0);
     }
@@ -116,7 +116,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void pstWithAbsoluteStartOneRange() {
         pst.addRange(new Range(3, 13, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE));
-        pst.setReferenceValue(network);
+        pst.synchronize(network);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pst.getMaxValue(network), 0);
     }
@@ -124,7 +124,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void pstWithAbsoluteCenteredZeroRange() {
         pst.addRange(new Range(-3, 3, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
-        pst.setReferenceValue(network);
+        pst.synchronize(network);
         int neutralTap = (phaseTapChanger.getHighTapPosition() + phaseTapChanger.getLowTapPosition()) / 2;
         assertEquals(phaseTapChanger.getStep(neutralTap - 3).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(neutralTap + 3).getAlpha(), pst.getMaxValue(network), 0);
@@ -133,7 +133,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void pstWithRelativeDynamicRange() {
         pst.addRange(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO));
-        pst.setReferenceValue(network);
+        pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
         assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
@@ -147,7 +147,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void pstWithRelativeFixedRange() {
         pst.addRange(new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
-        pst.setReferenceValue(network);
+        pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
         assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);

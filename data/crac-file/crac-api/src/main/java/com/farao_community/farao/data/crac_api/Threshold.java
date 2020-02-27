@@ -46,7 +46,7 @@ public interface Threshold {
      * The returned value is given with the Unit given in argument of the function.
      */
     @JsonIgnore
-    Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException;
+    Optional<Double> getMinThreshold(Unit unit);
 
     /**
      * If it is defined, this function returns the maximum limit of the Threshold,
@@ -56,7 +56,7 @@ public interface Threshold {
      * The returned value is given with the unit given in argument of the function.
      */
     @JsonIgnore
-    Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException;
+    Optional<Double> getMaxThreshold(Unit unit);
 
     void synchronize(Network network, Cnec cnec);
 
