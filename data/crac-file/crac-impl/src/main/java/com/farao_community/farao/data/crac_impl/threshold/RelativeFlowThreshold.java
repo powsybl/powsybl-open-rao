@@ -66,11 +66,6 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
-    public void desynchronize() {
-        super.desynchronize();
-    }
-
-    @Override
     public AbstractThreshold copy() {
         RelativeFlowThreshold copiedRelativeFlowThreshold = new RelativeFlowThreshold(networkElement, side, direction, percentageOfMax);
         if (isSynchronized()) {

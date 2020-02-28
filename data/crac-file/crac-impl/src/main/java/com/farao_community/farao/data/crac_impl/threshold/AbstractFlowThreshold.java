@@ -102,7 +102,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public void desynchronize() {
-        voltageLevel = Double.NaN;
         isSynchronized = false;
     }
 
