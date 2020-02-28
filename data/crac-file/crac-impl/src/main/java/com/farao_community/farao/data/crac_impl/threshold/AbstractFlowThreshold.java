@@ -42,11 +42,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     protected Direction direction;
 
     /**
-     * maximum admissible flow value
-     */
-    protected double maxValue;
-
-    /**
      * voltage level of the network element
      */
     protected double voltageLevel;
@@ -58,7 +53,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.side = side;
         this.direction = direction;
-        this.maxValue = Double.NaN;
         this.voltageLevel = Double.NaN;
     }
 
@@ -123,14 +117,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
-    }
-
-    public double getMaxValue() {
-        return maxValue;
-    }
-
-    public void setMaxValue(double maxValue) {
-        this.maxValue = maxValue;
     }
 
     public Side getSide() {

@@ -35,7 +35,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
                       @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
         super(id, name);
         this.networkElement = networkElement;
-        this.threshold = threshold;
+        this.threshold = threshold.copy();
         this.threshold.setNetworkElement(networkElement);
         this.state = state;
         isSynchronized = false;

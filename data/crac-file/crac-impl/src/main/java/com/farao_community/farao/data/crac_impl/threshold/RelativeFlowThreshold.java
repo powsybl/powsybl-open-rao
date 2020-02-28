@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.Network;
  */
 @JsonTypeName("relative-flow-threshold")
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
+    private double branchLimit;
 
     /**
      * Percentage of the branch limit which shouldn't be overcome
@@ -34,36 +35,50 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("percentageOfMax") double percentageOfMax) {
         super(Unit.AMPERE, side, direction);
+        initPercentageOfMax(percentageOfMax);
+    }
+
+    public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax) {
+        super(Unit.AMPERE, networkElement, side, direction);
+        initPercentageOfMax(percentageOfMax);
+    }
+
+    private void initPercentageOfMax(double percentageOfMax) {
         if (percentageOfMax < 0 || percentageOfMax > 100) {
             throw new FaraoException("PercentageOfMax of RelativeFlowThresholds must be in [0, 100]");
         }
         this.percentageOfMax = percentageOfMax;
     }
 
-    public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax) {
-        super(Unit.AMPERE, networkElement, side, direction);
-        this.percentageOfMax = percentageOfMax;
-    }
-
     @Override
     protected double getAbsoluteMax() {
         if (!isSynchronized) {
-            throw new NotSynchronizedException(String.format("Relative threshold on branch %s has not been synchronized with network so its absolute max value cannot be accessed", networkElement.getId()));
+            throw new NotSynchronizedException(String.format("Relative threshold on branch %s has not been synchronized so its absolute max value cannot be accessed", networkElement.getId()));
         }
-        return maxValue;
+        return branchLimit * percentageOfMax / 100;
     }
 
     @Override
     public void synchronize(Network network) {
         super.synchronize(network);
         // compute maxValue, in Unit.AMPERE
-        maxValue = super.checkAndGetValidBranch(network, networkElement.getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
+        branchLimit = super.checkAndGetValidBranch(network, networkElement.getId()).getCurrentLimits(getBranchSide()).getPermanentLimit();
     }
 
     @Override
     public void desynchronize() {
         super.desynchronize();
-        maxValue = Double.NaN;
+    }
+
+    @Override
+    public AbstractThreshold copy() {
+        RelativeFlowThreshold copiedRelativeFlowThreshold = new RelativeFlowThreshold(networkElement, side, direction, percentageOfMax);
+        if (isSynchronized()) {
+            copiedRelativeFlowThreshold.isSynchronized = isSynchronized;
+            copiedRelativeFlowThreshold.voltageLevel = voltageLevel;
+            copiedRelativeFlowThreshold.branchLimit = branchLimit;
+        }
+        return copiedRelativeFlowThreshold;
     }
 
     @Override

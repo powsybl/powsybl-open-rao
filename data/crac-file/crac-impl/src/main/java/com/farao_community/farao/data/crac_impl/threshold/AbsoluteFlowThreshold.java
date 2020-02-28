@@ -23,26 +23,50 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName("absolute-flow-threshold")
 public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
+    private double maxValue;
 
     @JsonCreator
     public AbsoluteFlowThreshold(@JsonProperty("unit") Unit unit,
                                  @JsonProperty("side") Side side,
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("maxValue") double maxValue) {
-        this(unit, null, side, direction, maxValue);
+        super(unit, side, direction);
+        initMaxValue(maxValue);
     }
 
     public AbsoluteFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction, double maxValue) {
         super(unit, networkElement, side, direction);
+        initMaxValue(maxValue);
+    }
+
+    private void initMaxValue(double maxValue) {
         if (maxValue < 0) {
             throw new FaraoException("MaxValue of AbsoluteFlowThresholds must be positive.");
         }
         this.maxValue = maxValue;
     }
 
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(double maxValue) {
+        this.maxValue = maxValue;
+    }
+
     @Override
     protected double getAbsoluteMax() {
         return maxValue;
+    }
+
+    @Override
+    public AbstractThreshold copy() {
+        AbsoluteFlowThreshold copiedAbsoluteFlowThreshold = new AbsoluteFlowThreshold(unit, networkElement, side, direction, maxValue);
+        if (isSynchronized()) {
+            copiedAbsoluteFlowThreshold.isSynchronized = isSynchronized;
+            copiedAbsoluteFlowThreshold.voltageLevel = voltageLevel;
+        }
+        return copiedAbsoluteFlowThreshold;
     }
 
     @Override

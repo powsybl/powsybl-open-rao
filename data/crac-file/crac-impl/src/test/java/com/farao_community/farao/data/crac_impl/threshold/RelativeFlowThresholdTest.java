@@ -122,28 +122,99 @@ public class RelativeFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnitNotSynchronised()  {
+    public void getMinThresholdNotSynchronizedFails()  {
+        try {
+            relativeFlowThresholdAmps.getMinThreshold(MEGAWATT);
+            fail();
+        } catch (NotSynchronizedException e) {
+            assertEquals("Relative threshold on branch FRANCE_BELGIUM_1 has not been synchronized so its absolute max value cannot be accessed", e.getMessage());
+        }
+    }
+
+    @Test
+    public void getMaxThresholdNotSynchronizedFails()  {
         try {
             relativeFlowThresholdAmps.getMaxThreshold(MEGAWATT);
             fail();
         } catch (NotSynchronizedException e) {
-            // should throw, conversion cannot be made if voltage level has not been synchronised
+            assertEquals("Relative threshold on branch FRANCE_BELGIUM_1 has not been synchronized so its absolute max value cannot be accessed", e.getMessage());
         }
     }
 
     @Test
     public void synchronize() {
-        assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
         relativeFlowThresholdAmps.synchronize(networkWithoutLf);
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxValue(), DOUBLE_TOL);
+        assertEquals(432.6, relativeFlowThresholdAmps.getAbsoluteMax(), DOUBLE_TOL);
+    }
+
+    @Test
+    public void synchronizeWithNoNetworkElementFails() {
+        RelativeFlowThreshold relativeFlowThresholdWithNoNetworkElement = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
+        try {
+            relativeFlowThresholdWithNoNetworkElement.synchronize(networkWithoutLf);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("Network element on threshold has not been defined", e.getMessage());
+        }
+    }
+
+    @Test
+    public void synchronizeWithNotExistingNetworkElementFails() {
+        NetworkElement notExistingNetworkElement = new NetworkElement("notExistingNetworkElement");
+        RelativeFlowThreshold relativeFlowThresholdWithNotExistingNetworkElement = new RelativeFlowThreshold(
+            notExistingNetworkElement, Side.RIGHT, Direction.BOTH, 60);
+        try {
+            relativeFlowThresholdWithNotExistingNetworkElement.synchronize(networkWithoutLf);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("Branch notExistingNetworkElement does not exist in the current network", e.getMessage());
+        }
+    }
+
+    @Test
+    public void synchronizeTwiceFails() {
+        relativeFlowThresholdAmps.synchronize(networkWithoutLf);
+        try {
+            relativeFlowThresholdAmps.synchronize(networkWithoutLf);
+            fail();
+        } catch (AlreadySynchronizedException e) {
+            assertEquals("Synchronization on flow threshold has already been done", e.getMessage());
+        }
     }
 
     @Test
     public void desynchronize() {
-        assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
         relativeFlowThresholdAmps.synchronize(networkWithoutLf);
-        assertEquals(432.6, relativeFlowThresholdAmps.getMaxValue(), DOUBLE_TOL);
+        assertEquals(432.6, relativeFlowThresholdAmps.getAbsoluteMax(), DOUBLE_TOL);
         relativeFlowThresholdAmps.desynchronize();
-        assertTrue(Double.isNaN(relativeFlowThresholdAmps.getMaxValue()));
+        try {
+            relativeFlowThresholdAmps.getAbsoluteMax();
+            fail();
+        } catch (NotSynchronizedException e) {
+            // should throw
+        }
+    }
+
+    @Test
+    public void copy() {
+        AbstractThreshold copiedRelativeFlowThresholdAmps = relativeFlowThresholdAmps.copy();
+        assertEquals(relativeFlowThresholdAmps, copiedRelativeFlowThresholdAmps);
+    }
+
+    @Test
+    public void copyNotSynchronizeStaysNotSynchronized() {
+        AbstractThreshold copiedRelativeFlowThresholdAmps = relativeFlowThresholdAmps.copy();
+        assertFalse(copiedRelativeFlowThresholdAmps.isSynchronized());
+    }
+
+    @Test
+    public void copySynchronizeStaysSynchronized() {
+        relativeFlowThresholdAmps.synchronize(networkWithoutLf);
+        AbstractThreshold copiedRelativeFlowThresholdAmps = relativeFlowThresholdAmps.copy();
+        assertTrue(copiedRelativeFlowThresholdAmps.isSynchronized());
+        assertEquals(relativeFlowThresholdAmps.getMaxThreshold(AMPERE), copiedRelativeFlowThresholdAmps.getMaxThreshold(AMPERE));
+        assertEquals(relativeFlowThresholdAmps.getMaxThreshold(MEGAWATT), copiedRelativeFlowThresholdAmps.getMaxThreshold(MEGAWATT));
+        assertEquals(relativeFlowThresholdAmps.getMinThreshold(AMPERE), copiedRelativeFlowThresholdAmps.getMinThreshold(AMPERE));
+        assertEquals(relativeFlowThresholdAmps.getMinThreshold(MEGAWATT), copiedRelativeFlowThresholdAmps.getMinThreshold(MEGAWATT));
     }
 }

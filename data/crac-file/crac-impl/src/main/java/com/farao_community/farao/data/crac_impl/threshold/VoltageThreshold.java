@@ -75,6 +75,11 @@ public class VoltageThreshold extends AbstractThreshold {
         }
     }
 
+    @Override
+    public AbstractThreshold copy() {
+        return new VoltageThreshold(minValue, maxValue);
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;

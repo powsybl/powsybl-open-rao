@@ -184,4 +184,27 @@ public class AbsoluteFlowThresholdTest {
         absoluteFlowThresholdAmps.desynchronize();
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxValue(), 1);
     }
+
+    @Test
+    public void copy() {
+        AbstractThreshold copiedAbsoluteFlowThresholdAmps = absoluteFlowThresholdAmps.copy();
+        assertEquals(absoluteFlowThresholdAmps, copiedAbsoluteFlowThresholdAmps);
+    }
+
+    @Test
+    public void copyNotSynchronizeStaysNotSynchronized() {
+        AbstractThreshold copiedAbsoluteFlowThresholdAmps = absoluteFlowThresholdAmps.copy();
+        assertFalse(copiedAbsoluteFlowThresholdAmps.isSynchronized());
+    }
+
+    @Test
+    public void copySynchronizeStaysSynchronized() {
+        absoluteFlowThresholdAmps.synchronize(networkWithoutLf);
+        AbstractThreshold copiedAbsoluteFlowThresholdAmps = absoluteFlowThresholdAmps.copy();
+        assertTrue(copiedAbsoluteFlowThresholdAmps.isSynchronized());
+        assertEquals(absoluteFlowThresholdAmps.getMaxThreshold(AMPERE), copiedAbsoluteFlowThresholdAmps.getMaxThreshold(AMPERE));
+        assertEquals(absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT), copiedAbsoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT));
+        assertEquals(absoluteFlowThresholdAmps.getMinThreshold(AMPERE), copiedAbsoluteFlowThresholdAmps.getMinThreshold(AMPERE));
+        assertEquals(absoluteFlowThresholdAmps.getMinThreshold(MEGAWATT), copiedAbsoluteFlowThresholdAmps.getMinThreshold(MEGAWATT));
+    }
 }

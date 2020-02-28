@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.Threshold;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
@@ -39,6 +40,7 @@ public abstract class AbstractThreshold implements Threshold {
         this(unit, null);
     }
 
+    @JsonIgnore
     public NetworkElement getNetworkElement() {
         if (networkElement == null) {
             throw new FaraoException("Network element on threshold has not been defined");
@@ -66,6 +68,8 @@ public abstract class AbstractThreshold implements Threshold {
     public boolean isSynchronized() {
         return true;
     }
+
+    public abstract AbstractThreshold copy();
 
     @Override
     public abstract boolean equals(Object o);

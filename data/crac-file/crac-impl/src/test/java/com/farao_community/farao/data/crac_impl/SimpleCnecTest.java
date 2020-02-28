@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -40,6 +41,7 @@ public class SimpleCnecTest {
 
         // mock threshold
         threshold = Mockito.mock(AbstractFlowThreshold.class);
+        Mockito.when(threshold.copy()).thenReturn(threshold);
         Mockito.when(threshold.getBranchSide()).thenReturn(Branch.Side.ONE);
         State state = Mockito.mock(State.class);
 
@@ -142,5 +144,23 @@ public class SimpleCnecTest {
         // both terminal disconnected
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
         assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
+        State state = Mockito.mock(State.class);
+        RelativeFlowThreshold relativeFlowThreshold = new RelativeFlowThreshold(Side.LEFT, Direction.DIRECT, 50);
+        Cnec cnecOnLine1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), relativeFlowThreshold, state);
+        Cnec cnecOnLine2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), relativeFlowThreshold, state);
+
+        Network network = Importers.loadNetwork(
+            "TestCase2Nodes_withLF_withDifferentLimits.xiidm",
+            getClass().getResourceAsStream("/TestCase2Nodes_withLF_withDifferentLimits.xiidm"));
+
+        cnecOnLine2.synchronize(network);
+        cnecOnLine1.synchronize(network);
+
+        assertEquals(400, cnecOnLine1.getThreshold().getMaxThreshold(Unit.AMPERE).get(), 0.1);
+        assertEquals(250, cnecOnLine2.getThreshold().getMaxThreshold(Unit.AMPERE).get(), 0.1);
     }
 }
