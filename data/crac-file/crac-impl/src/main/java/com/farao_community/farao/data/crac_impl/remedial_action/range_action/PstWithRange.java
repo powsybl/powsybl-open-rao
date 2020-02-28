@@ -119,29 +119,25 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
 
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
-        if (!isSynchronized) {
-            throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its min value with range cannot be accessed", getId()));
-        }
         double minValue = range.getMin();
         return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, Range range) {
-        if (!isSynchronized) {
-            throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its max value with range cannot be accessed", getId()));
-        }
+    protected double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
         return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
     }
 
     @Override
     public double getMaxNegativeVariation(Network network) {
+        // This method calls getMinValue so it will throw a NotSynchronizedException if required
         return Math.max(convertTapToAngle(network, getCurrentTapPosition(network)) - getMinValue(network), 0);
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
+        // This method calls getMaxValue so it will throw a NotSynchronizedException if required
         return Math.max(getMaxValue(network) - convertTapToAngle(network, getCurrentTapPosition(network)), 0);
     }
 

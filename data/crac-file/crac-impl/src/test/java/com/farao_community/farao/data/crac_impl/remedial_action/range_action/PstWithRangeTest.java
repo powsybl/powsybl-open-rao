@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
@@ -168,7 +169,47 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
             pst.getMaxValue(network);
             fail();
         } catch (FaraoException e) {
-            // should throw
+            assertEquals("PST pst_range_id have not been synchronized so its max value cannot be accessed", e.getMessage());
+        }
+    }
+
+    @Test
+    public void getMinValueWithNoSynchronizationFails() {
+        try {
+            pst.getMinValue(network);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
+        }
+    }
+
+    @Test
+    public void getMaxNegativeVariationWithNoSynchronizationFails() {
+        try {
+            pst.getMaxNegativeVariation(network);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
+        }
+    }
+
+    @Test
+    public void getMaxPositiveVariationWithNoSynchronizationFails() {
+        try {
+            pst.getMaxPositiveVariation(network);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("PST pst_range_id have not been synchronized so its max value cannot be accessed", e.getMessage());
+        }
+    }
+
+    @Test
+    public void synchronizetwiceFails() {
+        pst.synchronize(network);
+        try {
+            pst.synchronize(network);
+        } catch (AlreadySynchronizedException e) {
+            assertEquals("PST pst_range_id has already been synchronized", e.getMessage());
         }
     }
 }
