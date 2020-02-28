@@ -40,19 +40,24 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         this.percentageOfMax = percentageOfMax;
     }
 
+    public RelativeFlowThreshold(Side side, Direction direction, NetworkElement networkElement, double percentageOfMax) {
+        super(Unit.AMPERE, side, direction, networkElement);
+        this.percentageOfMax = percentageOfMax;
+    }
+
     @Override
     protected double getAbsoluteMax() {
-        if (Double.isNaN(maxValue)) {
-            throw new SynchronizationException("Relative flow threshold has not been synchronized with network");
+        if (!isSynchronized) {
+            throw new NotSynchronizedException(String.format("Relative threshold on branch %s has not been synchronized with network so its absolute max value cannot be accessed", networkElement.getId()));
         }
         return maxValue;
     }
 
     @Override
-    public void synchronize(Network network, Cnec cnec) {
-        super.synchronize(network, cnec);
+    public void synchronize(Network network) {
+        super.synchronize(network);
         // compute maxValue, in Unit.AMPERE
-        maxValue = super.checkAndGetValidBranch(network, cnec).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
+        maxValue = super.checkAndGetValidBranch(network, networkElement.getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
     }
 
     @Override

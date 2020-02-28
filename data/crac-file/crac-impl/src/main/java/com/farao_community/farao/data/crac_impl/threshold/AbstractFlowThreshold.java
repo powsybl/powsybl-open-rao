@@ -51,13 +51,19 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      */
     protected double voltageLevel;
 
-    public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
-        super(unit);
+    protected boolean isSynchronized;
+
+    public AbstractFlowThreshold(Unit unit, Side side, Direction direction, NetworkElement networkElement) {
+        super(unit, networkElement);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.side = side;
         this.direction = direction;
         this.maxValue = Double.NaN;
         this.voltageLevel = Double.NaN;
+    }
+
+    public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
+        this(unit, side, direction, null);
     }
 
     @Override
@@ -84,14 +90,18 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = checkAndGetValidBranch(network, cnec).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+    public void synchronize(Network network) {
+        if (isSynchronized()) {
+            throw new AlreadySynchronizedException("Synchronization on flow threshold has already been done");
+        }
+        voltageLevel = checkAndGetValidBranch(network, getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+        isSynchronized = true;
     }
 
-    protected Branch checkAndGetValidBranch(Network network, Cnec cnec) {
-        Branch branch = network.getBranch(cnec.getNetworkElement().getId());
+    protected Branch checkAndGetValidBranch(Network network, String networkElementId) {
+        Branch branch = network.getBranch(networkElementId);
         if (branch == null) {
-            throw new FaraoException(String.format("Branch %s does not exist in the current network", cnec.getNetworkElement().getId()));
+            throw new FaraoException(String.format("Branch %s does not exist in the current network", networkElementId));
         }
         return branch;
     }
@@ -99,6 +109,12 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     @Override
     public void desynchronize() {
         voltageLevel = Double.NaN;
+        isSynchronized = false;
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     public Direction getDirection() {
@@ -153,8 +169,8 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         if (originUnit.equals(requestedUnit)) {
             return value;
         }
-        if (Double.isNaN(voltageLevel)) {
-            throw new SynchronizationException("FlowThreshold unit conversion : voltage level must be synchronised with a Network");
+        if (!isSynchronized()) {
+            throw new NotSynchronizedException("FlowThreshold unit conversion : voltage level must be synchronised with a Network");
         }
         double ratio = voltageLevel * Math.sqrt(3) / 1000;
         if (originUnit.equals(Unit.AMPERE) && requestedUnit.equals(Unit.MEGAWATT)) {

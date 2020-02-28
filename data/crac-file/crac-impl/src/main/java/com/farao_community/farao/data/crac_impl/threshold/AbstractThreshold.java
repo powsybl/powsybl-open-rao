@@ -7,7 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.threshold;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.Threshold;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -27,19 +28,43 @@ import com.powsybl.iidm.network.Network;
     })
 public abstract class AbstractThreshold implements Threshold {
     protected Unit unit;
+    protected NetworkElement networkElement;
+
+    public AbstractThreshold(Unit unit, NetworkElement networkElement) {
+        this.unit = unit;
+        this.networkElement = networkElement;
+    }
 
     public AbstractThreshold(Unit unit) {
-        this.unit = unit;
+        this(unit, null);
+    }
+
+    public NetworkElement getNetworkElement() {
+        if (networkElement == null) {
+            throw new FaraoException("Network element on threshold has not been defined");
+        }
+        return networkElement;
+    }
+
+    public void setNetworkElement(NetworkElement networkElement) {
+        this.networkElement = networkElement;
     }
 
     public Unit getUnit() {
         return unit;
     }
 
-    public void synchronize(Network network, Cnec cnec) {
+    @Override
+    public void synchronize(Network network) {
     }
 
+    @Override
     public void desynchronize() {
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        return true;
     }
 
     @Override

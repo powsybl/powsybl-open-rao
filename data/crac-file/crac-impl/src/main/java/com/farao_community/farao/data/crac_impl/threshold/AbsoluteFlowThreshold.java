@@ -29,7 +29,11 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
                                  @JsonProperty("side") Side side,
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("maxValue") double maxValue) {
-        super(unit, side, direction);
+        this(unit, side, direction, null, maxValue);
+    }
+
+    public AbsoluteFlowThreshold(Unit unit, Side side, Direction direction, NetworkElement networkElement, double maxValue) {
+        super(unit, side, direction, networkElement);
         if (maxValue < 0) {
             throw new FaraoException("MaxValue of AbsoluteFlowThresholds must be positive.");
         }

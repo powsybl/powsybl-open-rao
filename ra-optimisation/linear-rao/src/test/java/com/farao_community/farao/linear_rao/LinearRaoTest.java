@@ -210,16 +210,16 @@ public class LinearRaoTest {
         RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 30);
 
         // CNECs
-        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);
-        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, null, stateCurativeContingency1);
-        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, null, stateCurativeContingency2);
+        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdAbsFlow, stateBasecase);
+        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, thresholdAbsFlow, stateCurativeContingency2);
         cnec1basecase.setThreshold(thresholdAbsFlow);
         cnec1stateCurativeContingency1.setThreshold(thresholdAbsFlow);
         cnec1stateCurativeContingency2.setThreshold(thresholdAbsFlow);
 
-        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, null, stateBasecase);
-        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, null, stateCurativeContingency1);
-        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, null, stateCurativeContingency2);
+        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, thresholdAbsFlow, stateBasecase);
+        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, thresholdAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, thresholdAbsFlow, stateCurativeContingency2);
         cnec2basecase.setThreshold(thresholdRelativeFlow);
         cnec2stateCurativeContingency1.setThreshold(thresholdRelativeFlow);
         cnec2stateCurativeContingency2.setThreshold(thresholdRelativeFlow);

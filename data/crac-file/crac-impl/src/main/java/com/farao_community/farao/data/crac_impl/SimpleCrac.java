@@ -342,7 +342,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             cnec.getId(),
             cnec.getName(),
             networkElement,
-            cnec.getThreshold(),
+            (AbstractThreshold) cnec.getThreshold(),
             getState(cnec.getState().getId())
         ));
     }
