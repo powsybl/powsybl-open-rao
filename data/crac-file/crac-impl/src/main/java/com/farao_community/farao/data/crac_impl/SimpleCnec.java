@@ -125,11 +125,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
 
     @Override
     public void synchronize(Network network) {
-        try {
-            threshold.synchronize(network);
-        } catch (AlreadySynchronizedException e) {
-            // Can be ignored here
-        }
+        threshold.synchronize(network);
         isSynchronized = true;
     }
 
