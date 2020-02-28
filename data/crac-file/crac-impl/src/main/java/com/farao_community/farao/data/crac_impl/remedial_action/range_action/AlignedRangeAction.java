@@ -134,4 +134,9 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     public int hashCode() {
         return String.format("%s%d%d", getId(), ranges.size(), networkElements.size()).hashCode();
     }
+
+    @Override
+    public boolean isSynchronized() {
+        return false;
+    }
 }

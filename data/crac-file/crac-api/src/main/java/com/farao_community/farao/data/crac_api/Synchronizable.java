@@ -30,4 +30,10 @@ public interface Synchronizable {
      * mainly for export purpose.
      */
     void desynchronize();
+
+    /**
+     * Notify the user if the Synchronizable object has already been synchronized or not.
+     * @return True if its already synchronized.
+     */
+    boolean isSynchronized();
 }

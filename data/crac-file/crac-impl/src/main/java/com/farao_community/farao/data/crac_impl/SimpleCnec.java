@@ -27,6 +27,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private NetworkElement networkElement;
     private Threshold threshold;
     private State state;
+    private boolean isSynchronized;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
@@ -36,6 +37,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         this.networkElement = networkElement;
         this.threshold = threshold;
         this.state = state;
+        isSynchronized = false;
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
@@ -123,11 +125,18 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     @Override
     public void synchronize(Network network) {
         threshold.synchronize(network, this);
+        isSynchronized = true;
     }
 
     @Override
     public void desynchronize() {
         threshold.desynchronize();
+        isSynchronized = false;
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     @Override

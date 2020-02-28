@@ -418,6 +418,11 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     }
 
     @Override
+    public boolean isSynchronized() {
+        return isSynchronized;
+    }
+
+    @Override
     public void generateValidityReport(Network network) {
         throw new UnsupportedOperationException();
     }

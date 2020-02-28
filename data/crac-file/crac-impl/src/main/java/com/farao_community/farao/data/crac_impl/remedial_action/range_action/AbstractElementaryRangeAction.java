@@ -82,6 +82,11 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         this.networkElement = networkElement;
     }
 
+    @Override
+    public boolean isSynchronized() {
+        return true;
+    }
+
     protected abstract double getMinValueWithRange(Network network, Range range);
 
     @Override

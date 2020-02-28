@@ -157,4 +157,18 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
         assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
     }
+
+    @Test
+    public void desynchronize() {
+        pst.addRange(new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
+        pst.synchronize(network);
+        pst.desynchronize();
+
+        try {
+            pst.getMaxValue(network);
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
+    }
 }
