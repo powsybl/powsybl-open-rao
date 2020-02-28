@@ -31,8 +31,54 @@ public class RelativeFlowThresholdTest {
 
     @Before
     public void setUp() {
-        relativeFlowThresholdAmps = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, new NetworkElement("FRANCE_BELGIUM_1"), 60);
+        relativeFlowThresholdAmps = new RelativeFlowThreshold(new NetworkElement("FRANCE_BELGIUM_1"), Side.RIGHT, Direction.BOTH, 60);
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
+    }
+
+    @Test
+    public void equalsWithoutNetworkElement() {
+        RelativeFlowThreshold relativeFlowThreshold1 = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
+        RelativeFlowThreshold relativeFlowThreshold2 = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
+        assertEquals(relativeFlowThreshold1, relativeFlowThreshold2);
+    }
+
+    @Test
+    public void sameHashCodeWithoutNetworkElement() {
+        RelativeFlowThreshold relativeFlowThreshold1 = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
+        RelativeFlowThreshold relativeFlowThreshold2 = new RelativeFlowThreshold(Side.RIGHT, Direction.BOTH, 60);
+        assertEquals(relativeFlowThreshold1.hashCode(), relativeFlowThreshold2.hashCode());
+    }
+
+    @Test
+    public void equalsWithNetworkElement() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        RelativeFlowThreshold relativeFlowThreshold1 = new RelativeFlowThreshold(networkElement, Side.RIGHT, Direction.BOTH, 60);
+        RelativeFlowThreshold relativeFlowThreshold2 = new RelativeFlowThreshold(networkElement, Side.RIGHT, Direction.BOTH, 60);
+        assertEquals(relativeFlowThreshold1, relativeFlowThreshold2);
+    }
+
+    @Test
+    public void sameHashCodeWithNetworkElement() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        RelativeFlowThreshold relativeFlowThreshold1 = new RelativeFlowThreshold(networkElement, Side.RIGHT, Direction.BOTH, 60);
+        RelativeFlowThreshold relativeFlowThreshold2 = new RelativeFlowThreshold(networkElement, Side.RIGHT, Direction.BOTH, 60);
+        assertEquals(relativeFlowThreshold1.hashCode(), relativeFlowThreshold2.hashCode());
+    }
+
+    @Test
+    public void notEquals() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        RelativeFlowThreshold relativeFlowThreshold1 = new RelativeFlowThreshold(networkElement, Side.RIGHT, Direction.BOTH, 60);
+        RelativeFlowThreshold relativeFlowThreshold2 = new RelativeFlowThreshold(networkElement, Side.LEFT, Direction.BOTH, 60);
+        assertNotEquals(relativeFlowThreshold1, relativeFlowThreshold2);
+    }
+
+    @Test
+    public void differentHashCode() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        RelativeFlowThreshold relativeFlowThreshold1 = new RelativeFlowThreshold(networkElement, Side.RIGHT, Direction.BOTH, 60);
+        RelativeFlowThreshold relativeFlowThreshold2 = new RelativeFlowThreshold(networkElement, Side.LEFT, Direction.BOTH, 60);
+        assertNotEquals(relativeFlowThreshold1.hashCode(), relativeFlowThreshold2.hashCode());
     }
 
     @Test
@@ -80,7 +126,7 @@ public class RelativeFlowThresholdTest {
         try {
             relativeFlowThresholdAmps.getMaxThreshold(MEGAWATT);
             fail();
-        } catch (SynchronizationException e) {
+        } catch (NotSynchronizedException e) {
             // should throw, conversion cannot be made if voltage level has not been synchronised
         }
     }

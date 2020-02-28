@@ -53,7 +53,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     protected boolean isSynchronized;
 
-    public AbstractFlowThreshold(Unit unit, Side side, Direction direction, NetworkElement networkElement) {
+    public AbstractFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction) {
         super(unit, networkElement);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.side = side;
@@ -63,7 +63,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
-        this(unit, side, direction, null);
+        this(unit, null, side, direction);
     }
 
     @Override
@@ -197,12 +197,20 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             return false;
         }
         AbstractFlowThreshold threshold = (AbstractFlowThreshold) o;
-        return unit.equals(threshold.unit) && side.equals(threshold.side) && direction.equals(threshold.direction);
+        boolean result = true;
+        if (networkElement != null) {
+            result = networkElement.equals(threshold.networkElement);
+        }
+        return result && unit.equals(threshold.unit)
+            && side.equals(threshold.side) && direction.equals(threshold.direction);
     }
 
     @Override
     public int hashCode() {
         int result = unit.hashCode();
+        if (networkElement != null) {
+            result = 31 * result + networkElement.hashCode();
+        }
         result = 31 * result + side.hashCode();
         result = 31 * result + direction.hashCode();
         return result;

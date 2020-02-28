@@ -54,7 +54,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         // todo : switch units if no I is available but P is available
         // todo : add a requested unit
         double flow;
-        Unit unit = ((AbstractThreshold) threshold).getUnit();
+        Unit unit = threshold.getUnit();
         if (unit.equals(Unit.AMPERE)) {
             flow = getI(network);
         } else {

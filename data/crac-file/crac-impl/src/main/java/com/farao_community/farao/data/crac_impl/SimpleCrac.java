@@ -403,7 +403,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     @Override
     public void synchronize(Network network) {
         if (isSynchronized) {
-            throw new SynchronizationException(format("Crac %s has already been synchronized", getId()));
+            throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
         }
         cnecs.forEach(cnec -> cnec.synchronize(network));
         rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));

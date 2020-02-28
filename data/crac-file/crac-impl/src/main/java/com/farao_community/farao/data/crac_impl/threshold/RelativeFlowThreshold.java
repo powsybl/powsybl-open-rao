@@ -40,8 +40,8 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         this.percentageOfMax = percentageOfMax;
     }
 
-    public RelativeFlowThreshold(Side side, Direction direction, NetworkElement networkElement, double percentageOfMax) {
-        super(Unit.AMPERE, side, direction, networkElement);
+    public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax) {
+        super(Unit.AMPERE, networkElement, side, direction);
         this.percentageOfMax = percentageOfMax;
     }
 
