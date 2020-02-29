@@ -103,7 +103,7 @@ public final class SystematicSensitivityAnalysisService {
         crac.desynchronize(); // To be sure it is always synchronized with the good network
     }
 
-    private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
+    public static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
         contingency.getNetworkElements().forEach(contingencyElement -> applyContingencyElementInCrac(network, computationManager, contingencyElement));
     }
 

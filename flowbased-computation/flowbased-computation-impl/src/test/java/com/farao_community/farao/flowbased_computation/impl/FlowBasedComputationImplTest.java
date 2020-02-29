@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
@@ -38,6 +39,7 @@ public class FlowBasedComputationImplTest {
     private FlowBasedComputationProvider flowBasedComputationProvider;
     private Network network;
     private CracFile cracFile;
+    private Crac crac;
     private GlskProvider glskProvider;
     private ComputationManager computationManager;
     private FlowBasedComputationParameters parameters;
@@ -51,6 +53,7 @@ public class FlowBasedComputationImplTest {
         flowBasedComputationProvider = new FlowBasedComputationImpl();
         network = ExampleGenerator.network();
         cracFile = ExampleGenerator.cracFile();
+        crac = ExampleGenerator.crac();
         glskProvider = ExampleGenerator.glskProvider();
         computationManager = LocalComputationManager.getDefault();
         parameters = FlowBasedComputationParameters.load(platformConfig);
@@ -71,6 +74,66 @@ public class FlowBasedComputationImplTest {
     @Test
     public void testRun() {
         FlowBasedComputationResult result = flowBasedComputationProvider.run(network, cracFile, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
+        assertEquals(FlowBasedComputationResult.Status.SUCCESS, result.getStatus());
+
+        Map<String, Double> frefResults = frefResultById(result);
+        Map<String, Double> fmaxResults = fmaxResultById(result);
+        Map<String, Map<String, Double>> ptdfResults = ptdfResultById(result);
+        assertEquals(50, frefResults.get("FR-BE"), EPSILON);
+        assertEquals(100, fmaxResults.get("FR-BE"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("FR-BE").get("FR GLSK"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("FR-BE").get("BE GLSK"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("FR-BE").get("DE GLSK"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("FR-BE").get("NL GLSK"), EPSILON);
+
+        assertEquals(50, frefResults.get("FR-DE"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("FR-DE").get("FR GLSK"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("FR-DE").get("BE GLSK"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("FR-DE").get("DE GLSK"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("FR-DE").get("NL GLSK"), EPSILON);
+
+        assertEquals(50, frefResults.get("BE-NL"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("BE-NL").get("FR GLSK"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("BE-NL").get("BE GLSK"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("BE-NL").get("DE GLSK"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("BE-NL").get("NL GLSK"), EPSILON);
+
+        assertEquals(50, frefResults.get("DE-NL"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("DE-NL").get("FR GLSK"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("DE-NL").get("BE GLSK"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("DE-NL").get("DE GLSK"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("DE-NL").get("NL GLSK"), EPSILON);
+
+        assertEquals(0, frefResults.get("N-1 FR-BE / FR-BE"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("FR GLSK"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("BE GLSK"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("DE GLSK"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("NL GLSK"), EPSILON);
+
+        assertEquals(100, frefResults.get("N-1 FR-BE / FR-DE"), EPSILON);
+        assertEquals(0.75, ptdfResults.get("N-1 FR-BE / FR-DE").get("FR GLSK"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("BE GLSK"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("DE GLSK"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("NL GLSK"), EPSILON);
+
+        assertEquals(0, frefResults.get("N-1 FR-BE / BE-NL"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("FR GLSK"), EPSILON);
+        assertEquals(0.75, ptdfResults.get("N-1 FR-BE / BE-NL").get("BE GLSK"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("DE GLSK"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("NL GLSK"), EPSILON);
+
+        assertEquals(100, frefResults.get("N-1 FR-BE / DE-NL"), EPSILON);
+        assertEquals(0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("FR GLSK"), EPSILON);
+        assertEquals(-0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("BE GLSK"), EPSILON);
+        assertEquals(0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("DE GLSK"), EPSILON);
+        assertEquals(-0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("NL GLSK"), EPSILON);
+
+    }
+
+    @Test
+    public void testRunCrac() {
+        FlowBasedComputationImpl flowBasedComputationImpl = new FlowBasedComputationImpl();
+        FlowBasedComputationResult result = flowBasedComputationImpl.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
         assertEquals(FlowBasedComputationResult.Status.SUCCESS, result.getStatus());
 
         Map<String, Double> frefResults = frefResultById(result);
