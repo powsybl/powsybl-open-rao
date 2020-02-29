@@ -24,7 +24,7 @@ import static java.lang.String.format;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("simple-crac")
-public class SimpleCrac extends AbstractIdentifiable implements Crac {
+public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first.";
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";

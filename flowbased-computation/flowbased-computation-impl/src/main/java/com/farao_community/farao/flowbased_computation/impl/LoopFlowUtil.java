@@ -23,12 +23,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Loop flow util is used
+ * - for loop flow calculation (used in search tree rao for CCR Core), and
+ * - for Min RAM adjustment calculation
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public final class LoopFlowUtil {
     private LoopFlowUtil() {
     }
 
+    /**
+     * calculate loop flow
+     * input CracFile
+     * This function could be removed when Flowbased computation no longer use CracFile but Crac
+     */
     public static Map<String, Double> calculateLoopFlows(Network network,
                                                          CracFile cracFile,
                                                          GlskProvider glskProvider,
@@ -48,6 +56,10 @@ public final class LoopFlowUtil {
         return buildLoopFlowsFromResult(flowBasedComputationResult, frefResults, ptdfResults, referenceNetPositionByCountry);
     }
 
+    /**
+     * calculate loop flow
+     * input Crac
+     */
     public static Map<String, Double> calculateLoopFlows(Network network,
                                                          Crac crac,
                                                          GlskProvider glskProvider,
@@ -67,6 +79,9 @@ public final class LoopFlowUtil {
         return buildLoopFlowsFromResult(flowBasedComputationResult, frefResults, ptdfResults, referenceNetPositionByCountry);
     }
 
+    /**
+     * compile result
+     */
     private static Map<String, Double> buildLoopFlowsFromResult(FlowBasedComputationResult flowBasedComputationResult,
                                                                 Map<String, Double> frefResults,
                                                                 Map<String, Map<String, Double>> ptdfResults,
@@ -78,7 +93,8 @@ public final class LoopFlowUtil {
             Map<String, Double> ptdfBranch = ptdfResults.get(branch.getBranchId());
             Double sum = 0.0;
             // calculate PTDF * NP(ref)
-            for (String country : ptdfBranch.keySet()) {
+            for (Map.Entry<String, Double> entry : ptdfBranch.entrySet()) {
+                String country = entry.getKey();
                 sum += ptdfBranch.get(country) * referenceNetPositionByCountry.get(country);
             }
 

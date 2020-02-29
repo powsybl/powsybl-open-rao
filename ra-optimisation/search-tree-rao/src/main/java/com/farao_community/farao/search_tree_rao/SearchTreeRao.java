@@ -8,7 +8,8 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowExtensionInCrac;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowUtil;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -18,8 +19,6 @@ import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -29,8 +28,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(RaoProvider.class)
 public class SearchTreeRao implements RaoProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRao.class);
-
     @Override
     public String getName() {
         return "SearchTreeRao";
@@ -65,12 +62,20 @@ public class SearchTreeRao implements RaoProvider {
         // compute maximum loop flow value F_(0,all)_MAX, and update it for Cnec in Crac
 
         // 1. For the initial Network, compute the F_(0,all)_init
-        GlskProvider glskProvider = null; // todo crac extension
-        List<String> countries = null; // todo crac extension
-        Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, glskProvider, countries, computationManager, null);
+        LoopFlowExtensionInCrac loopFlowExtensionInCrac = crac.getExtension(LoopFlowExtensionInCrac.class);
+        if (Objects.isNull(loopFlowExtensionInCrac)) {
+            throw new FaraoException("LoopFlowExtensionInCrac not available");
+        }
+        FlowBasedComputationParameters flowBasedComputationParameters = FlowBasedComputationParameters.load();
+        Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, loopFlowExtensionInCrac.getGlskProvider(),
+                loopFlowExtensionInCrac.getCountriesForLoopFlow(), computationManager, flowBasedComputationParameters);
 
-        // 2. For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold)
-        crac.getCnecs().forEach(cnec -> cnec.setLoopFlowConstraint(fZeroAll.get(cnec.getNetworkElement().getId())));
+        // 2. For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
+        crac.getCnecs().forEach(cnec -> {
+            double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
+            double inputLoopFlow = cnec.getInputLoopFlow();
+            cnec.setLoopFlowConstraint(Math.max(initialLoopFlow, inputLoopFlow));
+        });
     }
 
 }

@@ -27,7 +27,8 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private NetworkElement networkElement;
     private Threshold threshold;
     private State state;
-    private double loopFlowConstraint;
+    private double loopFlowConstraint; //loop flow constraint used during optimization, set in the search tree
+    private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
@@ -37,10 +38,12 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         this.networkElement = networkElement;
         this.threshold = threshold;
         this.state = state;
+        this.inputLoopFlow = Double.MAX_VALUE;
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
         this(id, id, networkElement, threshold, state);
+        this.inputLoopFlow = Double.MAX_VALUE;
     }
 
     @Override
@@ -124,6 +127,20 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     @Override
     public void setLoopFlowConstraint(double loopFlowConstraint) {
         this.loopFlowConstraint = loopFlowConstraint;
+    }
+
+    @Override
+    public double getLoopFlowConstraint() {
+        return loopFlowConstraint;
+    }
+
+    public void setInputLoopFlow(double inputLoopFlow) {
+        this.inputLoopFlow = inputLoopFlow;
+    }
+
+    @Override
+    public double getInputLoopFlow() {
+        return inputLoopFlow;
     }
 
     @Override

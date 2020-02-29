@@ -81,7 +81,8 @@ public class MinRamAdjustment {
         //   - alpha = Ramr*Fmax - Fuaf - (Fmax - FRM - F(0,core)) = (Ramr - 1)*Fmax + FRM + F(0,all)
         //   - beta  = - 0.8*Fmax + FRM + F(0,core)
         Map<String, Double> amr = new HashMap<>();
-        for (String branchId : fZeroCore.keySet()) {
+        for (Map.Entry<String, Double> entry : fZeroCore.entrySet()) {
+            String branchId = entry.getKey();
             double alpha = (ramrById.get(branchId) - 1) * fmaxById.get(branchId)
                     + frmById.get(branchId)
                     + fZeroAll.get(branchId);
