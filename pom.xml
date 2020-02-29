@@ -45,6 +45,7 @@
         <module>commons</module>
         <module>data</module>
         <module>distribution</module>
+        <module>farao-balances-adjustment</module>
         <module>flowbased-computation</module>
         <module>flow-decomposition</module>
         <module>ra-optimisation</module>

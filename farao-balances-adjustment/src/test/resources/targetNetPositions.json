@@ -1,0 +1,11 @@
+{
+  "name" : "Reference net position in MW",
+  "date" : "14-07-2019",
+  "time" : "19:30",
+  "NetPositions": [ {"area": "FR", "netPosition": "1000"},
+                    {"area": "BE", "netPosition": "2000"},
+                    {"area": "NL", "netPosition": "-500"},
+                    {"area": "DE", "netPosition": "-2500"}
+  ]
+}
+

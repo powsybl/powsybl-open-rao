@@ -19,6 +19,12 @@
         <!-- farao-core dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-balances-adjustment</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-closed-optimisation-rao</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
