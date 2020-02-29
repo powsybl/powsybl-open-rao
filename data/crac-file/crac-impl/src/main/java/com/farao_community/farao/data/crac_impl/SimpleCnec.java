@@ -27,6 +27,7 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private NetworkElement networkElement;
     private Threshold threshold;
     private State state;
+    private double loopFlowConstraint;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
@@ -118,6 +119,11 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
             throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", getName()));
         }
         return p;
+    }
+
+    @Override
+    public void setLoopFlowConstraint(double loopFlowConstraint) {
+        this.loopFlowConstraint = loopFlowConstraint;
     }
 
     @Override

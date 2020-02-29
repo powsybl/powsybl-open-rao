@@ -51,4 +51,6 @@ public interface Cnec extends Identifiable, Synchronizable {
      * run. If no value is present in the network, throws a FaraoException.
      */
     double getP(Network network);
+
+    void setLoopFlowConstraint(double loopFlowConstraint);
 }
