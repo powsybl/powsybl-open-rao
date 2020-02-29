@@ -51,14 +51,16 @@ public class SearchTreeRao implements RaoProvider {
         crac.setReferenceValues(network);
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
-        calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager);
+        FlowBasedComputationParameters flowBasedComputationParameters = FlowBasedComputationParameters.load();
+        calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
 
         // run optimisation
         RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
         return CompletableFuture.completedFuture(result);
     }
 
-    private void calculateLoopFlowConstraintAndUpdateAllCnec(Network network, Crac crac, ComputationManager computationManager) {
+    public void calculateLoopFlowConstraintAndUpdateAllCnec(Network network, Crac crac, ComputationManager computationManager,
+                                                            FlowBasedComputationParameters flowBasedComputationParameters) {
         // compute maximum loop flow value F_(0,all)_MAX, and update it for Cnec in Crac
 
         // 1. For the initial Network, compute the F_(0,all)_init
@@ -66,7 +68,6 @@ public class SearchTreeRao implements RaoProvider {
         if (Objects.isNull(loopFlowExtensionInCrac)) {
             throw new FaraoException("LoopFlowExtensionInCrac not available");
         }
-        FlowBasedComputationParameters flowBasedComputationParameters = FlowBasedComputationParameters.load();
         Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, loopFlowExtensionInCrac.getGlskProvider(),
                 loopFlowExtensionInCrac.getCountriesForLoopFlow(), computationManager, flowBasedComputationParameters);
 

@@ -143,4 +143,11 @@ public class SimpleCnecTest {
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
         assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void testLoopflowParameters() {
+        cnec1.setLoopFlowConstraint(100);
+        assertEquals(100, cnec1.getLoopFlowConstraint(), 0.1);
+        assertEquals(0.0, cnec1.getInputLoopFlow(), 0.1);
+    }
 }

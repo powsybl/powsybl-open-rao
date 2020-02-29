@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.crac_file.MonitoredBranch;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
@@ -106,5 +107,12 @@ public class MinRamAdjustmentTest {
         for (String branch : resultAmrBis.keySet()) {
             assertNotNull(resultAmrBis.get(branch));
         }
+    }
+
+    @Test
+    public void testRunCalculateLoopFlow() {
+        Crac crac = ExampleGenerator.crac();
+        Map<String, Double> loopflow = LoopFlowUtil.calculateLoopFlows(network, crac, glskProviderCore, countries, computationManager, parameters);
+        assertTrue(loopflow.containsKey("FR-BE"));
     }
 }

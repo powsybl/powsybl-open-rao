@@ -38,12 +38,12 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         this.networkElement = networkElement;
         this.threshold = threshold;
         this.state = state;
-        this.inputLoopFlow = Double.MAX_VALUE;
+        this.inputLoopFlow = 0.0; // set to min value at init. loopFlowConstraint = Math.max(inputLoopflow, LoopFlow at init situ)
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
         this(id, id, networkElement, threshold, state);
-        this.inputLoopFlow = Double.MAX_VALUE;
+        this.inputLoopFlow = 0.0; // set to min value at init. loopFlowConstraint = Math.max(inputLoopflow, LoopFlow at init situ)
     }
 
     @Override
@@ -132,10 +132,6 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     @Override
     public double getLoopFlowConstraint() {
         return loopFlowConstraint;
-    }
-
-    public void setInputLoopFlow(double inputLoopFlow) {
-        this.inputLoopFlow = inputLoopFlow;
     }
 
     @Override
