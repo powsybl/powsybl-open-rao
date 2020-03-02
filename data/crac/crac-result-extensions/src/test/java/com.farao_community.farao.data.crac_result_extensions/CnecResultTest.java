@@ -14,21 +14,14 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CnecResultImplTest {
+public class CnecResultTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testGetterAndSetter() {
-
-        CnecResultImpl cnecResult = new CnecResultImpl(50.0, 75.0);
+    public void test() {
+        CnecResult cnecResult = new CnecResult(50.0, 75.0);
         assertEquals(50.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
-
-        cnecResult.setFlowInMW(-30.0);
-        cnecResult.setFlowInA(40.0);
-
-        assertEquals(-30.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(40.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
     }
 }

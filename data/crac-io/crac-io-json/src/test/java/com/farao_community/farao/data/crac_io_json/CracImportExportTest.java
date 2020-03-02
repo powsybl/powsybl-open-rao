@@ -22,7 +22,6 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -32,8 +31,6 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

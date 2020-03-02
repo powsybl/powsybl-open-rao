@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 
 import com.farao_community.farao.data.crac_io_api.CracExporters;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultAdderImpl;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ public class CnecResultJsonTest {
         // One Cnec with extension
         simpleCrac.addNetworkElement("ne2");
         Cnec preventiveCnec1 = simpleCrac.addCnec("cnec2prev", "ne2", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500), preventiveState.getId());
-        preventiveCnec1.newExtension(CnecResultAdderImpl.class).withFlowInMW(-500.0).withFlowInA(750.0).add();
+        preventiveCnec1.addExtension(CnecResult.class, new CnecResult(50.0, 75.0));
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

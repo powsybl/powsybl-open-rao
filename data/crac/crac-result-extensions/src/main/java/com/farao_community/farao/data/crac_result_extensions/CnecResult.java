@@ -4,26 +4,40 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public interface CnecResult extends Extension<Cnec> {
+public class CnecResult extends AbstractExtension<Cnec> {
 
-    @Override
-    default String getName() {
-        return "CnecResult";
+    private double flowInMW;
+    private double flowInA;
+
+    public CnecResult(double flowInMW, double flowInA) {
+        this.flowInMW = flowInMW;
+        this.flowInA = flowInA;
     }
 
-    double getFlowInMW();
+    public CnecResult(double flowInMW) {
+        this.flowInMW = flowInMW;
+        this.flowInA = Double.NaN;
+    }
 
-    double getFlowInA();
+    public double getFlowInMW() {
+        return flowInMW;
+    }
 
-    CnecResult setFlowInMW(double flow);
+    public double getFlowInA() {
+        return flowInA;
+    }
 
-    CnecResult setFlowInA(double flow);
+    @Override
+    public String getName() {
+        return "CnecResult";
+    }
 }

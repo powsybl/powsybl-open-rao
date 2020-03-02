@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_result_extensions.json;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultImpl;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -21,10 +21,10 @@ import java.io.IOException;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(ExtensionsHandler.CnecExtensionSerializer.class)
-public class JsonCnecResultImpl implements ExtensionsHandler.CnecExtensionSerializer<CnecResultImpl> {
+public class JsonCnecResult implements ExtensionsHandler.CnecExtensionSerializer<CnecResult> {
 
     @Override
-    public void serialize(CnecResultImpl cnecResults, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(CnecResult cnecResults, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("flowInMW", cnecResults.getFlowInMW());
         jsonGenerator.writeNumberField("flowInA", cnecResults.getFlowInA());
@@ -33,7 +33,7 @@ public class JsonCnecResultImpl implements ExtensionsHandler.CnecExtensionSerial
     }
 
     @Override
-    public CnecResultImpl deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public CnecResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         double flowInMW = Double.NaN;
         double flowInA = Double.NaN;
@@ -55,7 +55,7 @@ public class JsonCnecResultImpl implements ExtensionsHandler.CnecExtensionSerial
             }
         }
 
-        return new CnecResultImpl(flowInMW, flowInA);
+        return new CnecResult(flowInMW, flowInA);
     }
 
     @Override
@@ -69,8 +69,8 @@ public class JsonCnecResultImpl implements ExtensionsHandler.CnecExtensionSerial
     }
 
     @Override
-    public Class<? super CnecResultImpl> getExtensionClass() {
-        return CnecResultImpl.class;
+    public Class<? super CnecResult> getExtensionClass() {
+        return CnecResult.class;
     }
 
 }
