@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 
@@ -28,7 +27,7 @@ import java.util.Optional;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Threshold {
+public interface Threshold extends Synchronizable {
 
     /**
      * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
@@ -46,7 +45,7 @@ public interface Threshold {
      * The returned value is given with the Unit given in argument of the function.
      */
     @JsonIgnore
-    Optional<Double> getMinThreshold(Unit unit) throws SynchronizationException;
+    Optional<Double> getMinThreshold(Unit unit);
 
     /**
      * If it is defined, this function returns the maximum limit of the Threshold,
@@ -56,9 +55,5 @@ public interface Threshold {
      * The returned value is given with the unit given in argument of the function.
      */
     @JsonIgnore
-    Optional<Double> getMaxThreshold(Unit unit) throws SynchronizationException;
-
-    void synchronize(Network network, Cnec cnec);
-
-    void desynchronize();
+    Optional<Double> getMaxThreshold(Unit unit);
 }

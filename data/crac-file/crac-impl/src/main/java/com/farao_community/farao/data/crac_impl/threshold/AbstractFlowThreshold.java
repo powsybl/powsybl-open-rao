@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
+import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -42,22 +44,22 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     protected Direction direction;
 
     /**
-     * maximum admissible flow value
-     */
-    protected double maxValue;
-
-    /**
      * voltage level of the network element
      */
     protected double voltageLevel;
 
-    public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
-        super(unit);
+    protected boolean isSynchronized;
+
+    public AbstractFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction) {
+        super(unit, networkElement);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.side = side;
         this.direction = direction;
-        this.maxValue = Double.NaN;
         this.voltageLevel = Double.NaN;
+    }
+
+    public AbstractFlowThreshold(Unit unit, Side side, Direction direction) {
+        this(unit, null, side, direction);
     }
 
     @Override
@@ -66,7 +68,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Optional<Double> getMinThreshold(Unit requestedUnit) throws SynchronizationException {
+    public Optional<Double> getMinThreshold(Unit requestedUnit) {
         if (direction == Direction.DIRECT) {
             return Optional.empty();
         } else { // Direction.OPPOSITE and Direction.BOTH
@@ -75,7 +77,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Optional<Double> getMaxThreshold(Unit requestedUnit) throws SynchronizationException {
+    public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         if (direction == Direction.OPPOSITE) {
             return Optional.empty();
         } else { // Direction.DIRECT and Direction.BOTH
@@ -84,13 +86,30 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     }
 
     @Override
-    public void synchronize(Network network, Cnec cnec) {
-        voltageLevel = network.getBranch(cnec.getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+    public void synchronize(Network network) {
+        if (isSynchronized()) {
+            throw new AlreadySynchronizedException("Synchronization on flow threshold has already been done");
+        }
+        voltageLevel = checkAndGetValidBranch(network, getNetworkElement().getId()).getTerminal(getBranchSide()).getVoltageLevel().getNominalV();
+        isSynchronized = true;
+    }
+
+    protected Branch checkAndGetValidBranch(Network network, String networkElementId) {
+        Branch branch = network.getBranch(networkElementId);
+        if (branch == null) {
+            throw new FaraoException(String.format("Branch %s does not exist in the current network", networkElementId));
+        }
+        return branch;
     }
 
     @Override
     public void desynchronize() {
-        voltageLevel = Double.NaN;
+        isSynchronized = false;
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     public Direction getDirection() {
@@ -99,14 +118,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
-    }
-
-    public double getMaxValue() {
-        return maxValue;
-    }
-
-    public void setMaxValue(double maxValue) {
-        this.maxValue = maxValue;
     }
 
     public Side getSide() {
@@ -140,13 +151,13 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * The conversion formula is the following one :
      * Flow(MW) = Flow(A) * sqrt(3) * Unom (kV) / 1000
      */
-    private double convert(double value, Unit originUnit, Unit requestedUnit) throws SynchronizationException {
+    private double convert(double value, Unit originUnit, Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(PhysicalParameter.FLOW);
         if (originUnit.equals(requestedUnit)) {
             return value;
         }
-        if (Double.isNaN(voltageLevel)) {
-            throw new SynchronizationException("FlowThreshold unit conversion : voltage level must be synchronised with a Network");
+        if (!isSynchronized()) {
+            throw new NotSynchronizedException("FlowThreshold unit conversion : voltage level must be synchronised with a Network");
         }
         double ratio = voltageLevel * Math.sqrt(3) / 1000;
         if (originUnit.equals(Unit.AMPERE) && requestedUnit.equals(Unit.MEGAWATT)) {
@@ -162,7 +173,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * Get the maximum admissible flow, regardless of the direction in which
      * the branch is monitored.
      */
-    protected abstract double getAbsoluteMax() throws SynchronizationException;
+    protected abstract double getAbsoluteMax();
 
     @Override
     public boolean equals(Object o) {
@@ -173,12 +184,22 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             return false;
         }
         AbstractFlowThreshold threshold = (AbstractFlowThreshold) o;
-        return unit.equals(threshold.unit) && side.equals(threshold.side) && direction.equals(threshold.direction);
+        boolean result;
+        if (networkElement != null) {
+            result = networkElement.equals(threshold.networkElement);
+        } else {
+            result = threshold.networkElement == null;
+        }
+        return result && unit.equals(threshold.unit)
+            && side.equals(threshold.side) && direction.equals(threshold.direction);
     }
 
     @Override
     public int hashCode() {
         int result = unit.hashCode();
+        if (networkElement != null) {
+            result = 31 * result + networkElement.hashCode();
+        }
         result = 31 * result + side.hashCode();
         result = 31 * result + direction.hashCode();
         return result;

@@ -96,11 +96,9 @@ public final class SystematicSensitivityAnalysisService {
             states.addAll(crac.getStates(contingency));
         }
 
-        crac.synchronize(network);
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             cnecFlowMap.put(cnec, cnec.getP(network));
         }));
-        crac.desynchronize(); // To be sure it is always synchronized with the good network
     }
 
     public static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
@@ -153,9 +151,15 @@ public final class SystematicSensitivityAnalysisService {
         };
 
         if (factorsProvider.getFactors(network).isEmpty()) {
+            return new SensitivityComputationResults(false, Collections.emptyMap(), "", new ArrayList<>());
+        }
+        try {
+            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+        } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
             return null;
         }
-        return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+
     }
 
     private static boolean isPst(Network network, NetworkElement networkElement) {

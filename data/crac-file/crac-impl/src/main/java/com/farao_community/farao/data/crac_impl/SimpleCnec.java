@@ -25,20 +25,23 @@ import com.powsybl.iidm.network.Terminal;
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SimpleCnec extends AbstractIdentifiable implements Cnec {
     private NetworkElement networkElement;
-    private Threshold threshold;
+    private AbstractThreshold threshold;
     private State state;
     private double loopFlowConstraint; //loop flow constraint used during optimization, set in the search tree
     private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec
+    private boolean isSynchronized;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("threshold") Threshold threshold, @JsonProperty("state") State state) {
+                      @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
         super(id, name);
         this.networkElement = networkElement;
-        this.threshold = threshold;
+        this.threshold = threshold.copy();
+        this.threshold.setNetworkElement(networkElement);
         this.state = state;
         this.inputLoopFlow = 0.0; // set to min value at init. loopFlowConstraint = Math.max(inputLoopflow, LoopFlow at init situ)
+        isSynchronized = false;
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
@@ -51,11 +54,11 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         return networkElement;
     }
 
-    public double computeMargin(Network network) throws SynchronizationException {
+    public double computeMargin(Network network) {
         // todo : switch units if no I is available but P is available
         // todo : add a requested unit
         double flow;
-        Unit unit = ((AbstractThreshold) threshold).getUnit();
+        Unit unit = threshold.getUnit();
         if (unit.equals(Unit.AMPERE)) {
             flow = getI(network);
         } else {
@@ -141,12 +144,19 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
 
     @Override
     public void synchronize(Network network) {
-        threshold.synchronize(network, this);
+        threshold.synchronize(network);
+        isSynchronized = true;
     }
 
     @Override
     public void desynchronize() {
         threshold.desynchronize();
+        isSynchronized = false;
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     @Override

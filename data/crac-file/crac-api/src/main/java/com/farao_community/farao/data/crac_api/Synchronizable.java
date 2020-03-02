@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -30,4 +31,11 @@ public interface Synchronizable {
      * mainly for export purpose.
      */
     void desynchronize();
+
+    /**
+     * Notify the user if the Synchronizable object has already been synchronized or not.
+     * @return True if its already synchronized.
+     */
+    @JsonIgnore
+    boolean isSynchronized();
 }

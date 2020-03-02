@@ -274,21 +274,16 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
     }
 
     private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
-        try {
-            Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT);
-            double fmax = maxThreshold.orElse(Double.POSITIVE_INFINITY);
-            return new DataMonitoredBranch(
-                    cnec.getId(),
-                    cnec.getName(),
-                    cnec.getNetworkElement().getId(),
-                    fmax,
-                    referenceFlows.get(cnec.getId()),
-                    buildDataPtdfPerCountry(cnec.getId(), ptdfs)
-            );
-        } catch (SynchronizationException e) {
-            LOGGER.error(e.getMessage());
-            return null;
-        }
+        Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT);
+        double fmax = maxThreshold.orElse(Double.POSITIVE_INFINITY);
+        return new DataMonitoredBranch(
+                cnec.getId(),
+                cnec.getName(),
+                cnec.getNetworkElement().getId(),
+                fmax,
+                referenceFlows.get(cnec.getId()),
+                buildDataPtdfPerCountry(cnec.getId(), ptdfs)
+        );
     }
 
     private List<DataPtdfPerCountry> buildDataPtdfPerCountry(String branchId, Map<String, Map<String, Double>> ptdfs) {

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -40,6 +41,7 @@ public class SimpleCnecTest {
 
         // mock threshold
         threshold = Mockito.mock(AbstractFlowThreshold.class);
+        Mockito.when(threshold.copy()).thenReturn(threshold);
         Mockito.when(threshold.getBranchSide()).thenReturn(Branch.Side.ONE);
         State state = Mockito.mock(State.class);
 
@@ -85,7 +87,7 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void computeMarginInAmpereOk() throws SynchronizationException {
+    public void computeMarginInAmpereOk() {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.AMPERE);
 
@@ -102,7 +104,7 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void computeMarginInMegawattOk() throws SynchronizationException {
+    public void computeMarginInMegawattOk() {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
 
@@ -124,7 +126,7 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void computeMarginDisconnectedBranch() throws SynchronizationException {
+    public void computeMarginDisconnectedBranch() {
 
         Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));
@@ -149,5 +151,23 @@ public class SimpleCnecTest {
         cnec1.setLoopFlowConstraint(100);
         assertEquals(100, cnec1.getLoopFlowConstraint(), 0.1);
         assertEquals(0.0, cnec1.getInputLoopFlow(), 0.1);
+    }
+
+    @Test
+    public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
+        State state = Mockito.mock(State.class);
+        RelativeFlowThreshold relativeFlowThreshold = new RelativeFlowThreshold(Side.LEFT, Direction.DIRECT, 50);
+        Cnec cnecOnLine1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), relativeFlowThreshold, state);
+        Cnec cnecOnLine2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), relativeFlowThreshold, state);
+
+        Network network = Importers.loadNetwork(
+            "TestCase2Nodes_withLF_withDifferentLimits.xiidm",
+            getClass().getResourceAsStream("/TestCase2Nodes_withLF_withDifferentLimits.xiidm"));
+
+        cnecOnLine2.synchronize(network);
+        cnecOnLine1.synchronize(network);
+
+        assertEquals(400, cnecOnLine1.getThreshold().getMaxThreshold(Unit.AMPERE).get(), 0.1);
+        assertEquals(250, cnecOnLine2.getThreshold().getMaxThreshold(Unit.AMPERE).get(), 0.1);
     }
 }
