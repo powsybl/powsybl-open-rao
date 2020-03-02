@@ -182,9 +182,11 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             return false;
         }
         AbstractFlowThreshold threshold = (AbstractFlowThreshold) o;
-        boolean result = true;
+        boolean result;
         if (networkElement != null) {
             result = networkElement.equals(threshold.networkElement);
+        } else {
+            result = threshold.networkElement == null;
         }
         return result && unit.equals(threshold.unit)
             && side.equals(threshold.side) && direction.equals(threshold.direction);

@@ -83,8 +83,18 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
     }
 
     @Override
+    public void synchronize(Network network) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void desynchronize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isSynchronized() {
-        return true;
+        throw new UnsupportedOperationException();
     }
 
     protected abstract double getMinValueWithRange(Network network, Range range);

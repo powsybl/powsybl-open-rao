@@ -31,15 +31,15 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("maxValue") double maxValue) {
         super(unit, side, direction);
-        initMaxValue(maxValue);
+        setMaxValue(maxValue);
     }
 
     public AbsoluteFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction, double maxValue) {
         super(unit, networkElement, side, direction);
-        initMaxValue(maxValue);
+        setMaxValue(maxValue);
     }
 
-    private void initMaxValue(double maxValue) {
+    private void setMaxValue(double maxValue) {
         if (maxValue < 0) {
             throw new FaraoException("MaxValue of AbsoluteFlowThresholds must be positive.");
         }
@@ -48,10 +48,6 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     public double getMaxValue() {
         return maxValue;
-    }
-
-    public void setMaxValue(double maxValue) {
-        this.maxValue = maxValue;
     }
 
     @Override
@@ -83,8 +79,6 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) maxValue;
-        return result;
+        return super.hashCode();
     }
 }

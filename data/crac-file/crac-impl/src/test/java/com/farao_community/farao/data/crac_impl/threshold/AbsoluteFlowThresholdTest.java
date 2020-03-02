@@ -75,6 +75,15 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
+    public void notEqualsOneWithNetworkElementAndNotTheOther() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        AbsoluteFlowThreshold absoluteFlowThreshold1 = new AbsoluteFlowThreshold(AMPERE, networkElement, Side.RIGHT, Direction.BOTH, 500.0);
+        AbsoluteFlowThreshold absoluteFlowThreshold2 = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        assertNotEquals(absoluteFlowThreshold1, absoluteFlowThreshold2);
+        assertNotEquals(absoluteFlowThreshold2, absoluteFlowThreshold1);
+    }
+
+    @Test
     public void notEquals() {
         assertNotEquals(absoluteFlowThresholdAmps, absoluteFlowThresholdMW);
     }

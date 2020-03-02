@@ -80,7 +80,17 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     }
 
     @Override
+    public void synchronize(Network network) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void desynchronize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isSynchronized() {
-        return true;
+        throw new UnsupportedOperationException();
     }
 }

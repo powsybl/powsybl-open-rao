@@ -163,6 +163,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     public void desynchronize() {
         pst.addRange(new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
+        int initialTapPosition = phaseTapChanger.getTapPosition();
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
         pst.desynchronize();
 
         try {

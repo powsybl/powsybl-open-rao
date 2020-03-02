@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -61,8 +63,16 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     @Override
     public void synchronize(Network network) {
         super.synchronize(network);
+        Branch branch = super.checkAndGetValidBranch(network, networkElement.getId());
+        CurrentLimits currentLimits = branch.getCurrentLimits(Branch.Side.ONE);
+        if (currentLimits == null) {
+            currentLimits = branch.getCurrentLimits(Branch.Side.TWO);
+        }
+        if (currentLimits == null) {
+            throw new FaraoException(String.format("No IMAP defined for %s", networkElement.getId()));
+        }
         // compute maxValue, in Unit.AMPERE
-        branchLimit = super.checkAndGetValidBranch(network, networkElement.getId()).getCurrentLimits(getBranchSide()).getPermanentLimit();
+        branchLimit = currentLimits.getPermanentLimit();
     }
 
     @Override

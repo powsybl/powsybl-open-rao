@@ -136,7 +136,17 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
+    public void synchronize(Network network) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void desynchronize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isSynchronized() {
-        return false;
+        throw new UnsupportedOperationException();
     }
 }
