@@ -153,7 +153,7 @@ public final class SystematicSensitivityAnalysisService {
         };
 
         if (factorsProvider.getFactors(network).isEmpty()) {
-            return null;
+            return new SensitivityComputationResults(false, Collections.emptyMap(), "", new ArrayList<>());
         }
         try {
             return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);

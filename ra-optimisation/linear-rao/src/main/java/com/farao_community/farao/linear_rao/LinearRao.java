@@ -69,7 +69,7 @@ public class LinearRao implements RaoProvider {
         // setReferenceValue (only once!!)
         crac.setReferenceValues(network);
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
+        if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null) && !crac.getRangeActions().isEmpty()) {
             return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
         }
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
