@@ -23,12 +23,10 @@ import com.powsybl.iidm.network.Terminal;
  */
 @JsonTypeName("simple-cnec")
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class SimpleCnec extends AbstractIdentifiable implements Cnec {
+public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
     private AbstractThreshold threshold;
     private State state;
-    private double loopFlowConstraint; //loop flow constraint used during optimization, set in the search tree
-    private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec
     private boolean isSynchronized;
 
     @JsonCreator
@@ -40,13 +38,11 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
         this.threshold = threshold.copy();
         this.threshold.setNetworkElement(networkElement);
         this.state = state;
-        this.inputLoopFlow = 0.0; // set to min value at init. loopFlowConstraint = Math.max(inputLoopflow, LoopFlow at init situ)
         isSynchronized = false;
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
         this(id, id, networkElement, threshold, state);
-        this.inputLoopFlow = 0.0; // set to min value at init. loopFlowConstraint = Math.max(inputLoopflow, LoopFlow at init situ)
     }
 
     @Override
@@ -125,21 +121,6 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
             throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", getName()));
         }
         return p;
-    }
-
-    @Override
-    public void setLoopFlowConstraint(double loopFlowConstraint) {
-        this.loopFlowConstraint = loopFlowConstraint;
-    }
-
-    @Override
-    public double getLoopFlowConstraint() {
-        return loopFlowConstraint;
-    }
-
-    @Override
-    public double getInputLoopFlow() {
-        return inputLoopFlow;
     }
 
     @Override

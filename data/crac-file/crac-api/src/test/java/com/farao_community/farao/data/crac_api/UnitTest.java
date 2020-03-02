@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_api;
 import com.farao_community.farao.commons.FaraoException;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -54,5 +55,13 @@ public class UnitTest {
         } catch (FaraoException e) {
             // should throw
         }
+    }
+
+    @Test
+    public void testLoopflowParameters() {
+        CnecExtension cnecExtension = new CnecExtension();
+        cnecExtension.setLoopFlowConstraint(100);
+        assertEquals(100, cnecExtension.getLoopFlowConstraint(), 0.1);
+        assertEquals(0.0, cnecExtension.getInputLoopFlow(), 0.1);
     }
 }

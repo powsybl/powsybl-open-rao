@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.Network;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Cnec extends Identifiable, Synchronizable {
+public interface Cnec extends Identifiable<Cnec>, Synchronizable {
 
     State getState();
 
@@ -52,21 +52,4 @@ public interface Cnec extends Identifiable, Synchronizable {
      */
     double getP(Network network);
 
-    /**
-     * set loop flow constraint used during optimization.
-     * The value is equal to MAX value of initial loop flow calculated from network and
-     * loop flow threshold which is a input parameter from TSO
-     * @param loopFlowConstraint = Max(init_Loop_flow, input loop flow)
-     */
-    void setLoopFlowConstraint(double loopFlowConstraint);
-
-    /**
-     * return loop flow constraint used in linear optimization
-     */
-    double getLoopFlowConstraint();
-
-    /**
-     * @return input loop flow threshold parameter from TSO for each cross-zonal Cnec
-     */
-    double getInputLoopFlow();
 }

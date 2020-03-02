@@ -147,13 +147,6 @@ public class SimpleCnecTest {
     }
 
     @Test
-    public void testLoopflowParameters() {
-        cnec1.setLoopFlowConstraint(100);
-        assertEquals(100, cnec1.getLoopFlowConstraint(), 0.1);
-        assertEquals(0.0, cnec1.getInputLoopFlow(), 0.1);
-    }
-
-    @Test
     public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
         State state = Mockito.mock(State.class);
         RelativeFlowThreshold relativeFlowThreshold = new RelativeFlowThreshold(Side.LEFT, Direction.DIRECT, 50);
