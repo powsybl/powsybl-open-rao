@@ -22,7 +22,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.*;
@@ -120,9 +119,9 @@ public class SystematicSensitivityAnalysisServiceTest {
                 Object[] args = invocation.getArguments();
                 Network network = (Network) args[0];
                 network.getBranches().forEach(branch -> {
-                            branch.getTerminal1().setP(120.);
-                            branch.getTerminal2().setP(120.);
-                        }
+                        branch.getTerminal1().setP(120.);
+                        branch.getTerminal2().setP(120.);
+                    }
                 );
                 return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
             }
