@@ -1,4 +1,4 @@
-package com.farao_community.farao.data.crac_api;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 
