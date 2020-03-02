@@ -48,7 +48,7 @@ public class SearchTreeRao implements RaoProvider {
         }
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
-        FlowBasedComputationParameters flowBasedComputationParameters = FlowBasedComputationParameters.load();
+        FlowBasedComputationParameters flowBasedComputationParameters = parameters.getExtension(FlowBasedComputationParameters.class);
         calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
 
         // run optimisation
