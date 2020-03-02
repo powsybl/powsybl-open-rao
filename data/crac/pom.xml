@@ -19,5 +19,7 @@
     <modules>
         <module>crac-api</module>
         <module>crac-impl</module>
+        <module>crac-result-extensions</module>
+
     </modules>
 </project>
