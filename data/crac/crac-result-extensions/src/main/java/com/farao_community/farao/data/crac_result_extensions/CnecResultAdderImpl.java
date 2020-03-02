@@ -23,13 +23,13 @@ public class CnecResultAdderImpl extends AbstractExtensionAdder<Cnec, CnecResult
     }
 
     @Override
-    public CnecResultAdder withFlowInMW(double flow){
+    public CnecResultAdder withFlowInMW(double flow) {
         this.flowInMW = flow;
         return this;
     }
 
     @Override
-    public CnecResultAdder withFlowInA(double flow){
+    public CnecResultAdder withFlowInA(double flow) {
         this.flowInA = flow;
         return this;
     }
