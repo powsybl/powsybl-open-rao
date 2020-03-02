@@ -66,7 +66,9 @@ public class LinearRao implements RaoProvider {
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
 
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
-        if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null) && !crac.getRangeActions().isEmpty()) {
+
+        // Failure if some sensitivities are not computed
+        if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
             return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
         }
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
@@ -98,8 +100,10 @@ public class LinearRao implements RaoProvider {
 
             applyRAs(crac, network, newRemedialActionsResultList);
             tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+
+            // If some sensitivities are not computed, the bes result found so far is returned
             if (tempSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
-                return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
+                break;
             }
             double newScore = getMinMargin(crac, tempSensitivityAnalysisResult);
             if (newScore < oldScore) {

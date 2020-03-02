@@ -156,6 +156,7 @@ public final class SystematicSensitivityAnalysisService {
         try {
             return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
         } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
             return null;
         }
 
