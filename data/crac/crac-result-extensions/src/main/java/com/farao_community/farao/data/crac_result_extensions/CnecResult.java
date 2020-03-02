@@ -16,7 +16,7 @@ public interface CnecResult extends Extension<Cnec> {
 
     @Override
     default String getName() {
-        return "cnecResults";
+        return "CnecResult";
     }
 
     double getFlowInMW();
