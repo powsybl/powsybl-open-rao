@@ -101,7 +101,7 @@ public final class SystematicSensitivityAnalysisService {
         }));
     }
 
-    public static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
+    private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
         contingency.getNetworkElements().forEach(contingencyElement -> applyContingencyElementInCrac(network, computationManager, contingencyElement));
     }
 

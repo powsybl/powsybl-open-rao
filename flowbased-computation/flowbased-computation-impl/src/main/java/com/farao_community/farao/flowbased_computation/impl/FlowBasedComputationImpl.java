@@ -37,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.util.ContingencyUtil.applyContingency;
-import static com.farao_community.farao.util.SystematicSensitivityAnalysisService.applyContingencyInCrac;
 
 /**
  * Flowbased computation implementation
@@ -162,7 +161,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
                     LOGGER.info("Running post contingency sensitivity computation for contingency '{}'", contingency.getId());
                     String workingVariant = variantsPool.getAvailableVariant();
                     network.getVariantManager().setWorkingVariant(workingVariant);
-                    applyContingencyInCrac(network, computationManager, contingency);
+                    contingency.apply(network, computationManager);
 
                     computePtdf(network, cnecscontingency, glskProvider, referenceFlows, ptdfs);
                     variantsPool.releaseUsedVariant(workingVariant);
