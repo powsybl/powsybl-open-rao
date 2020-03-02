@@ -78,4 +78,19 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     public Set<NetworkElement> getNetworkElements() {
         return new HashSet<>();
     }
+
+    @Override
+    public void synchronize(Network network) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void desynchronize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        throw new UnsupportedOperationException();
+    }
 }

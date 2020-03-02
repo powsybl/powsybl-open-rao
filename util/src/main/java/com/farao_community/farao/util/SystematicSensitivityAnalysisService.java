@@ -96,11 +96,9 @@ public final class SystematicSensitivityAnalysisService {
             states.addAll(crac.getStates(contingency));
         }
 
-        crac.synchronize(network);
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             cnecFlowMap.put(cnec, cnec.getP(network));
         }));
-        crac.desynchronize(); // To be sure it is always synchronized with the good network
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {

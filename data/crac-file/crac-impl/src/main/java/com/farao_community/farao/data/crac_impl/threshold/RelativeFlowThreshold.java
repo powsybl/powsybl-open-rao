@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -23,6 +25,7 @@ import com.powsybl.iidm.network.Network;
  */
 @JsonTypeName("relative-flow-threshold")
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
+    private double branchLimit;
 
     /**
      * Percentage of the branch limit which shouldn't be overcome
@@ -34,6 +37,15 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("percentageOfMax") double percentageOfMax) {
         super(Unit.AMPERE, side, direction);
+        initPercentageOfMax(percentageOfMax);
+    }
+
+    public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax) {
+        super(Unit.AMPERE, networkElement, side, direction);
+        initPercentageOfMax(percentageOfMax);
+    }
+
+    private void initPercentageOfMax(double percentageOfMax) {
         if (percentageOfMax < 0 || percentageOfMax > 100) {
             throw new FaraoException("PercentageOfMax of RelativeFlowThresholds must be in [0, 100]");
         }
@@ -41,24 +53,37 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
-    protected double getAbsoluteMax() throws SynchronizationException {
-        if (Double.isNaN(maxValue)) {
-            throw new SynchronizationException("Relative flow threshold has not been synchronized with network");
+    protected double getAbsoluteMax() {
+        if (!isSynchronized) {
+            throw new NotSynchronizedException(String.format("Relative threshold on branch %s has not been synchronized so its absolute max value cannot be accessed", networkElement.getId()));
         }
-        return maxValue;
+        return branchLimit * percentageOfMax / 100;
     }
 
     @Override
-    public void synchronize(Network network, Cnec cnec) {
-        super.synchronize(network, cnec);
+    public void synchronize(Network network) {
+        super.synchronize(network);
+        Branch branch = super.checkAndGetValidBranch(network, networkElement.getId());
+        CurrentLimits currentLimits = branch.getCurrentLimits(Branch.Side.ONE);
+        if (currentLimits == null) {
+            currentLimits = branch.getCurrentLimits(Branch.Side.TWO);
+        }
+        if (currentLimits == null) {
+            throw new FaraoException(String.format("No IMAP defined for %s", networkElement.getId()));
+        }
         // compute maxValue, in Unit.AMPERE
-        maxValue = network.getBranch(cnec.getNetworkElement().getId()).getCurrentLimits(getBranchSide()).getPermanentLimit() * percentageOfMax / 100;
+        branchLimit = currentLimits.getPermanentLimit();
     }
 
     @Override
-    public void desynchronize() {
-        super.desynchronize();
-        maxValue = Double.NaN;
+    public AbstractThreshold copy() {
+        RelativeFlowThreshold copiedRelativeFlowThreshold = new RelativeFlowThreshold(networkElement, side, direction, percentageOfMax);
+        if (isSynchronized()) {
+            copiedRelativeFlowThreshold.isSynchronized = isSynchronized;
+            copiedRelativeFlowThreshold.voltageLevel = voltageLevel;
+            copiedRelativeFlowThreshold.branchLimit = branchLimit;
+        }
+        return copiedRelativeFlowThreshold;
     }
 
     @Override
