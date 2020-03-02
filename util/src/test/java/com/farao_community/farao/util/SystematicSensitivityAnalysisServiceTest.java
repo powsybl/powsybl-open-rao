@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.google.common.jimfs.Configuration;
@@ -108,6 +109,33 @@ public class SystematicSensitivityAnalysisServiceTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void testSensiSArunSensitivitySAFailure() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        // Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl());
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Network network = (Network) args[0];
+                network.getBranches().forEach(branch -> {
+                        branch.getTerminal1().setP(120.);
+                        branch.getTerminal2().setP(120.);
+                    }
+                );
+                return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
+            }
+        }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        LoadFlowService.init(loadFlowRunner, computationManager);
+        crac.addRangeAction(new PstWithRange("myPst", new NetworkElement(network.getTwoWindingsTransformers().iterator().next().getId())));
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        assertNotNull(result);
+
+        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactoryBroken();
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+    }
+
     private static Crac create() {
         Crac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
@@ -193,6 +221,34 @@ public class SystematicSensitivityAnalysisServiceTest {
         @Override
         public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
             return new MockSensitivityComputation(network);
+        }
+    }
+
+    public class MockSensitivityComputationFactoryBroken implements SensitivityComputationFactory {
+        class MockSensitivityComputation implements SensitivityComputation {
+
+            MockSensitivityComputation() {
+            }
+
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                throw new FaraoException("This should fail");
+            }
+
+            @Override
+            public String getName() {
+                return "Mock";
+            }
+
+            @Override
+            public String getVersion() {
+                return "Mock";
+            }
+        }
+
+        @Override
+        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
+            return new MockSensitivityComputation();
         }
     }
 }
