@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.json.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,9 +44,6 @@ public class JsonExport implements CracExporter {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(SimpleCnec.class, new SimpleCnecSerializer());
-            objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, crac);
         } catch (IOException e) {

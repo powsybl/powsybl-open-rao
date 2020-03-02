@@ -8,9 +8,8 @@
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.fasterxml.jackson.annotation.*;
 
 /**
  * The remedial action is available only after a specific constraint, with a given method

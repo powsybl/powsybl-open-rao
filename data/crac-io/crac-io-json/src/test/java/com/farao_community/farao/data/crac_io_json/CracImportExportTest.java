@@ -22,6 +22,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -31,6 +32,8 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -111,9 +114,6 @@ public class CracImportExportTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(simpleCrac, "Json", outputStream);
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-
-           /*
-            import broken for now
             Crac crac = CracImporters.importCrac("unknown.json", inputStream);
             assertEquals(crac.getNetworkElements().size(), 5);
             assertEquals(crac.getInstants().size(), 2);
@@ -121,8 +121,6 @@ public class CracImportExportTest {
             assertEquals(crac.getCnecs().size(), 3);
             assertEquals(crac.getRangeActions().size(), 2);
             assertEquals(crac.getNetworkActions().size(), 2);
-
-            */
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
