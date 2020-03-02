@@ -105,6 +105,22 @@ public class LinearRaoTest {
     }
 
     @Test
+    public void testBrokenSensi() {
+        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
+        stateSensiMap.put(new SimpleState(Optional.empty(), new Instant("myInstant", 0)), null);
+        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, new HashMap<>()));
+        RaoComputationResult result;
+        try {
+            result = linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, raoParameters).get();
+            assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
     public void runTest() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",

@@ -43,8 +43,10 @@ public final class Tree {
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
         if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
-            //TODO : improve error messages depending on leaf error (Sensi divergent, infeasible optimisation, time-out, ...)
-            throw new FaraoException("Initial case returns an error");
+            //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
+            RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.FAILURE);
+            raoComputationResult.addExtension(SearchTreeRaoResult.class, new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.ERROR, SearchTreeRaoResult.StopCriterion.DIVERGENCE));
+            return CompletableFuture.completedFuture(raoComputationResult);
         }
 
         Leaf optimalLeaf = rootLeaf;

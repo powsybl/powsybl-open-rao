@@ -6,10 +6,13 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -67,5 +70,20 @@ public class TreeTest {
         assertNotNull(result.getExtension(SearchTreeRaoResult.class));
         assertEquals(SearchTreeRaoResult.ComputationStatus.SECURE, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
         assertEquals(SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED, result.getExtension(SearchTreeRaoResult.class).getStopCriterion());
+    }
+
+    @Test
+    public void brokenRootSearchTest() {
+        Network network = Mockito.mock(Network.class);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        RaoComputationResult result;
+        try {
+            result = Tree.search(network, Mockito.mock(Crac.class), "", Mockito.mock(RaoParameters.class)).get();
+            assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
+            assertEquals(SearchTreeRaoResult.ComputationStatus.ERROR, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
+        } catch (Exception e) {
+            throw new AssertionError();
+        }
     }
 }
