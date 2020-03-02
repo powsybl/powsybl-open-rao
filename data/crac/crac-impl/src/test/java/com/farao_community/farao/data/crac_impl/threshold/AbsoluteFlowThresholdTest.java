@@ -9,14 +9,10 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
-import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_api.Unit.AMPERE;
 import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
@@ -34,32 +30,78 @@ public class AbsoluteFlowThresholdTest {
     private AbsoluteFlowThreshold absoluteFlowThresholdMW;
     private AbsoluteFlowThreshold absoluteFlowThresholdMWIn;
     private AbsoluteFlowThreshold absoluteFlowThresholdMWOut;
-    private Cnec cnec1;
-    private Cnec cnec2;
-    private Cnec cnec4;
-    private Cnec cnec5;
     private Network networkWithoutLf;
 
     @Before
     public void setUp() {
-        absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
-        absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.BOTH, 1500.0);
-        absoluteFlowThresholdMWIn = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.OPPOSITE, 1500.0);
-        absoluteFlowThresholdMWOut = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.DIRECT, 1500.0);
-
-        cnec1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"),
-                absoluteFlowThresholdAmps, new SimpleState(Optional.empty(), new Instant("initial", 0)));
-
-        cnec2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_1"),
-                absoluteFlowThresholdMW, new SimpleState(Optional.empty(), new Instant("initial", 0)));
-
-        cnec4 = new SimpleCnec("cnec4", new NetworkElement("FRANCE_BELGIUM_2"),
-                absoluteFlowThresholdMWIn, new SimpleState(Optional.empty(), new Instant("initial", 0)));
-
-        cnec5 = new SimpleCnec("cnec5", new NetworkElement("FRANCE_BELGIUM_2"),
-                absoluteFlowThresholdMWOut, new SimpleState(Optional.empty(), new Instant("initial", 0)));
+        NetworkElement networkElement1 = new NetworkElement("FRANCE_BELGIUM_1");
+        NetworkElement networkElement2 = new NetworkElement("FRANCE_BELGIUM_2");
+        absoluteFlowThresholdAmps = new AbsoluteFlowThreshold(AMPERE, networkElement1, Side.RIGHT, Direction.BOTH, 500.0);
+        absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, networkElement1, Side.LEFT, Direction.BOTH, 1500.0);
+        absoluteFlowThresholdMWIn = new AbsoluteFlowThreshold(MEGAWATT, networkElement2, Side.LEFT, Direction.OPPOSITE, 1500.0);
+        absoluteFlowThresholdMWOut = new AbsoluteFlowThreshold(MEGAWATT, networkElement2, Side.LEFT, Direction.DIRECT, 1500.0);
 
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
+    }
+
+    @Test
+    public void equalsWithoutNetworkElement() {
+        AbsoluteFlowThreshold absoluteFlowThreshold1 = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        AbsoluteFlowThreshold absoluteFlowThreshold2 = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        assertEquals(absoluteFlowThreshold1, absoluteFlowThreshold2);
+    }
+
+    @Test
+    public void sameHashCodeWithoutNetworkElement() {
+        AbsoluteFlowThreshold absoluteFlowThreshold1 = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        AbsoluteFlowThreshold absoluteFlowThreshold2 = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        assertEquals(absoluteFlowThreshold1.hashCode(), absoluteFlowThreshold2.hashCode());
+    }
+
+    @Test
+    public void equalsWithNetworkElement() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        AbsoluteFlowThreshold absoluteFlowThreshold1 = new AbsoluteFlowThreshold(AMPERE, networkElement, Side.RIGHT, Direction.BOTH, 500.0);
+        AbsoluteFlowThreshold absoluteFlowThreshold2 = new AbsoluteFlowThreshold(AMPERE, networkElement, Side.RIGHT, Direction.BOTH, 500.0);
+        assertEquals(absoluteFlowThreshold1, absoluteFlowThreshold2);
+    }
+
+    @Test
+    public void sameHashCodeWithNetworkElement() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        AbsoluteFlowThreshold absoluteFlowThreshold1 = new AbsoluteFlowThreshold(AMPERE, networkElement, Side.RIGHT, Direction.BOTH, 500.0);
+        AbsoluteFlowThreshold absoluteFlowThreshold2 = new AbsoluteFlowThreshold(AMPERE, networkElement, Side.RIGHT, Direction.BOTH, 500.0);
+        assertEquals(absoluteFlowThreshold1.hashCode(), absoluteFlowThreshold2.hashCode());
+    }
+
+    @Test
+    public void notEqualsOneWithNetworkElementAndNotTheOther() {
+        NetworkElement networkElement = new NetworkElement("FRANCE_BELGIUM_1");
+        AbsoluteFlowThreshold absoluteFlowThreshold1 = new AbsoluteFlowThreshold(AMPERE, networkElement, Side.RIGHT, Direction.BOTH, 500.0);
+        AbsoluteFlowThreshold absoluteFlowThreshold2 = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        assertNotEquals(absoluteFlowThreshold1, absoluteFlowThreshold2);
+        assertNotEquals(absoluteFlowThreshold2, absoluteFlowThreshold1);
+    }
+
+    @Test
+    public void notEquals() {
+        assertNotEquals(absoluteFlowThresholdAmps, absoluteFlowThresholdMW);
+    }
+
+    @Test
+    public void differentHashCode() {
+        assertNotEquals(absoluteFlowThresholdAmps.hashCode(), absoluteFlowThresholdMW.hashCode());
+    }
+
+    @Test
+    public void getNetworkElementFail() {
+        AbsoluteFlowThreshold absoluteFlowThreshold = new AbsoluteFlowThreshold(AMPERE, Side.RIGHT, Direction.BOTH, 500.0);
+        try {
+            absoluteFlowThreshold.getNetworkElement();
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
     }
 
     @Test
@@ -86,11 +128,11 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnit() throws SynchronizationException {
-        absoluteFlowThresholdAmps.synchronize(networkWithoutLf, cnec1);
-        absoluteFlowThresholdMW.synchronize(networkWithoutLf, cnec2);
-        absoluteFlowThresholdMWIn.synchronize(networkWithoutLf, cnec4);
-        absoluteFlowThresholdMWOut.synchronize(networkWithoutLf, cnec5);
+    public void getMinMaxThresholdWithUnit() {
+        absoluteFlowThresholdAmps.synchronize(networkWithoutLf);
+        absoluteFlowThresholdMW.synchronize(networkWithoutLf);
+        absoluteFlowThresholdMWIn.synchronize(networkWithoutLf);
+        absoluteFlowThresholdMWOut.synchronize(networkWithoutLf);
 
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxThreshold(AMPERE).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
         assertEquals(346.4, absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT).orElse(Double.POSITIVE_INFINITY), DOUBLE_TOL);
@@ -109,7 +151,7 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnauthorizedUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnauthorizedUnit() {
         try {
             absoluteFlowThresholdAmps.getMaxThreshold(Unit.KILOVOLT);
             fail();
@@ -119,11 +161,11 @@ public class AbsoluteFlowThresholdTest {
     }
 
     @Test
-    public void getMinMaxThresholdWithUnitUnsynchronized() {
+    public void getMinMaxThresholdWithUnitNotSynchronized() {
         try {
             absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT);
             fail();
-        } catch (SynchronizationException e) {
+        } catch (NotSynchronizedException e) {
             // should throw, conversion cannot be made if voltage level has not been synchronised
         }
     }
@@ -131,15 +173,49 @@ public class AbsoluteFlowThresholdTest {
     @Test
     public void synchronize() {
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxValue(), 1);
-        cnec1.synchronize(networkWithoutLf);
+        absoluteFlowThresholdAmps.synchronize(networkWithoutLf);
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxValue(), 1);
     }
 
     @Test
+    public void synchronizeFail() {
+        absoluteFlowThresholdAmps.setNetworkElement(new NetworkElement("network_element_fail"));
+        try {
+            absoluteFlowThresholdAmps.synchronize(networkWithoutLf);
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
+    }
+
+    @Test
     public void desynchronize() {
-        cnec1.synchronize(networkWithoutLf);
+        absoluteFlowThresholdAmps.synchronize(networkWithoutLf);
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxValue(), 1);
-        cnec1.desynchronize();
+        absoluteFlowThresholdAmps.desynchronize();
         assertEquals(500.0, absoluteFlowThresholdAmps.getMaxValue(), 1);
+    }
+
+    @Test
+    public void copy() {
+        AbstractThreshold copiedAbsoluteFlowThresholdAmps = absoluteFlowThresholdAmps.copy();
+        assertEquals(absoluteFlowThresholdAmps, copiedAbsoluteFlowThresholdAmps);
+    }
+
+    @Test
+    public void copyNotSynchronizeStaysNotSynchronized() {
+        AbstractThreshold copiedAbsoluteFlowThresholdAmps = absoluteFlowThresholdAmps.copy();
+        assertFalse(copiedAbsoluteFlowThresholdAmps.isSynchronized());
+    }
+
+    @Test
+    public void copySynchronizeStaysSynchronized() {
+        absoluteFlowThresholdAmps.synchronize(networkWithoutLf);
+        AbstractThreshold copiedAbsoluteFlowThresholdAmps = absoluteFlowThresholdAmps.copy();
+        assertTrue(copiedAbsoluteFlowThresholdAmps.isSynchronized());
+        assertEquals(absoluteFlowThresholdAmps.getMaxThreshold(AMPERE), copiedAbsoluteFlowThresholdAmps.getMaxThreshold(AMPERE));
+        assertEquals(absoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT), copiedAbsoluteFlowThresholdAmps.getMaxThreshold(MEGAWATT));
+        assertEquals(absoluteFlowThresholdAmps.getMinThreshold(AMPERE), copiedAbsoluteFlowThresholdAmps.getMinThreshold(AMPERE));
+        assertEquals(absoluteFlowThresholdAmps.getMinThreshold(MEGAWATT), copiedAbsoluteFlowThresholdAmps.getMinThreshold(MEGAWATT));
     }
 }
