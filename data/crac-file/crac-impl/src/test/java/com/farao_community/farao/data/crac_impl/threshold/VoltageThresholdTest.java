@@ -30,21 +30,21 @@ public class VoltageThresholdTest {
     }
 
     @Test
-    public void getMinMaxThreshold() throws SynchronizationException {
+    public void getMinMaxThreshold() {
         // for now, method always returns empty
         assertFalse(voltageThreshold.getMinThreshold(KILOVOLT).isPresent());
         assertFalse(voltageThreshold.getMaxThreshold(KILOVOLT).isPresent());
     }
 
     @Test
-    public void getMinMaxThresholdWithUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnit() {
         // for now, method always returns empty
         assertFalse(voltageThreshold.getMinThreshold(KILOVOLT).isPresent());
         assertFalse(voltageThreshold.getMaxThreshold(KILOVOLT).isPresent());
     }
 
     @Test
-    public void getMinMaxThresholdWithUnauthorizedUnit() throws SynchronizationException {
+    public void getMinMaxThresholdWithUnauthorizedUnit() {
         try {
             voltageThreshold.getMaxThreshold(Unit.AMPERE);
             fail();

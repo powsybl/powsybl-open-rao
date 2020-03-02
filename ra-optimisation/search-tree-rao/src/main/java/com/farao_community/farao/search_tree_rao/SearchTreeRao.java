@@ -45,9 +45,6 @@ public class SearchTreeRao implements RaoProvider {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
 
-        // set Crac reference values
-        crac.setReferenceValues(network);
-
         // run optimisation
         RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
         return CompletableFuture.completedFuture(result);
