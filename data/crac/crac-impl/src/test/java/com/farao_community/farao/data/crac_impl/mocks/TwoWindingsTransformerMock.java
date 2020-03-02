@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_impl.mocks;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
@@ -299,6 +300,16 @@ public class TwoWindingsTransformerMock implements TwoWindingsTransformer {
 
     @Override
     public <E extends Extension<TwoWindingsTransformer>> Collection<E> getExtensions() {
+        return null;
+    }
+
+    @Override
+    public String getImplementationName() {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>, B extends ExtensionAdder<TwoWindingsTransformer, E>> B newExtension(Class<B> aClass) {
         return null;
     }
 
