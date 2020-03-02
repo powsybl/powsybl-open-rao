@@ -28,21 +28,21 @@ public class CnecExtension extends AbstractExtension<Cnec> {
      * loop flow threshold which is a input parameter from TSO
      * @param loopFlowConstraint = Max(init_Loop_flow, input loop flow)
      */
-    void setLoopFlowConstraint(double loopFlowConstraint) {
+    public void setLoopFlowConstraint(double loopFlowConstraint) {
         this.loopFlowConstraint = loopFlowConstraint;
     }
 
     /**
      * return loop flow constraint used in linear optimization
      */
-    double getLoopFlowConstraint() {
+    public double getLoopFlowConstraint() {
         return loopFlowConstraint;
     }
 
     /**
      * @return input loop flow threshold parameter from TSO for each cross-zonal Cnec
      */
-    double getInputLoopFlow() {
+    public double getInputLoopFlow() {
         return inputLoopFlow;
     }
 
