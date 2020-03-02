@@ -7,23 +7,19 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface CnecResult extends Extension<Cnec> {
+public interface CnecResultAdder extends ExtensionAdder<Cnec, CnecResult> {
 
     @Override
-    default String getName() {
-        return "cnecResults";
+    default Class<CnecResult> getExtensionClass() {
+        return CnecResult.class;
     }
 
-    double getFlowInMW();
+    CnecResultAdder withFlowInMW(double flow);
 
-    double getFlowInA();
-
-    CnecResult setFlowInMW(double flow);
-
-    CnecResult setFlowInA(double flow);
+    CnecResultAdder withFlowInA(double flow);
 }
