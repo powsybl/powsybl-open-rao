@@ -105,6 +105,12 @@ public class LinearRaoTest {
     }
 
     @Test
+    public void testBrokenSensi() {
+
+        linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, raoParameters);
+    }
+
+    @Test
     public void runTest() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
