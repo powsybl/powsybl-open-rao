@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.json;
+package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -25,7 +25,6 @@ public class SimpleCnecSerializer extends JsonSerializer<Cnec> {
 
     @Override
     public void serialize(Cnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        System.out.println("coucouCnecSerializer");
         jsonGenerator.writeStringField("id", cnec.getId());
         jsonGenerator.writeStringField("name", cnec.getName());
         jsonGenerator.writeStringField("network-element", cnec.getNetworkElement().getId());
