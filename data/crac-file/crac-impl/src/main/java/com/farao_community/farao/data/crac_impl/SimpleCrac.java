@@ -430,5 +430,26 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             }
         });
         absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
+        ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
+        getRangeActions().forEach(rangeAction -> {
+            rangeAction.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkRangeActions.add(rangeAction);
+                    LOGGER.warn(String.format("Remedial Action %s's element %s is not present in the network", rangeAction.getId(), networkElement.getId()));
+                }
+            });
+        });
+        absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
+
+        ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
+        getNetworkActions().forEach(networkAction -> {
+            networkAction.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkNetworkActions.add(networkAction);
+                    LOGGER.warn(String.format("Remedial Action %s's element %s is not present in the network", networkAction.getId(), networkElement.getId()));
+                }
+            });
+        });
+        absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
     }
 }
