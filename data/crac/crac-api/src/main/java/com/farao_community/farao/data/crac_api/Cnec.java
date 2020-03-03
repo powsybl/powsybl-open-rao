@@ -7,8 +7,11 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
 
 /**
  * Interface for Critical Network Element & Contingencies
@@ -37,6 +40,34 @@ public interface Cnec extends Identifiable, Synchronizable {
     double computeMargin(Network network);
 
     Threshold getThreshold();
+
+    /**
+     * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
+     * or ANGLE). This physical value can be retrieved by the getPhysicalParameter()
+     * method.
+     */
+    @JsonIgnore
+    PhysicalParameter getPhysicalParameter();
+
+    /**
+     * If it is defined, this function returns the maximum limit of the Threshold,
+     * below which a Cnec cannot be operated securely. Otherwise, this function
+     * returns an empty Optional, which implicitly means that the Threshold is
+     * unbounded above.
+     * The returned value is given with the Unit given in argument of the function.
+     */
+    @JsonIgnore
+    Optional<Double> getMinThreshold(Unit unit);
+
+    /**
+     * If it is defined, this function returns the maximum limit of the Threshold,
+     * below which a Cnec cannot be operated securely. Otherwise, this function
+     * returns an empty Optional, which implicitly means that the Threshold is
+     * unbounded above.
+     * The returned value is given with the unit given in argument of the function.
+     */
+    @JsonIgnore
+    Optional<Double> getMaxThreshold(Unit unit);
 
     /**
      * Get the flow (in A) transmitted by Cnec in a given Network. Note that an I
