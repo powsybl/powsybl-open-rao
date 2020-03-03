@@ -174,7 +174,7 @@ public class FlowBasedComputationCracImpl implements FlowBasedComputationProvide
     }
 
     private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
-        Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold(Unit.MEGAWATT);
+        Optional<Double> maxThreshold = cnec.getMaxThreshold(Unit.MEGAWATT);
         double fmax = maxThreshold.orElse(Double.POSITIVE_INFINITY);
         return new DataMonitoredBranch(
                 cnec.getId(),
