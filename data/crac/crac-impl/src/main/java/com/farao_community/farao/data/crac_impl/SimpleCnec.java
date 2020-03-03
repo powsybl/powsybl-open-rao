@@ -36,6 +36,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
                       @JsonProperty("networkElement") NetworkElement networkElement,
                       @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
         super(id, name);
+
         this.networkElement = networkElement;
         this.threshold = threshold.copy();
         this.threshold.setNetworkElement(networkElement);
@@ -69,8 +70,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         this.networkElement = networkElement;
     }
 
-    @Override
-    public Threshold getThreshold() {
+    public AbstractThreshold getThreshold() {
         return threshold;
     }
 
@@ -160,6 +160,15 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     @Override
+    public Cnec copy() {
+        return new SimpleCnec(super.getId(), super.name, networkElement, threshold, this.state);
+    }
+
+    public Cnec copy(State state) {
+        return new SimpleCnec(super.getId(), super.name, networkElement, threshold, state);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -169,7 +178,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         }
         SimpleCnec cnec = (SimpleCnec) o;
         return super.equals(cnec) && networkElement.equals(cnec.getNetworkElement())
-            && state.equals(cnec.getState()) && threshold.equals(cnec.getThreshold());
+            && state.equals(cnec.getState()) && threshold.equals(cnec.threshold);
     }
 
     @Override

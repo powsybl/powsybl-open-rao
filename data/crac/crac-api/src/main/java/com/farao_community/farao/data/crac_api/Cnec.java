@@ -39,8 +39,6 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      */
     double computeMargin(Network network);
 
-    Threshold getThreshold();
-
     /**
      * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
      * or ANGLE). This physical value can be retrieved by the getPhysicalParameter()
@@ -82,4 +80,6 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      * run. If no value is present in the network, throws a FaraoException.
      */
     double getP(Network network);
+
+    Cnec copy();
 }
