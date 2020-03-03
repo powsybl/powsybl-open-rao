@@ -87,8 +87,8 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getThreshold().getMinThreshold(MEGAWATT);
-            maxFlow = cnec.getThreshold().getMaxThreshold(MEGAWATT);
+            minFlow = cnec.getMinThreshold(MEGAWATT);
+            maxFlow = cnec.getMaxThreshold(MEGAWATT);
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), -minFlow.get(), cnec, LinearRaoProblem.MarginExtension.BELOW_THRESHOLD);
