@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.util.Optional;
 
 /**
  * The threshold describes the monitored physical parameter of a Cnec (flow, voltage
@@ -28,32 +25,4 @@ import java.util.Optional;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Threshold extends Synchronizable {
-
-    /**
-     * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
-     * or ANGLE). This physical value can be retrieved by the getPhysicalParameter()
-     * method.
-     */
-    @JsonIgnore
-    PhysicalParameter getPhysicalParameter();
-
-    /**
-     * If it is defined, this function returns the maximum limit of the Threshold,
-     * below which a Cnec cannot be operated securely. Otherwise, this function
-     * returns an empty Optional, which implicitly means that the Threshold is
-     * unbounded above.
-     * The returned value is given with the Unit given in argument of the function.
-     */
-    @JsonIgnore
-    Optional<Double> getMinThreshold(Unit unit);
-
-    /**
-     * If it is defined, this function returns the maximum limit of the Threshold,
-     * below which a Cnec cannot be operated securely. Otherwise, this function
-     * returns an empty Optional, which implicitly means that the Threshold is
-     * unbounded above.
-     * The returned value is given with the unit given in argument of the function.
-     */
-    @JsonIgnore
-    Optional<Double> getMaxThreshold(Unit unit);
 }

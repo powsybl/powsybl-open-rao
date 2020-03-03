@@ -160,7 +160,7 @@ public class SimpleCnecTest {
         cnecOnLine2.synchronize(network);
         cnecOnLine1.synchronize(network);
 
-        assertEquals(400, cnecOnLine1.getThreshold().getMaxThreshold(Unit.AMPERE).get(), 0.1);
-        assertEquals(250, cnecOnLine2.getThreshold().getMaxThreshold(Unit.AMPERE).get(), 0.1);
+        assertEquals(400, cnecOnLine1.getMaxThreshold(Unit.AMPERE).get(), 0.1);
+        assertEquals(250, cnecOnLine2.getMaxThreshold(Unit.AMPERE).get(), 0.1);
     }
 }
