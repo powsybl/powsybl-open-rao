@@ -13,10 +13,16 @@ import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 
 import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -46,6 +52,13 @@ public class CnecResultJsonTest {
         CracExporters.exportCrac(simpleCrac, "Json", outputStream);
 
         // TODO : test import for a real round trip test
+        CracExporters.exportCrac(simpleCrac, "Json", outputStream);
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+            Crac crac = CracImporters.importCrac("unknown.json", inputStream);
+            System.out.println("coucou");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
     }
 }
