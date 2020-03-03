@@ -103,7 +103,7 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
             cnec.get(ID).asText(),
             cnec.get(NAME).asText(),
             simpleCrac.getNetworkElement(cnec.get(NETWORK_ELEMENT).asText()),
-            jsonParser.getCodec().treeToValue(cnec.get("threshold"), AbstractThreshold.class),
+            jsonParser.getCodec().treeToValue(cnec.get("thresholds"), AbstractThreshold.class),
             simpleCrac.getState(cnec.get(STATE).asText())
         ));
     }
