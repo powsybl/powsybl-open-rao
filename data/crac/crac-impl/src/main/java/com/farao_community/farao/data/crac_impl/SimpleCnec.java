@@ -159,11 +159,6 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return isSynchronized;
     }
 
-    @Override
-    public Cnec copy() {
-        return new SimpleCnec(super.getId(), super.name, networkElement, threshold, this.state);
-    }
-
     public Cnec copy(State state) {
         return new SimpleCnec(super.getId(), super.name, networkElement, threshold, state);
     }
