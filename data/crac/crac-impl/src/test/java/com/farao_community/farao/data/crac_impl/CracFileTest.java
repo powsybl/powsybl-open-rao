@@ -663,14 +663,14 @@ public class CracFileTest {
         simpleCrac.addNetworkAction(topology2);
         simpleCrac.addRangeAction(pstWithRange);
 
-        assertEquals(simpleCrac.getCnecs().size(), 3);
-        assertEquals(simpleCrac.getNetworkActions().size(), 2);
-        assertEquals(simpleCrac.getRangeActions().size(), 1);
+        assertEquals(3, simpleCrac.getCnecs().size());
+        assertEquals(2, simpleCrac.getNetworkActions().size());
+        assertEquals(1, simpleCrac.getRangeActions().size());
 
         simpleCrac.generateValidityReport(network);
 
-        assertEquals(simpleCrac.getCnecs().size(), 1);
-        assertEquals(simpleCrac.getNetworkActions().size(), 1);
-        assertEquals(simpleCrac.getRangeActions().size(), 0);
+        assertEquals(1, simpleCrac.getCnecs().size());
+        assertEquals(1, simpleCrac.getNetworkActions().size());
+        assertEquals(0, simpleCrac.getRangeActions().size());
     }
 }
