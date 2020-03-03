@@ -383,7 +383,7 @@ final class ExampleGenerator {
         }
 
         public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-            return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
+            return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
         }
 
         private Map<String, Double> getExpectedFref() {

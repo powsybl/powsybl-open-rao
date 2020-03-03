@@ -10,14 +10,14 @@
         <version>1.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-crac-file</artifactId>
+    <artifactId>farao-crac</artifactId>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>CRAC file</name>
-    <description>Module that regroups all features related to CRAC file</description>
+    <name>CRAC related modules</name>
+    <description>Module that gathers CRAC api and its implementations</description>
 
     <modules>
-        <module>crac-file-api</module>
-        <module>crac-file-xlsx-api</module>
-        <module>crac-merging</module>
+        <module>crac-api</module>
+        <module>crac-impl</module>
     </modules>
 </project>
