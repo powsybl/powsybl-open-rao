@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.data.glsk.import_;
 
-        import com.powsybl.iidm.network.Country;
-        import org.junit.Test;
+import com.powsybl.iidm.network.Country;
+import org.junit.Test;
 
-        import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
