@@ -6,7 +6,6 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
@@ -16,18 +15,11 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.json.JsonUtil;
-import jdk.nashorn.internal.parser.JSONParser;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -42,9 +34,7 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
     private static final String NAME = "name";
     private static final String OPERATOR = "operator";
     private static final String CONTINGENCY = "contingency";
-    private static final String CONTINGENCIES = "contingencies";
     private static final String STATE = "state";
-    private static final String INSTANTS = "instants";
     private static final String USAGE_METHOD = "usageMethod";
     private static final String SETPOINT = "setpoint";
     private static final String TYPE = "type";
@@ -59,61 +49,8 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
 
     @Override
     public SimpleCrac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-       /*
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-
-        if (node.get(ID) == null || node.get(NAME) == null) {
-            throw new FaraoException("Json crac has no field 'id' or no field 'name'");
-        }
         SimpleCrac simpleCrac = new SimpleCrac(node.get(ID).asText(), node.get(NAME).asText());
-
-        // todo : find a cleaner way to reset the parser or to initialize the Crac
-        jsonParser.nextToken();
-
-        */
-       SimpleCrac simpleCrac = new SimpleCrac("id");
-
-        while (jsonParser.currentToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
-
-                case TYPE:
-                case ID:
-                case NAME:
-                    jsonParser.nextToken();
-                    break;
-
-                case NETWORK_ELEMENTS:
-                    jsonParser.nextToken();
-                    Set<NetworkElement> networkElements = jsonParser.readValueAs(new TypeReference<Set<NetworkElement>>() {
-                    });
-                    networkElements.forEach(simpleCrac::addNetworkElement);
-                    break;
-
-                case INSTANTS:
-                    jsonParser.nextToken();
-                    Set<Instant> instants = jsonParser.readValueAs(new TypeReference<Set<Instant>>() {
-                    });
-                    instants.forEach(simpleCrac::addInstant);
-                    break;
-
-                case CONTINGENCIES:
-                    jsonParser.nextToken();
-                    Set<Contingency> contingencies = jsonParser.readValueAs(new TypeReference<Set<Instant>>() {
-                    });
-                    contingencies.forEach(simpleCrac::addContingency);
-                    break;
-
-                default:
-
-
-            }
-            jsonParser.nextToken();
-        }
-
-        return simpleCrac;
-    }
-
-            /*
         for (Iterator<JsonNode> it = node.get(NETWORK_ELEMENTS).elements(); it.hasNext(); ) {
             JsonNode networkElement = it.next();
             simpleCrac.addNetworkElement(new NetworkElement(networkElement.get(ID).asText(), networkElement.get(NAME).asText()));
@@ -129,7 +66,7 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
             createAndAddState(simpleCrac, it.next());
         }
         for (Iterator<JsonNode> it = node.get("cnecs").elements(); it.hasNext(); ) {
-            createAndAddCnec(simpleCrac, it.next(), jsonParser, deserializationContext);
+            createAndAddCnec(simpleCrac, it.next(), jsonParser);
         }
         for (Iterator<JsonNode> it = node.get("networkActions").elements(); it.hasNext(); ) {
             createAndAddNetworkAction(simpleCrac, it.next());
@@ -140,10 +77,7 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
         }
 
         return simpleCrac;
-
-             */
-
-
+    }
 
     private static void createAndAddContingency(SimpleCrac simpleCrac, JsonNode contingency) {
         Set<NetworkElement> networkElements = new HashSet<>();
@@ -164,32 +98,15 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
         simpleCrac.addState(new SimpleState(contingency, simpleCrac.getInstant(state.get("instant").asText())));
     }
 
-    private static void createAndAddCnec(SimpleCrac simpleCrac, JsonNode cnecNode, JsonParser jsonParser, DeserializationContext deserializationContext) throws JsonProcessingException {
-        SimpleCnec cnec = new SimpleCnec(
-                cnecNode.get(ID).asText(),
-                cnecNode.get(NAME).asText(),
-                simpleCrac.getNetworkElement(cnecNode.get(NETWORK_ELEMENT).asText()),
-                jsonParser.getCodec().treeToValue(cnecNode.get("threshold"), AbstractThreshold.class),
-                simpleCrac.getState(cnecNode.get(STATE).asText())
-        );
-
-        // check for extensions
-        try {
-            if (cnecNode.get("extensions") != null) {
-
-                List<Extension<Cnec>> extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getCnecExtensionSerializers());
-                ExtensionsHandler.getCnecExtensionSerializers().addExtensions(cnec, extensions);
-            }
-
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            throw new UncheckedIOException(e);
-        }
-
-        simpleCrac.addCnec(cnec);
+    private static void createAndAddCnec(SimpleCrac simpleCrac, JsonNode cnec, JsonParser jsonParser) throws JsonProcessingException {
+        simpleCrac.addCnec(new SimpleCnec(
+                cnec.get(ID).asText(),
+                cnec.get(NAME).asText(),
+                simpleCrac.getNetworkElement(cnec.get(NETWORK_ELEMENT).asText()),
+                jsonParser.getCodec().treeToValue(cnec.get("threshold"), AbstractThreshold.class),
+                simpleCrac.getState(cnec.get(STATE).asText())
+        ));
     }
-
 
     private static List<UsageRule> getUsageRules(SimpleCrac simpleCrac, JsonNode abstractRemedialActionNode) {
         List<UsageRule> usageRules = new ArrayList<>();
@@ -201,15 +118,15 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
                     break;
                 case "on-constraint":
                     usageRules.add(new OnConstraint(
-                        UsageMethod.valueOf(usageRule.get(USAGE_METHOD).asText()),
-                        simpleCrac.getState(usageRule.get(STATE).asText()),
-                        simpleCrac.getCnec(usageRule.get("cnec").asText())));
+                            UsageMethod.valueOf(usageRule.get(USAGE_METHOD).asText()),
+                            simpleCrac.getState(usageRule.get(STATE).asText()),
+                            simpleCrac.getCnec(usageRule.get("cnec").asText())));
                     break;
                 case "on-contingency":
                     usageRules.add(new OnContingency(
-                        UsageMethod.valueOf(usageRule.get(USAGE_METHOD).asText()),
-                        simpleCrac.getState(usageRule.get(STATE).asText()),
-                        simpleCrac.getContingency(usageRule.get(CONTINGENCY).asText())));
+                            UsageMethod.valueOf(usageRule.get(USAGE_METHOD).asText()),
+                            simpleCrac.getState(usageRule.get(STATE).asText()),
+                            simpleCrac.getContingency(usageRule.get(CONTINGENCY).asText())));
                     break;
                 default:
                     throw new FaraoException(format("Not implemented type %s", usageRule.get(TYPE).asText()));
@@ -233,57 +150,57 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
                     networkElements.add(simpleCrac.getNetworkElement(networkElement.asText()));
                 }
                 simpleCrac.addRangeAction(new AlignedRangeAction(
-                    rangeAction.get(ID).asText(),
-                    rangeAction.get(NAME).asText(),
-                    rangeAction.get(OPERATOR).asText(),
-                    usageRules,
-                    ranges,
-                    networkElements
+                        rangeAction.get(ID).asText(),
+                        rangeAction.get(NAME).asText(),
+                        rangeAction.get(OPERATOR).asText(),
+                        usageRules,
+                        ranges,
+                        networkElements
                 ));
                 break;
             case "pst-with-range":
                 simpleCrac.addRangeAction(new PstWithRange(
-                    rangeAction.get(ID).asText(),
-                    rangeAction.get(NAME).asText(),
-                    rangeAction.get(OPERATOR).asText(),
-                    usageRules,
-                    ranges,
-                    simpleCrac.getNetworkElement(rangeAction.get(NETWORK_ELEMENT).asText())
+                        rangeAction.get(ID).asText(),
+                        rangeAction.get(NAME).asText(),
+                        rangeAction.get(OPERATOR).asText(),
+                        usageRules,
+                        ranges,
+                        simpleCrac.getNetworkElement(rangeAction.get(NETWORK_ELEMENT).asText())
                 ));
                 break;
             case "hvdc-range":
                 simpleCrac.addRangeAction(new HvdcRange(
-                    rangeAction.get(ID).asText(),
-                    rangeAction.get(NAME).asText(),
-                    rangeAction.get(OPERATOR).asText(),
-                    usageRules,
-                    ranges,
-                    simpleCrac.getNetworkElement(rangeAction.get(NETWORK_ELEMENT).asText())
+                        rangeAction.get(ID).asText(),
+                        rangeAction.get(NAME).asText(),
+                        rangeAction.get(OPERATOR).asText(),
+                        usageRules,
+                        ranges,
+                        simpleCrac.getNetworkElement(rangeAction.get(NETWORK_ELEMENT).asText())
                 ));
                 break;
             case "injection-range":
                 simpleCrac.addRangeAction(new InjectionRange(
-                    rangeAction.get(ID).asText(),
-                    rangeAction.get(NAME).asText(),
-                    rangeAction.get(OPERATOR).asText(),
-                    usageRules,
-                    ranges,
-                    simpleCrac.getNetworkElement(rangeAction.get(NETWORK_ELEMENT).asText())
+                        rangeAction.get(ID).asText(),
+                        rangeAction.get(NAME).asText(),
+                        rangeAction.get(OPERATOR).asText(),
+                        usageRules,
+                        ranges,
+                        simpleCrac.getNetworkElement(rangeAction.get(NETWORK_ELEMENT).asText())
                 ));
                 break;
             case "redispatching":
                 simpleCrac.addRangeAction(new Redispatching(
-                    rangeAction.get(ID).asText(),
-                    rangeAction.get(NAME).asText(),
-                    rangeAction.get(OPERATOR).asText(),
-                    usageRules,
-                    ranges,
-                    rangeAction.get("minimumPower").asDouble(),
-                    rangeAction.get("maximumPower").asDouble(),
-                    rangeAction.get("targetPower").asDouble(),
-                    rangeAction.get("startupCost").asDouble(),
-                    rangeAction.get("marginalCost").asDouble(),
-                    simpleCrac.getNetworkElement(rangeAction.get("generator").asText())
+                        rangeAction.get(ID).asText(),
+                        rangeAction.get(NAME).asText(),
+                        rangeAction.get(OPERATOR).asText(),
+                        usageRules,
+                        ranges,
+                        rangeAction.get("minimumPower").asDouble(),
+                        rangeAction.get("maximumPower").asDouble(),
+                        rangeAction.get("targetPower").asDouble(),
+                        rangeAction.get("startupCost").asDouble(),
+                        rangeAction.get("marginalCost").asDouble(),
+                        simpleCrac.getNetworkElement(rangeAction.get("generator").asText())
                 ));
                 break;
             case "countertrading":
@@ -301,11 +218,11 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
                 abstractElementaryNetworkActions.add(getAbstractElementaryNetworkAction(simpleCrac, elementaryNetworkAction));
             }
             simpleCrac.addNetworkAction(new ComplexNetworkAction(
-                networkAction.get(ID).asText(),
-                networkAction.get(NAME).asText(),
-                networkAction.get(OPERATOR).asText(),
-                usageRules,
-                abstractElementaryNetworkActions
+                    networkAction.get(ID).asText(),
+                    networkAction.get(NAME).asText(),
+                    networkAction.get(OPERATOR).asText(),
+                    usageRules,
+                    abstractElementaryNetworkActions
             ));
         } else {
             simpleCrac.addNetworkAction(getAbstractElementaryNetworkAction(simpleCrac, networkAction));
@@ -317,39 +234,39 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
         switch (elementaryNetworkActionNode.get(TYPE).asText()) {
             case "pst-setpoint":
                 return new PstSetpoint(
-                    elementaryNetworkActionNode.get(ID).asText(),
-                    elementaryNetworkActionNode.get(NAME).asText(),
-                    elementaryNetworkActionNode.get(OPERATOR).asText(),
-                    usageRules,
-                    simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
-                    elementaryNetworkActionNode.get(SETPOINT).asDouble()
+                        elementaryNetworkActionNode.get(ID).asText(),
+                        elementaryNetworkActionNode.get(NAME).asText(),
+                        elementaryNetworkActionNode.get(OPERATOR).asText(),
+                        usageRules,
+                        simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
+                        elementaryNetworkActionNode.get(SETPOINT).asDouble()
                 );
             case "hvdc-setpoint":
                 return new HvdcSetpoint(
-                    elementaryNetworkActionNode.get(ID).asText(),
-                    elementaryNetworkActionNode.get(NAME).asText(),
-                    elementaryNetworkActionNode.get(OPERATOR).asText(),
-                    usageRules,
-                    simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
-                    elementaryNetworkActionNode.get(SETPOINT).asDouble()
+                        elementaryNetworkActionNode.get(ID).asText(),
+                        elementaryNetworkActionNode.get(NAME).asText(),
+                        elementaryNetworkActionNode.get(OPERATOR).asText(),
+                        usageRules,
+                        simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
+                        elementaryNetworkActionNode.get(SETPOINT).asDouble()
                 );
             case "injection-setpoint":
                 return new InjectionSetpoint(
-                    elementaryNetworkActionNode.get(ID).asText(),
-                    elementaryNetworkActionNode.get(NAME).asText(),
-                    elementaryNetworkActionNode.get(OPERATOR).asText(),
-                    usageRules,
-                    simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
-                    elementaryNetworkActionNode.get(SETPOINT).asDouble()
+                        elementaryNetworkActionNode.get(ID).asText(),
+                        elementaryNetworkActionNode.get(NAME).asText(),
+                        elementaryNetworkActionNode.get(OPERATOR).asText(),
+                        usageRules,
+                        simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
+                        elementaryNetworkActionNode.get(SETPOINT).asDouble()
                 );
             case "topology":
                 return new Topology(
-                    elementaryNetworkActionNode.get(ID).asText(),
-                    elementaryNetworkActionNode.get(NAME).asText(),
-                    elementaryNetworkActionNode.get(OPERATOR).asText(),
-                    usageRules,
-                    simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
-                    ActionType.valueOf(elementaryNetworkActionNode.get("actionType").asText())
+                        elementaryNetworkActionNode.get(ID).asText(),
+                        elementaryNetworkActionNode.get(NAME).asText(),
+                        elementaryNetworkActionNode.get(OPERATOR).asText(),
+                        usageRules,
+                        simpleCrac.getNetworkElement(elementaryNetworkActionNode.get(NETWORK_ELEMENT).asText()),
+                        ActionType.valueOf(elementaryNetworkActionNode.get("actionType").asText())
                 );
             default:
                 throw new FaraoException("Unknown type");

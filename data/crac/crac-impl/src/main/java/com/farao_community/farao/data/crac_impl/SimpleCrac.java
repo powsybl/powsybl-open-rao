@@ -9,10 +9,8 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.json.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -306,7 +304,6 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         return cnecs.stream().filter(cnec -> cnec.getId().equals(id)).findFirst().orElse(null);
     }
 
-    @JsonSerialize(contentUsing = SimpleCnecSerializer.class)
     @Override
     public Set<Cnec> getCnecs() {
         return cnecs;
