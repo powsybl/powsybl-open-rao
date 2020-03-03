@@ -105,15 +105,11 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
             return false;
         }
         AbstractRemedialAction remedialAction = (AbstractRemedialAction) o;
-        return super.equals(remedialAction) && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()));
+        return super.equals(remedialAction) && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules())) && operator.equals(remedialAction.operator);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        for (UsageRule rule : usageRules) {
-            result = 31 * result + rule.hashCode();
-        }
-        return result;
+        return super.hashCode();
     }
 }
