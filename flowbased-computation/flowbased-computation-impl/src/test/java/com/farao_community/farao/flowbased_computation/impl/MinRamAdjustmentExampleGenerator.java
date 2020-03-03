@@ -51,7 +51,7 @@ public final class MinRamAdjustmentExampleGenerator {
     }
 
     public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-        return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
+        return Collectors.toMap(e -> e.getKey(), e -> e.getValue());
     }
 
     static Network network() {
@@ -410,7 +410,7 @@ public final class MinRamAdjustmentExampleGenerator {
         }
 
         public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-            return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
+            return Collectors.toMap(e -> e.getKey(), e -> e.getValue());
         }
 
         private Map<String, Map<String, Double>> getExpectedPtdf() {
