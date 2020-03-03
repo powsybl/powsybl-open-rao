@@ -47,6 +47,7 @@ public class SearchTreeRao implements RaoProvider {
         if (!configQualityCheck.isEmpty()) {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
+        crac.generateValidityReport(network);
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
         FlowBasedComputationParameters flowBasedComputationParameters = parameters.getExtension(FlowBasedComputationParameters.class);
