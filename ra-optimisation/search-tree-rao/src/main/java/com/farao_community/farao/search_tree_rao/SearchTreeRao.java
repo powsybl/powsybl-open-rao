@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
-import com.farao_community.farao.flowbased_computation.impl.LoopFlowExtensionInCrac;
+import com.farao_community.farao.flowbased_computation.impl.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowUtil;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -62,12 +62,12 @@ public class SearchTreeRao implements RaoProvider {
         // compute maximum loop flow value F_(0,all)_MAX, and update it for Cnec in Crac
 
         // 1. For the initial Network, compute the F_(0,all)_init
-        LoopFlowExtensionInCrac loopFlowExtensionInCrac = crac.getExtension(LoopFlowExtensionInCrac.class);
-        if (Objects.isNull(loopFlowExtensionInCrac)) {
+        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+        if (Objects.isNull(cracLoopFlowExtension)) {
             throw new FaraoException("LoopFlowExtensionInCrac not available");
         }
-        Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, loopFlowExtensionInCrac.getGlskProvider(),
-                loopFlowExtensionInCrac.getCountriesForLoopFlow(), computationManager, flowBasedComputationParameters);
+        Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, cracLoopFlowExtension.getGlskProvider(),
+                cracLoopFlowExtension.getCountriesForLoopFlow(), computationManager, flowBasedComputationParameters);
 
         // 2. For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
         crac.getCnecs().forEach(cnec -> {
