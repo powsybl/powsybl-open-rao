@@ -145,7 +145,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
     }
 
     public Map<String, Map<String, Double>> computeAllPtdf(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
-        crac.synchronize(network);
         Set<Cnec> preventivecnecs = crac.getCnecs(crac.getPreventiveState());
         computePtdf(network, preventivecnecs, glskProvider, referenceFlows, ptdfs);
 
@@ -175,7 +174,6 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
             throw new FaraoException(e);
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
-        crac.desynchronize();
         return ptdfs;
     }
 
