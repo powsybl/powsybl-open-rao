@@ -24,16 +24,6 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-closed-optimisation-rao</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-rao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -41,10 +31,6 @@
             <groupId>com.farao-community.farao</groupId>
             <artifactId>farao-util</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-loadflow-api</artifactId>
         </dependency>
 
         <!-- test -->

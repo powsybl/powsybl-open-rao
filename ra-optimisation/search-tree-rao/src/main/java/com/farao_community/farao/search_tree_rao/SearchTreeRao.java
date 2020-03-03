@@ -46,9 +46,6 @@ public class SearchTreeRao implements RaoProvider {
         }
         crac.generateValidityReport(network);
 
-        // set Crac reference values
-        crac.setReferenceValues(network);
-
         // run optimisation
         RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
         return CompletableFuture.completedFuture(result);

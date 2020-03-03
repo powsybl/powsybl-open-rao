@@ -105,12 +105,29 @@ public class LinearRaoTest {
     }
 
     @Test
+    public void testBrokenSensi() {
+        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
+        stateSensiMap.put(new SimpleState(Optional.empty(), new Instant("myInstant", 0)), null);
+        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, new HashMap<>()));
+        RaoComputationResult result;
+        try {
+            result = linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, raoParameters).get();
+            assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
     public void runTest() {
         Network network = Importers.loadNetwork(
                 "TestCase12Nodes.uct",
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
         Crac crac = create();
+        crac.synchronize(network);
         String variantId = "variant-test";
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
@@ -209,16 +226,16 @@ public class LinearRaoTest {
         RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 30);
 
         // CNECs
-        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);
-        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, null, stateCurativeContingency1);
-        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, null, stateCurativeContingency2);
+        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdAbsFlow, stateBasecase);
+        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, thresholdAbsFlow, stateCurativeContingency2);
         cnec1basecase.setThreshold(thresholdAbsFlow);
         cnec1stateCurativeContingency1.setThreshold(thresholdAbsFlow);
         cnec1stateCurativeContingency2.setThreshold(thresholdAbsFlow);
 
-        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, null, stateBasecase);
-        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, null, stateCurativeContingency1);
-        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, null, stateCurativeContingency2);
+        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, thresholdAbsFlow, stateBasecase);
+        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, thresholdAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, thresholdAbsFlow, stateCurativeContingency2);
         cnec2basecase.setThreshold(thresholdRelativeFlow);
         cnec2stateCurativeContingency1.setThreshold(thresholdRelativeFlow);
         cnec2stateCurativeContingency2.setThreshold(thresholdRelativeFlow);
