@@ -7,7 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
@@ -50,7 +50,9 @@ public class SearchTreeRao implements RaoProvider {
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
         FlowBasedComputationParameters flowBasedComputationParameters = parameters.getExtension(FlowBasedComputationParameters.class);
-        calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
+        if (!Objects.isNull(flowBasedComputationParameters)) {
+            calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
+        }
 
         // run optimisation
         RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();

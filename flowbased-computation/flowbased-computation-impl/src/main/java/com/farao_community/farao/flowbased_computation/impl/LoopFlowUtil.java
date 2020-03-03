@@ -68,6 +68,8 @@ public final class LoopFlowUtil {
                                                          FlowBasedComputationParameters flowBasedComputationParameters
     ) {
         //Call flowbased computation on given glskProvider
+        // todo : use FlowBasedComputation api to find a provider, once it is based only on Crac and not on CracFile
+        // todo : delete, once the api is based only on Crac and not on CracFile
         FlowBasedComputationCracImpl flowBasedComputationProvider = new FlowBasedComputationCracImpl();
         FlowBasedComputationResult flowBasedComputationResult = flowBasedComputationProvider.run(network,
                 crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), flowBasedComputationParameters)

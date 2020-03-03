@@ -4,8 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_api;
+package com.farao_community.farao.data.crac_loopflow_extension;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
@@ -15,8 +16,9 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
-    private double loopFlowConstraint; //loop flow constraint used during optimization, set in the search tree
-    private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec
+    private double loopFlowConstraint;
+    private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec. absolute value in MW
+    // todo change inputloopflow from double to Threshold if necessary for better unit and absolute/relative management?
 
     public CnecLoopFlowExtension() {
         this.inputLoopFlow = 0.0; // default value 0
