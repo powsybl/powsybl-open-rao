@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -30,5 +32,13 @@ public class CracLoopFlowExtensionTest {
 
         Assert.assertFalse(cracLoopFlowExtension.getCountriesForLoopFlow().isEmpty());
         Assert.assertNotNull(cracLoopFlowExtension.getGlskProvider());
+    }
+
+    @Test
+    public void testLoopflowParameters() {
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
+        cnecLoopFlowExtension.setLoopFlowConstraint(100);
+        assertEquals(100, cnecLoopFlowExtension.getLoopFlowConstraint(), 0.1);
+        assertEquals(0.0, cnecLoopFlowExtension.getInputLoopFlow(), 0.1);
     }
 }
