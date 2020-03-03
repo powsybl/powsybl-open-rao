@@ -114,11 +114,13 @@ public class SimpleCnec extends AbstractIdentifiable implements Cnec {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
+        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         return threshold.getMinThreshold(requestedUnit);
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
+        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         return threshold.getMaxThreshold(requestedUnit);
     }
 
