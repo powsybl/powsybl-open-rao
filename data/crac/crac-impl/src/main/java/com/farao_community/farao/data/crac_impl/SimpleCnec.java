@@ -41,7 +41,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         isSynchronized = false;
     }
 
-    public SimpleCnec(String id, NetworkElement networkElement, Threshold threshold, State state) {
+    public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
         this(id, id, networkElement, threshold, state);
     }
 

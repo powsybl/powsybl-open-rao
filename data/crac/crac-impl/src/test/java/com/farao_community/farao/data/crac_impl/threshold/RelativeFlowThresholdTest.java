@@ -164,7 +164,7 @@ public class RelativeFlowThresholdTest {
     public void synchronizeWithNotExistingNetworkElementFails() {
         NetworkElement notExistingNetworkElement = new NetworkElement("notExistingNetworkElement");
         RelativeFlowThreshold relativeFlowThresholdWithNotExistingNetworkElement = new RelativeFlowThreshold(
-                notExistingNetworkElement, Side.RIGHT, Direction.BOTH, 60);
+            notExistingNetworkElement, Side.RIGHT, Direction.BOTH, 60);
         try {
             relativeFlowThresholdWithNotExistingNetworkElement.synchronize(networkWithoutLf);
             fail();
