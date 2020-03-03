@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CnecResult extends AbstractExtension<Cnec> {
 
