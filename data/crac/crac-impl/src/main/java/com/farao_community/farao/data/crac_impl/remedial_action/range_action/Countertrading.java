@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("countertrading")
-public class Countertrading extends AbstractRemedialAction implements RangeAction {
+public class Countertrading extends AbstractRemedialAction<RangeAction> implements RangeAction {
 
     public static final int TEMP_VALUE = 0;
 

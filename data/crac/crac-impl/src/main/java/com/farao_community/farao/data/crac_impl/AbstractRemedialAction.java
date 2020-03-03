@@ -39,7 +39,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = Countertrading.class, name = "countertrading"),
         @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "aligned-range-action")
     })
-public abstract class AbstractRemedialAction extends AbstractIdentifiable implements RemedialAction {
+public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected List<UsageRule> usageRules;
 

@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface RemedialAction extends Identifiable {
+public interface RemedialAction<I extends RemedialAction<I>> extends Identifiable<I> {
 
     String getOperator();
 
