@@ -13,12 +13,12 @@ import com.powsybl.commons.extensions.AbstractExtension;
  *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class CnecExtension extends AbstractExtension<Cnec> {
+public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
     private double loopFlowConstraint; //loop flow constraint used during optimization, set in the search tree
     private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec
 
-    public CnecExtension() {
+    public CnecLoopFlowExtension() {
         this.inputLoopFlow = 0.0; // default value 0
     }
 
@@ -48,6 +48,6 @@ public class CnecExtension extends AbstractExtension<Cnec> {
 
     @Override
     public String getName() {
-        return "CnecExtension";
+        return "CnecLoopFlowExtension";
     }
 }

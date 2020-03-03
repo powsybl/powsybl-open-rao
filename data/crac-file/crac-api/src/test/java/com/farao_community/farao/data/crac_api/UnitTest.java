@@ -59,9 +59,9 @@ public class UnitTest {
 
     @Test
     public void testLoopflowParameters() {
-        CnecExtension cnecExtension = new CnecExtension();
-        cnecExtension.setLoopFlowConstraint(100);
-        assertEquals(100, cnecExtension.getLoopFlowConstraint(), 0.1);
-        assertEquals(0.0, cnecExtension.getInputLoopFlow(), 0.1);
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
+        cnecLoopFlowExtension.setLoopFlowConstraint(100);
+        assertEquals(100, cnecLoopFlowExtension.getLoopFlowConstraint(), 0.1);
+        assertEquals(0.0, cnecLoopFlowExtension.getInputLoopFlow(), 0.1);
     }
 }

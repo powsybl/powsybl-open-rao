@@ -7,7 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.CnecExtension;
+import com.farao_community.farao.data.crac_api.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowExtensionInCrac;
@@ -71,11 +71,11 @@ public class SearchTreeRao implements RaoProvider {
 
         // 2. For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
         crac.getCnecs().forEach(cnec -> {
-            CnecExtension cnecExtension = cnec.getExtension(CnecExtension.class);
-            if (!Objects.isNull(cnecExtension)) {
+            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+            if (!Objects.isNull(cnecLoopFlowExtension)) {
                 double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
-                double inputLoopFlow = cnecExtension.getInputLoopFlow();
-                cnecExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, inputLoopFlow));
+                double inputLoopFlow = cnecLoopFlowExtension.getInputLoopFlow();
+                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, inputLoopFlow));
             }
         });
     }
