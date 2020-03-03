@@ -34,7 +34,7 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      */
-    double computeMargin(Network network) throws SynchronizationException;
+    double computeMargin(Network network);
 
     Threshold getThreshold();
 

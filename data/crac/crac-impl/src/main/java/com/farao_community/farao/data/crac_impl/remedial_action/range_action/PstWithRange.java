@@ -8,9 +8,9 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
+import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,10 +33,10 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @JsonTypeName("pst-with-range")
 public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
-
     private int lowTapPosition;
     private int highTapPosition;
     private int initialTapPosition;
+    private boolean isSynchronized;
 
     private static final double EPSILON = 1e-3;
 
@@ -53,34 +53,53 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
                         @JsonProperty("ranges") List<Range> ranges,
                         @JsonProperty("networkElement") NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
-        lowTapPosition = (int) Double.NaN;
-        highTapPosition = (int) Double.NaN;
-        initialTapPosition = (int) Double.NaN;
+        initAttributes();
     }
 
     public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
-        lowTapPosition = (int) Double.NaN;
-        highTapPosition = (int) Double.NaN;
-        initialTapPosition = (int) Double.NaN;
+        initAttributes();
     }
 
     public PstWithRange(String id, NetworkElement networkElement) {
         super(id, networkElement);
-        lowTapPosition = (int) Double.NaN;
-        highTapPosition = (int) Double.NaN;
-        initialTapPosition = (int) Double.NaN;
+        initAttributes();
     }
 
-    public void setReferenceValue(Network network) {
+    private void initAttributes() {
+        lowTapPosition = 0;
+        highTapPosition = 0;
+        initialTapPosition = 0;
+        isSynchronized = false;
+    }
+
+    @Override
+    public void synchronize(Network network) {
+        if (isSynchronized()) {
+            throw new AlreadySynchronizedException(String.format("PST %s has already been synchronized", getId()));
+        }
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
         initialTapPosition = phaseTapChanger.getTapPosition();
         lowTapPosition = phaseTapChanger.getLowTapPosition();
         highTapPosition = phaseTapChanger.getHighTapPosition();
+        isSynchronized = true;
+    }
+
+    @Override
+    public void desynchronize() {
+        isSynchronized = false;
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     @Override
     public double getMinValue(Network network) {
+        if (!isSynchronized) {
+            throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its min value cannot be accessed", getId()));
+        }
         double minValue = convertTapToAngle(network, lowTapPosition);
         for (Range range: ranges) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
@@ -90,6 +109,9 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
 
     @Override
     public double getMaxValue(Network network) {
+        if (!isSynchronized) {
+            throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its max value cannot be accessed", getId()));
+        }
         double maxValue = convertTapToAngle(network, highTapPosition);
         for (Range range: ranges) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
@@ -104,18 +126,20 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, Range range) {
+    protected double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
         return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
     }
 
     @Override
     public double getMaxNegativeVariation(Network network) {
+        // This method calls getMinValue so it will throw a NotSynchronizedException if required
         return Math.max(convertTapToAngle(network, getCurrentTapPosition(network)) - getMinValue(network), 0);
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
+        // This method calls getMaxValue so it will throw a NotSynchronizedException if required
         return Math.max(getMaxValue(network) - convertTapToAngle(network, getCurrentTapPosition(network)), 0);
     }
 

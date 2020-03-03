@@ -39,6 +39,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     private Set<Cnec> cnecs;
     private Set<RangeAction> rangeActions;
     private Set<NetworkAction> networkActions;
+    private boolean isSynchronized;
 
     @JsonCreator
     public SimpleCrac(@JsonProperty("id") String id,
@@ -58,6 +59,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         this.contingencies = contingencies;
         this.rangeActions = rangeActions;
         this.networkActions = networkActions;
+        this.isSynchronized = false;
     }
 
     public SimpleCrac(String id, String name) {
@@ -343,7 +345,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             cnec.getId(),
             cnec.getName(),
             networkElement,
-            cnec.getThreshold(),
+            (AbstractThreshold) cnec.getThreshold(),
             getState(cnec.getState().getId())
         ));
     }
@@ -403,20 +405,24 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void synchronize(Network network) {
+        if (isSynchronized) {
+            throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
+        }
         cnecs.forEach(cnec -> cnec.synchronize(network));
         rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
+        isSynchronized = true;
     }
 
     @Override
     public void desynchronize() {
         cnecs.forEach(Synchronizable::desynchronize);
+        rangeActions.forEach(Synchronizable::desynchronize);
+        isSynchronized = false;
     }
 
     @Override
-    public void setReferenceValues(Network network) {
-        rangeActions.stream()
-                .filter(rangeAction -> rangeAction instanceof PstRange)
-                .forEach(rangeAction -> ((PstRange) rangeAction).setReferenceValue(network));
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 
     @Override

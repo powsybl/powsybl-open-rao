@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -578,5 +579,29 @@ public class CracFileTest {
 
         assertNotNull(simpleCrac.getPreventiveState());
         assertEquals(0, simpleCrac.getCnecs().size());
+    }
+
+    @Test
+    public void synchronizeFailSecondTime() {
+        Network network = Mockito.mock(Network.class);
+        simpleCrac.synchronize(network);
+        try {
+            simpleCrac.synchronize(network);
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
+    }
+
+    @Test
+    public void synchronizeThenDesynchronizeThenSynchronizeAgain() {
+        Network network = Mockito.mock(Network.class);
+        simpleCrac.synchronize(network);
+        simpleCrac.desynchronize();
+        try {
+            simpleCrac.synchronize(network);
+        } catch (FaraoException e) {
+            fail();
+        }
     }
 }

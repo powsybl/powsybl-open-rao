@@ -50,7 +50,7 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
     @Override
     @JsonIgnore
     public String getImplementationName() {
-        return super.getImplementationName();
+        return null;
     }
 
     /**
