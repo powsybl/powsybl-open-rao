@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Optional;
+
 /**
  * Critical network element and contingency.
  *
@@ -103,6 +105,23 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private boolean isCnecDisconnected(Network network) {
         Branch branch = network.getBranch(getNetworkElement().getId());
         return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
+    }
+
+    @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return threshold.getPhysicalParameter();
+    }
+
+    @Override
+    public Optional<Double> getMinThreshold(Unit requestedUnit) {
+        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
+        return threshold.getMinThreshold(requestedUnit);
+    }
+
+    @Override
+    public Optional<Double> getMaxThreshold(Unit requestedUnit) {
+        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
+        return threshold.getMaxThreshold(requestedUnit);
     }
 
     @Override
