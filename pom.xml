@@ -74,6 +74,7 @@
         <module>flow-decomposition</module>
         <module>ra-optimisation</module>
         <module>util</module>
+        <module>data/crac/crac-loopflow-extension</module>
     </modules>
 
     <properties>
