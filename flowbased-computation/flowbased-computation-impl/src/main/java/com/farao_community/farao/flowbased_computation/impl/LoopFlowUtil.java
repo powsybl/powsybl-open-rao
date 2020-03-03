@@ -68,7 +68,7 @@ public final class LoopFlowUtil {
                                                          FlowBasedComputationParameters flowBasedComputationParameters
     ) {
         //Call flowbased computation on given glskProvider
-        FlowBasedComputationImpl flowBasedComputationProvider = new FlowBasedComputationImpl();
+        FlowBasedComputationCracImpl flowBasedComputationProvider = new FlowBasedComputationCracImpl();
         FlowBasedComputationResult flowBasedComputationResult = flowBasedComputationProvider.run(network,
                 crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), flowBasedComputationParameters)
                 .join();

@@ -18,7 +18,7 @@ import java.util.List;
  * The motivation is to keep unique interface for all Rao (close optim rao, linear rao, search tree rao, etc).
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class LoopFlowExtensionInCrac extends AbstractExtension<Crac> {
+public class CracLoopFlowExtension extends AbstractExtension<Crac> {
     private GlskProvider glskProvider; //glsk for loop flow
     private List<String> countriesForLoopFlow; // list of countries for loop flow
 
@@ -40,6 +40,6 @@ public class LoopFlowExtensionInCrac extends AbstractExtension<Crac> {
 
     @Override
     public String getName() {
-        return null;
+        return "CracLoopFlowExtension";
     }
 }

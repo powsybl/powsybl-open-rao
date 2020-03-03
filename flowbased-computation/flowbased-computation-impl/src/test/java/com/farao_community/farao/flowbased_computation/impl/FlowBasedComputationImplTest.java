@@ -132,8 +132,8 @@ public class FlowBasedComputationImplTest {
 
     @Test
     public void testRunCrac() {
-        FlowBasedComputationImpl flowBasedComputationImpl = new FlowBasedComputationImpl();
-        FlowBasedComputationResult result = flowBasedComputationImpl.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
+        FlowBasedComputationCracImpl flowBasedComputationCracImpl = new FlowBasedComputationCracImpl();
+        FlowBasedComputationResult result = flowBasedComputationCracImpl.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
         assertEquals(FlowBasedComputationResult.Status.SUCCESS, result.getStatus());
 
         Map<String, Double> frefResults = frefResultById(result);

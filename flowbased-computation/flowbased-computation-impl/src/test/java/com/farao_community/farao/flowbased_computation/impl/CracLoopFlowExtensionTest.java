@@ -18,17 +18,17 @@ import static org.junit.Assert.*;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class LoopFlowExtensionInCracTest {
+public class CracLoopFlowExtensionTest {
     @Test
     public void testRun() {
         GlskProvider glskProvider = MinRamAdjustmentExampleGenerator.glskProviderCore();
         List<String> countries = new ArrayList<>(Arrays.asList("FR", "DE", "BE", "NL"));
 
-        LoopFlowExtensionInCrac loopFlowExtensionInCrac = new LoopFlowExtensionInCrac();
-        loopFlowExtensionInCrac.setGlskProvider(glskProvider);
-        loopFlowExtensionInCrac.setCountriesForLoopFlow(countries);
+        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
+        cracLoopFlowExtension.setGlskProvider(glskProvider);
+        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
 
-        assertFalse(loopFlowExtensionInCrac.getCountriesForLoopFlow().isEmpty());
-        assertNotNull(loopFlowExtensionInCrac.getGlskProvider());
+        assertFalse(cracLoopFlowExtension.getCountriesForLoopFlow().isEmpty());
+        assertNotNull(cracLoopFlowExtension.getGlskProvider());
     }
 }
