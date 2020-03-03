@@ -110,10 +110,6 @@ public abstract class AbstractRemedialAction extends AbstractIdentifiable implem
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        /*for (UsageRule rule : usageRules) {
-            result = 31 * result + rule.hashCode();
-        }*/
-        return result;
+        return super.hashCode();
     }
 }
