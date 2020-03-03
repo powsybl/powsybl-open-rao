@@ -25,7 +25,7 @@ import java.util.Optional;
  */
 @JsonTypeName("simple-cnec")
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class SimpleCnec extends AbstractIdentifiable implements Cnec {
+public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
     private AbstractThreshold threshold;
     private State state;
