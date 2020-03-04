@@ -27,24 +27,25 @@ import java.util.Optional;
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
-    private AbstractThreshold threshold;
+    private AbstractThreshold thresholds;
     private State state;
     private boolean isSynchronized;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
+                      @JsonProperty("thresholds") AbstractThreshold thresholds, @JsonProperty("state") State state) {
         super(id, name);
+
         this.networkElement = networkElement;
-        this.threshold = threshold.copy();
-        this.threshold.setNetworkElement(networkElement);
+        this.thresholds = thresholds.copy();
+        this.thresholds.setNetworkElement(networkElement);
         this.state = state;
         isSynchronized = false;
     }
 
-    public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
-        this(id, id, networkElement, threshold, state);
+    public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold thresholds, State state) {
+        this(id, id, networkElement, thresholds, state);
     }
 
     @Override
@@ -56,26 +57,25 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         // todo : switch units if no I is available but P is available
         // todo : add a requested unit
         double flow;
-        Unit unit = threshold.getUnit();
+        Unit unit = thresholds.getUnit();
         if (unit.equals(Unit.AMPERE)) {
             flow = getI(network);
         } else {
             flow = getP(network);
         }
-        return Math.min(threshold.getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - flow, flow - threshold.getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
+        return Math.min(thresholds.getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - flow, flow - thresholds.getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
 
-    @Override
-    public Threshold getThreshold() {
-        return threshold;
+    public AbstractThreshold getThresholds() {
+        return thresholds;
     }
 
-    public void setThreshold(AbstractThreshold threshold) {
-        this.threshold = threshold;
+    public void setThresholds(AbstractThreshold thresholds) {
+        this.thresholds = thresholds;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
      * Get the monitored Terminal of a Cnec.
      */
     private Terminal getTerminal(Network network) {
-        return network.getBranch(getNetworkElement().getId()).getTerminal(((AbstractFlowThreshold) threshold).getBranchSide()); // this is dirty but we can assume that this method will be used only if the threshold of the cnec is an abstractflowthreshold
+        return network.getBranch(getNetworkElement().getId()).getTerminal(((AbstractFlowThreshold) thresholds).getBranchSide()); // this is dirty but we can assume that this method will be used only if the threshold of the cnec is an abstractflowthreshold
     }
 
     /**
@@ -109,19 +109,19 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public PhysicalParameter getPhysicalParameter() {
-        return threshold.getPhysicalParameter();
+        return thresholds.getPhysicalParameter();
     }
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        return threshold.getMinThreshold(requestedUnit);
+        return thresholds.getMinThreshold(requestedUnit);
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        return threshold.getMaxThreshold(requestedUnit);
+        return thresholds.getMaxThreshold(requestedUnit);
     }
 
     @Override
@@ -144,19 +144,23 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public void synchronize(Network network) {
-        threshold.synchronize(network);
+        thresholds.synchronize(network);
         isSynchronized = true;
     }
 
     @Override
     public void desynchronize() {
-        threshold.desynchronize();
+        thresholds.desynchronize();
         isSynchronized = false;
     }
 
     @Override
     public boolean isSynchronized() {
         return isSynchronized;
+    }
+
+    public Cnec copy(NetworkElement networkElement, State state) {
+        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state);
     }
 
     @Override
@@ -169,7 +173,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         }
         SimpleCnec cnec = (SimpleCnec) o;
         return super.equals(cnec) && networkElement.equals(cnec.getNetworkElement())
-            && state.equals(cnec.getState()) && threshold.equals(cnec.getThreshold());
+            && state.equals(cnec.getState()) && thresholds.equals(cnec.thresholds);
     }
 
     @Override
@@ -177,7 +181,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         int result = super.hashCode();
         result = 31 * result + networkElement.hashCode();
         result = 31 * result + state.hashCode();
-        result = 31 * result + threshold.hashCode();
+        result = 31 * result + thresholds.hashCode();
         return result;
     }
 }
