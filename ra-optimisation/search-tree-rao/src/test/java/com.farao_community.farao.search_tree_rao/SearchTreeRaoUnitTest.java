@@ -49,8 +49,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SearchTreeConfigurationUtil.class, Tree.class})
-public class SearchTreeRaoTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoTest.class);
+public class SearchTreeRaoUnitTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoUnitTest.class);
 
     private SearchTreeRao searchTreeRao;
     private ComputationManager computationManager;
@@ -85,7 +85,7 @@ public class SearchTreeRaoTest {
     }
 
     @Test
-    public void test() {
+    public void testRun() {
         RaoParameters parameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = Mockito.mock(SearchTreeRaoParameters.class);
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
