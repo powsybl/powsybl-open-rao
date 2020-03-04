@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.Terminal;
  */
 @JsonTypeName("simple-cnec")
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityReference(alwaysAsId = true)
 public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
     private AbstractThreshold threshold;
@@ -41,7 +42,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         isSynchronized = false;
     }
 
-    public SimpleCnec(String id, NetworkElement networkElement, Threshold threshold, State state) {
+    public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
         this(id, id, networkElement, threshold, state);
     }
 

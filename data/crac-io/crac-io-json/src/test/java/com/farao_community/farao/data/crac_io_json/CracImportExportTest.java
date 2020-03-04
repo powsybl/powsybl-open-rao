@@ -102,7 +102,7 @@ public class CracImportExportTest {
             simpleCrac.getNetworkElement("pst")
         ));
 
-        simpleCrac.addRangeAction(new AlignedRangeAction(
+       simpleCrac.addRangeAction(new AlignedRangeAction(
             "alignedRangeId",
             "alignedRangeName",
             "RTE",
