@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PhysicalParameter;
-import com.farao_community.farao.data.crac_api.Threshold;
-import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -30,7 +27,7 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold"),
         @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltage-threshold")
     })
-public abstract class AbstractThreshold implements Threshold {
+public abstract class AbstractThreshold implements Synchronizable {
     protected Unit unit;
     protected NetworkElement networkElement;
 
