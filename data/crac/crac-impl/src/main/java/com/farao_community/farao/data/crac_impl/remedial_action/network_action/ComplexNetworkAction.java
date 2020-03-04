@@ -26,7 +26,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("complex-network-action")
-public class ComplexNetworkAction extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
+public class ComplexNetworkAction extends AbstractRemedialAction implements NetworkAction {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
     @JsonCreator

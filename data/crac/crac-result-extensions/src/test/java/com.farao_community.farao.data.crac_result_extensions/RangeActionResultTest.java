@@ -52,19 +52,16 @@ public class RangeActionResultTest {
 
     @Test
     public void constructor() {
-        assertTrue(rangeActionResult.activationMap.containsKey(initialState));
-        assertTrue(rangeActionResult.activationMap.containsKey(outage1));
-        assertTrue(rangeActionResult.activationMap.containsKey(curative1));
-        assertTrue(rangeActionResult.activationMap.containsKey(outage2));
-        assertTrue(rangeActionResult.activationMap.containsKey(curative2));
-        assertEquals(5, rangeActionResult.activationMap.size());
+        assertTrue(rangeActionResult.setPointMap.containsKey(initialState));
+        assertTrue(rangeActionResult.setPointMap.containsKey(outage1));
+        assertTrue(rangeActionResult.setPointMap.containsKey(curative1));
+        assertTrue(rangeActionResult.setPointMap.containsKey(outage2));
+        assertTrue(rangeActionResult.setPointMap.containsKey(curative2));
+        assertEquals(5, rangeActionResult.setPointMap.size());
     }
 
     @Test
     public void getSetPoint() {
-        rangeActionResult.activate(initialState);
-        assertTrue(rangeActionResult.isActivated(initialState));
-        assertFalse(rangeActionResult.isActivated(outage1));
         rangeActionResult.setSetPoint(outage1, 15.);
         assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState), EPSILON);
         assertEquals(15., rangeActionResult.getSetPoint(outage1), EPSILON);
