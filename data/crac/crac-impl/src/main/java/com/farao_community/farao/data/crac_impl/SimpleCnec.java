@@ -112,7 +112,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     @Override
     public PhysicalParameter getPhysicalParameter() {
         if (!thresholds.isEmpty()) {
-            PhysicalParameter physicalParameter = thresholds.stream().findFirst().get().getPhysicalParameter();
+            PhysicalParameter physicalParameter = thresholds.iterator().next().getPhysicalParameter();
             if (thresholds.stream().allMatch(threshold -> threshold.getPhysicalParameter().equals(physicalParameter))) {
                 return physicalParameter;
             } else {
