@@ -99,11 +99,16 @@ public class SimpleCracDeserializer extends StdDeserializer<SimpleCrac> {
     }
 
     private static void createAndAddCnec(SimpleCrac simpleCrac, JsonNode cnec, JsonParser jsonParser) throws JsonProcessingException {
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        for (Iterator<JsonNode> itElementary = cnec.get("thresholds").elements(); itElementary.hasNext(); ) {
+            JsonNode range = itElementary.next();
+            thresholds.add(jsonParser.getCodec().treeToValue(range, AbstractThreshold.class));
+        }
         simpleCrac.addCnec(new SimpleCnec(
             cnec.get(ID).asText(),
             cnec.get(NAME).asText(),
             simpleCrac.getNetworkElement(cnec.get(NETWORK_ELEMENT).asText()),
-            jsonParser.getCodec().treeToValue(cnec.get("thresholds"), AbstractThreshold.class),
+            thresholds,
             simpleCrac.getState(cnec.get(STATE).asText())
         ));
     }
