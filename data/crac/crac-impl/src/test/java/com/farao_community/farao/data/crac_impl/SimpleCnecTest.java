@@ -8,7 +8,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
@@ -18,7 +20,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
@@ -167,5 +171,41 @@ public class SimpleCnecTest {
 
         assertEquals(400, cnecOnLine1.getMaxThreshold(Unit.AMPERE).get(), 0.1);
         assertEquals(250, cnecOnLine2.getMaxThreshold(Unit.AMPERE).get(), 0.1);
+    }
+
+    @Test
+    public void severalThresholdTest1() {
+        State state = Mockito.mock(State.class);
+        AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
+        AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
+
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(directThreshold);
+        thresholds.add(oppositeThreshold);
+
+        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+
+        assertEquals(500, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
+    }
+
+    @Test
+    public void severalThresholdTest2() {
+        State state = Mockito.mock(State.class);
+        AbsoluteFlowThreshold directThreshold1 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
+        AbsoluteFlowThreshold oppositeThreshold1 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
+        AbsoluteFlowThreshold directThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 490);
+        AbsoluteFlowThreshold oppositeThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 210);
+
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(directThreshold1);
+        thresholds.add(oppositeThreshold1);
+        thresholds.add(directThreshold2);
+        thresholds.add(oppositeThreshold2);
+
+        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+
+        assertEquals(490, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
     }
 }
