@@ -6,8 +6,12 @@
  */
 package com.farao_community.farao.search_tree_rao.config;
 
+import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
+import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -27,7 +31,6 @@ public class SearchTreeRaoParametersTest {
     public void setUp() {
         PlatformConfig config = Mockito.mock(PlatformConfig.class);
         parameters = RaoParameters.load(config);
-
     }
 
     @Test
@@ -44,5 +47,17 @@ public class SearchTreeRaoParametersTest {
         assertNotNull(searchTreeRaoParameters.getRangeActionRao());
         // name
         assertEquals("SearchTreeRaoParameters", searchTreeRaoParameters.getName());
+    }
+
+    @Test
+    public void testLoopFlowExtensionParameters() {
+        parameters.addExtension(LoopFlowExtensionParameters.class, new LoopFlowExtensionParameters());
+        LoopFlowExtensionParameters loopFlowExtensionParameters = parameters.getExtension(LoopFlowExtensionParameters.class);
+        loopFlowExtensionParameters.setLoadFlowParameters(new LoadFlowParameters());
+        loopFlowExtensionParameters.setSensitivityComputationParameters(new SensitivityComputationParameters());
+        FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
+        TestCase.assertNotNull(flowBasedComputationParameters);
+        loopFlowExtensionParameters.setRaoWithLoopFlow(true);
+        assertTrue(loopFlowExtensionParameters.isRaoWithLoopFlow());
     }
 }

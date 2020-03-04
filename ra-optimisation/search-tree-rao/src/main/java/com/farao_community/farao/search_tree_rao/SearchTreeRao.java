@@ -15,6 +15,7 @@ import com.farao_community.farao.flowbased_computation.impl.LoopFlowUtil;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.search_tree_rao.config.LoopFlowExtensionParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
@@ -50,8 +51,9 @@ public class SearchTreeRao implements RaoProvider {
         crac.generateValidityReport(network);
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
-        FlowBasedComputationParameters flowBasedComputationParameters = parameters.getExtension(FlowBasedComputationParameters.class);
-        if (!Objects.isNull(flowBasedComputationParameters)) {
+        LoopFlowExtensionParameters loopFlowExtensionParameters = parameters.getExtension(LoopFlowExtensionParameters.class);
+        if (!Objects.isNull(loopFlowExtensionParameters)) {
+            FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
             calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
         }
 
