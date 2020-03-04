@@ -136,6 +136,7 @@ public final class GlskPointScalableConverter {
 
             List<Load> loads = network.getLoadStream().filter(load -> country.equals(load.getTerminal().getVoltageLevel().getSubstation().getCountry().orElse(null)))
                     .filter(load -> load.getTerminal().isConnected())
+                    .filter(load -> load.getTerminal().getBusView().getConnectableBus() != null)
                     .filter(load -> load.getTerminal().getBusView().getConnectableBus().isInMainSynchronousComponent())
                     .collect(Collectors.toList());
             //calculate sum P of country's loads

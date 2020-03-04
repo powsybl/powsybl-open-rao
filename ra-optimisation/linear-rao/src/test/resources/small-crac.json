@@ -63,7 +63,7 @@
       "id": "Tieline BE FR - Défaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
-      "threshold": {
+      "thresholds": {
         "type": "absolute-flow-threshold",
         "unit": "MEGAWATT",
         "side": "LEFT",
@@ -77,7 +77,7 @@
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
-      "threshold": {
+      "thresholds": {
         "type": "absolute-flow-threshold",
         "unit": "MEGAWATT",
         "side": "LEFT",
