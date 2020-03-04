@@ -78,6 +78,10 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         this.thresholds = thresholds;
     }
 
+    public void addThreshold(AbstractThreshold threshold) {
+        thresholds.add(threshold);
+    }
+
     @Override
     public State getState() {
         return state;

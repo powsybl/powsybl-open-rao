@@ -201,9 +201,9 @@ public class SimpleCnecTest {
         thresholds.add(directThreshold1);
         thresholds.add(oppositeThreshold1);
         thresholds.add(directThreshold2);
-        thresholds.add(oppositeThreshold2);
 
-        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+        SimpleCnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+        cnec.addThreshold(oppositeThreshold2);
 
         assertEquals(490, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
         assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
