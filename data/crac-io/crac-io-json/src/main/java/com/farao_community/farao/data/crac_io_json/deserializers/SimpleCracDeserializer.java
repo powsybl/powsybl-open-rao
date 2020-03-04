@@ -29,28 +29,24 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
 
     @Override
     public SimpleCrac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-       /*
-        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-        if (node.get(ID) == null || node.get(NAME) == null) {
-            throw new FaraoException("Json crac has no field 'id' or no field 'name'");
+        // the Json file should start with the id and the name of the SimpleCrac
+        if (!jsonParser.getCurrentName().equals(ID)) {
+            throw new FaraoException("'id' field is expected in the third line of the json file.");
         }
-        SimpleCrac simpleCrac = new SimpleCrac(node.get(ID).asText(), node.get(NAME).asText());
+        String id = jsonParser.nextTextValue();
 
-        // todo : find a cleaner way to reset the parser or to initialize the Crac
         jsonParser.nextToken();
+        if (!jsonParser.getCurrentName().equals(NAME)) {
+            throw new FaraoException("'name' field is expected in the fourth line of the json file.");
+        }
+        String name = jsonParser.nextTextValue();
 
-        */
-        SimpleCrac simpleCrac = new SimpleCrac("id");
+        SimpleCrac simpleCrac = new SimpleCrac(id, name);
 
-        while (jsonParser.currentToken() != JsonToken.END_OBJECT) {
+        // deserialize the following lines of the SimpleCrac
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
-
-                case DeserializerNames.TYPE:
-                case ID:
-                case NAME:
-                    jsonParser.nextToken();
-                    break;
 
                 case NETWORK_ELEMENTS:
                     jsonParser.nextToken();
@@ -96,7 +92,6 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
 
             }
-            jsonParser.nextToken();
         }
         return simpleCrac;
     }
