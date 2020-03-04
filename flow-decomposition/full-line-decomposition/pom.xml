@@ -32,10 +32,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-config-classic</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ejml</groupId>
             <artifactId>ejml-all</artifactId>
         </dependency>
@@ -55,6 +51,11 @@
             <artifactId>powsybl-commons</artifactId>
             <version>${powsybl.core.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-config-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
