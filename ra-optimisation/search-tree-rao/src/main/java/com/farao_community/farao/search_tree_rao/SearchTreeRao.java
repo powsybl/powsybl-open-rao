@@ -56,11 +56,9 @@ public class SearchTreeRao implements RaoProvider {
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
         LoopFlowExtensionParameters loopFlowExtensionParameters = parameters.getExtension(LoopFlowExtensionParameters.class);
-        if (!Objects.isNull(loopFlowExtensionParameters)) {
-            if (loopFlowExtensionParameters.isRaoWithLoopFlow()) {
-                FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
-                calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
-            }
+        if (!Objects.isNull(loopFlowExtensionParameters) && useLoopFlowExtension(loopFlowExtensionParameters)) {
+            FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
+            calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
         }
 
         // run optimisation
@@ -90,5 +88,9 @@ public class SearchTreeRao implements RaoProvider {
                 cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, inputLoopFlow));
             }
         });
+    }
+
+    private static boolean useLoopFlowExtension(LoopFlowExtensionParameters loopFlowExtensionParameters) {
+        return loopFlowExtensionParameters.isRaoWithLoopFlow();
     }
 }
