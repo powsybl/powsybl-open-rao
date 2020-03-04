@@ -19,7 +19,7 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class StateDeserializer {
+final class StateDeserializer {
 
     private StateDeserializer() { }
 
@@ -27,7 +27,7 @@ class StateDeserializer {
         // cannot be done in a standard State deserializer as it requires the simpleCrac to compare
         // Contingency ids and Instant ids ids with what is in the SimpleCrac
 
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
             String contingencyId = null;
             String instantId = null;
@@ -58,10 +58,8 @@ class StateDeserializer {
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
                 }
             }
-
             //add state in Crac
             simpleCrac.addState(contingencyId, instantId);
         }
     }
-
 }

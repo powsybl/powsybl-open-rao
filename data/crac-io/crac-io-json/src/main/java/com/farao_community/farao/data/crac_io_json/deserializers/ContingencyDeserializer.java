@@ -25,15 +25,15 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class ContingencyDeserializer {
+final class ContingencyDeserializer {
 
-    private ContingencyDeserializer() {}
+    private ContingencyDeserializer() { }
 
     static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard ComplexContingency deserializer as it requires the simpleCrac to
         // compare the NetworkElement ids of the ComplexContingency with the NetworkElement of the SimpleCrac
 
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
             String id = null;
             String name = null;
@@ -78,7 +78,6 @@ class ContingencyDeserializer {
             });
 
             simpleCrac.addContingency(new ComplexContingency(id, name, networkElements));
-
         }
     }
 }

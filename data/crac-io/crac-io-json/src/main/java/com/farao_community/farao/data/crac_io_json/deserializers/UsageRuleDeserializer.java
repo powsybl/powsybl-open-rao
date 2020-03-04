@@ -25,7 +25,7 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class UsageRuleDeserializer {
+final class UsageRuleDeserializer {
 
     private UsageRuleDeserializer() { }
 
@@ -35,13 +35,13 @@ class UsageRuleDeserializer {
 
         List<UsageRule> usageRules = new ArrayList<>();
 
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
             UsageRule usageRule;
 
             // first json Token should be the type of the range action
             jsonParser.nextToken();
-            if(!jsonParser.getCurrentName().equals(TYPE)) {
+            if (!jsonParser.getCurrentName().equals(TYPE)) {
                 throw new FaraoException("Type of usage rule is missing");
             }
 
@@ -62,12 +62,10 @@ class UsageRuleDeserializer {
 
                 default:
                     throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
-
             }
 
             usageRules.add(usageRule);
         }
-
         return usageRules;
 
     }
@@ -94,7 +92,6 @@ class UsageRuleDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
@@ -134,7 +131,6 @@ class UsageRuleDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
@@ -151,7 +147,6 @@ class UsageRuleDeserializer {
 
         return new OnConstraint(usageMethod, state, cnec);
     }
-
 
     private static OnContingency deserializeOnContingencyUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard OnContingency deserializer as it requires the simpleCrac to compare
@@ -180,7 +175,6 @@ class UsageRuleDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
@@ -197,7 +191,4 @@ class UsageRuleDeserializer {
 
         return new OnContingency(usageMethod, state, contingency);
     }
-
-
-
 }

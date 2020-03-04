@@ -30,7 +30,7 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class RangeActionDeserializer {
+final class RangeActionDeserializer {
 
     private RangeActionDeserializer() { }
 
@@ -38,13 +38,13 @@ class RangeActionDeserializer {
         // cannot be done in a standard RangeAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids with what is in the SimpleCrac
 
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
             RangeAction rangeAction;
 
             // first json Token should be the type of the range action
             jsonParser.nextToken();
-            if(!jsonParser.getCurrentName().equals(TYPE)) {
+            if (!jsonParser.getCurrentName().equals(TYPE)) {
                 throw new FaraoException("Type of range action is missing");
             }
 
@@ -61,15 +61,13 @@ class RangeActionDeserializer {
 
                 default:
                     throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
-
             }
 
             simpleCrac.addRangeAction(rangeAction);
-
         }
     }
 
-     private static AlignedRangeAction deserializeAlignedRangeAction(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static AlignedRangeAction deserializeAlignedRangeAction(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard AlignedRangeAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids with what is in the SimpleCrac
 
@@ -115,7 +113,6 @@ class RangeActionDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
@@ -132,7 +129,6 @@ class RangeActionDeserializer {
 
         return new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
     }
-
 
     private static PstWithRange deserializePstWithRange(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard PstWithRange deserializer as it requires the simpleCrac to compare
@@ -178,7 +174,6 @@ class RangeActionDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
@@ -190,5 +185,4 @@ class RangeActionDeserializer {
 
         return new PstWithRange(id, name, operator, usageRules, ranges, ne);
     }
-
 }

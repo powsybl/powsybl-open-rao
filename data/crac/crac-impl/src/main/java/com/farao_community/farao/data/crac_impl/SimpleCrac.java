@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_impl.json.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;

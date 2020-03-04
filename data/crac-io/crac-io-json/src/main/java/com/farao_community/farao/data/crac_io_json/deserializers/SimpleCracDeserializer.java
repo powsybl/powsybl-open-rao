@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -42,7 +41,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
         jsonParser.nextToken();
 
         */
-       SimpleCrac simpleCrac = new SimpleCrac("id");
+        SimpleCrac simpleCrac = new SimpleCrac("id");
 
         while (jsonParser.currentToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {

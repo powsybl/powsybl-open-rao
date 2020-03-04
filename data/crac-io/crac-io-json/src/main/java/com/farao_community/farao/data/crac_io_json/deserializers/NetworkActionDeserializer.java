@@ -31,7 +31,7 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class NetworkActionDeserializer {
+final class NetworkActionDeserializer {
 
     private NetworkActionDeserializer() { }
 
@@ -41,13 +41,13 @@ class NetworkActionDeserializer {
 
         Set<NetworkAction> networkActions = new HashSet<>();
 
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
             NetworkAction networkAction;
 
             // first json Token should be the type of the range action
             jsonParser.nextToken();
-            if(!jsonParser.getCurrentName().equals(TYPE)) {
+            if (!jsonParser.getCurrentName().equals(TYPE)) {
                 throw new FaraoException("Type of range action is missing");
             }
 
@@ -220,11 +220,11 @@ class NetworkActionDeserializer {
                         usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
                         break;
 
-                    case ELEMENTARY_NETWOK_ACTIONS:
+                    case ELEMENTARY_NETWORK_ACTIONS:
                         jsonParser.nextToken();
                         Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
                         networkActions.forEach(na -> {
-                            if (! (na instanceof AbstractElementaryNetworkAction)) {
+                            if (!(na instanceof AbstractElementaryNetworkAction)) {
                                 throw new FaraoException("A complex network action can only contain elementary network actions");
                             }
                             elementaryNetworkActions.add((AbstractElementaryNetworkAction) na);
@@ -233,13 +233,10 @@ class NetworkActionDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
 
         return new ComplexNetworkAction(id, name, operator, usageRules, elementaryNetworkActions);
     }
-
-
 }

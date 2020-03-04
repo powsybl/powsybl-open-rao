@@ -27,7 +27,7 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class CnecDeserializer {
+final class CnecDeserializer {
 
     private CnecDeserializer() { }
 
@@ -35,7 +35,7 @@ class CnecDeserializer {
         // cannot be done in a standard State deserializer as it requires the simpleCrac to compare
         // the State id and NetworkElement id with what is in the Crac
 
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY) {
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
             String id = null;
             String name = null;
