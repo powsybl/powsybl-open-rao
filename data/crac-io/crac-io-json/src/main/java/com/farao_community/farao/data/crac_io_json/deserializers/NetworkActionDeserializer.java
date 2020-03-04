@@ -37,7 +37,7 @@ final class NetworkActionDeserializer {
 
     static Set<NetworkAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard NetworkAction deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // the networkElement ids of the NetworkAction with the NetworkElements of the Crac
 
         Set<NetworkAction> networkActions = new HashSet<>();
 
@@ -78,8 +78,8 @@ final class NetworkActionDeserializer {
     }
 
     private static Topology deserializeTopology(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard PstWithRange deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // cannot be done in a standard Topology deserializer as it requires the simpleCrac to compare
+        // the networkElement ids of the Topology with the NetworkElements of the Crac
 
         String id = null;
         String name = null;
@@ -135,7 +135,7 @@ final class NetworkActionDeserializer {
 
     private static PstSetpoint deserializePstSetPoint(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard PstSetPoint deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // the networkElement ids of the PstSetPoint with the NetworkElements of the Crac
 
         String id = null;
         String name = null;
@@ -176,7 +176,6 @@ final class NetworkActionDeserializer {
 
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-
                 }
             }
         }
@@ -190,8 +189,8 @@ final class NetworkActionDeserializer {
     }
 
     private static ComplexNetworkAction deserializeComplexNetworkAction(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard PstSetPoint deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // cannot be done in a standard ComplexNetworkAction deserializer as it requires the simpleCrac to compare
+        // the networkElement ids of the ComplexNetworkAction with the NetworkElements of the SimpleCrac
 
         String id = null;
         String name = null;

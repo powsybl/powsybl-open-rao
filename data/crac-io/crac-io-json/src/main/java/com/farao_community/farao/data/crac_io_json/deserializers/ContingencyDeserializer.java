@@ -31,7 +31,7 @@ final class ContingencyDeserializer {
 
     static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard ComplexContingency deserializer as it requires the simpleCrac to
-        // compare the NetworkElement ids of the ComplexContingency with the NetworkElement of the SimpleCrac
+        // compare the NetworkElement ids of the ComplexContingency with the NetworkElements of the SimpleCrac
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 

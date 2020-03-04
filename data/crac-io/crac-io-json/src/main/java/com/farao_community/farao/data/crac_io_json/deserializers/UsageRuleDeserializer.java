@@ -31,8 +31,7 @@ final class UsageRuleDeserializer {
 
     static List<UsageRule> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard UsageRule deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
-
+        // the contingencies of the OnConstraints UsageRules with the contingencies in the Crac
         List<UsageRule> usageRules = new ArrayList<>();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -71,8 +70,6 @@ final class UsageRuleDeserializer {
     }
 
     private static FreeToUse deserializeFreeToUseUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard FreeToUse deserializer as it requires the simpleCrac to compare
-        // the state ids with what is in the SimpleCrac
 
         UsageMethod usageMethod = null;
         String stateId = null;
@@ -105,8 +102,6 @@ final class UsageRuleDeserializer {
     }
 
     private static OnConstraint deserializeOnConstraintUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard OnConstraint deserializer as it requires the simpleCrac to compare
-        // the state and cnec ids with what is in the SimpleCrac
 
         UsageMethod usageMethod = null;
         String stateId = null;
@@ -149,8 +144,6 @@ final class UsageRuleDeserializer {
     }
 
     private static OnContingency deserializeOnContingencyUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard OnContingency deserializer as it requires the simpleCrac to compare
-        // the state and contingency ids with what is in the SimpleCrac
 
         UsageMethod usageMethod = null;
         String stateId = null;

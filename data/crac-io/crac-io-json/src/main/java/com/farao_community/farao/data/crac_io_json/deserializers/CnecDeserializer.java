@@ -32,8 +32,8 @@ final class CnecDeserializer {
     private CnecDeserializer() { }
 
     static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard State deserializer as it requires the simpleCrac to compare
-        // the State id and NetworkElement id with what is in the Crac
+        // cannot be done in a standard Cnec deserializer as it requires the simpleCrac to compare
+        // the State id and NetworkElement id of the Cnec with what is in the Crac
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 

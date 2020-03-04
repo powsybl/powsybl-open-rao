@@ -36,7 +36,7 @@ final class RangeActionDeserializer {
 
     static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard RangeAction deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // the networkElement ids of the RangeAction with the NetworkElements of the Crac
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
@@ -69,7 +69,7 @@ final class RangeActionDeserializer {
 
     private static AlignedRangeAction deserializeAlignedRangeAction(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard AlignedRangeAction deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // the networkElement ids of the AlignedRangeAction with the NetworkElements of the Crac
 
         String id = null;
         String name = null;
@@ -132,7 +132,7 @@ final class RangeActionDeserializer {
 
     private static PstWithRange deserializePstWithRange(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard PstWithRange deserializer as it requires the simpleCrac to compare
-        // the networkElement ids with what is in the SimpleCrac
+        // the networkElement ids of the PstWithRange with the NetworkElements of the Crac
 
         String id = null;
         String name = null;
