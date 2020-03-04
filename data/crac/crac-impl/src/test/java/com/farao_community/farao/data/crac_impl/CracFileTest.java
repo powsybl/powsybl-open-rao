@@ -9,8 +9,14 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_api.Direction.*;
-import static com.farao_community.farao.data.crac_api.Side.*;
+import static com.farao_community.farao.data.crac_api.Direction.OPPOSITE;
+import static com.farao_community.farao.data.crac_api.Side.LEFT;
 import static org.junit.Assert.*;
 
 /**
@@ -603,5 +609,68 @@ public class CracFileTest {
         } catch (FaraoException e) {
             fail();
         }
+    }
+
+    @Test
+    public void generateValidityReport() {
+        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+
+        SimpleCrac simpleCrac = new SimpleCrac("cracId");
+
+        Contingency contingency = simpleCrac.addContingency("contingencyId", "FFR1AA1  FFR2AA1  1");
+        simpleCrac.addContingency("contingency2Id", "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE3AA1  1");
+
+        Instant initialInstant = simpleCrac.addInstant("N", 0);
+        Instant outageInstant = simpleCrac.addInstant("postContingencyId", 5);
+
+        State preventiveState = simpleCrac.addState(null, initialInstant);
+        State postContingencyState = simpleCrac.addState(contingency, outageInstant);
+
+        simpleCrac.addNetworkElement("neId1");
+        simpleCrac.addNetworkElement("neId2");
+        simpleCrac.addNetworkElement(new NetworkElement("pst"));
+
+        simpleCrac.addCnec("cnec1prev", "FFR1AA1  FFR2AA1  1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500), preventiveState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30), preventiveState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800), postContingencyState.getId());
+
+        Topology topology1 = new Topology(
+                "topologyId1",
+                "topologyName",
+                "RTE",
+                new ArrayList<>(),
+                simpleCrac.getNetworkElement("neId1"),
+                ActionType.CLOSE
+        );
+        Topology topology2 = new Topology(
+                "topologyId2",
+                "topologyName",
+                "RTE",
+                new ArrayList<>(),
+                simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
+                ActionType.CLOSE
+        );
+        PstWithRange pstWithRange = new PstWithRange(
+                "pstRangeId",
+                "pstRangeName",
+                "RTE",
+                Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
+                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
+                simpleCrac.getNetworkElement("pst")
+        );
+
+        simpleCrac.addNetworkAction(topology1);
+        simpleCrac.addNetworkAction(topology2);
+        simpleCrac.addRangeAction(pstWithRange);
+
+        assertEquals(3, simpleCrac.getCnecs().size());
+        assertEquals(2, simpleCrac.getNetworkActions().size());
+        assertEquals(1, simpleCrac.getRangeActions().size());
+
+        simpleCrac.generateValidityReport(network);
+
+        assertEquals(1, simpleCrac.getCnecs().size());
+        assertEquals(1, simpleCrac.getNetworkActions().size());
+        assertEquals(0, simpleCrac.getRangeActions().size());
     }
 }

@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,6 +31,8 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
     private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCrac.class);
 
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
@@ -418,6 +422,31 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void generateValidityReport(Network network) {
-        throw new UnsupportedOperationException();
+        ArrayList<Cnec> absentFromNetworkCnecs = new ArrayList<>();
+        getCnecs().forEach(cnec -> {
+            if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
+                absentFromNetworkCnecs.add(cnec);
+                LOGGER.warn(String.format("Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
+            }
+        });
+        absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
+        ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
+        getRangeActions().forEach(rangeAction -> rangeAction.getNetworkElements().forEach(networkElement -> {
+            if (network.getIdentifiable(networkElement.getId()) == null) {
+                absentFromNetworkRangeActions.add(rangeAction);
+                LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
+            }
+        }));
+        absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
+
+        ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
+        getNetworkActions().forEach(networkAction -> networkAction.getNetworkElements().forEach(networkElement -> {
+            if (network.getIdentifiable(networkElement.getId()) == null) {
+                absentFromNetworkNetworkActions.add(networkAction);
+                LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
+            }
+        }));
+        absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
+        // TODO: remove contingencies that are not present in the network (and states associated...)
     }
 }
