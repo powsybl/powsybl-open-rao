@@ -21,6 +21,8 @@ import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(RaoProvider.class)
 public class SearchTreeRao implements RaoProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRao.class);
+
     @Override
     public String getName() {
         return "SearchTreeRao";
@@ -53,8 +57,10 @@ public class SearchTreeRao implements RaoProvider {
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
         LoopFlowExtensionParameters loopFlowExtensionParameters = parameters.getExtension(LoopFlowExtensionParameters.class);
         if (!Objects.isNull(loopFlowExtensionParameters)) {
-            FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
-            calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
+            if (loopFlowExtensionParameters.isRaoWithLoopFlow()) {
+                FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
+                calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
+            }
         }
 
         // run optimisation
@@ -69,7 +75,8 @@ public class SearchTreeRao implements RaoProvider {
         // 1. For the initial Network, compute the F_(0,all)_init
         CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
         if (Objects.isNull(cracLoopFlowExtension)) {
-            throw new FaraoException("LoopFlowExtensionInCrac not available");
+            LOGGER.error("LoopFlowExtensionInCrac not available");
+            return;
         }
         Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, cracLoopFlowExtension.getGlskProvider(),
                 cracLoopFlowExtension.getCountriesForLoopFlow(), computationManager, flowBasedComputationParameters);

@@ -86,10 +86,11 @@ public class SearchTreeRaoTest {
 
     @Test
     public void test() {
-        RaoParameters parameters = Mockito.mock(RaoParameters.class);
+        RaoParameters parameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = Mockito.mock(SearchTreeRaoParameters.class);
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        LoopFlowExtensionParameters loopFlowExtensionParameters = Mockito.mock(LoopFlowExtensionParameters.class);
+        LoopFlowExtensionParameters loopFlowExtensionParameters = new LoopFlowExtensionParameters();
+        assertTrue(loopFlowExtensionParameters.isRaoWithLoopFlow());
         parameters.addExtension(LoopFlowExtensionParameters.class, loopFlowExtensionParameters);
         List<String> emptyList = new ArrayList<>();
         PowerMockito.mockStatic(SearchTreeConfigurationUtil.class);
