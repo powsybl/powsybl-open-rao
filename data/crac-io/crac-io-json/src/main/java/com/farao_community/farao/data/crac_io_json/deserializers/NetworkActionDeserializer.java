@@ -68,7 +68,6 @@ final class NetworkActionDeserializer {
 
                 default:
                     throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
-
             }
             networkActions.add(networkAction);
         }
@@ -88,39 +87,37 @@ final class NetworkActionDeserializer {
         ActionType actionType = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
+                case ID:
+                    id = jsonParser.nextTextValue();
+                    break;
 
-                    case OPERATOR:
-                        operator = jsonParser.nextTextValue();
-                        break;
+                case NAME:
+                    name = jsonParser.nextTextValue();
+                    break;
 
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                        break;
+                case OPERATOR:
+                    operator = jsonParser.nextTextValue();
+                    break;
 
-                    case NETWORK_ELEMENT:
-                        networkElementId = jsonParser.nextTextValue();
-                        break;
+                case USAGE_RULES:
+                    jsonParser.nextToken();
+                    usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                    break;
 
-                    case ACTION_TYPE:
-                        jsonParser.nextToken();
-                        actionType = jsonParser.readValueAs(ActionType.class);
-                        break;
+                case NETWORK_ELEMENT:
+                    networkElementId = jsonParser.nextTextValue();
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                case ACTION_TYPE:
+                    jsonParser.nextToken();
+                    actionType = jsonParser.readValueAs(ActionType.class);
+                    break;
 
-                }
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
@@ -144,38 +141,37 @@ final class NetworkActionDeserializer {
         double setPoint = 0;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
+                case USAGE_RULES:
+                    jsonParser.nextToken();
+                    usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                    break;
 
-                    case SETPOINT:
-                        jsonParser.nextToken();
-                        setPoint = jsonParser.getDoubleValue();
-                        break;
+                case ID:
+                    id = jsonParser.nextTextValue();
+                    break;
 
-                    case OPERATOR:
-                        operator = jsonParser.nextTextValue();
-                        break;
+                case SETPOINT:
+                    jsonParser.nextToken();
+                    setPoint = jsonParser.getDoubleValue();
+                    break;
 
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
+                case OPERATOR:
+                    operator = jsonParser.nextTextValue();
+                    break;
 
-                    case NETWORK_ELEMENT:
-                        networkElementId = jsonParser.nextTextValue();
-                        break;
+                case NAME:
+                    name = jsonParser.nextTextValue();
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case NETWORK_ELEMENT:
+                    networkElementId = jsonParser.nextTextValue();
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
@@ -198,40 +194,39 @@ final class NetworkActionDeserializer {
         Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case ELEMENTARY_NETWORK_ACTIONS:
-                        jsonParser.nextToken();
-                        Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
-                        networkActions.forEach(na -> {
-                            if (!(na instanceof AbstractElementaryNetworkAction)) {
-                                throw new FaraoException("A complex network action can only contain elementary network actions");
-                            }
-                            elementaryNetworkActions.add((AbstractElementaryNetworkAction) na);
-                        });
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case OPERATOR:
-                        operator = jsonParser.nextTextValue();
-                        break;
+                case ELEMENTARY_NETWORK_ACTIONS:
+                    jsonParser.nextToken();
+                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
+                    networkActions.forEach(na -> {
+                        if (!(na instanceof AbstractElementaryNetworkAction)) {
+                            throw new FaraoException("A complex network action can only contain elementary network actions");
+                        }
+                        elementaryNetworkActions.add((AbstractElementaryNetworkAction) na);
+                    });
+                    break;
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
+                case OPERATOR:
+                    operator = jsonParser.nextTextValue();
+                    break;
 
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                        break;
+                case ID:
+                    id = jsonParser.nextTextValue();
+                    break;
 
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
+                case USAGE_RULES:
+                    jsonParser.nextToken();
+                    usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case NAME:
+                    name = jsonParser.nextTextValue();
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 

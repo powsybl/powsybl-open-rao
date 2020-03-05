@@ -75,21 +75,20 @@ final class UsageRuleDeserializer {
         String stateId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case USAGE_METHOD:
-                        jsonParser.nextToken();
-                        usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
-                        break;
+                case USAGE_METHOD:
+                    jsonParser.nextToken();
+                    usageMethod = jsonParser.readValueAs(UsageMethod.class);
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case STATE:
+                    stateId = jsonParser.nextTextValue();
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
@@ -108,25 +107,24 @@ final class UsageRuleDeserializer {
         String cnecId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case USAGE_METHOD:
-                        jsonParser.nextToken();
-                        usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
-                        break;
+                case USAGE_METHOD:
+                    jsonParser.nextToken();
+                    usageMethod = jsonParser.readValueAs(UsageMethod.class);
+                    break;
 
-                    case CNEC:
-                        cnecId = jsonParser.nextTextValue();
-                        break;
+                case STATE:
+                    stateId = jsonParser.nextTextValue();
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case CNEC:
+                    cnecId = jsonParser.nextTextValue();
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
@@ -139,7 +137,6 @@ final class UsageRuleDeserializer {
         if (cnec == null) {
             throw new FaraoException(String.format("The cnec [%s] mentioned in the on-constraint usage rule is not defined", cnecId));
         }
-
         return new OnConstraint(usageMethod, state, cnec);
     }
 
@@ -150,25 +147,24 @@ final class UsageRuleDeserializer {
         String contingencyId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case USAGE_METHOD:
-                        jsonParser.nextToken();
-                        usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
-                        break;
+                case USAGE_METHOD:
+                    jsonParser.nextToken();
+                    usageMethod = jsonParser.readValueAs(UsageMethod.class);
+                    break;
 
-                    case CONTINGENCY:
-                        contingencyId = jsonParser.nextTextValue();
-                        break;
+                case STATE:
+                    stateId = jsonParser.nextTextValue();
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case CONTINGENCY:
+                    contingencyId = jsonParser.nextTextValue();
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 

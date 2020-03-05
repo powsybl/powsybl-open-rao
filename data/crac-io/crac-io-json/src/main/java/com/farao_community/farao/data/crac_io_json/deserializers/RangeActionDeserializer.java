@@ -78,42 +78,42 @@ final class RangeActionDeserializer {
         List<String> networkElementsIds = new ArrayList<>();
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
+                case ID:
+                    id = jsonParser.nextTextValue();
+                    break;
 
-                    case OPERATOR:
-                        operator = jsonParser.nextTextValue();
-                        break;
+                case NAME:
+                    name = jsonParser.nextTextValue();
+                    break;
 
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                        break;
+                case OPERATOR:
+                    operator = jsonParser.nextTextValue();
+                    break;
 
-                    case RANGES:
-                        jsonParser.nextToken();
-                        ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
-                        });
-                        break;
+                case USAGE_RULES:
+                    jsonParser.nextToken();
+                    usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                    break;
 
-                    case NETWORK_ELEMENTS:
-                        jsonParser.nextToken();
-                        networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
-                        });
-                        break;
+                case RANGES:
+                    jsonParser.nextToken();
+                    ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
+                    });
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
+
         }
 
         //add contingency in Crac
@@ -133,40 +133,40 @@ final class RangeActionDeserializer {
         String networkElementId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
 
-                    case OPERATOR:
-                        operator = jsonParser.nextTextValue();
-                        break;
+            switch (jsonParser.getCurrentName()) {
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
+                case OPERATOR:
+                    operator = jsonParser.nextTextValue();
+                    break;
 
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                        break;
+                case ID:
+                    id = jsonParser.nextTextValue();
+                    break;
 
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
+                case USAGE_RULES:
+                    jsonParser.nextToken();
+                    usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                    break;
 
-                    case NETWORK_ELEMENT:
-                        networkElementId = jsonParser.nextTextValue();
-                        break;
+                case NAME:
+                    name = jsonParser.nextTextValue();
+                    break;
 
-                    case RANGES:
-                        jsonParser.nextToken();
-                        ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
-                        });
-                        break;
+                case NETWORK_ELEMENT:
+                    networkElementId = jsonParser.nextTextValue();
+                    break;
 
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case RANGES:
+                    jsonParser.nextToken();
+                    ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
+                    });
+                    break;
+
+                default:
+                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
+
         }
 
         NetworkElement ne = simpleCrac.getNetworkElement(networkElementId);
