@@ -9,8 +9,11 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_impl.json.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -304,10 +307,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         states.add(new SimpleState(contingency, instant));
     }
 
+    @Override
     public Cnec getCnec(String id) {
         return cnecs.stream().filter(cnec -> cnec.getId().equals(id)).findFirst().orElse(null);
     }
 
+    @JsonSerialize(contentUsing = SimpleCnecSerializer.class)
     @Override
     public Set<Cnec> getCnecs() {
         return cnecs;
@@ -329,20 +334,32 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return cnec;
     }
 
-    public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
+    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        Cnec cnec = new SimpleCnec(id, getNetworkElement(networkElementId), abstractThresholds, getState(stateId));
+        Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId));
         cnecs.add(cnec);
         return cnec;
+    }
+
+    public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
+        return this.addCnec(id, id, networkElementId, abstractThresholds, stateId);
     }
 
     @Override
     public void addCnec(Cnec cnec) {
         addState(cnec.getState());
         NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement());
+
+        // add cnec
         cnecs.add(((SimpleCnec) cnec).copy(networkElement, getState(cnec.getState().getId())));
+
+        // add extensions
+        if (!cnec.getExtensions().isEmpty()) {
+            Cnec cnecInCrac = getCnec(cnec.getId());
+            ExtensionsHandler.getCnecExtensionSerializers().addExtensions(cnecInCrac, cnec.getExtensions());
+        }
     }
 
     @Override
