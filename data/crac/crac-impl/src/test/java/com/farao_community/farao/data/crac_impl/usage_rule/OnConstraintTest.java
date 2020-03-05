@@ -250,36 +250,4 @@ public class OnConstraintTest {
 
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
-
-    @Test
-    public void testHashCodeFalseForThreshold() {
-        State initialState = new SimpleState(
-            Optional.empty(),
-            new Instant("initial-instant", 0)
-        );
-
-        OnConstraint rule1 = new OnConstraint(
-            UsageMethod.AVAILABLE,
-            initialState,
-            new SimpleCnec(
-                "cnec",
-                new NetworkElement("ne1"),
-                Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 80)),
-                initialState
-            )
-        );
-
-        OnConstraint rule2 = new OnConstraint(
-            UsageMethod.AVAILABLE,
-            initialState,
-            new SimpleCnec(
-                "cnec",
-                new NetworkElement("ne1"),
-                Collections.singleton(new RelativeFlowThreshold(Side.RIGHT, Direction.OPPOSITE, 80)),
-                initialState
-            )
-        );
-
-        assertNotEquals(rule1.hashCode(), rule2.hashCode());
-    }
 }

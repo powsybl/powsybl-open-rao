@@ -40,8 +40,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
         this.networkElement = networkElement;
         this.thresholds = new HashSet<>();
-        thresholds.forEach(threshold -> this.thresholds.add(threshold.copy()));
-        this.thresholds.forEach(threshold -> threshold.setNetworkElement(networkElement));
+        thresholds.forEach(this::addThreshold);
         this.state = state;
         isSynchronized = false;
     }
@@ -79,7 +78,9 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     public void addThreshold(AbstractThreshold threshold) {
-        thresholds.add(threshold);
+        AbstractThreshold thresholdCopy = threshold.copy();
+        thresholdCopy.setNetworkElement(networkElement);
+        this.thresholds.add(thresholdCopy);
     }
 
     @Override
@@ -197,7 +198,6 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         int result = super.hashCode();
         result = 31 * result + networkElement.hashCode();
         result = 31 * result + state.hashCode();
-        result = 31 * result + thresholds.hashCode();
         return result;
     }
 }
