@@ -27,7 +27,8 @@ import static com.farao_community.farao.data.crac_io_json.deserializers.Deserial
  */
 final class UsageRuleDeserializer {
 
-    private UsageRuleDeserializer() { }
+    private UsageRuleDeserializer() {
+    }
 
     static List<UsageRule> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard UsageRule deserializer as it requires the simpleCrac to compare
@@ -36,152 +37,76 @@ final class UsageRuleDeserializer {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
-            UsageRule usageRule;
+            String type = null;
+            UsageMethod usageMethod = null;
+            State state = null;
+            Cnec cnec = null;
+            Contingency contingency = null;
 
-            // first json Token should be the type of the range action
-            jsonParser.nextToken();
-            if (!jsonParser.getCurrentName().equals(TYPE)) {
-                throw new FaraoException("Type of usage rule is missing");
+            while (!jsonParser.nextToken().isStructEnd()) {
+                {
+                    switch (jsonParser.getCurrentName()) {
+
+                        case TYPE:
+                            type = jsonParser.nextTextValue();
+                            break;
+
+                        case USAGE_METHOD:
+                            jsonParser.nextToken();
+                            usageMethod = jsonParser.readValueAs(UsageMethod.class);
+                            break;
+
+                        case STATE:
+                            String stateId = jsonParser.nextTextValue();
+                            state = simpleCrac.getState(stateId);
+                            if (state == null) {
+                                throw new FaraoException(String.format("The state [%s] mentioned in the usage rule is not defined", stateId));
+                            }
+                            break;
+
+                        case CNEC:
+                            String cnecId = jsonParser.nextTextValue();
+                            cnec = simpleCrac.getCnec(cnecId);
+                            if (cnec == null) {
+                                throw new FaraoException(String.format("The cnec [%s] mentioned in the on-constraint usage rule is not defined", cnecId));
+                            }
+                            break;
+
+                        case CONTINGENCY:
+                            String contingencyId = jsonParser.nextTextValue();
+                            contingency = simpleCrac.getContingency(contingencyId);
+                            if (contingency == null) {
+                                throw new FaraoException(String.format("The contingency [%s] mentioned in the on-contingency usage rule is not defined", contingencyId));
+                            }
+                            break;
+
+                        default:
+                            throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    }
+                }
             }
 
-            // use the deserializer suited to the usage rule type
-            String type = jsonParser.nextTextValue();
+            if (type == null) {
+                throw new FaraoException("Type of usage rule not defined");
+            }
+
             switch (type) {
                 case FREE_TO_USE_TYPE:
-                    usageRule = deserializeFreeToUseUsageRule(jsonParser, simpleCrac);
+                    usageRules.add(new FreeToUse(usageMethod, state));
                     break;
 
                 case ON_CONSTRAINT_TYPE:
-                    usageRule = deserializeOnConstraintUsageRule(jsonParser, simpleCrac);
+                    usageRules.add(new OnConstraint(usageMethod, state, cnec));
                     break;
 
                 case ON_CONTINGENCY_TYPE:
-                    usageRule = deserializeOnContingencyUsageRule(jsonParser, simpleCrac);
+                    usageRules.add(new OnContingency(usageMethod, state, contingency));
                     break;
 
                 default:
-                    throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
+                    throw new FaraoException(String.format("Type of usage rule [%s] not handled by SimpleCrac deserializer.", type));
             }
-
-            usageRules.add(usageRule);
         }
         return usageRules;
-
-    }
-
-    private static FreeToUse deserializeFreeToUseUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-
-        UsageMethod usageMethod = null;
-        String stateId = null;
-
-        while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
-
-                    case USAGE_METHOD:
-                        jsonParser.nextToken();
-                        usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                        break;
-
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
-                        break;
-
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
-            }
-        }
-
-        State state = simpleCrac.getState(stateId);
-        if (state == null) {
-            throw new FaraoException(String.format("The state [%s] mentioned in the free-to-use usage rule is not defined", stateId));
-        }
-
-        return new FreeToUse(usageMethod, state);
-    }
-
-    private static OnConstraint deserializeOnConstraintUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-
-        UsageMethod usageMethod = null;
-        String stateId = null;
-        String cnecId = null;
-
-        while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
-
-                    case USAGE_METHOD:
-                        jsonParser.nextToken();
-                        usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                        break;
-
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
-                        break;
-
-                    case CNEC:
-                        cnecId = jsonParser.nextTextValue();
-                        break;
-
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
-            }
-        }
-
-        State state = simpleCrac.getState(stateId);
-        if (state == null) {
-            throw new FaraoException(String.format("The state [%s] mentioned in the on-constraint usage rule is not defined", stateId));
-        }
-
-        Cnec cnec = simpleCrac.getCnec(cnecId);
-        if (cnec == null) {
-            throw new FaraoException(String.format("The cnec [%s] mentioned in the on-constraint usage rule is not defined", cnecId));
-        }
-
-        return new OnConstraint(usageMethod, state, cnec);
-    }
-
-    private static OnContingency deserializeOnContingencyUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-
-        UsageMethod usageMethod = null;
-        String stateId = null;
-        String contingencyId = null;
-
-        while (!jsonParser.nextToken().isStructEnd()) {
-            {
-                switch (jsonParser.getCurrentName()) {
-
-                    case USAGE_METHOD:
-                        jsonParser.nextToken();
-                        usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                        break;
-
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
-                        break;
-
-                    case CONTINGENCY:
-                        contingencyId = jsonParser.nextTextValue();
-                        break;
-
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
-            }
-        }
-
-        State state = simpleCrac.getState(stateId);
-        if (state == null) {
-            throw new FaraoException(String.format("The state [%s] mentioned in the on-contingency usage rule is not defined", stateId));
-        }
-
-        Contingency contingency = simpleCrac.getContingency(contingencyId);
-        if (contingency == null) {
-            throw new FaraoException(String.format("The contingency [%s] mentioned in the on-contingency usage rule is not defined", contingencyId));
-        }
-
-        return new OnContingency(usageMethod, state, contingency);
     }
 }
