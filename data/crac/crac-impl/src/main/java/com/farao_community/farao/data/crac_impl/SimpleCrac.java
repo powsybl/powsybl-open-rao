@@ -320,20 +320,20 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .collect(Collectors.toSet());
     }
 
-    public Cnec addCnec(String id, NetworkElement networkElement, AbstractThreshold abstractThreshold, State state) {
+    public Cnec addCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> abstractThresholds, State state) {
         if (!networkElements.contains(networkElement) || !states.contains(state)) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElement.getId(), state.getId()));
         }
-        Cnec cnec = new SimpleCnec(id, networkElement, abstractThreshold, state);
+        Cnec cnec = new SimpleCnec(id, networkElement, abstractThresholds, state);
         cnecs.add(cnec);
         return cnec;
     }
 
-    public Cnec addCnec(String id, String networkElementId, AbstractThreshold abstractThreshold, String stateId) {
+    public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        Cnec cnec = new SimpleCnec(id, getNetworkElement(networkElementId), abstractThreshold, getState(stateId));
+        Cnec cnec = new SimpleCnec(id, getNetworkElement(networkElementId), abstractThresholds, getState(stateId));
         cnecs.add(cnec);
         return cnec;
     }
