@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_result_extensions.json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
@@ -76,5 +77,26 @@ public class CnecResultJsonTest {
         assertNotNull(crac.getCnec("cnec2prev").getExtension(CnecResult.class));
         assertEquals(50.0, crac.getCnec("cnec2prev").getExtension(CnecResult.class).getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, crac.getCnec("cnec2prev").getExtension(CnecResult.class).getFlowInA(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void cracImportTest() {
+
+        Crac crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
+
+        assertNotNull(crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResult.class));
+        assertEquals(-450.0, crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResult.class).getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(750.0, crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResult.class).getFlowInA(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void cracImportWithUnknownFieldInExtension() {
+        try {
+            Crac crac = CracImporters.importCrac("small-crac-errored.json", getClass().getResourceAsStream("/small-crac-errored.json"));
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+            assertTrue(e.getMessage().contains("Unexpected field"));
+        }
     }
 }
