@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -29,7 +30,14 @@ public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
         jsonGenerator.writeStringField("name", cnec.getName());
         jsonGenerator.writeStringField("networkElement", cnec.getNetworkElement().getId());
         jsonGenerator.writeObjectField("state", cnec.getState().getId());
-        jsonGenerator.writeObjectField("thresholds", cnec.getThresholds());
+
+        jsonGenerator.writeFieldName("thresholds");
+        jsonGenerator.writeStartArray();
+        for (AbstractThreshold threshold: cnec.getThresholds()) {
+            jsonGenerator.writeObject(threshold);
+        }
+        jsonGenerator.writeEndArray();
+
         JsonUtil.writeExtensions(cnec, jsonGenerator, serializerProvider, ExtensionsHandler.getCnecExtensionSerializers());
     }
 

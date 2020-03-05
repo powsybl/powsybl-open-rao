@@ -14,13 +14,16 @@ import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
 
@@ -41,7 +44,7 @@ final class CnecDeserializer {
             String name = null;
             String networkElementId = null;
             String stateId = null;
-            AbstractThreshold threshold = null;
+            Set<AbstractThreshold> thresholds = new HashSet<>();
             List<Extension<Cnec>> extensions = new ArrayList<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -71,7 +74,8 @@ final class CnecDeserializer {
 
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        threshold = jsonParser.readValueAs(AbstractThreshold.class);
+                        thresholds = jsonParser.readValueAs(new TypeReference<Set<AbstractThreshold>>() {
+                        });
                         break;
 
                     case EXTENSIONS:
@@ -85,7 +89,7 @@ final class CnecDeserializer {
             }
 
             //add SimpleCnec in Crac
-            simpleCrac.addCnec(id, name, networkElementId, threshold, stateId);
+            simpleCrac.addCnec(id, name, networkElementId, thresholds, stateId);
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getCnecExtensionSerializers().addExtensions(simpleCrac.getCnec(id), extensions);
             }

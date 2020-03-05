@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collections;
 
 import static junit.framework.TestCase.*;
 
@@ -43,11 +44,11 @@ public class CnecResultJsonTest {
 
         // One Cnec without extension
         simpleCrac.addNetworkElement("ne1");
-        simpleCrac.addCnec("cnec1prev", "ne1", new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30), preventiveState.getId());
+        simpleCrac.addCnec("cnec1prev", "ne1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
 
         // One Cnec with extension
         simpleCrac.addNetworkElement("ne2");
-        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec2prev", "ne2", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500), preventiveState.getId());
+        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec2prev", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
         preventiveCnec1.addExtension(CnecResult.class, new CnecResult(50.0, 75.0));
 
         // export Crac
@@ -81,7 +82,6 @@ public class CnecResultJsonTest {
 
     @Test
     public void cracImportTest() {
-
         Crac crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
 
         assertNotNull(crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResult.class));
