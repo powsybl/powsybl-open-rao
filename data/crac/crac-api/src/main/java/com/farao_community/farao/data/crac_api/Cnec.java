@@ -35,9 +35,9 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      * positive, it means that the limits of the Threshold are respected. If it is negative,
      * it means that that a limit of the Threshold has been overcome.
      *
-     * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
+     * margin = min(maxThreshold - actualFlow, actualFlow - minThreshold)
      */
-    double computeMargin(Network network, Unit requestedUnit);
+    double computeMargin(double actualFlow, Unit flowUnit);
 
     /**
      * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE

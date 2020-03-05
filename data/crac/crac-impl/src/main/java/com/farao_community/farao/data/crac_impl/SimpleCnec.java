@@ -54,15 +54,8 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return networkElement;
     }
 
-    public double computeMargin(Network network, Unit requestedUnit) {
-        // todo : switch units if no I is available but P is available
-        double flow;
-        if (requestedUnit.equals(Unit.AMPERE)) {
-            flow = getI(network);
-        } else {
-            flow = getP(network);
-        }
-        return Math.min(getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY) - flow, flow - getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY));
+    public double computeMargin(double actualFlow, Unit requestedUnit) {
+        return Math.min(getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY) - actualFlow, actualFlow - getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY));
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
