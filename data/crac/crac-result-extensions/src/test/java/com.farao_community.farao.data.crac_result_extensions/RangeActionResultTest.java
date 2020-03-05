@@ -48,7 +48,7 @@ public class RangeActionResultTest {
         states.add(curative1);
         states.add(outage2);
         states.add(curative2);
-        rangeActionResult = new RangeActionResult<>(states);
+        rangeActionResult = new RangeActionResult(states);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RangeActionResultTest {
     public void addExtension() {
         PstRange pstRange = new PstWithRange("pst", new NetworkElement("ne"));
         State state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        RangeActionResult rangeActionResult = new RangeActionResult<PstRange>(Collections.singleton(state));
+        RangeActionResult rangeActionResult = new RangeActionResult(Collections.singleton(state));
 
         pstRange.addExtension(RangeActionResult.class, rangeActionResult);
         pstRange.getExtension(RangeActionResult.class).setSetPoint(state, 3.2);
