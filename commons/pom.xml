@@ -53,10 +53,6 @@
             <artifactId>powsybl-tools</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threeten-extra</artifactId>
         </dependency>
@@ -88,6 +84,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    
 </project>
