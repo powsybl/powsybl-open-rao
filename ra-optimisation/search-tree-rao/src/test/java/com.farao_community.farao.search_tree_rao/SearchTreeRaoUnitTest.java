@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowUtil;
@@ -86,7 +87,7 @@ public class SearchTreeRaoUnitTest {
     }
 
     @Test
-    public void testRun() {
+    public void testRunLoopFlowExtensionInCracNotAvailable() {
         RaoParameters parameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = Mockito.mock(SearchTreeRaoParameters.class);
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
@@ -103,16 +104,23 @@ public class SearchTreeRaoUnitTest {
     }
 
     @Test
-    public void testCalculate() {
+    public void testCalculateLoopFlowConstraintAndUpdateAllCnec() {
         Network network = ExampleGenerator.network();
         Crac crac = ExampleGenerator.crac();
         FlowBasedComputationParameters flowBasedComputationParameters = FlowBasedComputationParameters.load();
-        Map<String, Double> map = new HashMap<>();
+        Map<String, Double> fzeroallmap = new HashMap<>();
+        fzeroallmap.put("FR-BE", 0.0);
+        fzeroallmap.put("FR-DE", 0.0);
+        fzeroallmap.put("BE-NL", 0.0);
+        fzeroallmap.put("DE-NL", 0.0);
         PowerMockito.mockStatic(LoopFlowUtil.class);
-        Mockito.when(LoopFlowUtil.calculateLoopFlows(any(), (Crac) any(), any(), any(), any(), any())).thenReturn(map);
+        Mockito.when(LoopFlowUtil.calculateLoopFlows(any(), (Crac) any(), any(), any(), any(), any())).thenReturn(fzeroallmap);
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
         searchTreeRao.calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
+        crac.getCnecs().forEach(cnec -> {
+            assertEquals(0.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
+        });
     }
 
     @Test

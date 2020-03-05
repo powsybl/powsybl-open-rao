@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -451,20 +452,26 @@ final class ExampleGenerator {
         Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, thresholds, preState);
         Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, thresholds, preState);
         Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, thresholds, preState);
-        crac.addCnec(cnecPreFrBe);
-        crac.addCnec(cnecPreFrDe);
-        crac.addCnec(cnecPreBeNl);
-        crac.addCnec(cnecPreDeNl);
-
         //post contingency state cnec
         Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, thresholds, postContingencyState);
         Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, thresholds, postContingencyState);
         Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, thresholds, postContingencyState);
         Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, thresholds, postContingencyState);
+
+        crac.addCnec(cnecPreFrBe);
+        crac.addCnec(cnecPreFrDe);
+        crac.addCnec(cnecPreBeNl);
+        crac.addCnec(cnecPreDeNl);
         crac.addCnec(cnecPostFrBe);
         crac.addCnec(cnecPostFrDe);
         crac.addCnec(cnecPostBeNl);
         crac.addCnec(cnecPostDeNl);
+
+        //CnecLoopFlowExtension
+        crac.getCnecs().forEach(cnec -> {
+            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
+            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        });
 
         return crac;
     }
