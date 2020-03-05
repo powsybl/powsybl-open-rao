@@ -70,7 +70,6 @@ final class NetworkActionDeserializer {
                     throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
 
             }
-
             networkActions.add(networkAction);
         }
 
@@ -148,30 +147,30 @@ final class NetworkActionDeserializer {
             {
                 switch (jsonParser.getCurrentName()) {
 
+                    case USAGE_RULES:
+                        jsonParser.nextToken();
+                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                        break;
+
                     case ID:
                         id = jsonParser.nextTextValue();
                         break;
 
-                    case NAME:
-                        name = jsonParser.nextTextValue();
+                    case SETPOINT:
+                        jsonParser.nextToken();
+                        setPoint = jsonParser.getDoubleValue();
                         break;
 
                     case OPERATOR:
                         operator = jsonParser.nextTextValue();
                         break;
 
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                    case NAME:
+                        name = jsonParser.nextTextValue();
                         break;
 
                     case NETWORK_ELEMENT:
                         networkElementId = jsonParser.nextTextValue();
-                        break;
-
-                    case SETPOINT:
-                        jsonParser.nextToken();
-                        setPoint = jsonParser.getDoubleValue();
                         break;
 
                     default:
@@ -202,23 +201,6 @@ final class NetworkActionDeserializer {
             {
                 switch (jsonParser.getCurrentName()) {
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
-
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
-
-                    case OPERATOR:
-                        operator = jsonParser.nextTextValue();
-                        break;
-
-                    case USAGE_RULES:
-                        jsonParser.nextToken();
-                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                        break;
-
                     case ELEMENTARY_NETWORK_ACTIONS:
                         jsonParser.nextToken();
                         Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
@@ -228,6 +210,23 @@ final class NetworkActionDeserializer {
                             }
                             elementaryNetworkActions.add((AbstractElementaryNetworkAction) na);
                         });
+                        break;
+
+                    case OPERATOR:
+                        operator = jsonParser.nextTextValue();
+                        break;
+
+                    case ID:
+                        id = jsonParser.nextTextValue();
+                        break;
+
+                    case USAGE_RULES:
+                        jsonParser.nextToken();
+                        usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
+                        break;
+
+                    case NAME:
+                        name = jsonParser.nextTextValue();
                         break;
 
                     default:

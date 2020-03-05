@@ -136,16 +136,12 @@ final class RangeActionDeserializer {
             {
                 switch (jsonParser.getCurrentName()) {
 
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
-
-                    case NAME:
-                        name = jsonParser.nextTextValue();
-                        break;
-
                     case OPERATOR:
                         operator = jsonParser.nextTextValue();
+                        break;
+
+                    case ID:
+                        id = jsonParser.nextTextValue();
                         break;
 
                     case USAGE_RULES:
@@ -153,14 +149,18 @@ final class RangeActionDeserializer {
                         usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
                         break;
 
-                    case RANGES:
-                        jsonParser.nextToken();
-                        ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
-                        });
+                    case NAME:
+                        name = jsonParser.nextTextValue();
                         break;
 
                     case NETWORK_ELEMENT:
                         networkElementId = jsonParser.nextTextValue();
+                        break;
+
+                    case RANGES:
+                        jsonParser.nextToken();
+                        ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
+                        });
                         break;
 
                     default:
