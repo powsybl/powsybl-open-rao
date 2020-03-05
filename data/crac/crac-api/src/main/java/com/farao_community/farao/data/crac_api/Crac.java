@@ -157,6 +157,13 @@ public interface Crac extends Identifiable, Synchronizable {
     Set<Cnec> getCnecs();
 
     /**
+     * Find a Cnec by its id
+     *
+     * @return The Cnec with the id given in argument. Or null if it does not exist.
+     */
+    Cnec getCnec(String cnecId);
+
+    /**
      * Gather all the Cnecs of a specified State. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *

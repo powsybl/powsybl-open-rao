@@ -307,6 +307,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         states.add(new SimpleState(contingency, instant));
     }
 
+    @Override
     public Cnec getCnec(String id) {
         return cnecs.stream().filter(cnec -> cnec.getId().equals(id)).findFirst().orElse(null);
     }
