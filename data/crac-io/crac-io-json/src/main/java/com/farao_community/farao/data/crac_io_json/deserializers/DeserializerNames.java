@@ -30,7 +30,7 @@ final class DeserializerNames {
     static final String CNEC = "cnec";
     static final String CNECS = "cnecs";
 
-    static final String THRESHOLD = "threshold";
+    static final String THRESHOLDS = "thresholds";
 
     static final String RANGE_ACTIONS = "rangeActions";
 

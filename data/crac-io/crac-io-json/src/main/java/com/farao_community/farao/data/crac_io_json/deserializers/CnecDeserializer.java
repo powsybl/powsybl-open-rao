@@ -69,7 +69,7 @@ final class CnecDeserializer {
                         stateId = jsonParser.nextTextValue();
                         break;
 
-                    case THRESHOLD:
+                    case THRESHOLDS:
                         jsonParser.nextToken();
                         threshold = jsonParser.readValueAs(AbstractThreshold.class);
                         break;
