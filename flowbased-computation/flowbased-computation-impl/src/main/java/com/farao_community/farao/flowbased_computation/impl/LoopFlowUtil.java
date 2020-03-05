@@ -8,11 +8,9 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.balances_adjustment.util.CountryArea;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_file.CracFile;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.computation.ComputationManager;
@@ -25,35 +23,11 @@ import java.util.stream.Collectors;
 /**
  * Loop flow util is used
  * - for loop flow calculation (used in search tree rao for CCR Core), and
- * - for Min RAM adjustment calculation
+ * - for Min RAM adjustment calculation (not available in project yet)
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public final class LoopFlowUtil {
     private LoopFlowUtil() {
-    }
-
-    /**
-     * calculate loop flow
-     * input CracFile
-     * This function could be removed when Flowbased computation no longer use CracFile but Crac
-     */
-    public static Map<String, Double> calculateLoopFlows(Network network,
-                                                         CracFile cracFile,
-                                                         GlskProvider glskProvider,
-                                                         List<String> countries,
-                                                         ComputationManager computationManager,
-                                                         FlowBasedComputationParameters flowBasedComputationParameters
-    ) {
-        //Call flowbased computation on given glskProvider
-        FlowBasedComputationProvider flowBasedComputationProvider = new FlowBasedComputationImpl();
-        FlowBasedComputationResult flowBasedComputationResult = flowBasedComputationProvider.run(network,
-                cracFile, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), flowBasedComputationParameters)
-                .join();
-
-        Map<String, Double> frefResults = frefResultById(flowBasedComputationResult); //get reference flow
-        Map<String, Map<String, Double>> ptdfResults = ptdfResultById(flowBasedComputationResult); // get ptdf
-        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network, countries); // get Net positions
-        return buildLoopFlowsFromResult(flowBasedComputationResult, frefResults, ptdfResults, referenceNetPositionByCountry);
     }
 
     /**
@@ -69,7 +43,6 @@ public final class LoopFlowUtil {
     ) {
         //Call flowbased computation on given glskProvider
         // todo : use FlowBasedComputation api to find a provider, once it is based only on Crac and not on CracFile
-        // todo : delete, once the api is based only on Crac and not on CracFile
         FlowBasedComputationCracImpl flowBasedComputationProvider = new FlowBasedComputationCracImpl();
         FlowBasedComputationResult flowBasedComputationResult = flowBasedComputationProvider.run(network,
                 crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), flowBasedComputationParameters)
