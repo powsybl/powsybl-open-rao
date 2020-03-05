@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -529,21 +530,23 @@ final class ExampleGenerator {
         State postContingencyState = new SimpleState(Optional.of(contingency), new Instant("PostContingency-instant", 1));
         crac.addState(postContingencyState);
 
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(absoluteFlowThresholdMW);
         //pre state cnec
-        Cnec cnecPreFrBe = new SimpleCnec("FR-BE", "FR-BE", networkElementFrBe, absoluteFlowThresholdMW, preState);
-        Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, absoluteFlowThresholdMW, preState);
-        Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, absoluteFlowThresholdMW, preState);
-        Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, absoluteFlowThresholdMW, preState);
+        Cnec cnecPreFrBe = new SimpleCnec("FR-BE", "FR-BE", networkElementFrBe, thresholds, preState);
+        Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, thresholds, preState);
+        Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, thresholds, preState);
+        Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, thresholds, preState);
         crac.addCnec(cnecPreFrBe);
         crac.addCnec(cnecPreFrDe);
         crac.addCnec(cnecPreBeNl);
         crac.addCnec(cnecPreDeNl);
 
         //post contingency state cnec
-        Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, absoluteFlowThresholdMW, postContingencyState);
-        Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, absoluteFlowThresholdMW, postContingencyState);
-        Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, absoluteFlowThresholdMW, postContingencyState);
-        Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, absoluteFlowThresholdMW, postContingencyState);
+        Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, thresholds, postContingencyState);
+        Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, thresholds, postContingencyState);
+        Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, thresholds, postContingencyState);
+        Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, thresholds, postContingencyState);
         crac.addCnec(cnecPostFrBe);
         crac.addCnec(cnecPostFrDe);
         crac.addCnec(cnecPostBeNl);
