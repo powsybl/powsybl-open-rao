@@ -24,6 +24,10 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         this.inputLoopFlow = 0.0; // default value 0
     }
 
+    public CnecLoopFlowExtension(double inputLoopFlow) {
+        this.inputLoopFlow = inputLoopFlow;
+    }
+
     /**
      * set loop flow constraint used during optimization.
      * The value is equal to MAX value of initial loop flow calculated from network and

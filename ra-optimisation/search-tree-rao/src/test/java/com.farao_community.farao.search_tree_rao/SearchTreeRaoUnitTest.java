@@ -119,7 +119,7 @@ public class SearchTreeRaoUnitTest {
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
         searchTreeRao.calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
         crac.getCnecs().forEach(cnec -> {
-            assertEquals(0.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
+            assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
         });
     }
 

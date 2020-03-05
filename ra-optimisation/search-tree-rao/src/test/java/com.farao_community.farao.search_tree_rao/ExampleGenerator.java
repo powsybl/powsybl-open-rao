@@ -469,7 +469,7 @@ final class ExampleGenerator {
 
         //CnecLoopFlowExtension
         crac.getCnecs().forEach(cnec -> {
-            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
+            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0);
             cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
         });
 
