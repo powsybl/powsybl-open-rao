@@ -185,9 +185,9 @@ public final class PstWithRange extends AbstractElementaryRangeAction<PstRange> 
      */
     @Override
     public void apply(Network network, double finalAngle) {
-        PhaseTapChanger phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
-        int setpoint = computeTapPosition(finalAngle, phaseTapChanger);
-        phaseTapChanger.setTapPosition(setpoint);
+        PhaseTapChanger phaseTapChangerFromNetwork = checkValidPstAndGetPhaseTapChanger(network);
+        int setpoint = computeTapPosition(finalAngle, phaseTapChangerFromNetwork);
+        phaseTapChangerFromNetwork.setTapPosition(setpoint);
     }
 
     private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {
@@ -195,11 +195,11 @@ public final class PstWithRange extends AbstractElementaryRangeAction<PstRange> 
         if (transformer == null) {
             throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
         }
-        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-        if (phaseTapChanger == null) {
+        PhaseTapChanger phaseTapChangerFromNetwork = transformer.getPhaseTapChanger();
+        if (phaseTapChangerFromNetwork == null) {
             throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a PstRange", networkElement.getId()));
         }
-        return phaseTapChanger;
+        return phaseTapChangerFromNetwork;
     }
 
     @Override
