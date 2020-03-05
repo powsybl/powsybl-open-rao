@@ -171,11 +171,8 @@ public class LinearRao implements RaoProvider {
     private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         double minMargin = Double.POSITIVE_INFINITY;
         for (Cnec cnec : crac.getCnecs()) {
-            double margin;
             double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
-            double margin1 = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - flow;
-            double margin2 = flow - cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
-            margin = Math.min(margin1, margin2);
+            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
             if (Double.isNaN(margin)) {
                 throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
             }
@@ -224,13 +221,10 @@ public class LinearRao implements RaoProvider {
             throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
         }
 
-        double limitingThreshold;
-        double margin1 = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - postOptimFlow;
-        double margin2 = postOptimFlow - cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
-        double marginPostOptim =  Math.min(margin1, margin2);
-        limitingThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(-cnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new));
+        double marginPostOptim =  cnec.computeMargin(postOptimFlow, Unit.MEGAWATT);
+        double absoluteThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(-cnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new));
         linearRaoResult.updateResult(marginPostOptim);
 
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), limitingThreshold, preOptimFlow, postOptimFlow);
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), absoluteThreshold, preOptimFlow, postOptimFlow);
     }
 }
