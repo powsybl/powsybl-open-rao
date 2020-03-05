@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
@@ -53,7 +54,12 @@ public class CracImportExportTest {
         simpleCrac.addState("contingency2Id", "postContingencyId");
 
         Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
-        simpleCrac.addCnec("cnec2prev", "neId2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
+
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800));
+
+        simpleCrac.addCnec("cnec2prev", "neId2", thresholds, preventiveState.getId());
         simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
 
         List<UsageRule> usageRules = new ArrayList<>();
@@ -115,12 +121,12 @@ public class CracImportExportTest {
         CracExporters.exportCrac(simpleCrac, "Json", outputStream);
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
             Crac crac = CracImporters.importCrac("unknown.json", inputStream);
-            assertEquals(crac.getNetworkElements().size(), 5);
-            assertEquals(crac.getInstants().size(), 2);
-            assertEquals(crac.getContingencies().size(), 2);
-            assertEquals(crac.getCnecs().size(), 3);
-            assertEquals(crac.getRangeActions().size(), 2);
-            assertEquals(crac.getNetworkActions().size(), 2);
+            assertEquals(5, crac.getNetworkElements().size());
+            assertEquals(2, crac.getInstants().size());
+            assertEquals(2, crac.getContingencies().size());
+            assertEquals(3, crac.getCnecs().size());
+            assertEquals(2, crac.getRangeActions().size());
+            assertEquals(2, crac.getNetworkActions().size());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

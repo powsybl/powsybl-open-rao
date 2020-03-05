@@ -53,6 +53,10 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         this.percentageOfMax = percentageOfMax;
     }
 
+    public double getPercentageOfMax() {
+        return percentageOfMax;
+    }
+
     @Override
     protected double getAbsoluteMax() {
         if (!isSynchronized) {
