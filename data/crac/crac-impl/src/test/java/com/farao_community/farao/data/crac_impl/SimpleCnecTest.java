@@ -101,12 +101,12 @@ public class SimpleCnecTest {
         // threshold = [-500;500]
         Mockito.when(threshold.getMinThreshold(Unit.AMPERE)).thenReturn(Optional.of(-500.0));
         Mockito.when(threshold.getMaxThreshold(Unit.AMPERE)).thenReturn(Optional.of(500.0));
-        assertEquals(500.0 - flow, cnec1.computeMargin(networkWithLf, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(500.0 - flow, cnec1.computeMargin(flow, Unit.AMPERE), DOUBLE_TOLERANCE);
 
         // threshold = [-inf ; 300]
         Mockito.when(threshold.getMinThreshold(Unit.AMPERE)).thenReturn(Optional.empty());
         Mockito.when(threshold.getMaxThreshold(Unit.AMPERE)).thenReturn(Optional.of(300.0));
-        assertEquals(300.0 - flow, cnec1.computeMargin(networkWithLf, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(300.0 - flow, cnec1.computeMargin(flow, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -119,17 +119,17 @@ public class SimpleCnecTest {
         // threshold = [-500;500]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(500.0));
-        assertEquals(flow - (-500.0), cnec1.computeMargin(networkWithLf, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(flow - (-500.0), cnec1.computeMargin(flow, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         // threshold = [-inf ; 300]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(300.0));
-        assertEquals(300.0 - flow, cnec1.computeMargin(networkWithLf, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(300.0 - flow, cnec1.computeMargin(flow, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         // threshold = [-300 ; +inf]
         Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-300.0));
         Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
-        assertEquals(flow - (-300.0), cnec1.computeMargin(networkWithLf, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(flow - (-300.0), cnec1.computeMargin(flow, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -143,16 +143,16 @@ public class SimpleCnecTest {
 
         // terminal 1 disconnected
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         // terminal 2 disconnected
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
-        assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         // both terminal disconnected
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, cnec2.computeMargin(networkWithLf, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
