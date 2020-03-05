@@ -403,7 +403,7 @@ public class CracFileTest {
         Cnec cnec = new SimpleCnec(
                 "cnec",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
+            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -484,7 +484,7 @@ public class CracFileTest {
         Cnec cnec1 = new SimpleCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
+            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
                 new SimpleState(Optional.empty(), new Instant("initial-instant", 0))
         );
 
@@ -498,7 +498,7 @@ public class CracFileTest {
         Cnec cnec2 = new SimpleCnec(
                 "cnec2",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
+            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -526,7 +526,7 @@ public class CracFileTest {
         Cnec cnec = new SimpleCnec(
                 "cnec2",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
+            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -547,7 +547,7 @@ public class CracFileTest {
         Cnec cnec1 = new SimpleCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
+            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -557,7 +557,7 @@ public class CracFileTest {
         Cnec cnec2 = new SimpleCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
-                new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.),
+            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
                 new SimpleState(
                     Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                     new Instant("after-co", 60)
@@ -630,9 +630,9 @@ public class CracFileTest {
         simpleCrac.addNetworkElement("neId2");
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
 
-        simpleCrac.addCnec("cnec1prev", "FFR1AA1  FFR2AA1  1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500), preventiveState.getId());
-        simpleCrac.addCnec("cnec2prev", "neId2", new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30), preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800), postContingencyState.getId());
+        simpleCrac.addCnec("cnec1prev", "FFR1AA1  FFR2AA1  1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
 
         Topology topology1 = new Topology(
                 "topologyId1",

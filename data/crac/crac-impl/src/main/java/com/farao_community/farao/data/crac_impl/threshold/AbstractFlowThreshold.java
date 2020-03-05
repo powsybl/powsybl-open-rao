@@ -197,9 +197,6 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     @Override
     public int hashCode() {
         int result = unit.hashCode();
-        if (networkElement != null) {
-            result = 31 * result + networkElement.hashCode();
-        }
         result = 31 * result + side.hashCode();
         result = 31 * result + direction.hashCode();
         return result;

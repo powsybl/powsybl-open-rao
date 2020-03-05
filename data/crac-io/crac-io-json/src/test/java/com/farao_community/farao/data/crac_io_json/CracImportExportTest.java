@@ -52,9 +52,9 @@ public class CracImportExportTest {
         State postContingencyState = simpleCrac.addState(contingency, outageInstant);
         simpleCrac.addState("contingency2Id", "postContingencyId");
 
-        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500), preventiveState.getId());
-        simpleCrac.addCnec("cnec2prev", "neId2", new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30), preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800), postContingencyState.getId());
+        Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
 
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
