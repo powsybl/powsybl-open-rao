@@ -222,9 +222,9 @@ public class LinearRao implements RaoProvider {
         }
 
         double marginPostOptim =  cnec.computeMargin(postOptimFlow, Unit.MEGAWATT);
-        double limitingThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(-cnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new));
+        double absoluteThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(-cnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new));
         linearRaoResult.updateResult(marginPostOptim);
 
-        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), limitingThreshold, preOptimFlow, postOptimFlow);
+        return new MonitoredBranchResult(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId(), absoluteThreshold, preOptimFlow, postOptimFlow);
     }
 }
