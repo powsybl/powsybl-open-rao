@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl.json;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
