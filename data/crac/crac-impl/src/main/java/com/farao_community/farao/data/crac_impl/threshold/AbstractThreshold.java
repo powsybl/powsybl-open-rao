@@ -8,13 +8,13 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.Threshold;
-import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
 
 /**
  * Generic threshold (flow, voltage, etc.) in the CRAC file.
@@ -27,7 +27,7 @@ import com.powsybl.iidm.network.Network;
         @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold"),
         @JsonSubTypes.Type(value = VoltageThreshold.class, name = "voltage-threshold")
     })
-public abstract class AbstractThreshold implements Threshold {
+public abstract class AbstractThreshold implements Synchronizable {
     protected Unit unit;
     protected NetworkElement networkElement;
 
@@ -55,6 +55,34 @@ public abstract class AbstractThreshold implements Threshold {
     public Unit getUnit() {
         return unit;
     }
+
+    /**
+     * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
+     * or ANGLE). This physical value can be retrieved by the getPhysicalParameter()
+     * method.
+     */
+    @JsonIgnore
+    public abstract PhysicalParameter getPhysicalParameter();
+
+    /**
+     * If it is defined, this function returns the maximum limit of the Threshold,
+     * below which a Cnec cannot be operated securely. Otherwise, this function
+     * returns an empty Optional, which implicitly means that the Threshold is
+     * unbounded above.
+     * The returned value is given with the Unit given in argument of the function.
+     */
+    @JsonIgnore
+    public abstract Optional<Double> getMinThreshold(Unit unit);
+
+    /**
+     * If it is defined, this function returns the maximum limit of the Threshold,
+     * below which a Cnec cannot be operated securely. Otherwise, this function
+     * returns an empty Optional, which implicitly means that the Threshold is
+     * unbounded above.
+     * The returned value is given with the unit given in argument of the function.
+     */
+    @JsonIgnore
+    public abstract Optional<Double> getMaxThreshold(Unit unit);
 
     @Override
     public void synchronize(Network network) {

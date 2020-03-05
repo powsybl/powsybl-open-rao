@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -21,20 +22,20 @@ import java.io.IOException;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SimpleCnecSerializer extends JsonSerializer<Cnec> {
+public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
 
     @Override
-    public void serialize(Cnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(SimpleCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStringField("id", cnec.getId());
         jsonGenerator.writeStringField("name", cnec.getName());
         jsonGenerator.writeStringField("networkElement", cnec.getNetworkElement().getId());
         jsonGenerator.writeObjectField("state", cnec.getState().getId());
-        jsonGenerator.writeObjectField("threshold", cnec.getThreshold());
+        jsonGenerator.writeObjectField("threshold", cnec.getThresholds());
         JsonUtil.writeExtensions(cnec, jsonGenerator, serializerProvider, ExtensionsHandler.getCnecExtensionSerializers());
     }
 
     @Override
-    public void serializeWithType(Cnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+    public void serializeWithType(SimpleCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
         WritableTypeId writableTypeId = typeSerializer.typeId(cnec, JsonToken.START_OBJECT);
         typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
         serialize(cnec, jsonGenerator, serializerProvider);

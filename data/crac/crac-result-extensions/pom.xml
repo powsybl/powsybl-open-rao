@@ -12,14 +12,9 @@
     <artifactId>farao-crac-result-extensions</artifactId>
     <packaging>jar</packaging>
     <name>CRAC result extensions object model</name>
-    <description>Extensions of the crac model related to RAO results</description>
+    <description>Extensions of the CRAC model related to RAO results</description>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-io-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>
@@ -33,6 +28,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-io-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

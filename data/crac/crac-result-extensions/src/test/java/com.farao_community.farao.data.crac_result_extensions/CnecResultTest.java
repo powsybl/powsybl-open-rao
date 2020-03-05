@@ -19,9 +19,22 @@ public class CnecResultTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void test() {
+    public void testConstructorWithTwoArguments() {
         CnecResult cnecResult = new CnecResult(50.0, 75.0);
         assertEquals(50.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testConstructorWithOneArgument() {
+        CnecResult cnecResult = new CnecResult(-45.0);
+        assertEquals(-45.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(Double.NaN, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void getNameTest() {
+        CnecResult cnecResult = new CnecResult(-45.0);
+        assertEquals("CnecResult", cnecResult.getName());
     }
 }
