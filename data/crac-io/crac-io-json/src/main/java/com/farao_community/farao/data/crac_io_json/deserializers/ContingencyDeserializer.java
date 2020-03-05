@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
@@ -37,7 +37,7 @@ final class ContingencyDeserializer {
 
             String id = null;
             String name = null;
-            ArrayList<String> networkElementsIds = new ArrayList<>();
+            List<String> networkElementsIds = new ArrayList<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
@@ -68,14 +68,8 @@ final class ContingencyDeserializer {
             }
 
             //add contingency in Crac
-            Set<NetworkElement> networkElements = new HashSet<>();
-            networkElementsIds.forEach(neId -> {
-                NetworkElement ne = simpleCrac.getNetworkElement(neId);
-                if (ne == null) {
-                    throw new FaraoException(String.format("The network element [%s] mentioned in the contingencies is not defined", neId));
-                }
-                networkElements.add(ne);
-            });
+
+            Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
 
             simpleCrac.addContingency(new ComplexContingency(id, name, networkElements));
         }

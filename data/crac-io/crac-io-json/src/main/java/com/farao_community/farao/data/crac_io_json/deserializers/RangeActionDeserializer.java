@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -118,15 +117,7 @@ final class RangeActionDeserializer {
         }
 
         //add contingency in Crac
-        Set<NetworkElement> networkElements = new HashSet<>();
-        networkElementsIds.forEach(neId -> {
-            NetworkElement ne = simpleCrac.getNetworkElement(neId);
-            if (ne == null) {
-                throw new FaraoException(String.format("The network element [%s] mentioned in the contingencies is not defined", neId));
-            }
-            networkElements.add(ne);
-        });
-
+        Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
         return new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
     }
 
