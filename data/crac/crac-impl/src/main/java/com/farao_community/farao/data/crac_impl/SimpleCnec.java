@@ -26,6 +26,7 @@ import java.util.Set;
  */
 @JsonTypeName("simple-cnec")
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityReference(alwaysAsId = true)
 public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
     private Set<AbstractThreshold> thresholds;
@@ -54,15 +55,8 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return networkElement;
     }
 
-    public double computeMargin(Network network, Unit requestedUnit) {
-        // todo : switch units if no I is available but P is available
-        double flow;
-        if (requestedUnit.equals(Unit.AMPERE)) {
-            flow = getI(network);
-        } else {
-            flow = getP(network);
-        }
-        return Math.min(getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY) - flow, flow - getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY));
+    public double computeMargin(double actualValue, Unit unit) {
+        return Math.min(getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - actualValue, actualValue - getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
