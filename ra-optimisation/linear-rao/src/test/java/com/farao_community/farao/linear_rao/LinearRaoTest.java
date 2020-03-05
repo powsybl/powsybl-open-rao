@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
@@ -225,20 +226,23 @@ public class LinearRaoTest {
         AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.BOTH, 1500);
         RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 30);
 
-        // CNECs
-        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdAbsFlow, stateBasecase);
-        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdAbsFlow, stateCurativeContingency1);
-        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, thresholdAbsFlow, stateCurativeContingency2);
-        cnec1basecase.setThresholds(thresholdAbsFlow);
-        cnec1stateCurativeContingency1.setThresholds(thresholdAbsFlow);
-        cnec1stateCurativeContingency2.setThresholds(thresholdAbsFlow);
+        Set<AbstractThreshold> thresholdsAbsFlow = Collections.singleton(thresholdAbsFlow);
+        Set<AbstractThreshold> thresholdsRelativeFlow = Collections.singleton(thresholdRelativeFlow);
 
-        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, thresholdAbsFlow, stateBasecase);
-        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, thresholdAbsFlow, stateCurativeContingency1);
-        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, thresholdAbsFlow, stateCurativeContingency2);
-        cnec2basecase.setThresholds(thresholdRelativeFlow);
-        cnec2stateCurativeContingency1.setThresholds(thresholdRelativeFlow);
-        cnec2stateCurativeContingency2.setThresholds(thresholdRelativeFlow);
+        // CNECs
+        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdsAbsFlow, stateBasecase);
+        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency2);
+        cnec1basecase.setThresholds(thresholdsAbsFlow);
+        cnec1stateCurativeContingency1.setThresholds(thresholdsAbsFlow);
+        cnec1stateCurativeContingency2.setThresholds(thresholdsAbsFlow);
+
+        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, thresholdsAbsFlow, stateBasecase);
+        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, thresholdsAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, thresholdsAbsFlow, stateCurativeContingency2);
+        cnec2basecase.setThresholds(thresholdsRelativeFlow);
+        cnec2stateCurativeContingency1.setThresholds(thresholdsRelativeFlow);
+        cnec2stateCurativeContingency2.setThresholds(thresholdsRelativeFlow);
 
         crac.addCnec(cnec1basecase);
         crac.addCnec(cnec1stateCurativeContingency1);
