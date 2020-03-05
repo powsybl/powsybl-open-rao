@@ -49,7 +49,7 @@ public class LinearRaoData {
 
     public double getCurrentValue(RangeAction rangeAction) {
         //todo : put this method in the crac-api to make it other-than-PST proof
-        return network.getTwoWindingsTransformer(rangeAction.getNetworkElements().iterator().next().getId()).getPhaseTapChanger().getCurrentStep().getAlpha();
+        return network.getTwoWindingsTransformer(((NetworkElement) rangeAction.getNetworkElements().iterator().next()).getId()).getPhaseTapChanger().getCurrentStep().getAlpha();
     }
 
     public Crac getCrac() {

@@ -18,26 +18,24 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResult extends AbstractExtension<RangeAction> {
-    protected Map<State, Double> setPointMap;
+public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtension<I> {
+    protected Map<State, Double> setPointPerStates;
 
     public RangeActionResult(Set<State> states) {
-        setPointMap = new HashMap<>();
-        states.forEach(state -> {
-            setPointMap.put(state, Double.NaN);
-        });
+        setPointPerStates = new HashMap<>();
+        states.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
     public double getSetPoint(State state) {
-        return setPointMap.getOrDefault(state, Double.NaN);
+        return setPointPerStates.getOrDefault(state, Double.NaN);
     }
 
     public void setSetPoint(State state, double setPoint) {
-        setPointMap.put(state, setPoint);
+        setPointPerStates.put(state, setPoint);
     }
 
     public boolean isActivated(State state) {
-        return !setPointMap.getOrDefault(state, Double.NaN).isNaN();
+        return !setPointPerStates.getOrDefault(state, Double.NaN).isNaN();
     }
 
     @Override

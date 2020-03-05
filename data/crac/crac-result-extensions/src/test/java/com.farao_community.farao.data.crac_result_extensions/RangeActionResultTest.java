@@ -7,13 +7,14 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -47,17 +48,17 @@ public class RangeActionResultTest {
         states.add(curative1);
         states.add(outage2);
         states.add(curative2);
-        rangeActionResult = new RangeActionResult(states);
+        rangeActionResult = new RangeActionResult<>(states);
     }
 
     @Test
     public void constructor() {
-        assertTrue(rangeActionResult.setPointMap.containsKey(initialState));
-        assertTrue(rangeActionResult.setPointMap.containsKey(outage1));
-        assertTrue(rangeActionResult.setPointMap.containsKey(curative1));
-        assertTrue(rangeActionResult.setPointMap.containsKey(outage2));
-        assertTrue(rangeActionResult.setPointMap.containsKey(curative2));
-        assertEquals(5, rangeActionResult.setPointMap.size());
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(initialState));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage1));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative1));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage2));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative2));
+        assertEquals(5, rangeActionResult.setPointPerStates.size());
     }
 
     @Test
@@ -70,5 +71,17 @@ public class RangeActionResultTest {
     @Test
     public void getName() {
         assertEquals("RangeActionResult", rangeActionResult.getName());
+    }
+
+    @Test
+    public void addExtension() {
+        PstRange pstRange = new PstWithRange("pst", new NetworkElement("ne"));
+        State state = new SimpleState(Optional.empty(), new Instant("initial", 0));
+        RangeActionResult rangeActionResult = new RangeActionResult<PstRange>(Collections.singleton(state));
+
+        pstRange.addExtension(RangeActionResult.class, rangeActionResult);
+        pstRange.getExtension(RangeActionResult.class).setSetPoint(state, 3.2);
+        assertTrue(pstRange.getExtension(RangeActionResult.class).isActivated(state));
+        assertEquals(3.2, pstRange.getExtension(RangeActionResult.class).getSetPoint(state), EPSILON);
     }
 }

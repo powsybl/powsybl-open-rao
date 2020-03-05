@@ -32,11 +32,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
+public final class PstWithRange extends AbstractElementaryRangeAction<PstRange> implements PstRange {
     private int lowTapPosition;
     private int highTapPosition;
     private int initialTapPosition;
+
     private boolean isSynchronized;
+    private PhaseTapChanger phaseTapChanger;
 
     private static final double EPSILON = 1e-3;
 
@@ -71,6 +73,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         highTapPosition = 0;
         initialTapPosition = 0;
         isSynchronized = false;
+        phaseTapChanger = null;
     }
 
     @Override
@@ -78,7 +81,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         if (isSynchronized()) {
             throw new AlreadySynchronizedException(String.format("PST %s has already been synchronized", getId()));
         }
-        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
+        phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
         initialTapPosition = phaseTapChanger.getTapPosition();
         lowTapPosition = phaseTapChanger.getLowTapPosition();
         highTapPosition = phaseTapChanger.getHighTapPosition();
@@ -100,7 +103,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its min value cannot be accessed", getId()));
         }
-        double minValue = convertTapToAngle(network, lowTapPosition);
+        double minValue = convertTapToAngle(lowTapPosition);
         for (Range range: ranges) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
         }
@@ -112,7 +115,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its max value cannot be accessed", getId()));
         }
-        double maxValue = convertTapToAngle(network, highTapPosition);
+        double maxValue = convertTapToAngle(highTapPosition);
         for (Range range: ranges) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
         }
@@ -122,34 +125,36 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
-        return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
+        return convertTapToAngle(Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
     }
 
     @Override
     protected double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
+        return convertTapToAngle(Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
     }
 
     @Override
     public double getMaxNegativeVariation(Network network) {
         // This method calls getMinValue so it will throw a NotSynchronizedException if required
-        return Math.max(convertTapToAngle(network, getCurrentTapPosition(network)) - getMinValue(network), 0);
+        return Math.max(convertTapToAngle(getCurrentTapPosition(network)) - getMinValue(network), 0);
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
         // This method calls getMaxValue so it will throw a NotSynchronizedException if required
-        return Math.max(getMaxValue(network) - convertTapToAngle(network, getCurrentTapPosition(network)), 0);
+        return Math.max(getMaxValue(network) - convertTapToAngle(getCurrentTapPosition(network)), 0);
     }
 
     private int getCurrentTapPosition(Network network) {
-        return network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger().getTapPosition();
+        return checkValidPstAndGetPhaseTapChanger(network).getTapPosition();
     }
 
-    private double convertTapToAngle(Network network, int tap) {
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
-        return transformer.getPhaseTapChanger().getStep(tap).getAlpha();
+    private double convertTapToAngle(int tap) {
+        if (!isSynchronized()) {
+            throw new NotSynchronizedException(String.format("PST %s have not been synchronized so tap cannot be converted to angle", getId()));
+        }
+        return phaseTapChanger.getStep(tap).getAlpha();
     }
 
     private double getExtremumValueWithRange(Range range, double currentTapPosition, double extremumValue) {
@@ -198,8 +203,14 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     }
 
     @Override
-    public int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger) {
+    public int computeTapPosition(double finalAngle) {
+        if (!isSynchronized()) {
+            throw new NotSynchronizedException(String.format("PST %s have not been synchronized so tap cannot be computed from angle", getId()));
+        }
+        return computeTapPosition(finalAngle, phaseTapChanger);
+    }
 
+    private int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger) {
         Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
         for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
             steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));

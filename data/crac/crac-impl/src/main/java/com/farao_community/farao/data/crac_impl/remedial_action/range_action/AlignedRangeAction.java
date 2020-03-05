@@ -29,7 +29,7 @@ import java.util.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("aligned-range-action")
-public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
+public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
 
     public static final int TEMP_VALUE_ARA = 0;
 
