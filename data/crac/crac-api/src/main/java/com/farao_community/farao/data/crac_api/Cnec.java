@@ -37,7 +37,7 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      */
-    double computeMargin(Network network, Unit requestedUnit);
+    double computeMargin(double actualValue, Unit unit);
 
     /**
      * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
