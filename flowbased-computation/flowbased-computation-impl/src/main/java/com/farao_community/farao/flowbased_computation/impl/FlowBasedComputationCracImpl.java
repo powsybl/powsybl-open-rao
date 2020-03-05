@@ -47,7 +47,7 @@ public class FlowBasedComputationCracImpl implements FlowBasedComputationProvide
 
     @Override
     public String getName() {
-        return "SimpleIterativeFlowBased";
+        return "SimpleIterativeFlowBasedCrac";
     }
 
     @Override

@@ -8,6 +8,9 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowUtil;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.LoopFlowExtensionParameters;
@@ -34,9 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystem;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.when;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SearchTreeConfigurationUtil.class, Tree.class})
+@PrepareForTest({SearchTreeConfigurationUtil.class, Tree.class, LoopFlowUtil.class})
 public class SearchTreeRaoUnitTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoUnitTest.class);
 
@@ -99,6 +100,19 @@ public class SearchTreeRaoUnitTest {
         RaoComputationResult result = Mockito.mock(RaoComputationResult.class);
         Mockito.when(Tree.search(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(result));
         searchTreeRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, parameters);
+    }
+
+    @Test
+    public void testCalculate() {
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        FlowBasedComputationParameters flowBasedComputationParameters = FlowBasedComputationParameters.load();
+        Map<String, Double> map = new HashMap<>();
+        PowerMockito.mockStatic(LoopFlowUtil.class);
+        Mockito.when(LoopFlowUtil.calculateLoopFlows(any(), (Crac) any(), any(), any(), any(), any())).thenReturn(map);
+        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
+        crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
+        searchTreeRao.calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
     }
 
     @Test

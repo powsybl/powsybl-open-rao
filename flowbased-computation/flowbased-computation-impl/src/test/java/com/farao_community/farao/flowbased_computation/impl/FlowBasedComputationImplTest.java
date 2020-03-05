@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 import java.util.Map;
@@ -133,6 +134,9 @@ public class FlowBasedComputationImplTest {
     @Test
     public void testRunCrac() {
         FlowBasedComputationCracImpl flowBasedComputationCracImpl = new FlowBasedComputationCracImpl();
+        assertEquals("SimpleIterativeFlowBasedCrac", flowBasedComputationCracImpl.getName());
+        assertEquals("1.0.0", flowBasedComputationCracImpl.getVersion());
+        assertNull(flowBasedComputationCracImpl.run(network, Mockito.mock(CracFile.class), glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters));
         FlowBasedComputationResult result = flowBasedComputationCracImpl.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
         assertEquals(FlowBasedComputationResult.Status.SUCCESS, result.getStatus());
 
