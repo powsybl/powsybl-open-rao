@@ -30,7 +30,7 @@ import java.util.TreeSet;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable, Synchronizable {
+public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     Set<NetworkElement> getNetworkElements();
 
