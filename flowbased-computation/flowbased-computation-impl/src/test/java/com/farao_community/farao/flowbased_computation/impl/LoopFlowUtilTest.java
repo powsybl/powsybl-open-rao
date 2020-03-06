@@ -71,7 +71,7 @@ public class LoopFlowUtilTest {
     }
 
     @Test
-    public void testRunCrac() throws Exception {
+    public void testRunCrac() {
         FlowBasedComputationCracImpl flowBasedComputationCracImpl = new FlowBasedComputationCracImpl();
         assertEquals("SimpleIterativeFlowBasedCrac", flowBasedComputationCracImpl.getName());
         assertEquals("1.0.0", flowBasedComputationCracImpl.getVersion());
@@ -85,7 +85,11 @@ public class LoopFlowUtilTest {
         refNetPositionCountryMap.put("DE", 0.0);
         refNetPositionCountryMap.put("NL", -100.0);
         PowerMockito.spy(LoopFlowUtil.class);
-        PowerMockito.doReturn(refNetPositionCountryMap).when(LoopFlowUtil.class, "getRefNetPositionByCountry", any(), any());
+        try {
+            PowerMockito.doReturn(refNetPositionCountryMap).when(LoopFlowUtil.class, "getRefNetPositionByCountry", any(), any());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Map<String, Double> loopFlows = LoopFlowUtil.calculateLoopFlows(network, crac, glskProvider, countries, computationManager, parameters);
         assertEquals(0.0, loopFlows.get("FR-DE"), EPSILON);
