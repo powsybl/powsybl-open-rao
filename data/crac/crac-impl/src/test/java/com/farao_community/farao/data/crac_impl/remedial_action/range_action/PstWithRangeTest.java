@@ -221,26 +221,6 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     }
 
     @Test
-    public void getMaxNegativeVariationWithNoSynchronizationFails() {
-        try {
-            pst.getMaxNegativeVariation(network);
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
-        }
-    }
-
-    @Test
-    public void getMaxPositiveVariationWithNoSynchronizationFails() {
-        try {
-            pst.getMaxPositiveVariation(network);
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its max value cannot be accessed", e.getMessage());
-        }
-    }
-
-    @Test
     public void synchronizetwiceFails() {
         pst.synchronize(network);
         try {

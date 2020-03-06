@@ -59,18 +59,6 @@ public final class InjectionRange extends AbstractElementaryRangeAction {
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        // to implement - specific to InjectionRange
-        return injectionRangeTempValue;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        // to implement - specific to InjectionRange
-        return injectionRangeTempValue;
-    }
-
-    @Override
     public double getCurrentValue(Network network) {
         return injectionRangeTempValue;
     }
