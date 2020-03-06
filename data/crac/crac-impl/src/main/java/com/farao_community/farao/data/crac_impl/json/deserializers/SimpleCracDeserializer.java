@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
+import static com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -79,7 +79,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
 
                 case RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    RangeActionDeserializer.deserialize(jsonParser, simpleCrac);
+                    RangeActionDeserializer.deserialize(jsonParser, deserializationContext, simpleCrac);
                     break;
 
                 case NETWORK_ACTIONS:

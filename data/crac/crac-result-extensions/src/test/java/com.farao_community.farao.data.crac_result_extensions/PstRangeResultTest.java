@@ -25,7 +25,7 @@ public class PstRangeResultTest {
     public void setUp() {
         pstRange = new PstWithRange("id", new NetworkElement("ne"));
         state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        pstRangeResult = new PstRangeResult(Collections.singleton(state));
+        pstRangeResult = new PstRangeResult(Collections.singleton(state.getId()));
     }
 
     @Test
@@ -34,15 +34,15 @@ public class PstRangeResultTest {
         Mockito.when(pstRangeMock.computeTapPosition(3.2)).thenReturn(5);
         Mockito.when(pstRangeMock.isSynchronized()).thenReturn(true);
         pstRangeResult.setExtendable(pstRangeMock);
-        pstRangeResult.setSetPoint(state, 3.2);
-        assertEquals(3.2, pstRangeResult.getSetPoint(state), EPSILON);
-        assertEquals(5, pstRangeResult.getTap(state));
+        pstRangeResult.setSetPoint(state.getId(), 3.2);
+        assertEquals(3.2, pstRangeResult.getSetPoint(state.getId()), EPSILON);
+        assertEquals(5, pstRangeResult.getTap(state.getId()));
     }
 
     @Test
     public void addExtension() {
         pstRange.addExtension(PstRangeResult.class, pstRangeResult);
-        pstRangeResult.setTap(state, 15);
-        assertEquals(15, pstRange.getExtension(PstRangeResult.class).getTap(state));
+        pstRangeResult.setTap(state.getId(), 15);
+        assertEquals(15, pstRange.getExtension(PstRangeResult.class).getTap(state.getId()));
     }
 }
