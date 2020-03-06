@@ -37,6 +37,14 @@ public class CnecResult extends AbstractExtension<Cnec> {
         return flowInA;
     }
 
+    public void setFlowInMW(double flow) {
+        flowInMW = flow;
+    }
+
+    public void setFlowInA(double flow) {
+        flowInA = flow;
+    }
+
     @Override
     public String getName() {
         return "CnecResult";

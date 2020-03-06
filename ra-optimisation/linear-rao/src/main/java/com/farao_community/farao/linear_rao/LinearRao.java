@@ -10,7 +10,10 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
@@ -181,6 +184,26 @@ public class LinearRao implements RaoProvider {
         return minMargin;
     }
 
+    private void updateRangeActionExtension(Crac crac, RemedialActionResult remedialActionResult) {
+        RangeActionResult rangeActionResultExtension = crac.getRangeAction(remedialActionResult.getId()).getExtensions(RangeActionResult.class);
+        rangeActionResultExtension.setSetPoint(crac.getPreventiveState(), getRemedialActionResultPostOptimisationValue(remedialActionResult));
+    }
+
+    private void updateCnecExtensions(Crac crac) {
+        crac.getCnecs().forEach(cnec -> {
+            cnec.getExtension(CnecResult.class).setFlowInMW(postOptimSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
+            cnec.getExtension(CnecResult.class).setFlowInA(postOptimSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
+        });
+    }
+
+    private void updateResultExtensions(Crac crac, double minMargin) {
+        CracResult cracResult = crac.getExtension(CracResult.class);
+        cracResult.setCost(minMargin);
+
+        oldRemedialActionResultList.forEach(remedialActionResult -> updateRangeActionExtension(crac, remedialActionResult));
+        updateCnecExtensions(crac);
+    }
+
     private RaoComputationResult buildRaoComputationResult(Crac crac, double minMargin) {
         LinearRaoResult resultExtension = new LinearRaoResult(
                 minMargin >= 0 ? LinearRaoResult.SecurityStatus.SECURED : LinearRaoResult.SecurityStatus.UNSECURED);
@@ -189,8 +212,14 @@ public class LinearRao implements RaoProvider {
         RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult, contingencyResults);
         raoComputationResult.addExtension(LinearRaoResult.class, resultExtension);
         LOGGER.info("LinearRaoResult: mininum margin = {}, security status: {}", (int) resultExtension.getMinMargin(), resultExtension.getSecurityStatus());
+
+        updateResultExtensions(crac, minMargin);
+
         return raoComputationResult;
+
     }
+
+
 
     private List<ContingencyResult> createContingencyResultsAndUpdateLinearRaoResult(Crac crac, LinearRaoResult linearRaoResult) {
         List<ContingencyResult> contingencyResults = new ArrayList<>();
