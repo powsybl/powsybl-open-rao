@@ -10,11 +10,14 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.*;
@@ -43,6 +46,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
         String name = jsonParser.nextTextValue();
 
         SimpleCrac simpleCrac = new SimpleCrac(id, name);
+        List<Extension<Crac>> extensions = new ArrayList<>();
 
         // deserialize the following lines of the SimpleCrac
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -88,10 +92,18 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
                     networkActions.forEach(simpleCrac::addNetworkAction);
                     break;
 
+                case EXTENSIONS:
+                    jsonParser.nextToken();
+                    extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getCracExtensionSerializers());
+                    break;
+
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
 
             }
+        }
+        if (!extensions.isEmpty()) {
+            ExtensionsHandler.getCracExtensionSerializers().addExtensions(simpleCrac, extensions);
         }
         return simpleCrac;
     }

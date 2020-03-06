@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -23,13 +24,25 @@ public final class ExtensionsHandler {
 
     public interface CnecExtensionSerializer<E extends Extension<Cnec>> extends ExtensionJsonSerializer<Cnec, E> { }
 
-    private static final Supplier<ExtensionProviders<CnecExtensionSerializer>> SUPPLIER =
+    private static final Supplier<ExtensionProviders<CnecExtensionSerializer>> CNEC_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(CnecExtensionSerializer.class, "cnec"));
 
     /**
      * Gets the known Cnec extension serializers.
      */
     public static ExtensionProviders<CnecExtensionSerializer> getCnecExtensionSerializers() {
-        return SUPPLIER.get();
+        return CNEC_SUPPLIER.get();
+    }
+
+    public interface CracExtensionSerializer<E extends Extension<Crac>> extends ExtensionJsonSerializer<Crac, E> { }
+
+    private static final Supplier<ExtensionProviders<CnecExtensionSerializer>> CRAC_SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(CnecExtensionSerializer.class, "crac"));
+
+    /**
+     * Gets the known Crac extension serializers.
+     */
+    public static ExtensionProviders<CnecExtensionSerializer> getCracExtensionSerializers() {
+        return CRAC_SUPPLIER.get();
     }
 }

@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
@@ -29,30 +31,42 @@ import java.util.Set;
  */
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
-    private Set<String> variantsId;
+
+    private Set<String> variants;
+
+    /**
+     * Default constructor
+     */
+    public ResultVariantManager() {
+        variants = new HashSet<>();
+    }
+
+    /**
+     * Constructor required by the JSON deserializer
+     */
+    @JsonCreator
+    public ResultVariantManager(@JsonProperty("variantIds") Set<String> variantIds) {
+        this.variants = variantIds;
+    }
 
     @Override
     public String getName() {
         return "ResultVariantManager";
     }
 
-    public ResultVariantManager() {
-        variantsId = new HashSet<>();
-    }
-
     /**
      * Get the ids of all the variants present in the Crac
      */
-    Set<String> getVariants() {
-        return variantsId;
+    public Set<String> getVariants() {
+        return variants;
     }
 
     /**
      * Create a new variant. For all extendable object
      */
-    void createVariant(String variantId) {
+    public void createVariant(String variantId) {
 
-        if (variantsId.contains(variantId)) {
+        if (variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot create results variant with id [%s], as one with the same id already exists", variantId));
         }
 
@@ -60,21 +74,21 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         // todo : in the Result extensions of the Cnec, Crac and RemedialActions, create a variant with id
         //        {variantId} and default result values
 
-        variantsId.add(variantId);
+        variants.add(variantId);
     }
 
     /**
      * Delete an existing variant.
      */
-    void deleteVariant(String variantId) {
+    public void deleteVariant(String variantId) {
 
-        if (!variantsId.contains(variantId)) {
+        if (!variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot delete variant with id [%s], as it does not exist", variantId));
         }
 
         // todo : in the Result extensions of the Cnec, Crac and RemedialActions, delete the variant with id
         //        {variantId}
 
-        variantsId.remove(variantId);
+        variants.remove(variantId);
     }
 }
