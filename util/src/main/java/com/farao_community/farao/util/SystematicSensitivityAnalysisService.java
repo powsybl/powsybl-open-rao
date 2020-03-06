@@ -86,7 +86,7 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
+        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, cnecIntensityMap);
     }
 
     private static void buildFlowFromNetwork(Network network,
