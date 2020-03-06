@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public final class LoopFlowUtil {
+
     private LoopFlowUtil() {
     }
 

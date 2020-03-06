@@ -357,10 +357,10 @@ final class ExampleGenerator {
 
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR GLSK", new LinearGlsk("FR GLSK", "FR GLSK", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE GLSK", new LinearGlsk("BE GLSK", "BE GLSK", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE GLSK", new LinearGlsk("DE GLSK", "DE GLSK", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL GLSK", new LinearGlsk("NL GLSK", "NL GLSK", Collections.singletonMap("Generator NL", 1.f)));
+        glsks.put("FR", new LinearGlsk("FR", "FR", Collections.singletonMap("Generator FR", 1.f)));
+        glsks.put("BE", new LinearGlsk("BE", "BE", Collections.singletonMap("Generator BE", 1.f)));
+        glsks.put("DE", new LinearGlsk("DE", "DE", Collections.singletonMap("Generator DE", 1.f)));
+        glsks.put("NL", new LinearGlsk("NL", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
             @Override
             public Map<String, LinearGlsk> getAllGlsk(Network network) {
@@ -413,73 +413,73 @@ final class ExampleGenerator {
             Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
             expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.375),
-                            entry("BE GLSK", -0.375),
-                            entry("DE GLSK", 0.125),
-                            entry("NL GLSK", -0.125)
+                            entry("FR", 0.375),
+                            entry("BE", -0.375),
+                            entry("DE", 0.125),
+                            entry("NL", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.375),
-                            entry("BE GLSK", 0.125),
-                            entry("DE GLSK", -0.375),
-                            entry("NL GLSK", -0.125)
+                            entry("FR", 0.375),
+                            entry("BE", 0.125),
+                            entry("DE", -0.375),
+                            entry("NL", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.125),
-                            entry("BE GLSK", 0.375),
-                            entry("DE GLSK", -0.125),
-                            entry("NL GLSK", -0.375)
+                            entry("FR", 0.125),
+                            entry("BE", 0.375),
+                            entry("DE", -0.125),
+                            entry("NL", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.125),
-                            entry("BE GLSK", -0.125),
-                            entry("DE GLSK", 0.375),
-                            entry("NL GLSK", -0.375)
+                            entry("FR", 0.125),
+                            entry("BE", -0.125),
+                            entry("DE", 0.375),
+                            entry("NL", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", Double.NaN),
-                            entry("BE GLSK", Double.NaN),
-                            entry("DE GLSK", Double.NaN),
-                            entry("NL GLSK", Double.NaN)
+                            entry("FR", Double.NaN),
+                            entry("BE", Double.NaN),
+                            entry("DE", Double.NaN),
+                            entry("NL", Double.NaN)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.75),
-                            entry("BE GLSK", -0.25),
-                            entry("DE GLSK", -0.25),
-                            entry("NL GLSK", -0.25)
+                            entry("FR", 0.75),
+                            entry("BE", -0.25),
+                            entry("DE", -0.25),
+                            entry("NL", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", -0.25),
-                            entry("BE GLSK", 0.75),
-                            entry("DE GLSK", -0.25),
-                            entry("NL GLSK", -0.25)
+                            entry("FR", -0.25),
+                            entry("BE", 0.75),
+                            entry("DE", -0.25),
+                            entry("NL", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.5),
-                            entry("BE GLSK", -0.5),
-                            entry("DE GLSK", 0.5),
-                            entry("NL GLSK", -0.5)
+                            entry("FR", 0.5),
+                            entry("BE", -0.5),
+                            entry("DE", 0.5),
+                            entry("NL", -0.5)
                     )
                             .collect(entriesToMap())
             ));
