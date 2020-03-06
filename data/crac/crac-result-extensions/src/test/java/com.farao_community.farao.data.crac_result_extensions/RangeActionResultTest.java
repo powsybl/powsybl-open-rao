@@ -63,9 +63,9 @@ public class RangeActionResultTest {
 
     @Test
     public void getSetPoint() {
-        rangeActionResult.setSetPoint(outage1, 15.);
-        assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState), EPSILON);
-        assertEquals(15., rangeActionResult.getSetPoint(outage1), EPSILON);
+        rangeActionResult.setSetPoint(outage1.getId(), 15.);
+        assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState.getId()), EPSILON);
+        assertEquals(15., rangeActionResult.getSetPoint(outage1.getId()), EPSILON);
     }
 
     @Test
@@ -80,8 +80,8 @@ public class RangeActionResultTest {
         RangeActionResult rangeActionResult = new RangeActionResult(Collections.singleton(state));
 
         pstRange.addExtension(RangeActionResult.class, rangeActionResult);
-        pstRange.getExtension(RangeActionResult.class).setSetPoint(state, 3.2);
-        assertTrue(pstRange.getExtension(RangeActionResult.class).isActivated(state));
-        assertEquals(3.2, pstRange.getExtension(RangeActionResult.class).getSetPoint(state), EPSILON);
+        pstRange.getExtension(RangeActionResult.class).setSetPoint(state.getId(), 3.2);
+        assertTrue(pstRange.getExtension(RangeActionResult.class).isActivated(state.getId()));
+        assertEquals(3.2, pstRange.getExtension(RangeActionResult.class).getSetPoint(state.getId()), EPSILON);
     }
 }

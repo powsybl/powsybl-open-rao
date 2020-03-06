@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CountertradingTest extends AbstractRemedialActionTest {
+public class CountertradingSerializerTest extends AbstractRemedialActionTest {
 
     private Countertrading countertrading;
     private Network mockedNetwork;
