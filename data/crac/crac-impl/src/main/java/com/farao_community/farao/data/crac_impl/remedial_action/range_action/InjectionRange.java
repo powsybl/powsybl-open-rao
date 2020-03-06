@@ -69,4 +69,9 @@ public final class InjectionRange extends AbstractElementaryRangeAction {
         // to implement - specific to InjectionRange
         return injectionRangeTempValue;
     }
+
+    @Override
+    public double getCurrentValue(Network network) {
+        return injectionRangeTempValue;
+    }
 }

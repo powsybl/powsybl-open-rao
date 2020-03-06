@@ -33,6 +33,8 @@ public interface RangeAction extends RemedialAction, Synchronizable {
 
     double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec);
 
+    double getCurrentValue(Network network);
+
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
 }

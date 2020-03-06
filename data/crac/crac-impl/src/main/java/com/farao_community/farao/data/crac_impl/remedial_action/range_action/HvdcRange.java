@@ -56,12 +56,12 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
 
     @Override
     public double getMaxNegativeVariation(Network network) {
-        return Math.abs(getMinValue(network) - getCurrentSetpoint(network));
+        return Math.abs(getMinValue(network) - getCurrentValue(network));
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
-        return Math.abs(getMaxValue(network) - getCurrentSetpoint(network));
+        return Math.abs(getMaxValue(network) - getCurrentValue(network));
     }
 
     @Override
@@ -69,7 +69,8 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
         throw new UnsupportedOperationException();
     }
 
-    public double getCurrentSetpoint(Network network) {
+    @Override
+    public double getCurrentValue(Network network) {
         HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
         return hvdcLine.getActivePowerSetpoint();
     }

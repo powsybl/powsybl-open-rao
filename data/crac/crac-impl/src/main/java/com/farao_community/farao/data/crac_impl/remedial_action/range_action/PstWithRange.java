@@ -15,10 +15,7 @@ import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Map;
@@ -122,28 +119,29 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
-        return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
+        return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentValue(network), minValue)));
     }
 
     @Override
     protected double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
+        return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentValue(network), maxValue)));
     }
 
     @Override
     public double getMaxNegativeVariation(Network network) {
         // This method calls getMinValue so it will throw a NotSynchronizedException if required
-        return Math.max(convertTapToAngle(network, getCurrentTapPosition(network)) - getMinValue(network), 0);
+        return Math.max(convertTapToAngle(network, (int) getCurrentValue(network)) - getMinValue(network), 0);
     }
 
     @Override
     public double getMaxPositiveVariation(Network network) {
         // This method calls getMaxValue so it will throw a NotSynchronizedException if required
-        return Math.max(getMaxValue(network) - convertTapToAngle(network, getCurrentTapPosition(network)), 0);
+        return Math.max(getMaxValue(network) - convertTapToAngle(network, (int) getCurrentValue(network)), 0);
     }
 
-    private int getCurrentTapPosition(Network network) {
+    @Override
+    public double getCurrentValue(Network network) {
         return network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger().getTapPosition();
     }
 

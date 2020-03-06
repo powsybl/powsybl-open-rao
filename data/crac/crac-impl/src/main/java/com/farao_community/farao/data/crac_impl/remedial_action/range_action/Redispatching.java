@@ -146,6 +146,11 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     }
 
     @Override
+    public double getCurrentValue(Network network) {
+        return TEMP_VALUE_REDISPATCH;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }

@@ -104,6 +104,11 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
+    public double getCurrentValue(Network network) {
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         // to implement
     }

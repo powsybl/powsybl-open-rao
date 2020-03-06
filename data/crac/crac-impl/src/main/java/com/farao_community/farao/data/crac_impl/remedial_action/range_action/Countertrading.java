@@ -70,6 +70,11 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     }
 
     @Override
+    public double getCurrentValue(Network network) {
+        return TEMP_VALUE;
+    }
+
+    @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }
