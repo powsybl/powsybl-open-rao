@@ -6,9 +6,11 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -16,18 +18,23 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystem;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -35,8 +42,6 @@ import java.util.List;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LoopFlowComputation.class)
 public class LoopFlowComputationTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputationTest.class);
-
     private static final double EPSILON = 1e-3;
     private Network network;
     private Crac crac;
@@ -57,12 +62,17 @@ public class LoopFlowComputationTest {
         parameters = FlowBasedComputationParameters.load(platformConfig);
         SensitivityComputationFactory sensitivityComputationFactory = ExampleGenerator.sensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+        LoadFlowService.init(loadFlowRunner, computationManager);
         countries = Arrays.asList("FR", "BE", "DE", "NL");
     }
 
     @Test
-    public void test() {
-        return;
+    public void testPtdf() {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, glskProvider, countries);
+        Map<Cnec, Map<String, Double>> ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork();
+        assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get("FR"), 0.1);
     }
-
 }

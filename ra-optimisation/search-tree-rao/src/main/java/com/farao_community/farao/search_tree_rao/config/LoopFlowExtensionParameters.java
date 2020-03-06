@@ -6,11 +6,8 @@
  */
 package com.farao_community.farao.search_tree_rao.config;
 
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -19,8 +16,6 @@ public class LoopFlowExtensionParameters  extends AbstractExtension<RaoParameter
 
     static final boolean DEFAULT_RAO_WITH_LOOP_FLOW = true;
 
-    private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
-    private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
     private boolean raoWithLoopFlow = DEFAULT_RAO_WITH_LOOP_FLOW;
 
     @Override
@@ -36,18 +31,4 @@ public class LoopFlowExtensionParameters  extends AbstractExtension<RaoParameter
         return raoWithLoopFlow;
     }
 
-    public void setSensitivityComputationParameters(SensitivityComputationParameters sensitivityComputationParameters) {
-        this.sensitivityComputationParameters = sensitivityComputationParameters;
-    }
-
-    public void setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
-        this.loadFlowParameters = loadFlowParameters;
-    }
-
-    public FlowBasedComputationParameters buildFlowBasedComputationParameters() {
-        FlowBasedComputationParameters flowBasedComputationParameters = new FlowBasedComputationParameters();
-        flowBasedComputationParameters.setLoadFlowParameters(loadFlowParameters);
-        flowBasedComputationParameters.setSensitivityComputationParameters(sensitivityComputationParameters);
-        return flowBasedComputationParameters;
-    }
 }

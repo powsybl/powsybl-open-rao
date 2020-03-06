@@ -55,8 +55,13 @@ public class SearchTreeRao implements RaoProvider {
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
         LoopFlowExtensionParameters loopFlowExtensionParameters = parameters.getExtension(LoopFlowExtensionParameters.class);
-        if (!Objects.isNull(loopFlowExtensionParameters) && useLoopFlowExtension(loopFlowExtensionParameters)) {
-            calculateLoopFlowConstraintAndUpdateAllCnec(network, crac);
+        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+        if (!Objects.isNull(loopFlowExtensionParameters) && useLoopFlowExtension(loopFlowExtensionParameters)
+            && !Objects.isNull(cracLoopFlowExtension)) {
+            //For the initial Network, compute the F_(0,all)_init
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, cracLoopFlowExtension.getGlskProvider(), cracLoopFlowExtension.getCountriesForLoopFlow());
+            Map<String, Double> fZeroAll = loopFlowComputation.calculateLoopFlows();
+            updateCnecsLoopFlowConstraint(crac, fZeroAll);
         }
 
         // run optimisation
@@ -64,20 +69,8 @@ public class SearchTreeRao implements RaoProvider {
         return CompletableFuture.completedFuture(result);
     }
 
-    public void calculateLoopFlowConstraintAndUpdateAllCnec(Network network, Crac crac) {
-        // compute maximum loop flow value F_(0,all)_MAX, and update it for Cnec in Crac
-
-        // 1. For the initial Network, compute the F_(0,all)_init
-        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
-        if (Objects.isNull(cracLoopFlowExtension)) {
-            LOGGER.error("LoopFlowExtensionInCrac not available");
-            return;
-        }
-
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, cracLoopFlowExtension.getGlskProvider(), cracLoopFlowExtension.getCountriesForLoopFlow());
-        Map<String, Double> fZeroAll = loopFlowComputation.calculateLoopFlows();
-
-        // 2. For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
+    public void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll) {
+        // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
         crac.getCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
             if (!Objects.isNull(cnecLoopFlowExtension)) {
