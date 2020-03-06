@@ -1,5 +1,6 @@
 package com.farao_community.farao.data.crac_api;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
 /**
@@ -8,4 +9,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 public interface PstRange extends RangeAction {
 
     int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger);
+
+    double getCurrentValue(Network network, RangeDefinition rangeDefinition);
 }

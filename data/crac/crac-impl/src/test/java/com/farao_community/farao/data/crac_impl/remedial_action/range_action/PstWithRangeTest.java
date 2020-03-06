@@ -18,8 +18,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.FieldSetter;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -173,6 +176,38 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         } catch (FaraoException e) {
             assertEquals("PST pst_range_id have not been synchronized so its max value cannot be accessed", e.getMessage());
         }
+    }
+
+    @Test
+    public void computeCurrentValueFromCenteredOnZero() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -16);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 16);
+
+        doReturn(0.0).when(pstWithRange).getCurrentValue(network);
+        assertEquals(0, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(17, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+
+        doReturn(10.0).when(pstWithRange).getCurrentValue(network);
+        assertEquals(10, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(27, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+    }
+
+    @Test
+    public void computeCurrentValueFromStartsAtOne() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), 1);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 33);
+
+        doReturn(17.0).when(pstWithRange).getCurrentValue(network);
+        assertEquals(0, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(17, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+
+        doReturn(7.0).when(pstWithRange).getCurrentValue(network);
+        assertEquals(-10, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(7, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
     }
 
     @Test

@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @JsonTypeName("pst-with-range")
 public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
-    private int lowTapPosition;
-    private int highTapPosition;
+    private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
+    private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
     private boolean isSynchronized;
 
@@ -92,6 +92,9 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         return isSynchronized;
     }
 
+    /**
+     * Min angle value allowed by all ranges and the physical limitations of the PST itself
+     */
     @Override
     public double getMinValue(Network network) {
         if (!isSynchronized) {
@@ -104,6 +107,9 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         return minValue;
     }
 
+    /**
+     * Max angle value allowed by all ranges and the physical limitations of the PST itself
+     */
     @Override
     public double getMaxValue(Network network) {
         if (!isSynchronized) {
@@ -116,6 +122,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         return maxValue;
     }
 
+    // Min value allowed by a range (from Crac)
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
@@ -128,12 +135,14 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentValue(network), maxValue)));
     }
 
+    // TODO: delete
     @Override
     public double getMaxNegativeVariation(Network network) {
         // This method calls getMinValue so it will throw a NotSynchronizedException if required
         return Math.max(convertTapToAngle(network, (int) getCurrentValue(network)) - getMinValue(network), 0);
     }
 
+    // TODO: delete
     @Override
     public double getMaxPositiveVariation(Network network) {
         // This method calls getMaxValue so it will throw a NotSynchronizedException if required
@@ -143,6 +152,44 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     @Override
     public double getCurrentValue(Network network) {
         return network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger().getTapPosition();
+    }
+
+    @Override
+    public double getCurrentValue(Network network, RangeDefinition requestedRangeDefinition) {
+        switch (requestedRangeDefinition) {
+            case STARTS_AT_ONE:
+                return convertToStartsAtOne(getCurrentValue(network));
+            case CENTERED_ON_ZERO:
+                return convertToCenteredOnZero(getCurrentValue(network));
+            default:
+                throw new FaraoException("Unknown range definition");
+        }
+    }
+
+    /**
+     * Conversion from any (implicit) to STARTS_AT_ONE
+     */
+    private double convertToStartsAtOne(double tap) {
+        if (highTapPosition == -lowTapPosition) { // the tap is CENTERED_ON_ZERO in the network
+            return tap + highTapPosition + 1;
+        } else if (lowTapPosition == 1) { // the tap STARTS_AT_ONE in the network
+            return tap;
+        } else {
+            throw new FaraoException(String.format("Unhandled range definition, between %s and %s.", lowTapPosition, highTapPosition));
+        }
+    }
+
+    /**
+     * Conversion from any (implicit) to CENTERED_ON_ZERO
+     */
+    private double convertToCenteredOnZero(double tap) {
+        if (lowTapPosition == -highTapPosition) { // the tap is CENTERED_ON_ZERO in the network
+            return tap;
+        } else if (lowTapPosition == 1) { // the tap STARTS_AT_ONE in the network
+            return tap - Math.ceil(((double) highTapPosition + 1) / 2);
+        } else {
+            throw new FaraoException(String.format("Unhandled range definition, between %s and %s.", lowTapPosition, highTapPosition));
+        }
     }
 
     private double convertTapToAngle(Network network, int tap) {
