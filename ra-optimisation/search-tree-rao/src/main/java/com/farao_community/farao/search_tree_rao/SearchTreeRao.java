@@ -10,8 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
-import com.farao_community.farao.flowbased_computation.impl.LoopFlowUtil;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -57,8 +56,7 @@ public class SearchTreeRao implements RaoProvider {
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
         LoopFlowExtensionParameters loopFlowExtensionParameters = parameters.getExtension(LoopFlowExtensionParameters.class);
         if (!Objects.isNull(loopFlowExtensionParameters) && useLoopFlowExtension(loopFlowExtensionParameters)) {
-            FlowBasedComputationParameters flowBasedComputationParameters = loopFlowExtensionParameters.buildFlowBasedComputationParameters();
-            calculateLoopFlowConstraintAndUpdateAllCnec(network, crac, computationManager, flowBasedComputationParameters);
+            calculateLoopFlowConstraintAndUpdateAllCnec(network, crac);
         }
 
         // run optimisation
@@ -66,8 +64,7 @@ public class SearchTreeRao implements RaoProvider {
         return CompletableFuture.completedFuture(result);
     }
 
-    public void calculateLoopFlowConstraintAndUpdateAllCnec(Network network, Crac crac, ComputationManager computationManager,
-                                                            FlowBasedComputationParameters flowBasedComputationParameters) {
+    public void calculateLoopFlowConstraintAndUpdateAllCnec(Network network, Crac crac) {
         // compute maximum loop flow value F_(0,all)_MAX, and update it for Cnec in Crac
 
         // 1. For the initial Network, compute the F_(0,all)_init
@@ -76,13 +73,16 @@ public class SearchTreeRao implements RaoProvider {
             LOGGER.error("LoopFlowExtensionInCrac not available");
             return;
         }
-        Map<String, Double> fZeroAll = LoopFlowUtil.calculateLoopFlows(network, crac, cracLoopFlowExtension.getGlskProvider(),
-                cracLoopFlowExtension.getCountriesForLoopFlow(), computationManager, flowBasedComputationParameters);
+
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, cracLoopFlowExtension.getGlskProvider(), cracLoopFlowExtension.getCountriesForLoopFlow());
+        Map<String, Double> fZeroAll = loopFlowComputation.calculateLoopFlows();
 
         // 2. For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
         crac.getCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
             if (!Objects.isNull(cnecLoopFlowExtension)) {
+                //!!! note here we use the result of branch flow of preventive state for all cnec of all states
+                //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
                 double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
                 double inputLoopFlow = cnecLoopFlowExtension.getInputLoopFlow();
                 cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, inputLoopFlow));
