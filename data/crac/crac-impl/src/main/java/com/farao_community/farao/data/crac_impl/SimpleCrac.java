@@ -410,7 +410,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public RangeAction getRangeAction(String id) {
         return rangeActions.stream()
-                .filter(rangeAction ->  rangeAction.getId().equals(id))
+                .filter(rangeAction -> rangeAction.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }

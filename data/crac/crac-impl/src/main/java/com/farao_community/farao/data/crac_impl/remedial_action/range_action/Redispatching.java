@@ -27,7 +27,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("redispatching")
-public final class Redispatching extends AbstractElementaryRangeAction {
+public final class Redispatching extends AbstractElementaryRangeAction<Redispatching> {
 
     public static final int TEMP_VALUE_REDISPATCH = 0;
 
@@ -128,20 +128,13 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        // to implement - specific to Redispatching
-        return TEMP_VALUE_REDISPATCH;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        // to implement - specific to Redispatching
-        return TEMP_VALUE_REDISPATCH;
-    }
-
-    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         // to implement - specific to Redispatching
+        return TEMP_VALUE_REDISPATCH;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
         return TEMP_VALUE_REDISPATCH;
     }
 
