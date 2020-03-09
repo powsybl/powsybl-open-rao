@@ -29,7 +29,7 @@ import static junit.framework.TestCase.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CnecResultJsonTest {
+public class JsonCnecResultTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
