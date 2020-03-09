@@ -9,8 +9,6 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
@@ -31,7 +29,6 @@ import java.util.Set;
  */
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
-
     private Set<String> variants;
 
     /**
@@ -39,14 +36,6 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      */
     public ResultVariantManager() {
         variants = new HashSet<>();
-    }
-
-    /**
-     * Constructor required by the JSON deserializer
-     */
-    @JsonCreator
-    public ResultVariantManager(@JsonProperty("variantIds") Set<String> variantIds) {
-        this.variants = variantIds;
     }
 
     @Override
