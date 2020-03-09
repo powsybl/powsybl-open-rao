@@ -27,7 +27,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("redispatching")
-public final class Redispatching extends AbstractElementaryRangeAction {
+public final class Redispatching extends AbstractElementaryRangeAction<Redispatching> {
 
     public static final int TEMP_VALUE_REDISPATCH = 0;
 

@@ -44,9 +44,9 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
 
                         //todo : get pre optim angle and tap with a cleaner manner
                         double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
-                        int preOptimTap = ((PstRange) rangeAction).computeTapPosition(preOptimAngle, transformer.getPhaseTapChanger());
+                        int preOptimTap = ((PstRange) rangeAction).computeTapPosition(preOptimAngle);
 
-                        int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(rangeActionVal, transformer.getPhaseTapChanger());
+                        int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(rangeActionVal);
                         double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                         if (approximatedPostOptimTap != preOptimTap) {

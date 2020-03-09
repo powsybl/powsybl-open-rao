@@ -191,7 +191,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
             pst.getMaxNegativeVariation(network);
             fail();
         } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
+            assertEquals("PST pst_range_id have not been synchronized so tap cannot be converted to angle", e.getMessage());
         }
     }
 
