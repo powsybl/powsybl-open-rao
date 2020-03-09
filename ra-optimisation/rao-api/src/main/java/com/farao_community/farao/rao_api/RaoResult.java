@@ -32,4 +32,8 @@ public class RaoResult {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+    public boolean isOk() {
+        return status == Status.SUCCESS;
+    }
 }
