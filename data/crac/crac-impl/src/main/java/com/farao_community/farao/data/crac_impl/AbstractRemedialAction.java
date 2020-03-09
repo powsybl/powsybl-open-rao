@@ -47,7 +47,7 @@ public abstract class AbstractRemedialAction<I extends Identifiable<I>> extends 
     public AbstractRemedialAction(@JsonProperty("id") String id,
                                   @JsonProperty("name") String name,
                                   @JsonProperty("operator") String operator,
-                                  @JsonProperty("usageRules") List<UsageRule> usageRules) {
+                                  List<UsageRule> usageRules) {
         super(id, name);
         this.operator = operator;
         this.usageRules = new ArrayList<>(usageRules);

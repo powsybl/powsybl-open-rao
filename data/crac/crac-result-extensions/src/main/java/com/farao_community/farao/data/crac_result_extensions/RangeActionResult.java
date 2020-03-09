@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -36,9 +37,9 @@ public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtensi
         this.setPointPerStates = setPointPerStates;
     }
 
-    public RangeActionResult(Set<String> states) {
+    public RangeActionResult(Set<State> states) {
         setPointPerStates = new HashMap<>();
-        states.forEach(state -> setPointPerStates.put(state, Double.NaN));
+        states.forEach(state -> setPointPerStates.put(state.getId(), Double.NaN));
     }
 
     public Set<String> getStates() {

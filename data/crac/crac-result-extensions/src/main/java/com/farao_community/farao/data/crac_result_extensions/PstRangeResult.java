@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.State;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -28,10 +29,10 @@ public class PstRangeResult extends RangeActionResult<PstRange> {
         this.tapPerStates = new HashMap<>(tapPerStates);
     }
 
-    public PstRangeResult(Set<String> states) {
+    public PstRangeResult(Set<State> states) {
         super(states);
         tapPerStates = new HashMap<>();
-        states.forEach(state -> tapPerStates.put(state, null));
+        states.forEach(state -> tapPerStates.put(state.getId(), null));
     }
 
     public int getTap(String state) {

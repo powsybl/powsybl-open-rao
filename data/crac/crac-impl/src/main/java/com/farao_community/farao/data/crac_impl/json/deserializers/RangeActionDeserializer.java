@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,30 +46,25 @@ final class RangeActionDeserializer {
             RangeAction rangeAction = null;
             List<Extension<Cnec>> extensions = new ArrayList<>();
 
-            while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
-                    case TYPE:
-                        // use the deserializer suited to range action type
-                        String type = jsonParser.nextTextValue();
-                        switch (type) {
-                            case PST_WITH_RANGE_TYPE:
-                                rangeAction = deserializePstWithRange(jsonParser, simpleCrac);
-                                break;
+            // first json Token should be the type of the range action
+            jsonParser.nextToken();
+            if (!jsonParser.getCurrentName().equals(TYPE)) {
+                throw new FaraoException("Type of range action is missing");
+            }
 
-                            case ALIGNED_RANGE_ACTIONS_TYPE:
-                                rangeAction = deserializeAlignedRangeAction(jsonParser, simpleCrac);
-                                break;
+            // use the deserializer suited to range action type
+            String type = jsonParser.nextTextValue();
+            switch (type) {
+                case PST_WITH_RANGE_TYPE:
+                    rangeAction = deserializePstWithRange(jsonParser, simpleCrac);
+                    break;
 
-                            default:
-                                throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
-                        }
-                        break;
-                    case EXTENSIONS:
-                        extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getCnecExtensionSerializers());
-                        break;
-                    default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-                }
+                case ALIGNED_RANGE_ACTIONS_TYPE:
+                    rangeAction = deserializeAlignedRangeAction(jsonParser, simpleCrac);
+                    break;
+
+                default:
+                    throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
             }
 
             simpleCrac.addRangeAction(rangeAction);
@@ -167,8 +161,11 @@ final class RangeActionDeserializer {
                     name = jsonParser.nextTextValue();
                     break;
 
-                case NETWORK_ELEMENT:
-                    networkElementId = jsonParser.nextTextValue();
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
+                    networkElementId = networkElementsIds.get(0);
                     break;
 
                 case RANGES:

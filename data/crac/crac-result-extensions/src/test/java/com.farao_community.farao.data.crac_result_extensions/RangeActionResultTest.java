@@ -53,11 +53,11 @@ public class RangeActionResultTest {
 
     @Test
     public void constructor() {
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(initialState));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage1));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative1));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage2));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative2));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(initialState.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage1.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative1.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage2.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative2.getId()));
         assertEquals(5, rangeActionResult.setPointPerStates.size());
     }
 
