@@ -24,7 +24,7 @@ public final class ExtensionsHandler {
     public interface CnecExtensionSerializer<E extends Extension<Cnec>> extends ExtensionJsonSerializer<Cnec, E> { }
 
     private static final Supplier<ExtensionProviders<CnecExtensionSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(CnecExtensionSerializer.class, "cnec"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(CnecExtensionSerializer.class, "cnec"));
 
     /**
      * Gets the known Cnec extension serializers.
