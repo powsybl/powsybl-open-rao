@@ -14,4 +14,22 @@ package com.farao_community.farao.rao_api;
  */
 public class RaoResult {
 
+    public enum Status {
+        FAILURE,
+        SUCCESS
+    }
+
+    private Status status;
+
+    public RaoResult(Status status) {
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 }
