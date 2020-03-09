@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -45,6 +46,18 @@ public final class ExtensionsHandler {
      */
     public static ExtensionProviders<RangeActionExtensionSerializer> getRangeActionExtensionSerializers() {
         return RANGE_ACTION_SUPPLIER.get();
+    }
+
+    public interface PstRangeExtensionSerializer<E extends Extension<PstRange>> extends RangeActionExtensionSerializer<PstRange, E> { }
+
+    private static final Supplier<ExtensionProviders<PstRangeExtensionSerializer>> PST_RANGE_SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(PstRangeExtensionSerializer.class, "pst-range"));
+
+    /**
+     * Gets the known range action extension serializers.
+     */
+    public static ExtensionProviders<PstRangeExtensionSerializer> getPstRangeExtensionSerializers() {
+        return PST_RANGE_SUPPLIER.get();
     }
 
     public interface NetworkActionExtensionSerializer<E extends Extension<NetworkAction>> extends ExtensionJsonSerializer<NetworkAction, E> { }

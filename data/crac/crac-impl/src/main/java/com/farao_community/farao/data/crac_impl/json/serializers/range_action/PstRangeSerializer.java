@@ -8,8 +8,10 @@
 package com.farao_community.farao.data.crac_impl.json.serializers.range_action;
 
 import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -20,6 +22,8 @@ public class PstRangeSerializer<I extends PstRange> extends RangeActionSerialize
 
     @Override
     public void serialize(PstRange pstRange, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        super.serialize(pstRange, jsonGenerator, serializerProvider);
 
+        JsonUtil.writeExtensions(pstRange, jsonGenerator, serializerProvider, ExtensionsHandler.getPstRangeExtensionSerializers());
     }
 }

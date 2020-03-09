@@ -48,4 +48,9 @@ public class PstRangeResult extends RangeActionResult<PstRange> {
         super.setSetPoint(state, setPoint);
         setTap(state, getExtendable().computeTapPosition(setPoint));
     }
+
+    @Override
+    public String getName() {
+        return "PstRangeResult";
+    }
 }
