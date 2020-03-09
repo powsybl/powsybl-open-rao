@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The Crac can contain several variants of results.
@@ -79,5 +80,17 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         //        {variantId}
 
         variants.remove(variantId);
+    }
+
+    /**
+     * Computes a string that is not present in the set, creates a new variant from that string, and returns the string.
+     */
+    public String createNewUniqueVariant() {
+        String s = "";
+        do {
+            s = UUID.randomUUID().toString();
+        } while (variants.contains(s));
+        createVariant(s);
+        return s;
     }
 }

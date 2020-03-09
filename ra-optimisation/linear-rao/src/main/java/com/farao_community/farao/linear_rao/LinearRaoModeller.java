@@ -8,6 +8,7 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
 import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;
@@ -59,14 +60,14 @@ public class LinearRaoModeller {
         fillerList.forEach(AbstractProblemFiller::update);
     }
 
-    public RaoComputationResult solve() {
+    public RaoComputationResult solve(String resultVariant) {
         Enum solverResultStatus = linearRaoProblem.solve();
         RaoComputationResult raoComputationResult;
         String solverResultStatusString = solverResultStatus.name();
         if (solverResultStatusString.equals("OPTIMAL")) {
             RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
             raoComputationResult = new RaoComputationResult(status);
-            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult));
+            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult, resultVariant));
         } else {
             RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
             raoComputationResult = new RaoComputationResult(status);
