@@ -8,7 +8,6 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
 import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;

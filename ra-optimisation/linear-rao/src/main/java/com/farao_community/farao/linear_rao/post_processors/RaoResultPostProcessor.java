@@ -9,7 +9,6 @@ package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -54,7 +53,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                         if (approximatedPostOptimTap != preOptimTap) {
                             PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, approximatedPostOptimAngle, approximatedPostOptimTap);
                             remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
-                            ((PstRangeResult) rangeAction.getExtension(PstRangeResult.class)).setSetPoint(linearRaoData.getCrac().getPreventiveState(),approximatedPostOptimTap);
+                            ((PstRangeResult) rangeAction.getExtension(PstRangeResult.class)).setSetPoint(linearRaoData.getCrac().getPreventiveState(), approximatedPostOptimTap);
                         }
                     }
                 }

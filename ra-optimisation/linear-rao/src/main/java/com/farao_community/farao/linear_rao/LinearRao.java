@@ -23,7 +23,6 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
