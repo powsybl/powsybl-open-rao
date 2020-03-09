@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
     })
-public abstract class AbstractElementaryRangeAction extends AbstractRemedialAction implements RangeAction {
+public abstract class AbstractElementaryRangeAction<I extends RangeAction<I>> extends AbstractRemedialAction<I> implements RangeAction<I> {
     protected List<Range> ranges;
     protected NetworkElement networkElement;
 

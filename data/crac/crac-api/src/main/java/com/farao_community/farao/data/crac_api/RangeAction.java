@@ -21,7 +21,7 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface RangeAction extends RemedialAction, Synchronizable {
+public interface RangeAction<I extends RangeAction<I>> extends RemedialAction, Synchronizable, Identifiable<I> {
 
     double getMinValue(Network network);
 

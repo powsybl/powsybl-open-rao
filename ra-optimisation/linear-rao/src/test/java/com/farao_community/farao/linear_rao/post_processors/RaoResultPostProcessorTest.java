@@ -50,6 +50,7 @@ public class RaoResultPostProcessorTest {
 
         Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        crac.synchronize(network);
 
         // Arrange linearRaoData
         linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
