@@ -7,47 +7,45 @@
 package com.farao_community.farao.data.crac_result_extensions.json;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultsExtension;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(ExtensionsHandler.CnecExtensionSerializer.class)
-public class JsonCnecResult implements ExtensionsHandler.CnecExtensionSerializer<CnecResult> {
+public class JsonCnecResultsExtension implements ExtensionsHandler.CnecExtensionSerializer<CnecResultsExtension> {
 
     @Override
-    public void serialize(CnecResult cnecResults, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(CnecResultsExtension cnecResults, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("flowInMW", cnecResults.getFlowInMW());
-        jsonGenerator.writeNumberField("flowInA", cnecResults.getFlowInA());
+        jsonGenerator.writeObjectField("cnecResults", cnecResults.getCnecResultMap());
         jsonGenerator.writeEndObject();
 
     }
 
     @Override
-    public CnecResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public CnecResultsExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        double flowInMW = Double.NaN;
-        double flowInA = Double.NaN;
+        CnecResultsExtension cnecResultsExtension = new CnecResultsExtension();
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "flowInMW":
+                case "cnecResults":
                     jsonParser.nextToken();
-                    flowInMW = jsonParser.getDoubleValue();
-                    break;
-
-                case "flowInA":
-                    jsonParser.nextToken();
-                    flowInA = jsonParser.getDoubleValue();
+                    Map<String, CnecResult> resultMap = jsonParser.readValueAs(new TypeReference<Map<String, CnecResult>>() {
+                    });
+                    resultMap.forEach(cnecResultsExtension::addVariant);
                     break;
 
                 default:
@@ -55,12 +53,12 @@ public class JsonCnecResult implements ExtensionsHandler.CnecExtensionSerializer
             }
         }
 
-        return new CnecResult(flowInMW, flowInA);
+        return cnecResultsExtension;
     }
 
     @Override
     public String getExtensionName() {
-        return "CnecResult";
+        return "CnecResultsExtension";
     }
 
     @Override
@@ -69,8 +67,10 @@ public class JsonCnecResult implements ExtensionsHandler.CnecExtensionSerializer
     }
 
     @Override
-    public Class<? super CnecResult> getExtensionClass() {
-        return CnecResult.class;
+    public Class<? super CnecResultsExtension> getExtensionClass() {
+        return CnecResultsExtension.class;
     }
-
 }
+
+
+
