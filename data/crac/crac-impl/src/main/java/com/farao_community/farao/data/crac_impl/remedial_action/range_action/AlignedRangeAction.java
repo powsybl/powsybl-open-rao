@@ -86,20 +86,13 @@ public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeActio
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        // to implement
-        return TEMP_VALUE_ARA;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        // to implement
-        return TEMP_VALUE_ARA;
-    }
-
-    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         // to implement
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
         return TEMP_VALUE_ARA;
     }
 
