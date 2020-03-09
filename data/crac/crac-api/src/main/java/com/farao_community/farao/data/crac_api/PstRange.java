@@ -10,5 +10,5 @@ public interface PstRange extends RangeAction {
 
     int computeTapPosition(double finalAngle, PhaseTapChanger phaseTapChanger);
 
-    double getCurrentValue(Network network, RangeDefinition rangeDefinition);
+    int getCurrentTapPosition(Network network, RangeDefinition rangeDefinition);
 }

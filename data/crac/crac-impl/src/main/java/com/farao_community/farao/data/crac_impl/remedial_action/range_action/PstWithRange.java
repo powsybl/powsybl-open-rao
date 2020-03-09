@@ -126,27 +126,31 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
         double minValue = range.getMin();
-        return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentValue(network), minValue)));
+        return convertTapToAngle(network, Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
     }
 
     @Override
     protected double getMaxValueWithRange(Network network, Range range) {
         double maxValue = range.getMax();
-        return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentValue(network), maxValue)));
+        return convertTapToAngle(network, Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
     }
 
     @Override
     public double getCurrentValue(Network network) {
-        return network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger().getTapPosition();
+        return convertTapToAngle(network, getCurrentTapPosition(network));
+    }
+
+    private int getCurrentTapPosition(Network network) {
+        return checkValidPstAndGetPhaseTapChanger(network).getTapPosition();
     }
 
     @Override
-    public double getCurrentValue(Network network, RangeDefinition requestedRangeDefinition) {
+    public int getCurrentTapPosition(Network network, RangeDefinition requestedRangeDefinition) {
         switch (requestedRangeDefinition) {
             case STARTS_AT_ONE:
-                return convertToStartsAtOne(getCurrentValue(network));
+                return convertToStartsAtOne(getCurrentTapPosition(network));
             case CENTERED_ON_ZERO:
-                return convertToCenteredOnZero(getCurrentValue(network));
+                return convertToCenteredOnZero(getCurrentTapPosition(network));
             default:
                 throw new FaraoException("Unknown range definition");
         }
@@ -155,7 +159,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     /**
      * Conversion from any (implicit) to STARTS_AT_ONE
      */
-    private double convertToStartsAtOne(double tap) {
+    private int convertToStartsAtOne(int tap) {
         if (highTapPosition == -lowTapPosition) { // the tap is CENTERED_ON_ZERO in the network
             return tap + highTapPosition + 1;
         } else if (lowTapPosition == 1) { // the tap STARTS_AT_ONE in the network
@@ -168,11 +172,11 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     /**
      * Conversion from any (implicit) to CENTERED_ON_ZERO
      */
-    private double convertToCenteredOnZero(double tap) {
+    private int convertToCenteredOnZero(int tap) {
         if (lowTapPosition == -highTapPosition) { // the tap is CENTERED_ON_ZERO in the network
             return tap;
         } else if (lowTapPosition == 1) { // the tap STARTS_AT_ONE in the network
-            return tap - Math.ceil(((double) highTapPosition + 1) / 2);
+            return tap - (int) Math.ceil(((double) highTapPosition + 1) / 2);
         } else {
             throw new FaraoException(String.format("Unhandled range definition, between %s and %s.", lowTapPosition, highTapPosition));
         }

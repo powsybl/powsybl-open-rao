@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.FieldSetter;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 /**
@@ -185,29 +184,33 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -16);
         FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 16);
 
-        doReturn(0.0).when(pstWithRange).getCurrentValue(network);
-        assertEquals(0, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
-        assertEquals(17, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+        pstWithRange.apply(network, 0.0); // tap 0 (CENTERED_ON_ZERO)
+        assertEquals(0, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(17, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE), 0);
 
-        doReturn(10.0).when(pstWithRange).getCurrentValue(network);
-        assertEquals(10, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
-        assertEquals(27, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+        pstWithRange.apply(network, 3.8946); // tap 10 (CENTERED_ON_ZERO)
+        assertEquals(10, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(27, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE), 0);
     }
 
     @Test
     public void computeCurrentValueFromStartsAtOne() throws NoSuchFieldException {
         PstWithRange pstWithRange = spy(pst);
 
+        // As the network contains taps CENTERED_ON_ZERO, but we want to test the case where the taps STARTS_AT_ONE,
+        // we artifically modify the lowTapPosition and highTapPosition, and we need also to shift the taps in the assertEquals,
+        // because the conversion from angle to tap is based on the network (so it gives a tap CENTERED_ON_ZERO)
+        int tapShift = 17;
         FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), 1);
         FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 33);
 
-        doReturn(17.0).when(pstWithRange).getCurrentValue(network);
-        assertEquals(0, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
-        assertEquals(17, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+        pstWithRange.apply(network, 0.0); // tap 17 (STARTS_AT_ONE)
+        assertEquals(0, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO) + tapShift, 0);
+        assertEquals(17, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE) + tapShift, 0);
 
-        doReturn(7.0).when(pstWithRange).getCurrentValue(network);
-        assertEquals(-10, pstWithRange.getCurrentValue(network, RangeDefinition.CENTERED_ON_ZERO), 0);
-        assertEquals(7, pstWithRange.getCurrentValue(network, RangeDefinition.STARTS_AT_ONE), 0);
+        pstWithRange.apply(network, -3.8946); // tap 7 (STARTS_AT_ONE)
+        assertEquals(-10, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO) + tapShift, 0);
+        assertEquals(7, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE) + tapShift, 0);
     }
 
     @Test
