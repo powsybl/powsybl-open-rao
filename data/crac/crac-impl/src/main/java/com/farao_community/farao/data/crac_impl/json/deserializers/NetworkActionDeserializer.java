@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.P
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -166,8 +167,11 @@ final class NetworkActionDeserializer {
                     name = jsonParser.nextTextValue();
                     break;
 
-                case NETWORK_ELEMENT:
-                    networkElementId = jsonParser.nextTextValue();
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
+                    networkElementId = networkElementsIds.get(0);
                     break;
 
                 default:
@@ -223,6 +227,12 @@ final class NetworkActionDeserializer {
 
                 case NAME:
                     name = jsonParser.nextTextValue();
+                    break;
+
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
                     break;
 
                 default:
