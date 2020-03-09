@@ -29,7 +29,7 @@ import java.util.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("aligned-range-action")
-public class AlignedRangeAction extends AbstractRemedialAction implements RangeAction {
+public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
 
     public static final int TEMP_VALUE_ARA = 0;
 
@@ -86,20 +86,13 @@ public class AlignedRangeAction extends AbstractRemedialAction implements RangeA
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        // to implement
-        return TEMP_VALUE_ARA;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        // to implement
-        return TEMP_VALUE_ARA;
-    }
-
-    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         // to implement
+        return TEMP_VALUE_ARA;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
         return TEMP_VALUE_ARA;
     }
 

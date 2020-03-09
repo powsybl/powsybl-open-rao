@@ -24,7 +24,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("hvdc-range")
-public final class HvdcRange extends AbstractElementaryRangeAction {
+public final class HvdcRange extends AbstractElementaryRangeAction<HvdcRange> {
 
     protected static int hvdcRangeTempValue = 0;
 
@@ -55,21 +55,12 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        return Math.abs(getMinValue(network) - getCurrentSetpoint(network));
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        return Math.abs(getMaxValue(network) - getCurrentSetpoint(network));
-    }
-
-    @Override
     public void apply(Network network, double setpoint) {
         throw new UnsupportedOperationException();
     }
 
-    public double getCurrentSetpoint(Network network) {
+    @Override
+    public double getCurrentValue(Network network) {
         HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
         return hvdcLine.getActivePowerSetpoint();
     }
