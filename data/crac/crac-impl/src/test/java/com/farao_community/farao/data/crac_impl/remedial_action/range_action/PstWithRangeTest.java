@@ -220,6 +220,30 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     }
 
     @Test
+    public void convertToStartsAtOneFails() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -12);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 35);
+        try {
+            pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE);
+        } catch (FaraoException e) {
+            assertEquals("Unhandled range definition, between -12 and 35.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void convertToCenteredOnZero() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -12);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 35);
+        try {
+            pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO);
+        } catch (FaraoException e) {
+            assertEquals("Unhandled range definition, between -12 and 35.", e.getMessage());
+        }
+    }
+
+    @Test
     public void getMinValueWithNoSynchronizationFails() {
         try {
             pst.getMinValue(network);
