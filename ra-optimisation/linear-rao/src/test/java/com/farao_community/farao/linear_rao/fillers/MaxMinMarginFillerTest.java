@@ -47,14 +47,12 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     private void fillProblemWithFiller() throws IOException {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         byte[] inputBytes = IOUtils.toByteArray(getClass().getResourceAsStream("/small-sensi-results-1.json"));
         SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(new ByteArrayInputStream(inputBytes)));
 
         // complete the mock of linearRaoData
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(linearRaoData.getCurrentValue(rangeAction)).thenReturn(currentAlpha);
         when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
 
         // fill the problem : the core filler is required

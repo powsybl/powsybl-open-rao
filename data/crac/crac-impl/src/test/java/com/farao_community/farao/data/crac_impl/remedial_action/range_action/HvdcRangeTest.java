@@ -12,7 +12,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,16 +65,5 @@ public class HvdcRangeTest extends AbstractElementaryRangeActionTest {
         Range range1 = Mockito.mock(Range.class);
         hvdcRange.addRange(range1);
         assertEquals(2, hvdcRange.ranges.size(), 0);
-    }
-
-    @Test
-    public void getMaxNegaPosVariation() {
-        Network mockedNetwork = Mockito.mock(Network.class);
-        HvdcLine mockedHvdcLine = Mockito.mock(HvdcLine.class);
-        Mockito.when(mockedNetwork.getHvdcLine(mockedHvdcLine.getId())).thenReturn(mockedHvdcLine);
-        Mockito.when(mockedHvdcLine.getActivePowerSetpoint()).thenReturn(10.);
-
-        assertEquals(10,  hvdcRange.getMaxNegativeVariation(mockedNetwork), 0);
-        assertEquals(10,  hvdcRange.getMaxPositiveVariation(mockedNetwork), 0);
     }
 }

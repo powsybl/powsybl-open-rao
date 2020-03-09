@@ -150,7 +150,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             }
 
             double sensitivity = rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(cnec.getState()), cnec);
-            double currentSetPoint = linearRaoData.getCurrentValue(rangeAction);
+            double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
 
@@ -171,7 +171,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      */
     private void buildRangeActionConstraints() {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
-            double initialSetPoint = linearRaoData.getCurrentValue(rangeAction);
+            double initialSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
             MPConstraint varConstraintNegative = linearRaoProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);
             MPConstraint varConstraintPositive = linearRaoProblem.addAbsoluteRangeActionVariationConstraint(initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.POSITIVE);
 
