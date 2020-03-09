@@ -20,7 +20,7 @@ public class CnecResultsExtensionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testOk() {
+    public void testVariantManagementOk() {
         CnecResultsExtension cnecResultsExtension = new CnecResultsExtension();
 
         // test variant addition

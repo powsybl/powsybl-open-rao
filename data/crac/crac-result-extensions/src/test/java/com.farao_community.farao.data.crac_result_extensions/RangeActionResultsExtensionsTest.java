@@ -23,30 +23,30 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionResultsExtensionsTest {
+public class RangeActionResultsExtensionsTest {
 
     @Test
     public void testVariantManagementOk() {
-        NetworkActionResultsExtension networkActionResultsExtension = new NetworkActionResultsExtension();
+        RangeActionResultsExtension rangeActionResultsExtension = new RangeActionResultsExtension();
 
         Set<State> stateSet = Collections.singleton(new SimpleState(Optional.empty(), new Instant("N", 0)));
 
         // test variant addition
-        networkActionResultsExtension.addVariant("variant-before-opt", new NetworkActionResult(stateSet));
-        networkActionResultsExtension.addVariant("variant-after-opt", new NetworkActionResult(stateSet));
+        rangeActionResultsExtension.addVariant("variant-before-opt", new RangeActionResult(stateSet));
+        rangeActionResultsExtension.addVariant("variant-after-opt", new RangeActionResult(stateSet));
 
-        assertNotNull(networkActionResultsExtension.getVariant("variant-before-opt"));
-        assertNotNull(networkActionResultsExtension.getVariant("variant-after-opt"));
-        assertNull(networkActionResultsExtension.getVariant("variant-not-created"));
+        assertNotNull(rangeActionResultsExtension.getVariant("variant-before-opt"));
+        assertNotNull(rangeActionResultsExtension.getVariant("variant-after-opt"));
+        assertNull(rangeActionResultsExtension.getVariant("variant-not-created"));
 
         // test variant deletion
-        networkActionResultsExtension.deleteVariant("variant-before-opt");
-        assertNull(networkActionResultsExtension.getVariant("variant-before-opt"));
+        rangeActionResultsExtension.deleteVariant("variant-before-opt");
+        assertNull(rangeActionResultsExtension.getVariant("variant-before-opt"));
     }
 
     @Test
     public void getName() {
-        NetworkActionResultsExtension networkActionResultsExtension = new NetworkActionResultsExtension();
-        assertEquals("NetworkActionResultsExtension", networkActionResultsExtension.getName());
+        RangeActionResultsExtension rangeActionResultsExtension = new RangeActionResultsExtension();
+        assertEquals("RangeActionResultsExtension", rangeActionResultsExtension.getName());
     }
 }
