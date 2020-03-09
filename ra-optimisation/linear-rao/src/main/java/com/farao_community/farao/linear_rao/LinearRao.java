@@ -10,9 +10,11 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
@@ -184,7 +186,7 @@ public class LinearRao implements RaoProvider {
     }
 
     private void updateRangeActionExtension(Crac crac, RemedialActionResult remedialActionResult) {
-        RangeActionResult rangeActionResultExtension = crac.getRangeAction(remedialActionResult.getId()).getExtensions(RangeActionResult.class);
+        RangeActionResult rangeActionResultExtension = (RangeActionResult) crac.getRangeAction(remedialActionResult.getId()).getExtension(RangeActionResult.class);
         rangeActionResultExtension.setSetPoint(crac.getPreventiveState(), getRemedialActionResultPostOptimisationValue(remedialActionResult));
     }
 
