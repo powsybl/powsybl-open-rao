@@ -215,6 +215,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     @Test
     public void getCurrentValueTest() {
+        pst.synchronize(network);
         assertEquals(0, pst.getCurrentValue(network), 0);
     }
 
