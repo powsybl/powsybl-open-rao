@@ -35,4 +35,10 @@ public class CnecResultsExtensionTest {
         cnecResultsExtension.deleteVariant("variant-before-opt");
         assertNull(cnecResultsExtension.getVariant("variant-before-opt"));
     }
+
+    @Test
+    public void getName() {
+        CnecResultsExtension cnecResultsExtension = new CnecResultsExtension();
+        assertEquals("CnecResultsExtension", cnecResultsExtension.getName());
+    }
 }

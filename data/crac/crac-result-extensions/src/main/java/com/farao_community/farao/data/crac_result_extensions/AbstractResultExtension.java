@@ -17,11 +17,11 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public abstract class ResultExtension<T extends Identifiable, S> extends AbstractExtension<T> {
+public abstract class AbstractResultExtension<T extends Identifiable, S> extends AbstractExtension<T> {
 
     private Map<String, S> resultMap;
 
-    public ResultExtension() {
+    public AbstractResultExtension() {
         resultMap = new HashMap<>();
     }
 
