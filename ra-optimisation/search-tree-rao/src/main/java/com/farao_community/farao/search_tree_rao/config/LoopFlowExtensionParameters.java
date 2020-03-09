@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class LoopFlowExtensionParameters  extends AbstractExtension<RaoParameters> {
 
-    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW = true;
+    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW = false;//loop flow is for CORE D2CC, default value set to false
 
     private boolean raoWithLoopFlow = DEFAULT_RAO_WITH_LOOP_FLOW;
 

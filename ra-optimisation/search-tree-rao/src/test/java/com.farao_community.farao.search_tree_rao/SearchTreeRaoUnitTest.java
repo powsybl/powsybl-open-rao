@@ -90,6 +90,7 @@ public class SearchTreeRaoUnitTest {
         SearchTreeRaoParameters searchTreeRaoParameters = Mockito.mock(SearchTreeRaoParameters.class);
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         LoopFlowExtensionParameters loopFlowExtensionParameters = new LoopFlowExtensionParameters();
+        loopFlowExtensionParameters.setRaoWithLoopFlow(true);
         assertTrue(loopFlowExtensionParameters.isRaoWithLoopFlow());
         parameters.addExtension(LoopFlowExtensionParameters.class, loopFlowExtensionParameters);
         List<String> emptyList = new ArrayList<>();
