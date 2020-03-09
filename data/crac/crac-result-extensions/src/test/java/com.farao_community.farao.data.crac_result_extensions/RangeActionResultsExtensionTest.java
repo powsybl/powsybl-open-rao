@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeActionResultsExtensionsTest {
+public class RangeActionResultsExtensionTest {
 
     @Test
     public void testVariantManagementOk() {
