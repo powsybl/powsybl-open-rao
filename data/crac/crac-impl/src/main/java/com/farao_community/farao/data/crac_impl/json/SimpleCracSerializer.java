@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
@@ -28,9 +29,24 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
 
     @Override
     public void serialize(SimpleCrac simpleCrac, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        ObjectWriter objectWriter = JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter();
-        objectWriter.writeValue(jsonGenerator, simpleCrac);
-        JsonUtil.writeExtensions(simpleCrac, jsonGenerator, serializerProvider, ExtensionsHandler.getCracExtensionSerializers());
+
+        jsonGenerator.writeStringField("id", simpleCrac.getId());
+        jsonGenerator.writeStringField("name", simpleCrac.getName());
+        jsonGenerator.writeObjectField("networkElements", simpleCrac.getNetworkElements());
+        jsonGenerator.writeObjectField("instants", simpleCrac.getInstants());
+        jsonGenerator.writeObjectField("contingencies", simpleCrac.getContingencies());
+        jsonGenerator.writeObjectField("states", simpleCrac.getStates());
+
+
+        jsonGenerator.writeFieldName("cnecs");
+        jsonGenerator.writeStartArray();
+        for (Cnec cnec: simpleCrac.getCnecs()) {
+            jsonGenerator.writeObject(cnec);
+        }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeObjectField("rangeActions", simpleCrac.getRangeActions());
+        jsonGenerator.writeObjectField("networkActions", simpleCrac.getNetworkActions());
     }
 
     @Override

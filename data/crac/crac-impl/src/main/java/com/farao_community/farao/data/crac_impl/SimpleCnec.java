@@ -28,6 +28,7 @@ import java.util.Set;
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIdentityReference(alwaysAsId = true)
 public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
+
     private NetworkElement networkElement;
     private Set<AbstractThreshold> thresholds;
     private State state;
