@@ -55,17 +55,12 @@ public class Countertrading extends AbstractRemedialAction<Countertrading> imple
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        return TEMP_VALUE;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        return TEMP_VALUE;
-    }
-
-    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        return TEMP_VALUE;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
         return TEMP_VALUE;
     }
 

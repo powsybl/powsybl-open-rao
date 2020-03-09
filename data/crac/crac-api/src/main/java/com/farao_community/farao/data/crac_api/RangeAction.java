@@ -27,11 +27,9 @@ public interface RangeAction<I extends RangeAction<I>> extends RemedialAction, S
 
     double getMaxValue(Network network);
 
-    double getMaxNegativeVariation(Network network);
-
-    double getMaxPositiveVariation(Network network);
-
     double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec);
+
+    double getCurrentValue(Network network);
 
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);

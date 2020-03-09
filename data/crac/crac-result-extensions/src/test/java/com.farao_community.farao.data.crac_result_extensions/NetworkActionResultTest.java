@@ -25,8 +25,6 @@ import static org.junit.Assert.assertFalse;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class NetworkActionResultTest {
-    private static final double EPSILON = 0.01;
-
     private NetworkActionResult networkActionResult;
     private Set<State> states;
     private State initialState;

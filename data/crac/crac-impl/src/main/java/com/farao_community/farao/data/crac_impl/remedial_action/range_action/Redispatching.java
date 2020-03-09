@@ -128,20 +128,13 @@ public final class Redispatching extends AbstractElementaryRangeAction<Redispatc
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        // to implement - specific to Redispatching
-        return TEMP_VALUE_REDISPATCH;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        // to implement - specific to Redispatching
-        return TEMP_VALUE_REDISPATCH;
-    }
-
-    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
         // to implement - specific to Redispatching
+        return TEMP_VALUE_REDISPATCH;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
         return TEMP_VALUE_REDISPATCH;
     }
 
