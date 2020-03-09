@@ -18,8 +18,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.FieldSetter;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -176,32 +178,78 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     }
 
     @Test
+    public void computeCurrentValueFromCenteredOnZero() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -16);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 16);
+
+        pstWithRange.apply(network, 0.0); // tap 0 (CENTERED_ON_ZERO)
+        assertEquals(0, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(17, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE), 0);
+
+        pstWithRange.apply(network, 3.8946); // tap 10 (CENTERED_ON_ZERO)
+        assertEquals(10, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO), 0);
+        assertEquals(27, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE), 0);
+    }
+
+    @Test
+    public void computeCurrentValueFromStartsAtOne() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+
+        // As the network contains taps CENTERED_ON_ZERO, but we want to test the case where the taps STARTS_AT_ONE,
+        // we artifically modify the lowTapPosition and highTapPosition, and we need also to shift the taps in the assertEquals,
+        // because the conversion from angle to tap is based on the network (so it gives a tap CENTERED_ON_ZERO)
+        int tapShift = 17;
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), 1);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 33);
+
+        pstWithRange.apply(network, 0.0); // tap 17 (STARTS_AT_ONE)
+        assertEquals(0, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO) + tapShift, 0);
+        assertEquals(17, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE) + tapShift, 0);
+
+        pstWithRange.apply(network, -3.8946); // tap 7 (STARTS_AT_ONE)
+        assertEquals(-10, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO) + tapShift, 0);
+        assertEquals(7, pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE) + tapShift, 0);
+    }
+
+    @Test
+    public void getCurrentValueTest() {
+        pst.synchronize(network);
+        assertEquals(0, pst.getCurrentValue(network), 0);
+    }
+
+    @Test
+    public void convertToStartsAtOneFails() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -12);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 35);
+        try {
+            pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE);
+        } catch (FaraoException e) {
+            assertEquals("Unhandled range definition, between -12 and 35.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void convertToCenteredOnZero() throws NoSuchFieldException {
+        PstWithRange pstWithRange = spy(pst);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -12);
+        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 35);
+        try {
+            pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO);
+        } catch (FaraoException e) {
+            assertEquals("Unhandled range definition, between -12 and 35.", e.getMessage());
+        }
+    }
+
+    @Test
     public void getMinValueWithNoSynchronizationFails() {
         try {
             pst.getMinValue(network);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
-        }
-    }
-
-    @Test
-    public void getMaxNegativeVariationWithNoSynchronizationFails() {
-        try {
-            pst.getMaxNegativeVariation(network);
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
-        }
-    }
-
-    @Test
-    public void getMaxPositiveVariationWithNoSynchronizationFails() {
-        try {
-            pst.getMaxPositiveVariation(network);
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its max value cannot be accessed", e.getMessage());
         }
     }
 

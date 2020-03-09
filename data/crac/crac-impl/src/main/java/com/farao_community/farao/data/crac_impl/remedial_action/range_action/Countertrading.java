@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("countertrading")
-public class Countertrading extends AbstractRemedialAction implements RangeAction {
+public class Countertrading extends AbstractRemedialAction<Countertrading> implements RangeAction<Countertrading> {
 
     public static final int TEMP_VALUE = 0;
 
@@ -55,17 +55,12 @@ public class Countertrading extends AbstractRemedialAction implements RangeActio
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        return TEMP_VALUE;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        return TEMP_VALUE;
-    }
-
-    @Override
     public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        return TEMP_VALUE;
+    }
+
+    @Override
+    public double getCurrentValue(Network network) {
         return TEMP_VALUE;
     }
 

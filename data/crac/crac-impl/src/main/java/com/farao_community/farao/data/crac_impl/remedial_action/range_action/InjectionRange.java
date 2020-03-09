@@ -23,7 +23,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-range")
-public final class InjectionRange extends AbstractElementaryRangeAction {
+public final class InjectionRange extends AbstractElementaryRangeAction<InjectionRange> {
 
     protected static int injectionRangeTempValue = 0;
 
@@ -59,14 +59,7 @@ public final class InjectionRange extends AbstractElementaryRangeAction {
     }
 
     @Override
-    public double getMaxNegativeVariation(Network network) {
-        // to implement - specific to InjectionRange
-        return injectionRangeTempValue;
-    }
-
-    @Override
-    public double getMaxPositiveVariation(Network network) {
-        // to implement - specific to InjectionRange
+    public double getCurrentValue(Network network) {
         return injectionRangeTempValue;
     }
 }
