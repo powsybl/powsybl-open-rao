@@ -27,7 +27,8 @@ public interface RaoProvider extends Versionable {
      * @param variantId: ID of the current network variant.
      * @param computationManager: Computation configuration.
      * @param parameters: RAO parameters.
+     * @param resultVariantId: ID of the result variant which will be filled by the RAO.
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
-    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters);
+    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters, String resultVariantId);
 }
