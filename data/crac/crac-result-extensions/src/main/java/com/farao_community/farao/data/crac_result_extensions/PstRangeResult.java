@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResult extends RangeActionResult implements Result<PstRange> {
+public class PstRangeResult extends RangeActionResult<PstRange> {
 
     private Map<State, Integer> tapPerStates;
 
@@ -34,5 +34,4 @@ public class PstRangeResult extends RangeActionResult implements Result<PstRange
     public void setTap(State state, int tap) {
         tapPerStates.put(state, tap);
     }
-
 }
