@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
@@ -50,7 +49,7 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
             Objects.requireNonNull(network, "network should not be null");
             Objects.requireNonNull(crac, "crac should not be null");
             Objects.requireNonNull(variantId, "variantId should not be null");
@@ -58,23 +57,23 @@ public final class Rao {
             return provider.run(network, crac, variantId, computationManager, parameters);
         }
 
-        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
             return runAsync(network, crac, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
         }
 
-        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
             return runAsync(network, crac, LocalComputationManager.getDefault(), parameters);
         }
 
-        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String variantId) {
+        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String variantId) {
             return runAsync(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
         }
 
-        public CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac) {
+        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac) {
             return runAsync(network, crac, RaoParameters.load());
         }
 
-        public RaoComputationResult run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+        public RaoResult run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
             Objects.requireNonNull(network, "network should not be null");
             Objects.requireNonNull(crac, "crac should not be null");
             Objects.requireNonNull(variantId, "variantId should not be null");
@@ -82,19 +81,19 @@ public final class Rao {
             return provider.run(network, crac, variantId, computationManager, parameters).join();
         }
 
-        public RaoComputationResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
+        public RaoResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
             return run(network, crac, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
         }
 
-        public RaoComputationResult run(Network network, Crac crac, RaoParameters parameters) {
+        public RaoResult run(Network network, Crac crac, RaoParameters parameters) {
             return run(network, crac, LocalComputationManager.getDefault(), parameters);
         }
 
-        public RaoComputationResult run(Network network, Crac crac, String variantId) {
+        public RaoResult run(Network network, Crac crac, String variantId) {
             return run(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
         }
 
-        public RaoComputationResult run(Network network, Crac crac) {
+        public RaoResult run(Network network, Crac crac) {
             return run(network, crac, RaoParameters.load());
         }
 
@@ -175,35 +174,35 @@ public final class Rao {
         return new Runner(provider);
     }
 
-    public static CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
+    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
         return find().runAsync(network, crac, workingStateId, computationManager, parameters);
     }
 
-    public static CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
+    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
         return find().runAsync(network, crac, computationManager, parameters);
     }
 
-    public static CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
+    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
         return find().runAsync(network, crac, parameters);
     }
 
-    public static CompletableFuture<RaoComputationResult> runAsync(Network network, Crac crac) {
+    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac) {
         return find().runAsync(network, crac);
     }
 
-    public static RaoComputationResult run(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
+    public static RaoResult run(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
         return find().run(network, crac, workingStateId, computationManager, parameters);
     }
 
-    public static RaoComputationResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
+    public static RaoResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
         return find().run(network, crac, computationManager, parameters);
     }
 
-    public static RaoComputationResult run(Network network, Crac crac, RaoParameters parameters) {
+    public static RaoResult run(Network network, Crac crac, RaoParameters parameters) {
         return find().run(network, crac, parameters);
     }
 
-    public static RaoComputationResult run(Network network, Crac crac) {
+    public static RaoResult run(Network network, Crac crac) {
         return find().run(network, crac);
     }
 }

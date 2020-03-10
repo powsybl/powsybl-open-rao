@@ -8,9 +8,9 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
@@ -37,7 +37,7 @@ public class SearchTreeRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
 
         // quality check
         List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters);
@@ -47,7 +47,7 @@ public class SearchTreeRao implements RaoProvider {
         crac.generateValidityReport(network);
 
         // run optimisation
-        RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
+        RaoResult result = Tree.search(network, crac, variantId, parameters).join();
         return CompletableFuture.completedFuture(result);
     }
 

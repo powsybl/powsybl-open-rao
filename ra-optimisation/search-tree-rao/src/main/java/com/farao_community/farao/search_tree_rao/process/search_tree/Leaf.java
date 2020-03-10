@@ -9,10 +9,11 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ class Leaf {
     /**
      * Impact of the network action
      */
-    private RaoComputationResult raoResult;
+    private RaoResult raoResult;
 
     /**
      * Status of the leaf's Network Action evaluation
@@ -101,7 +102,7 @@ class Leaf {
     /**
      * Rao results getter
      */
-    RaoComputationResult getRaoResult() {
+    RaoResult getRaoResult() {
         return raoResult;
     }
 
@@ -157,7 +158,7 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            RaoComputationResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant);
+            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant);
             this.raoResult = results;
             this.status = buildStatus(results);
             deleteVariant(network, leafNetworkVariant);
@@ -192,8 +193,8 @@ class Leaf {
         return SearchTreeConfigurationUtil.getSearchTreeParameters(parameters).getRangeActionRao();
     }
 
-    private Status buildStatus(RaoComputationResult results) {
-        if (results.getStatus().equals(RaoComputationResult.Status.SUCCESS)) {
+    private Status buildStatus(RaoResult results) {
+        if (results.getStatus().equals(RaoResult.Status.SUCCESS)) {
             return Status.EVALUATION_SUCCESS;
         } else {
             return Status.EVALUATION_ERROR;
@@ -211,10 +212,8 @@ class Leaf {
         return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPostOptimisationFlow());
     }
 
-    public double getCost() {
+    public double getCost(Crac crac) {
         Objects.requireNonNull(raoResult);
-        double preContingencyMargin = raoResult.getPreContingencyResult().getMonitoredBranchResults().stream().map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
-        double contingencyMargin = raoResult.getContingencyResults().stream().flatMap(contingencyResult -> contingencyResult.getMonitoredBranchResults().stream()).map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
-        return -StrictMath.min(preContingencyMargin, contingencyMargin);
+        return crac.getExtension(CracResult.class).getCost();
     }
 }
