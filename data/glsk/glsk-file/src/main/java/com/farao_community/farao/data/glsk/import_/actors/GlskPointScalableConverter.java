@@ -160,9 +160,9 @@ public final class GlskPointScalableConverter {
                     .map(network::getGenerator)
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
-          
+
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
-          
+
             //calculate factor of each generator
             generators.forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
             generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
@@ -174,7 +174,7 @@ public final class GlskPointScalableConverter {
                     .map(network::getLoad)
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
-          
+
             double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
             loads.forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalP));
             loads.forEach(load -> scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE)));
