@@ -73,9 +73,4 @@ public class NetworkActionResultTest {
         networkActionResult.deactivate(initialState);
         assertFalse(networkActionResult.isActivated(initialState));
     }
-
-    @Test
-    public void getName() {
-        assertEquals("NetworkActionResult", networkActionResult.getName());
-    }
 }

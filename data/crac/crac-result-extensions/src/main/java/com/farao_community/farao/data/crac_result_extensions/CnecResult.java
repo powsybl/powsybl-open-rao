@@ -8,18 +8,22 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CnecResult extends AbstractExtension<Cnec> {
+@JsonTypeName("cnec-result")
+public class CnecResult implements Result<Cnec> {
 
     private double flowInMW;
     private double flowInA;
 
-    public CnecResult(double flowInMW, double flowInA) {
+    @JsonCreator
+    public CnecResult(@JsonProperty("flowInMw") double flowInMW, @JsonProperty("flowInA") double flowInA) {
         this.flowInMW = flowInMW;
         this.flowInA = flowInA;
     }
@@ -29,24 +33,24 @@ public class CnecResult extends AbstractExtension<Cnec> {
         this.flowInA = Double.NaN;
     }
 
+    public CnecResult() {
+        this.flowInMW = Double.NaN;
+        this.flowInA = Double.NaN;
+    }
+
+    public void setFlowInMW(double flow) {
+        this.flowInMW = flow;
+    }
+
     public double getFlowInMW() {
         return flowInMW;
     }
 
+    public void setFlowInA(double flow) {
+        this.flowInA = flow;
+    }
+
     public double getFlowInA() {
         return flowInA;
-    }
-
-    public void setFlowInMW(double flow) {
-        flowInMW = flow;
-    }
-
-    public void setFlowInA(double flow) {
-        flowInA = flow;
-    }
-
-    @Override
-    public String getName() {
-        return "CnecResult";
     }
 }
