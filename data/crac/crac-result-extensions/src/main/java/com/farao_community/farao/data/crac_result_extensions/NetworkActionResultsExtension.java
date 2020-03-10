@@ -7,11 +7,18 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.State;
+
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class NetworkActionResultsExtension extends AbstractResultExtension<NetworkAction, NetworkActionResult> {
+
+    public NetworkActionResult addVariant(String newVariantId, Set<State> states) {
+        return addVariant(newVariantId, new NetworkActionResult(states));
+    }
 
     @Override
     public String getName() {

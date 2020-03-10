@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public abstract class AbstractResultExtension<T extends Identifiable, S> extends AbstractExtension<T> {
 
-    private Map<String, S> resultMap;
+    protected Map<String, S> resultMap;
 
     public AbstractResultExtension() {
         resultMap = new HashMap<>();
@@ -29,7 +29,7 @@ public abstract class AbstractResultExtension<T extends Identifiable, S> extends
         return resultMap.get(variantId);
     }
 
-    public Map<String, S> getCnecResultMap() {
+    public Map<String, ? extends S> getCnecResultMap() {
         return resultMap;
     }
 

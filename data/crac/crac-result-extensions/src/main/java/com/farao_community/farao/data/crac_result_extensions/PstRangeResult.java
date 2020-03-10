@@ -17,7 +17,8 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResult extends RangeActionResult<PstRange> {
+public class PstRangeResult extends RangeActionResult {
+
     private Map<State, Integer> tapPerStates;
 
     public PstRangeResult(Set<State> states) {
@@ -34,9 +35,10 @@ public class PstRangeResult extends RangeActionResult<PstRange> {
         tapPerStates.put(state, tap);
     }
 
+    /*
     @Override
     public void setSetPoint(State state, double setPoint) {
         super.setSetPoint(state, setPoint);
         setTap(state, getExtendable().computeTapPosition(setPoint));
-    }
+    }*/
 }

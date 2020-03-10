@@ -14,6 +14,10 @@ import com.farao_community.farao.data.crac_api.Crac;
  */
 public class CracResultsExtension extends AbstractResultExtension<Crac, CracResult> {
 
+    public CracResult addVariant(String newVariantId) {
+        return addVariant(newVariantId, new CracResult());
+    }
+
     @Override
     public String getName() {
         return "CracResultsExtension";

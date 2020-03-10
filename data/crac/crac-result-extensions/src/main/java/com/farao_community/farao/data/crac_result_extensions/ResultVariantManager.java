@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.State;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
@@ -59,10 +61,44 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             throw new FaraoException(String.format("Cannot create results variant with id [%s], as one with the same id already exists", variantId));
         }
 
-        // todo : if no Result extensions exists for the Cnecs, the Crac and the RemedialActions -> create one
-        // todo : in the Result extensions of the Cnec, Crac and RemedialActions, create a variant with id
-        //        {variantId} and default result values
+        Set<State> states = getExtendable().getStates();
 
+        // add CRAC result variant
+        if(getExtendable().getExtension(CracResult.class) == null) {
+            getExtendable().addExtension(CracResultsExtension.class, new CracResultsExtension());
+        }
+        getExtendable().getExtension(CracResultsExtension.class).addVariant(variantId);
+
+
+        // add CNEC result variant
+        getExtendable().getCnecs().forEach(cnec -> {
+            if(cnec.getExtension(CnecResultsExtension.class) == null) {
+                cnec.addExtension(CnecResultsExtension.class, new CnecResultsExtension());
+            }
+            cnec.getExtension(CnecResultsExtension.class).addVariant(variantId);
+        });
+
+        // add Network Action result variant
+        getExtendable().getNetworkActions().forEach(na -> {
+            if(na.getExtension(NetworkActionResultsExtension.class) == null) {
+                na.addExtension(NetworkActionResultsExtension.class, new NetworkActionResultsExtension());
+            }
+            na.getExtension(NetworkActionResultsExtension.class).addVariant(variantId, states);
+        });
+
+        // add Range Action result variant
+        getExtendable().getRangeActions().forEach(ra -> {
+            if(ra instanceof PstRange) {
+                PstRange pstRa = (PstRange) ra;
+                if (pstRa.getExtension(PstRangeResultsExtension.class) == null) {
+                    pstRa.addExtension(PstRangeResultsExtension.class, new PstRangeResultsExtension());
+                }
+                pstRa.getExtension(PstRangeResultsExtension.class).addVariant(variantId, states);
+            }
+            // other RangeActions than PstRange are not handled for now
+        });
+
+        // add variant in variant map
         variants.add(variantId);
     }
 
