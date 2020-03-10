@@ -12,6 +12,7 @@ import com.farao_community.farao.ra_optimisation.RaoComputation;
 import com.farao_community.farao.ra_optimisation.RaoComputationParameters;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.util.LoadFlowService;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.ortools.linearsolver.*;
 import com.powsybl.computation.ComputationManager;
@@ -32,7 +33,7 @@ public class ClosedOptimisationRao implements RaoComputation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClosedOptimisationRao.class);
 
     static {
-        System.loadLibrary("jniortools");
+        NativeLibraryLoader.loadNativeLibraries();
     }
 
     private Network network;

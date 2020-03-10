@@ -6,11 +6,13 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
-
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -61,11 +63,27 @@ public class TreeTest {
         assertEquals(115.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPreOptimisationFlow(), DOUBLE_TOLERANCE);
         assertEquals(98.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
 
-        assertEquals(1, result.getPreContingencyResult().getRemedialActionResults().size());
+        assertEquals(2, result.getPreContingencyResult().getRemedialActionResults().size());
         assertEquals("RA1", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());
+        assertEquals("PRA_PST_BE", result.getPreContingencyResult().getRemedialActionResults().get(1).getId());
 
         assertNotNull(result.getExtension(SearchTreeRaoResult.class));
         assertEquals(SearchTreeRaoResult.ComputationStatus.SECURE, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
         assertEquals(SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED, result.getExtension(SearchTreeRaoResult.class).getStopCriterion());
+    }
+
+    @Test
+    public void brokenRootSearchTest() {
+        Network network = Mockito.mock(Network.class);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        RaoComputationResult result;
+        try {
+            result = Tree.search(network, Mockito.mock(Crac.class), "", Mockito.mock(RaoParameters.class)).get();
+            assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
+            assertEquals(SearchTreeRaoResult.ComputationStatus.ERROR, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
+        } catch (Exception e) {
+            throw new AssertionError();
+        }
     }
 }

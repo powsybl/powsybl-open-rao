@@ -40,13 +40,12 @@ public final class SystematicSensitivityAnalysisService {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
-        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
+        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
 
         // 1. pre
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildFlowFromNetwork(network, crac, cnecMarginMap, cnecMaxThresholdMap, null);
+            buildFlowFromNetwork(network, crac, cnecFlowMap, null);
         }
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
         SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -54,29 +53,31 @@ public final class SystematicSensitivityAnalysisService {
 
         // 2. analysis for each contingency
         try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, initialVariantId)) {
-            variantsPool.submit(() -> crac.getContingencies().forEach(contingency -> {
-                try {
-                    String workingVariant = variantsPool.getAvailableVariant();
-                    network.getVariantManager().setWorkingVariant(workingVariant);
-                    applyContingencyInCrac(network, computationManager, contingency);
+            variantsPool.submit(() -> crac.getContingencies().stream()
+                    .filter(c -> crac.getStates(c).stream().mapToLong(s -> crac.getCnecs(s).size()).sum() > 0)
+                    .forEach(contingency -> {
+                        try {
+                            String workingVariant = variantsPool.getAvailableVariant();
+                            network.getVariantManager().setWorkingVariant(workingVariant);
+                            applyContingencyInCrac(network, computationManager, contingency);
 
-                    LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
-                    if (currentloadFlowResult.isOk()) {
-                        buildFlowFromNetwork(network, crac, cnecMarginMap, cnecMaxThresholdMap, contingency);
-                    }
+                            LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
+                            if (currentloadFlowResult.isOk()) {
+                                buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
+                            }
 
-                    SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
-                    crac.getStates(contingency).forEach(state -> {
-                        if (!stateSensiMap.containsKey(state)) {
-                            stateSensiMap.put(state, sensiResults);
+                            SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
+                            crac.getStates(contingency).forEach(state -> {
+                                if (!stateSensiMap.containsKey(state)) {
+                                    stateSensiMap.put(state, sensiResults);
+                                }
+                            });
+
+                            variantsPool.releaseUsedVariant(workingVariant);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
                         }
-                    });
-
-                    variantsPool.releaseUsedVariant(workingVariant);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            })).get();
+                    })).get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
@@ -84,10 +85,10 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
+        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
     }
 
-    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecMarginMap, Map<Cnec, Double> cnecMaxThresholdMap, Contingency contingency) {
+    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecFlowMap, Contingency contingency) {
         Set<State> states = new HashSet<>();
         if (contingency == null) {
             states.add(crac.getPreventiveState());
@@ -95,18 +96,9 @@ public final class SystematicSensitivityAnalysisService {
             states.addAll(crac.getStates(contingency));
         }
 
-        crac.synchronize(network);
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
-            try {
-                cnecMarginMap.put(cnec, cnec.computeMargin(network));
-                Optional<Double> maxThreshold = cnec.getThreshold().getMaxThreshold();
-                maxThreshold.ifPresent(threshold -> cnecMaxThresholdMap.put(cnec, threshold));
-            } catch (SynchronizationException | FaraoException e) {
-                //Hades config "hades2-default-parameters:" should be set to "dcMode: false"
-                LOGGER.error("Cannot get compute flow for cnec {} in network variant. {}.", cnec.getId(), e.getMessage());
-            }
+            cnecFlowMap.put(cnec, cnec.getP(network));
         }));
-        crac.desynchronize(); // To be sure it is always synchronized with the good network
     }
 
     private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
@@ -147,7 +139,7 @@ public final class SystematicSensitivityAnalysisService {
             crac.getCnecs().forEach(cnec -> {
                 String monitoredBranchId = cnec.getId();
                 String monitoredBranchName = cnec.getName();
-                String branchId = cnec.getCriticalNetworkElement().getId();
+                String branchId = cnec.getNetworkElement().getId();
                 BranchFlow branchFlow = new BranchFlow(monitoredBranchId, monitoredBranchName, branchId);
                 psts.forEach(twt -> {
                     String twtId = twt.getId();
@@ -158,7 +150,16 @@ public final class SystematicSensitivityAnalysisService {
             return factors;
         };
 
-        return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+        if (factorsProvider.getFactors(network).isEmpty()) {
+            return new SensitivityComputationResults(false, Collections.emptyMap(), "", new ArrayList<>());
+        }
+        try {
+            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+        } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+
     }
 
     private static boolean isPst(Network network, NetworkElement networkElement) {

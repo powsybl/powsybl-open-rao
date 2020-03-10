@@ -12,7 +12,9 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -27,6 +29,8 @@ import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +72,9 @@ public class SystematicSensitivityAnalysisServiceTest {
     @Test
     public void testSensiSAresult() {
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecMarginMap = new HashMap<>();
-        Map<Cnec, Double> cnecMaxThresholdMap = new HashMap<>();
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecMarginMap, cnecMaxThresholdMap);
+        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
         assertNotNull(result);
-        assertNotNull(result.getCnecMarginMap());
         assertNotNull(result.getStateSensiMap());
     }
 
@@ -87,8 +89,52 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        // Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl());
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Network network = (Network) args[0];
+                network.getBranches().forEach(branch -> {
+                    branch.getTerminal1().setP(120.);
+                    branch.getTerminal2().setP(120.);
+                }
+                    );
+                return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
+            }
+        }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        LoadFlowService.init(loadFlowRunner, computationManager);
+
         SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         assertNotNull(result);
+    }
+
+    @Test
+    public void testSensiSArunSensitivitySAFailure() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        // Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl());
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Network network = (Network) args[0];
+                network.getBranches().forEach(branch -> {
+                        branch.getTerminal1().setP(120.);
+                        branch.getTerminal2().setP(120.);
+                    }
+                );
+                return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
+            }
+        }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        LoadFlowService.init(loadFlowRunner, computationManager);
+        crac.addRangeAction(new PstWithRange("myPst", new NetworkElement(network.getTwoWindingsTransformers().iterator().next().getId())));
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        assertNotNull(result);
+
+        SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactoryBroken();
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
     }
 
     private static Crac create() {
@@ -116,23 +162,25 @@ public class SystematicSensitivityAnalysisServiceTest {
         State stateCurativeContingency2 = new SimpleState(Optional.of(contingency2), curative);
 
         // Thresholds
-        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 1500);
-        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.IN, 30);
+        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 1500);
+        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30);
 
+        Set<AbstractThreshold> thresholdsAbsFlow = Collections.singleton(thresholdAbsFlow);
+        Set<AbstractThreshold> thresholdsRelativeFlow = Collections.singleton(thresholdRelativeFlow);
         // CNECs
-        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, null, stateBasecase);
-        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, null, stateCurativeContingency1);
-        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, null, stateCurativeContingency2);
-        cnec1basecase.setThreshold(thresholdAbsFlow);
-        cnec1stateCurativeContingency1.setThreshold(thresholdAbsFlow);
-        cnec1stateCurativeContingency2.setThreshold(thresholdAbsFlow);
+        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdsAbsFlow, stateBasecase);
+        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency2);
+        cnec1basecase.setThresholds(thresholdsAbsFlow);
+        cnec1stateCurativeContingency1.setThresholds(thresholdsAbsFlow);
+        cnec1stateCurativeContingency2.setThresholds(thresholdsAbsFlow);
 
-        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, null, stateBasecase);
-        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, null, stateCurativeContingency1);
-        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, null, stateCurativeContingency2);
-        cnec2basecase.setThreshold(thresholdRelativeFlow);
-        cnec2stateCurativeContingency1.setThreshold(thresholdRelativeFlow);
-        cnec2stateCurativeContingency2.setThreshold(thresholdRelativeFlow);
+        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, thresholdsAbsFlow, stateBasecase);
+        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, thresholdsAbsFlow, stateCurativeContingency1);
+        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, thresholdsAbsFlow, stateCurativeContingency2);
+        cnec2basecase.setThresholds(thresholdsRelativeFlow);
+        cnec2stateCurativeContingency1.setThresholds(thresholdsRelativeFlow);
+        cnec2stateCurativeContingency2.setThresholds(thresholdsRelativeFlow);
 
         crac.addCnec(cnec1basecase);
         crac.addCnec(cnec1stateCurativeContingency1);
@@ -176,6 +224,34 @@ public class SystematicSensitivityAnalysisServiceTest {
         @Override
         public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
             return new MockSensitivityComputation(network);
+        }
+    }
+
+    public class MockSensitivityComputationFactoryBroken implements SensitivityComputationFactory {
+        class MockSensitivityComputation implements SensitivityComputation {
+
+            MockSensitivityComputation() {
+            }
+
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                throw new FaraoException("This should fail");
+            }
+
+            @Override
+            public String getName() {
+                return "Mock";
+            }
+
+            @Override
+            public String getVersion() {
+                return "Mock";
+            }
+        }
+
+        @Override
+        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
+            return new MockSensitivityComputation();
         }
     }
 }

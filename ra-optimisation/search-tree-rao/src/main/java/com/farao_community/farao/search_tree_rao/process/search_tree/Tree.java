@@ -43,13 +43,17 @@ public final class Tree {
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
         if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
-            //TODO : improve error messages depending on leaf error (Sensi divergent, infeasible optimisation, time-out, ...)
-            throw new FaraoException("Initial case returns an error");
+            //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
+            RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.FAILURE);
+            raoComputationResult.addExtension(SearchTreeRaoResult.class, new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.ERROR, SearchTreeRaoResult.StopCriterion.DIVERGENCE));
+            return CompletableFuture.completedFuture(raoComputationResult);
         }
 
         Leaf optimalLeaf = rootLeaf;
-        boolean hasImproved;
-        do {
+        boolean hasImproved = true;
+
+        //TODO: generalize to handle different stop criterion
+        while (optimalLeaf.getCost() > 0 && hasImproved) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
@@ -67,8 +71,7 @@ public final class Tree {
                     optimalLeaf = currentLeaf;
                 }
             }
-            //TODO: generalize to handle different stop criterion
-        } while (optimalLeaf.getCost() > 0 && hasImproved);
+        }
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
@@ -103,9 +106,11 @@ public final class Tree {
         });
 
         // preventive Network Actions
-        optimalLeaf.getNetworkActions().forEach(na -> {
-            remedialActionResultList.add(new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na)));
-        });
+        optimalLeaf.getNetworkActions().forEach(na -> remedialActionResultList.add(
+                new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na))));
+
+        // preventive Range Actions
+        remedialActionResultList.addAll(optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResults());
 
         return new PreContingencyResult(monitoredBranchResultList, remedialActionResultList);
     }

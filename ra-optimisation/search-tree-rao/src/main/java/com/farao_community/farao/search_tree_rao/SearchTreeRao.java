@@ -28,7 +28,7 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public String getName() {
-        return "Search Tree Rao";
+        return "SearchTreeRao";
     }
 
     @Override
@@ -44,6 +44,7 @@ public class SearchTreeRao implements RaoProvider {
         if (!configQualityCheck.isEmpty()) {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
+        crac.generateValidityReport(network);
 
         // run optimisation
         RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();

@@ -19,9 +19,5 @@
         <module>crac-file-api</module>
         <module>crac-file-xlsx-api</module>
         <module>crac-merging</module>
-        <module>crac-api</module>
-        <module>crac-impl</module>
-        <module>crac-io-api</module>
-        <module>crac-io-json</module>
     </modules>
 </project>
