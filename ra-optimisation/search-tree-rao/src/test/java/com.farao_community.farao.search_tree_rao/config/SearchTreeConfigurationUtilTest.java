@@ -63,10 +63,10 @@ public class SearchTreeConfigurationUtilTest {
     @Test
     public void checkSearchTreeRaoConfigurationWithForbiddenRangeActionRao() {
         raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setRangeActionRao("Search Tree Rao");
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setRangeActionRao("SearchTreeRao");
         List<String> errors = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(raoParameters);
         assertFalse(errors.isEmpty());
-        assertTrue(errors.get(0).contains("cannot be the 'Search Tree Rao'"));
+        assertTrue(errors.get(0).contains("cannot be the 'SearchTreeRao'"));
     }
 
 }

@@ -57,3 +57,14 @@ local-app-file-system:
 mapdb-app-file-system:
     drive-name: Database
     db-file: $HOME/farao.db
+
+rao:
+    default: SearchTreeRao
+
+linear-rao-parameters:
+    max-number-of-iterations: 10
+    security-analysis-without-rao: false
+
+search-tree-rao-paramters:
+    range-action-rao : LinearRao
+

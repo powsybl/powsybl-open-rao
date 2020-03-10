@@ -1,0 +1,20 @@
+{
+  "version" : "1.0",
+  "extensions" : {
+    "LinearRaoParameters" : {
+      "max-number-of-iterations" : 20,
+      "security-analysis-without-rao" : true,
+      "sensitivity-parameters" : {
+        "version" : "1.0",
+        "load-flow-parameters" : {
+          "version" : "1.0",
+          "voltageInitMode" : "UNIFORM_VALUES",
+          "transformerVoltageControlOn" : false,
+          "phaseShifterRegulationOn" : false,
+          "noGeneratorReactiveLimits" : false,
+          "specificCompatibility" : false
+        }
+      }
+    }
+  }
+}

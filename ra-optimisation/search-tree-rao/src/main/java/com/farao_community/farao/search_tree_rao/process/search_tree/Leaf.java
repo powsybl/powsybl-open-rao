@@ -9,14 +9,19 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.StrictMath.abs;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -26,6 +31,8 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class Leaf {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
     /**
      * Parent Leaf or null for root Leaf
@@ -130,11 +137,20 @@ class Leaf {
         this.status = Status.EVALUATION_RUNNING;
         String leafNetworkVariant;
 
+        if (isRoot()) {
+            LOGGER.info("SearchTreeRao: evaluate root leaf");
+        } else {
+            String logInfo = "SearchTreeRao: evaluate network action(s)";
+            logInfo = logInfo.concat(networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
+            LOGGER.info(logInfo);
+        }
+
         // apply Network Actions
         try {
             leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
             networkActions.forEach(na -> na.apply(network));
         } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
             return;
         }
@@ -147,6 +163,7 @@ class Leaf {
             deleteVariant(network, leafNetworkVariant);
 
         } catch (FaraoException e) {
+            LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
             deleteVariant(network, leafNetworkVariant);
         }
@@ -187,5 +204,17 @@ class Leaf {
         if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
             network.getVariantManager().removeVariant(leafNetworkVariant);
         }
+    }
+
+    private static double computeMargin(MonitoredBranchResult monitoredBranchResult) {
+        //todo : adjust when Cnec is monitored in one direction, or wait for new output structure
+        return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPostOptimisationFlow());
+    }
+
+    public double getCost() {
+        Objects.requireNonNull(raoResult);
+        double preContingencyMargin = raoResult.getPreContingencyResult().getMonitoredBranchResults().stream().map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
+        double contingencyMargin = raoResult.getContingencyResults().stream().flatMap(contingencyResult -> contingencyResult.getMonitoredBranchResults().stream()).map(Leaf::computeMargin).min(Double::compareTo).orElse(Double.MAX_VALUE);
+        return -StrictMath.min(preContingencyMargin, contingencyMargin);
     }
 }

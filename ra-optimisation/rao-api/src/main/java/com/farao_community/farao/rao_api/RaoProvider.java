@@ -18,5 +18,16 @@ import java.util.concurrent.CompletableFuture;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RaoProvider extends Versionable {
+
+    /**
+     * Most of the time Crac needs to be synchronized as an input of RAO.
+     *
+     * @param network: Network to optimize.
+     * @param crac: Optimization data.
+     * @param variantId: ID of the current network variant.
+     * @param computationManager: Computation configuration.
+     * @param parameters: RAO parameters.
+     * @return A completable future of a RaoComputationResult it gathers all the optimization results.
+     */
     CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters);
 }
