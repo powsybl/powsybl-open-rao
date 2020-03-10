@@ -37,7 +37,7 @@ public class SearchTreeRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters, String resultVariantId) {
+    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
         //TODO: adapt SearchTreeRao to use result extensions
 
         // quality check
