@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
@@ -30,14 +27,14 @@ import java.util.Set;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-/*
+
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
 
     /**
      * Default constructor
-     *//*
+     */
     public ResultVariantManager() {
         variants = new HashSet<>();
     }
@@ -49,14 +46,15 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     /**
      * Get the ids of all the variants present in the Crac
-     *//*
+     */
     public Set<String> getVariants() {
         return variants;
     }
 
     /**
      * Create a new variant. For all extendable object
-     *//*
+     */
+    @SuppressWarnings("unchecked")
     public void createVariant(String variantId) {
 
         if (variants.contains(variantId)) {
@@ -66,38 +64,38 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         Set<State> states = getExtendable().getStates();
 
         // add CRAC result variant
-        if(getExtendable().getExtension(CracResult.class) == null) {
-            getExtendable().addExtension(CracResultsExtension.class, new CracResultsExtension());
+        if(getExtendable().getExtension(ResultExtension.class) == null) {
+            getExtendable().addExtension(ResultExtension.class, new ResultExtension<Crac, CracResult>());
         }
-        getExtendable().getExtension(CracResultsExtension.class).addVariant(variantId);
-
+        getExtendable().getExtension(ResultExtension.class).addVariant(variantId, new CracResult());
 
         // add CNEC result variant
         getExtendable().getCnecs().forEach(cnec -> {
-            if(cnec.getExtension(CnecResultsExtension.class) == null) {
-                cnec.addExtension(AbstractResultExtension.class, new AbstractResultExtension<Cnec, CnecResult>());
+            if(cnec.getExtension(ResultExtension.class) == null) {
+                cnec.addExtension(ResultExtension.class, new ResultExtension<Cnec, CnecResult>());
             }
-            cnec.getExtension(CnecResultsExtension.class).addVariant(variantId);
+            cnec.getExtension(ResultExtension.class).addVariant(variantId, new CnecResult());
         });
 
         // add Network Action result variant
         getExtendable().getNetworkActions().forEach(na -> {
-            if(na.getExtension(NetworkActionResultsExtension.class) == null) {
-                na.addExtension(NetworkActionResultsExtension.class, new NetworkActionResultsExtension());
+            if(na.getExtension(ResultExtension.class) == null) {
+                na.addExtension(ResultExtension.class, new ResultExtension<NetworkAction, NetworkActionResult>());
             }
-            na.getExtension(NetworkActionResultsExtension.class).addVariant(variantId, states);
+            na.getExtension(ResultExtension.class).addVariant(variantId, new NetworkActionResult(states));
         });
 
         // add Range Action result variant
         getExtendable().getRangeActions().forEach(ra -> {
             if(ra instanceof PstRange) {
                 PstRange pstRa = (PstRange) ra;
-                if (pstRa.getExtension(PstRangeResultsExtension.class) == null) {
-                    pstRa.addExtension(PstRangeResultsExtension.class, new PstRangeResultsExtension());
+                if (pstRa.getExtension(ResultExtension.class) == null) {
+                    pstRa.addExtension(ResultExtension.class, new ResultExtension<PstRange, PstRangeResult>());
                 }
-                pstRa.getExtension(PstRangeResultsExtension.class).addVariant(variantId, states);
+                pstRa.getExtension(ResultExtension.class).addVariant(variantId, new PstRangeResult(states)
+                );
             }
-            // other RangeActions than PstRange are not handled for now
+            // other RangeActions than PstRange are not handled
         });
 
         // add variant in variant map
@@ -106,17 +104,54 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     /**
      * Delete an existing variant.
-     *//*
+     */
+    @SuppressWarnings("unchecked")
     public void deleteVariant(String variantId) {
 
         if (!variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot delete variant with id [%s], as it does not exist", variantId));
         }
 
-        // todo : in the Result extensions of the Cnec, Crac and RemedialActions, delete the variant with id
-        //        {variantId}
+        if(variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
+            getExtendable().removeExtension(ResultExtension.class);
+
+            getExtendable().getCnecs().forEach(cnec -> {
+                cnec.removeExtension(ResultExtension.class);
+            });
+
+            getExtendable().getNetworkActions().forEach(na -> {
+                na.removeExtension(ResultExtension.class);
+            });
+
+            getExtendable().getRangeActions().forEach(ra -> {
+                if (ra instanceof PstRange) {
+                    PstRange pstRa = (PstRange) ra;
+                    pstRa.removeExtension(ResultExtension.class);
+                }
+            });
+
+        } else { // else, delete the variants
+
+            getExtendable().getExtension(ResultExtension.class).deleteVariant(variantId);
+
+            getExtendable().getCnecs().forEach(cnec -> {
+                cnec.getExtension(ResultExtension.class).deleteVariant(variantId);
+            });
+
+            getExtendable().getNetworkActions().forEach(na -> {
+                na.getExtension(ResultExtension.class).deleteVariant(variantId);
+            });
+
+            getExtendable().getRangeActions().forEach(ra -> {
+                if (ra instanceof PstRange) {
+                    PstRange pstRa = (PstRange) ra;
+                    pstRa.getExtension(ResultExtension.class).deleteVariant(variantId);
+                }
+            });
+        }
 
         variants.remove(variantId);
     }
-}*/
+}
+
 
