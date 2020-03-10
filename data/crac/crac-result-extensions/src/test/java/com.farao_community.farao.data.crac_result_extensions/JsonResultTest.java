@@ -15,8 +15,6 @@ import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +28,7 @@ import static junit.framework.TestCase.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonCnecResultTest {
+public class JsonResultTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
@@ -55,7 +53,6 @@ public class JsonCnecResultTest {
         resultExtension.addVariant("variant1", new CnecResult(50.0, 75.0));
         resultExtension.addVariant("variant2", new CnecResult(450.0, 750.0));
         preventiveCnec2.addExtension(ResultExtension.class, resultExtension);
-
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -88,7 +85,7 @@ public class JsonCnecResultTest {
 
     @Test
     public void cracImportTest() {
-        Crac crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
+        Crac crac = CracImporters.importCrac("small-crac-with-cnec-result.json", getClass().getResourceAsStream("/small-crac-with-cnec-result.json"));
 
         ResultExtension<Cnec, CnecResult> extCnec = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
 
@@ -96,7 +93,6 @@ public class JsonCnecResultTest {
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
     }
-
 
     @Test
     public void cracImportWithUnknownFieldInExtension() {

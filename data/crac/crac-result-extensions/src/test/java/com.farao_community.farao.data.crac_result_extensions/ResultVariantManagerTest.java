@@ -9,12 +9,8 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.powsybl.iidm.import_.Importers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +39,7 @@ public class ResultVariantManagerTest {
 
         ResultExtension<Crac, CracResult> cracExtension;
         ResultExtension<Cnec, CnecResult> cnecExtension;
-        ResultExtension<PstRange, PstRangeResult> pstExtension ;
+        ResultExtension<PstRange, PstRangeResult> pstExtension;
 
         assertTrue(variantManager.getVariants().isEmpty());
 

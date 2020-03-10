@@ -64,14 +64,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         Set<State> states = getExtendable().getStates();
 
         // add CRAC result variant
-        if(getExtendable().getExtension(ResultExtension.class) == null) {
+        if (getExtendable().getExtension(ResultExtension.class) == null) {
             getExtendable().addExtension(ResultExtension.class, new ResultExtension<Crac, CracResult>());
         }
         getExtendable().getExtension(ResultExtension.class).addVariant(variantId, new CracResult());
 
         // add CNEC result variant
         getExtendable().getCnecs().forEach(cnec -> {
-            if(cnec.getExtension(ResultExtension.class) == null) {
+            if (cnec.getExtension(ResultExtension.class) == null) {
                 cnec.addExtension(ResultExtension.class, new ResultExtension<Cnec, CnecResult>());
             }
             cnec.getExtension(ResultExtension.class).addVariant(variantId, new CnecResult());
@@ -79,7 +79,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
         // add Network Action result variant
         getExtendable().getNetworkActions().forEach(na -> {
-            if(na.getExtension(ResultExtension.class) == null) {
+            if (na.getExtension(ResultExtension.class) == null) {
                 na.addExtension(ResultExtension.class, new ResultExtension<NetworkAction, NetworkActionResult>());
             }
             na.getExtension(ResultExtension.class).addVariant(variantId, new NetworkActionResult(states));
@@ -87,7 +87,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
         // add Range Action result variant
         getExtendable().getRangeActions().forEach(ra -> {
-            if(ra instanceof PstRange) {
+            if (ra instanceof PstRange) {
                 PstRange pstRa = (PstRange) ra;
                 if (pstRa.getExtension(ResultExtension.class) == null) {
                     pstRa.addExtension(ResultExtension.class, new ResultExtension<PstRange, PstRangeResult>());
@@ -112,7 +112,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             throw new FaraoException(String.format("Cannot delete variant with id [%s], as it does not exist", variantId));
         }
 
-        if(variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
+        if (variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
             getExtendable().removeExtension(ResultExtension.class);
 
             getExtendable().getCnecs().forEach(cnec -> {

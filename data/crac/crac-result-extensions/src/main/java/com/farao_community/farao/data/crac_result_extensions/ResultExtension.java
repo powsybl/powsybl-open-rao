@@ -19,26 +19,22 @@ import java.util.Map;
  */
 public class ResultExtension<T extends Identifiable<T>, S extends Result<T>> extends AbstractExtension<T> {
 
-    protected Map<String, S> resultMap;
+    private Map<String, S> resultMap;
 
     Map<String, S> getResultMap() {
         return resultMap;
     }
 
-    public ResultExtension() {
+    ResultExtension() {
         resultMap = new HashMap<>();
     }
 
-    public void setResultMap(Map<String, S> resultMap) {
+    void setResultMap(Map<String, S> resultMap) {
         this.resultMap = resultMap;
     }
 
     public S getVariant(String variantId) {
         return resultMap.get(variantId);
-    }
-
-    public Map<String, ? extends S> getCnecResultMap() {
-        return resultMap;
     }
 
     S addVariant(String newVariantId, S resultElement) {
@@ -57,5 +53,4 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result<T>> ext
     public String getName() {
         return "ResultExtension";
     }
-
 }

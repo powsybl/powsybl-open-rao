@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,7 +34,7 @@ public class JsonResultExtension<T extends Identifiable<T>>
         // serialize result per result as  the whole map somehow skip the result types
         jsonGenerator.writeFieldName("resultsPerVariant");
         jsonGenerator.writeStartObject();
-        for(Map.Entry<String, ? extends Result<T>> entry : resultExtension.getResultMap().entrySet()) {
+        for (Map.Entry<String, ? extends Result<T>> entry : resultExtension.getResultMap().entrySet()) {
             jsonGenerator.writeFieldName(entry.getKey());
             jsonGenerator.writeObject(entry.getValue());
         }

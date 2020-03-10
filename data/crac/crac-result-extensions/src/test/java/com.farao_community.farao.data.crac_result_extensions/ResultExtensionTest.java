@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNull;
  */
 public class ResultExtensionTest {
 
-
     @Test
     public void testCracResultExtension() {
 
@@ -48,6 +47,6 @@ public class ResultExtensionTest {
     @Test
     public void getName() {
         ResultExtension<Crac, CracResult> resultExtension = new ResultExtension<>();
-        assertEquals("ResultsExtension", resultExtension.getName());
+        assertEquals("ResultExtension", resultExtension.getName());
     }
 }
