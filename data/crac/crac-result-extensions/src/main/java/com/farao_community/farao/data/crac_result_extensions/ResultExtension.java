@@ -17,12 +17,20 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public abstract class AbstractResultExtension<T extends Identifiable, S> extends AbstractExtension<T> {
+public class ResultExtension<T extends Identifiable<T>, S extends Result<T>> extends AbstractExtension<T> {
 
     protected Map<String, S> resultMap;
 
-    public AbstractResultExtension() {
+    Map<String, S> getResultMap() {
+        return resultMap;
+    }
+
+    public ResultExtension() {
         resultMap = new HashMap<>();
+    }
+
+    public void setResultMap(Map<String, S> resultMap) {
+        this.resultMap = resultMap;
     }
 
     public S getVariant(String variantId) {
@@ -33,7 +41,7 @@ public abstract class AbstractResultExtension<T extends Identifiable, S> extends
         return resultMap;
     }
 
-    public S addVariant(String newVariantId, S resultElement) {
+    S addVariant(String newVariantId, S resultElement) {
         if (resultMap.containsKey(newVariantId)) {
             throw new FaraoException(String.format("Cannot create result variant with id [%s] for [%s] as it already exists", newVariantId, getExtendable().getId()));
         }
@@ -44,4 +52,10 @@ public abstract class AbstractResultExtension<T extends Identifiable, S> extends
     void deleteVariant(String variantId) {
         resultMap.remove(variantId);
     }
+
+    @Override
+    public String getName() {
+        return "ResultExtension";
+    }
+
 }

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
+import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.State;
 
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class NetworkActionResult {
+public class NetworkActionResult implements Result<NetworkAction> {
     protected Map<State, Boolean> activationMap;
 
     public NetworkActionResult(Set<State> states) {

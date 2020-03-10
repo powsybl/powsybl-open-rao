@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.State;
@@ -29,13 +30,14 @@ import java.util.Set;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+/*
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
 
     /**
      * Default constructor
-     */
+     *//*
     public ResultVariantManager() {
         variants = new HashSet<>();
     }
@@ -47,14 +49,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     /**
      * Get the ids of all the variants present in the Crac
-     */
+     *//*
     public Set<String> getVariants() {
         return variants;
     }
 
     /**
      * Create a new variant. For all extendable object
-     */
+     *//*
     public void createVariant(String variantId) {
 
         if (variants.contains(variantId)) {
@@ -73,7 +75,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         // add CNEC result variant
         getExtendable().getCnecs().forEach(cnec -> {
             if(cnec.getExtension(CnecResultsExtension.class) == null) {
-                cnec.addExtension(CnecResultsExtension.class, new CnecResultsExtension());
+                cnec.addExtension(AbstractResultExtension.class, new AbstractResultExtension<Cnec, CnecResult>());
             }
             cnec.getExtension(CnecResultsExtension.class).addVariant(variantId);
         });
@@ -104,7 +106,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     /**
      * Delete an existing variant.
-     */
+     *//*
     public void deleteVariant(String variantId) {
 
         if (!variants.contains(variantId)) {
@@ -116,4 +118,5 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
         variants.remove(variantId);
     }
-}
+}*/
+

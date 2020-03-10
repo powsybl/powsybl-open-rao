@@ -67,21 +67,4 @@ public class RangeActionResultTest {
         assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState), EPSILON);
         assertEquals(15., rangeActionResult.getSetPoint(outage1), EPSILON);
     }
-
-    @Test
-    public void getName() {
-        assertEquals("RangeActionResult", rangeActionResult.getName());
-    }
-
-    @Test
-    public void addExtension() {
-        PstRange pstRange = new PstWithRange("pst", new NetworkElement("ne"));
-        State state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        RangeActionResult rangeActionResult = new RangeActionResult(Collections.singleton(state));
-
-        pstRange.addExtension(RangeActionResult.class, rangeActionResult);
-        pstRange.getExtension(RangeActionResult.class).setSetPoint(state, 3.2);
-        assertTrue(pstRange.getExtension(RangeActionResult.class).isActivated(state));
-        assertEquals(3.2, pstRange.getExtension(RangeActionResult.class).getSetPoint(state), EPSILON);
-    }
 }

@@ -39,6 +39,7 @@ public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
         jsonGenerator.writeEndArray();
 
         JsonUtil.writeExtensions(cnec, jsonGenerator, serializerProvider, ExtensionsHandler.getCnecExtensionSerializers());
+        JsonUtil.writeExtensions(cnec, jsonGenerator, serializerProvider, ExtensionsHandler.getIdentifiableExtensionSerializers());
     }
 
     @Override

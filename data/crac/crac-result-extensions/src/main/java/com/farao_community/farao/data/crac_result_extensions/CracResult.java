@@ -8,6 +8,7 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 
 /**
@@ -19,7 +20,7 @@ import com.farao_community.farao.data.crac_api.Crac;
  * </li>
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CracResult {
+public class CracResult implements Result<Crac> {
 
     public enum NetworkSecurityStatus {
         SECURED,

@@ -24,32 +24,21 @@ import static org.junit.Assert.*;
  */
 public class PstRangeResultTest {
     private static final double EPSILON = 0.1;
-    private PstRange pstRange;
     private State state;
     private PstRangeResult pstRangeResult;
 
     @Before
     public void setUp() {
-        pstRange = new PstWithRange("id", new NetworkElement("ne"));
         state = new SimpleState(Optional.empty(), new Instant("initial", 0));
         pstRangeResult = new PstRangeResult(Collections.singleton(state));
     }
 
     @Test
     public void setSetPoint() {
-        PstRange pstRangeMock = Mockito.mock(PstRange.class);
-        Mockito.when(pstRangeMock.computeTapPosition(3.2)).thenReturn(5);
-        Mockito.when(pstRangeMock.isSynchronized()).thenReturn(true);
-        pstRangeResult.setExtendable(pstRangeMock);
         pstRangeResult.setSetPoint(state, 3.2);
+        pstRangeResult.setTap(state, 5);
+
         assertEquals(3.2, pstRangeResult.getSetPoint(state), EPSILON);
         assertEquals(5, pstRangeResult.getTap(state));
-    }
-
-    @Test
-    public void addExtension() {
-        pstRange.addExtension(PstRangeResult.class, pstRangeResult);
-        pstRangeResult.setTap(state, 15);
-        assertEquals(15, pstRange.getExtension(PstRangeResult.class).getTap(state));
     }
 }

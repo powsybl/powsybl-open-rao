@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -21,15 +22,29 @@ public final class ExtensionsHandler {
 
     private ExtensionsHandler() { }
 
+
+    private static final Supplier<ExtensionProviders<CnecExtensionSerializer>> CNEC_SUPPLIER =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(CnecExtensionSerializer.class, "cnec"));
+
+    public interface IdentifiableExtensionSerializer<E extends Identifiable, F extends Extension<E>> extends ExtensionJsonSerializer<E, F> { }
+
+    private static final Supplier<ExtensionProviders<IdentifiableExtensionSerializer>> CRAC_IDENTIFIABLES_SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(IdentifiableExtensionSerializer.class, "identifiable"));
+
     public interface CnecExtensionSerializer<E extends Extension<Cnec>> extends ExtensionJsonSerializer<Cnec, E> { }
 
-    private static final Supplier<ExtensionProviders<CnecExtensionSerializer>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(CnecExtensionSerializer.class, "cnec"));
 
     /**
      * Gets the known Cnec extension serializers.
      */
     public static ExtensionProviders<CnecExtensionSerializer> getCnecExtensionSerializers() {
-        return SUPPLIER.get();
+        return CNEC_SUPPLIER.get();
+    }
+
+    /**
+     * Gets the known Identifiable extension serializers.
+     */
+    public static ExtensionProviders<IdentifiableExtensionSerializer> getIdentifiableExtensionSerializers() {
+        return CRAC_IDENTIFIABLES_SUPPLIER.get();
     }
 }

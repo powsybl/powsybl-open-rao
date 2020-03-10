@@ -7,20 +7,13 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Identifiable;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracResultsExtension extends AbstractResultExtension<Crac, CracResult> {
-
-    public CracResult addVariant(String newVariantId) {
-        return addVariant(newVariantId, new CracResult());
-    }
-
-    @Override
-    public String getName() {
-        return "CracResultsExtension";
-    }
-
-}
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes( @JsonSubTypes.Type(value = CnecResult.class, name = "cnec-result"))
+public interface Result<T extends Identifiable<T>> { }
