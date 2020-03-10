@@ -88,12 +88,13 @@ public class JsonCnecResultTest {
 
     @Test
     public void cracImportTest() {
-        /*Crac crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
+        Crac crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
 
-        assertNotNull(crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultsExtension.class));
-        assertEquals(-450.0, crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultsExtension.class).getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(750.0, crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultsExtension.class).getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
-    */
+        ResultExtension<Cnec, CnecResult> extCnec = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
+
+        assertNotNull(extCnec);
+        assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
     }
 
 

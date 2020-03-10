@@ -80,7 +80,7 @@ final class CnecDeserializer {
 
                     case EXTENSIONS:
                         jsonParser.nextToken();
-                        extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getIdentifiableExtensionSerializers());
+                        extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
 
                     default:
@@ -91,7 +91,7 @@ final class CnecDeserializer {
             //add SimpleCnec in Crac
             simpleCrac.addCnec(id, name, networkElementId, thresholds, stateId);
             if (!extensions.isEmpty()) {
-                ExtensionsHandler.getIdentifiableExtensionSerializers().addExtensions(simpleCrac.getCnec(id), extensions);
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac.getCnec(id), extensions);
             }
         }
     }

@@ -72,13 +72,15 @@
       }],
       "state": "N-1 NL1-NL3-Défaut",
       "extensions" : {
-        "CnecResultsExtension" : {
-          "cnecResults" : {
+        "ResultExtension" : {
+          "resultsPerVariant" : {
             "variant2" : {
+              "type" : "cnec-result",
               "flowInA" : 750.0,
               "flowInMW" : -450.0
             },
             "variant1" : {
+              "type" : "cnec-result",
               "flowInA" : 75.0,
               "flowInMW" : 50.0
             }

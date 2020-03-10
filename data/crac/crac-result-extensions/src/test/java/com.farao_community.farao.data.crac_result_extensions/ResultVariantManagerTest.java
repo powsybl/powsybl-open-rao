@@ -17,7 +17,6 @@ import static junit.framework.TestCase.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-/*
 public class ResultVariantManagerTest {
 
     private Crac crac;
@@ -66,4 +65,3 @@ public class ResultVariantManagerTest {
         }
     }
 }
-*/

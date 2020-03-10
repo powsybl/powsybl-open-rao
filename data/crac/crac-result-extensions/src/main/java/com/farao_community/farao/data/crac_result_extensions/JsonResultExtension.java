@@ -24,15 +24,15 @@ import java.util.Map;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 
-@AutoService(ExtensionsHandler.IdentifiableExtensionSerializer.class)
+@AutoService(ExtensionsHandler.ExtensionSerializer.class)
 public class JsonResultExtension<T extends Identifiable<T>>
-    implements ExtensionsHandler.IdentifiableExtensionSerializer<T, ResultExtension<T, ? extends Result<T>>> {
+    implements ExtensionsHandler.ExtensionSerializer<T, ResultExtension<T, ? extends Result<T>>> {
 
     @Override
     public void serialize(ResultExtension<T, ? extends Result<T>> resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        // serialize result per result as direct serialization of the whole map somehow skip the result types
+        // serialize result per result as  the whole map somehow skip the result types
         jsonGenerator.writeFieldName("resultsPerVariant");
         jsonGenerator.writeStartObject();
         for(Map.Entry<String, ? extends Result<T>> entry : resultExtension.getResultMap().entrySet()) {
