@@ -36,6 +36,7 @@ public final class Tree {
     }
 
     public static CompletableFuture<RaoResult> search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+        //TODO: manage result variants
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
