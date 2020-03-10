@@ -21,7 +21,7 @@ jobs:
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
-        run: mvn --batch-mode -Pcoverage install
+        run: mvn --batch-mode -Pjacoco install
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
@@ -30,7 +30,7 @@ jobs:
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
         run: >
-          mvn --batch-mode -DskipTests sonar:sonar -Pcoverage
+          mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=farao-community
           -Dsonar.projectKey=com.farao-community.farao:farao-core
