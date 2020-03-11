@@ -65,10 +65,6 @@ public class ResultVariantManagerTest {
 
         assertEquals(1, variantManager.getVariants().size());
 
-        cracExtension = crac.getExtension(ResultExtension.class);
-        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
-        pstExtension = ((PstRange) crac.getRangeAction("PRA_PST_BE")).getExtension(ResultExtension.class);
-
         assertNotNull(cracExtension.getVariant(variantId1));
         assertNull(cracExtension.getVariant(variantId2));
         assertNotNull(cnecExtension.getVariant(variantId1));

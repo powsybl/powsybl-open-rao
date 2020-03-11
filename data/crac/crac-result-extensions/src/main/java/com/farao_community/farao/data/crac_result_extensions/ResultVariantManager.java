@@ -121,13 +121,9 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         if (variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
             getExtendable().removeExtension(ResultExtension.class);
 
-            getExtendable().getCnecs().forEach(cnec -> {
-                cnec.removeExtension(ResultExtension.class);
-            });
+            getExtendable().getCnecs().forEach(cnec -> cnec.removeExtension(ResultExtension.class));
 
-            getExtendable().getNetworkActions().forEach(na -> {
-                na.removeExtension(ResultExtension.class);
-            });
+            getExtendable().getNetworkActions().forEach(na -> na.removeExtension(ResultExtension.class));
 
             getExtendable().getRangeActions().forEach(ra -> {
                 if (ra instanceof PstRange) {
@@ -140,13 +136,9 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
             getExtendable().getExtension(ResultExtension.class).deleteVariant(variantId);
 
-            getExtendable().getCnecs().forEach(cnec -> {
-                cnec.getExtension(ResultExtension.class).deleteVariant(variantId);
-            });
+            getExtendable().getCnecs().forEach(cnec -> cnec.getExtension(ResultExtension.class).deleteVariant(variantId));
 
-            getExtendable().getNetworkActions().forEach(na -> {
-                na.getExtension(ResultExtension.class).deleteVariant(variantId);
-            });
+            getExtendable().getNetworkActions().forEach(na -> na.getExtension(ResultExtension.class).deleteVariant(variantId));
 
             getExtendable().getRangeActions().forEach(ra -> {
                 if (ra instanceof PstRange) {
@@ -159,5 +151,3 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         variants.remove(variantId);
     }
 }
-
-
