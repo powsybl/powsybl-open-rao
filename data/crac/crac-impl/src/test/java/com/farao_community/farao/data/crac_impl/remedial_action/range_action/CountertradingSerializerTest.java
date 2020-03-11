@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -34,7 +35,7 @@ public class CountertradingSerializerTest extends AbstractRemedialActionTest {
         UsageRule mockedUsageRule = Mockito.mock(UsageRule.class);
         ArrayList<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(mockedUsageRule);
-        countertrading = new Countertrading(id, id, id, usageRules);
+        countertrading = new Countertrading(id, id, id, usageRules, Collections.emptyList());
         mockedNetwork = Mockito.mock(Network.class);
     }
 
