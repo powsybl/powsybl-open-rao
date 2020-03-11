@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_io_json;
+package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -15,7 +15,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_io_json.RoundTripUtil.roundTrip;
+import static com.farao_community.farao.data.crac_impl.json.RoundTripUtil.roundTrip;
 import static org.junit.Assert.assertEquals;
 
 /**
