@@ -9,9 +9,7 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
@@ -22,6 +20,7 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,20 +131,31 @@ public class LinearRao implements RaoProvider {
     private boolean sameRemedialActions(Crac crac, String resultVariant1, String resultVariant2) {
         //TODO: manage curative RA
         State preventiveState = crac.getPreventiveState();
-        crac.getRangeActions().forEach(rangeAction -> {
-            RangeActionResult<?> rangeActionResult = (RangeActionResult<?>) rangeAction.getExtension(RangeActionResult.class);
-            if (rangeActionResult.getSetPoint(preventiveState, resultVariant1) != rangeActionResult.getSetPoint(preventiveState, resultVariant2)) {
-                return false;
+        for (RangeAction<?> rangeAction : crac.getRangeActions()) {
+            if (rangeAction instanceof PstRange) {
+                PstRange pstRange = (PstRange) rangeAction;
+                ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = pstRange.getExtension(ResultExtension.class);
+                if (pstRangeResultMap.getVariant(resultVariant1).getSetPoint(preventiveState) !=
+                        pstRangeResultMap.getVariant(resultVariant2).getSetPoint(preventiveState)) {
+                    return false;
+                }
+            } else {
+                throw new NotImplementedException("Range Action Result Extension only implemented for PST for now");
             }
-        });
+        }
         return true;
     }
 
     private void applyRAs(Crac crac, Network network, String variantId) {
         State preventiveState = crac.getPreventiveState();
         crac.getRangeActions().forEach(rangeAction -> {
-            double setPoint = ((RangeActionResult<?>) rangeAction.getExtension(RangeActionResult.class)).getSetPoint(preventiveState);
-            rangeAction.apply(network, setPoint);
+            if (rangeAction instanceof PstRange) {
+                PstRange pstRange = (PstRange) rangeAction;
+                ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = pstRange.getExtension(ResultExtension.class);
+                pstRange.apply(network, pstRangeResultMap.getVariant(variantId).getSetPoint(preventiveState));
+            } else {
+                throw new NotImplementedException("Range Action Result Extension only implemented for PST for now");
+            }
         });
     }
 
@@ -164,14 +174,21 @@ public class LinearRao implements RaoProvider {
 
     private void updateCnecExtensions(Crac crac, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         crac.getCnecs().forEach(cnec -> {
-            cnec.getExtension(CnecResult.class).setFlowInMW(resultVariantId, systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
-            cnec.getExtension(CnecResult.class).setFlowInA(resultVariantId, systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
+            ResultExtension<Cnec, CnecResult> cnecResultMap = cnec.getExtension(ResultExtension.class);
+            CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
+            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
+            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
         });
     }
 
-    private void updateResultExtensions(Crac crac, double minMargin, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        crac.getExtension(CracResultsExtension.class).get(resultVariantId).setCost(minMargin);
+    private void updateCracExtension(Crac crac, String resultVariantId, double minMargin) {
+        ResultExtension<Crac, CracResult> cracResultMap = crac.getExtension(ResultExtension.class);
+        CracResult cracResult = cracResultMap.getVariant(resultVariantId);
+        cracResult.setCost(minMargin);
+    }
 
+    private void updateResultExtensions(Crac crac, double minMargin, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        updateCracExtension(crac, resultVariantId, minMargin);
         updateCnecExtensions(crac, resultVariantId, systematicSensitivityAnalysisResult);
         //The range action extensions are already updated by the solve method
         //The network action extensions are not to be updated by the linear rao. They will be updated by the search tree rao if required.
@@ -187,6 +204,5 @@ public class LinearRao implements RaoProvider {
         updateResultExtensions(crac, minMargin, postOptimVariant, systematicSensitivityAnalysisResult);
 
         return raoComputationResult;
-
     }
 }
