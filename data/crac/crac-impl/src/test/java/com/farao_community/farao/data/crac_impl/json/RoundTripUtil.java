@@ -6,8 +6,18 @@
  */
 package com.farao_community.farao.data.crac_impl.json;
 
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.json.deserializers.SimpleCracDeserializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.network_action.NetworkActionSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnConstraintSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnContingencySerializer;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -46,6 +56,13 @@ public final class RoundTripUtil {
             objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(FreeToUse.class, new FreeToUseSerializer());
+            module.addSerializer(OnConstraint.class, new OnConstraintSerializer());
+            module.addSerializer(OnContingency.class, new OnContingencySerializer());
+            module.addSerializer(RangeAction.class, new RangeActionSerializer());
+            module.addSerializer(NetworkAction.class, new NetworkActionSerializer<>());
+            objectMapper.registerModule(module);
             writer.writeValue(outputStream, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
