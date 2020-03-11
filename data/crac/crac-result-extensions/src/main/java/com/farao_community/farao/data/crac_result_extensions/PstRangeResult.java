@@ -29,10 +29,10 @@ public class PstRangeResult extends RangeActionResult<PstRange> {
         this.tapPerStates = new HashMap<>(tapPerStates);
     }
 
-    public PstRangeResult(Set<State> states) {
+    public PstRangeResult(Set<String> states) {
         super(states);
         tapPerStates = new HashMap<>();
-        states.forEach(state -> tapPerStates.put(state.getId(), null));
+        states.forEach(state -> tapPerStates.put(state, null));
     }
 
     public int getTap(String state) {

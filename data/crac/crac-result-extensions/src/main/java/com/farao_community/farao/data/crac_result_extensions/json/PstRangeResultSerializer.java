@@ -25,12 +25,13 @@ import java.io.IOException;
  */
 @AutoService(ExtensionsHandler.PstRangeExtensionSerializer.class)
 public class PstRangeResultSerializer extends RangeActionResultSerializer<PstRange, PstRangeResult> implements ExtensionsHandler.PstRangeExtensionSerializer<PstRangeResult> {
+    protected static final String TAP_PER_STATES = "tapPerStates";
 
     @Override
     public void serialize(PstRangeResult pstRangeResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         super.writeSetPointPerStates(pstRangeResult, jsonGenerator);
-        jsonGenerator.writeFieldName("tapPerStates");
+        jsonGenerator.writeFieldName(TAP_PER_STATES);
         jsonGenerator.writeStartObject();
         pstRangeResult.getStates().forEach(state -> {
             try {

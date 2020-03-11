@@ -27,6 +27,7 @@ import java.io.IOException;
  */
 @AutoService(ExtensionsHandler.RangeActionExtensionSerializer.class)
 public class RangeActionResultSerializer<I extends RangeAction<I>, E extends RangeActionResult<I>> implements ExtensionsHandler.RangeActionExtensionSerializer<I, E> {
+    protected static final String SET_POINT_PER_STATES = "setPointPerStates";
 
     @Override
     public void serialize(E rangeActionResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -36,7 +37,7 @@ public class RangeActionResultSerializer<I extends RangeAction<I>, E extends Ran
     }
 
     protected void writeSetPointPerStates(E rangeActionResult, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName("setPointPerStates");
+        jsonGenerator.writeFieldName(SET_POINT_PER_STATES);
         jsonGenerator.writeStartObject();
         rangeActionResult.getStates().forEach(state -> {
             try {

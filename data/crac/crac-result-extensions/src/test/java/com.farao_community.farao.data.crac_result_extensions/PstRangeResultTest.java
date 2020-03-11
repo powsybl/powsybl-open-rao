@@ -32,7 +32,7 @@ public class PstRangeResultTest {
     public void setUp() {
         pstRange = new PstWithRange("id", new NetworkElement("ne"));
         state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        pstRangeResult = new PstRangeResult(Collections.singleton(state));
+        pstRangeResult = new PstRangeResult(Collections.singleton(state.getId()));
     }
 
     @Test

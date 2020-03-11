@@ -37,9 +37,9 @@ public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtensi
         this.setPointPerStates = setPointPerStates;
     }
 
-    public RangeActionResult(Set<State> states) {
+    public RangeActionResult(Set<String> states) {
         setPointPerStates = new HashMap<>();
-        states.forEach(state -> setPointPerStates.put(state.getId(), Double.NaN));
+        states.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
     public Set<String> getStates() {

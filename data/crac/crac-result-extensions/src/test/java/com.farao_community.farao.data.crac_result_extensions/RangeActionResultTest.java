@@ -28,7 +28,7 @@ public class RangeActionResultTest {
     private static final double EPSILON = 0.01;
 
     private RangeActionResult rangeActionResult;
-    private Set<State> states;
+    private Set<String> states;
     private State initialState;
     private State outage1;
     private State curative1;
@@ -43,11 +43,11 @@ public class RangeActionResultTest {
         curative1 = new SimpleState(Optional.of(new ComplexContingency("co1")), new Instant("curative-co1", 50));
         outage2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("after-co2", 10));
         curative2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("curative-co2", 50));
-        states.add(initialState);
-        states.add(outage1);
-        states.add(curative1);
-        states.add(outage2);
-        states.add(curative2);
+        states.add(initialState.getId());
+        states.add(outage1.getId());
+        states.add(curative1.getId());
+        states.add(outage2.getId());
+        states.add(curative2.getId());
         rangeActionResult = new RangeActionResult(states);
     }
 
@@ -77,7 +77,7 @@ public class RangeActionResultTest {
     public void addExtension() {
         PstRange pstRange = new PstWithRange("pst", new NetworkElement("ne"));
         State state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        RangeActionResult rangeActionResult = new RangeActionResult(Collections.singleton(state));
+        RangeActionResult rangeActionResult = new RangeActionResult(Collections.singleton(state.getId()));
 
         pstRange.addExtension(RangeActionResult.class, rangeActionResult);
         pstRange.getExtension(RangeActionResult.class).setSetPoint(state.getId(), 3.2);
