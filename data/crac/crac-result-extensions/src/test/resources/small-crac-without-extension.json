@@ -63,44 +63,27 @@
       "id": "Tieline BE FR - Défaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
-      "thresholds": [{
+      "thresholds": [ {
         "type": "absolute-flow-threshold",
         "unit": "MEGAWATT",
         "side": "LEFT",
         "direction": "BOTH",
         "maxValue": 750
-      }],
-      "state": "N-1 NL1-NL3-Défaut",
-      "extensions" : {
-        "ResultExtension" : {
-          "resultsPerVariant" : {
-            "variant2" : {
-              "type" : "cnec-result",
-              "flowInA" : 750.0,
-              "flowInMW" : -450.0
-            },
-            "variant1" : {
-              "type" : "cnec-result",
-              "flowInA" : 75.0,
-              "flowInMW" : 50.0
-            }
-          },
-          "unknown-field" : "coucou"
-        }
-      }
+      } ],
+      "state": "N-1 NL1-NL3-Défaut"
     },
     {
       "type": "simple-cnec",
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
-      "thresholds": [{
+      "thresholds": [ {
         "type": "absolute-flow-threshold",
         "unit": "MEGAWATT",
         "side": "LEFT",
         "direction": "BOTH",
         "maxValue": 750
-      }],
+      } ],
       "state": "none-N"
     }
   ],

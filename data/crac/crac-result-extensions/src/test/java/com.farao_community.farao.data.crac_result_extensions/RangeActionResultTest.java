@@ -10,11 +10,9 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -66,22 +64,5 @@ public class RangeActionResultTest {
         rangeActionResult.setSetPoint(outage1, 15.);
         assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState), EPSILON);
         assertEquals(15., rangeActionResult.getSetPoint(outage1), EPSILON);
-    }
-
-    @Test
-    public void getName() {
-        assertEquals("RangeActionResult", rangeActionResult.getName());
-    }
-
-    @Test
-    public void addExtension() {
-        PstRange pstRange = new PstWithRange("pst", new NetworkElement("ne"));
-        State state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        RangeActionResult rangeActionResult = new RangeActionResult(Collections.singleton(state));
-
-        pstRange.addExtension(RangeActionResult.class, rangeActionResult);
-        pstRange.getExtension(RangeActionResult.class).setSetPoint(state, 3.2);
-        assertTrue(pstRange.getExtension(RangeActionResult.class).isActivated(state));
-        assertEquals(3.2, pstRange.getExtension(RangeActionResult.class).getSetPoint(state), EPSILON);
     }
 }
