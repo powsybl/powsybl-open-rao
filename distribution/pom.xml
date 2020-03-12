@@ -209,14 +209,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-result-extensions</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <profiles>

@@ -81,7 +81,6 @@
 
         <!-- Sonar properties -->
         <sonar.coverage.jacoco.xmlReportPaths>
-            distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../../distribution/target/site/jacoco-aggregate/jacoco.xml
