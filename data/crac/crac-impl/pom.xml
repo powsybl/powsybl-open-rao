@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.commons</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.farao_community.farao.data.crac_impl</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
