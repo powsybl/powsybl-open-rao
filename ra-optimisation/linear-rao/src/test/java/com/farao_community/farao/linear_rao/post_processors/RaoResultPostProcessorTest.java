@@ -7,11 +7,11 @@
 package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -77,7 +77,13 @@ public class RaoResultPostProcessorTest {
         Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
-        new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "");
+        new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
+
+        State preventiveState = linearRaoData.getCrac().getPreventiveState();
+        ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = (ResultExtension<PstRange, PstRangeResult>) linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(ResultExtension.class);
+        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        assertTrue(Double.isNaN(pstRangeResult.getSetPoint(preventiveState)));
+        assertFalse(pstRangeResult.isActivated(preventiveState));
 
         assertTrue(result.getPreContingencyResult().getRemedialActionResults().isEmpty());
     }
@@ -89,7 +95,13 @@ public class RaoResultPostProcessorTest {
         Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
-        new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "");
+        new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
+
+        State preventiveState = linearRaoData.getCrac().getPreventiveState();
+        ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = (ResultExtension<PstRange, PstRangeResult>) linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(ResultExtension.class);
+        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        assertTrue(Double.isNaN(pstRangeResult.getSetPoint(preventiveState)));
+        assertFalse(pstRangeResult.isActivated(preventiveState));
 
         assertTrue(result.getPreContingencyResult().getRemedialActionResults().isEmpty());
     }
@@ -102,6 +114,12 @@ public class RaoResultPostProcessorTest {
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
+
+        State preventiveState = linearRaoData.getCrac().getPreventiveState();
+        ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = (ResultExtension<PstRange, PstRangeResult>) linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(ResultExtension.class);
+        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        assertEquals(-12, pstRangeResult.getTap(preventiveState));
+        assertEquals(0.39 - 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
 
         assertEquals(1, result.getPreContingencyResult().getRemedialActionResults().size());
         assertEquals("idPstRa", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());
@@ -120,6 +138,12 @@ public class RaoResultPostProcessorTest {
 
         RaoComputationResult result = new RaoComputationResult(RaoComputationResult.Status.SUCCESS);
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
+
+        State preventiveState = linearRaoData.getCrac().getPreventiveState();
+        ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = (ResultExtension<PstRange, PstRangeResult>) linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(ResultExtension.class);
+        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        assertEquals(14, pstRangeResult.getTap(preventiveState));
+        assertEquals(0.39 + 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
 
         assertEquals(1, result.getPreContingencyResult().getRemedialActionResults().size());
         assertEquals("idPstRa", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());
