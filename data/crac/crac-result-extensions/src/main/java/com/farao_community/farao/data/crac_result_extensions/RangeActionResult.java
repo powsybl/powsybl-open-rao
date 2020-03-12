@@ -8,11 +8,6 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.State;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.extensions.Extension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,25 +16,12 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtension<I> implements Extension<I> {
+public class RangeActionResult<T extends RangeAction<T>> implements Result<T> {
     protected Map<String, Double> setPointPerStates;
 
-    @JsonCreator
-    public RangeActionResult(@JsonProperty("setPointPerStates") Map<String, Double> setPointPerStates) {
-        this.setPointPerStates = new HashMap<>(setPointPerStates);
-    }
-
-    Map<String, Double> getSetPointPerStates() {
-        return setPointPerStates;
-    }
-
-    void setSetPointPerStates(Map<String, Double> setPointPerStates) {
-        this.setPointPerStates = setPointPerStates;
-    }
-
-    public RangeActionResult(Set<State> states) {
+    public RangeActionResult(Set<String> states) {
         setPointPerStates = new HashMap<>();
-        states.forEach(state -> setPointPerStates.put(state.getId(), Double.NaN));
+        states.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
     public Set<String> getStates() {
@@ -58,8 +40,4 @@ public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtensi
         return !setPointPerStates.getOrDefault(state, Double.NaN).isNaN();
     }
 
-    @Override
-    public String getName() {
-        return "RangeActionResult";
-    }
 }

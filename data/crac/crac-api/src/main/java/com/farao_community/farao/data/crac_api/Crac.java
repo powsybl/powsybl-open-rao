@@ -65,6 +65,14 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     State getPreventiveState();
 
     /**
+     * Gather all the states present in the Crac. It returns a set because states must not
+     * be duplicated and there is no defined order for states.
+     *
+     * @return Unordered set of states
+     */
+    Set<State> getStates();
+
+    /**
      * Chronological list of states after a defined contingency. The chronology is defined by
      * instants objects. This is a set because states must not be duplicated and it is sorted
      * by chronology of instants. Can return null if no matching contingency is found.
@@ -204,7 +212,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param id: id of the RangeAction to get
      * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
      */
-    RangeAction getRangeAction(String id);
+    RangeAction<?> getRangeAction(String id);
 
     // Network actions management
     /**

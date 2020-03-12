@@ -360,7 +360,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         // add extensions
         if (!cnec.getExtensions().isEmpty()) {
             Cnec cnecInCrac = getCnec(cnec.getId());
-            ExtensionsHandler.getCnecExtensionSerializers().addExtensions(cnecInCrac, cnec.getExtensions());
+            ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, cnec.getExtensions());
         }
     }
 

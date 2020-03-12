@@ -8,8 +8,6 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.State;
-import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,28 +16,24 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class NetworkActionResult extends AbstractExtension<NetworkAction> {
-    protected Map<State, Boolean> activationMap;
+public class NetworkActionResult<I extends NetworkAction<I>> implements Result<I> {
+    protected Map<String, Boolean> activationMap;
 
-    public NetworkActionResult(Set<State> states) {
+    public NetworkActionResult(Set<String> states) {
         activationMap = new HashMap<>();
         states.forEach(state -> activationMap.put(state, false));
     }
 
-    public boolean isActivated(State state) {
+    public boolean isActivated(String state) {
         return activationMap.getOrDefault(state, false);
     }
 
-    public void activate(State state) {
+    public void activate(String state) {
         activationMap.put(state, true);
     }
 
-    public void deactivate(State state) {
+    public void deactivate(String state) {
         activationMap.put(state, false);
     }
 
-    @Override
-    public String getName() {
-        return "NetworkActionResult";
-    }
 }

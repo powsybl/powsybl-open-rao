@@ -69,7 +69,7 @@ final class RangeActionDeserializer {
 
             simpleCrac.addRangeAction(rangeAction);
             if (!extensions.isEmpty()) {
-                ExtensionsHandler.getCnecExtensionSerializers().addExtensions(rangeAction, extensions);
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(rangeAction, extensions);
             }
         }
     }
