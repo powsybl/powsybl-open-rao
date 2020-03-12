@@ -24,7 +24,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
+public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction<PstSetpoint> {
 
     @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,

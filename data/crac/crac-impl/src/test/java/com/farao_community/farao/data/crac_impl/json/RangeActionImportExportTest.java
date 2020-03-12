@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;

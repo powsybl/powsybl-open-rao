@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResult extends RangeActionResult<PstRange> {
+public class PstRangeResult<I extends PstRange<I>> extends RangeActionResult<I> {
     private Map<String, Integer> tapPerStates;
 
     @JsonCreator

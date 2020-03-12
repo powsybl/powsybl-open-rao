@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-public final class PstWithRange extends AbstractElementaryRangeAction<PstRange> implements PstRange {
+public final class PstWithRange extends AbstractElementaryRangeAction<PstWithRange> implements PstRange<PstWithRange> {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;

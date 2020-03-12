@@ -50,7 +50,7 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     private Network network;
     private ComputationManager computationManager;
-    private Crac crac;
+    private SimpleCrac crac;
 
     @Before
     public void setUp() {
@@ -137,8 +137,8 @@ public class SystematicSensitivityAnalysisServiceTest {
         SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
     }
 
-    private static Crac create() {
-        Crac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
+    private static SimpleCrac create() {
+        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
         ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
                 new HashSet<>(Arrays.asList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));

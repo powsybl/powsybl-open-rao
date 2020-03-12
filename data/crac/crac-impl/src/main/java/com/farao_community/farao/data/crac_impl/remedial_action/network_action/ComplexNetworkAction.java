@@ -7,10 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -26,7 +24,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("complex-network-action")
-public class ComplexNetworkAction extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
+public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAction> {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
     @JsonCreator

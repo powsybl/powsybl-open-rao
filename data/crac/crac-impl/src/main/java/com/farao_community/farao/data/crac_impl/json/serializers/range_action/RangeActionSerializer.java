@@ -1,14 +1,8 @@
-/*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 package com.farao_community.farao.data.crac_impl.json.serializers.range_action;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_impl.json.serializers.RemedialActionSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.AbstractRemedialActionSerializer;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AbstractRangeAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -17,12 +11,15 @@ import java.io.IOException;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionSerializer<I extends RangeAction<I>> extends RemedialActionSerializer<I> {
-
+public class RangeActionSerializer<I extends AbstractRangeAction<I>> extends AbstractRemedialActionSerializer<I> {
     @Override
-    public void serialize(I rangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStringField("id", rangeAction.getId());
-        jsonGenerator.writeStringField("name", rangeAction.getName());
-        super.serialize(rangeAction, jsonGenerator, serializerProvider);
+    public void serialize(I abstractRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        super.serialize(abstractRangeAction, jsonGenerator, serializerProvider);
+        jsonGenerator.writeFieldName("ranges");
+        jsonGenerator.writeStartArray();
+        for (Range range : abstractRangeAction.getRanges()) {
+            jsonGenerator.writeObject(range);
+        }
+        jsonGenerator.writeEndArray();
     }
 }

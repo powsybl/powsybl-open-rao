@@ -1,15 +1,8 @@
-/*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -22,10 +15,11 @@ import java.io.IOException;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RemedialActionSerializer<I extends RemedialAction> extends JsonSerializer<I> {
-
+public abstract class AbstractRemedialActionSerializer<I extends AbstractRemedialAction<I>> extends JsonSerializer<I> {
     @Override
     public void serialize(I remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStringField("id", remedialAction.getId());
+        jsonGenerator.writeStringField("name", remedialAction.getName());
         jsonGenerator.writeStringField("operator", remedialAction.getOperator());
         jsonGenerator.writeFieldName("usageRules");
         jsonGenerator.writeStartArray();

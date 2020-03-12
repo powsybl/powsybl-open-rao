@@ -2,7 +2,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 
 import java.util.ArrayList;

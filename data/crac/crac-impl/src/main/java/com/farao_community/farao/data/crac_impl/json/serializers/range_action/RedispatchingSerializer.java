@@ -12,5 +12,5 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Red
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RedispatchingSerializer extends AbstractElementaryRangeActionSerializer<Redispatching> {
+public class RedispatchingSerializer extends ElementaryRangeActionSerializer<Redispatching> {
 }

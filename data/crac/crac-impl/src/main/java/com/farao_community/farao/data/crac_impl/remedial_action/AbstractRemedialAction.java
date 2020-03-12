@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
@@ -39,7 +39,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = Countertrading.class, name = "countertrading"),
         @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "aligned-range-action")
     })
-public abstract class AbstractRemedialAction<I extends Identifiable<I>> extends AbstractIdentifiable<I> implements RemedialAction {
+public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected List<UsageRule> usageRules;
 

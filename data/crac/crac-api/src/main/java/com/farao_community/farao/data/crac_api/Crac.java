@@ -206,8 +206,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      */
     RangeAction getRangeAction(String id);
 
-    void addRangeAction(RangeAction rangeAction);
-
     // Network actions management
     /**
      * Gather all the network actions present in the Crac. It returns a set because network
@@ -231,8 +229,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
      */
     NetworkAction getNetworkAction(String id);
-
-    void addNetworkAction(NetworkAction networkAction);
 
     // General methods
     void generateValidityReport(Network network);

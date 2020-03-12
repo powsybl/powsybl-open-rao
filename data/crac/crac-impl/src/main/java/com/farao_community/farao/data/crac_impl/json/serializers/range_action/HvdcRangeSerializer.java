@@ -12,5 +12,5 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Hvd
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class HvdcRangeSerializer extends AbstractElementaryRangeActionSerializer<HvdcRange> {
+public class HvdcRangeSerializer extends ElementaryRangeActionSerializer<HvdcRange> {
 }
