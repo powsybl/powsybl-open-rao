@@ -27,14 +27,14 @@ public final class CommonCracCreation {
 
     }
 
-    public static Crac create() {
-        Crac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
+    public static SimpleCrac create() {
+        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
         ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
-            new HashSet<>(Arrays.asList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
+            new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
         crac.addContingency(contingency1);
         ComplexContingency contingency2 = new ComplexContingency("Contingency FR1 FR2", "Trip of FFR1AA1 FFR2AA1 1",
-            new HashSet<>(Arrays.asList(new NetworkElement("FFR1AA1  FFR2AA1  1"))));
+            new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR2AA1  1"))));
         crac.addContingency(contingency2);
 
         // Instant

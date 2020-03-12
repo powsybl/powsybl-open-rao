@@ -8,6 +8,7 @@ package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -44,7 +45,7 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     private Network network;
     private ComputationManager computationManager;
-    private Crac crac;
+    private SimpleCrac crac;
 
     @Before
     public void setUp() {

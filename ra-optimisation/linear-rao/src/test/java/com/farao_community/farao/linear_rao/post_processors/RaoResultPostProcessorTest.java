@@ -7,7 +7,6 @@
 package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
@@ -44,7 +43,7 @@ public class RaoResultPostProcessorTest {
     @Before
     public void setUp() {
         // arrange input data
-        Crac crac = new SimpleCrac("cracName");
+        SimpleCrac crac = new SimpleCrac("cracName");
         RangeAction rangeAction = new PstWithRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
         crac.addRangeAction(rangeAction);
 

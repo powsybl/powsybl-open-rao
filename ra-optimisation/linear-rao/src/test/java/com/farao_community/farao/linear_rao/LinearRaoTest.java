@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -122,7 +123,7 @@ public class LinearRaoTest {
                 "TestCase12Nodes.uct",
                 getClass().getResourceAsStream("/TestCase12Nodes.uct")
         );
-        Crac crac = create();
+        SimpleCrac crac = create();
         crac.synchronize(network);
         String variantId = "variant-test";
 
@@ -193,8 +194,8 @@ public class LinearRaoTest {
         }
     }
 
-    private static Crac create() {
-        Crac crac = CommonCracCreation.create();
+    private static SimpleCrac create() {
+        SimpleCrac crac = CommonCracCreation.create();
 
         // RAs
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
