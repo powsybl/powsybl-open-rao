@@ -9,12 +9,13 @@ package com.farao_community.farao.util;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResultImpl;
@@ -50,7 +51,7 @@ public class SystematicSensitivityAnalysisServiceTest {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
-        network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
 
         computationManager = LocalComputationManager.getDefault();

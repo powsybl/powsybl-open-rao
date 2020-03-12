@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.util.CommonCracCreation;
+import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
