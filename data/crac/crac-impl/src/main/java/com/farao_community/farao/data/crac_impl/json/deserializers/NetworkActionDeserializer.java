@@ -229,12 +229,6 @@ final class NetworkActionDeserializer {
                     name = jsonParser.nextTextValue();
                     break;
 
-                case NETWORK_ELEMENTS:
-                    jsonParser.nextToken();
-                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
-                    break;
-
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }

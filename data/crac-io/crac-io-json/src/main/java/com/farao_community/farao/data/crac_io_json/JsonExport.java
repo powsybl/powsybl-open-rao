@@ -8,18 +8,7 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.json.serializers.network_action.ComplexNetworkActionSerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.AlignedRangeActionSerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstWithRangeSerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnConstraintSerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnContingencySerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_impl.json.CracImplJsonModule;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,13 +43,7 @@ public class JsonExport implements CracExporter {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(FreeToUse.class, new FreeToUseSerializer());
-            module.addSerializer(OnConstraint.class, new OnConstraintSerializer());
-            module.addSerializer(OnContingency.class, new OnContingencySerializer());
-            module.addSerializer(PstWithRange.class, new PstWithRangeSerializer());
-            module.addSerializer(AlignedRangeAction.class, new AlignedRangeActionSerializer());
-            module.addSerializer(ComplexNetworkAction.class, new ComplexNetworkActionSerializer());
+            SimpleModule module = new CracImplJsonModule();
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, crac);

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -18,15 +24,7 @@ import java.io.IOException;
 public abstract class AbstractRemedialActionSerializer<I extends AbstractRemedialAction<I>> extends JsonSerializer<I> {
     @Override
     public void serialize(I remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStringField("id", remedialAction.getId());
-        jsonGenerator.writeStringField("name", remedialAction.getName());
-        jsonGenerator.writeStringField("operator", remedialAction.getOperator());
-        jsonGenerator.writeFieldName("usageRules");
-        jsonGenerator.writeStartArray();
-        for (UsageRule usageRule: remedialAction.getUsageRules()) {
-            jsonGenerator.writeObject(usageRule);
-        }
-        jsonGenerator.writeEndArray();
+        serializeCommon(remedialAction, jsonGenerator);
         jsonGenerator.writeFieldName("networkElements");
         jsonGenerator.writeStartArray();
         for (NetworkElement networkElement: remedialAction.getNetworkElements()) {
@@ -41,5 +39,17 @@ public abstract class AbstractRemedialActionSerializer<I extends AbstractRemedia
         typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
         serialize(remedialAction, jsonGenerator, serializerProvider);
         typeSerializer.writeTypeSuffix(jsonGenerator, writableTypeId);
+    }
+
+    protected void serializeCommon(I remedialAction, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStringField("id", remedialAction.getId());
+        jsonGenerator.writeStringField("name", remedialAction.getName());
+        jsonGenerator.writeStringField("operator", remedialAction.getOperator());
+        jsonGenerator.writeFieldName("usageRules");
+        jsonGenerator.writeStartArray();
+        for (UsageRule usageRule: remedialAction.getUsageRules()) {
+            jsonGenerator.writeObject(usageRule);
+        }
+        jsonGenerator.writeEndArray();
     }
 }
