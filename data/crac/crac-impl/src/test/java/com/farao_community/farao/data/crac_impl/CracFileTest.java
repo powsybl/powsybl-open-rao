@@ -369,13 +369,6 @@ public class CracFileTest {
     }
 
     @Test
-    public void changeStatus() {
-        boolean initialStatus = simpleCrac.isSynchronized();
-        simpleCrac.changeSynchronizedStatus();
-        assertEquals(!initialStatus, simpleCrac.isSynchronized());
-    }
-
-    @Test
     public void testGetStateWithIds() {
         simpleCrac.addState(new SimpleState(
             Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
