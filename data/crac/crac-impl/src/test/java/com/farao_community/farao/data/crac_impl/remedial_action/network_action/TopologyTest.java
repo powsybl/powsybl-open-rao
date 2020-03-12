@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.powsybl.iidm.import_.Importers;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
@@ -64,10 +64,7 @@ public class TopologyTest extends AbstractRemedialActionTest {
 
     @Test
     public void applyOpenCloseLine() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
+        Network network = NetworkImportsUtil.import12NodesNetwork();
 
         assertTrue(network.getBranch(networkElementId).getTerminal1().isConnected());
         assertTrue(network.getBranch(networkElementId).getTerminal2().isConnected());
@@ -83,10 +80,7 @@ public class TopologyTest extends AbstractRemedialActionTest {
 
     @Test
     public void applyOnUnsupportedElement() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
+        Network network = NetworkImportsUtil.import12NodesNetwork();
         String nodeId = "FFR2AA1";
         Topology topologyOnNode = new Topology(
                 "on_node_id",

@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.powsybl.iidm.import_.Importers;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,10 +45,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
 
     @Test
     public void apply() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
+        Network network = NetworkImportsUtil.import12NodesNetwork();
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         pstSetpoint.apply(network);
         assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
@@ -56,10 +53,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
 
     @Test
     public void applyOutOfBound() {
-        Network network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
+        Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpoint pstSetpoint = new PstSetpoint(
             "out_of_bound",
             new NetworkElement(networkElementId),

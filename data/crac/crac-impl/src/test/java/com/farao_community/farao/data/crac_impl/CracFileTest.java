@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
-import com.powsybl.iidm.import_.Importers;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -613,7 +613,7 @@ public class CracFileTest {
 
     @Test
     public void generateValidityReport() {
-        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        Network network = NetworkImportsUtil.import12NodesNetwork();
 
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 

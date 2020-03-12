@@ -11,8 +11,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class LeafTest {
     @Before
     public void setUp() {
         // network
-        network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        network = NetworkImportsUtil.import12NodesNetwork();
 
         // network action mocks
         na1 = Mockito.mock(NetworkAction.class);
