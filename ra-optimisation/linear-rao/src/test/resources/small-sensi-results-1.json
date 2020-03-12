@@ -14,7 +14,7 @@
       "@c" : ".factors.BranchFlowPerPSTAngle",
       "function" : {
         "@c" : ".BranchFlow",
-        "id" : "Tieline BE FR - Défaut - N-1 NL1-NL3",
+        "id" : "Tieline BE FR - Defaut - N-1 NL1-NL3",
         "name" : "Tieline BE FR",
         "branchId" : "BBE2AA1  FFR3AA1  1"
       },
