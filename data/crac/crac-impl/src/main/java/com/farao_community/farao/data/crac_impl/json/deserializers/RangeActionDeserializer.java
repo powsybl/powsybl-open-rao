@@ -13,18 +13,17 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +54,6 @@ final class RangeActionDeserializer {
             RangeAction rangeAction = deserializeRangeAction(type, jsonParser, simpleCrac);
 
             simpleCrac.addRangeAction(rangeAction);
-            ExtensionsHandler.getCnecExtensionSerializers().addExtensions(rangeAction, extensions);
         }
     }
 
@@ -68,7 +66,7 @@ final class RangeActionDeserializer {
         String operator = null;
         List<UsageRule> usageRules = new ArrayList<>();
         List<Range> ranges = new ArrayList<>();
-        List<String> networkElementsIds = new ArrayList<>();
+        Set<String> networkElementsIds = new HashSet<>();
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -99,7 +97,7 @@ final class RangeActionDeserializer {
 
                 case NETWORK_ELEMENTS:
                     jsonParser.nextToken();
-                    networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    networkElementsIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
                     });
                     break;
 

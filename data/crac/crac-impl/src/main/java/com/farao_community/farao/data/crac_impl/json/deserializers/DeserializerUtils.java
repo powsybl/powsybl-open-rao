@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 

@@ -79,7 +79,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
 
                 case RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    RangeActionDeserializer.deserialize(jsonParser, deserializationContext, simpleCrac);
+                    RangeActionDeserializer.deserialize(jsonParser, simpleCrac);
                     break;
 
                 case NETWORK_ACTIONS:
