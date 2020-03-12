@@ -8,11 +8,12 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The Crac can contain several variants of results.
@@ -27,6 +28,7 @@ import java.util.Set;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
@@ -51,32 +53,109 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
     }
 
     /**
-     * Create a new variant. For all extendable object
+     * Create a new variant.
+     * If they do not exist, add a {@link ResultExtension} to all the Cnecs, RangeActions,
+     * NetworkActions and the Crac itself.
+     * Add a new {@link Result} variant, with default values, to all the ResultExtensions
+     * of the Crac.
      */
+    @SuppressWarnings("unchecked")
     public void createVariant(String variantId) {
 
         if (variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot create results variant with id [%s], as one with the same id already exists", variantId));
         }
 
-        // todo : if no Result extensions exists for the Cnecs, the Crac and the RemedialActions -> create one
-        // todo : in the Result extensions of the Cnec, Crac and RemedialActions, create a variant with id
-        //        {variantId} and default result values
+        Set<String> states = getExtendable().getStates().stream().map(State::getId).collect(Collectors.toSet());
 
+        // add CRAC result variant
+        if (getExtendable().getExtension(CracResultExtension.class) == null) {
+            getExtendable().addExtension(CracResultExtension.class, new CracResultExtension());
+        }
+        getExtendable().getExtension(CracResultExtension.class).addVariant(variantId, new CracResult());
+
+        // add CNEC result variant
+        getExtendable().getCnecs().forEach(cnec -> {
+            if (cnec.getExtension(CnecResultExtension.class) == null) {
+                cnec.addExtension(CnecResultExtension.class, new CnecResultExtension());
+            }
+            cnec.getExtension(CnecResultExtension.class).addVariant(variantId, new CnecResult());
+        });
+
+        // add Network Action result variant
+        for (NetworkAction<?> networkAction: getExtendable().getNetworkActions()) {
+            if (networkAction.getExtension(NetworkActionResultExtension.class) == null) {
+                networkAction.addExtension(NetworkActionResultExtension.class, new NetworkActionResultExtension());
+            }
+            networkAction.getExtension(NetworkActionResultExtension.class).addVariant(variantId, new NetworkActionResult(states));
+        }
+
+        // add Range Action result variant
+        for (RangeAction<?> rangeAction: getExtendable().getRangeActions()) {
+            if (rangeAction instanceof PstRange) {
+                if (rangeAction.getExtension(PstRangeResultExtension.class) == null) {
+                    rangeAction.addExtension(PstRangeResultExtension.class, new PstRangeResultExtension());
+                }
+                rangeAction.getExtension(PstRangeResultExtension.class).addVariant(variantId, new PstRangeResult(states));
+            } else {
+                if (rangeAction.getExtension(RangeActionResultExtension.class) == null) {
+                    rangeAction.addExtension(RangeActionResultExtension.class, new RangeActionResultExtension());
+                }
+                rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new RangeActionResult(states));
+            }
+        }
+
+        // add variant in variant map
         variants.add(variantId);
     }
 
     /**
-     * Delete an existing variant.
+     * Delete the variant with id variantId
+     * Remove the {@link Result} associated to the variant to be deleted of all the
+     * {@link ResultExtension} of the Crac.
      */
+    @SuppressWarnings("unchecked")
     public void deleteVariant(String variantId) {
 
         if (!variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot delete variant with id [%s], as it does not exist", variantId));
         }
 
-        // todo : in the Result extensions of the Cnec, Crac and RemedialActions, delete the variant with id
-        //        {variantId}
+        if (variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
+            getExtendable().removeExtension(CracResultExtension.class);
+
+            getExtendable().getCnecs().forEach(cnec -> cnec.removeExtension(CnecResultExtension.class));
+
+            for (NetworkAction<?> networkAction: getExtendable().getNetworkActions()) {
+                networkAction.removeExtension(NetworkActionResultExtension.class);
+            }
+
+            for (RangeAction<?> rangeAction: getExtendable().getRangeActions()) {
+                if (rangeAction instanceof PstRange) {
+                    rangeAction.removeExtension(PstRangeResultExtension.class);
+                } else {
+                    rangeAction.removeExtension(RangeActionResultExtension.class);
+                }
+            }
+
+        } else { // else, delete the variants
+
+            getExtendable().getExtension(CracResultExtension.class).deleteVariant(variantId);
+
+            getExtendable().getCnecs().forEach(cnec -> cnec.getExtension(CnecResultExtension.class).deleteVariant(variantId));
+
+            for (NetworkAction<?> networkAction: getExtendable().getNetworkActions()) {
+                networkAction.getExtension(NetworkActionResultExtension.class).deleteVariant(variantId);
+            }
+
+            for (RangeAction<?> rangeAction: getExtendable().getRangeActions()) {
+                if (rangeAction instanceof PstRange) {
+                    rangeAction.getExtension(PstRangeResultExtension.class).deleteVariant(variantId);
+                } else {
+                    rangeAction.getExtension(RangeActionResultExtension.class).deleteVariant(variantId);
+                }
+            }
+        }
 
         variants.remove(variantId);
     }

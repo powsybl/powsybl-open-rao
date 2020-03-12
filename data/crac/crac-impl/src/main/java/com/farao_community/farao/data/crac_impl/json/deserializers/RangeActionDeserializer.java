@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,8 +43,6 @@ final class RangeActionDeserializer {
         // the networkElement ids of the RangeAction with the NetworkElements of the Crac
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            List<Extension<Cnec>> extensions = new ArrayList<>();
-
             // first json Token should be the type of the range action
             jsonParser.nextToken();
             if (!jsonParser.getCurrentName().equals(TYPE)) {
