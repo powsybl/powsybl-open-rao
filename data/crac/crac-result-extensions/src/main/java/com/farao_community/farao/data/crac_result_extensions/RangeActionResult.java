@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtension<I> {
+public class RangeActionResult<T extends RangeAction<T>> implements Result<T> {
     protected Map<State, Double> setPointPerStates;
 
     public RangeActionResult(Set<State> states) {
@@ -38,8 +37,4 @@ public class RangeActionResult<I extends RangeAction<I>> extends AbstractExtensi
         return !setPointPerStates.getOrDefault(state, Double.NaN).isNaN();
     }
 
-    @Override
-    public String getName() {
-        return "RangeActionResult";
-    }
 }

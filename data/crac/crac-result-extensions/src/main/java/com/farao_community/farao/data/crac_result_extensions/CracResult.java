@@ -9,7 +9,6 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
  * Extension of {@link Crac} containing data related to an optimization:
@@ -20,7 +19,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
  * </li>
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CracResult extends AbstractExtension<Crac> {
+public class CracResult implements Result<Crac> {
 
     public enum NetworkSecurityStatus {
         SECURED,
@@ -55,10 +54,5 @@ public class CracResult extends AbstractExtension<Crac> {
     public CracResult() {
         this.cost = Double.NaN;
         setNetworkSecurityStatus();
-    }
-
-    @Override
-    public String getName() {
-        return "CracResult";
     }
 }
