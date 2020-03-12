@@ -127,6 +127,7 @@ public class LinearRao implements RaoProvider {
             linearRaoModeller.updateProblem(network, currentSensitivityAnalysisResult);
             remedialActionResultList = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
         }
+        resultVariantManager.deleteVariant(currentResultVariant);
         updateResultExtensions(crac, bestScore, bestResultVariant, bestOptimSensitivityAnalysisResult);
         return CompletableFuture.completedFuture(buildRaoComputationResult(crac, bestScore, remedialActionResultList));
     }
@@ -198,7 +199,11 @@ public class LinearRao implements RaoProvider {
             double valueInNetwork = rangeAction.getCurrentValue(network);
             //This line should be fine as long as we make sure we only add the right extensions to the range actions
             ResultExtension<?, RangeActionResult<?>> rangeActionResultMap = (ResultExtension<?, RangeActionResult<?>>) rangeAction.getExtension(ResultExtension.class);
-            rangeActionResultMap.getVariant(resultVariantId).setSetPoint(preventiveState, valueInNetwork);
+            RangeActionResult<?> rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
+            rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
+            if (rangeAction instanceof PstRange) {
+                ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
+            }
         }
     }
 

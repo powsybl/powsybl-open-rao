@@ -17,9 +17,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
-import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -147,11 +145,14 @@ public class LinearRaoTest {
                 .when(variantManagerSpy).createNewUniqueVariant();
 
         State preventiveState = crac.getPreventiveState();
-        ResultExtension<?, RangeActionResult<?>> rangeActionResultMap;
-        rangeActionResultMap = (ResultExtension<?, RangeActionResult<?>>) crac.getRangeAction("RA PST BE").getExtension(ResultExtension.class);
+        ResultExtension<PstRange, PstRangeResult> rangeActionResultMap;
+        rangeActionResultMap = ((PstRange) crac.getRangeAction("RA PST BE")).getExtension(ResultExtension.class);
         rangeActionResultMap.getVariant("currentVariant1").setSetPoint(preventiveState, 3);
+        rangeActionResultMap.getVariant("currentVariant1").setTap(preventiveState, 4);
         rangeActionResultMap.getVariant("currentVariant2").setSetPoint(preventiveState, 2);
+        rangeActionResultMap.getVariant("currentVariant2").setTap(preventiveState, 3);
         rangeActionResultMap.getVariant("currentVariant3").setSetPoint(preventiveState, 2);
+        rangeActionResultMap.getVariant("currentVariant3").setTap(preventiveState, 3);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecMarginMap1 = new HashMap<>();
@@ -213,6 +214,15 @@ public class LinearRaoTest {
             assertEquals(2, pstElementResult.getPreOptimisationTapPosition());
             assertEquals(2., pstElementResult.getPostOptimisationAngle(), 0.01);
             assertEquals(3, pstElementResult.getPostOptimisationTapPosition());
+
+            ResultExtension<Cnec, CnecResult> cnecResultMap = crac.getCnecs().iterator().next().getExtension(ResultExtension.class);
+            assertEquals(499, cnecResultMap.getVariant("preOptimVariant").getFlowInMW(), 0.01);
+            assertEquals(490, cnecResultMap.getVariant("currentVariant2").getFlowInMW(), 0.01);
+            ResultExtension<PstRange, PstRangeResult> pstResultMap = ((PstRange) crac.getRangeAction("RA PST BE")).getExtension(ResultExtension.class);
+            assertEquals(1, pstResultMap.getVariant("preOptimVariant").getTap(preventiveState));
+            assertEquals(0.39, pstResultMap.getVariant("preOptimVariant").getSetPoint(preventiveState), 0.01);
+            assertEquals(3, pstResultMap.getVariant("currentVariant2").getTap(preventiveState));
+            assertEquals(2, pstResultMap.getVariant("currentVariant2").getSetPoint(preventiveState), 0.01);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
