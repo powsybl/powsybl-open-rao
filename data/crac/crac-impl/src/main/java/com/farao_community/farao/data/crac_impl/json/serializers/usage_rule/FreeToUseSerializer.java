@@ -17,9 +17,4 @@ import java.io.IOException;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FreeToUseSerializer extends UsageRuleSerializer<FreeToUse> {
-
-    @Override
-    public void serialize(FreeToUse usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        super.serialize(usageRule, jsonGenerator, serializerProvider);
-    }
 }

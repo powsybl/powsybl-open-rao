@@ -23,7 +23,7 @@ final class DeserializerUtils {
 
     private DeserializerUtils() { }
 
-    static Set<NetworkElement> getNetworkElementsFromIds(List<String> networkElementsIds, SimpleCrac simpleCrac) {
+    static Set<NetworkElement> getNetworkElementsFromIds(Set<String> networkElementsIds, SimpleCrac simpleCrac) {
         Set<NetworkElement> networkElements = new HashSet<>();
         networkElementsIds.forEach(neId -> {
             NetworkElement ne = simpleCrac.getNetworkElement(neId);

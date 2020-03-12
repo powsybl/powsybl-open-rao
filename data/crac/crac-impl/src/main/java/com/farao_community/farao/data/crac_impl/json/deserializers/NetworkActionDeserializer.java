@@ -118,7 +118,7 @@ final class NetworkActionDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -175,7 +175,7 @@ final class NetworkActionDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -236,7 +236,7 @@ final class NetworkActionDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 

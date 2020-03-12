@@ -37,13 +37,11 @@ final class RangeActionDeserializer {
 
     private RangeActionDeserializer() { }
 
-    static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, SimpleCrac simpleCrac) throws IOException {
+    static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard RangeAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the RangeAction with the NetworkElements of the Crac
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-
-            RangeAction rangeAction = null;
             List<Extension<Cnec>> extensions = new ArrayList<>();
 
             // first json Token should be the type of the range action
@@ -54,27 +52,14 @@ final class RangeActionDeserializer {
 
             // use the deserializer suited to range action type
             String type = jsonParser.nextTextValue();
-            switch (type) {
-                case PST_WITH_RANGE_TYPE:
-                    rangeAction = deserializePstWithRange(jsonParser, simpleCrac);
-                    break;
-
-                case ALIGNED_RANGE_ACTIONS_TYPE:
-                    rangeAction = deserializeAlignedRangeAction(jsonParser, simpleCrac);
-                    break;
-
-                default:
-                    throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
-            }
+            RangeAction rangeAction = deserializeRangeAction(type, jsonParser, simpleCrac);
 
             simpleCrac.addRangeAction(rangeAction);
-            if (!extensions.isEmpty()) {
-                ExtensionsHandler.getCnecExtensionSerializers().addExtensions(rangeAction, extensions);
-            }
+            ExtensionsHandler.getCnecExtensionSerializers().addExtensions(rangeAction, extensions);
         }
     }
 
-    private static AlignedRangeAction deserializeAlignedRangeAction(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static RangeAction deserializeRangeAction(String type, JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard AlignedRangeAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the AlignedRangeAction with the NetworkElements of the Crac
 
@@ -119,72 +104,20 @@ final class RangeActionDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
 
         }
 
         //add contingency in Crac
         Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
-        return new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
-    }
-
-    private static PstWithRange deserializePstWithRange(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard PstWithRange deserializer as it requires the simpleCrac to compare
-        // the networkElement ids of the PstWithRange with the NetworkElements of the Crac
-
-        String id = null;
-        String name = null;
-        String operator = null;
-        List<UsageRule> usageRules = new ArrayList<>();
-        List<Range> ranges = new ArrayList<>();
-        String networkElementId = null;
-
-        while (!jsonParser.nextToken().isStructEnd()) {
-
-            switch (jsonParser.getCurrentName()) {
-
-                case OPERATOR:
-                    operator = jsonParser.nextTextValue();
-                    break;
-
-                case ID:
-                    id = jsonParser.nextTextValue();
-                    break;
-
-                case USAGE_RULES:
-                    jsonParser.nextToken();
-                    usageRules = UsageRuleDeserializer.deserialize(jsonParser, simpleCrac);
-                    break;
-
-                case NAME:
-                    name = jsonParser.nextTextValue();
-                    break;
-
-                case NETWORK_ELEMENTS:
-                    jsonParser.nextToken();
-                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
-                    networkElementId = networkElementsIds.get(0);
-                    break;
-
-                case RANGES:
-                    jsonParser.nextToken();
-                    ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
-                    });
-                    break;
-
-                default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
-            }
-
+        switch (type) {
+            case PST_WITH_RANGE_TYPE:
+                return new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next());
+            case ALIGNED_RANGE_ACTIONS_TYPE:
+                return new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
+            default:
+                throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
         }
-
-        NetworkElement ne = simpleCrac.getNetworkElement(networkElementId);
-        if (ne == null) {
-            throw new FaraoException(String.format("The network element [%s] mentioned in the pst-with-range is not defined", networkElementId));
-        }
-
-        return new PstWithRange(id, name, operator, usageRules, ranges, ne);
     }
 }

@@ -90,7 +90,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -128,7 +128,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -170,7 +170,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 

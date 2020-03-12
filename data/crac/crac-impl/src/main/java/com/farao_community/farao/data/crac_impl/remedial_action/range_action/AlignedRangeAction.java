@@ -93,10 +93,6 @@ public class AlignedRangeAction extends AbstractRangeAction<AlignedRangeAction> 
         // to implement
     }
 
-    public void addRange(Range range) {
-        this.ranges.add(range);
-    }
-
     public void addNetworkElement(NetworkElement networkElement) {
         this.networkElements.add(networkElement);
     }
