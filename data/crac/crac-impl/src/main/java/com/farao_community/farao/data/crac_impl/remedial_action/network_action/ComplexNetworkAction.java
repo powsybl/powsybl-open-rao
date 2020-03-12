@@ -9,9 +9,11 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.json.serializers.network_action.ComplexNetworkActionSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
@@ -24,6 +26,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("complex-network-action")
+@JsonSerialize(using = ComplexNetworkActionSerializer.class)
 public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAction> {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
