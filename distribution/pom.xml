@@ -222,25 +222,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <!-- exclude generated classes -->
-                                <exclude>**/generated/**/*</exclude>
-                            </excludes>
-                        </configuration>
                         <executions>
-                            <execution>
-                                <id>prepare-agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
                             <execution>
                                 <id>report-aggregate</id>
                                 <phase>verify</phase>
