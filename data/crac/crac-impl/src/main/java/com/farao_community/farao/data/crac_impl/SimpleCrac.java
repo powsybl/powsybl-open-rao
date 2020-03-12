@@ -423,6 +423,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         cnecs.forEach(cnec -> cnec.synchronize(network));
         rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
         isSynchronized = true;
+        changeSynchronizedStatus();
+        changeSynchronizedStatus();
+    }
+
+    public void changeSynchronizedStatus() {
+        isSynchronized = !isSynchronized();
     }
 
     @Override
