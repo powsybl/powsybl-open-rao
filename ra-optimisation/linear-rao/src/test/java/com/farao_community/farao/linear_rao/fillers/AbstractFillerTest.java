@@ -50,7 +50,7 @@ abstract class AbstractFillerTest {
     static final int TAP_IT2 = -7;
 
     static final String CNEC_1_ID = "Tieline BE FR - N - preventive";
-    static final String CNEC_2_ID = "Tieline BE FR - Défaut - N-1 NL1-NL3";
+    static final String CNEC_2_ID = "Tieline BE FR - Defaut - N-1 NL1-NL3";
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
