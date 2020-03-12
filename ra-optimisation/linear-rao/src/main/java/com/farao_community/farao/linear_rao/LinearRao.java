@@ -36,8 +36,8 @@ public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
     //these two objects are only used for the old computation result
-    private static SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
-    private static SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
+    private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
+    private SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
 
     @Override
     public String getName() {
