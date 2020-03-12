@@ -40,7 +40,7 @@ public class LinearRaoModellerTest {
     public void testOptimalSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
 
-        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
+        RaoComputationResult raoComputationResult = linearRaoModeller.solve("");
         assertNotNull(raoComputationResult);
         assertEquals(RaoComputationResult.Status.SUCCESS, raoComputationResult.getStatus());
     }
@@ -49,7 +49,7 @@ public class LinearRaoModellerTest {
     public void testUnboundedSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
 
-        RaoComputationResult raoComputationResult = linearRaoModeller.solve();
+        RaoComputationResult raoComputationResult = linearRaoModeller.solve("");
         assertNotNull(raoComputationResult);
         assertEquals(RaoComputationResult.Status.FAILURE, raoComputationResult.getStatus());
     }

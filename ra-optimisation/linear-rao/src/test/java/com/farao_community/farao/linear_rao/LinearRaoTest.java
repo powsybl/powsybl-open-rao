@@ -17,6 +17,9 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
+import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -113,8 +116,9 @@ public class LinearRaoTest {
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, new HashMap<>(), new HashMap<>()));
         RaoComputationResult result;
+        Crac crac = new SimpleCrac("myCrac");
         try {
-            result = linearRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, raoParameters).get();
+            result = linearRao.run(Mockito.mock(Network.class), crac, "", computationManager, raoParameters).get();
             assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
         } catch (Exception e) {
             fail();
@@ -130,6 +134,24 @@ public class LinearRaoTest {
         Crac crac = create();
         crac.synchronize(network);
         String variantId = "variant-test";
+
+        ResultVariantManager variantManager = new ResultVariantManager();
+        ResultVariantManager variantManagerSpy = Mockito.spy(variantManager);
+        crac.addExtension(ResultVariantManager.class, variantManagerSpy);
+        variantManagerSpy.createVariant("preOptimVariant");
+        variantManagerSpy.createVariant("postOptimVariant");
+        variantManagerSpy.createVariant("currentVariant1");
+        variantManagerSpy.createVariant("currentVariant2");
+        variantManagerSpy.createVariant("currentVariant3");
+        Mockito.doReturn("preOptimVariant").doReturn("postOptimVariant").doReturn("currentVariant1").doReturn("currentVariant2").doReturn("currentVariant3")
+                .when(variantManagerSpy).createNewUniqueVariant();
+
+        State preventiveState = crac.getPreventiveState();
+        ResultExtension<?, RangeActionResult<?>> rangeActionResultMap;
+        rangeActionResultMap = (ResultExtension<?, RangeActionResult<?>>) crac.getRangeAction("RA PST BE").getExtension(ResultExtension.class);
+        rangeActionResultMap.getVariant("currentVariant1").setSetPoint(preventiveState, 3);
+        rangeActionResultMap.getVariant("currentVariant2").setSetPoint(preventiveState, 2);
+        rangeActionResultMap.getVariant("currentVariant3").setSetPoint(preventiveState, 2);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecMarginMap1 = new HashMap<>();
@@ -169,7 +191,7 @@ public class LinearRaoTest {
         RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
 
         LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
-        Mockito.when(linearRaoModellerMock.solve()).thenReturn(raoComputationResult1, raoComputationResult2);
+        Mockito.when(linearRaoModellerMock.solve(Mockito.any())).thenReturn(raoComputationResult1, raoComputationResult2);
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());
