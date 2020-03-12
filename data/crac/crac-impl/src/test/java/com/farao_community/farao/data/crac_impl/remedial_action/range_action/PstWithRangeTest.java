@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -35,10 +36,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
 
     @Before
     public void setUp() {
-        network = Importers.loadNetwork(
-            "TestCase12Nodes.uct",
-            getClass().getResourceAsStream("/TestCase12Nodes.uct")
-        );
+        network = NetworkImportsUtil.import12NodesNetwork();
         networkElementId = "BBE2AA1  BBE3AA1  1";
         networkElement = new NetworkElement(networkElementId);
         pst = new PstWithRange("pst_range_id", networkElement);
