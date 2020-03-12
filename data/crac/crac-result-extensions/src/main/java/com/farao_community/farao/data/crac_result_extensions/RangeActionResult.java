@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +14,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResult<T extends RangeAction<T>> implements Result<T> {
+public class RangeActionResult implements Result {
     protected Map<String, Double> setPointPerStates;
 
     public RangeActionResult(Set<String> states) {

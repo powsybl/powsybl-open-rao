@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ResultExtension<T extends Identifiable<T>, S extends Result<T>> extends AbstractExtension<T> {
+public class ResultExtension<T extends Identifiable<T>, S extends Result> extends AbstractExtension<T> {
 
     /**
      * Map of results, with one result "S" of each variantId "String"

@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.PstRange;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +14,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResult<I extends PstRange<I>> extends RangeActionResult<I> {
+public class PstRangeResult extends RangeActionResult {
     private Map<String, Integer> tapPerStates;
 
     public PstRangeResult(Set<String> states) {
