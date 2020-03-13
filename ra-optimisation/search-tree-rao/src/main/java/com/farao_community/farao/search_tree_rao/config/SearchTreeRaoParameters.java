@@ -18,6 +18,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final String DEFAULT_RANGE_ACTION_RAO = "LinearRao";
 
     private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
+    private boolean dcMode = false;
+    private boolean acToDcFallback = false;
 
     @Override
     public String getName() {
@@ -30,5 +32,21 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setRangeActionRao(String rangeActionRaoName) {
         this.rangeActionRao = rangeActionRaoName;
+    }
+
+    public boolean isDcMode() {
+        return dcMode;
+    }
+
+    public void setDcMode(boolean dcMode) {
+        this.dcMode = dcMode;
+    }
+
+    public boolean isAcToDcFallback() {
+        return acToDcFallback;
+    }
+
+    public void setAcToDcFallback(boolean acToDcFallback) {
+        this.acToDcFallback = acToDcFallback;
     }
 }

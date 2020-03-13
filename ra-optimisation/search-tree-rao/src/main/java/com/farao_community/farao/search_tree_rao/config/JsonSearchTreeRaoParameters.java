@@ -26,6 +26,8 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     public void serialize(SearchTreeRaoParameters searchTreeRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("range-action-rao", searchTreeRaoParameters.getRangeActionRao());
+        jsonGenerator.writeBooleanField("dc-mode", searchTreeRaoParameters.isDcMode());
+        jsonGenerator.writeBooleanField("ac-to-dc-fallback", searchTreeRaoParameters.isAcToDcFallback());
         jsonGenerator.writeEndObject();
     }
 
@@ -37,6 +39,14 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
             switch (jsonParser.getCurrentName()) {
                 case "range-action-rao":
                     parameters.setRangeActionRao(jsonParser.nextTextValue());
+                    break;
+                case "dc-mode":
+                    jsonParser.nextToken();
+                    parameters.setDcMode(jsonParser.getBooleanValue());
+                    break;
+                case "ac-to-dc-fallback":
+                    jsonParser.nextToken();
+                    parameters.setAcToDcFallback(jsonParser.getBooleanValue());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
