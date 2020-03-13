@@ -7,9 +7,6 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.State;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,22 +14,21 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResult extends RangeActionResult<PstRange> {
+public class PstRangeResult extends RangeActionResult {
+    private Map<String, Integer> tapPerStates;
 
-    private Map<State, Integer> tapPerStates;
-
-    public PstRangeResult(Set<State> states) {
-        super(states);
+    public PstRangeResult(Set<String> stateIds) {
+        super(stateIds);
         tapPerStates = new HashMap<>();
-        states.forEach(state -> tapPerStates.put(state, null));
+        stateIds.forEach(state -> tapPerStates.put(state, null));
     }
 
-    public int getTap(State state) {
-        return tapPerStates.getOrDefault(state, null);
+    public int getTap(String stateId) {
+        return tapPerStates.getOrDefault(stateId, null);
     }
 
-    public void setTap(State state, int tap) {
-        tapPerStates.put(state, tap);
+    public void setTap(String stateId, int tap) {
+        tapPerStates.put(stateId, tap);
     }
 
 }

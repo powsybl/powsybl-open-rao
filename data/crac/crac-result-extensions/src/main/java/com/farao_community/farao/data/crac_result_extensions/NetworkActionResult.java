@@ -7,9 +7,6 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.State;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,24 +14,24 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class NetworkActionResult implements Result<NetworkAction> {
-    protected Map<State, Boolean> activationMap;
+public class NetworkActionResult implements Result {
+    protected Map<String, Boolean> activationMap;
 
-    public NetworkActionResult(Set<State> states) {
+    public NetworkActionResult(Set<String> stateIds) {
         activationMap = new HashMap<>();
-        states.forEach(state -> activationMap.put(state, false));
+        stateIds.forEach(state -> activationMap.put(state, false));
     }
 
-    public boolean isActivated(State state) {
-        return activationMap.getOrDefault(state, false);
+    public boolean isActivated(String stateId) {
+        return activationMap.getOrDefault(stateId, false);
     }
 
-    public void activate(State state) {
-        activationMap.put(state, true);
+    public void activate(String stateId) {
+        activationMap.put(stateId, true);
     }
 
-    public void deactivate(State state) {
-        activationMap.put(state, false);
+    public void deactivate(String stateId) {
+        activationMap.put(stateId, false);
     }
 
 }

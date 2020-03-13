@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
+import static com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -77,7 +77,6 @@ final class UsageRuleDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
 
             switch (jsonParser.getCurrentName()) {
-
                 case USAGE_METHOD:
                     jsonParser.nextToken();
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
@@ -88,7 +87,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -109,7 +108,6 @@ final class UsageRuleDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
 
             switch (jsonParser.getCurrentName()) {
-
                 case USAGE_METHOD:
                     jsonParser.nextToken();
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
@@ -124,7 +122,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -149,7 +147,6 @@ final class UsageRuleDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
 
             switch (jsonParser.getCurrentName()) {
-
                 case USAGE_METHOD:
                     jsonParser.nextToken();
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
@@ -164,7 +161,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 

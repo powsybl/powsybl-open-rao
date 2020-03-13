@@ -7,9 +7,6 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.State;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,24 +14,28 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResult<T extends RangeAction<T>> implements Result<T> {
-    protected Map<State, Double> setPointPerStates;
+public class RangeActionResult implements Result {
+    protected Map<String, Double> setPointPerStates;
 
-    public RangeActionResult(Set<State> states) {
+    public RangeActionResult(Set<String> stateIds) {
         setPointPerStates = new HashMap<>();
-        states.forEach(state -> setPointPerStates.put(state, Double.NaN));
+        stateIds.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
-    public double getSetPoint(State state) {
-        return setPointPerStates.getOrDefault(state, Double.NaN);
+    public Set<String> getStates() {
+        return setPointPerStates.keySet();
     }
 
-    public void setSetPoint(State state, double setPoint) {
-        setPointPerStates.put(state, setPoint);
+    public double getSetPoint(String stateId) {
+        return setPointPerStates.getOrDefault(stateId, Double.NaN);
     }
 
-    public boolean isActivated(State state) {
-        return !setPointPerStates.getOrDefault(state, Double.NaN).isNaN();
+    public void setSetPoint(String stateId, double setPoint) {
+        setPointPerStates.put(stateId, setPoint);
+    }
+
+    public boolean isActivated(String stateId) {
+        return !setPointPerStates.getOrDefault(stateId, Double.NaN).isNaN();
     }
 
 }

@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("countertrading")
-public class Countertrading extends AbstractRemedialAction<Countertrading> implements RangeAction<Countertrading> {
+public class Countertrading extends AbstractRangeAction<Countertrading> implements RangeAction<Countertrading> {
 
     public static final int TEMP_VALUE = 0;
 
@@ -36,8 +36,9 @@ public class Countertrading extends AbstractRemedialAction<Countertrading> imple
     public Countertrading(@JsonProperty("id") String id,
                           @JsonProperty("name") String name,
                           @JsonProperty("operator") String operator,
-                          @JsonProperty("usageRules") List<UsageRule> usageRules) {
-        super(id, name, operator, usageRules);
+                          @JsonProperty("usageRules") List<UsageRule> usageRules,
+                          @JsonProperty("ranges") List<Range> ranges) {
+        super(id, name, operator, usageRules, ranges);
     }
 
     public Countertrading(String id, String name, String operator) {

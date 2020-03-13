@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -35,17 +36,15 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
 
         //Old computation result code
         List<RemedialActionResult> remedialActionResults = new ArrayList<>();
+        for (RangeAction<?> rangeAction: linearRaoData.getCrac().getRangeActions()) {
+            //Old computation result code
+            String rangeActionId = rangeAction.getId();
+            String rangeActionName = rangeAction.getName();
+          
+            String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-        linearRaoData.getCrac().getRangeActions().forEach(
-            rangeAction -> {
-                //Old computation result code
-                String rangeActionId = rangeAction.getId();
-                String rangeActionName = rangeAction.getName();
-
-                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
-
-                double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
-                double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
+            double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
+            double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
 
                 if (rangeActionVar > 0) {
                     if (rangeAction instanceof PstRange) {
