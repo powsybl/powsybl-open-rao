@@ -31,7 +31,7 @@ public class JsonResultExtension<T extends Identifiable<T>>
     public void serialize(ResultExtension<T, ? extends Result<T>> resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        // serialize result per result as  the whole map somehow skip the result types
+        // serialize result per result as the whole map somehow skips the result types
         jsonGenerator.writeFieldName("resultsPerVariant");
         jsonGenerator.writeStartObject();
         for (Map.Entry<String, ? extends Result<T>> entry : resultExtension.getResultMap().entrySet()) {

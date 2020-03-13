@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResult<I extends RangeAction<I>> implements Result<I> {
+public class RangeActionResult<T extends RangeAction<T>> implements Result<T> {
     protected Map<State, Double> setPointPerStates;
 
     public RangeActionResult(Set<State> states) {
