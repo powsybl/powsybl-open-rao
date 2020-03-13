@@ -9,9 +9,10 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.AlignedRangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import com.powsybl.sensitivity.SensitivityComputationResults;
@@ -29,12 +30,10 @@ import java.util.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("aligned-range-action")
-public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
-
+@JsonSerialize(using = AlignedRangeActionSerializer.class)
+public class AlignedRangeAction extends AbstractRangeAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
     public static final int TEMP_VALUE_ARA = 0;
 
-    @JsonProperty("ranges")
-    private List<Range> ranges;
     @JsonProperty("networkElements")
     private Set<NetworkElement> networkElements;
 
@@ -45,7 +44,7 @@ public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeActio
                               @JsonProperty("usageRules") List<UsageRule> usageRules,
                               @JsonProperty("ranges") List<Range> ranges,
                               @JsonProperty("networkElements") Set<NetworkElement> networkElements) {
-        super(id, name, operator, usageRules);
+        super(id, name, operator, usageRules, ranges);
         this.ranges = new ArrayList<>(ranges);
         this.networkElements = new HashSet<>(networkElements);
     }
@@ -64,10 +63,6 @@ public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeActio
         super(id);
         this.ranges = new ArrayList<>();
         this.networkElements = new HashSet<>();
-    }
-
-    public final List<Range> getRanges() {
-        return ranges;
     }
 
     @Override
@@ -99,10 +94,6 @@ public class AlignedRangeAction extends AbstractRemedialAction<AlignedRangeActio
     @Override
     public void apply(Network network, double setpoint) {
         // to implement
-    }
-
-    public void addRange(Range range) {
-        this.ranges.add(range);
     }
 
     public void addNetworkElement(NetworkElement networkElement) {

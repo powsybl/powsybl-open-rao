@@ -28,15 +28,15 @@ public class PstRangeResultTest {
     @Before
     public void setUp() {
         state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        pstRangeResult = new PstRangeResult(Collections.singleton(state));
+        pstRangeResult = new PstRangeResult(Collections.singleton(state.getId()));
     }
 
     @Test
     public void setSetPoint() {
-        pstRangeResult.setSetPoint(state, 3.2);
-        pstRangeResult.setTap(state, 5);
+        pstRangeResult.setSetPoint(state.getId(), 3.2);
+        pstRangeResult.setTap(state.getId(), 5);
 
-        assertEquals(3.2, pstRangeResult.getSetPoint(state), EPSILON);
-        assertEquals(5, pstRangeResult.getTap(state));
+        assertEquals(3.2, pstRangeResult.getSetPoint(state.getId()), EPSILON);
+        assertEquals(5, pstRangeResult.getTap(state.getId()));
     }
 }

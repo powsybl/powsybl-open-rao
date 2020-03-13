@@ -26,7 +26,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class NetworkActionResultTest {
     private NetworkActionResult networkActionResult;
-    private Set<State> states;
+    private Set<String> states;
     private State initialState;
     private State outage1;
     private State curative1;
@@ -41,36 +41,36 @@ public class NetworkActionResultTest {
         curative1 = new SimpleState(Optional.of(new ComplexContingency("co1")), new Instant("curative-co1", 50));
         outage2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("after-co2", 10));
         curative2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("curative-co2", 50));
-        states.add(initialState);
-        states.add(outage1);
-        states.add(curative1);
-        states.add(outage2);
-        states.add(curative2);
+        states.add(initialState.getId());
+        states.add(outage1.getId());
+        states.add(curative1.getId());
+        states.add(outage2.getId());
+        states.add(curative2.getId());
         networkActionResult = new NetworkActionResult(states);
     }
 
     @Test
     public void constructor() {
-        assertTrue(networkActionResult.activationMap.containsKey(initialState));
-        assertTrue(networkActionResult.activationMap.containsKey(outage1));
-        assertTrue(networkActionResult.activationMap.containsKey(curative1));
-        assertTrue(networkActionResult.activationMap.containsKey(outage2));
-        assertTrue(networkActionResult.activationMap.containsKey(curative2));
+        assertTrue(networkActionResult.activationMap.containsKey(initialState.getId()));
+        assertTrue(networkActionResult.activationMap.containsKey(outage1.getId()));
+        assertTrue(networkActionResult.activationMap.containsKey(curative1.getId()));
+        assertTrue(networkActionResult.activationMap.containsKey(outage2.getId()));
+        assertTrue(networkActionResult.activationMap.containsKey(curative2.getId()));
         assertEquals(5, networkActionResult.activationMap.size());
     }
 
     @Test
     public void activate() {
-        networkActionResult.activate(initialState);
-        assertTrue(networkActionResult.isActivated(initialState));
-        assertFalse(networkActionResult.isActivated(outage1));
+        networkActionResult.activate(initialState.getId());
+        assertTrue(networkActionResult.isActivated(initialState.getId()));
+        assertFalse(networkActionResult.isActivated(outage1.getId()));
     }
 
     @Test
     public void deactivate() {
-        networkActionResult.activate(initialState);
-        assertTrue(networkActionResult.isActivated(initialState));
-        networkActionResult.deactivate(initialState);
-        assertFalse(networkActionResult.isActivated(initialState));
+        networkActionResult.activate(initialState.getId());
+        assertTrue(networkActionResult.isActivated(initialState.getId()));
+        networkActionResult.deactivate(initialState.getId());
+        assertFalse(networkActionResult.isActivated(initialState.getId()));
     }
 }

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_io_json;
+package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.*;
@@ -22,18 +22,13 @@ import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
-import com.farao_community.farao.data.crac_io_api.CracExporters;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.farao_community.farao.data.crac_impl.json.RoundTripUtil.roundTrip;
 import static junit.framework.TestCase.assertEquals;
 
 /**
@@ -117,18 +112,12 @@ public class CracImportExportTest {
             Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
         ));
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(simpleCrac, "Json", outputStream);
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            Crac crac = CracImporters.importCrac("unknown.json", inputStream);
-            assertEquals(5, crac.getNetworkElements().size());
-            assertEquals(2, crac.getInstants().size());
-            assertEquals(2, crac.getContingencies().size());
-            assertEquals(3, crac.getCnecs().size());
-            assertEquals(2, crac.getRangeActions().size());
-            assertEquals(2, crac.getNetworkActions().size());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
+        assertEquals(5, crac.getNetworkElements().size());
+        assertEquals(2, crac.getInstants().size());
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(3, crac.getCnecs().size());
+        assertEquals(2, crac.getRangeActions().size());
+        assertEquals(2, crac.getNetworkActions().size());
     }
 }

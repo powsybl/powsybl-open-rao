@@ -212,9 +212,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param id: id of the RangeAction to get
      * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
      */
-    RangeAction getRangeAction(String id);
-
-    void addRangeAction(RangeAction rangeAction);
+    RangeAction<? extends RangeAction> getRangeAction(String id);
 
     // Network actions management
     /**
@@ -239,8 +237,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
      */
     NetworkAction getNetworkAction(String id);
-
-    void addNetworkAction(NetworkAction networkAction);
 
     // General methods
     void generateValidityReport(Network network);

@@ -27,7 +27,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = HvdcSetpoint.class, name = "hvdc-setpoint"),
         @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint")
     })
-public abstract class AbstractSetpointElementaryNetworkAction extends AbstractElementaryNetworkAction {
+public abstract class AbstractSetpointElementaryNetworkAction<I extends AbstractSetpointElementaryNetworkAction<I>> extends AbstractElementaryNetworkAction<I> {
 
     protected double setpoint;
 

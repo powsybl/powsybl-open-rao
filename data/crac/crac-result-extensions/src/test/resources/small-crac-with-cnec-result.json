@@ -124,7 +124,7 @@
           "rangeDefinition": "STARTS_AT_ONE"
         }
       ],
-      "networkElement": "BBE2AA1  BBE3AA1  1"
+      "networkElements": ["BBE2AA1  BBE3AA1  1"]
     }
   ],
   "networkActions": []

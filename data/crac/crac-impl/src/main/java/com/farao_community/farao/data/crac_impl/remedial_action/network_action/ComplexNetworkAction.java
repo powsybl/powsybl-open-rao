@@ -7,13 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
+import com.farao_community.farao.data.crac_impl.json.serializers.network_action.ComplexNetworkActionSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
@@ -26,7 +26,8 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("complex-network-action")
-public class ComplexNetworkAction extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
+@JsonSerialize(using = ComplexNetworkActionSerializer.class)
+public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAction> {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
     @JsonCreator
@@ -73,4 +74,23 @@ public class ComplexNetworkAction extends AbstractRemedialAction<NetworkAction> 
     public void addNetworkAction(AbstractElementaryNetworkAction networkAction) {
         this.elementaryNetworkActions.add(networkAction);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComplexNetworkAction otherComplexNetworkAction = (ComplexNetworkAction) o;
+        return super.equals(otherComplexNetworkAction)
+            && new HashSet<>(elementaryNetworkActions).equals(new HashSet<>(otherComplexNetworkAction.elementaryNetworkActions));
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

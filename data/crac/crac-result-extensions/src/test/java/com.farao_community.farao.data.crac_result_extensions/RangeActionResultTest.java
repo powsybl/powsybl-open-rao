@@ -26,7 +26,7 @@ public class RangeActionResultTest {
     private static final double EPSILON = 0.01;
 
     private RangeActionResult rangeActionResult;
-    private Set<State> states;
+    private Set<String> states;
     private State initialState;
     private State outage1;
     private State curative1;
@@ -41,28 +41,28 @@ public class RangeActionResultTest {
         curative1 = new SimpleState(Optional.of(new ComplexContingency("co1")), new Instant("curative-co1", 50));
         outage2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("after-co2", 10));
         curative2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("curative-co2", 50));
-        states.add(initialState);
-        states.add(outage1);
-        states.add(curative1);
-        states.add(outage2);
-        states.add(curative2);
+        states.add(initialState.getId());
+        states.add(outage1.getId());
+        states.add(curative1.getId());
+        states.add(outage2.getId());
+        states.add(curative2.getId());
         rangeActionResult = new RangeActionResult(states);
     }
 
     @Test
     public void constructor() {
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(initialState));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage1));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative1));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage2));
-        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative2));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(initialState.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage1.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative1.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(outage2.getId()));
+        assertTrue(rangeActionResult.setPointPerStates.containsKey(curative2.getId()));
         assertEquals(5, rangeActionResult.setPointPerStates.size());
     }
 
     @Test
     public void getSetPoint() {
-        rangeActionResult.setSetPoint(outage1, 15.);
-        assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState), EPSILON);
-        assertEquals(15., rangeActionResult.getSetPoint(outage1), EPSILON);
+        rangeActionResult.setSetPoint(outage1.getId(), 15.);
+        assertEquals(Double.NaN, rangeActionResult.getSetPoint(initialState.getId()), EPSILON);
+        assertEquals(15., rangeActionResult.getSetPoint(outage1.getId()), EPSILON);
     }
 }

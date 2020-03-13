@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
-import com.farao_community.farao.data.crac_impl.json.SimpleCnecSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -372,15 +372,13 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkActions;
     }
 
-    @Override
-    public void addNetworkAction(NetworkAction networkAction) {
+    public void addNetworkAction(NetworkAction<?> networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.add(networkAction);
     }
 
-    @Override
-    public void addRangeAction(RangeAction rangeAction) {
+    public void addRangeAction(RangeAction<?> rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);
     }
@@ -448,21 +446,25 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         });
         absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
-        getRangeActions().forEach(rangeAction -> rangeAction.getNetworkElements().forEach(networkElement -> {
-            if (network.getIdentifiable(networkElement.getId()) == null) {
-                absentFromNetworkRangeActions.add(rangeAction);
-                LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
-            }
-        }));
+        for (RangeAction<?> rangeAction: getRangeActions()) {
+            rangeAction.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkRangeActions.add(rangeAction);
+                    LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
+                }
+            });
+        }
         absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
 
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
-        getNetworkActions().forEach(networkAction -> networkAction.getNetworkElements().forEach(networkElement -> {
-            if (network.getIdentifiable(networkElement.getId()) == null) {
-                absentFromNetworkNetworkActions.add(networkAction);
-                LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
-            }
-        }));
+        for (NetworkAction<?> networkAction: getNetworkActions()) {
+            networkAction.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkNetworkActions.add(networkAction);
+                    LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
+                }
+            });
+        }
         absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
         // TODO: remove contingencies that are not present in the network (and states associated...)
     }

@@ -7,9 +7,7 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +35,9 @@ public class ResultVariantManagerTest {
         String variantId1 = "variant1";
         String variantId2 = "variant2";
 
-        ResultExtension<Crac, CracResult> cracExtension;
-        ResultExtension<Cnec, CnecResult> cnecExtension;
-        ResultExtension<PstRange, PstRangeResult> pstExtension;
+        CracResultExtension cracExtension;
+        CnecResultExtension cnecExtension;
+        PstRangeResultExtension pstExtension;
 
         assertTrue(variantManager.getVariants().isEmpty());
 
@@ -49,9 +47,9 @@ public class ResultVariantManagerTest {
 
         assertEquals(2, variantManager.getVariants().size());
 
-        cracExtension = crac.getExtension(ResultExtension.class);
-        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
-        pstExtension = ((PstRange) crac.getRangeAction("PRA_PST_BE")).getExtension(ResultExtension.class);
+        cracExtension = crac.getExtension(CracResultExtension.class);
+        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
+        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(PstRangeResultExtension.class);
 
         assertNotNull(cracExtension.getVariant(variantId1));
         assertNotNull(cracExtension.getVariant(variantId2));
@@ -78,9 +76,9 @@ public class ResultVariantManagerTest {
 
         assertEquals(0, variantManager.getVariants().size());
 
-        cracExtension = crac.getExtension(ResultExtension.class);
-        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
-        pstExtension = ((PstRange) crac.getRangeAction("PRA_PST_BE")).getExtension(ResultExtension.class);
+        cracExtension = crac.getExtension(CracResultExtension.class);
+        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
+        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(PstRangeResultExtension.class);
 
         assertNull(cracExtension);
         assertNull(cnecExtension);
