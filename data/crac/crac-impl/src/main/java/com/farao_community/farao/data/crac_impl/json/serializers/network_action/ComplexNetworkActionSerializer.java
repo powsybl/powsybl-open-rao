@@ -9,10 +9,7 @@ package com.farao_community.farao.data.crac_impl.json.serializers.network_action
 
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
@@ -24,13 +21,5 @@ public class ComplexNetworkActionSerializer extends NetworkActionSerializer<Comp
     @Override
     public void serialize(ComplexNetworkAction networkAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serializeCommon(networkAction, jsonGenerator);
-    }
-
-    @Override
-    public void serializeWithType(ComplexNetworkAction networkAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
-        WritableTypeId writableTypeId = typeSerializer.typeId(networkAction, JsonToken.START_OBJECT);
-        typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
-        serialize(networkAction, jsonGenerator, serializerProvider);
-        typeSerializer.writeTypeSuffix(jsonGenerator, writableTypeId);
     }
 }

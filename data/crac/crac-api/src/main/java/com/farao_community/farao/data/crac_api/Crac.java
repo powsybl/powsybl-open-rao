@@ -212,7 +212,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param id: id of the RangeAction to get
      * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
      */
-    RangeAction<?> getRangeAction(String id);
+    RangeAction<? extends RangeAction> getRangeAction(String id);
 
     // Network actions management
     /**

@@ -74,4 +74,24 @@ public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAc
     public void addNetworkAction(AbstractElementaryNetworkAction networkAction) {
         this.elementaryNetworkActions.add(networkAction);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComplexNetworkAction otherComplexNetworkAction = (ComplexNetworkAction) o;
+        return super.equals(otherComplexNetworkAction)
+            && new HashSet<>(elementaryNetworkActions).equals(new HashSet<>(otherComplexNetworkAction.elementaryNetworkActions));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        return result;
+    }
+
 }

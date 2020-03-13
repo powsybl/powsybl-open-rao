@@ -6,6 +6,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedial
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -40,5 +41,28 @@ public abstract class AbstractRangeAction<I extends RangeAction<I>> extends Abst
 
     public void addRange(Range range) {
         this.ranges.add(range);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractRangeAction otherAbstractRangeAction = (AbstractRangeAction) o;
+
+        return super.equals(o)
+            && new HashSet<>(ranges).equals(new HashSet<>(otherAbstractRangeAction.ranges));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        for (Range range : ranges) {
+            result = 31 * result + range.hashCode();
+        }
+        return result;
     }
 }

@@ -54,9 +54,6 @@ final class RangeActionDeserializer {
     }
 
     private static RangeAction deserializeRangeAction(String type, JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard AlignedRangeAction deserializer as it requires the simpleCrac to compare
-        // the networkElement ids of the AlignedRangeAction with the NetworkElements of the Crac
-
         String id = null;
         String name = null;
         String operator = null;

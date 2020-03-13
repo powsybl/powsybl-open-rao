@@ -138,16 +138,12 @@ public abstract class AbstractElementaryRangeAction<I extends RangeAction<I>> ex
         AbstractElementaryRangeAction otherAbstractElementaryRangeAction = (AbstractElementaryRangeAction) o;
 
         return super.equals(o)
-                && new HashSet<>(ranges).equals(new HashSet<>(otherAbstractElementaryRangeAction.getRanges()))
                 && networkElement.equals(otherAbstractElementaryRangeAction.getNetworkElement());
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        for (Range range : ranges) {
-            result = 31 * result + range.hashCode();
-        }
         result = 31 * result + networkElement.hashCode();
         return result;
     }
