@@ -7,8 +7,10 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +26,7 @@ public class ResultVariantManagerTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCrac("cracId");
+        crac = CracImporters.importCrac("small-crac-without-extension.json", getClass().getResourceAsStream("/small-crac-without-extension.json"));
         variantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, variantManager);
     }
@@ -32,16 +34,57 @@ public class ResultVariantManagerTest {
     @Test
     public void testOk() {
 
+        String variantId1 = "variant1";
+        String variantId2 = "variant2";
+
+        ResultExtension<Crac, CracResult> cracExtension;
+        ResultExtension<Cnec, CnecResult> cnecExtension;
+        ResultExtension<PstRange, PstRangeResult> pstExtension;
+
         assertTrue(variantManager.getVariants().isEmpty());
 
-        variantManager.createVariant("variant1");
-        variantManager.createVariant("variant2");
+        // add 2 variants
+        variantManager.createVariant(variantId1);
+        variantManager.createVariant(variantId2);
 
         assertEquals(2, variantManager.getVariants().size());
 
-        variantManager.deleteVariant("variant2");
+        cracExtension = crac.getExtension(ResultExtension.class);
+        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
+        pstExtension = ((PstRange) crac.getRangeAction("PRA_PST_BE")).getExtension(ResultExtension.class);
+
+        assertNotNull(cracExtension.getVariant(variantId1));
+        assertNotNull(cracExtension.getVariant(variantId2));
+        assertNotNull(cnecExtension.getVariant(variantId1));
+        assertNotNull(cnecExtension.getVariant(variantId2));
+        assertNotNull(pstExtension.getVariant(variantId1));
+        assertNotNull(pstExtension.getVariant(variantId2));
+
+        // delete one variant
+        variantManager.deleteVariant(variantId2);
 
         assertEquals(1, variantManager.getVariants().size());
+
+        assertNotNull(cracExtension.getVariant(variantId1));
+        assertNull(cracExtension.getVariant(variantId2));
+        assertNotNull(cnecExtension.getVariant(variantId1));
+        assertNull(cnecExtension.getVariant(variantId2));
+        assertNotNull(pstExtension.getVariant(variantId1));
+        assertNull(pstExtension.getVariant(variantId2));
+
+        // delete the other variant
+
+        variantManager.deleteVariant(variantId1);
+
+        assertEquals(0, variantManager.getVariants().size());
+
+        cracExtension = crac.getExtension(ResultExtension.class);
+        cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
+        pstExtension = ((PstRange) crac.getRangeAction("PRA_PST_BE")).getExtension(ResultExtension.class);
+
+        assertNull(cracExtension);
+        assertNull(cnecExtension);
+        assertNull(pstExtension);
     }
 
     @Test

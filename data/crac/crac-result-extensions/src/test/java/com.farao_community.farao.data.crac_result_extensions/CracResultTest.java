@@ -20,12 +20,6 @@ public class CracResultTest {
     private double epsilon = 0.0;
 
     @Test
-    public void getName() {
-        CracResult cracResult = new CracResult();
-        assertEquals("CracResult", cracResult.getName());
-    }
-
-    @Test
     public void securedCracResult() {
         double cost = -5;
         CracResult securedCracResult = new CracResult(cost);
