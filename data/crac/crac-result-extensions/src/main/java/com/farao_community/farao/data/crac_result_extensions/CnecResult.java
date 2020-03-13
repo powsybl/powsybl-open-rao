@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -17,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeName("cnec-result")
-public class CnecResult implements Result<Cnec> {
+public class CnecResult implements Result {
 
     private double flowInMW;
     private double flowInA;

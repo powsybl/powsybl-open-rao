@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -16,11 +16,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
+import static com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -37,7 +36,7 @@ final class ContingencyDeserializer {
 
             String id = null;
             String name = null;
-            List<String> networkElementsIds = new ArrayList<>();
+            Set<String> networkElementsIds = new HashSet<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
@@ -58,7 +57,7 @@ final class ContingencyDeserializer {
 
                     case NETWORK_ELEMENTS:
                         jsonParser.nextToken();
-                        networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                        networkElementsIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
                         });
                         break;
 

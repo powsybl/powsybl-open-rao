@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.ActionType;
@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.P
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_io_json.deserializers.DeserializerNames.*;
+import static com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -111,13 +112,20 @@ final class NetworkActionDeserializer {
                     networkElementId = jsonParser.nextTextValue();
                     break;
 
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
+                    networkElementId = networkElementsIds.get(0);
+                    break;
+
                 case ACTION_TYPE:
                     jsonParser.nextToken();
                     actionType = jsonParser.readValueAs(ActionType.class);
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -166,12 +174,15 @@ final class NetworkActionDeserializer {
                     name = jsonParser.nextTextValue();
                     break;
 
-                case NETWORK_ELEMENT:
-                    networkElementId = jsonParser.nextTextValue();
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
+                    networkElementId = networkElementsIds.get(0);
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
@@ -226,7 +237,7 @@ final class NetworkActionDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 

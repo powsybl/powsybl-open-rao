@@ -19,7 +19,7 @@ import com.farao_community.farao.data.crac_api.Crac;
  * </li>
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CracResult implements Result<Crac> {
+public class CracResult implements Result {
 
     public enum NetworkSecurityStatus {
         SECURED,

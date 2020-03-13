@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_io_json;
+package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_io_json.deserializers.SimpleCracDeserializer;
+import com.farao_community.farao.data.crac_impl.json.deserializers.SimpleCracDeserializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -46,6 +46,8 @@ public final class RoundTripUtil {
             objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            SimpleModule module = new CracImplJsonModule();
+            objectMapper.registerModule(module);
             writer.writeValue(outputStream, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
