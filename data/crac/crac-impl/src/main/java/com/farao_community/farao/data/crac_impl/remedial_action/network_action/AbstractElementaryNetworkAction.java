@@ -7,10 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -32,7 +30,7 @@ import java.util.Set;
         @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
         @JsonSubTypes.Type(value = Topology.class, name = "topology")
     })
-public abstract class AbstractElementaryNetworkAction extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
+public abstract class AbstractElementaryNetworkAction<I extends AbstractElementaryNetworkAction<I>> extends AbstractNetworkAction<I> {
     protected NetworkElement networkElement;
 
     @JsonCreator
