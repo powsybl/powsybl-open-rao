@@ -100,7 +100,6 @@ final class RangeActionDeserializer {
 
         }
 
-        //add contingency in Crac
         Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
         switch (type) {
             case PST_WITH_RANGE_TYPE:

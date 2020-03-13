@@ -90,8 +90,7 @@ public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAc
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        return result;
+        return super.hashCode();
     }
 
 }
