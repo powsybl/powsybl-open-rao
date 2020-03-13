@@ -30,5 +30,4 @@ public class PstRangeResult extends RangeActionResult {
     public void setTap(String stateId, int tap) {
         tapPerStates.put(stateId, tap);
     }
-
 }

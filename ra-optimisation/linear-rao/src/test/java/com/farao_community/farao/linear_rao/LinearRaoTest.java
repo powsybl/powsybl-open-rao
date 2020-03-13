@@ -37,8 +37,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.FileSystem;
 import java.util.*;
@@ -53,8 +51,6 @@ import static org.junit.Assert.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class LinearRaoTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoTest.class);
-
     private LinearRao linearRao;
     private ComputationManager computationManager;
     private RaoParameters raoParameters;
