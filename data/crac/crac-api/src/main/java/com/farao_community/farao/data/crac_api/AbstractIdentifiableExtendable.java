@@ -1,31 +1,22 @@
-/*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extendable;
 
 /**
- * Common abstract class to inherit from for all identifiable classes
- *
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public abstract class AbstractIdentifiable implements Identifiable {
+public abstract class AbstractIdentifiableExtendable<I extends Identifiable> extends AbstractExtendable<I> implements Identifiable, Extendable<I> {
     private final String id;
 
     protected String name;
 
-    public AbstractIdentifiable(String id, String name) {
+    public AbstractIdentifiableExtendable(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public AbstractIdentifiable(String id) {
+    public AbstractIdentifiableExtendable(String id) {
         this(id, id);
     }
 
@@ -58,8 +49,8 @@ public abstract class AbstractIdentifiable implements Identifiable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractIdentifiable abstractIdentifiable = (AbstractIdentifiable) o;
-        return getId().equals(abstractIdentifiable.getId());
+        AbstractIdentifiableExtendable otherAbstractIdentifiableExtendable = (AbstractIdentifiableExtendable) o;
+        return getId().equals(otherAbstractIdentifiableExtendable.getId());
     }
 
     @Override

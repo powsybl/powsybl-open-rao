@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RedispatchingTest extends AbstractElementaryRangeActionTest {
+public class RedispatchingTest extends AbstractElementaryRemedialActionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Redispatching redispatching;

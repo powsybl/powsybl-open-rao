@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-abstract public class AbstractElementaryRangeActionTest extends AbstractRemedialActionTest {
+abstract public class AbstractElementaryRemedialActionTest extends AbstractRemedialActionTest {
 
     protected List<Range> createRanges() {
         Range range = Mockito.mock(Range.class);

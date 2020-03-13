@@ -5,5 +5,5 @@ import com.farao_community.farao.data.crac_api.PstRange;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResultExtension<I extends PstRange<I>> extends RangeActionResultExtension<I, PstRangeResult> {
+public class PstRangeResultExtension extends ResultExtension<PstRange, PstRangeResult> {
 }

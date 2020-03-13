@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl.json;
 
-import com.farao_community.farao.data.crac_api.Identifiable;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
@@ -21,7 +21,7 @@ public final class ExtensionsHandler {
 
     private ExtensionsHandler() { }
 
-    public interface ExtensionSerializer<E extends Identifiable, F extends Extension<E>> extends ExtensionJsonSerializer<E, F> { }
+    public interface ExtensionSerializer<E extends Extendable, F extends Extension<E>> extends ExtensionJsonSerializer<E, F> { }
 
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SERIALIZER_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class));

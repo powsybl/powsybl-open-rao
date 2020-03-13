@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.commons.extensions.Extendable;
 
 /**
  * An object that is part of the network model and that is identified uniquely
@@ -19,7 +18,7 @@ import com.powsybl.commons.extensions.Extendable;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 @JsonIgnoreProperties(value = {"extensions"})
-public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
+public interface Identifiable {
 
     /**
      * Get the unique identifier of the object.

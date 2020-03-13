@@ -83,7 +83,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         });
 
         // add Network Action result variant
-        for (NetworkAction<?> networkAction: getExtendable().getNetworkActions()) {
+        for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
             if (networkAction.getExtension(NetworkActionResultExtension.class) == null) {
                 networkAction.addExtension(NetworkActionResultExtension.class, new NetworkActionResultExtension());
             }
@@ -91,7 +91,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         }
 
         // add Range Action result variant
-        for (RangeAction<?> rangeAction: getExtendable().getRangeActions()) {
+        for (RangeAction rangeAction: getExtendable().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 if (rangeAction.getExtension(PstRangeResultExtension.class) == null) {
                     rangeAction.addExtension(PstRangeResultExtension.class, new PstRangeResultExtension());
@@ -126,11 +126,11 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
             getExtendable().getCnecs().forEach(cnec -> cnec.removeExtension(CnecResultExtension.class));
 
-            for (NetworkAction<?> networkAction: getExtendable().getNetworkActions()) {
+            for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
                 networkAction.removeExtension(NetworkActionResultExtension.class);
             }
 
-            for (RangeAction<?> rangeAction: getExtendable().getRangeActions()) {
+            for (RangeAction rangeAction: getExtendable().getRangeActions()) {
                 if (rangeAction instanceof PstRange) {
                     rangeAction.removeExtension(PstRangeResultExtension.class);
                 } else {
@@ -144,11 +144,11 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
             getExtendable().getCnecs().forEach(cnec -> cnec.getExtension(CnecResultExtension.class).deleteVariant(variantId));
 
-            for (NetworkAction<?> networkAction: getExtendable().getNetworkActions()) {
+            for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
                 networkAction.getExtension(NetworkActionResultExtension.class).deleteVariant(variantId);
             }
 
-            for (RangeAction<?> rangeAction: getExtendable().getRangeActions()) {
+            for (RangeAction rangeAction: getExtendable().getRangeActions()) {
                 if (rangeAction instanceof PstRange) {
                     rangeAction.getExtension(PstRangeResultExtension.class).deleteVariant(variantId);
                 } else {

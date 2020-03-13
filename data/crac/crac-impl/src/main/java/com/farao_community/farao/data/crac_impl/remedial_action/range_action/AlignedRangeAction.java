@@ -9,10 +9,12 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.AlignedRangeActionSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
 import com.powsybl.sensitivity.SensitivityComputationResults;
@@ -30,8 +32,8 @@ import java.util.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("aligned-range-action")
-@JsonSerialize(using = AlignedRangeActionSerializer.class)
-public class AlignedRangeAction extends AbstractRangeAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
+@JsonSerialize(using = RangeActionSerializer.class)
+public class AlignedRangeAction extends AbstractRangeAction implements ExtendableRangeAction {
     public static final int TEMP_VALUE_ARA = 0;
 
     @JsonProperty("networkElements")
@@ -132,5 +134,35 @@ public class AlignedRangeAction extends AbstractRangeAction<AlignedRangeAction> 
     @Override
     public boolean isSynchronized() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <E extends Extension<ExtendableRangeAction>> void addExtension(Class<? super E> aClass, E e) {
+
+    }
+
+    @Override
+    public <E extends Extension<ExtendableRangeAction>> E getExtension(Class<? super E> aClass) {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableRangeAction>> E getExtensionByName(String s) {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableRangeAction>> boolean removeExtension(Class<E> aClass) {
+        return false;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableRangeAction>> Collection<E> getExtensions() {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableRangeAction>, B extends ExtensionAdder<ExtendableRangeAction, E>> B newExtension(Class<B> aClass) {
+        return null;
     }
 }

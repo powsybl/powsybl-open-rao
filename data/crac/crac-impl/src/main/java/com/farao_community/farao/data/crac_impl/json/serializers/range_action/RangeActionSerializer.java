@@ -11,9 +11,9 @@ import java.io.IOException;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionSerializer<I extends AbstractRangeAction<I>> extends AbstractRemedialActionSerializer<I> {
+public class RangeActionSerializer extends AbstractRemedialActionSerializer<AbstractRangeAction> {
     @Override
-    public void serialize(I abstractRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(AbstractRangeAction abstractRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serialize(abstractRangeAction, jsonGenerator, serializerProvider);
         jsonGenerator.writeFieldName("ranges");
         jsonGenerator.writeStartArray();

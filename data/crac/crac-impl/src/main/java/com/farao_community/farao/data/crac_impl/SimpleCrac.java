@@ -29,7 +29,7 @@ import static java.lang.String.format;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("simple-crac")
-public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
+public class SimpleCrac extends AbstractIdentifiableExtendable<Crac> implements Crac {
     private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first.";
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
@@ -372,13 +372,13 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkActions;
     }
 
-    public void addNetworkAction(NetworkAction<?> networkAction) {
+    public void addNetworkAction(NetworkAction networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.add(networkAction);
     }
 
-    public void addRangeAction(RangeAction<?> rangeAction) {
+    public void addRangeAction(RangeAction rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);
     }
@@ -446,7 +446,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         });
         absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
-        for (RangeAction<?> rangeAction: getRangeActions()) {
+        for (RangeAction rangeAction: getRangeActions()) {
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);
@@ -457,7 +457,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
 
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
-        for (NetworkAction<?> networkAction: getNetworkActions()) {
+        for (NetworkAction networkAction: getNetworkActions()) {
             networkAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkNetworkActions.add(networkAction);
@@ -467,5 +467,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
         absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
         // TODO: remove contingencies that are not present in the network (and states associated...)
+    }
+
+    @JsonIgnore
+    @Override
+    public String getImplementationName() {
+        return "SimpleCrac";
     }
 }

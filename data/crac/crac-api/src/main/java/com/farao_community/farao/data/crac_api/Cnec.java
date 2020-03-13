@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
@@ -21,7 +22,7 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Cnec extends Identifiable<Cnec>, Synchronizable {
+public interface Cnec extends Identifiable, Extendable<Cnec>, Synchronizable {
 
     State getState();
 

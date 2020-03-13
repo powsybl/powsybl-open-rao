@@ -11,14 +11,18 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstWithRangeSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,8 +35,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-@JsonSerialize(using = PstWithRangeSerializer.class)
-public final class PstWithRange extends AbstractElementaryRangeAction<PstWithRange> implements PstRange<PstWithRange> {
+@JsonSerialize(using = RangeActionSerializer.class)
+public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
@@ -126,6 +130,11 @@ public final class PstWithRange extends AbstractElementaryRangeAction<PstWithRan
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
         }
         return maxValue;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        return 0;
     }
 
     // Min value allowed by a range (from Crac)
@@ -289,5 +298,40 @@ public final class PstWithRange extends AbstractElementaryRangeAction<PstWithRan
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    @Override
+    public <E extends Extension<PstRange>> void addExtension(Class<? super E> aClass, E e) {
+
+    }
+
+    @Override
+    public <E extends Extension<PstRange>> E getExtension(Class<? super E> aClass) {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<PstRange>> E getExtensionByName(String s) {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<PstRange>> boolean removeExtension(Class<E> aClass) {
+        return false;
+    }
+
+    @Override
+    public <E extends Extension<PstRange>> Collection<E> getExtensions() {
+        return null;
+    }
+
+    @Override
+    public String getImplementationName() {
+        return "PstWithRange";
+    }
+
+    @Override
+    public <E extends Extension<PstRange>, B extends ExtensionAdder<PstRange, E>> B newExtension(Class<B> aClass) {
+        return null;
     }
 }

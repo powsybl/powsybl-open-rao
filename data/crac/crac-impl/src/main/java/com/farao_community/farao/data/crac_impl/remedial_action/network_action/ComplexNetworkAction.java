@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.data.crac_api.ExtendableNetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.ComplexNetworkActionSerializer;
@@ -14,8 +15,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +31,7 @@ import java.util.Set;
  */
 @JsonTypeName("complex-network-action")
 @JsonSerialize(using = ComplexNetworkActionSerializer.class)
-public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAction> {
+public class ComplexNetworkAction extends AbstractNetworkAction {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
     @JsonCreator
@@ -93,4 +97,38 @@ public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAc
         return super.hashCode();
     }
 
+    @Override
+    public <E extends Extension<ExtendableNetworkAction>> void addExtension(Class<? super E> aClass, E e) {
+
+    }
+
+    @Override
+    public <E extends Extension<ExtendableNetworkAction>> E getExtension(Class<? super E> aClass) {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableNetworkAction>> E getExtensionByName(String s) {
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableNetworkAction>> boolean removeExtension(Class<E> aClass) {
+        return false;
+    }
+
+    @Override
+    public <E extends Extension<ExtendableNetworkAction>> Collection<E> getExtensions() {
+        return null;
+    }
+
+    @Override
+    public String getImplementationName() {
+        return "ComplexNetworkAction";
+    }
+
+    @Override
+    public <E extends Extension<ExtendableNetworkAction>, B extends ExtensionAdder<ExtendableNetworkAction, E>> B newExtension(Class<B> aClass) {
+        return null;
+    }
 }

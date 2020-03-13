@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
@@ -30,7 +31,7 @@ import java.util.TreeSet;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable<Crac>, Synchronizable {
+public interface Crac extends Identifiable, Extendable<Crac>, Synchronizable {
 
     Set<NetworkElement> getNetworkElements();
 
@@ -212,7 +213,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param id: id of the RangeAction to get
      * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
      */
-    RangeAction<? extends RangeAction> getRangeAction(String id);
+    RangeAction getRangeAction(String id);
 
     // Network actions management
     /**

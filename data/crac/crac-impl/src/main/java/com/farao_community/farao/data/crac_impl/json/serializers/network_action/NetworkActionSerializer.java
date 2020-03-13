@@ -6,5 +6,5 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.A
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class NetworkActionSerializer<I extends AbstractNetworkAction<I>> extends AbstractRemedialActionSerializer<I> {
+public class NetworkActionSerializer<E extends AbstractNetworkAction> extends AbstractRemedialActionSerializer<E> {
 }

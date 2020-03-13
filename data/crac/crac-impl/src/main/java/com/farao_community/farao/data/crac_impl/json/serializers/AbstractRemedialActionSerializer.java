@@ -21,9 +21,9 @@ import java.io.IOException;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractRemedialActionSerializer<I extends AbstractRemedialAction<I>> extends JsonSerializer<I> {
+public abstract class AbstractRemedialActionSerializer<E extends AbstractRemedialAction> extends JsonSerializer<E> {
     @Override
-    public void serialize(I remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(E remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         serializeCommon(remedialAction, jsonGenerator);
         jsonGenerator.writeFieldName("networkElements");
         jsonGenerator.writeStartArray();
@@ -34,14 +34,14 @@ public abstract class AbstractRemedialActionSerializer<I extends AbstractRemedia
     }
 
     @Override
-    public void serializeWithType(I remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+    public void serializeWithType(E remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
         WritableTypeId writableTypeId = typeSerializer.typeId(remedialAction, JsonToken.START_OBJECT);
         typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
         serialize(remedialAction, jsonGenerator, serializerProvider);
         typeSerializer.writeTypeSuffix(jsonGenerator, writableTypeId);
     }
 
-    protected void serializeCommon(I remedialAction, JsonGenerator jsonGenerator) throws IOException {
+    protected void serializeCommon(E remedialAction, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStringField("id", remedialAction.getId());
         jsonGenerator.writeStringField("name", remedialAction.getName());
         jsonGenerator.writeStringField("operator", remedialAction.getOperator());
