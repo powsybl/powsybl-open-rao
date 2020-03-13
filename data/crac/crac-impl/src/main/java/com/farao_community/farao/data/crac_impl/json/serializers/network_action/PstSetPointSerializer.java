@@ -7,10 +7,21 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
+import com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
+import java.io.IOException;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PstSetPointSerializer extends NetworkActionSerializer<PstSetpoint> {
+
+    @Override
+    public void serialize(PstSetpoint remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        super.serialize(remedialAction, jsonGenerator, serializerProvider);
+        jsonGenerator.writeNumberField(DeserializerNames.SETPOINT, remedialAction.getSetpoint());
+    }
 }

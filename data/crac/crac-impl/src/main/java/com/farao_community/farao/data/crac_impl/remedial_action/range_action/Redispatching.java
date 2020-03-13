@@ -10,10 +10,12 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RedispatchingSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 
@@ -27,6 +29,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("redispatching")
+@JsonSerialize(using = RedispatchingSerializer.class)
 public final class Redispatching extends AbstractElementaryRangeAction<Redispatching> {
 
     public static final int TEMP_VALUE_REDISPATCH = 0;

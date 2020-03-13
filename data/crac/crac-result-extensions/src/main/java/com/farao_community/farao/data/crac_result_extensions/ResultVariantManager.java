@@ -66,7 +66,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             throw new FaraoException(String.format("Cannot create results variant with id [%s], as one with the same id already exists", variantId));
         }
 
-        Set<String> states = getExtendable().getStates().stream().map(State::getId).collect(Collectors.toSet());
+        Set<String> stateIds = getExtendable().getStates().stream().map(State::getId).collect(Collectors.toSet());
 
         // add CRAC result variant
         if (getExtendable().getExtension(CracResultExtension.class) == null) {
@@ -87,7 +87,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             if (networkAction.getExtension(NetworkActionResultExtension.class) == null) {
                 networkAction.addExtension(NetworkActionResultExtension.class, new NetworkActionResultExtension());
             }
-            networkAction.getExtension(NetworkActionResultExtension.class).addVariant(variantId, new NetworkActionResult(states));
+            networkAction.getExtension(NetworkActionResultExtension.class).addVariant(variantId, new NetworkActionResult(stateIds));
         }
 
         // add Range Action result variant
@@ -96,12 +96,12 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
                 if (rangeAction.getExtension(PstRangeResultExtension.class) == null) {
                     rangeAction.addExtension(PstRangeResultExtension.class, new PstRangeResultExtension());
                 }
-                rangeAction.getExtension(PstRangeResultExtension.class).addVariant(variantId, new PstRangeResult(states));
+                rangeAction.getExtension(PstRangeResultExtension.class).addVariant(variantId, new PstRangeResult(stateIds));
             } else {
                 if (rangeAction.getExtension(RangeActionResultExtension.class) == null) {
                     rangeAction.addExtension(RangeActionResultExtension.class, new RangeActionResultExtension());
                 }
-                rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new RangeActionResult(states));
+                rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new RangeActionResult(stateIds));
             }
         }
 

@@ -9,9 +9,11 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.json.serializers.network_action.HvdcSetPointSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("hvdc-setpoint")
+@JsonSerialize(using = HvdcSetPointSerializer.class)
 public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction<HvdcSetpoint> {
 
     @JsonCreator

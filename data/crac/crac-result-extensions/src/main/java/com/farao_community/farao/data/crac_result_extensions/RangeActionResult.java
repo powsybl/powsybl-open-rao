@@ -17,25 +17,25 @@ import java.util.Set;
 public class RangeActionResult implements Result {
     protected Map<String, Double> setPointPerStates;
 
-    public RangeActionResult(Set<String> states) {
+    public RangeActionResult(Set<String> stateIds) {
         setPointPerStates = new HashMap<>();
-        states.forEach(state -> setPointPerStates.put(state, Double.NaN));
+        stateIds.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
     public Set<String> getStates() {
         return setPointPerStates.keySet();
     }
 
-    public double getSetPoint(String state) {
-        return setPointPerStates.getOrDefault(state, Double.NaN);
+    public double getSetPoint(String stateId) {
+        return setPointPerStates.getOrDefault(stateId, Double.NaN);
     }
 
-    public void setSetPoint(String state, double setPoint) {
-        setPointPerStates.put(state, setPoint);
+    public void setSetPoint(String stateId, double setPoint) {
+        setPointPerStates.put(stateId, setPoint);
     }
 
-    public boolean isActivated(String state) {
-        return !setPointPerStates.getOrDefault(state, Double.NaN).isNaN();
+    public boolean isActivated(String stateId) {
+        return !setPointPerStates.getOrDefault(stateId, Double.NaN).isNaN();
     }
 
 }

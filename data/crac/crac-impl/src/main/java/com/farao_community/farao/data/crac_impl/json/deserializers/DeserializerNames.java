@@ -10,63 +10,63 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-final class DeserializerNames {
+public final class DeserializerNames {
 
     private DeserializerNames() { }
 
-    static final String UNEXPECTED_FIELD = "Unexpected field: ";
+    public static final String UNEXPECTED_FIELD = "Unexpected field: ";
 
     // field
-    static final String NETWORK_ELEMENT = "networkElement";
-    static final String NETWORK_ELEMENTS = "networkElements";
+    public static final String NETWORK_ELEMENT = "networkElement";
+    public static final String NETWORK_ELEMENTS = "networkElements";
 
-    static final String CONTINGENCY = "contingency";
-    static final String CONTINGENCIES = "contingencies";
+    public static final String CONTINGENCY = "contingency";
+    public static final String CONTINGENCIES = "contingencies";
 
-    static final String INSTANT = "instant";
-    static final String INSTANTS = "instants";
+    public static final String INSTANT = "instant";
+    public static final String INSTANTS = "instants";
 
-    static final String STATE = "state";
-    static final String STATES = "states";
+    public static final String STATE = "state";
+    public static final String STATES = "states";
 
-    static final String CNEC = "cnec";
-    static final String CNECS = "cnecs";
+    public static final String CNEC = "cnec";
+    public static final String CNECS = "cnecs";
 
-    static final String THRESHOLDS = "thresholds";
+    public static final String THRESHOLDS = "thresholds";
 
-    static final String RANGE_ACTIONS = "rangeActions";
+    public static final String RANGE_ACTIONS = "rangeActions";
 
-    static final String NETWORK_ACTIONS = "networkActions";
-    static final String ELEMENTARY_NETWORK_ACTIONS = "elementaryNetworkActions";
+    public static final String NETWORK_ACTIONS = "networkActions";
+    public static final String ELEMENTARY_NETWORK_ACTIONS = "elementaryNetworkActions";
 
-    static final String USAGE_METHOD = "usageMethod";
-    static final String USAGE_RULES = "usageRules";
+    public static final String USAGE_METHOD = "usageMethod";
+    public static final String USAGE_RULES = "usageRules";
 
-    static final String TYPE = "type";
-    static final String ID = "id";
-    static final String NAME = "name";
-    static final String EXTENSIONS = "extensions";
+    public static final String TYPE = "type";
+    public static final String ID = "id";
+    public static final String NAME = "name";
+    public static final String EXTENSIONS = "extensions";
 
-    static final String RANGES = "ranges";
-    static final String SETPOINT = "setpoint";
-    static final String OPERATOR = "operator";
-    static final String ACTION_TYPE = "actionType";
+    public static final String RANGES = "ranges";
+    public static final String SETPOINT = "setpoint";
+    public static final String OPERATOR = "operator";
+    public static final String ACTION_TYPE = "actionType";
 
     // implementation class types
-    static final String SIMPLE_STATE_TYPE = "simple-state";
+    public static final String SIMPLE_STATE_TYPE = "simple-state";
 
-    static final String COMPLEX_CONTINGENCY_TYPE = "complex-contingency";
+    public static final String COMPLEX_CONTINGENCY_TYPE = "complex-contingency";
 
-    static final String SIMPLE_CNEC_TYPE = "simple-cnec";
+    public static final String SIMPLE_CNEC_TYPE = "simple-cnec";
 
-    static final String PST_WITH_RANGE_TYPE = "pst-with-range";
-    static final String ALIGNED_RANGE_ACTIONS_TYPE = "aligned-range-action";
+    public static final String PST_WITH_RANGE_TYPE = "pst-with-range";
+    public static final String ALIGNED_RANGE_ACTIONS_TYPE = "aligned-range-action";
 
-    static final String TOPOLOGY_TYPE = "topology";
-    static final String PST_SETPOINT_TYPE = "pst-setpoint";
-    static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
+    public static final String TOPOLOGY_TYPE = "topology";
+    public static final String PST_SETPOINT_TYPE = "pst-setpoint";
+    public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
 
-    static final String FREE_TO_USE_TYPE = "free-to-use";
-    static final String ON_CONSTRAINT_TYPE = "on-constraint";
-    static final String ON_CONTINGENCY_TYPE = "on-contingency";
+    public static final String FREE_TO_USE_TYPE = "free-to-use";
+    public static final String ON_CONSTRAINT_TYPE = "on-constraint";
+    public static final String ON_CONTINGENCY_TYPE = "on-contingency";
 }

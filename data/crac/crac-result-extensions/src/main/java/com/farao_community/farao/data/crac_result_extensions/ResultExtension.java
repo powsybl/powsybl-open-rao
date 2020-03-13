@@ -36,7 +36,7 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
      * Private-package as the extensions can only be created by the ResultVariantManager
      * to ensure the consistency of ResultExtensions within all the Crac.
      */
-    public ResultExtension() {
+    ResultExtension() {
         resultMap = new HashMap<>();
     }
 
@@ -67,7 +67,7 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
      * Private-package as the variants can only be created by the ResultVariantManager
      * to ensure the consistency of variants within all the Crac.
      */
-    public void addVariant(String newVariantId, S resultElement) {
+    void addVariant(String newVariantId, S resultElement) {
         if (resultMap.containsKey(newVariantId)) {
             throw new FaraoException(String.format("Cannot create result variant with id [%s] for [%s] as it already exists", newVariantId, getExtendable().getId()));
         }

@@ -17,21 +17,21 @@ import java.util.Set;
 public class NetworkActionResult implements Result {
     protected Map<String, Boolean> activationMap;
 
-    public NetworkActionResult(Set<String> states) {
+    public NetworkActionResult(Set<String> stateIds) {
         activationMap = new HashMap<>();
-        states.forEach(state -> activationMap.put(state, false));
+        stateIds.forEach(state -> activationMap.put(state, false));
     }
 
-    public boolean isActivated(String state) {
-        return activationMap.getOrDefault(state, false);
+    public boolean isActivated(String stateId) {
+        return activationMap.getOrDefault(stateId, false);
     }
 
-    public void activate(String state) {
-        activationMap.put(state, true);
+    public void activate(String stateId) {
+        activationMap.put(stateId, true);
     }
 
-    public void deactivate(String state) {
-        activationMap.put(state, false);
+    public void deactivate(String stateId) {
+        activationMap.put(stateId, false);
     }
 
 }

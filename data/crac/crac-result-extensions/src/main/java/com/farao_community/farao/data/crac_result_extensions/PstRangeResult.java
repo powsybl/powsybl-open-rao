@@ -17,17 +17,17 @@ import java.util.Set;
 public class PstRangeResult extends RangeActionResult {
     private Map<String, Integer> tapPerStates;
 
-    public PstRangeResult(Set<String> states) {
-        super(states);
+    public PstRangeResult(Set<String> stateIds) {
+        super(stateIds);
         tapPerStates = new HashMap<>();
-        states.forEach(state -> tapPerStates.put(state, null));
+        stateIds.forEach(state -> tapPerStates.put(state, null));
     }
 
-    public int getTap(String state) {
-        return tapPerStates.getOrDefault(state, null);
+    public int getTap(String stateId) {
+        return tapPerStates.getOrDefault(stateId, null);
     }
 
-    public void setTap(String state, int tap) {
-        tapPerStates.put(state, tap);
+    public void setTap(String stateId, int tap) {
+        tapPerStates.put(stateId, tap);
     }
 }

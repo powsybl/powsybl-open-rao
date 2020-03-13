@@ -112,6 +112,13 @@ final class NetworkActionDeserializer {
                     networkElementId = jsonParser.nextTextValue();
                     break;
 
+                case NETWORK_ELEMENTS:
+                    jsonParser.nextToken();
+                    List<String> networkElementsIds = jsonParser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
+                    networkElementId = networkElementsIds.get(0);
+                    break;
+
                 case ACTION_TYPE:
                     jsonParser.nextToken();
                     actionType = jsonParser.readValueAs(ActionType.class);

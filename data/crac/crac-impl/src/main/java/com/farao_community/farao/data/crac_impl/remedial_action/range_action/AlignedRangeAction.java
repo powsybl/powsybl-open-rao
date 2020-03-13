@@ -9,8 +9,10 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.AlignedRangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import com.powsybl.sensitivity.SensitivityComputationResults;
@@ -28,6 +30,7 @@ import java.util.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("aligned-range-action")
+@JsonSerialize(using = AlignedRangeActionSerializer.class)
 public class AlignedRangeAction extends AbstractRangeAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
     public static final int TEMP_VALUE_ARA = 0;
 

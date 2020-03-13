@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -363,7 +362,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
-    @JsonSerialize(contentUsing = RangeActionSerializer.class)
     @Override
     public Set<RangeAction> getRangeActions() {
         return rangeActions;

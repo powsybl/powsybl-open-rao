@@ -77,9 +77,6 @@ final class UsageRuleDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
 
             switch (jsonParser.getCurrentName()) {
-                case TYPE:
-                    break;
-
                 case USAGE_METHOD:
                     jsonParser.nextToken();
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
@@ -111,9 +108,6 @@ final class UsageRuleDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
 
             switch (jsonParser.getCurrentName()) {
-                case TYPE:
-                    break;
-
                 case USAGE_METHOD:
                     jsonParser.nextToken();
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
@@ -153,9 +147,6 @@ final class UsageRuleDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
 
             switch (jsonParser.getCurrentName()) {
-                case TYPE:
-                    break;
-
                 case USAGE_METHOD:
                     jsonParser.nextToken();
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
