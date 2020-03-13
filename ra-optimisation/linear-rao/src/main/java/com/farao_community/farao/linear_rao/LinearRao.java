@@ -73,6 +73,7 @@ public class LinearRao implements RaoProvider {
 
         SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         preOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
+        postOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
         // Failure if some sensitivities are not computed
         if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
             return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
