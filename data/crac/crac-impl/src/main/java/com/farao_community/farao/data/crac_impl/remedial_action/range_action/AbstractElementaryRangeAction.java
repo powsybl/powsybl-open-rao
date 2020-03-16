@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialAction;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,8 +37,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
     })
-public abstract class AbstractElementaryRangeAction extends AbstractRemedialAction implements RangeAction {
-    protected List<Range> ranges;
+public abstract class AbstractElementaryRangeAction<I extends RangeAction<I>> extends AbstractRangeAction<I> implements RangeAction<I> {
     protected NetworkElement networkElement;
 
     @JsonCreator
@@ -49,29 +47,18 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
                                          @JsonProperty("usageRules") List<UsageRule> usageRules,
                                          @JsonProperty("ranges") List<Range> ranges,
                                          @JsonProperty("networkElement") NetworkElement networkElement) {
-        super(id, name, operator, usageRules);
-        this.ranges = new ArrayList<>(ranges);
+        super(id, name, operator, usageRules, ranges);
         this.networkElement = networkElement;
     }
 
     public AbstractElementaryRangeAction(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator);
-        this.ranges = new ArrayList<>();
         this.networkElement = networkElement;
     }
 
     public AbstractElementaryRangeAction(String id, NetworkElement networkElement) {
         super(id);
-        this.ranges = new ArrayList<>();
         this.networkElement = networkElement;
-    }
-
-    public final List<Range> getRanges() {
-        return ranges;
-    }
-
-    public void addRange(Range range) {
-        this.ranges.add(range);
     }
 
     public NetworkElement getNetworkElement() {
@@ -151,16 +138,12 @@ public abstract class AbstractElementaryRangeAction extends AbstractRemedialActi
         AbstractElementaryRangeAction otherAbstractElementaryRangeAction = (AbstractElementaryRangeAction) o;
 
         return super.equals(o)
-                && new HashSet<>(ranges).equals(new HashSet<>(otherAbstractElementaryRangeAction.getRanges()))
                 && networkElement.equals(otherAbstractElementaryRangeAction.getNetworkElement());
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        for (Range range : ranges) {
-            result = 31 * result + range.hashCode();
-        }
         result = 31 * result + networkElement.hashCode();
         return result;
     }

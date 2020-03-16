@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface NetworkAction extends RemedialAction {
+public interface NetworkAction<I extends NetworkAction<I>> extends RemedialAction<I> {
 
     /**
      * Trigger the actions on the NetworkElements, in a given network.

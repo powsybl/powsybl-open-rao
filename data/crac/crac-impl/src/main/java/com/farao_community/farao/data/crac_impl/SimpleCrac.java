@@ -9,9 +9,14 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,11 +29,13 @@ import static java.lang.String.format;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("simple-crac")
-public class SimpleCrac extends AbstractIdentifiable implements Crac {
+public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first.";
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
     private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCrac.class);
 
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
@@ -300,10 +307,12 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         states.add(new SimpleState(contingency, instant));
     }
 
+    @Override
     public Cnec getCnec(String id) {
         return cnecs.stream().filter(cnec -> cnec.getId().equals(id)).findFirst().orElse(null);
     }
 
+    @JsonSerialize(contentUsing = SimpleCnecSerializer.class)
     @Override
     public Set<Cnec> getCnecs() {
         return cnecs;
@@ -316,35 +325,41 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
             .collect(Collectors.toSet());
     }
 
-    public Cnec addCnec(String id, NetworkElement networkElement, AbstractThreshold abstractThreshold, State state) {
+    public Cnec addCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> abstractThresholds, State state) {
         if (!networkElements.contains(networkElement) || !states.contains(state)) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElement.getId(), state.getId()));
         }
-        Cnec cnec = new SimpleCnec(id, networkElement, abstractThreshold, state);
+        Cnec cnec = new SimpleCnec(id, networkElement, abstractThresholds, state);
         cnecs.add(cnec);
         return cnec;
     }
 
-    public Cnec addCnec(String id, String networkElementId, AbstractThreshold abstractThreshold, String stateId) {
+    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        Cnec cnec = new SimpleCnec(id, getNetworkElement(networkElementId), abstractThreshold, getState(stateId));
+        Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId));
         cnecs.add(cnec);
         return cnec;
+    }
+
+    public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
+        return this.addCnec(id, id, networkElementId, abstractThresholds, stateId);
     }
 
     @Override
     public void addCnec(Cnec cnec) {
         addState(cnec.getState());
         NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement());
-        cnecs.add(new SimpleCnec(
-            cnec.getId(),
-            cnec.getName(),
-            networkElement,
-            (AbstractThreshold) cnec.getThreshold(),
-            getState(cnec.getState().getId())
-        ));
+
+        // add cnec
+        cnecs.add(((SimpleCnec) cnec).copy(networkElement, getState(cnec.getState().getId())));
+
+        // add extensions
+        if (!cnec.getExtensions().isEmpty()) {
+            Cnec cnecInCrac = getCnec(cnec.getId());
+            ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, cnec.getExtensions());
+        }
     }
 
     @Override
@@ -357,15 +372,13 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
         return networkActions;
     }
 
-    @Override
-    public void addNetworkAction(NetworkAction networkAction) {
+    public void addNetworkAction(NetworkAction<?> networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.add(networkAction);
     }
 
-    @Override
-    public void addRangeAction(RangeAction rangeAction) {
+    public void addRangeAction(RangeAction<?> rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);
     }
@@ -395,7 +408,7 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
     @Override
     public RangeAction getRangeAction(String id) {
         return rangeActions.stream()
-                .filter(rangeAction ->  rangeAction.getId().equals(id))
+                .filter(rangeAction -> rangeAction.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
@@ -424,6 +437,35 @@ public class SimpleCrac extends AbstractIdentifiable implements Crac {
 
     @Override
     public void generateValidityReport(Network network) {
-        throw new UnsupportedOperationException();
+        ArrayList<Cnec> absentFromNetworkCnecs = new ArrayList<>();
+        getCnecs().forEach(cnec -> {
+            if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
+                absentFromNetworkCnecs.add(cnec);
+                LOGGER.warn(String.format("Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
+            }
+        });
+        absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
+        ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
+        for (RangeAction<?> rangeAction: getRangeActions()) {
+            rangeAction.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkRangeActions.add(rangeAction);
+                    LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
+                }
+            });
+        }
+        absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
+
+        ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
+        for (NetworkAction<?> networkAction: getNetworkActions()) {
+            networkAction.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkNetworkActions.add(networkAction);
+                    LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
+                }
+            });
+        }
+        absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
+        // TODO: remove contingencies that are not present in the network (and states associated...)
     }
 }

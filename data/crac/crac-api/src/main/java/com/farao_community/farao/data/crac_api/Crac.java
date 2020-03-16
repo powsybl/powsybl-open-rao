@@ -30,7 +30,7 @@ import java.util.TreeSet;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable, Synchronizable {
+public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     Set<NetworkElement> getNetworkElements();
 
@@ -63,6 +63,14 @@ public interface Crac extends Identifiable, Synchronizable {
      * @return The preventive state of the problem definition.
      */
     State getPreventiveState();
+
+    /**
+     * Gather all the states present in the Crac. It returns a set because states must not
+     * be duplicated and there is no defined order for states.
+     *
+     * @return Unordered set of states
+     */
+    Set<State> getStates();
 
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
@@ -157,6 +165,13 @@ public interface Crac extends Identifiable, Synchronizable {
     Set<Cnec> getCnecs();
 
     /**
+     * Find a Cnec by its id
+     *
+     * @return The Cnec with the id given in argument. Or null if it does not exist.
+     */
+    Cnec getCnec(String cnecId);
+
+    /**
      * Gather all the Cnecs of a specified State. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
@@ -197,9 +212,7 @@ public interface Crac extends Identifiable, Synchronizable {
      * @param id: id of the RangeAction to get
      * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
      */
-    RangeAction getRangeAction(String id);
-
-    void addRangeAction(RangeAction rangeAction);
+    RangeAction<? extends RangeAction> getRangeAction(String id);
 
     // Network actions management
     /**
@@ -224,8 +237,6 @@ public interface Crac extends Identifiable, Synchronizable {
      * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
      */
     NetworkAction getNetworkAction(String id);
-
-    void addNetworkAction(NetworkAction networkAction);
 
     // General methods
     void generateValidityReport(Network network);

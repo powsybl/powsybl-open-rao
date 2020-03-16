@@ -8,12 +8,12 @@ package com.farao_community.farao.linear_rao.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -50,7 +50,7 @@ abstract class AbstractFillerTest {
     static final int TAP_IT2 = -7;
 
     static final String CNEC_1_ID = "Tieline BE FR - N - preventive";
-    static final String CNEC_2_ID = "Tieline BE FR - Défaut - N-1 NL1-NL3";
+    static final String CNEC_2_ID = "Tieline BE FR - Defaut - N-1 NL1-NL3";
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
@@ -69,7 +69,7 @@ abstract class AbstractFillerTest {
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
-        network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
 
         // get cnec and rangeAction

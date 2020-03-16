@@ -10,11 +10,8 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
 import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
@@ -23,8 +20,6 @@ import static org.junit.Assert.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class JsonLinearRaoResultTest extends AbstractConverterTest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonLinearRaoResultTest.class);
 
     @Test
     public void roundTripTest() {
@@ -37,12 +32,7 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
         JsonRaoComputationResult.write(result, baos);
 
         //compare
-        try {
-            String string = new String(Files.readAllBytes(Paths.get(new File(getClass().getResource("/LinearRaoResults.json").getFile()).getAbsolutePath())));
-            assertEquals(baos.toString(), string);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        compareTxt(getClass().getResourceAsStream("/LinearRaoResults.json"), new ByteArrayInputStream(baos.toByteArray()));
     }
 
     @Test

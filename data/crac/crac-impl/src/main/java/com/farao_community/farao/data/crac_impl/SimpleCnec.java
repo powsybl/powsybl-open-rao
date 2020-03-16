@@ -9,14 +9,15 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Critical network element and contingency.
@@ -25,26 +26,28 @@ import java.util.Optional;
  */
 @JsonTypeName("simple-cnec")
 @JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityReference(alwaysAsId = true)
 public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
-    private AbstractThreshold threshold;
+    private Set<AbstractThreshold> thresholds;
     private State state;
     private boolean isSynchronized;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("threshold") AbstractThreshold threshold, @JsonProperty("state") State state) {
+                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state) {
         super(id, name);
+
         this.networkElement = networkElement;
-        this.threshold = threshold.copy();
-        this.threshold.setNetworkElement(networkElement);
+        this.thresholds = new HashSet<>();
+        thresholds.forEach(this::addThreshold);
         this.state = state;
         isSynchronized = false;
     }
 
-    public SimpleCnec(String id, NetworkElement networkElement, AbstractThreshold threshold, State state) {
-        this(id, id, networkElement, threshold, state);
+    public SimpleCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> thresholds, State state) {
+        this(id, id, networkElement, thresholds, state);
     }
 
     @Override
@@ -52,30 +55,26 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return networkElement;
     }
 
-    public double computeMargin(Network network) {
-        // todo : switch units if no I is available but P is available
-        // todo : add a requested unit
-        double flow;
-        Unit unit = threshold.getUnit();
-        if (unit.equals(Unit.AMPERE)) {
-            flow = getI(network);
-        } else {
-            flow = getP(network);
-        }
-        return Math.min(threshold.getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - flow, flow - threshold.getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
+    public double computeMargin(double actualValue, Unit unit) {
+        return Math.min(getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - actualValue, actualValue - getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
 
-    @Override
-    public Threshold getThreshold() {
-        return threshold;
+    public Set<AbstractThreshold> getThresholds() {
+        return thresholds;
     }
 
-    public void setThreshold(AbstractThreshold threshold) {
-        this.threshold = threshold;
+    public void setThresholds(Set<AbstractThreshold> thresholds) {
+        this.thresholds = thresholds;
+    }
+
+    public void addThreshold(AbstractThreshold threshold) {
+        AbstractThreshold thresholdCopy = threshold.copy();
+        thresholdCopy.setNetworkElement(networkElement);
+        this.thresholds.add(thresholdCopy);
     }
 
     @Override
@@ -96,7 +95,9 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
      * Get the monitored Terminal of a Cnec.
      */
     private Terminal getTerminal(Network network) {
-        return network.getBranch(getNetworkElement().getId()).getTerminal(((AbstractFlowThreshold) threshold).getBranchSide()); // this is dirty but we can assume that this method will be used only if the threshold of the cnec is an abstractflowthreshold
+        //TODO: make this clean
+        //return network.getBranch(getNetworkElement().getId()).getTerminal(((AbstractFlowThreshold) thresholds).getBranchSide()); // this is dirty but we can assume that this method will be used only if the threshold of the cnec is an abstractflowthreshold
+        return network.getBranch(getNetworkElement().getId()).getTerminal(Branch.Side.ONE); // Very dirty! To handle the Cnecs with several thresholds, we consider that the terminal needed for the computation is always on Branch.Side.ONE
     }
 
     /**
@@ -109,19 +110,28 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public PhysicalParameter getPhysicalParameter() {
-        return threshold.getPhysicalParameter();
+        if (!thresholds.isEmpty()) {
+            PhysicalParameter physicalParameter = thresholds.iterator().next().getPhysicalParameter();
+            if (thresholds.stream().allMatch(threshold -> threshold.getPhysicalParameter().equals(physicalParameter))) {
+                return physicalParameter;
+            } else {
+                throw new FaraoException(String.format("Cnec %s has several physical parameters.", super.name));
+            }
+        } else {
+            throw new FaraoException(String.format("Cnec %s has no threshold.", super.name));
+        }
     }
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        return threshold.getMinThreshold(requestedUnit);
+        return Optional.of(thresholds.stream().map(threshold -> threshold.getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY)).max(Double::compare).orElse(Double.NEGATIVE_INFINITY));
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        return threshold.getMaxThreshold(requestedUnit);
+        return Optional.of(thresholds.stream().map(threshold -> threshold.getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY)).min(Double::compare).orElse(Double.POSITIVE_INFINITY));
     }
 
     @Override
@@ -144,19 +154,23 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public void synchronize(Network network) {
-        threshold.synchronize(network);
+        thresholds.forEach(threshold -> threshold.synchronize(network));
         isSynchronized = true;
     }
 
     @Override
     public void desynchronize() {
-        threshold.desynchronize();
+        thresholds.forEach(AbstractThreshold::desynchronize);
         isSynchronized = false;
     }
 
     @Override
     public boolean isSynchronized() {
         return isSynchronized;
+    }
+
+    public Cnec copy(NetworkElement networkElement, State state) {
+        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state);
     }
 
     @Override
@@ -169,7 +183,8 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         }
         SimpleCnec cnec = (SimpleCnec) o;
         return super.equals(cnec) && networkElement.equals(cnec.getNetworkElement())
-            && state.equals(cnec.getState()) && threshold.equals(cnec.getThreshold());
+            && state.equals(cnec.getState())
+            && thresholds.equals(cnec.thresholds);
     }
 
     @Override
@@ -177,7 +192,6 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         int result = super.hashCode();
         result = 31 * result + networkElement.hashCode();
         result = 31 * result + state.hashCode();
-        result = 31 * result + threshold.hashCode();
         return result;
     }
 }
