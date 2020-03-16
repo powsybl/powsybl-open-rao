@@ -71,7 +71,7 @@ public class SearchTreeRao implements RaoProvider {
 
     public void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll) {
         // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
-        crac.getCnecs().forEach(cnec -> {
+        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
             if (!Objects.isNull(cnecLoopFlowExtension)) {
                 //!!! note here we use the result of branch flow of preventive state for all cnec of all states
