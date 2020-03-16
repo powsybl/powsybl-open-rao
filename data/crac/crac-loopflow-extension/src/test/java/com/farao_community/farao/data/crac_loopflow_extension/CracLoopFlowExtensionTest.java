@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class CracLoopFlowExtensionTest {
     @Test
-    public void testRun() {
+    public void testCracLoopFlowExtension() {
         GlskProvider glskProvider = Mockito.mock(GlskProvider.class);
         List<String> countries = new ArrayList<>(Arrays.asList("FR", "DE", "BE", "NL"));
 
@@ -32,10 +32,11 @@ public class CracLoopFlowExtensionTest {
 
         Assert.assertFalse(cracLoopFlowExtension.getCountriesForLoopFlow().isEmpty());
         Assert.assertNotNull(cracLoopFlowExtension.getGlskProvider());
+        Assert.assertEquals("CracLoopFlowExtension", cracLoopFlowExtension.getName());
     }
 
     @Test
-    public void testLoopflowParameters() {
+    public void testCnecLoopFlowExtension() {
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
         cnecLoopFlowExtension.setLoopFlowConstraint(100);
         assertEquals(100, cnecLoopFlowExtension.getLoopFlowConstraint(), 0.1);
