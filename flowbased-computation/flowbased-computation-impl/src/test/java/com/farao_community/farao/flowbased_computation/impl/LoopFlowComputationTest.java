@@ -28,7 +28,6 @@ import java.nio.file.FileSystem;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -80,6 +79,9 @@ public class LoopFlowComputationTest {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, glskProvider, countries);
         ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork();
         assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get("FR"), EPSILON);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get("FR"), EPSILON);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get("DE"), EPSILON);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get("BE"), EPSILON);
 
         Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, ptdfs, referenceNetPositionByCountry);
         assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
