@@ -23,10 +23,7 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.sensitivity.SensitivityComputationFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.nio.file.FileSystem;
 import java.util.*;
@@ -37,8 +34,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LoopFlowComputation.class)
 public class LoopFlowComputationTest {
     private static final double EPSILON = 1e-3;
     private Network network;
