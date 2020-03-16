@@ -6,13 +6,13 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
-import com.farao_community.farao.balances_adjustment.util.CountryArea;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
+import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -107,8 +107,8 @@ public class LoopFlowComputation {
         Map<String, Double> refNpCountry = new HashMap<>();
 
         for (String country : countries) {
-            CountryArea countryArea = new CountryArea(Country.valueOf(country));
-            double countryNetPositionValue = countryArea.getNetPosition(network);
+            CountryAreaFactory countryAreaFactory = new CountryAreaFactory(Country.valueOf(country));
+            double countryNetPositionValue = countryAreaFactory.create(network).getNetPosition();
             refNpCountry.put(country, countryNetPositionValue);
         }
 
