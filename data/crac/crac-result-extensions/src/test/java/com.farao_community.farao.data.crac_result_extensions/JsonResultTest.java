@@ -54,6 +54,10 @@ public class JsonResultTest {
         resultExtension.addVariant("variant2", new CnecResult(450.0, 750.0));
         preventiveCnec2.addExtension(ResultExtension.class, resultExtension);
 
+        ResultExtension<Crac, CracResult> cracCracResultResultExtension = new ResultExtension<>();
+        cracCracResultResultExtension.addVariant("variant1", new CracResult(CracResult.NetworkSecurityStatus.UNSECURED, 10));
+        simpleCrac.addExtension(ResultExtension.class, cracCracResultResultExtension);
+
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(simpleCrac, "Json", outputStream);
@@ -92,6 +96,9 @@ public class JsonResultTest {
         assertNotNull(extCnec);
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
+
+        ResultExtension<Crac, CracResult> extCrac = crac.getExtension(ResultExtension.class);
+        assertNotNull(extCrac);
     }
 
     @Test

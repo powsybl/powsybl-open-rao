@@ -12,8 +12,11 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -73,5 +76,13 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
         gen.writeEndArray();
 
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
+    }
+
+    @Override
+    public void serializeWithType(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+        WritableTypeId writableTypeId = typeSer.typeId(value, JsonToken.START_OBJECT);
+        typeSer.writeTypePrefix(gen, writableTypeId);
+        serialize(value, gen, serializers);
+        typeSer.writeTypeSuffix(gen, writableTypeId);
     }
 }
