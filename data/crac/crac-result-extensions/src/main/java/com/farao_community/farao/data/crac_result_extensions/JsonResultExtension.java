@@ -25,16 +25,16 @@ import java.util.Map;
 
 @AutoService(ExtensionsHandler.ExtensionSerializer.class)
 public class JsonResultExtension<T extends Identifiable<T>>
-    implements ExtensionsHandler.ExtensionSerializer<T, ResultExtension<T, ? extends Result<T>>> {
+    implements ExtensionsHandler.ExtensionSerializer<T, ResultExtension<T, ? extends Result>> {
 
     @Override
-    public void serialize(ResultExtension<T, ? extends Result<T>> resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ResultExtension<T, ? extends Result> resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
         // serialize result per result as the whole map somehow skips the result types
         jsonGenerator.writeFieldName("resultsPerVariant");
         jsonGenerator.writeStartObject();
-        for (Map.Entry<String, ? extends Result<T>> entry : resultExtension.getResultMap().entrySet()) {
+        for (Map.Entry<String, ? extends Result> entry : resultExtension.getResultMap().entrySet()) {
             jsonGenerator.writeFieldName(entry.getKey());
             jsonGenerator.writeObject(entry.getValue());
         }
@@ -44,15 +44,15 @@ public class JsonResultExtension<T extends Identifiable<T>>
     }
 
     @Override
-    public ResultExtension<T, ? extends Result<T>> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public ResultExtension<T, ? extends Result> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        ResultExtension<T, ? extends Result<T>> resultExtension = new ResultExtension<>();
+        ResultExtension<T, ? extends Result> resultExtension = new ResultExtension<>();
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "resultsPerVariant":
                     jsonParser.nextToken();
-                    resultExtension.setResultMap(jsonParser.readValueAs(new TypeReference<Map<String, ? extends Result<T>>>() {
+                    resultExtension.setResultMap(jsonParser.readValueAs(new TypeReference<Map<String, ? extends Result>>() {
                     }));
                     break;
 

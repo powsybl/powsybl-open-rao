@@ -10,9 +10,11 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_impl.json.serializers.network_action.PstSetPointSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
@@ -24,7 +26,8 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
+@JsonSerialize(using = PstSetPointSerializer.class)
+public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction<PstSetpoint> {
 
     @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,

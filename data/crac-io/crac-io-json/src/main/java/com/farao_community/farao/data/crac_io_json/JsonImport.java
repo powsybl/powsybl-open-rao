@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
-import com.farao_community.farao.data.crac_io_json.deserializers.SimpleCracDeserializer;
+import com.farao_community.farao.data.crac_impl.json.deserializers.SimpleCracDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;

@@ -5,14 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -23,7 +22,7 @@ final class DeserializerUtils {
 
     private DeserializerUtils() { }
 
-    static Set<NetworkElement> getNetworkElementsFromIds(List<String> networkElementsIds, SimpleCrac simpleCrac) {
+    static Set<NetworkElement> getNetworkElementsFromIds(Set<String> networkElementsIds, SimpleCrac simpleCrac) {
         Set<NetworkElement> networkElements = new HashSet<>();
         networkElementsIds.forEach(neId -> {
             NetworkElement ne = simpleCrac.getNetworkElement(neId);
