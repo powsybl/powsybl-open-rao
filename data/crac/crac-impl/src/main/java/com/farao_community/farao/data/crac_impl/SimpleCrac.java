@@ -372,13 +372,13 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkActions;
     }
 
-    public void addNetworkAction(NetworkAction<?> networkAction) {
+    public void addNetworkAction(NetworkAction<? extends NetworkAction> networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.add(networkAction);
     }
 
-    public void addRangeAction(RangeAction<?> rangeAction) {
+    public void addRangeAction(RangeAction<? extends RangeAction> rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);
     }

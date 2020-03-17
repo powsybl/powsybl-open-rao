@@ -4,17 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.flowbased_computation.impl;
+package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_file.*;
-import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -271,96 +270,12 @@ final class ExampleGenerator {
         return network;
     }
 
-    static CracFile cracFile() {
-        return CracFile.builder()
-            .id("Test")
-            .name("Test")
-            .sourceFormat("code")
-            .preContingency(
-                PreContingency.builder()
-                    .monitoredBranches(
-                        Arrays.asList(
-                            MonitoredBranch.builder()
-                                .id("FR-BE")
-                                .name("FR-BE")
-                                .branchId("FR-BE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("FR-DE")
-                                .name("FR-DE")
-                                .branchId("FR-DE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("BE-NL")
-                                .name("BE-NL")
-                                .branchId("BE-NL")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("DE-NL")
-                                .name("DE-NL")
-                                .branchId("DE-NL")
-                                .fmax(100)
-                                .build()
-                        )
-                    )
-                .build()
-        )
-        .contingencies(
-            Collections.singletonList(
-                Contingency.builder()
-                    .id("N-1 FR-BE")
-                    .name("N-1 FR-BE")
-                    .contingencyElements(
-                        Collections.singletonList(
-                            ContingencyElement.builder()
-                                .name("N-1 FR-BE")
-                                .elementId("FR-BE")
-                                .build()
-                        )
-                    )
-                    .monitoredBranches(
-                        Arrays.asList(
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / FR-BE")
-                                .name("N-1 FR-BE / FR-BE")
-                                .branchId("FR-BE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / FR-DE")
-                                .name("N-1 FR-BE / FR-DE")
-                                .branchId("FR-DE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / BE-NL")
-                                .name("N-1 FR-BE / BE-NL")
-                                .branchId("BE-NL")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / DE-NL")
-                                .name("N-1 FR-BE / DE-NL")
-                                .branchId("DE-NL")
-                                .fmax(100)
-                                .build()
-                        )
-                    )
-                    .build()
-            )
-        )
-        .build();
-    }
-
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("FR", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("BE", "BE", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE", new LinearGlsk("DE", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("NL", "NL", Collections.singletonMap("Generator NL", 1.f)));
+        glsks.put("FR GLSK", new LinearGlsk("FR GLSK", "FR GLSK", Collections.singletonMap("Generator FR", 1.f)));
+        glsks.put("BE GLSK", new LinearGlsk("BE GLSK", "BE GLSK", Collections.singletonMap("Generator BE", 1.f)));
+        glsks.put("DE GLSK", new LinearGlsk("DE GLSK", "DE GLSK", Collections.singletonMap("Generator DE", 1.f)));
+        glsks.put("NL GLSK", new LinearGlsk("NL GLSK", "NL GLSK", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
             @Override
             public Map<String, LinearGlsk> getAllGlsk(Network network) {
@@ -413,73 +328,73 @@ final class ExampleGenerator {
             Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
             expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.375),
-                            entry("BE", -0.375),
-                            entry("DE", 0.125),
-                            entry("NL", -0.125)
+                            entry("FR GLSK", 0.375),
+                            entry("BE GLSK", -0.375),
+                            entry("DE GLSK", 0.125),
+                            entry("NL GLSK", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.375),
-                            entry("BE", 0.125),
-                            entry("DE", -0.375),
-                            entry("NL", -0.125)
+                            entry("FR GLSK", 0.375),
+                            entry("BE GLSK", 0.125),
+                            entry("DE GLSK", -0.375),
+                            entry("NL GLSK", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.125),
-                            entry("BE", 0.375),
-                            entry("DE", -0.125),
-                            entry("NL", -0.375)
+                            entry("FR GLSK", 0.125),
+                            entry("BE GLSK", 0.375),
+                            entry("DE GLSK", -0.125),
+                            entry("NL GLSK", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.125),
-                            entry("BE", -0.125),
-                            entry("DE", 0.375),
-                            entry("NL", -0.375)
+                            entry("FR GLSK", 0.125),
+                            entry("BE GLSK", -0.125),
+                            entry("DE GLSK", 0.375),
+                            entry("NL GLSK", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", Double.NaN),
-                            entry("BE", Double.NaN),
-                            entry("DE", Double.NaN),
-                            entry("NL", Double.NaN)
+                            entry("FR GLSK", Double.NaN),
+                            entry("BE GLSK", Double.NaN),
+                            entry("DE GLSK", Double.NaN),
+                            entry("NL GLSK", Double.NaN)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.75),
-                            entry("BE", -0.25),
-                            entry("DE", -0.25),
-                            entry("NL", -0.25)
+                            entry("FR GLSK", 0.75),
+                            entry("BE GLSK", -0.25),
+                            entry("DE GLSK", -0.25),
+                            entry("NL GLSK", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", -0.25),
-                            entry("BE", 0.75),
-                            entry("DE", -0.25),
-                            entry("NL", -0.25)
+                            entry("FR GLSK", -0.25),
+                            entry("BE GLSK", 0.75),
+                            entry("DE GLSK", -0.25),
+                            entry("NL GLSK", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.5),
-                            entry("BE", -0.5),
-                            entry("DE", 0.5),
-                            entry("NL", -0.5)
+                            entry("FR GLSK", 0.5),
+                            entry("BE GLSK", -0.5),
+                            entry("DE GLSK", 0.5),
+                            entry("NL GLSK", -0.5)
                     )
                             .collect(entriesToMap())
             ));
@@ -537,20 +452,26 @@ final class ExampleGenerator {
         Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, thresholds, preState);
         Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, thresholds, preState);
         Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, thresholds, preState);
-        crac.addCnec(cnecPreFrBe);
-        crac.addCnec(cnecPreFrDe);
-        crac.addCnec(cnecPreBeNl);
-        crac.addCnec(cnecPreDeNl);
-
         //post contingency state cnec
         Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, thresholds, postContingencyState);
         Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, thresholds, postContingencyState);
         Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, thresholds, postContingencyState);
         Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, thresholds, postContingencyState);
+
+        crac.addCnec(cnecPreFrBe);
+        crac.addCnec(cnecPreFrDe);
+        crac.addCnec(cnecPreBeNl);
+        crac.addCnec(cnecPreDeNl);
         crac.addCnec(cnecPostFrBe);
         crac.addCnec(cnecPostFrDe);
         crac.addCnec(cnecPostBeNl);
         crac.addCnec(cnecPostDeNl);
+
+        //CnecLoopFlowExtension
+        crac.getCnecs().forEach(cnec -> {
+            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0);
+            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        });
 
         return crac;
     }
