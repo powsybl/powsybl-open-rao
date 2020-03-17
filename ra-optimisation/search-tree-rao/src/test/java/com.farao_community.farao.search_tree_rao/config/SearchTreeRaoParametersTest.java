@@ -27,7 +27,6 @@ public class SearchTreeRaoParametersTest {
     public void setUp() {
         PlatformConfig config = Mockito.mock(PlatformConfig.class);
         parameters = RaoParameters.load(config);
-
     }
 
     @Test
@@ -44,5 +43,13 @@ public class SearchTreeRaoParametersTest {
         assertNotNull(searchTreeRaoParameters.getRangeActionRao());
         // name
         assertEquals("SearchTreeRaoParameters", searchTreeRaoParameters.getName());
+    }
+
+    @Test
+    public void testLoopFlowExtensionParameters() {
+        parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
+        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
+        searchTreeRaoParameters.setRaoWithLoopFlow(true);
+        assertTrue(searchTreeRaoParameters.isRaoWithLoopFlow());
     }
 }
