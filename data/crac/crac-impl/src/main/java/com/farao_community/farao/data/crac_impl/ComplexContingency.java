@@ -7,10 +7,16 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.*;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.BranchContingency;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -50,6 +56,19 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return networkElements;
+    }
+
+    @Override
+    public void apply(Network network, ComputationManager computationManager) {
+        getNetworkElements().forEach(contingencyElement -> {
+            Identifiable element = network.getIdentifiable(contingencyElement.getId());
+            if (element instanceof Branch) {
+                BranchContingency contingency = new BranchContingency(contingencyElement.getId());
+                contingency.toTask().modify(network, computationManager);
+            } else {
+                throw new FaraoException("Unable to apply contingency element " + contingencyElement.getId());
+            }
+        });
     }
 
     /**

@@ -9,9 +9,6 @@ package com.farao_community.farao.util;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -59,7 +56,7 @@ public final class SystematicSensitivityAnalysisService {
                         try {
                             String workingVariant = variantsPool.getAvailableVariant();
                             network.getVariantManager().setWorkingVariant(workingVariant);
-                            applyContingencyInCrac(network, computationManager, contingency);
+                            contingency.apply(network, computationManager);
 
                             LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                             if (currentloadFlowResult.isOk()) {
@@ -99,20 +96,6 @@ public final class SystematicSensitivityAnalysisService {
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             cnecFlowMap.put(cnec, cnec.getP(network));
         }));
-    }
-
-    private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
-        contingency.getNetworkElements().forEach(contingencyElement -> applyContingencyElementInCrac(network, computationManager, contingencyElement));
-    }
-
-    private static void applyContingencyElementInCrac(Network network, ComputationManager computationManager, NetworkElement contingencyElement) {
-        Identifiable element = network.getIdentifiable(contingencyElement.getId());
-        if (element instanceof Branch) {
-            BranchContingency contingency = new BranchContingency(contingencyElement.getId());
-            contingency.toTask().modify(network, computationManager);
-        } else {
-            throw new FaraoException("Unable to apply contingency element " + contingencyElement.getId());
-        }
     }
 
     private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, Set<RangeAction> rangeActions) {

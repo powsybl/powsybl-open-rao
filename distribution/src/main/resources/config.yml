@@ -67,4 +67,5 @@ linear-rao-parameters:
 
 search-tree-rao-paramters:
     range-action-rao : LinearRao
+    rao-with-loop-flow: false
 
