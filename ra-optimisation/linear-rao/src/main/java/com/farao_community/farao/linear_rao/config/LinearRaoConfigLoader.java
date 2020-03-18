@@ -32,8 +32,6 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
             ModuleConfig config = configOptional.get();
             parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", LinearRaoParameters.DEFAULT_MAX_NUMBER_OF_ITERATIONS));
             parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", LinearRaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
-            parameters.setDcMode(config.getBooleanProperty("dc-mode", LinearRaoParameters.DEFAULT_DC_MODE));
-            parameters.setDcMode(config.getBooleanProperty("ac-to-dc-fallback", LinearRaoParameters.DEFAULT_AC_TO_DC_FALLBACK));
         }
         return parameters;
     }

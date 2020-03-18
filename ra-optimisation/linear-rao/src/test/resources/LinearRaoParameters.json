@@ -1,11 +1,11 @@
 {
   "version" : "1.0",
+  "dc-mode" : false,
+  "ac-to-dc-fallback" : false,
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,
       "security-analysis-without-rao" : true,
-      "dc-mode" : true,
-      "ac-to-dc-fallback" : true,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {
