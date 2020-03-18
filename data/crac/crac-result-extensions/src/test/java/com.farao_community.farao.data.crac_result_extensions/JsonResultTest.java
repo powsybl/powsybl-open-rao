@@ -22,6 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.TestCase.*;
 
@@ -36,6 +38,12 @@ public class JsonResultTest {
     public void cracRoundTripTest() {
         // Crac
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
+
+        // add a ResultVariantManager to the Crac
+        Set<String> variantIds = new HashSet<>();
+        variantIds.add("variant1");
+        variantIds.add("variant2");
+        simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager(variantIds));
 
         // States
         Instant initialInstant = simpleCrac.addInstant("N", 0);
@@ -71,6 +79,12 @@ public class JsonResultTest {
         }
 
         // assert
+        // assert that the ResultVariantManager and constains the expected results
+        assertNotNull(crac.getExtension(ResultVariantManager.class));
+        assertEquals(2, crac.getExtension(ResultVariantManager.class).getVariants().size());
+        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains("variant1"));
+        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains("variant2"));
+
         // assert that cnecs exist in the crac
         assertEquals(2, crac.getCnecs().size());
         assertNotNull(crac.getCnec("cnec1prev"));

@@ -28,7 +28,7 @@ public class SimpleStateSerializer extends JsonSerializer<SimpleState> {
         if (!value.getContingency().isPresent()) {
             gen.writeStringField("contingency", null);
         } else {
-            gen.writeStringField("contingency", value.getContingency().get().getId());
+            gen.writeStringField("contingency", value.getContingency().isPresent() ? value.getContingency().get().getId() : null);
         }
         gen.writeStringField("instant", value.getInstant().getId());
     }

@@ -22,7 +22,6 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-
 @AutoService(ExtensionsHandler.ExtensionSerializer.class)
 public class JsonResultExtension<T extends Identifiable<T>>
     implements ExtensionsHandler.ExtensionSerializer<T, ResultExtension<T, ? extends Result>> {

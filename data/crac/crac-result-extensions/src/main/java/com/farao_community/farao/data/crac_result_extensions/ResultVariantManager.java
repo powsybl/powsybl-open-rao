@@ -40,6 +40,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         variants = new HashSet<>();
     }
 
+    /**
+     * Constructor which take in input a list of already existing variantIds
+     * Private-package, used only for the JSON import
+     */
+    ResultVariantManager(Set<String> variantIdSet) {
+        variants = variantIdSet;
+    }
+
     @Override
     public String getName() {
         return "ResultVariantManager";
