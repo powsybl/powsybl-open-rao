@@ -34,7 +34,7 @@ import static java.lang.String.format;
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
-    private static String RANGE_RESULT_EXTENSION_NAME = "RangeActionResultExtension";
+    private static final String RANGE_RESULT_EXTENSION_NAME = "RangeActionResultExtension";
 
     //these two objects are only used for the old computation result
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
