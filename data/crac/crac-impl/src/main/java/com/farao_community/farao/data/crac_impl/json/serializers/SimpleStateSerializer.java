@@ -25,11 +25,7 @@ public class SimpleStateSerializer extends JsonSerializer<SimpleState> {
     @Override
     public void serialize(SimpleState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField("id", value.getId());
-        if (!value.getContingency().isPresent()) {
-            gen.writeStringField("contingency", null);
-        } else {
-            gen.writeStringField("contingency", value.getContingency().get().getId());
-        }
+        gen.writeStringField("contingency", value.getContingency().isPresent() ? value.getContingency().get().getId() : null);
         gen.writeStringField("instant", value.getInstant().getId());
     }
 
