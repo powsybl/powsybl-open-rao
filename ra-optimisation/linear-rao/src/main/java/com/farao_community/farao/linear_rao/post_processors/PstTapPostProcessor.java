@@ -10,7 +10,7 @@ package com.farao_community.farao.linear_rao.post_processors;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoResult;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -18,7 +18,7 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 public class PstTapPostProcessor extends AbstractPostProcessor {
 
     @Override
-    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult, String variantId) {
+    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String variantId) {
     }
 
 }

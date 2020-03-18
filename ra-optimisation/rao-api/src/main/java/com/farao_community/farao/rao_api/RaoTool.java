@@ -8,8 +8,6 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.farao_community.farao.ra_optimisation.converter.RaoComputationResultExporters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
@@ -120,11 +118,12 @@ public class RaoTool implements Tool {
         //Run
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
         context.getOutputStream().println("Running Rao computation");
-        RaoComputationResult raoComputationResult = Rao.run(network, crac, currentState, computationManager, raoParameters);
+        RaoResult raoResult = Rao.run(network, crac, currentState, computationManager, raoParameters);
 
         //Output
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         OutputStream outputStream = new FileOutputStream(String.valueOf(outputFile));
-        RaoComputationResultExporters.export(raoComputationResult, outputStream, format);
+        //TODO: manage RaoResultExport
+        //RaoComputationResultExporters.export(raoResult, outputStream, format);
     }
 }

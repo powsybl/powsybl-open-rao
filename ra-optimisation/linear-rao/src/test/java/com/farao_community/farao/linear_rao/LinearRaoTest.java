@@ -15,9 +15,9 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
-import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
@@ -105,11 +105,11 @@ public class LinearRaoTest {
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, new HashMap<>(), new HashMap<>()));
-        RaoComputationResult result;
+        RaoResult result;
         Crac crac = new SimpleCrac("myCrac");
         try {
             result = linearRao.run(Mockito.mock(Network.class), crac, "", computationManager, raoParameters).get();
-            assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
+            assertEquals(RaoResult.Status.FAILURE, result.getStatus());
         } catch (Exception e) {
             fail();
         }
@@ -156,45 +156,18 @@ public class LinearRaoTest {
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2, new HashMap<>()),
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3, new HashMap<>()));
 
-        List<MonitoredBranchResult> emptyMonitoredBranchResultList = new ArrayList<>();
-
-        List<RemedialActionResult> remedialActionResults1 = new ArrayList<>();
-        List<RemedialActionElementResult> remedialActionElementResultList1 = new ArrayList<>();
-        remedialActionElementResultList1.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 3., 4));
-        remedialActionResults1.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList1));
-        PreContingencyResult preContingencyResult1 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults1);
-        RaoComputationResult raoComputationResult1 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult1);
-
-        List<RemedialActionResult> remedialActionResults2 = new ArrayList<>();
-        List<RemedialActionElementResult> remedialActionElementResultList2 = new ArrayList<>();
-        remedialActionElementResultList2.add(new PstElementResult("BBE2AA1  BBE3AA1  1", 1., 2, 2., 3));
-        remedialActionResults2.add(new RemedialActionResult("RA PST BE", "RA PST BE name", true, remedialActionElementResultList2));
-        PreContingencyResult preContingencyResult2 = new PreContingencyResult(emptyMonitoredBranchResultList, remedialActionResults2);
-        RaoComputationResult raoComputationResult2 = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, preContingencyResult2);
-
         LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
-        Mockito.when(linearRaoModellerMock.solve(Mockito.any())).thenReturn(raoComputationResult1, raoComputationResult2);
+        Mockito.when(linearRaoModellerMock.solve(Mockito.any())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any());
-        CompletableFuture<RaoComputationResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
+        CompletableFuture<RaoResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
         assertNotNull(linearRaoResultCF);
         try {
-            RaoComputationResult linearRaoResult = linearRaoResultCF.get();
-            PreContingencyResult preContingencyResult = linearRaoResult.getPreContingencyResult();
-            assertEquals(490, preContingencyResult.getMonitoredBranchResults().get(0).getPostOptimisationFlow(), .1);
-            assertEquals(499, preContingencyResult.getMonitoredBranchResults().get(0).getPreOptimisationFlow(), .1);
-
-            assertEquals(1, preContingencyResult.getRemedialActionResults().size());
-            assertEquals("RA PST BE", preContingencyResult.getRemedialActionResults().get(0).getId());
-            RemedialActionElementResult remedialActionElementResult = preContingencyResult.getRemedialActionResults().get(0).getRemedialActionElementResults().get(0);
-            assertTrue(remedialActionElementResult instanceof PstElementResult);
-            PstElementResult pstElementResult = (PstElementResult) remedialActionElementResult;
-            assertEquals("BBE2AA1  BBE3AA1  1", pstElementResult.getId());
-            assertEquals(1., pstElementResult.getPreOptimisationAngle(), 0.01);
-            assertEquals(2, pstElementResult.getPreOptimisationTapPosition());
-            assertEquals(2., pstElementResult.getPostOptimisationAngle(), 0.01);
-            assertEquals(3, pstElementResult.getPostOptimisationTapPosition());
+            RaoResult linearRaoResult = linearRaoResultCF.get();
+            assertTrue(linearRaoResult.isOk());
+            assertEquals("preOptimVariant", linearRaoResult.getPreOptimVariantId());
+            assertEquals("currentVariant2", linearRaoResult.getPostOptimVariantId());
 
             ResultExtension<Cnec, CnecResult> cnecResultMap = crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class);
             assertEquals(499, cnecResultMap.getVariant("preOptimVariant").getFlowInMW(), 0.01);

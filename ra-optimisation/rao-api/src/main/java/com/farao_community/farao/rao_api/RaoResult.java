@@ -21,6 +21,10 @@ public class RaoResult {
 
     private Status status;
 
+    private String preOptimVariantId;
+
+    private String postOptimVariantId;
+
     public RaoResult(Status status) {
         this.status = status;
     }
@@ -35,5 +39,21 @@ public class RaoResult {
 
     public boolean isOk() {
         return status == Status.SUCCESS;
+    }
+
+    public void setPreOptimVariantId(String preOptimVariantId) {
+        this.preOptimVariantId = preOptimVariantId;
+    }
+
+    public String getPreOptimVariantId() {
+        return preOptimVariantId;
+    }
+
+    public void setPostOptimVariantId(String postOptimVariantId) {
+        this.postOptimVariantId = postOptimVariantId;
+    }
+
+    public String getPostOptimVariantId() {
+        return postOptimVariantId;
     }
 }
