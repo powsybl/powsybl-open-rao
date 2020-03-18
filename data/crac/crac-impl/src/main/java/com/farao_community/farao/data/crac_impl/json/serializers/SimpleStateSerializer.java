@@ -8,6 +8,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -25,11 +26,7 @@ public class SimpleStateSerializer extends JsonSerializer<SimpleState> {
     @Override
     public void serialize(SimpleState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField("id", value.getId());
-        if (!value.getContingency().isPresent()) {
-            gen.writeStringField("contingency", null);
-        } else {
-            gen.writeStringField("contingency", value.getContingency().isPresent() ? value.getContingency().get().getId() : null);
-        }
+        gen.writeStringField("contingency", value.getContingency().map(Identifiable::getId).orElse(null));
         gen.writeStringField("instant", value.getInstant().getId());
     }
 

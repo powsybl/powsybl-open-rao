@@ -57,14 +57,14 @@ public class JsonResultTest {
         simpleCrac.addNetworkElement("ne2");
         Cnec preventiveCnec2 = simpleCrac.addCnec("cnec2prev", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
 
-        ResultExtension<Cnec, CnecResult> resultExtension = new ResultExtension<>();
+        CnecResultExtension resultExtension = new CnecResultExtension();
         resultExtension.addVariant("variant1", new CnecResult(50.0, 75.0));
         resultExtension.addVariant("variant2", new CnecResult(450.0, 750.0));
-        preventiveCnec2.addExtension(ResultExtension.class, resultExtension);
+        preventiveCnec2.addExtension(CnecResultExtension.class, resultExtension);
 
-        ResultExtension<Crac, CracResult> cracCracResultResultExtension = new ResultExtension<>();
+        CracResultExtension cracCracResultResultExtension = new CracResultExtension();
         cracCracResultResultExtension.addVariant("variant1", new CracResult(CracResult.NetworkSecurityStatus.UNSECURED, 10));
-        simpleCrac.addExtension(ResultExtension.class, cracCracResultResultExtension);
+        simpleCrac.addExtension(CracResultExtension.class, cracCracResultResultExtension);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -95,24 +95,32 @@ public class JsonResultTest {
 
         // assert that the second one has a CnecResult extension with the expected content
         assertEquals(1, crac.getCnec("cnec2prev").getExtensions().size());
-        ResultExtension<Cnec, CnecResult> extCnec = crac.getCnec("cnec2prev").getExtension(ResultExtension.class);
+        CnecResultExtension extCnec = crac.getCnec("cnec2prev").getExtension(CnecResultExtension.class);
         assertNotNull(extCnec);
         assertEquals(50.0, extCnec.getVariant("variant1").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, extCnec.getVariant("variant1").getFlowInA(), DOUBLE_TOLERANCE);
+
+        assertEquals(1, crac.getExtensions().size());
+        CracResultExtension extCrac = crac.getExtension(CracResultExtension.class);
+        assertNotNull(extCrac);
+        assertEquals(10.0, extCrac.getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
     }
 
     @Test
     public void cracImportTest() {
         Crac crac = CracImporters.importCrac("small-crac-with-cnec-result.json", getClass().getResourceAsStream("/small-crac-with-cnec-result.json"));
 
-        ResultExtension<Cnec, CnecResult> extCnec = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(ResultExtension.class);
+        CnecResultExtension extCnec = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
 
         assertNotNull(extCnec);
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
 
-        ResultExtension<Crac, CracResult> extCrac = crac.getExtension(ResultExtension.class);
+        CracResultExtension extCrac = crac.getExtension(CracResultExtension.class);
         assertNotNull(extCrac);
+        assertEquals(10.0, extCrac.getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
     }
 
     @Test

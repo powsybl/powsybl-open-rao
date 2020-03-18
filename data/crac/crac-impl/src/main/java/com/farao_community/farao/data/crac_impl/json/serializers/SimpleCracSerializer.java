@@ -44,6 +44,12 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
             gen.writeObject(instant);
         }
         gen.writeEndArray();
+        gen.writeFieldName("contingencies");
+        gen.writeStartArray();
+        for (Contingency contingency : value.getContingencies()) {
+            gen.writeObject(contingency);
+        }
+        gen.writeEndArray();
         gen.writeFieldName("states");
         gen.writeStartArray();
         for (State state : value.getStates()) {
@@ -54,12 +60,6 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
         gen.writeStartArray();
         for (Cnec cnec : value.getCnecs()) {
             gen.writeObject(cnec);
-        }
-        gen.writeEndArray();
-        gen.writeFieldName("contingencies");
-        gen.writeStartArray();
-        for (Contingency contingency : value.getContingencies()) {
-            gen.writeObject(contingency);
         }
         gen.writeEndArray();
         gen.writeFieldName("rangeActions");

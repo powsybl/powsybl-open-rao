@@ -6,4 +6,9 @@ import com.farao_community.farao.data.crac_api.Crac;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class CracResultExtension extends ResultExtension<Crac, CracResult> {
+
+    @Override
+    public String getName() {
+        return "CracResultExtension";
+    }
 }
