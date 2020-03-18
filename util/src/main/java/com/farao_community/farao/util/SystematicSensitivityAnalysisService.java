@@ -9,9 +9,6 @@ package com.farao_community.farao.util;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -41,11 +38,12 @@ public final class SystematicSensitivityAnalysisService {
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        Map<Cnec, Double> cnecIntensityMap = new HashMap<>();
 
         // 1. pre
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildFlowFromNetwork(network, crac, cnecFlowMap, null);
+            buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, null);
         }
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
         SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -59,11 +57,11 @@ public final class SystematicSensitivityAnalysisService {
                         try {
                             String workingVariant = variantsPool.getAvailableVariant();
                             network.getVariantManager().setWorkingVariant(workingVariant);
-                            applyContingencyInCrac(network, computationManager, contingency);
+                            contingency.apply(network, computationManager);
 
                             LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                             if (currentloadFlowResult.isOk()) {
-                                buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
+                                buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, contingency);
                             }
 
                             SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -85,10 +83,14 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
+        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, cnecIntensityMap);
     }
 
-    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecFlowMap, Contingency contingency) {
+    private static void buildFlowFromNetwork(Network network,
+                                             Crac crac,
+                                             Map<Cnec, Double> cnecFlowMap,
+                                             Map<Cnec, Double> cnecIntensityMap,
+                                             Contingency contingency) {
         Set<State> states = new HashSet<>();
         if (contingency == null) {
             states.add(crac.getPreventiveState());
@@ -98,26 +100,13 @@ public final class SystematicSensitivityAnalysisService {
 
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             cnecFlowMap.put(cnec, cnec.getP(network));
+            cnecIntensityMap.put(cnec, cnec.getI(network));
         }));
-    }
-
-    private static void applyContingencyInCrac(Network network, ComputationManager computationManager, Contingency contingency) {
-        contingency.getNetworkElements().forEach(contingencyElement -> applyContingencyElementInCrac(network, computationManager, contingencyElement));
-    }
-
-    private static void applyContingencyElementInCrac(Network network, ComputationManager computationManager, NetworkElement contingencyElement) {
-        Identifiable element = network.getIdentifiable(contingencyElement.getId());
-        if (element instanceof Branch) {
-            BranchContingency contingency = new BranchContingency(contingencyElement.getId());
-            contingency.toTask().modify(network, computationManager);
-        } else {
-            throw new FaraoException("Unable to apply contingency element " + contingencyElement.getId());
-        }
     }
 
     private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, Set<RangeAction> rangeActions) {
         List<TwoWindingsTransformer> psts = new ArrayList<>();
-        for (RangeAction rangeAction : rangeActions) {
+        for (RangeAction<?> rangeAction : rangeActions) {
             Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
             for (NetworkElement networkElement : networkElements) {
                 if (isPst(network, networkElement)) {

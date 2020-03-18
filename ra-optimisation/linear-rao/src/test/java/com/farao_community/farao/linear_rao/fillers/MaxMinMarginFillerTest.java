@@ -13,13 +13,11 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -47,8 +45,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     private void fillProblemWithFiller() throws IOException {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        byte[] inputBytes = IOUtils.toByteArray(getClass().getResourceAsStream("/small-sensi-results-1.json"));
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(new ByteArrayInputStream(inputBytes)));
+        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
 
         // complete the mock of linearRaoData
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);

@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ *  Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
  */
 
 package com.farao_community.farao.data.crac_result_extensions;
@@ -23,6 +24,12 @@ public class CnecResultTest {
         CnecResult cnecResult = new CnecResult(50.0, 75.0);
         assertEquals(50.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
+
+        cnecResult.setFlowInMW(150.0);
+        cnecResult.setFlowInA(175.0);
+
+        assertEquals(150.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(175.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -33,8 +40,9 @@ public class CnecResultTest {
     }
 
     @Test
-    public void getNameTest() {
-        CnecResult cnecResult = new CnecResult(-45.0);
-        assertEquals("CnecResult", cnecResult.getName());
+    public void testDefaultConstructor() {
+        CnecResult cnecResult = new CnecResult();
+        assertEquals(Double.NaN, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(Double.NaN, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
     }
 }

@@ -8,6 +8,10 @@
 package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -16,7 +20,9 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.ra_optimisation.RemedialActionResult;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -25,39 +31,47 @@ import java.util.*;
 public class RaoResultPostProcessor extends AbstractPostProcessor {
 
     @Override
-    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult) {
+    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult, String resultVariantId) {
+        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
 
+        //Old computation result code
         List<RemedialActionResult> remedialActionResults = new ArrayList<>();
-        linearRaoData.getCrac().getRangeActions().forEach(
-            rangeAction -> {
-                String rangeActionId = rangeAction.getId();
-                String rangeActionName = rangeAction.getName();
-                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+        for (RangeAction<?> rangeAction: linearRaoData.getCrac().getRangeActions()) {
+            //Old computation result code
+            String rangeActionId = rangeAction.getId();
+            String rangeActionName = rangeAction.getName();
 
-                double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
-                double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
+            String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
-                if (rangeActionVar > 0) {
-                    if (rangeAction instanceof PstRange) {
+            double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
+            double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
 
-                        TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+            if (rangeActionVar > 0) {
+                if (rangeAction instanceof PstRange) {
+                    PstRange pstRange = (PstRange) rangeAction;
+                    TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
-                        //todo : get pre optim angle and tap with a cleaner manner
-                        double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
-                        int preOptimTap = ((PstRange) rangeAction).computeTapPosition(preOptimAngle);
+                    //todo : get pre optim angle and tap with a cleaner manner
+                    double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
+                    int preOptimTap = pstRange.computeTapPosition(preOptimAngle);
 
-                        int approximatedPostOptimTap = ((PstRange) rangeAction).computeTapPosition(rangeActionVal);
-                        double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+                    int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
+                    double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
-                        if (approximatedPostOptimTap != preOptimTap) {
-                            PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, approximatedPostOptimAngle, approximatedPostOptimTap);
-                            remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
-                        }
+                    if (approximatedPostOptimTap != preOptimTap) {
+                        ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = pstRange.getExtension(PstRangeResultExtension.class);
+                        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant(resultVariantId);
+                        pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
+                        pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
+
+                        //old computation result code
+                        PstElementResult pstElementResult = new PstElementResult(networkElementId, preOptimAngle, preOptimTap, approximatedPostOptimAngle, approximatedPostOptimTap);
+                        remedialActionResults.add(new RemedialActionResult(rangeActionId, rangeActionName, true, Collections.singletonList(pstElementResult)));
                     }
                 }
             }
-        );
-
+        }
+        //old computation result code
         raoComputationResult.getPreContingencyResult().getRemedialActionResults().addAll(remedialActionResults);
     }
 }
