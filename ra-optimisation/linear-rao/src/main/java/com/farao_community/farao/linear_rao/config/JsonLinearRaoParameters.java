@@ -30,6 +30,8 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
         jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
 
         jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
+        jsonGenerator.writeBooleanField("dc-mode", linearRaoParameters.isDcMode());
+        jsonGenerator.writeBooleanField("ac-to-dc-fallback", linearRaoParameters.isAcToDcFallback());
 
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
@@ -50,6 +52,14 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                 case "security-analysis-without-rao":
                     jsonParser.nextToken();
                     linearRaoParameters.setSecurityAnalysisWithoutRao(jsonParser.getBooleanValue());
+                    break;
+                case "dc-mode":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setDcMode(jsonParser.getBooleanValue());
+                    break;
+                case "ac-to-dc-fallback":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setAcToDcFallback(jsonParser.getBooleanValue());
                     break;
                 case "sensitivity-parameters":
                     jsonParser.nextToken();

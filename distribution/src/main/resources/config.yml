@@ -64,9 +64,8 @@ rao:
 linear-rao-parameters:
     max-number-of-iterations: 10
     security-analysis-without-rao: false
+    dc-mode: false
+    ac-to-dc-fallback: false
 
 search-tree-rao-paramters:
     range-action-rao : LinearRao
-    dc-mode : false
-    ac-to-dc-fallback : false
-

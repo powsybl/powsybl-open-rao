@@ -29,8 +29,6 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
             parameters.setRangeActionRao(config.getStringProperty("range-action-rao", SearchTreeRaoParameters.DEFAULT_RANGE_ACTION_RAO));
-            parameters.setDcMode(config.getBooleanProperty("dc-mode", SearchTreeRaoParameters.DEFAULT_DC_MODE));
-            parameters.setDcMode(config.getBooleanProperty("ac-to-dc-fallback", SearchTreeRaoParameters.DEFAULT_AC_TO_DC_FALLBACK));
         }
         return parameters;
     }

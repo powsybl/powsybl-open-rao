@@ -27,6 +27,8 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
+        parameters.getExtension(LinearRaoParameters.class).setDcMode(true);
+        parameters.getExtension(LinearRaoParameters.class).setAcToDcFallback(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParameters.json");
     }
 

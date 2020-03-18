@@ -22,10 +22,14 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
     static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
+    static final boolean DEFAULT_DC_MODE = false;
+    static final boolean DEFAULT_AC_TO_DC_FALLBACK = false;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
     private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
     private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
+    private boolean dcMode = DEFAULT_DC_MODE;
+    private boolean acToDcFallback = DEFAULT_AC_TO_DC_FALLBACK;
 
     @Override
     public String getName() {
@@ -48,6 +52,22 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     public boolean isSecurityAnalysisWithoutRao() {
         return securityAnalysisWithoutRao;
+    }
+
+    public boolean isDcMode() {
+        return dcMode;
+    }
+
+    public void setDcMode(boolean dcMode) {
+        this.dcMode = dcMode;
+    }
+
+    public boolean isAcToDcFallback() {
+        return acToDcFallback;
+    }
+
+    public void setAcToDcFallback(boolean acToDcFallback) {
+        this.acToDcFallback = acToDcFallback;
     }
 
     public int getMaxIterations() {

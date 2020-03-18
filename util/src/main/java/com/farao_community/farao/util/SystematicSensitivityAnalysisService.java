@@ -8,8 +8,6 @@ package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.iidm.network.Branch;
@@ -38,16 +36,11 @@ public final class SystematicSensitivityAnalysisService {
 
     public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
                                                                   Crac crac,
-                                                                  ComputationManager computationManager,
-                                                                  RaoParameters parameters) {
+                                                                  ComputationManager computationManager) {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
-
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
-        boolean dcMode = searchTreeRaoParameters.isDcMode();
-        boolean acToDcFallback = searchTreeRaoParameters.isAcToDcFallback();
 
         // 1. pre
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);

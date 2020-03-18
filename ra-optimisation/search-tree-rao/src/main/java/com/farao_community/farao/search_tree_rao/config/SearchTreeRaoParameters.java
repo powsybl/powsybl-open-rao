@@ -16,12 +16,8 @@ import com.powsybl.commons.extensions.AbstractExtension;
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     static final String DEFAULT_RANGE_ACTION_RAO = "LinearRao";
-    static final boolean DEFAULT_DC_MODE = false;
-    static final boolean DEFAULT_AC_TO_DC_FALLBACK = false;
 
     private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
-    private boolean dcMode = DEFAULT_DC_MODE;
-    private boolean acToDcFallback = DEFAULT_AC_TO_DC_FALLBACK;
 
     @Override
     public String getName() {
@@ -34,21 +30,5 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setRangeActionRao(String rangeActionRaoName) {
         this.rangeActionRao = rangeActionRaoName;
-    }
-
-    public boolean isDcMode() {
-        return dcMode;
-    }
-
-    public void setDcMode(boolean dcMode) {
-        this.dcMode = dcMode;
-    }
-
-    public boolean isAcToDcFallback() {
-        return acToDcFallback;
-    }
-
-    public void setAcToDcFallback(boolean acToDcFallback) {
-        this.acToDcFallback = acToDcFallback;
     }
 }

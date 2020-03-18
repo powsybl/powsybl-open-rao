@@ -4,6 +4,8 @@
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,
       "security-analysis-without-rao" : true,
+      "dc-mode" : true,
+      "ac-to-dc-fallback" : true,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {
