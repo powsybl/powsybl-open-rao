@@ -9,7 +9,9 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -157,6 +159,7 @@ class Leaf {
         try {
             RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant);
             this.raoResult = results;
+            updateRaoResultWithNetworkActions(crac);
             this.status = buildStatus(results);
             deleteVariant(network, leafNetworkVariant);
 
@@ -206,6 +209,14 @@ class Leaf {
 
     public double getCost(Crac crac) {
         Objects.requireNonNull(raoResult);
-        return crac.getExtension(CracResult.class).getCost();
+        return crac.getExtension(CracResultExtension.class).getVariant(raoResult.getPostOptimVariantId()).getCost();
+    }
+
+    private void updateRaoResultWithNetworkActions(Crac crac) {
+        String variantId = raoResult.getPostOptimVariantId();
+        String preventiveState = crac.getPreventiveState().getId();
+        for (NetworkAction<?> networkAction : networkActions) {
+            ((NetworkActionResult) networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId)).activate(preventiveState);
+        }
     }
 }

@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.process.search_tree;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.Network;
@@ -36,6 +37,12 @@ public final class Tree {
     }
 
     public static CompletableFuture<RaoResult> search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager == null) {
+            resultVariantManager = new ResultVariantManager();
+            crac.addExtension(ResultVariantManager.class, resultVariantManager);
+        }
+
         //TODO: manage result variants
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
@@ -65,16 +72,23 @@ public final class Tree {
             for (Leaf currentLeaf: generatedLeaves) {
                 if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS && currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
                     hasImproved = true;
+                    resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
                     optimalLeaf = currentLeaf;
+                } else {
+                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
                 }
+                resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
             }
         }
 
         //TODO: refactor output format
-        return CompletableFuture.completedFuture(buildOutput(optimalLeaf));
+        return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
     }
 
-    static RaoResult buildOutput(Leaf optimalLeaf) {
-        return new RaoResult(optimalLeaf.getRaoResult().getStatus());
+    static RaoResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
+        RaoResult raoResult = new RaoResult(optimalLeaf.getRaoResult().getStatus());
+        raoResult.setPreOptimVariantId(rootLeaf.getRaoResult().getPreOptimVariantId());
+        raoResult.setPostOptimVariantId(optimalLeaf.getRaoResult().getPostOptimVariantId());
+        return raoResult;
     }
 }

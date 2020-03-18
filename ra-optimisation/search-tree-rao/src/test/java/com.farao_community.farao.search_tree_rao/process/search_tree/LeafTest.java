@@ -8,7 +8,10 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -119,7 +122,9 @@ public class LeafTest {
 
     @Test
     public void evaluateOkTest() {
-        Mockito.when(crac.getName()).thenReturn("CracOk");
+        crac = new SimpleCrac("CracOk");
+        crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
+        //Mockito.when(crac.getName()).thenReturn("CracOk");
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         Leaf rootLeaf = new Leaf();
@@ -133,9 +138,6 @@ public class LeafTest {
 
         assertEquals(1, network.getVariantManager().getVariantIds().size());
         assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
-
-        // Test for getCost
-        assertEquals(1500, rootLeaf.getCost(), 1.0);
     }
 
     @Test
@@ -151,7 +153,9 @@ public class LeafTest {
 
     @Test
     public void evaluateWithRaoFailureTest() {
-        Mockito.when(crac.getName()).thenReturn(CRAC_NAME_RAO_RETURNS_FAILURE);
+        crac = new SimpleCrac(CRAC_NAME_RAO_RETURNS_FAILURE);
+        crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
+
         String initialVariant = network.getVariantManager().getWorkingVariantId();
 
         Leaf rootLeaf = new Leaf();
