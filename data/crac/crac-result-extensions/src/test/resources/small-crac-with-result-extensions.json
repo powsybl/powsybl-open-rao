@@ -129,6 +129,9 @@
   ],
   "networkActions": [],
   "extensions": {
+    "ResultVariantManager" : {
+      "variantIds" : [ "variant2", "variant1" ]
+    },
     "CracResultExtension": {
       "resultsPerVariant" : {
         "variant1" : {
