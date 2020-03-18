@@ -81,7 +81,7 @@ public class SystematicSensitivityAnalysisServiceTest {
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenThrow(new FaraoException("test exception."));
         LoadFlowService.init(loadFlowRunner, computationManager);
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
         assertNotNull(result);
     }
 
@@ -104,7 +104,7 @@ public class SystematicSensitivityAnalysisServiceTest {
         }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         LoadFlowService.init(loadFlowRunner, computationManager);
 
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
         assertNotNull(result);
     }
 
@@ -127,12 +127,12 @@ public class SystematicSensitivityAnalysisServiceTest {
         }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         LoadFlowService.init(loadFlowRunner, computationManager);
         crac.addRangeAction(new PstWithRange("myPst", new NetworkElement(network.getTwoWindingsTransformers().iterator().next().getId())));
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
         assertNotNull(result);
 
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactoryBroken();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
     }
 
     public class MockSensitivityComputationFactory implements SensitivityComputationFactory {
