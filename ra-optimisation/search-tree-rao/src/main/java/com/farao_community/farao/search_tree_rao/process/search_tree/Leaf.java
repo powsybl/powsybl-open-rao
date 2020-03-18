@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.ra_optimisation.MonitoredBranchResult;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -21,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.lang.StrictMath.abs;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -205,11 +202,6 @@ class Leaf {
         if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
             network.getVariantManager().removeVariant(leafNetworkVariant);
         }
-    }
-
-    private static double computeMargin(MonitoredBranchResult monitoredBranchResult) {
-        //todo : adjust when Cnec is monitored in one direction, or wait for new output structure
-        return monitoredBranchResult.getMaximumFlow() - abs(monitoredBranchResult.getPostOptimisationFlow());
     }
 
     public double getCost(Crac crac) {
