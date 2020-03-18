@@ -14,7 +14,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,13 +21,11 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-
-@AutoService(ExtensionsHandler.ExtensionSerializer.class)
-public class JsonResultExtension<T extends Identifiable<T>>
-    implements ExtensionsHandler.ExtensionSerializer<T, ResultExtension<T, ? extends Result>> {
+public abstract class AbstractJsonResultExtension<T extends Identifiable<T>, S extends ResultExtension<T, ? extends Result>>
+    implements ExtensionsHandler.ExtensionSerializer<T, S> {
 
     @Override
-    public void serialize(ResultExtension<T, ? extends Result> resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(S resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
         // serialize result per result as the whole map somehow skips the result types
@@ -44,24 +41,18 @@ public class JsonResultExtension<T extends Identifiable<T>>
     }
 
     @Override
-    public ResultExtension<T, ? extends Result> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public abstract S deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
 
-        ResultExtension<T, ? extends Result> resultExtension = new ResultExtension<>();
-
+    protected void deserializeResultExtension(JsonParser jsonParser, S resultExtension) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case "resultsPerVariant":
-                    jsonParser.nextToken();
-                    resultExtension.setResultMap(jsonParser.readValueAs(new TypeReference<Map<String, ? extends Result>>() {
-                    }));
-                    break;
-
-                default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+            if (jsonParser.getCurrentName().equals("resultsPerVariant")) {
+                jsonParser.nextToken();
+                resultExtension.setResultMap(jsonParser.readValueAs(new TypeReference<Map<String, ? extends Result>>() {
+                }));
+            } else {
+                throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
-
-        return resultExtension;
     }
 
     @Override
@@ -72,11 +63,6 @@ public class JsonResultExtension<T extends Identifiable<T>>
     @Override
     public String getCategoryName() {
         return "identifiable";
-    }
-
-    @Override
-    public Class<? super ResultExtension> getExtensionClass() {
-        return ResultExtension.class;
     }
 }
 
