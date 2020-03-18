@@ -52,9 +52,6 @@ public class SystematicSensitivityAnalysisServiceTest {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
-        /*raoParameters = Mockito.mock(RaoParameters.class);
-        Mockito.when(raoParameters.getExtensionByName("SearchTreeRaoParameters")).thenReturn(new SearchTreeRaoParameters());*/
-
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
 

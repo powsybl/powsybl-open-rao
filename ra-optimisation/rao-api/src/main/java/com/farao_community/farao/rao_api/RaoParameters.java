@@ -55,11 +55,21 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         Objects.requireNonNull(platformConfig);
 
         RaoParameters parameters = new RaoParameters();
-        //parameters.setDcMode(config.getBooleanProperty("dc-mode", DEFAULT_DC_MODE));
-        //parameters.setAcToDcFallback(config.getBooleanProperty("ac-to-dc-fallback", DEFAULT_AC_TO_DC_FALLBACK));
+        load(parameters, platformConfig);
         parameters.readExtensions(platformConfig);
 
         return parameters;
+    }
+
+    protected static void load(RaoParameters parameters, PlatformConfig platformConfig) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(platformConfig);
+
+        platformConfig.getOptionalModuleConfig("rao-parameters")
+            .ifPresent(config -> {
+                parameters.setDcMode(config.getBooleanProperty("dc-mode", DEFAULT_DC_MODE));
+                parameters.setAcToDcFallback(config.getBooleanProperty("ac-to-dc-fallback", DEFAULT_AC_TO_DC_FALLBACK));
+            });
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
