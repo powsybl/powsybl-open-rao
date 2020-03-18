@@ -17,5 +17,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes(@JsonSubTypes.Type(value = CnecResult.class, name = "cnec-result"))
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = CnecResult.class, name = "cnec-result"),
+        @JsonSubTypes.Type(value = CracResult.class, name = "crac-result")
+})
 public interface Result { }

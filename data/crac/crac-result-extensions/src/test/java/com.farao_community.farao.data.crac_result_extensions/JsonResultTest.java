@@ -85,6 +85,12 @@ public class JsonResultTest {
         assertNotNull(extCnec);
         assertEquals(50.0, extCnec.getVariant("variant1").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, extCnec.getVariant("variant1").getFlowInA(), DOUBLE_TOLERANCE);
+
+        assertEquals(1, crac.getExtensions().size());
+        ResultExtension<Crac, CracResult> extCrac = crac.getExtension(ResultExtension.class);
+        assertNotNull(extCrac);
+        assertEquals(10.0, extCrac.getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
     }
 
     @Test
@@ -99,6 +105,8 @@ public class JsonResultTest {
 
         ResultExtension<Crac, CracResult> extCrac = crac.getExtension(ResultExtension.class);
         assertNotNull(extCrac);
+        assertEquals(10.0, extCrac.getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
     }
 
     @Test
