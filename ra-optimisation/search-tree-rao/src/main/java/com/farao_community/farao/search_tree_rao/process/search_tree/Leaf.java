@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -215,8 +214,8 @@ class Leaf {
     private void updateRaoResultWithNetworkActions(Crac crac) {
         String variantId = raoResult.getPostOptimVariantId();
         String preventiveState = crac.getPreventiveState().getId();
-        for (NetworkAction<?> networkAction : networkActions) {
-            ((NetworkActionResult) networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId)).activate(preventiveState);
+        for (NetworkAction networkAction : networkActions) {
+            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
         }
     }
 }
