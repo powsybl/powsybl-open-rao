@@ -242,8 +242,8 @@ public class LinearRao implements RaoProvider {
         List<MonitoredBranchResult> preContingencyMonitoredBranches = new ArrayList<>();
         if (crac.getPreventiveState() != null) {
             crac.getCnecs(crac.getPreventiveState()).forEach(cnec ->
-                    preContingencyMonitoredBranches.add(createMonitoredBranchResultAndUpdateLinearRaoResult(cnec, linearRaoResult)
-                    ));
+                preContingencyMonitoredBranches.add(createMonitoredBranchResultAndUpdateLinearRaoResult(cnec, linearRaoResult)
+                ));
         }
         return new PreContingencyResult(preContingencyMonitoredBranches, raResultList);
     }
