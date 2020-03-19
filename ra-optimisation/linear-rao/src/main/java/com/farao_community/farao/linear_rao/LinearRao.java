@@ -11,11 +11,13 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
@@ -80,7 +82,12 @@ public class LinearRao implements RaoProvider {
 
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
-        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
+        //use loopflow or not check, before Linear Rao Modeller
+        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
+        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+        boolean useLoopFlow = !Objects.isNull(searchTreeRaoParameters) && searchTreeRaoParameters.isRaoWithLoopFlow() && !Objects.isNull(cracLoopFlowExtension);
+
+        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult, useLoopFlow);
         linearRaoModeller.buildProblem();
 
         RaoComputationResult raoComputationResult;
@@ -127,8 +134,9 @@ public class LinearRao implements RaoProvider {
     //defined to be able to run unit tests
     LinearRaoModeller createLinearRaoModeller(Crac crac,
                                               Network network,
-                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem());
+                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                                              boolean useLoopFlow) {
+        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), useLoopFlow);
 
     }
 

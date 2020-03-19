@@ -33,7 +33,7 @@ public class LinearRaoModellerTest {
         Network networkMock = Mockito.mock(Network.class);
         SystematicSensitivityAnalysisResult sensitivityResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
 
-        linearRaoModeller = new LinearRaoModeller(cracMock, networkMock, sensitivityResultMock, linearRaoProblemMock);
+        linearRaoModeller = new LinearRaoModeller(cracMock, networkMock, sensitivityResultMock, linearRaoProblemMock, false);
     }
 
     @Test
