@@ -65,7 +65,7 @@ public class LinearRao implements RaoProvider {
 
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
 
-        preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
 
         // Failure if some sensitivities are not computed
         if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
@@ -99,7 +99,7 @@ public class LinearRao implements RaoProvider {
             }
 
             applyRAs(crac, network, newRemedialActionsResultList);
-            tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+            tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager,  RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
 
             // If some sensitivities are not computed, the bes result found so far is returned
             if (tempSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {

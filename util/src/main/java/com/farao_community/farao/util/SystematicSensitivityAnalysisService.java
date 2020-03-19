@@ -33,7 +33,9 @@ public final class SystematicSensitivityAnalysisService {
 
     public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
                                                                   Crac crac,
-                                                                  ComputationManager computationManager) {
+                                                                  ComputationManager computationManager,
+                                                                  boolean dcMode,
+                                                                  boolean acToDcFallback) {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();

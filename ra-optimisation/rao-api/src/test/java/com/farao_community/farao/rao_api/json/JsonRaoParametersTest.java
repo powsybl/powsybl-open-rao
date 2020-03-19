@@ -29,12 +29,16 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
+        parameters.setDcMode(true);
+        parameters.setAcToDcFallback(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters.json");
     }
 
     @Test
     public void writeExtension() throws IOException {
         RaoParameters parameters = new RaoParameters();
+        parameters.setDcMode(true);
+        parameters.setAcToDcFallback(true);
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonRaoParameters::write, AbstractConverterTest::compareTxt, "/RaoParametersWithExtension.json");
     }
