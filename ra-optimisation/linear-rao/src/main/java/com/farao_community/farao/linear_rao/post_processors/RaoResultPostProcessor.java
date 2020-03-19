@@ -9,9 +9,8 @@ package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.PstRangeResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultExtension;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -28,7 +27,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
     public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String resultVariantId) {
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
 
-        for (RangeAction<?> rangeAction: linearRaoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
             String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
             double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
@@ -47,8 +46,8 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                     double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                     if (approximatedPostOptimTap != preOptimTap) {
-                        ResultExtension<PstRange, PstRangeResult> pstRangeResultMap = pstRange.getExtension(PstRangeResultExtension.class);
-                        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant(resultVariantId);
+                        RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(resultVariantId);
                         pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                         pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
                     }

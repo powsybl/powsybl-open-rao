@@ -37,7 +37,7 @@ public class ResultVariantManagerTest {
 
         CracResultExtension cracExtension;
         CnecResultExtension cnecExtension;
-        PstRangeResultExtension pstExtension;
+        RangeActionResultExtension pstExtension;
 
         assertTrue(variantManager.getVariants().isEmpty());
 
@@ -49,7 +49,7 @@ public class ResultVariantManagerTest {
 
         cracExtension = crac.getExtension(CracResultExtension.class);
         cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
-        pstExtension = (PstRangeResultExtension) crac.getRangeAction("PRA_PST_BE").getExtension(PstRangeResultExtension.class);
+        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class);
 
         assertNotNull(cracExtension.getVariant(variantId1));
         assertNotNull(cracExtension.getVariant(variantId2));
@@ -78,7 +78,7 @@ public class ResultVariantManagerTest {
 
         cracExtension = crac.getExtension(CracResultExtension.class);
         cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
-        pstExtension = (PstRangeResultExtension) crac.getRangeAction("PRA_PST_BE").getExtension(PstRangeResultExtension.class);
+        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class);
 
         assertNull(cracExtension);
         assertNull(cnecExtension);

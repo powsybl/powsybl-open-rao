@@ -22,7 +22,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-setpoint")
-public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAction<InjectionSetpoint> {
+public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
     public InjectionSetpoint(@JsonProperty("id") String id,

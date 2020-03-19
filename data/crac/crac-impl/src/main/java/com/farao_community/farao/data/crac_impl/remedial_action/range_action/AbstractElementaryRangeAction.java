@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
     })
-public abstract class AbstractElementaryRangeAction<I extends RangeAction<I>> extends AbstractRangeAction<I> implements RangeAction<I> {
+public abstract class AbstractElementaryRangeAction extends AbstractRangeAction {
     protected NetworkElement networkElement;
 
     @JsonCreator
