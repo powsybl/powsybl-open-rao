@@ -15,16 +15,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ResultExtension is a standard Extension of any {@link Identifiable} object
+ * AbstractResultExtension is a standard Extension of any {@link Identifiable} object
  * which can contain results of a RAO computation.
  *
- * ResultExtension contains a map of results, with one {@link Result} object for
+ * AbstractResultExtension contains a map of results, with one {@link Result} object for
  * each registered variant. It also contains utility methods to manage the result
  * variants of an Identifiable object.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ResultExtension<T extends Identifiable<T>, S extends Result> extends AbstractExtension<T> {
+public abstract class AbstractResultExtension<T extends Identifiable<T>, S extends Result> extends AbstractExtension<T> {
 
     /**
      * Map of results, with one result "S" of each variantId "String"
@@ -36,7 +36,7 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
      * Private-package as the extensions can only be created by the ResultVariantManager
      * to ensure the consistency of ResultExtensions within all the Crac.
      */
-    ResultExtension() {
+    AbstractResultExtension() {
         resultMap = new HashMap<>();
     }
 
@@ -88,6 +88,6 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
      */
     @Override
     public String getName() {
-        return "ResultExtension";
+        return "AbstractResultExtension";
     }
 }

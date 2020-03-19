@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * The Result interface is use to stamp some classes as results which can be
- * embedded in a {@link ResultExtension} object.
+ * embedded in a {@link AbstractResultExtension} object.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */

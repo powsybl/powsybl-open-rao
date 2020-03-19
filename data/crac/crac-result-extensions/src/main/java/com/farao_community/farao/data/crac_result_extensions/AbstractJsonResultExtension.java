@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public abstract class AbstractJsonResultExtension<T extends Identifiable<T>, S extends ResultExtension<T, ? extends Result>>
+public abstract class AbstractJsonResultExtension<T extends Identifiable<T>, S extends AbstractResultExtension<T, ? extends Result>>
     implements ExtensionsHandler.ExtensionSerializer<T, S> {
 
     @Override
@@ -53,7 +53,7 @@ public abstract class AbstractJsonResultExtension<T extends Identifiable<T>, S e
 
     @Override
     public String getExtensionName() {
-        return "ResultExtension";
+        return "AbstractResultExtension";
     }
 
     @Override
