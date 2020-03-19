@@ -94,10 +94,10 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         // add Range Action result variant
         for (RangeAction rangeAction: getExtendable().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
-                if (rangeAction.getExtension(PstRangeResultExtension.class) == null) {
-                    rangeAction.addExtension(PstRangeResultExtension.class, new PstRangeResultExtension());
+                if (rangeAction.getExtension(RangeActionResultExtension.class) == null) {
+                    rangeAction.addExtension(RangeActionResultExtension.class, new RangeActionResultExtension());
                 }
-                rangeAction.getExtension(PstRangeResultExtension.class).addVariant(variantId, new PstRangeResult(stateIds));
+                rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new PstRangeResult(stateIds));
             } else {
                 if (rangeAction.getExtension(RangeActionResultExtension.class) == null) {
                     rangeAction.addExtension(RangeActionResultExtension.class, new RangeActionResultExtension());
@@ -132,11 +132,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             }
 
             for (RangeAction rangeAction: getExtendable().getRangeActions()) {
-                if (rangeAction instanceof PstRange) {
-                    rangeAction.removeExtension(PstRangeResultExtension.class);
-                } else {
-                    rangeAction.removeExtension(RangeActionResultExtension.class);
-                }
+                rangeAction.removeExtension(RangeActionResultExtension.class);
             }
 
         } else { // else, delete the variants
@@ -150,11 +146,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             }
 
             for (RangeAction rangeAction: getExtendable().getRangeActions()) {
-                if (rangeAction instanceof PstRange) {
-                    rangeAction.getExtension(PstRangeResultExtension.class).deleteVariant(variantId);
-                } else {
-                    rangeAction.getExtension(RangeActionResultExtension.class).deleteVariant(variantId);
-                }
+                rangeAction.getExtension(RangeActionResultExtension.class).deleteVariant(variantId);
             }
         }
 

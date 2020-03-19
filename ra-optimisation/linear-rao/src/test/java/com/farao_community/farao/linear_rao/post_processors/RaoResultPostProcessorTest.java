@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.PstRangeResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -85,8 +85,8 @@ public class RaoResultPostProcessorTest {
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
 
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
-        PstRangeResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(PstRangeResultExtension.class);
-        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant("test-variant");
         assertTrue(Double.isNaN(pstRangeResult.getSetPoint(preventiveState)));
         assertFalse(pstRangeResult.isActivated(preventiveState));
 
@@ -103,8 +103,8 @@ public class RaoResultPostProcessorTest {
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
 
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
-        PstRangeResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(PstRangeResultExtension.class);
-        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant("test-variant");
         assertTrue(Double.isNaN(pstRangeResult.getSetPoint(preventiveState)));
         assertFalse(pstRangeResult.isActivated(preventiveState));
 
@@ -121,8 +121,8 @@ public class RaoResultPostProcessorTest {
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
 
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
-        PstRangeResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(PstRangeResultExtension.class);
-        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant("test-variant");
         assertEquals(-12, pstRangeResult.getTap(preventiveState));
         assertEquals(0.39 - 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
 
@@ -145,8 +145,8 @@ public class RaoResultPostProcessorTest {
         new RaoResultPostProcessor().process(linearRaoProblem, linearRaoData, result, "test-variant");
 
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
-        PstRangeResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(PstRangeResultExtension.class);
-        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant("test-variant");
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant("test-variant");
         assertEquals(14, pstRangeResult.getTap(preventiveState));
         assertEquals(0.39 + 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
 

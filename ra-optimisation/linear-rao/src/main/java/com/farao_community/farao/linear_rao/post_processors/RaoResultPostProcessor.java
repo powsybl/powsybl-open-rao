@@ -9,8 +9,8 @@ package com.farao_community.farao.linear_rao.post_processors;
 
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.PstRangeResultExtension;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.AbstractPostProcessor;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -58,8 +58,8 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
                     double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                     if (approximatedPostOptimTap != preOptimTap) {
-                        PstRangeResultExtension pstRangeResultMap = rangeAction.getExtension(PstRangeResultExtension.class);
-                        PstRangeResult pstRangeResult = pstRangeResultMap.getVariant(resultVariantId);
+                        RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(resultVariantId);
                         pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                         pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
 

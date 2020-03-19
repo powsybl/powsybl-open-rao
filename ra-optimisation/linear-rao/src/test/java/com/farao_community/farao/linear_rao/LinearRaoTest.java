@@ -134,14 +134,17 @@ public class LinearRaoTest {
                 .when(variantManagerSpy).createNewUniqueVariant();
 
         String preventiveState = crac.getPreventiveState().getId();
-        PstRangeResultExtension rangeActionResultMap;
-        rangeActionResultMap = crac.getRangeAction("RA PST BE").getExtension(PstRangeResultExtension.class);
-        rangeActionResultMap.getVariant("currentVariant1").setSetPoint(preventiveState, 3);
-        rangeActionResultMap.getVariant("currentVariant1").setTap(preventiveState, 4);
-        rangeActionResultMap.getVariant("currentVariant2").setSetPoint(preventiveState, 2);
-        rangeActionResultMap.getVariant("currentVariant2").setTap(preventiveState, 3);
-        rangeActionResultMap.getVariant("currentVariant3").setSetPoint(preventiveState, 2);
-        rangeActionResultMap.getVariant("currentVariant3").setTap(preventiveState, 3);
+        RangeActionResultExtension rangeActionResultMap;
+        rangeActionResultMap = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class);
+        PstRangeResult currentVariant1 = (PstRangeResult) rangeActionResultMap.getVariant("currentVariant1");
+        currentVariant1.setSetPoint(preventiveState, 3);
+        currentVariant1.setTap(preventiveState, 4);
+        PstRangeResult currentVariant2 = (PstRangeResult) rangeActionResultMap.getVariant("currentVariant2");
+        currentVariant2.setSetPoint(preventiveState, 2);
+        currentVariant2.setTap(preventiveState, 3);
+        PstRangeResult currentVariant3 = (PstRangeResult) rangeActionResultMap.getVariant("currentVariant3");
+        currentVariant3.setSetPoint(preventiveState, 2);
+        currentVariant3.setTap(preventiveState, 3);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap1 = new HashMap<>();
@@ -199,10 +202,10 @@ public class LinearRaoTest {
             ResultExtension<Cnec, CnecResult> cnecResultMap = crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class);
             assertEquals(499, cnecResultMap.getVariant("preOptimVariant").getFlowInMW(), 0.01);
             assertEquals(490, cnecResultMap.getVariant("currentVariant2").getFlowInMW(), 0.01);
-            PstRangeResultExtension pstResultMap = crac.getRangeAction("RA PST BE").getExtension(PstRangeResultExtension.class);
-            assertEquals(0, pstResultMap.getVariant("preOptimVariant").getTap(preventiveState));
+            RangeActionResultExtension pstResultMap = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class);
+            assertEquals(0, ((PstRangeResult) pstResultMap.getVariant("preOptimVariant")).getTap(preventiveState));
             assertEquals(0., pstResultMap.getVariant("preOptimVariant").getSetPoint(preventiveState), 0.01);
-            assertEquals(3, pstResultMap.getVariant("currentVariant2").getTap(preventiveState));
+            assertEquals(3, ((PstRangeResult) pstResultMap.getVariant("currentVariant2")).getTap(preventiveState));
             assertEquals(2., pstResultMap.getVariant("currentVariant2").getSetPoint(preventiveState), 0.01);
         } catch (InterruptedException e) {
             e.printStackTrace();
