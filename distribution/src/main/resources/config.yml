@@ -60,6 +60,8 @@ mapdb-app-file-system:
 
 rao:
     default: SearchTreeRao
+
+rao-parameters:
     dc-mode: false
     ac-to-dc-fallback: false
 
