@@ -145,9 +145,9 @@ public class LinearRao implements RaoProvider {
     private boolean sameRemedialActions(Crac crac, String resultVariant1, String resultVariant2) {
         //TODO: manage curative RA
         String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction<?> rangeAction : crac.getRangeActions()) {
+        for (RangeAction rangeAction : crac.getRangeActions()) {
             //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<?, RangeActionResult> rangeActionResultMap = (ResultExtension<?, RangeActionResult>) rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
+            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
             double value1 = rangeActionResultMap.getVariant(resultVariant1).getSetPoint(preventiveState);
             double value2 = rangeActionResultMap.getVariant(resultVariant2).getSetPoint(preventiveState);
             if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
@@ -159,9 +159,9 @@ public class LinearRao implements RaoProvider {
 
     private void applyRAs(Crac crac, Network network, String variantId) {
         String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction<?> rangeAction : crac.getRangeActions()) {
+        for (RangeAction rangeAction : crac.getRangeActions()) {
             //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<?, RangeActionResult> rangeActionResultMap = (ResultExtension<?, RangeActionResult>) rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
+            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
             rangeAction.apply(network, rangeActionResultMap.getVariant(variantId).getSetPoint(preventiveState));
         }
     }
@@ -197,10 +197,10 @@ public class LinearRao implements RaoProvider {
     //this method is only used for pre optim result (to store all the rangeAction initial setPoints)
     private void updateRangeActionExtensions(Crac crac, String resultVariantId, Network network) {
         String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction<?> rangeAction : crac.getRangeActions()) {
+        for (RangeAction rangeAction : crac.getRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(network);
             //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<?, RangeActionResult> rangeActionResultMap = (ResultExtension<?, RangeActionResult>) rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
+            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
             rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
             if (rangeAction instanceof PstRange) {

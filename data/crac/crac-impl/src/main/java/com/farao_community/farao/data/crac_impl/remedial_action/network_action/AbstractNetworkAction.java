@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractNetworkAction<I extends AbstractNetworkAction<I>> extends AbstractRemedialAction<I> implements NetworkAction<I> {
+public abstract class AbstractNetworkAction extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
     public AbstractNetworkAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name, operator, usageRules);
     }

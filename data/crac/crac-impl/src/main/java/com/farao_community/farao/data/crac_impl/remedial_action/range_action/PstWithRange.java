@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @JsonTypeName("pst-with-range")
 @JsonSerialize(using = RangeActionSerializer.class)
-public final class PstWithRange extends AbstractElementaryRangeAction<PstRange> implements PstRange {
+public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;

@@ -106,7 +106,7 @@ public final class SystematicSensitivityAnalysisService {
 
     private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, Set<RangeAction> rangeActions) {
         List<TwoWindingsTransformer> psts = new ArrayList<>();
-        for (RangeAction<?> rangeAction : rangeActions) {
+        for (RangeAction rangeAction : rangeActions) {
             Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
             for (NetworkElement networkElement : networkElements) {
                 if (isPst(network, networkElement)) {
