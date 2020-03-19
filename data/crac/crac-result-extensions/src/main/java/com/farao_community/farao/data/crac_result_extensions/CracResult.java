@@ -61,7 +61,7 @@ public class CracResult implements Result {
         this.cost = cost;
         setNetworkSecurityStatus();
         if (!this.networkSecurityStatus.equals(networkSecurityStatus)) {
-            LOGGER.warn("Incoherent values were given: correct network security status is " + this.networkSecurityStatus);
+            LOGGER.warn(String.format("Incoherent values were given: correct network security status is {}", this.networkSecurityStatus));
         }
     }
 

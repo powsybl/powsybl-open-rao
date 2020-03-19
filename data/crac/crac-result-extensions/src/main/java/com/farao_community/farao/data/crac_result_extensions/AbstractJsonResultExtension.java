@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
@@ -39,9 +38,6 @@ public abstract class AbstractJsonResultExtension<T extends Identifiable<T>, S e
 
         jsonGenerator.writeEndObject();
     }
-
-    @Override
-    public abstract S deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
 
     protected void deserializeResultExtension(JsonParser jsonParser, S resultExtension) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
