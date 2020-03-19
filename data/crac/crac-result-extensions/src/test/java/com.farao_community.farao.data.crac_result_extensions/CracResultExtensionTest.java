@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
