@@ -18,7 +18,7 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 public class PstTapPostProcessor extends AbstractPostProcessor {
 
     @Override
-    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult) {
+    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult, String variantId) {
     }
 
 }

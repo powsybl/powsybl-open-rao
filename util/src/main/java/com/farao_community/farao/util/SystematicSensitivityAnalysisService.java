@@ -40,11 +40,12 @@ public final class SystematicSensitivityAnalysisService {
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
+        Map<Cnec, Double> cnecIntensityMap = new HashMap<>();
 
         // 1. pre
         LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
         if (loadFlowResult.isOk()) {
-            buildFlowFromNetwork(network, crac, cnecFlowMap, null);
+            buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, null);
         }
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
         SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -62,7 +63,7 @@ public final class SystematicSensitivityAnalysisService {
 
                             LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
                             if (currentloadFlowResult.isOk()) {
-                                buildFlowFromNetwork(network, crac, cnecFlowMap, contingency);
+                                buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, contingency);
                             }
 
                             SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
@@ -84,10 +85,14 @@ public final class SystematicSensitivityAnalysisService {
         }
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
-        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap);
+        return new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, cnecIntensityMap);
     }
 
-    private static void buildFlowFromNetwork(Network network, Crac crac, Map<Cnec, Double> cnecFlowMap, Contingency contingency) {
+    private static void buildFlowFromNetwork(Network network,
+                                             Crac crac,
+                                             Map<Cnec, Double> cnecFlowMap,
+                                             Map<Cnec, Double> cnecIntensityMap,
+                                             Contingency contingency) {
         Set<State> states = new HashSet<>();
         if (contingency == null) {
             states.add(crac.getPreventiveState());
@@ -97,6 +102,7 @@ public final class SystematicSensitivityAnalysisService {
 
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             cnecFlowMap.put(cnec, cnec.getP(network));
+            cnecIntensityMap.put(cnec, cnec.getI(network));
         }));
     }
 

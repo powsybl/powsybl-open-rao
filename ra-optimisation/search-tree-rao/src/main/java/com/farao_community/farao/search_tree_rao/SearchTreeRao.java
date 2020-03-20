@@ -45,7 +45,6 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
-
         // quality check
         List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters);
         if (!configQualityCheck.isEmpty()) {
