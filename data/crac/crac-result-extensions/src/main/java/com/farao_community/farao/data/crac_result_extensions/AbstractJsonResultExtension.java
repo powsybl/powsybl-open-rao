@@ -50,16 +50,6 @@ public abstract class AbstractJsonResultExtension<T extends Identifiable<T>, S e
             }
         }
     }
-
-    @Override
-    public String getExtensionName() {
-        return "AbstractResultExtension";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "identifiable";
-    }
 }
 
 

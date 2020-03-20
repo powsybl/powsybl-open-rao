@@ -37,7 +37,7 @@ public class JsonCracResultExtension extends AbstractJsonResultExtension<Crac, C
 
     @Override
     public String getCategoryName() {
-        return "identifiable";
+        return "crac-extension";
     }
 
     @Override

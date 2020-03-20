@@ -37,7 +37,7 @@ public class JsonCnecResultExtension extends AbstractJsonResultExtension<Cnec, C
 
     @Override
     public String getCategoryName() {
-        return "identifiable";
+        return "cnec-extension";
     }
 
     @Override

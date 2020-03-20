@@ -56,7 +56,7 @@ public class JsonResultVariantManager implements ExtensionsHandler.ExtensionSeri
 
     @Override
     public String getCategoryName() {
-        return "identifiable";
+        return "crac-extension";
     }
 
     @Override
