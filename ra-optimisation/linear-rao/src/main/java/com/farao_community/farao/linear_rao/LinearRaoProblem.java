@@ -148,6 +148,10 @@ public class LinearRaoProblem {
     private String maxLoopFlowConstraintId(Cnec cnec) {
         return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + SEPARATOR + CONSTRAINT_SUFFIX;
     }
+
+    public MPConstraint getMaxLoopFlowConstraint(Cnec cnec) {
+        return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec));
+    }
     //End MaxLoopFlowFiller section
 
     public double infinity() {
