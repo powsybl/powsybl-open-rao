@@ -8,6 +8,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
@@ -28,6 +29,7 @@ import java.nio.file.FileSystem;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -88,5 +90,14 @@ public class LoopFlowComputationTest {
         assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("BE-NL"), EPSILON);
+    }
+
+    @Test
+    public void testPtdfB() {
+        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
+        cracLoopFlowExtension.setGlskProvider(glskProvider);
+        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        assertNotNull(loopFlowComputation);
     }
 }
