@@ -69,14 +69,15 @@ public class LinearRao implements RaoProvider {
         String preOptimVariant = resultVariantManager.createNewUniqueVariantId();
         String bestResultVariant = resultVariantManager.createNewUniqueVariantId();
 
-        SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+            .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
         // Failure if some sensitivities are not computed
         if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
         double bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
         updateResultExtensions(crac, bestScore, preOptimVariant, currentSensitivityAnalysisResult);
-        updateRangeActionExtensions(crac, preOptimVariant, network);
+        fillPreOptimRangeActionResultsFromNetwork(crac, preOptimVariant, network);
 
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
@@ -102,7 +103,8 @@ public class LinearRao implements RaoProvider {
             }
 
             applyRAs(crac, network, currentResultVariant);
-            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+                .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
 
             // If some sensitivities are not computed, the bes result found so far is returned
             if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
@@ -179,12 +181,6 @@ public class LinearRao implements RaoProvider {
         });
     }
 
-    private void updateCracExtension(Crac crac, String resultVariantId, double minMargin) {
-        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
-        CracResult cracResult = cracResultMap.getVariant(resultVariantId);
-        cracResult.setCost(minMargin);
-    }
-
     //this method is only used for pre optim result (to store all the rangeAction initial setPoints)
     private void fillPreOptimRangeActionResultsFromNetwork(Crac crac, String resultVariantId, Network network) {
         String preventiveState = crac.getPreventiveState().getId();
@@ -210,28 +206,6 @@ public class LinearRao implements RaoProvider {
         ResultExtension<Crac, CracResult> cracResultMap = crac.getExtension(CracResultExtension.class);
         CracResult cracResult = cracResultMap.getVariant(resultVariantId);
         cracResult.setCost(minMargin);
-    }
-
-    //this method is only used for pre optim result (to store all the rangeAction initial setPoints)
-    private void updateRangeActionExtensions(Crac crac, String resultVariantId, Network network) {
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
-            double valueInNetwork = rangeAction.getCurrentValue(network);
-            //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
-            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
-            rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
-            if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
-            }
-        }
-    }
-
-    private void updateResultExtensions(Crac crac, double minMargin, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        updateCracExtension(crac, resultVariantId, minMargin);
-        updateCnecExtensions(crac, resultVariantId, systematicSensitivityAnalysisResult);
-        //The range action extensions are already updated by the solve method.
-        //The network action extensions are not to be updated by the linear rao. They will be updated by the search tree rao if required.
     }
 
     private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
