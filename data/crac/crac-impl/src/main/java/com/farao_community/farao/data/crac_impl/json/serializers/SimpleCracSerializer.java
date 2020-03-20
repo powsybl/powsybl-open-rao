@@ -29,47 +29,37 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
     public void serialize(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField("id", value.getId());
         gen.writeStringField("name", value.getName());
-        // ajout des field et fermer le flux a chaque fois
-        // test mettre un point d'arret apres l'export dans l crac roundtri
-        // ajouter serializer ds les json module
-        gen.writeFieldName("networkElements");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("networkElements");
         for (NetworkElement networkElement: value.getNetworkElements()) {
             gen.writeObject(networkElement);
         }
         gen.writeEndArray();
-        gen.writeFieldName("instants");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("instants");
         for (Instant instant : value.getInstants()) {
             gen.writeObject(instant);
         }
         gen.writeEndArray();
-        gen.writeFieldName("contingencies");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("contingencies");
         for (Contingency contingency : value.getContingencies()) {
             gen.writeObject(contingency);
         }
         gen.writeEndArray();
-        gen.writeFieldName("states");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("states");
         for (State state : value.getStates()) {
             gen.writeObject(state);
         }
         gen.writeEndArray();
-        gen.writeFieldName("cnecs");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("cnecs");
         for (Cnec cnec : value.getCnecs()) {
             gen.writeObject(cnec);
         }
         gen.writeEndArray();
-        gen.writeFieldName("rangeActions");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("rangeActions");
         for (RangeAction rangeAction: value.getRangeActions()) {
             gen.writeObject(rangeAction);
         }
         gen.writeEndArray();
-        gen.writeFieldName("networkActions");
-        gen.writeStartArray();
+        gen.writeArrayFieldStart("networkActions");
         for (NetworkAction networkAction : value.getNetworkActions()) {
             gen.writeObject(networkAction);
         }

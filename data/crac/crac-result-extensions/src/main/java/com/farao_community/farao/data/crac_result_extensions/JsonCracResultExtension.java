@@ -45,6 +45,3 @@ public class JsonCracResultExtension extends AbstractJsonResultExtension<Crac, C
         return CracResultExtension.class;
     }
 }
-
-
-

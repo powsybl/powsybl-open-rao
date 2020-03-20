@@ -45,6 +45,3 @@ public class JsonCnecResultExtension extends AbstractJsonResultExtension<Cnec, C
         return CnecResultExtension.class;
     }
 }
-
-
-
