@@ -131,7 +131,7 @@ public class LinearRaoTest {
         variantManagerSpy.createVariant("currentVariant2");
         variantManagerSpy.createVariant("currentVariant3");
         Mockito.doReturn("preOptimVariant").doReturn("postOptimVariant").doReturn("currentVariant1").doReturn("currentVariant2").doReturn("currentVariant3")
-                .when(variantManagerSpy).createNewUniqueVariant();
+                .when(variantManagerSpy).createNewUniqueVariantId();
 
         String preventiveState = crac.getPreventiveState().getId();
         RangeActionResultExtension rangeActionResultMap;

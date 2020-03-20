@@ -34,7 +34,6 @@ import static java.lang.String.format;
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
-    private static final String RANGE_RESULT_EXTENSION_NAME = "RangeActionResultExtension";
 
     //these two objects are only used for the old computation result
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
@@ -69,8 +68,8 @@ public class LinearRao implements RaoProvider {
             resultVariantManager = new ResultVariantManager();
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
-        String preOptimVariant = resultVariantManager.createNewUniqueVariant();
-        String bestResultVariant = resultVariantManager.createNewUniqueVariant();
+        String preOptimVariant = resultVariantManager.createNewUniqueVariantId();
+        String bestResultVariant = resultVariantManager.createNewUniqueVariantId();
 
         SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
         preOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
@@ -81,7 +80,7 @@ public class LinearRao implements RaoProvider {
         }
         double bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
         updateResultExtensions(crac, bestScore, preOptimVariant, currentSensitivityAnalysisResult);
-        updateRangeActionExtensions(crac, preOptimVariant, network);
+        fillPreOptimRangeActionResultsFromNetwork(crac, preOptimVariant, network);
 
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
@@ -93,7 +92,7 @@ public class LinearRao implements RaoProvider {
         linearRaoModeller.buildProblem();
 
         RaoComputationResult raoComputationResult;
-        String currentResultVariant = resultVariantManager.createNewUniqueVariant();
+        String currentResultVariant = resultVariantManager.createNewUniqueVariantId();
         SystematicSensitivityAnalysisResult bestOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
 
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
@@ -125,7 +124,7 @@ public class LinearRao implements RaoProvider {
             bestScore = newScore;
             resultVariantManager.deleteVariant(bestResultVariant);
             bestResultVariant = currentResultVariant;
-            currentResultVariant = resultVariantManager.createNewUniqueVariant();
+            currentResultVariant = resultVariantManager.createNewUniqueVariantId();
             linearRaoModeller.updateProblem(network, currentSensitivityAnalysisResult);
             remedialActionResultList = raoComputationResult.getPreContingencyResult().getRemedialActionResults();
         }
@@ -146,8 +145,7 @@ public class LinearRao implements RaoProvider {
         //TODO: manage curative RA
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {
-            //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
+            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             double value1 = rangeActionResultMap.getVariant(resultVariant1).getSetPoint(preventiveState);
             double value2 = rangeActionResultMap.getVariant(resultVariant2).getSetPoint(preventiveState);
             if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
@@ -160,8 +158,7 @@ public class LinearRao implements RaoProvider {
     private void applyRAs(Crac crac, Network network, String variantId) {
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {
-            //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
+            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             rangeAction.apply(network, rangeActionResultMap.getVariant(variantId).getSetPoint(preventiveState));
         }
     }
@@ -181,7 +178,7 @@ public class LinearRao implements RaoProvider {
 
     private void updateCnecExtensions(Crac crac, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         crac.getCnecs().forEach(cnec -> {
-            ResultExtension<Cnec, CnecResult> cnecResultMap = cnec.getExtension(CnecResultExtension.class);
+            CnecResultExtension cnecResultMap = cnec.getExtension(CnecResultExtension.class);
             CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
@@ -189,18 +186,17 @@ public class LinearRao implements RaoProvider {
     }
 
     private void updateCracExtension(Crac crac, String resultVariantId, double minMargin) {
-        ResultExtension<Crac, CracResult> cracResultMap = crac.getExtension(CracResultExtension.class);
+        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
         CracResult cracResult = cracResultMap.getVariant(resultVariantId);
         cracResult.setCost(minMargin);
     }
 
     //this method is only used for pre optim result (to store all the rangeAction initial setPoints)
-    private void updateRangeActionExtensions(Crac crac, String resultVariantId, Network network) {
+    private void fillPreOptimRangeActionResultsFromNetwork(Crac crac, String resultVariantId, Network network) {
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(network);
-            //This line should be fine as long as we make sure we only add the right extensions to the range actions
-            ResultExtension<RangeAction, RangeActionResult> rangeActionResultMap = rangeAction.getExtensionByName(RANGE_RESULT_EXTENSION_NAME);
+            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
             rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
             if (rangeAction instanceof PstRange) {

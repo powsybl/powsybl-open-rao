@@ -153,7 +153,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
     /**
      * Computes a string that is not present in the set, creates a new variant from that string, and returns the string.
      */
-    public String createNewUniqueVariant() {
+    public String createNewUniqueVariantId() {
         String s = "";
         do {
             s = UUID.randomUUID().toString();
