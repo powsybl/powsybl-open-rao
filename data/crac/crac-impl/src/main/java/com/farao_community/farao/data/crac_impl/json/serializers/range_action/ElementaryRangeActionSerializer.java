@@ -12,6 +12,6 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Abs
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ElementaryRangeActionSerializer<I extends AbstractElementaryRangeAction<I>> extends RangeActionSerializer<I> {
+public class ElementaryRangeActionSerializer<E extends AbstractElementaryRangeAction> extends RangeActionSerializer<E> {
 
 }

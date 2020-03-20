@@ -6,7 +6,15 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_file.*;
+import com.farao_community.farao.data.crac_file.Contingency;
+import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -19,6 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
 
 /**
  * Test case is a 4 nodes network, with 4 countries.
@@ -347,10 +357,10 @@ final class ExampleGenerator {
 
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR GLSK", new LinearGlsk("FR GLSK", "FR GLSK", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE GLSK", new LinearGlsk("BE GLSK", "BE GLSK", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE GLSK", new LinearGlsk("DE GLSK", "DE GLSK", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL GLSK", new LinearGlsk("NL GLSK", "NL GLSK", Collections.singletonMap("Generator NL", 1.f)));
+        glsks.put("FR", new LinearGlsk("FR", "FR", Collections.singletonMap("Generator FR", 1.f)));
+        glsks.put("BE", new LinearGlsk("BE", "BE", Collections.singletonMap("Generator BE", 1.f)));
+        glsks.put("DE", new LinearGlsk("DE", "DE", Collections.singletonMap("Generator DE", 1.f)));
+        glsks.put("NL", new LinearGlsk("NL", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
             @Override
             public Map<String, LinearGlsk> getAllGlsk(Network network) {
@@ -403,73 +413,73 @@ final class ExampleGenerator {
             Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
             expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.375),
-                            entry("BE GLSK", -0.375),
-                            entry("DE GLSK", 0.125),
-                            entry("NL GLSK", -0.125)
+                            entry("FR", 0.375),
+                            entry("BE", -0.375),
+                            entry("DE", 0.125),
+                            entry("NL", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.375),
-                            entry("BE GLSK", 0.125),
-                            entry("DE GLSK", -0.375),
-                            entry("NL GLSK", -0.125)
+                            entry("FR", 0.375),
+                            entry("BE", 0.125),
+                            entry("DE", -0.375),
+                            entry("NL", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.125),
-                            entry("BE GLSK", 0.375),
-                            entry("DE GLSK", -0.125),
-                            entry("NL GLSK", -0.375)
+                            entry("FR", 0.125),
+                            entry("BE", 0.375),
+                            entry("DE", -0.125),
+                            entry("NL", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.125),
-                            entry("BE GLSK", -0.125),
-                            entry("DE GLSK", 0.375),
-                            entry("NL GLSK", -0.375)
+                            entry("FR", 0.125),
+                            entry("BE", -0.125),
+                            entry("DE", 0.375),
+                            entry("NL", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", Double.NaN),
-                            entry("BE GLSK", Double.NaN),
-                            entry("DE GLSK", Double.NaN),
-                            entry("NL GLSK", Double.NaN)
+                            entry("FR", Double.NaN),
+                            entry("BE", Double.NaN),
+                            entry("DE", Double.NaN),
+                            entry("NL", Double.NaN)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.75),
-                            entry("BE GLSK", -0.25),
-                            entry("DE GLSK", -0.25),
-                            entry("NL GLSK", -0.25)
+                            entry("FR", 0.75),
+                            entry("BE", -0.25),
+                            entry("DE", -0.25),
+                            entry("NL", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", -0.25),
-                            entry("BE GLSK", 0.75),
-                            entry("DE GLSK", -0.25),
-                            entry("NL GLSK", -0.25)
+                            entry("FR", -0.25),
+                            entry("BE", 0.75),
+                            entry("DE", -0.25),
+                            entry("NL", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR GLSK", 0.5),
-                            entry("BE GLSK", -0.5),
-                            entry("DE GLSK", 0.5),
-                            entry("NL GLSK", -0.5)
+                            entry("FR", 0.5),
+                            entry("BE", -0.5),
+                            entry("DE", 0.5),
+                            entry("NL", -0.5)
                     )
                             .collect(entriesToMap())
             ));
@@ -499,5 +509,49 @@ final class ExampleGenerator {
                 }
             };
         }
+    }
+
+    static Crac crac() {
+        SimpleCrac crac = new SimpleCrac("Test", "Test");
+
+        NetworkElement networkElementFrBe = new NetworkElement("FR-BE", "FR-BE");
+        NetworkElement networkElementFrDe = new NetworkElement("FR-DE", "FR-DE");
+        NetworkElement networkElementBeNl = new NetworkElement("BE-NL", "BE-NL");
+        NetworkElement networkElementDeNl = new NetworkElement("DE-NL", "DE-NL");
+        AbsoluteFlowThreshold absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.BOTH, 100);
+
+        com.farao_community.farao.data.crac_api.Contingency contingency = new ComplexContingency("N-1 FR-BE", "N-1 FR-BE", Collections.singleton(networkElementFrBe));
+
+        // add preventive state
+        State preState = new SimpleState(Optional.empty(), new Instant("initial-instant", -1));
+        crac.addState(preState); // add preventive state
+
+        // add post contingency state
+        State postContingencyState = new SimpleState(Optional.of(contingency), new Instant("PostContingency-instant", 1));
+        crac.addState(postContingencyState);
+
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(absoluteFlowThresholdMW);
+        //pre state cnec
+        Cnec cnecPreFrBe = new SimpleCnec("FR-BE", "FR-BE", networkElementFrBe, thresholds, preState);
+        Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, thresholds, preState);
+        Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, thresholds, preState);
+        Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, thresholds, preState);
+        crac.addCnec(cnecPreFrBe);
+        crac.addCnec(cnecPreFrDe);
+        crac.addCnec(cnecPreBeNl);
+        crac.addCnec(cnecPreDeNl);
+
+        //post contingency state cnec
+        Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, thresholds, postContingencyState);
+        Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, thresholds, postContingencyState);
+        Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, thresholds, postContingencyState);
+        Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, thresholds, postContingencyState);
+        crac.addCnec(cnecPostFrBe);
+        crac.addCnec(cnecPostFrDe);
+        crac.addCnec(cnecPostBeNl);
+        crac.addCnec(cnecPostDeNl);
+
+        return crac;
     }
 }

@@ -61,10 +61,14 @@ mapdb-app-file-system:
 rao:
     default: SearchTreeRao
 
+rao-parameters:
+    dc-mode: false
+    ac-to-dc-fallback: false
+
 linear-rao-parameters:
     max-number-of-iterations: 10
     security-analysis-without-rao: false
 
-search-tree-rao-paramters:
+search-tree-rao-parameters:
     range-action-rao : LinearRao
-
+    rao-with-loop-flow: false

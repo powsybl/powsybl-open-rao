@@ -59,14 +59,14 @@ public class LinearRaoModeller {
         fillerList.forEach(AbstractProblemFiller::update);
     }
 
-    public RaoComputationResult solve() {
+    public RaoComputationResult solve(String resultVariantId) {
         Enum solverResultStatus = linearRaoProblem.solve();
         RaoComputationResult raoComputationResult;
         String solverResultStatusString = solverResultStatus.name();
         if (solverResultStatusString.equals("OPTIMAL")) {
             RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
             raoComputationResult = new RaoComputationResult(status);
-            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult));
+            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult, resultVariantId));
         } else {
             RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
             raoComputationResult = new RaoComputationResult(status);

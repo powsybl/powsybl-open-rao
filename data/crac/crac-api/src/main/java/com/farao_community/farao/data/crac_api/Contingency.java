@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
 
@@ -26,4 +28,11 @@ public interface Contingency extends Identifiable {
      * @return A set of network elements.
      */
     Set<NetworkElement> getNetworkElements();
+
+    /**
+     * Apply contingency on network
+     * @param network network
+     * @param computationManager computation manager
+     */
+    void apply(Network network, ComputationManager computationManager);
 }

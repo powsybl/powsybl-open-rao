@@ -167,6 +167,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     /**
      * Find a Cnec by its id
      *
+     * @param cnecId: the Cnec identifier.
      * @return The Cnec with the id given in argument. Or null if it does not exist.
      */
     Cnec getCnec(String cnecId);
@@ -204,6 +205,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * unavailable). A network is required to determine the usage method. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
      *
+     * @param network: Network on which the usage method of range actions has to be evaluated.
+     * @param state: Specific state on which range actions can be selected.
+     * @param usageMethod: Specific usage method to select range actions.
      * @return A set of range actions.
      */
     Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod);
@@ -212,7 +216,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param id: id of the RangeAction to get
      * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
      */
-    RangeAction<? extends RangeAction> getRangeAction(String id);
+    RangeAction getRangeAction(String id);
 
     // Network actions management
     /**
@@ -228,6 +232,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * unavailable). To determine this usage method it requires a network. It returns a set because network
      * actions must not be duplicated and there is no defined order for network actions.
      *
+     * @param network: Network on which the usage method of network actions has to be evaluated.
+     * @param state: Specific state on which network actions can be selected.
+     * @param usageMethod: Specific usage method to select network actions.
      * @return A set of network actions.
      */
     Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod);

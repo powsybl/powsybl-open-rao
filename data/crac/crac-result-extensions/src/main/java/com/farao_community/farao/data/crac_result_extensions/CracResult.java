@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extension of {@link Crac} containing data related to an optimization:
- * <li>
- *     <ul>networkSecurityStatus: can be SECURED or UNSECURED</ul>
- *     <ul>cost: the value of the optimisation minimisation criterion.
- *     If it is negative, the networkSecurityStatus is SECURED</ul>
- * </li>
+ * <ul>
+ *     <li>networkSecurityStatus: can be SECURED or UNSECURED</li>
+ *     <li>cost: the value of the optimisation minimisation criterion.
+ *     If it is negative, the networkSecurityStatus is SECURED</li>
+ * </ul>
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 @JsonTypeName("crac-result")

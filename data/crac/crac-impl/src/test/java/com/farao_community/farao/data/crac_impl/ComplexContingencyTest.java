@@ -7,7 +7,12 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.util.stream.Collectors;
@@ -64,4 +69,19 @@ public class ComplexContingencyTest {
 
         assertEquals(complexContingency1, complexContingency2);
     }
+
+    @Test(expected = FaraoException.class)
+    public void testApply() {
+        ComplexContingency complexContingency = new ComplexContingency("cnec1");
+        complexContingency.addNetworkElement(new NetworkElement("FRANCE_BELGIUM_1"));
+        assertEquals(1, complexContingency.getNetworkElements().size());
+        ComputationManager computationManager = LocalComputationManager.getDefault();
+        Network network = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
+        assertFalse(network.getBranch("FRANCE_BELGIUM_1").getTerminal1().connect());
+        complexContingency.apply(network, computationManager);
+        assertTrue(network.getBranch("FRANCE_BELGIUM_1").getTerminal1().connect());
+        complexContingency.addNetworkElement(new NetworkElement("None"));
+        complexContingency.apply(network, computationManager);
+    }
+
 }
