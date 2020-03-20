@@ -11,10 +11,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 /**
- * Remedial action interface specifying a direct action on the network. <br/>
- * The Network Action is completely defined by itself.<br/>
- * It involves a Set of {@link NetworkElement}s.<br/>
- * When the apply method is called, an action is triggered on these NetworkElement.<br/>
+ * Remedial action interface specifying a direct action on the network.
+ * The Network Action is completely defined by itself.
+ * It involves a Set of {@link NetworkElement}s.
+ * When the apply method is called, an action is triggered on these NetworkElement.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */

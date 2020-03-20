@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Optional;
 
 /**
- * Interface for Critical Network Element & Contingencies
+ * Interface for Critical Network Element &amp; Contingencies
  * State object represents the contingency. This type of elements can be violated
  * by maximum value or minimum value. So they have thresholds.
  *
@@ -36,6 +36,10 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      * it means that that a limit of the Threshold has been overcome.
      *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
+     *
+     * @param actualValue: Actual value on the network element.
+     * @param unit: Actual value unit.
+     * @return Delta between actual value and threshold value with the proper unit.
      */
     double computeMargin(double actualValue, Unit unit);
 
@@ -43,34 +47,43 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      * A Threshold consists in monitoring a given physical value (FLOW, VOLTAGE
      * or ANGLE). This physical value can be retrieved by the getPhysicalParameter()
      * method.
+     *
+     * @return Network element physical parameter.
      */
     @JsonIgnore
     PhysicalParameter getPhysicalParameter();
 
     /**
-     * If it is defined, this function returns the maximum limit of the Threshold,
+     * If it is defined, this function returns the minimum limit of the Threshold,
      * below which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
-     * unbounded above.
-     * The returned value is given with the Unit given in argument of the function.
+     * unbounded below.
+     *
+     * @param unit: Determines unit of the returned value.
+     * @return Minimum operating value on the network element.
      */
     @JsonIgnore
     Optional<Double> getMinThreshold(Unit unit);
 
     /**
      * If it is defined, this function returns the maximum limit of the Threshold,
-     * below which a Cnec cannot be operated securely. Otherwise, this function
+     * above which a Cnec cannot be operated securely. Otherwise, this function
      * returns an empty Optional, which implicitly means that the Threshold is
      * unbounded above.
-     * The returned value is given with the unit given in argument of the function.
+     *
+     * @param unit: Determines unit of the returned value.
+     * @return Maximum operating value on the network element.
      */
     @JsonIgnore
     Optional<Double> getMaxThreshold(Unit unit);
 
     /**
-     * Get the flow (in A) transmitted by Cnec in a given Network. Note that an I
+     * Get the current (in A) transmitted by Cnec in a given Network. Note that an I
      * value exists in the Network only if an AC load-flow has been previously run.
      * If no value is present in the network, throws a FaraoException.
+     *
+     * @param network: Network on which the current is evaluated.
+     * @return Current value on the network element.
      */
     double getI(Network network);
 
@@ -78,6 +91,9 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      * Get the flow (in MW) transmitted by Cnec in a given Network. Note that an P
      * value exists in the Network only if an load-flow (AC or DC) has been previously
      * run. If no value is present in the network, throws a FaraoException.
+     *
+     * @param network: Network on which the flow is evaluated.
+     * @return Flow value on the network element.
      */
     double getP(Network network);
 

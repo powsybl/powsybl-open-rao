@@ -13,8 +13,8 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
 
 
 /**
- * Remedial action interface specifying an action of type range. <br/>
- * This means that there is a value to set and this value should be within a range. <br/>
+ * Remedial action interface specifying an action of type range.
+ * This means that there is a value to set and this value should be within a range.
  * The apply method involves a {@link Network} and a double (setpoint's value),
  * that's why there is a need to define this interface besides the {@link NetworkAction} interface
  *

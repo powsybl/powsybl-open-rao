@@ -65,6 +65,9 @@ public final class SearchTreeConfigurationUtil {
     /**
      * Get SearchTreeRaoParameters from a RaoParameters
      * Throws a FaraoException if it does not exists
+     *
+     * @param raoParameters RAO parameters
+     * @return the search tree RAO parameters extension
      */
     public static SearchTreeRaoParameters getSearchTreeParameters(RaoParameters raoParameters) {
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
