@@ -35,10 +35,6 @@ import static java.lang.String.format;
 public class LinearRao implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
-    //these two objects are only used for the old computation result
-    private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
-    private SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
-
     @Override
     public String getName() {
         return "LinearRao";
@@ -61,6 +57,7 @@ public class LinearRao implements RaoProvider {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
 
+        // Initiate result variants
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
             resultVariantManager = new ResultVariantManager();
@@ -69,6 +66,7 @@ public class LinearRao implements RaoProvider {
         String preOptimVariant = resultVariantManager.createNewUniqueVariantId();
         String bestResultVariant = resultVariantManager.createNewUniqueVariantId();
 
+        // Initiate sensitivity analysis results
         SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
             .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
         // Failure if some sensitivities are not computed
@@ -76,18 +74,23 @@ public class LinearRao implements RaoProvider {
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
         double bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
+
+        // Complete result extensions for pre optim variant
         updateResultExtensions(crac, bestScore, preOptimVariant, currentSensitivityAnalysisResult);
         fillPreOptimRangeActionResultsFromNetwork(crac, preOptimVariant, network);
 
+        // Check if we're only doing a network analysis or if we are optimizing range actions
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             updateResultExtensions(crac, bestScore, bestResultVariant, currentSensitivityAnalysisResult);
             return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
         }
 
+        // Initiate the LP
         LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, currentSensitivityAnalysisResult);
         linearRaoModeller.buildProblem();
 
+        // Initiate looping variables
         RaoResult raoResult;
         String currentResultVariant = resultVariantManager.createNewUniqueVariantId();
         SystematicSensitivityAnalysisResult bestOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
@@ -124,6 +127,7 @@ public class LinearRao implements RaoProvider {
             currentResultVariant = resultVariantManager.createNewUniqueVariantId();
             linearRaoModeller.updateProblem(network, currentSensitivityAnalysisResult);
         }
+
         resultVariantManager.deleteVariant(currentResultVariant);
         updateResultExtensions(crac, bestScore, bestResultVariant, bestOptimSensitivityAnalysisResult);
         return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
@@ -212,7 +216,8 @@ public class LinearRao implements RaoProvider {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOptimVariantId);
         raoResult.setPostOptimVariantId(postOptimVariantId);
-        LOGGER.info("LinearRaoResult: mininum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ? RaoResult.Status.SUCCESS : RaoResult.Status.FAILURE);
+        LOGGER.info("LinearRaoResult: mininum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ?
+            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
         return raoResult;
     }
 }
