@@ -104,9 +104,9 @@ public class LinearRao implements RaoProvider {
             if (sameRemedialActions(crac, bestResultVariant, currentResultVariant)) {
                 break;
             }
-
+          
             applyRAs(crac, network, currentResultVariant);
-            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
 
             // If some sensitivities are not computed, the bes result found so far is returned
             if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {

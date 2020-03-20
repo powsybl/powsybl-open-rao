@@ -1,3 +1,5 @@
 {
-  "version" : "1.0"
+  "version" : "1.0",
+  "dc-mode" : true,
+  "ac-to-dc-fallback" : true
 }
