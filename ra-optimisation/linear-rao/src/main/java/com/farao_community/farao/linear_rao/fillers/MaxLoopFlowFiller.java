@@ -12,13 +12,14 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -38,29 +39,37 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
     @Override
     public void fill() {
-        //build variable
-        buildMaxLoopFlowVariable();
-        //build constraint
+        //build max loopflow constraint
         buildMaxLoopFlowConstraint();
     }
 
-    private void buildMaxLoopFlowVariable() {
-        cnecs.forEach(cnec ->  linearRaoProblem.addMaxLoopFlowVariable(-linearRaoProblem.infinity(), linearRaoProblem.infinity(), cnec));
-    }
-
+    /**
+     * Loopflow F_(0,all)_current = flowVariable - PTDF * NetPosition, where flowVariable is a MPVariable in linearRaoProblem
+     * then max loopflow MPConstraint is: - maxLoopFlow <= currentLoopFlow <= maxLoopFlow
+     * we define loopFlowShift = PTDF * NetPosition, then
+     * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
+     */
     private void buildMaxLoopFlowConstraint() {
+        LoopFlowComputation currentLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         for (Cnec cnec : cnecs) {
-            // create constraint
-            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
-            double maxLoopFlowLimit = cnecLoopFlowExtension.getLoopFlowConstraint();
-            double currentLoopFlow = 0.0; //todo calculate currentloppflow
-            MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(-linearRaoProblem.infinity(), maxLoopFlowLimit, cnec);
+            //calculate loopFlowShift = PTDF * NetPosition
+            double loopFlowShift = 0.0; // PTDF * NetPosition
+            Map<String, Double> cnecptdf = currentLoopFlowComputation.computePtdfOnCurrentNetwork(linearRaoData.getNetwork()).get(cnec); //get PTDF of current Cnec
+            Map<String, Double> referenceNetPositionByCountry = currentLoopFlowComputation.getRefNetPositionByCountry(linearRaoData.getNetwork()); // get Net positions
+            for (Map.Entry<String, Double> e : cnecptdf.entrySet()) {
+                String country = e.getKey();
+                loopFlowShift += cnecptdf.get(country) * referenceNetPositionByCountry.get(country); // PTDF * NetPosition
+            }
 
-            MPVariable maxLoopFlowVariable = linearRaoProblem.getMaxLoopFlowVariable(cnec);
-            if (maxLoopFlowVariable == null) {
+            double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint()); // Math.abs, keep maxLoopFlowLimit positive
+            double lb = -maxLoopFlowLimit + loopFlowShift;
+            double ub = maxLoopFlowLimit + loopFlowShift;
+            MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(lb, ub, cnec);
+            MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
+            if (Objects.isNull(flowVariable)) {
                 throw new FaraoException(String.format("Max LoopFlow variable on %s has not been defined yet.", cnec.getId()));
             }
-            maxLoopflowConstraint.setCoefficient(maxLoopFlowVariable, 1);
+            maxLoopflowConstraint.setCoefficient(flowVariable, 1);
         }
     }
 

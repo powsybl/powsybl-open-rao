@@ -9,6 +9,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
@@ -34,26 +35,30 @@ import java.util.*;
 public class LoopFlowComputation {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputation.class);
 
-    private Network network;
     private Crac crac;
     private GlskProvider glskProvider;
     private List<String> countries;
 
-    public LoopFlowComputation(Network network, Crac crac, GlskProvider glskProvider, List<String> countries) {
-        this.network = network;
+    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, List<String> countries) {
         this.crac = crac;
         this.glskProvider = glskProvider;
         this.countries = countries;
     }
 
-    public Map<String, Double> calculateLoopFlows() {
-        Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(); //get reference flow
-        Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(); // get ptdf
-        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network, countries); // get Net positions
+    public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
+        this.crac = crac;
+        this.glskProvider = cracLoopFlowExtension.getGlskProvider();
+        this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
+    }
+
+    public Map<String, Double> calculateLoopFlows(Network network) {
+        Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(network); //get reference flow
+        Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
+        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         return buildLoopFlowsFromResult(frefResults, ptdfResults, referenceNetPositionByCountry);
     }
 
-    public Map<Cnec, Map<String, Double>> computePtdfOnCurrentNetwork() {
+    public Map<Cnec, Map<String, Double>> computePtdfOnCurrentNetwork(Network network) {
         Map<Cnec, Map<String, Double>> ptdfs = new HashMap<>();
         Set<Cnec> preventivecnecs = crac.getCnecs(crac.getPreventiveState());
         SensitivityFactorsProvider factorsProvider = net -> generateSensitivityFactorsProvider(net, preventivecnecs, glskProvider);
@@ -82,7 +87,7 @@ public class LoopFlowComputation {
         ptdfs.get(cnec).put(glskId, ptdfValue);
     }
 
-    public Map<Cnec, Double> computeRefFlowOnCurrentNetwork() {
+    public Map<Cnec, Double> computeRefFlowOnCurrentNetwork(Network network) {
         // we need this separate load flow to get reference flow on cnec.
         // because reference flow from sensi is not yet fully implemented in powsybl
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
@@ -101,17 +106,14 @@ public class LoopFlowComputation {
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> cnecFlowMap.put(cnec, cnec.getP(network))));
     }
 
-    public Map<String, Double> getRefNetPositionByCountry(Network network, List<String> countries) {
+    public Map<String, Double> getRefNetPositionByCountry(Network network) {
         //get Net Position of each country from Network
-
         Map<String, Double> refNpCountry = new HashMap<>();
-
         for (String country : countries) {
             CountryAreaFactory countryAreaFactory = new CountryAreaFactory(Country.valueOf(country));
             double countryNetPositionValue = countryAreaFactory.create(network).getNetPosition();
             refNpCountry.put(country, countryNetPositionValue);
         }
-
         return refNpCountry;
     }
 
@@ -131,7 +133,6 @@ public class LoopFlowComputation {
             //F(0) = F(ref) - PTDF * NP(ref)
             fzeroNpResults.put(cnec.getId(), frefResults.get(cnec) - sum);
         }
-
         return fzeroNpResults;
     }
 }

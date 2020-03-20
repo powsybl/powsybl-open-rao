@@ -76,8 +76,8 @@ public class LoopFlowComputationTest {
 
     @Test
     public void testPtdf() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, glskProvider, countries);
-        ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork();
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, countries);
+        ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
         assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get("FR"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get("FR"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get("DE"), EPSILON);
