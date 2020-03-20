@@ -57,6 +57,9 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
     /**
      * Get the result for the variant with id variantId. Return null if the variant
      * does not exist.
+     *
+     * @param variantId: Variant unique identifier.
+     * @return The associated result generic object.
      */
     public S getVariant(String variantId) {
         return resultMap.get(variantId);
@@ -66,6 +69,9 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
      * Add the result resultElement for the new variant with id newVariantId.
      * Private-package as the variants can only be created by the ResultVariantManager
      * to ensure the consistency of variants within all the Crac.
+     *
+     * @param newVariantId: Variant unique identifier.
+     * @param resultElement: Result object to add to the variant.
      */
     void addVariant(String newVariantId, S resultElement) {
         if (resultMap.containsKey(newVariantId)) {
@@ -78,6 +84,8 @@ public class ResultExtension<T extends Identifiable<T>, S extends Result> extend
      * Remove the results for the variant with id variantId.
      * Private-package as the variants can only be deleted by the ResultVariantManager
      * to ensure the consistency of variants within all the Crac.
+     *
+     * @param variantId: Variant unique identifier.
      */
     void deleteVariant(String variantId) {
         resultMap.remove(variantId);

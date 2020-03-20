@@ -23,11 +23,15 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Get the unique identifier of the object.
+     *
+     * @return The object unique identifier as a String.
      */
     String getId();
 
     /**
      * Get an the (optional) name  of the object.
+     *
+     * @return The object optional name as a String.
      */
     String getName();
 }
