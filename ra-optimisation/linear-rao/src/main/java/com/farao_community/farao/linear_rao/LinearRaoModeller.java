@@ -41,12 +41,12 @@ public class LinearRaoModeller {
         this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         this.linearRaoProblem = linearRaoProblem;
 
-        // TODO : load the filler list from the config file and make sure they are ordered properly. Pengbo-200319: if the filler list comes from a config file, reconsider the design for loopflow filler
+        // TODO : load the filler list from the config file and make sure they are ordered properly
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
         if (useLoopFlow) {
-            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
+            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData)); //if use loopflow, then add the filler
         }
 
         postProcessorList = new ArrayList<>();

@@ -39,16 +39,16 @@ public class LoopFlowComputation {
     private GlskProvider glskProvider;
     private List<String> countries;
 
-    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, List<String> countries) {
-        this.crac = crac;
-        this.glskProvider = glskProvider;
-        this.countries = countries;
-    }
-
     public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
         this.crac = crac;
         this.glskProvider = cracLoopFlowExtension.getGlskProvider();
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
+    }
+
+    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, List<String> countries) {
+        this.crac = crac;
+        this.glskProvider = glskProvider;
+        this.countries = countries;
     }
 
     public Map<String, Double> calculateLoopFlows(Network network) {

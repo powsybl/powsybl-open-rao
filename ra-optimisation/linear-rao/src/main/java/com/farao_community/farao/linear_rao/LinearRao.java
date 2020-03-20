@@ -82,7 +82,7 @@ public class LinearRao implements RaoProvider {
 
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
-        //use loopflow or not check, before Linear Rao Modeller
+        //flag for using loopflow constraint, pass to LinearRaoModeller
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
         CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
         boolean useLoopFlow = !Objects.isNull(searchTreeRaoParameters) && searchTreeRaoParameters.isRaoWithLoopFlow() && !Objects.isNull(cracLoopFlowExtension);
@@ -137,7 +137,6 @@ public class LinearRao implements RaoProvider {
                                               SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
                                               boolean useLoopFlow) {
         return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), useLoopFlow);
-
     }
 
     private double getRemedialActionResultPostOptimisationValue(RemedialActionResult remedialActionResult) {
@@ -173,7 +172,6 @@ public class LinearRao implements RaoProvider {
         for (RemedialActionResult remedialActionResult : raResultList) {
             crac.getRangeAction(remedialActionResult.getId()).apply(network, getRemedialActionResultPostOptimisationValue(remedialActionResult));
         }
-
     }
 
     private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {

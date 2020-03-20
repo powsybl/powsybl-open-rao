@@ -140,7 +140,7 @@ public class LinearRaoProblem {
         return solver.lookupVariableOrNull(minimumMarginVariableId());
     }
 
-    //MaxLoopFlowFiller section
+    //Begin MaxLoopFlowFiller section
     public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, Cnec cnec) {
         return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec));
     }
