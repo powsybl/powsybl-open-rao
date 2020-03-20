@@ -71,7 +71,8 @@ public class LinearRao implements RaoProvider {
         String preOptimVariant = resultVariantManager.createNewUniqueVariantId();
         String bestResultVariant = resultVariantManager.createNewUniqueVariantId();
 
-        SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager);
+        SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+            .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
         preOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
         postOptimSensitivityAnalysisResult = currentSensitivityAnalysisResult;
         // Failure if some sensitivities are not computed
@@ -104,9 +105,10 @@ public class LinearRao implements RaoProvider {
             if (sameRemedialActions(crac, bestResultVariant, currentResultVariant)) {
                 break;
             }
-          
+
             applyRAs(crac, network, currentResultVariant);
-            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
+            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+                .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
 
             // If some sensitivities are not computed, the bes result found so far is returned
             if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
