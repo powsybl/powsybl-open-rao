@@ -51,6 +51,9 @@ public final class LinearRaoConfigurationUtil {
     /**
      * Get LinearRaoParameters from a RaoParameters
      * Throws a FaraoException if it does not exists
+     *
+     * @param raoParameters RAO parameters
+     * @return the linear RAO parameters extension
      */
     public static LinearRaoParameters getLinearRaoParameters(RaoParameters raoParameters) {
         LinearRaoParameters linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
