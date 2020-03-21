@@ -73,7 +73,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testA() throws IOException {
+    public void testFill() throws IOException {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
 
@@ -83,6 +83,27 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
         // fill max loop flow
         maxLoopFlowFiller.fill();
+
+        // check flow constraint for cnec1
+        MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNotNull(loopFlowConstraint);
+        assertEquals(-80, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(120, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
+        MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1);
+        assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
+    }
+
+    @Test
+    public void testUpdate() throws IOException {
+        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
+        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
+
+        // fill the problem
+        coreProblemFiller.fill();
+        maxLoopFlowFiller.fill();
+
+        coreProblemFiller.update();
+        maxLoopFlowFiller.update();
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
