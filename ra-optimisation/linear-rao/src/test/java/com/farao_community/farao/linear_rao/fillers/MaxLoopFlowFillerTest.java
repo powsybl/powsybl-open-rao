@@ -6,9 +6,12 @@
  */
 package com.farao_community.farao.linear_rao.fillers;
 
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
+import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationResults;
@@ -48,36 +51,46 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         countries.add("FR");
         countries.add("BE");
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
+
+        Map<Cnec, Map<String, Double>> ptdfs = new HashMap<>();
+        Map<String, Double> ptdfcnec1 = new HashMap<>();
+        ptdfcnec1.put("FR", 1.0);
+        ptdfcnec1.put("BE", 1.0);
+        ptdfs.put(cnec1, ptdfcnec1);
+        cracLoopFlowExtension.setPtdfs(ptdfs);
+        Map<String, Double> netPositions = new HashMap<>();
+        netPositions.put("FR", 10.0);
+        netPositions.put("BE", 10.0);
+        cracLoopFlowExtension.setNetPositions(netPositions);
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
+
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
+        cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
+        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+
         maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData);
+
     }
 
     @Test
-    public void testA() {
+    public void testA() throws IOException {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
 
-    }
-
-    @Test
-    public void test() throws IOException {
-        // arrange some additional data
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
-
-        // complete the mock of linearRaoData
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
         when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
-
-        // fill the problem
         coreProblemFiller.fill();
 
-        // check flow variable for cnec1
+        // fill max loop flow
+        maxLoopFlowFiller.fill();
+
+        // check flow constraint for cnec1
+        MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNotNull(loopFlowConstraint);
+        assertEquals(-80, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(120, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
         MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1);
-        assertNotNull(flowVariable);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
     }
 
     static GlskProvider glskProvider() {
