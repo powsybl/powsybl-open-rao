@@ -57,12 +57,7 @@ public class LoopFlowComputation {
         Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         Map<Cnec, Double> loopFlowShifts = buildLoopFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
         Map<String, Double> loopflows = buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
-        LoopFlowComputationResult loopFlowComputationResult = new LoopFlowComputationResult();
-        loopFlowComputationResult.setPtdfs(ptdfResults);
-        loopFlowComputationResult.setNetPositions(referenceNetPositionByCountry);
-        loopFlowComputationResult.setLoopFlowShifts(loopFlowShifts);
-        loopFlowComputationResult.setLoopflows(loopflows);
-        return loopFlowComputationResult;
+        return new LoopFlowComputationResult(ptdfResults, referenceNetPositionByCountry, loopFlowShifts, loopflows);
     }
 
     public Map<Cnec, Map<String, Double>> computePtdfOnCurrentNetwork(Network network) {

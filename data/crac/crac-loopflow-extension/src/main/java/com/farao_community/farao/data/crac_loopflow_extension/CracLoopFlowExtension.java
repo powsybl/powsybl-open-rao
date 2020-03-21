@@ -23,8 +23,8 @@ public class CracLoopFlowExtension extends AbstractExtension<Crac> {
     private GlskProvider glskProvider; //glsk for loop flow
     private List<String> countriesForLoopFlow; // list of countries for loop flow
 
-    private Map<Cnec, Map<String, Double>> ptdfs; //memorize previously calculated ptdf in LoopFlowComputationResult
-    private Map<String, Double> netPositions; //memorize previously calculated net postions in LoopFlowComputationResult
+    private Map<Cnec, Map<String, Double>> ptdfs; //memorize previously calculated ptdf, set from LoopFlowComputationResult
+    private Map<String, Double> netPositions; //memorize previously calculated net postions, set from LoopFlowComputationResult
 
     public GlskProvider getGlskProvider() {
         return glskProvider;

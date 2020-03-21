@@ -94,11 +94,13 @@ public class LoopFlowComputationTest {
         loopFlowComputationResult.setPtdfs(ptdfs);
         loopFlowComputationResult.setLoopFlowShifts(loopflowShift);
         loopFlowComputationResult.setNetPositions(referenceNetPositionByCountry);
-        loopFlowComputationResult.setLoopflows(fzeroNpResults);
-        assertEquals(4, loopFlowComputationResult.getLoopflows().size());
+        loopFlowComputationResult.setLoopFlows(fzeroNpResults);
+        assertEquals(4, loopFlowComputationResult.getLoopFlows().size());
         assertEquals(4, loopFlowComputationResult.getLoopFlowShifts().size());
         assertEquals(4, loopFlowComputationResult.getNetPositions().size());
         assertEquals(4, loopFlowComputationResult.getPtdfs().size());
+        LoopFlowComputationResult loopFlowComputationResultBis = new LoopFlowComputationResult(ptdfs, referenceNetPositionByCountry, loopflowShift, fzeroNpResults);
+        assertNotNull(loopFlowComputationResultBis.getLoopFlows());
     }
 
     @Test

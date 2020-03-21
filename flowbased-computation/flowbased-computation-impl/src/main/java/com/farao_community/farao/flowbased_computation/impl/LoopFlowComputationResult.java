@@ -8,6 +8,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,7 +24,21 @@ public class LoopFlowComputationResult {
     private Map<Cnec, Map<String, Double>> ptdfs; //memorize previously calculated ptdf
     private Map<String, Double> netPositions; //memorize previously calculated net postions
     private Map<Cnec, Double> loopFlowShifts; //memorize previously calculated shift = PTDF * Net postions
-    private Map<String, Double> loopflows; //used to update Cnec's loopflow threshold
+    private Map<String, Double> loopFlows; //used to update Cnec's loopflow threshold
+
+    public LoopFlowComputationResult() {
+        this.ptdfs = new HashMap<>();
+        this.netPositions = new HashMap<>();
+        this.loopFlowShifts = new HashMap<>();
+        this.loopFlows = new HashMap<>();
+    }
+
+    public LoopFlowComputationResult(Map<Cnec, Map<String, Double>> ptdfResults, Map<String, Double> referenceNetPositionByCountry, Map<Cnec, Double> loopFlowShifts, Map<String, Double> loopFlows) {
+        this.ptdfs = ptdfResults;
+        this.netPositions = referenceNetPositionByCountry;
+        this.loopFlowShifts = loopFlowShifts;
+        this.loopFlows = loopFlows;
+    }
 
     public Map<Cnec, Map<String, Double>> getPtdfs() {
         return ptdfs;
@@ -41,12 +56,12 @@ public class LoopFlowComputationResult {
         this.netPositions = netPositions;
     }
 
-    public Map<String, Double> getLoopflows() {
-        return loopflows;
+    public Map<String, Double> getLoopFlows() {
+        return loopFlows;
     }
 
-    public void setLoopflows(Map<String, Double> loopflows) {
-        this.loopflows = loopflows;
+    public void setLoopFlows(Map<String, Double> loopFlows) {
+        this.loopFlows = loopFlows;
     }
 
     public Map<Cnec, Double> getLoopFlowShifts() {

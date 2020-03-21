@@ -62,7 +62,7 @@ public class SearchTreeRao implements RaoProvider {
             //For the initial Network, compute the F_(0,all)_init
             LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension.getGlskProvider(), cracLoopFlowExtension.getCountriesForLoopFlow());
             LoopFlowComputationResult loopFlowComputationResult = initialLoopFlowComputation.calculateLoopFlows(network);
-            updateCnecsLoopFlowConstraint(crac, loopFlowComputationResult.getLoopflows());
+            updateCnecsLoopFlowConstraint(crac, loopFlowComputationResult.getLoopFlows());
             updateCracLoopFlowExtension(crac, loopFlowComputationResult);
         }
 
