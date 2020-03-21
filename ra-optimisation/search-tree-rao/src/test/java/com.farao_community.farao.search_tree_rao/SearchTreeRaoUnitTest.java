@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputationResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
@@ -114,6 +115,10 @@ public class SearchTreeRaoUnitTest {
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
         });
+        LoopFlowComputationResult loopFlowComputationResult = new LoopFlowComputationResult();
+        loopFlowComputationResult.setNetPositions(new HashMap<>());
+        searchTreeRao.updateCracLoopFlowExtension(crac, loopFlowComputationResult);
+        assertEquals(0, crac.getExtension(CracLoopFlowExtension.class).getNetPositions().size());
     }
 
     @Test
