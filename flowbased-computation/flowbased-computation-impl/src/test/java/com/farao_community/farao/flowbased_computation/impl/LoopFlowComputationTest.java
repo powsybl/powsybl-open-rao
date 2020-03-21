@@ -90,6 +90,15 @@ public class LoopFlowComputationTest {
         assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("BE-NL"), EPSILON);
+        LoopFlowComputationResult loopFlowComputationResult = new LoopFlowComputationResult();
+        loopFlowComputationResult.setPtdfs(ptdfs);
+        loopFlowComputationResult.setLoopFlowShifts(loopflowShift);
+        loopFlowComputationResult.setNetPositions(referenceNetPositionByCountry);
+        loopFlowComputationResult.setLoopflows(fzeroNpResults);
+        assertEquals(4, loopFlowComputationResult.getLoopflows().size());
+        assertEquals(4, loopFlowComputationResult.getLoopFlowShifts().size());
+        assertEquals(4, loopFlowComputationResult.getNetPositions().size());
+        assertEquals(4, loopFlowComputationResult.getPtdfs().size());
     }
 
     @Test
