@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
@@ -26,13 +25,13 @@ import java.util.*;
 public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
     private Set<Cnec> preventiveCnecs;
-    private LoopFlowComputation loopFlowComputation;
+    private CracLoopFlowExtension cracLoopFlowExtension;
 
     public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         super(linearRaoProblem, linearRaoData);
         Crac crac = linearRaoData.getCrac();
         this.preventiveCnecs = crac.getCnecs(crac.getPreventiveState());
-        this.loopFlowComputation = new LoopFlowComputation(crac, crac.getExtension(CracLoopFlowExtension.class));
+        this.cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
     }
 
     @Override
@@ -47,7 +46,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
     private void buildMaxLoopFlowConstraint() {
-        Map<Cnec, Map<String, Double>> ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(linearRaoData.getNetwork()); //calculate outside for loop
+        Map<Cnec, Map<String, Double>> ptdfs = cracLoopFlowExtension.getPtdfs();
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = computeLoopFlowShift(ptdfs.get(cnec));
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
@@ -69,7 +68,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
      * update max loopflow constraint's bounds; new bounds are calculated following network update
      */
     private void updateMaxLoopFlowConstraint() {
-        Map<Cnec, Map<String, Double>> ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(linearRaoData.getNetwork()); //calculate outside for loop
+        Map<Cnec, Map<String, Double>> ptdfs = cracLoopFlowExtension.getPtdfs();
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = computeLoopFlowShift(ptdfs.get(cnec));
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
@@ -91,7 +90,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
     private double computeLoopFlowShift(Map<String, Double> cnecptdf) {
         //calculate loopFlowShift = PTDF * NetPosition
         double loopFlowShift = 0.0; // PTDF * NetPosition
-        Map<String, Double> referenceNetPositionByCountry = loopFlowComputation.getRefNetPositionByCountry(linearRaoData.getNetwork()); // get Net positions
+        Map<String, Double> referenceNetPositionByCountry = cracLoopFlowExtension.getNetPositions(); // get Net positions
         for (Map.Entry<String, Double> e : cnecptdf.entrySet()) {
             String country = e.getKey();
             loopFlowShift += cnecptdf.get(country) * referenceNetPositionByCountry.get(country); // PTDF * NetPosition

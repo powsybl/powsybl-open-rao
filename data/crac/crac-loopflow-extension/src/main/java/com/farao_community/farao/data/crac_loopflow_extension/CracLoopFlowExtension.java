@@ -11,6 +11,7 @@ import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvide
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * CCR Core CC needs additional parameter for Loop Flow which is used as a constraint during optimization.
@@ -21,6 +22,9 @@ import java.util.List;
 public class CracLoopFlowExtension extends AbstractExtension<Crac> {
     private GlskProvider glskProvider; //glsk for loop flow
     private List<String> countriesForLoopFlow; // list of countries for loop flow
+
+    private Map<Cnec, Map<String, Double>> ptdfs; //memorize previously calculated ptdf in LoopFlowComputationResult
+    private Map<String, Double> netPositions; //memorize previously calculated net postions in LoopFlowComputationResult
 
     public GlskProvider getGlskProvider() {
         return glskProvider;
@@ -36,6 +40,22 @@ public class CracLoopFlowExtension extends AbstractExtension<Crac> {
 
     public void setCountriesForLoopFlow(List<String> countriesForLoopFlow) {
         this.countriesForLoopFlow = countriesForLoopFlow;
+    }
+
+    public Map<Cnec, Map<String, Double>> getPtdfs() {
+        return ptdfs;
+    }
+
+    public void setPtdfs(Map<Cnec, Map<String, Double>> ptdfs) {
+        this.ptdfs = ptdfs;
+    }
+
+    public Map<String, Double> getNetPositions() {
+        return netPositions;
+    }
+
+    public void setNetPositions(Map<String, Double> netPositions) {
+        this.netPositions = netPositions;
     }
 
     @Override

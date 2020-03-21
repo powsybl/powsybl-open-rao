@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputationResult;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -60,8 +61,9 @@ public class SearchTreeRao implements RaoProvider {
             && !Objects.isNull(cracLoopFlowExtension)) {
             //For the initial Network, compute the F_(0,all)_init
             LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension.getGlskProvider(), cracLoopFlowExtension.getCountriesForLoopFlow());
-            Map<String, Double> fZeroAll = initialLoopFlowComputation.calculateLoopFlows(network);
-            updateCnecsLoopFlowConstraint(crac, fZeroAll);
+            LoopFlowComputationResult loopFlowComputationResult = initialLoopFlowComputation.calculateLoopFlows(network);
+            updateCnecsLoopFlowConstraint(crac, loopFlowComputationResult.getLoopflows());
+            updateCracLoopFlowExtension(crac, loopFlowComputationResult);
         }
 
         // run optimisation
@@ -81,6 +83,12 @@ public class SearchTreeRao implements RaoProvider {
                 cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold));
             }
         });
+    }
+
+    public void updateCracLoopFlowExtension(Crac crac, LoopFlowComputationResult loopFlowComputationResult) {
+        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+        cracLoopFlowExtension.setPtdfs(loopFlowComputationResult.getPtdfs());
+        cracLoopFlowExtension.setNetPositions(loopFlowComputationResult.getNetPositions());
     }
 
     private static boolean useLoopFlowExtension(SearchTreeRaoParameters searchTreeRaoParameters) {

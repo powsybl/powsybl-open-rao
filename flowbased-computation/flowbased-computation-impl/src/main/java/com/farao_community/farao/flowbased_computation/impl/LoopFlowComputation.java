@@ -51,11 +51,18 @@ public class LoopFlowComputation {
         this.countries = countries;
     }
 
-    public Map<String, Double> calculateLoopFlows(Network network) {
+    public LoopFlowComputationResult calculateLoopFlows(Network network) {
         Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(network); //get reference flow
         Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
         Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
-        return buildLoopFlowsFromResult(frefResults, ptdfResults, referenceNetPositionByCountry);
+        Map<Cnec, Double> loopFlowShifts = buildLoopFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
+        Map<String, Double> loopflows = buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
+        LoopFlowComputationResult loopFlowComputationResult = new LoopFlowComputationResult();
+        loopFlowComputationResult.setPtdfs(ptdfResults);
+        loopFlowComputationResult.setNetPositions(referenceNetPositionByCountry);
+        loopFlowComputationResult.setLoopFlowShifts(loopFlowShifts);
+        loopFlowComputationResult.setLoopflows(loopflows);
+        return loopFlowComputationResult;
     }
 
     public Map<Cnec, Map<String, Double>> computePtdfOnCurrentNetwork(Network network) {
@@ -79,7 +86,7 @@ public class LoopFlowComputation {
     private void addSensitivityValue(SensitivityValue sensitivityValue, Crac crac, Map<Cnec, Map<String, Double>> ptdfs) {
         String cnecId = sensitivityValue.getFactor().getFunction().getId();
         Cnec cnec = crac.getCnec(cnecId);
-        String glskId = sensitivityValue.getFactor().getVariable().getId(); //todo replace glskId by CountryArea; ptdf: Map<Cnec, Map<CountryArea, Double>> ptdfs
+        String glskId = sensitivityValue.getFactor().getVariable().getId();
         double ptdfValue = sensitivityValue.getValue();
         if (!ptdfs.containsKey(cnec)) {
             ptdfs.put(cnec, new HashMap<>());
@@ -117,23 +124,29 @@ public class LoopFlowComputation {
         return refNpCountry;
     }
 
-    public Map<String, Double> buildLoopFlowsFromResult(Map<Cnec, Double> frefResults, Map<Cnec, Map<String, Double>> ptdfResults, Map<String, Double> referenceNetPositionByCountry) {
-        //calculate equation 10 and equation 11 in Article 17
-        Map<String, Double> fzeroNpResults = new HashMap<>();
+    public Map<Cnec, Double> buildLoopFlowShift(Map<Cnec, Map<String, Double>> ptdfResults, Map<String, Double> referenceNetPositionByCountry) {
+        Map<Cnec, Double> loopFlowShift = new HashMap<>();
         for (Map.Entry<Cnec, Map<String, Double>> entry : ptdfResults.entrySet()) {
             Cnec cnec = entry.getKey();
             Map<String, Double> cnecptdf = entry.getValue();
-            Double sum = 0.0;
+            double sum = 0.0;
             // calculate PTDF * NP(ref)
             for (Map.Entry<String, Double> e : cnecptdf.entrySet()) {
                 String country = e.getKey();
                 sum += cnecptdf.get(country) * referenceNetPositionByCountry.get(country);
             }
-
-            //F(0) = F(ref) - PTDF * NP(ref)
-            fzeroNpResults.put(cnec.getId(), frefResults.get(cnec) - sum);
+            loopFlowShift.put(cnec, sum);
         }
-        return fzeroNpResults;
+        return loopFlowShift;
+    }
+
+    public Map<String, Double> buildLoopFlowsFromResult(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
+        Map<String, Double> loopFlows = new HashMap<>();
+        for (Map.Entry<Cnec, Double> entry : frefResults.entrySet()) {
+            Cnec cnec = entry.getKey();
+            loopFlows.put(cnec.getId(), entry.getValue() - loopFlowShifts.get(cnec));
+        }
+        return loopFlows;
     }
 }
 

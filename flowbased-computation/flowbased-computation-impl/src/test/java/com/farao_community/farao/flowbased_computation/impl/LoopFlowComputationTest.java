@@ -84,8 +84,8 @@ public class LoopFlowComputationTest {
         assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get("FR"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get("DE"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get("BE"), EPSILON);
-
-        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, ptdfs, referenceNetPositionByCountry);
+        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildLoopFlowShift(ptdfs, referenceNetPositionByCountry);
+        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, loopflowShift);
         assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
