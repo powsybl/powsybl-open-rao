@@ -6,14 +6,13 @@
  */
 package com.farao_community.farao.data.crac_loopflow_extension;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,6 +32,13 @@ public class CracLoopFlowExtensionTest {
         Assert.assertFalse(cracLoopFlowExtension.getCountriesForLoopFlow().isEmpty());
         Assert.assertNotNull(cracLoopFlowExtension.getGlskProvider());
         Assert.assertEquals("CracLoopFlowExtension", cracLoopFlowExtension.getName());
+
+        Map<Cnec, Map<String, Double>> ptdfs = new HashMap<>();
+        cracLoopFlowExtension.setPtdfs(ptdfs);
+        assertEquals(0, cracLoopFlowExtension.getPtdfs().size());
+        Map<String, Double> np = new HashMap<>();
+        cracLoopFlowExtension.setNetPositions(np);
+        assertEquals(0, cracLoopFlowExtension.getNetPositions().size());
     }
 
     @Test
