@@ -24,7 +24,7 @@ import java.util.*;
  */
 public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
-    private Set<Cnec> preventiveCnecs;
+    private Set<Cnec> preventiveCnecs; //currently we only forcus on preventive state cnec
     private CracLoopFlowExtension cracLoopFlowExtension;
 
     public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
@@ -40,7 +40,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
     }
 
     /**
-     * Loopflow F_(0,all)_current = flowVariable - PTDF * NetPosition, where flowVariable is a MPVariable in linearRaoProblem
+     * Loopflow F_(0,all)_current = flowVariable - PTDF * NetPosition, where flowVariable is a MPVariable in linearRao
      * then max loopflow MPConstraint is: - maxLoopFlow <= currentLoopFlow <= maxLoopFlow
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
@@ -50,10 +50,13 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = computeLoopFlowShift(ptdfs.get(cnec));
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
-            MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(-maxLoopFlowLimit + loopFlowShift, maxLoopFlowLimit + loopFlowShift, cnec);
+            MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(
+                    -maxLoopFlowLimit + loopFlowShift,
+                    maxLoopFlowLimit + loopFlowShift,
+                    cnec);
             MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
             if (Objects.isNull(flowVariable)) {
-                throw new FaraoException(String.format("Flow variable for Max loop flow constraint on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
             }
             maxLoopflowConstraint.setCoefficient(flowVariable, 1);
         }
@@ -66,15 +69,19 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
     /**
      * update max loopflow constraint's bounds; new bounds are calculated following network update
+     * Note: currently we only focus on preventive state cnec, and we use the ptdf in preventive state. In the future,
+     * we can also update the ptdf and netposition during each iteration. In this case, instead of get ptdf directly
+     * from cracLoopFlowExtension, we need to get GlskProvider and List countries from cracLoopFlowExtension, and then
+     * launch a LoopFlowComputation to get an updated ptdfs.
      */
     private void updateMaxLoopFlowConstraint() {
-        Map<Cnec, Map<String, Double>> ptdfs = cracLoopFlowExtension.getPtdfs();
+        Map<Cnec, Map<String, Double>> ptdfs = cracLoopFlowExtension.getPtdfs();  //use preventive ptdf, ref javadoc
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = computeLoopFlowShift(ptdfs.get(cnec));
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             MPConstraint maxLoopflowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec);
             if (Objects.isNull(maxLoopflowConstraint)) {
-                throw new FaraoException(String.format("Max loopflow constraint on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(String.format("MaxLoopflow constraint on %s has not been defined yet.", cnec.getId()));
             }
             //reset bounds
             maxLoopflowConstraint.setLb(-maxLoopFlowLimit + loopFlowShift);
@@ -84,16 +91,16 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
     /**
      * compute loopflow shift = PTDF * Net Position
-     * @param cnecptdf ptdf of the current Cnec
+     * @param cnecPtdf ptdf of the current Cnec
      * @return loopFlowShift
      */
-    private double computeLoopFlowShift(Map<String, Double> cnecptdf) {
+    private double computeLoopFlowShift(Map<String, Double> cnecPtdf) {
         //calculate loopFlowShift = PTDF * NetPosition
         double loopFlowShift = 0.0; // PTDF * NetPosition
         Map<String, Double> referenceNetPositionByCountry = cracLoopFlowExtension.getNetPositions(); // get Net positions
-        for (Map.Entry<String, Double> e : cnecptdf.entrySet()) {
+        for (Map.Entry<String, Double> e : cnecPtdf.entrySet()) {
             String country = e.getKey();
-            loopFlowShift += cnecptdf.get(country) * referenceNetPositionByCountry.get(country); // PTDF * NetPosition
+            loopFlowShift += cnecPtdf.get(country) * referenceNetPositionByCountry.get(country); // PTDF * NetPosition
         }
         return loopFlowShift;
     }

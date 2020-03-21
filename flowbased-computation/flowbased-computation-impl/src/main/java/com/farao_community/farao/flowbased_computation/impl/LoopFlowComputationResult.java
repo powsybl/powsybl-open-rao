@@ -16,10 +16,10 @@ import java.util.Map;
  */
 public class LoopFlowComputationResult {
     /**
-     * Memorize previously calculated ptdf and net position. We assume that they remain approximately the same during linear rao.
-     * NOTE: we only check preventive state cnec's loopflow threshold, we compute only once loopflow at the very beginning of SearchTreeRao,
-     * then we re-use the memorized ptdf and net position for linear rao.
-     * We can also re-compute loopflow in linear rao, by calling calculateLoopFlows() on latest Network updated during each iteration.
+     * Save calculated ptdf and net position. We assume that they remain approximately the same in linear rao.
+     * NOTE: we only check preventive state cnec's loopflow threshold, we compute only once loopflow at the very
+     * beginning of SearchTreeRao, then we re-use the memorized ptdf and net position for linear rao. We can also
+     * re-compute loopflow in linear rao, by calling calculateLoopFlows() on latest Network updated during each iteration.
      */
     private Map<Cnec, Map<String, Double>> ptdfs; //memorize previously calculated ptdf
     private Map<String, Double> netPositions; //memorize previously calculated net postions
