@@ -172,7 +172,7 @@ public class LinearRaoTest {
             assertEquals("preOptimVariant", linearRaoResult.getPreOptimVariantId());
             assertEquals("currentVariant2", linearRaoResult.getPostOptimVariantId());
 
-            ResultExtension<Cnec, CnecResult> cnecResultMap = crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class);
+            CnecResultExtension cnecResultMap = crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class);
             assertEquals(499, cnecResultMap.getVariant("preOptimVariant").getFlowInMW(), 0.01);
             assertEquals(490, cnecResultMap.getVariant("currentVariant2").getFlowInMW(), 0.01);
             RangeActionResultExtension pstResultMap = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class);

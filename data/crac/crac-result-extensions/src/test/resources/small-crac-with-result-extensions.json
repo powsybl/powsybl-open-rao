@@ -72,7 +72,7 @@
       }],
       "state": "N-1 NL1-NL3-Défaut",
       "extensions" : {
-        "ResultExtension" : {
+        "CnecResultExtension" : {
           "resultsPerVariant" : {
             "variant2" : {
               "type" : "cnec-result",
@@ -127,5 +127,19 @@
       "networkElements": ["BBE2AA1  BBE3AA1  1"]
     }
   ],
-  "networkActions": []
+  "networkActions": [],
+  "extensions": {
+    "ResultVariantManager" : {
+      "variantIds" : [ "variant2", "variant1" ]
+    },
+    "CracResultExtension": {
+      "resultsPerVariant" : {
+        "variant1" : {
+          "type" : "crac-result",
+          "cost" : 10,
+          "networkSecurityStatus" : "UNSECURED"
+        }
+      }
+    }
+  }
 }

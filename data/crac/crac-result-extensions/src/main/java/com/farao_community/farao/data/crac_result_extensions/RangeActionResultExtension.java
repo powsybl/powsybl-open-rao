@@ -5,7 +5,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResultExtension extends ResultExtension<RangeAction, RangeActionResult> {
+public class RangeActionResultExtension extends AbstractResultExtension<RangeAction, RangeActionResult> {
     /**
      * Extension name
      */
@@ -13,4 +13,5 @@ public class RangeActionResultExtension extends ResultExtension<RangeAction, Ran
     public String getName() {
         return "RangeActionResultExtension";
     }
+
 }

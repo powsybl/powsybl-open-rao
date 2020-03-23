@@ -10,11 +10,14 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.*;
@@ -86,6 +89,12 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
                     jsonParser.nextToken();
                     Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
                     networkActions.forEach(simpleCrac::addNetworkAction);
+                    break;
+
+                case EXTENSIONS:
+                    jsonParser.nextToken();
+                    List<Extension<Crac>> extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
+                    ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac, extensions);
                     break;
 
                 default:
