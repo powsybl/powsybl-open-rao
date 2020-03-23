@@ -209,7 +209,7 @@ public class LinearRao implements RaoProvider {
     private void updateCracExtension(Crac crac, String resultVariantId, double minMargin) {
         CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
         CracResult cracResult = cracResultMap.getVariant(resultVariantId);
-        cracResult.setCost(minMargin);
+        cracResult.setCost(-minMargin);
     }
 
     private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
