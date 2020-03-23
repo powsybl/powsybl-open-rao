@@ -1,12 +1,9 @@
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.farao_community.farao.ra_optimisation.json.RaoComputationResultJsonModule;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +32,7 @@ public class JsonRaoResult extends SimpleModule {
      */
     public static RaoResult read(InputStream jsonStream) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readerFor(RaoResult.class).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -67,10 +64,4 @@ public class JsonRaoResult extends SimpleModule {
             throw new UncheckedIOException(e);
         }
     }
-
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-            .registerModule(new RaoComputationResultJsonModule());
-    }
-
 }
