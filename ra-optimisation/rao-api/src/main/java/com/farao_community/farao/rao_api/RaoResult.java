@@ -7,11 +7,17 @@
 
 package com.farao_community.farao.rao_api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * RAO result API. This class will contain information about the RAO computation (computation status, logs, etc).
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
+
+@JsonIgnoreProperties(value = { "ok" })
 public class RaoResult {
 
     public enum Status {
@@ -25,7 +31,8 @@ public class RaoResult {
 
     private String postOptimVariantId;
 
-    public RaoResult(Status status) {
+    @JsonCreator
+    public RaoResult(@JsonProperty("status") Status status) {
         this.status = status;
     }
 
