@@ -29,7 +29,6 @@ import java.nio.file.FileSystem;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -78,37 +77,20 @@ public class LoopFlowComputationTest {
 
     @Test
     public void testPtdf() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, countries);
+        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
+        cracLoopFlowExtension.setGlskProvider(glskProvider);
+        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
         assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get("FR"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get("FR"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get("DE"), EPSILON);
         assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get("BE"), EPSILON);
-        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildLoopFlowShift(ptdfs, referenceNetPositionByCountry);
+        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildZeroBalanceFlowShift(ptdfs, referenceNetPositionByCountry);
         Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, loopflowShift);
         assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("BE-NL"), EPSILON);
-        LoopFlowComputationResult loopFlowComputationResult = new LoopFlowComputationResult();
-        loopFlowComputationResult.setPtdfs(ptdfs);
-        loopFlowComputationResult.setLoopFlowShifts(loopflowShift);
-        loopFlowComputationResult.setNetPositions(referenceNetPositionByCountry);
-        loopFlowComputationResult.setLoopFlows(fzeroNpResults);
-        assertEquals(4, loopFlowComputationResult.getLoopFlows().size());
-        assertEquals(4, loopFlowComputationResult.getLoopFlowShifts().size());
-        assertEquals(4, loopFlowComputationResult.getNetPositions().size());
-        assertEquals(4, loopFlowComputationResult.getPtdfs().size());
-        LoopFlowComputationResult loopFlowComputationResultBis = new LoopFlowComputationResult(ptdfs, referenceNetPositionByCountry, loopflowShift, fzeroNpResults);
-        assertNotNull(loopFlowComputationResultBis.getLoopFlows());
-    }
-
-    @Test
-    public void testPtdfB() {
-        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
-        cracLoopFlowExtension.setGlskProvider(glskProvider);
-        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
-        assertNotNull(loopFlowComputation);
     }
 }

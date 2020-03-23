@@ -6,15 +6,18 @@
  */
 package com.farao_community.farao.linear_rao.fillers;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
+import com.farao_community.farao.util.SensitivityComputationService;
+import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
 import org.junit.Before;
@@ -25,6 +28,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +45,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private GlskProvider glskProvider;
     private CracLoopFlowExtension cracLoopFlowExtension;
     private List<String> countries;
+    private ComputationManager computationManager;
 
     @Before
     public void setUp() {
@@ -51,17 +58,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         countries.add("FR");
         countries.add("BE");
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
-
-        Map<Cnec, Map<String, Double>> ptdfs = new HashMap<>();
-        Map<String, Double> ptdfcnec1 = new HashMap<>();
-        ptdfcnec1.put("FR", 1.0);
-        ptdfcnec1.put("BE", 1.0);
-        ptdfs.put(cnec1, ptdfcnec1);
-        cracLoopFlowExtension.setPtdfs(ptdfs);
-        Map<String, Double> netPositions = new HashMap<>();
-        netPositions.put("FR", 10.0);
-        netPositions.put("BE", 10.0);
-        cracLoopFlowExtension.setNetPositions(netPositions);
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
 
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
@@ -69,7 +65,9 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
         maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData);
-
+        computationManager = LocalComputationManager.getDefault();
+        SensitivityComputationFactory sensitivityComputationFactory = sensitivityComputationFactory();
+        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
     @Test
@@ -87,29 +85,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
         assertNotNull(loopFlowConstraint);
-        assertEquals(-80, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(120, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
-        MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1);
-        assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
-    }
-
-    @Test
-    public void testUpdate() throws IOException {
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
-
-        // fill the problem
-        coreProblemFiller.fill();
-        maxLoopFlowFiller.fill();
-
-        coreProblemFiller.update();
-        maxLoopFlowFiller.update();
-
-        // check flow constraint for cnec1
-        MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
-        assertNotNull(loopFlowConstraint);
-        assertEquals(-80, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(120, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-100, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(100, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
         MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1);
         assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
     }
@@ -131,4 +108,44 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         };
     }
 
+    static SensitivityComputationFactory sensitivityComputationFactory() {
+        return new SensitivityComputationFactoryMock();
+    }
+
+    @AutoService(SensitivityComputationFactory.class)
+    public static class SensitivityComputationFactoryMock implements SensitivityComputationFactory {
+
+        public SensitivityComputationFactoryMock() {
+        }
+
+        public static <K, V> Map.Entry<K, V> entry(K key, V value) {
+            return new AbstractMap.SimpleEntry<>(key, value);
+        }
+
+        public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
+            return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
+        }
+
+        @Override
+        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
+            return new SensitivityComputation() {
+
+                @Override
+                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                    List<SensitivityValue> sensitivityValues = new ArrayList<>();
+                    return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues));
+                }
+
+                @Override
+                public String getName() {
+                    return "MockSensitivity";
+                }
+
+                @Override
+                public String getVersion() {
+                    return "1.0.0";
+                }
+            };
+        }
+    }
 }

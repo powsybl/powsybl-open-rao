@@ -45,19 +45,12 @@ public class LoopFlowComputation {
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
     }
 
-    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, List<String> countries) {
-        this.crac = crac;
-        this.glskProvider = glskProvider;
-        this.countries = countries;
-    }
-
-    public LoopFlowComputationResult calculateLoopFlows(Network network) {
+    public Map<String, Double> calculateLoopFlows(Network network) {
         Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(network); //get reference flow
         Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
         Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
-        Map<Cnec, Double> loopFlowShifts = buildLoopFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
-        Map<String, Double> loopflows = buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
-        return new LoopFlowComputationResult(ptdfResults, referenceNetPositionByCountry, loopFlowShifts, loopflows);
+        Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
+        return buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
     }
 
     public Map<Cnec, Map<String, Double>> computePtdfOnCurrentNetwork(Network network) {
@@ -119,7 +112,7 @@ public class LoopFlowComputation {
         return refNpCountry;
     }
 
-    public Map<Cnec, Double> buildLoopFlowShift(Map<Cnec, Map<String, Double>> ptdfResults, Map<String, Double> referenceNetPositionByCountry) {
+    public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<String, Double>> ptdfResults, Map<String, Double> referenceNetPositionByCountry) {
         Map<Cnec, Double> loopFlowShift = new HashMap<>();
         for (Map.Entry<Cnec, Map<String, Double>> entry : ptdfResults.entrySet()) {
             Cnec cnec = entry.getKey();
