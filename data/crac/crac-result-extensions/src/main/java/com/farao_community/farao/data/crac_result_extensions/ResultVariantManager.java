@@ -41,6 +41,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         variants = new HashSet<>();
     }
 
+    /**
+     * Constructor which take in input a list of already existing variantIds
+     * Private-package, used only for the JSON import
+     */
+    ResultVariantManager(Set<String> variantIdSet) {
+        variants = variantIdSet;
+    }
+
     @Override
     public String getName() {
         return "ResultVariantManager";
@@ -55,7 +63,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     /**
      * Create a new variant.
-     * If they do not exist, add a {@link ResultExtension} to all the Cnecs, RangeActions,
+     * If they do not exist, add a {@link AbstractResultExtension} to all the Cnecs, RangeActions,
      * NetworkActions and the Crac itself.
      * Add a new {@link Result} variant, with default values, to all the ResultExtensions
      * of the Crac.
@@ -110,7 +118,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
     /**
      * Delete the variant with id variantId
      * Remove the {@link Result} associated to the variant to be deleted of all the
-     * {@link ResultExtension} of the Crac.
+     * {@link AbstractResultExtension} of the Crac.
      */
     @SuppressWarnings("unchecked")
     public void deleteVariant(String variantId) {

@@ -12,5 +12,6 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class NetworkActionResultExtension extends ResultExtension<NetworkAction, NetworkActionResult> {
+public class NetworkActionResultExtension extends AbstractResultExtension<NetworkAction, NetworkActionResult> {
+
 }
