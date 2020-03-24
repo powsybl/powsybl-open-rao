@@ -21,6 +21,11 @@ public class CnecResult implements Result {
     private double flowInMW;
     private double flowInA;
 
+    private double minThresholdInMw;
+    private double maxThresholdInMw;
+    private double minThresholdInA;
+    private double maxThresholdInA;
+
     @JsonCreator
     public CnecResult(@JsonProperty("flowInMw") double flowInMW, @JsonProperty("flowInA") double flowInA) {
         this.flowInMW = flowInMW;
@@ -51,5 +56,37 @@ public class CnecResult implements Result {
 
     public double getFlowInA() {
         return flowInA;
+    }
+
+    public double getMinThresholdInMw() {
+        return minThresholdInMw;
+    }
+
+    public void setMinThresholdInMw(double minThresholdInMw) {
+        this.minThresholdInMw = minThresholdInMw;
+    }
+
+    public double getMaxThresholdInMw() {
+        return maxThresholdInMw;
+    }
+
+    public void setMaxThresholdInMw(double maxThresholdInMw) {
+        this.maxThresholdInMw = maxThresholdInMw;
+    }
+
+    public double getMinThresholdInA() {
+        return minThresholdInA;
+    }
+
+    public void setMinThresholdInA(double minThresholdInA) {
+        this.minThresholdInA = minThresholdInA;
+    }
+
+    public double getMaxThresholdInA() {
+        return maxThresholdInA;
+    }
+
+    public void setMaxThresholdInA(double maxThresholdInA) {
+        this.maxThresholdInA = maxThresholdInA;
     }
 }
