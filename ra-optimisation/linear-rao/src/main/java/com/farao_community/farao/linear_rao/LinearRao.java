@@ -71,9 +71,18 @@ public class LinearRao implements RaoProvider {
             .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
         // Failure if some sensitivities are not computed
         if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
+            resultVariantManager.deleteVariant(preOptimVariant);
+            resultVariantManager.deleteVariant(bestResultVariant);
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
-        double bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
+        double bestScore = 0;
+        try {
+            bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
+        } catch (FaraoException e) {
+            resultVariantManager.deleteVariant(preOptimVariant);
+            resultVariantManager.deleteVariant(bestResultVariant);
+            throw e;
+        }
 
         // Complete result extensions for pre optim variant
         updateResultExtensions(crac, bestScore, preOptimVariant, currentSensitivityAnalysisResult);
@@ -98,6 +107,9 @@ public class LinearRao implements RaoProvider {
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             raoResult = linearRaoModeller.solve(currentResultVariant);
             if (raoResult.getStatus() == RaoResult.Status.FAILURE) {
+                resultVariantManager.deleteVariant(preOptimVariant);
+                resultVariantManager.deleteVariant(bestResultVariant);
+                resultVariantManager.deleteVariant(currentResultVariant);
                 return CompletableFuture.completedFuture(raoResult);
             }
 
@@ -113,7 +125,15 @@ public class LinearRao implements RaoProvider {
             if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
                 break;
             }
-            double newScore = getMinMargin(crac, currentSensitivityAnalysisResult);
+
+            double newScore = 0;
+            try {
+                newScore = getMinMargin(crac, currentSensitivityAnalysisResult);
+            } catch (FaraoException e) {
+                resultVariantManager.deleteVariant(preOptimVariant);
+                resultVariantManager.deleteVariant(bestResultVariant);
+                throw e;
+            }
             if (newScore < bestScore) {
                 // TODO : limit the ranges
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} to {}", bestScore, newScore);

@@ -70,14 +70,16 @@ public final class Tree {
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS && currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
-                    hasImproved = true;
-                    resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
-                    optimalLeaf = currentLeaf;
-                } else {
-                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
+                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
+                    if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
+                        hasImproved = true;
+                        resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
+                        optimalLeaf = currentLeaf;
+                    } else {
+                        resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
+                    }
+                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
                 }
-                resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
             }
         }
 
