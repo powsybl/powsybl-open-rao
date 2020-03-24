@@ -136,6 +136,12 @@ public class LoopFlowComputation {
         }
         return loopFlows;
     }
+
+    public Map<Cnec, Double> buildZeroBalanceFlowShift(Network network) {
+        Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
+        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
+        return buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
+    }
 }
 
 

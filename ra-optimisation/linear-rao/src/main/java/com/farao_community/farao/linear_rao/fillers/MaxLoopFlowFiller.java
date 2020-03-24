@@ -48,9 +48,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
      */
     private void buildMaxLoopFlowConstraint() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac(), cracLoopFlowExtension);
-        Map<Cnec, Map<String, Double>> ptdfResults = loopFlowComputation.computePtdfOnCurrentNetwork(linearRaoData.getNetwork()); // get ptdf
-        Map<String, Double> referenceNetPositionByCountry = loopFlowComputation.getRefNetPositionByCountry(linearRaoData.getNetwork()); // get Net positions
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
+        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
 
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = 0.0;
