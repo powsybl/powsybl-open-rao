@@ -21,25 +21,37 @@ public class CnecResult implements Result {
     private double flowInMW;
     private double flowInA;
 
-    private double minThresholdInMw;
-    private double maxThresholdInMw;
+    private double minThresholdInMW;
+    private double maxThresholdInMW;
     private double minThresholdInA;
     private double maxThresholdInA;
 
     @JsonCreator
-    public CnecResult(@JsonProperty("flowInMw") double flowInMW, @JsonProperty("flowInA") double flowInA) {
+    public CnecResult(@JsonProperty("flowInMW") double flowInMW, @JsonProperty("flowInA") double flowInA) {
         this.flowInMW = flowInMW;
         this.flowInA = flowInA;
+        this.minThresholdInMW = Double.NaN;
+        this.maxThresholdInMW = Double.NaN;
+        this.minThresholdInA = Double.NaN;
+        this.maxThresholdInA = Double.NaN;
     }
 
     public CnecResult(double flowInMW) {
         this.flowInMW = flowInMW;
         this.flowInA = Double.NaN;
+        this.minThresholdInMW = Double.NaN;
+        this.maxThresholdInMW = Double.NaN;
+        this.minThresholdInA = Double.NaN;
+        this.maxThresholdInA = Double.NaN;
     }
 
     public CnecResult() {
         this.flowInMW = Double.NaN;
         this.flowInA = Double.NaN;
+        this.minThresholdInMW = Double.NaN;
+        this.maxThresholdInMW = Double.NaN;
+        this.minThresholdInA = Double.NaN;
+        this.maxThresholdInA = Double.NaN;
     }
 
     public void setFlowInMW(double flow) {
@@ -58,20 +70,20 @@ public class CnecResult implements Result {
         return flowInA;
     }
 
-    public double getMinThresholdInMw() {
-        return minThresholdInMw;
+    public double getMinThresholdInMW() {
+        return minThresholdInMW;
     }
 
-    public void setMinThresholdInMw(double minThresholdInMw) {
-        this.minThresholdInMw = minThresholdInMw;
+    public void setMinThresholdInMW(double minThresholdInMW) {
+        this.minThresholdInMW = minThresholdInMW;
     }
 
-    public double getMaxThresholdInMw() {
-        return maxThresholdInMw;
+    public double getMaxThresholdInMW() {
+        return maxThresholdInMW;
     }
 
-    public void setMaxThresholdInMw(double maxThresholdInMw) {
-        this.maxThresholdInMw = maxThresholdInMw;
+    public void setMaxThresholdInMW(double maxThresholdInMW) {
+        this.maxThresholdInMW = maxThresholdInMW;
     }
 
     public double getMinThresholdInA() {

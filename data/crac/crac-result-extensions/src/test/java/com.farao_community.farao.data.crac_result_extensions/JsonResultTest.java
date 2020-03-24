@@ -63,7 +63,12 @@ public class JsonResultTest {
         Cnec preventiveCnec2 = simpleCrac.addCnec("cnec2prev", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
 
         CnecResultExtension resultExtension = new CnecResultExtension();
-        resultExtension.addVariant("variant1", new CnecResult(50.0, 75.0));
+        CnecResult cnecRes1 = new CnecResult(50.0, 75.0);
+        cnecRes1.setMinThresholdInMW(-1000);
+        cnecRes1.setMaxThresholdInMW(1000);
+        cnecRes1.setMinThresholdInA(-700);
+        cnecRes1.setMaxThresholdInA(700);
+        resultExtension.addVariant("variant1", cnecRes1);
         resultExtension.addVariant("variant2", new CnecResult(450.0, 750.0));
         preventiveCnec2.addExtension(CnecResultExtension.class, resultExtension);
 

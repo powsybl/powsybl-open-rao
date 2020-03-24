@@ -184,8 +184,8 @@ public class LinearRao implements RaoProvider {
             CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setMinThresholdInMw(cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY));
-            cnecResult.setMaxThresholdInMw(cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY));
+            cnecResult.setMinThresholdInMW(cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY));
+            cnecResult.setMaxThresholdInMW(cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY));
             cnecResult.setMinThresholdInA(cnec.getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY));
             cnecResult.setMaxThresholdInA(cnec.getMaxThreshold(Unit.AMPERE).orElse(Double.POSITIVE_INFINITY));
         });
