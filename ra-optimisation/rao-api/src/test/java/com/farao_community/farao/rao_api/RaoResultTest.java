@@ -27,7 +27,7 @@ public class RaoResultTest {
 
     @Test
     public void testGetters() {
-        assertTrue(raoResult.isOk());
+        assertTrue(raoResult.isSuccessful());
         assertEquals("preOptimVariant", raoResult.getPreOptimVariantId());
         assertEquals("postOptimVariant", raoResult.getPostOptimVariantId());
     }

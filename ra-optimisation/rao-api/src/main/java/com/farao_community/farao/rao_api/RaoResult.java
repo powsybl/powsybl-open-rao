@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 
-@JsonIgnoreProperties(value = { "ok" })
+@JsonIgnoreProperties(value = { "successful" })
 public class RaoResult {
 
     public enum Status {
@@ -44,7 +44,7 @@ public class RaoResult {
         this.status = status;
     }
 
-    public boolean isOk() {
+    public boolean isSuccessful() {
         return status == Status.SUCCESS;
     }
 

@@ -46,7 +46,7 @@ public class JsonRaoResultTest extends AbstractConverterTest {
     @Test
     public void readExtension() throws IOException {
         RaoResult raoResult = JsonRaoResult.read(getClass().getResourceAsStream("/RaoResultFailure.json"));
-        assertFalse(raoResult.isOk());
+        assertFalse(raoResult.isSuccessful());
         assertEquals("var1", raoResult.getPreOptimVariantId());
         assertNotNull("var2", raoResult.getPostOptimVariantId());
     }
