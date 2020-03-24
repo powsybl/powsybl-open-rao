@@ -69,6 +69,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             .ifPresent(config -> {
                 parameters.setDcMode(config.getBooleanProperty("dc-mode", DEFAULT_DC_MODE));
                 parameters.setAcToDcFallback(config.getBooleanProperty("ac-to-dc-fallback", DEFAULT_AC_TO_DC_FALLBACK));
+                parameters.setRaoWithLoopFlow(config.getBooleanProperty("rao-with-loop-flow", DEFAULT_RAO_WITH_LOOP_FLOW));
             });
     }
 
@@ -93,5 +94,19 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public void setAcToDcFallback(boolean acToDcFallback) {
         this.acToDcFallback = acToDcFallback;
     }
+
+    //loop flow parameter section
+    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW = false; //loop flow is for CORE D2CC, default value set to false
+
+    private boolean raoWithLoopFlow = DEFAULT_RAO_WITH_LOOP_FLOW;
+
+    public void setRaoWithLoopFlow(boolean raoWithLoopFlow) {
+        this.raoWithLoopFlow = raoWithLoopFlow;
+    }
+
+    public boolean isRaoWithLoopFlow() {
+        return raoWithLoopFlow;
+    }
+    //end loop flow parameter section
 
 }

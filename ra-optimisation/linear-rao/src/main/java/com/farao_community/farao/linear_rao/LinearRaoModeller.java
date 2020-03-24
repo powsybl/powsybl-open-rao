@@ -8,12 +8,14 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
 import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;
 import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -37,7 +40,7 @@ public class LinearRaoModeller {
                              Network network,
                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
                              LinearRaoProblem linearRaoProblem,
-                             boolean useLoopFlow) {
+                             RaoParameters raoParameters) {
         this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         this.linearRaoProblem = linearRaoProblem;
 
@@ -45,8 +48,8 @@ public class LinearRaoModeller {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
-        if (useLoopFlow) {
-            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData)); //if use loopflow, then add the filler
+        if (raoParameters.isRaoWithLoopFlow() && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
+            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
         }
 
         postProcessorList = new ArrayList<>();

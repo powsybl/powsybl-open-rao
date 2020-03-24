@@ -15,7 +15,6 @@ import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -54,10 +53,8 @@ public class SearchTreeRao implements RaoProvider {
         crac.generateValidityReport(network);
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
         CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
-        if (!Objects.isNull(searchTreeRaoParameters) && useLoopFlowExtension(searchTreeRaoParameters)
-            && !Objects.isNull(cracLoopFlowExtension)) {
+        if (useLoopFlowExtension(parameters) && !Objects.isNull(cracLoopFlowExtension)) {
             //For the initial Network, compute the F_(0,all)_init
             LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
             Map<String, Double> loopFlows = initialLoopFlowComputation.calculateLoopFlows(network);
@@ -83,7 +80,7 @@ public class SearchTreeRao implements RaoProvider {
         });
     }
 
-    private static boolean useLoopFlowExtension(SearchTreeRaoParameters searchTreeRaoParameters) {
-        return searchTreeRaoParameters.isRaoWithLoopFlow();
+    private static boolean useLoopFlowExtension(RaoParameters parameters) {
+        return parameters.isRaoWithLoopFlow();
     }
 }

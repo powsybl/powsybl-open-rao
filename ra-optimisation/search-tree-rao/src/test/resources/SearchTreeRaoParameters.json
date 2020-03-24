@@ -2,10 +2,10 @@
   "version" : "1.0",
   "dc-mode" : false,
   "ac-to-dc-fallback" : false,
+  "rao-with-loop-flow" : false,
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "range-action-rao" : "myRangeActionRao",
-      "rao-with-loop-flow" : true
+      "range-action-rao" : "myRangeActionRao"
     }
   }
 }

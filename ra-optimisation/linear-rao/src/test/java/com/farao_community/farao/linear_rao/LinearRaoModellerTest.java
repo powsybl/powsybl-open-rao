@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -32,8 +33,9 @@ public class LinearRaoModellerTest {
         Crac cracMock = Mockito.mock(Crac.class);
         Network networkMock = Mockito.mock(Network.class);
         SystematicSensitivityAnalysisResult sensitivityResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        RaoParameters raoParametersMock = Mockito.mock(RaoParameters.class);
 
-        linearRaoModeller = new LinearRaoModeller(cracMock, networkMock, sensitivityResultMock, linearRaoProblemMock, false);
+        linearRaoModeller = new LinearRaoModeller(cracMock, networkMock, sensitivityResultMock, linearRaoProblemMock, raoParametersMock);
     }
 
     @Test

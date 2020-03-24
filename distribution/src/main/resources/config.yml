@@ -64,6 +64,7 @@ rao:
 rao-parameters:
     dc-mode: false
     ac-to-dc-fallback: false
+    rao-with-loop-flow: false
 
 linear-rao-parameters:
     max-number-of-iterations: 10
@@ -71,4 +72,3 @@ linear-rao-parameters:
 
 search-tree-rao-parameters:
     range-action-rao : LinearRao
-    rao-with-loop-flow: false
