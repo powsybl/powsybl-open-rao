@@ -15,16 +15,21 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class RangeActionResult implements Result {
+
     protected Map<String, Double> setPointPerStates;
+
+    public RangeActionResult(Map<String, Double> setPointPerStates) {
+        this.setPointPerStates = setPointPerStates;
+    }
 
     public RangeActionResult(Set<String> stateIds) {
         setPointPerStates = new HashMap<>();
         stateIds.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
-    public Set<String> getStates() {
+    /*public Set<String> getStates() {
         return setPointPerStates.keySet();
-    }
+    }*/
 
     public double getSetPoint(String stateId) {
         return setPointPerStates.getOrDefault(stateId, Double.NaN);

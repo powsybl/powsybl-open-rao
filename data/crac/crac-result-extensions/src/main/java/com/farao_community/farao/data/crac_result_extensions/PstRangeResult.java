@@ -7,6 +7,10 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +18,16 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResult extends RangeActionResult {
+@JsonTypeName("pst-range-result")
+public class PstRangeResult extends RangeActionResult implements Result {
     private Map<String, Integer> tapPerStates;
+
+    @JsonCreator
+    public PstRangeResult(@JsonProperty("setpointPerStates") Map<String, Double> setpointPerStates,
+                          @JsonProperty("tapPerStates") Map<String, Integer> tapPerStates) {
+        super(setpointPerStates);
+        this.tapPerStates = tapPerStates;
+    }
 
     public PstRangeResult(Set<String> stateIds) {
         super(stateIds);

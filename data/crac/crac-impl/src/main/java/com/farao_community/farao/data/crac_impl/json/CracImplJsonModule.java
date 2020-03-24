@@ -17,12 +17,14 @@ import com.farao_community.farao.data.crac_impl.json.serializers.network_action.
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.NetworkActionSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.PstSetPointSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.range_action.AlignedRangeActionSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstWithRangeSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnConstraintSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnContingencySerializer;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
@@ -45,5 +47,6 @@ public class CracImplJsonModule extends SimpleModule {
         this.addSerializer(SimpleCrac.class, new SimpleCracSerializer());
         this.addSerializer(SimpleCnec.class, new SimpleCnecSerializer());
         this.addSerializer(SimpleState.class, new SimpleStateSerializer());
+        this.addSerializer(PstWithRange.class, new PstWithRangeSerializer());
     }
 }

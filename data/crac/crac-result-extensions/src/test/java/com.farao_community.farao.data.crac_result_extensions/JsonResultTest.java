@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 
@@ -22,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,6 +68,26 @@ public class JsonResultTest {
         resultExtension.addVariant("variant1", new CnecResult(50.0, 75.0));
         resultExtension.addVariant("variant2", new CnecResult(450.0, 750.0));
         preventiveCnec2.addExtension(CnecResultExtension.class, resultExtension);
+
+        // Add a PstWithRange without extension
+        NetworkElement networkElement1 = new NetworkElement("pst1networkElement");
+        simpleCrac.addNetworkElement("pst1networkElement");
+        PstWithRange pstWithRange1 = new PstWithRange("pst1", networkElement1);
+        simpleCrac.addRangeAction(pstWithRange1);
+
+        // Add a PstWithRange with extension
+        NetworkElement networkElement2 = new NetworkElement("pst2networkElement");
+        simpleCrac.addNetworkElement("pst2networkElement");
+        PstWithRange pstWithRange2 = new PstWithRange("pst2", networkElement2);
+        simpleCrac.addRangeAction(pstWithRange2);
+        RangeActionResultExtension rangeActionResultExtension = new RangeActionResultExtension();
+        HashMap<String, Integer> tapsPerState = new HashMap<>();
+        HashMap<String, Double> setPointPerStates = new HashMap<>();
+        PstRangeResult pstRangeResult = new PstRangeResult(setPointPerStates, tapsPerState);
+        pstRangeResult.setTap(preventiveState.getId(), 2);
+        pstRangeResult.setSetPoint(preventiveState.getId(), 4.0);
+        rangeActionResultExtension.addVariant("variant1", pstRangeResult);
+        pstWithRange2.addExtension(RangeActionResultExtension.class, rangeActionResultExtension);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

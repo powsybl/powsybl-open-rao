@@ -16,8 +16,7 @@ public class RangeActionSerializer<E extends AbstractRangeAction> extends Abstra
     @Override
     public void serialize(E abstractRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serialize(abstractRangeAction, jsonGenerator, serializerProvider);
-        jsonGenerator.writeFieldName("ranges");
-        jsonGenerator.writeStartArray();
+        jsonGenerator.writeArrayFieldStart("ranges");
         for (Range range : abstractRangeAction.getRanges()) {
             jsonGenerator.writeObject(range);
         }
