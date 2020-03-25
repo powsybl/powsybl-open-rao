@@ -81,6 +81,6 @@ public class SearchTreeRao implements RaoProvider {
     }
 
     private static boolean useLoopFlowExtension(RaoParameters parameters) {
-        return parameters.isRaoWithLoopFlow();
+        return parameters.isRaoWithLoopFlowLimitation();
     }
 }

@@ -64,7 +64,7 @@ rao:
 rao-parameters:
     dc-mode: false
     ac-to-dc-fallback: false
-    rao-with-loop-flow: false
+    rao-with-loop-flow-limitation: false
 
 linear-rao-parameters:
     max-number-of-iterations: 10

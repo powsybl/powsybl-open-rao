@@ -23,8 +23,8 @@ import java.util.*;
 /**
  * Filler of loopflow constraint in linear rao problem.
  * - Current loopflow will only be checked for preventive state cnec.
- * - This constraint is set at beginning of search tree rao. It is not updated during optimization. It could be updated by
- * re-computing loopflow's constraint bound following each network's update.
+ * - This constraint is set at the beginning of the linear rao. It is not updated during optimization. It could be updated
+ * by re-computing loopflow's constraint bound following each network's update.
  * - NOTE: It should note that the pst tap changer positions are considered as continuous variables by the solver
  * so that the loopflow constraint used during optimization is satisfied for a network situation where pst tap changers
  * are not all integers. We do not currently re-check the loopflow constraint on integer pst tap changer network. This

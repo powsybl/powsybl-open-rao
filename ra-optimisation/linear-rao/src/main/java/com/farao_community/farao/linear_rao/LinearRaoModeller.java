@@ -48,7 +48,7 @@ public class LinearRaoModeller {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
-        if (raoParameters.isRaoWithLoopFlow() && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
+        if (raoParameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
             fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
         }
 

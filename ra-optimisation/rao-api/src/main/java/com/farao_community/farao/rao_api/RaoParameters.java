@@ -69,7 +69,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             .ifPresent(config -> {
                 parameters.setDcMode(config.getBooleanProperty("dc-mode", DEFAULT_DC_MODE));
                 parameters.setAcToDcFallback(config.getBooleanProperty("ac-to-dc-fallback", DEFAULT_AC_TO_DC_FALLBACK));
-                parameters.setRaoWithLoopFlow(config.getBooleanProperty("rao-with-loop-flow", DEFAULT_RAO_WITH_LOOP_FLOW));
+                parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
             });
     }
 
@@ -96,16 +96,16 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     }
 
     //loop flow parameter section
-    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW = false; //loop flow is for CORE D2CC, default value set to false
+    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
 
-    private boolean raoWithLoopFlow = DEFAULT_RAO_WITH_LOOP_FLOW;
+    private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
 
-    public void setRaoWithLoopFlow(boolean raoWithLoopFlow) {
-        this.raoWithLoopFlow = raoWithLoopFlow;
+    public void setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
+        this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
     }
 
-    public boolean isRaoWithLoopFlow() {
-        return raoWithLoopFlow;
+    public boolean isRaoWithLoopFlowLimitation() {
+        return raoWithLoopFlowLimitation;
     }
     //end loop flow parameter section
 

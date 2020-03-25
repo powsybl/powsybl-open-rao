@@ -49,9 +49,9 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setAcToDcFallback(parser.getBooleanValue());
                     break;
-                case "rao-with-loop-flow":
+                case "rao-with-loop-flow-limitation":
                     parser.nextToken();
-                    parameters.setRaoWithLoopFlow(parser.getBooleanValue());
+                    parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
                     break;
 
                 case "extensions":
