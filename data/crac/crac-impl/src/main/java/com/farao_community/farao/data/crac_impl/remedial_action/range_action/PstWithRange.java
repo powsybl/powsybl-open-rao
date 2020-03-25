@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
@@ -20,10 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Map;
