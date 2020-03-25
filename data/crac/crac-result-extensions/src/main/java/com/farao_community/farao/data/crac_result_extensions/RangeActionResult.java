@@ -27,10 +27,6 @@ public class RangeActionResult implements Result {
         stateIds.forEach(state -> setPointPerStates.put(state, Double.NaN));
     }
 
-    /*public Set<String> getStates() {
-        return setPointPerStates.keySet();
-    }*/
-
     public double getSetPoint(String stateId) {
         return setPointPerStates.getOrDefault(stateId, Double.NaN);
     }

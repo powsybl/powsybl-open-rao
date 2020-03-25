@@ -73,8 +73,15 @@ public class JsonResultTest {
         cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
 
         // PstRangeResult
-        pstWithRange1.getExtension(RangeActionResultExtension.class).getVariant("variant1").setSetPoint(preventiveState.getId(), 4.0);
-        ((PstRangeResult) pstWithRange1.getExtension(RangeActionResultExtension.class).getVariant("variant1")).setTap(preventiveState.getId(), 2);
+        RangeActionResultExtension rangeActionResultExtension = simpleCrac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
+        double pstRangeSetPointVariant1 = 4.0;
+        double pstRangeSetPointVariant2 = 14.0;
+        int pstRangeTapVariant1 = 2;
+        int pstRangeTapVariant2 = 6;
+        rangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant1);
+        ((PstRangeResult) rangeActionResultExtension.getVariant("variant1")).setTap(preventiveState.getId(), pstRangeTapVariant1);
+        rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant2);
+        ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveState.getId(), pstRangeTapVariant2);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -111,6 +118,15 @@ public class JsonResultTest {
         assertNotNull(extCnec);
         assertEquals(50.0, extCnec.getVariant("variant1").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, extCnec.getVariant("variant1").getFlowInA(), DOUBLE_TOLERANCE);
+
+        // assert that the PstWithRange has a RangeActionResultExtension with the expected content
+        assertEquals(1, crac.getRangeAction("pst1").getExtensions().size());
+        RangeActionResultExtension rangeActionResultExtension1 = crac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
+        assertNotNull(rangeActionResultExtension1);
+        assertEquals(pstRangeSetPointVariant1, rangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveState.getId()));
+        assertEquals(pstRangeTapVariant1, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant1")).getTap(preventiveState.getId()));
+        assertEquals(pstRangeSetPointVariant2, rangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveState.getId()));
+        assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveState.getId()));
     }
 
     @Test
