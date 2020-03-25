@@ -25,9 +25,10 @@ import java.util.*;
  * - Current loopflow will only be checked for preventive state cnec.
  * - This constraint is set at beginning of search tree rao. It is not updated during optimization. It could be updated by
  * re-computing loopflow's constraint bound following each network's update.
- * - NOTE: if loopflow is updated during optimization iteration, it should note that the pst tap changer positions
- * are considered as continuous variables by the solver and the updated loopflow bounds are not the exact value. This is
- * currently not a problem because we only consider the preventive state where pst tap changer positions are integers.
+ * - NOTE: It should note that the pst tap changer positions are considered as continuous variables by the solver
+ * so that the loopflow constraint used during optimization is satisfied for a network situation where pst tap changers
+ * are not all integers. We do not currently re-check the loopflow constraint on integer pst top changer network. Let us
+ * say that this is a reasonable approximation (considering input data quality, or measuring errors etc.).
  *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
