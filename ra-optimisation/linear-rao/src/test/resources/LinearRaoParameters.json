@@ -2,14 +2,6 @@
   "version" : "1.0",
   "dc-mode" : false,
   "ac-to-dc-fallback" : false,
-  "load-flow-parameters" : {
-    "version" : "1.0",
-    "voltageInitMode" : "UNIFORM_VALUES",
-    "transformerVoltageControlOn" : false,
-    "phaseShifterRegulationOn" : false,
-    "noGeneratorReactiveLimits" : false,
-    "specificCompatibility" : false
-  },
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,

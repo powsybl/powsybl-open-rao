@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -49,11 +48,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "ac-to-dc-fallback":
                     parser.nextToken();
                     parameters.setAcToDcFallback(parser.getBooleanValue());
-                    break;
-
-                case "load-flow-parameters":
-                    parser.nextToken();
-                    JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
 
                 case "extensions":
