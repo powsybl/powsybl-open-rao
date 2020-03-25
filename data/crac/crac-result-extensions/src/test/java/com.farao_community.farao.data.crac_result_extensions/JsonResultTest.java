@@ -9,11 +9,10 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
-
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
@@ -23,9 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import static junit.framework.TestCase.*;
 
@@ -41,53 +37,44 @@ public class JsonResultTest {
         // Crac
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        // add a ResultVariantManager to the Crac
-        Set<String> variantIds = new HashSet<>();
-        variantIds.add("variant1");
-        variantIds.add("variant2");
-        simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager(variantIds));
-
-        // add a CracResultExtension to the Crac
-        CracResultExtension cracCracResultResultExtension = new CracResultExtension();
-        cracCracResultResultExtension.addVariant("variant1", new CracResult(CracResult.NetworkSecurityStatus.UNSECURED, 10));
-        simpleCrac.addExtension(CracResultExtension.class, cracCracResultResultExtension);
-
         // States
         Instant initialInstant = simpleCrac.addInstant("N", 0);
         State preventiveState = simpleCrac.addState(null, initialInstant);
 
-        // One Cnec without extension
+        // Cnecs
         simpleCrac.addNetworkElement("ne1");
-        simpleCrac.addCnec("cnec1prev", "ne1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
-
-        // One Cnec with extension
         simpleCrac.addNetworkElement("ne2");
-        Cnec preventiveCnec2 = simpleCrac.addCnec("cnec2prev", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
+        simpleCrac.addCnec("cnec1prev", "ne1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
+        simpleCrac.addCnec("cnec2prev", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
 
-        CnecResultExtension resultExtension = new CnecResultExtension();
-        resultExtension.addVariant("variant1", new CnecResult(50.0, 75.0));
-        resultExtension.addVariant("variant2", new CnecResult(450.0, 750.0));
-        preventiveCnec2.addExtension(CnecResultExtension.class, resultExtension);
-
-        // Add a PstWithRange without extension
+        // RangeActions : PstWithRange
         NetworkElement networkElement1 = new NetworkElement("pst1networkElement");
         simpleCrac.addNetworkElement("pst1networkElement");
         PstWithRange pstWithRange1 = new PstWithRange("pst1", networkElement1);
         simpleCrac.addRangeAction(pstWithRange1);
 
-        // Add a PstWithRange with extension
-        NetworkElement networkElement2 = new NetworkElement("pst2networkElement");
-        simpleCrac.addNetworkElement("pst2networkElement");
-        PstWithRange pstWithRange2 = new PstWithRange("pst2", networkElement2);
-        simpleCrac.addRangeAction(pstWithRange2);
-        RangeActionResultExtension rangeActionResultExtension = new RangeActionResultExtension();
-        HashMap<String, Integer> tapsPerState = new HashMap<>();
-        HashMap<String, Double> setPointPerStates = new HashMap<>();
-        PstRangeResult pstRangeResult = new PstRangeResult(setPointPerStates, tapsPerState);
-        pstRangeResult.setTap(preventiveState.getId(), 2);
-        pstRangeResult.setSetPoint(preventiveState.getId(), 4.0);
-        rangeActionResultExtension.addVariant("variant1", pstRangeResult);
-        pstWithRange2.addExtension(RangeActionResultExtension.class, rangeActionResultExtension);
+        // add a ResultVariantManager to the Crac
+        simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager());
+
+        // add variants
+        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant1");
+        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant2");
+
+        // CracResult
+        CracResultExtension cracResultExtension = simpleCrac.getExtension(CracResultExtension.class);
+        cracResultExtension.getVariant("variant1").setCost(10);
+        cracResultExtension.getVariant("variant1").setNetworkSecurityStatus();
+
+        // CnecResult
+        CnecResultExtension cnecResultExtension = simpleCrac.getCnec("cnec2prev").getExtension(CnecResultExtension.class);
+        cnecResultExtension.getVariant("variant1").setFlowInA(75.0);
+        cnecResultExtension.getVariant("variant1").setFlowInMW(50.0);
+        cnecResultExtension.getVariant("variant2").setFlowInA(750.0);
+        cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
+
+        // PstRangeResult
+        pstWithRange1.getExtension(RangeActionResultExtension.class).getVariant("variant1").setSetPoint(preventiveState.getId(), 4.0);
+        ((PstRangeResult) pstWithRange1.getExtension(RangeActionResultExtension.class).getVariant("variant1")).setTap(preventiveState.getId(), 2);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -117,9 +104,6 @@ public class JsonResultTest {
         assertEquals(2, crac.getCnecs().size());
         assertNotNull(crac.getCnec("cnec1prev"));
         assertNotNull(crac.getCnec("cnec2prev"));
-
-        // assert that the first one has no extension
-        assertTrue(crac.getCnec("cnec1prev").getExtensions().isEmpty());
 
         // assert that the second one has a CnecResult extension with the expected content
         assertEquals(1, crac.getCnec("cnec2prev").getExtensions().size());

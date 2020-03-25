@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -32,6 +34,7 @@ public abstract class AbstractRemedialActionSerializer<I extends RemedialAction<
             jsonGenerator.writeString(networkElement.getId());
         }
         jsonGenerator.writeEndArray();
+        JsonUtil.writeExtensions(remedialAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
     }
 
     @Override

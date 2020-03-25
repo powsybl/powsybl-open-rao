@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeName("pst-range-result")
-public class PstRangeResult extends RangeActionResult implements Result {
+public class PstRangeResult extends RangeActionResult {
     private Map<String, Integer> tapPerStates;
 
     @JsonCreator
