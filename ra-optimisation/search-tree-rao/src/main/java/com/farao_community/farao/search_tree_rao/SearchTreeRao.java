@@ -58,7 +58,7 @@ public class SearchTreeRao implements RaoProvider {
             //For the initial Network, compute the F_(0,all)_init
             LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
             Map<String, Double> loopFlows = initialLoopFlowComputation.calculateLoopFlows(network);
-            updateCnecsLoopFlowConstraint(crac, loopFlows);
+            updateCnecsLoopFlowConstraint(crac, loopFlows); //todo: cnec loop flow extension need to be based on ResultVariantManger
         }
 
         // run optimisation
@@ -75,7 +75,7 @@ public class SearchTreeRao implements RaoProvider {
                 //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
                 double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
                 double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
-                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold));
+                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
             }
         });
     }

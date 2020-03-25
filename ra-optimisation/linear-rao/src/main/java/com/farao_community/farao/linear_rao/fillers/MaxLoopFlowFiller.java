@@ -21,6 +21,14 @@ import com.google.ortools.linearsolver.MPVariable;
 import java.util.*;
 
 /**
+ * Filler of loopflow constraint in linear rao problem.
+ * - Current loopflow will only be checked for preventive state cnec.
+ * - This constraint is set at beginning of search tree rao. It is not updated during optimization. It could be updated by
+ * re-computing loopflow's constraint bound following each network's update.
+ * - NOTE: if loopflow is updated during optimization iteration, it should note that the pst tap changer positions
+ * are considered as continuous variables by the solver and the updated loopflow bounds are not the exact value. This is
+ * currently not a problem because we only consider the preventive state where pst tap changer positions are integers.
+ *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller extends AbstractProblemFiller {
