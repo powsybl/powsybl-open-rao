@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -68,6 +70,13 @@ public class CnecResult implements Result {
 
     public double getFlowInA() {
         return flowInA;
+    }
+
+    public void setThresholds(Cnec cnec) {
+        minThresholdInMW = cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
+        maxThresholdInMW = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+        minThresholdInA = cnec.getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
+        maxThresholdInA = cnec.getMaxThreshold(Unit.AMPERE).orElse(Double.POSITIVE_INFINITY);
     }
 
     public double getMinThresholdInMW() {
