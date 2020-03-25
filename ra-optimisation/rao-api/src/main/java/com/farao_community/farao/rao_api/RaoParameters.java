@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
 
@@ -38,6 +39,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private boolean dcMode = DEFAULT_DC_MODE;
     private boolean acToDcFallback = DEFAULT_AC_TO_DC_FALLBACK;
 
+    private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "rao-parameters"));
 
@@ -57,6 +60,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         RaoParameters parameters = new RaoParameters();
         load(parameters, platformConfig);
         parameters.readExtensions(platformConfig);
+
+        parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
 
         return parameters;
     }
@@ -92,6 +97,15 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setAcToDcFallback(boolean acToDcFallback) {
         this.acToDcFallback = acToDcFallback;
+    }
+
+    public LoadFlowParameters getLoadFlowParameters() {
+        return loadFlowParameters;
+    }
+
+    public RaoParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+        this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        return this;
     }
 
 }

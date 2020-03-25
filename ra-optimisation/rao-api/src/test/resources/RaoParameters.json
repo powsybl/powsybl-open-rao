@@ -1,5 +1,13 @@
 {
   "version" : "1.0",
   "dc-mode" : true,
-  "ac-to-dc-fallback" : true
+  "ac-to-dc-fallback" : true,
+  "load-flow-parameters" : {
+    "version" : "1.0",
+    "voltageInitMode" : "UNIFORM_VALUES",
+    "transformerVoltageControlOn" : false,
+    "phaseShifterRegulationOn" : false,
+    "noGeneratorReactiveLimits" : false,
+    "specificCompatibility" : false
+  }
 }

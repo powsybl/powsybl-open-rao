@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.io.IOException;
 
@@ -32,6 +33,9 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
 
         jsonGenerator.writeBooleanField("dc-mode", parameters.isDcMode());
         jsonGenerator.writeBooleanField("ac-to-dc-fallback", parameters.isAcToDcFallback());
+
+        jsonGenerator.writeFieldName("load-flow-parameters");
+        JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
 
