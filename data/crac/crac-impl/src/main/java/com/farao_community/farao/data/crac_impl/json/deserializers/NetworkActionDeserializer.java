@@ -60,7 +60,7 @@ final class NetworkActionDeserializer {
                     break;
 
                 case PST_SETPOINT_TYPE:
-                    networkAction = deserializePstSetPoint(jsonParser, simpleCrac);
+                    networkAction = deserializePstSetPoint(jsonParser, simpleCrac, deserializationContext);
                     break;
 
                 case COMPLEX_NETWORK_ACTION_TYPE:
@@ -149,7 +149,7 @@ final class NetworkActionDeserializer {
         return topology;
     }
 
-    private static PstSetpoint deserializePstSetPoint(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static PstSetpoint deserializePstSetPoint(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard PstSetPoint deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the PstSetPoint with the NetworkElements of the Crac
 
@@ -159,6 +159,7 @@ final class NetworkActionDeserializer {
         List<UsageRule> usageRules = new ArrayList<>();
         String networkElementId = null;
         double setPoint = 0;
+        List <Extension< NetworkAction >> extensions = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -193,6 +194,12 @@ final class NetworkActionDeserializer {
                     networkElementId = networkElementsIds.get(0);
                     break;
 
+                case EXTENSIONS:
+                    jsonParser.nextToken();
+                    jsonParser.nextToken();
+                    extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
+                    break;
+
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
@@ -200,10 +207,14 @@ final class NetworkActionDeserializer {
 
         NetworkElement ne = simpleCrac.getNetworkElement(networkElementId);
         if (ne == null) {
-            throw new FaraoException(String.format("The network element [%s] mentioned in the topology is not defined", networkElementId));
+            throw new FaraoException(String.format("The network element [%s] mentioned in the PstSetpoint is not defined", networkElementId));
         }
+        PstSetpoint pstSetpoint = new PstSetpoint(id, name, operator, usageRules, ne, setPoint);
+        if (extensions != null) {
+            ExtensionsHandler.getExtensionsSerializers().addExtensions(pstSetpoint, extensions);
+        }
+        return pstSetpoint;
 
-        return new PstSetpoint(id, name, operator, usageRules, ne, setPoint);
     }
 
     private static ComplexNetworkAction deserializeComplexNetworkAction(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {

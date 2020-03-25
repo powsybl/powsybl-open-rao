@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
@@ -54,11 +55,16 @@ public class JsonResultTest {
         PstWithRange pstWithRange1 = new PstWithRange("pst1", networkElement1);
         simpleCrac.addRangeAction(pstWithRange1);
 
-        // NetworkActions: Topology
-        NetworkElement networkElement2 = new NetworkElement("topologyNetworkElement");
+        // NetworkActions:
+        // Topology
+        NetworkElement networkElement2 = new NetworkElement("networkActionNetworkElement");
         simpleCrac.addNetworkElement(networkElement2);
         Topology topology = new Topology("topology", networkElement2, ActionType.CLOSE);
         simpleCrac.addNetworkAction(topology);
+
+        // PstSetpoint
+        PstSetpoint pstSetpoint = new PstSetpoint("pstSetpoint", networkElement2, 12.0);
+        simpleCrac.addNetworkAction(pstSetpoint);
 
         // add a ResultVariantManager to the Crac
         simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager());
@@ -94,10 +100,15 @@ public class JsonResultTest {
         rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant2);
         ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveState.getId(), pstRangeTapVariant2);
 
-        // NetworkActionResult
-        NetworkActionResultExtension networkActionResultExtension = simpleCrac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
-        networkActionResultExtension.getVariant("variant1").activate(preventiveState.getId());
-        networkActionResultExtension.getVariant("variant2").deactivate(preventiveState.getId());
+        // NetworkActionResult for topology
+        NetworkActionResultExtension topologyResultExtension = simpleCrac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
+        topologyResultExtension.getVariant("variant1").activate(preventiveState.getId());
+        topologyResultExtension.getVariant("variant2").deactivate(preventiveState.getId());
+
+        // NetworkActionResult for pstSetpoint
+        NetworkActionResultExtension pstSetpointResultExtension = simpleCrac.getNetworkAction("pstSetpoint").getExtension(NetworkActionResultExtension.class);
+        pstSetpointResultExtension.getVariant("variant1").activate(preventiveState.getId());
+        pstSetpointResultExtension.getVariant("variant2").deactivate(preventiveState.getId());
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -150,10 +161,18 @@ public class JsonResultTest {
 
         // assert that the Topology has a NetworkActionResultExtension with the expected content
         assertEquals(1, crac.getNetworkAction("topology").getExtensions().size());
-        NetworkActionResultExtension networkActionResultExtension1 = crac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
-        assertNotNull(networkActionResultExtension1);
-        assertTrue(networkActionResultExtension1.getVariant("variant1").isActivated(preventiveState.getId()));
-        assertFalse(networkActionResultExtension1.getVariant("variant2").isActivated(preventiveState.getId()));
+        NetworkActionResultExtension exportedTopologyResultExtension = crac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
+        assertNotNull(exportedTopologyResultExtension);
+        assertTrue(exportedTopologyResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
+        assertFalse(exportedTopologyResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
+
+        // assert that the PstSetpoint has a NetworkActionResultExtension with the expected content
+        assertEquals(1, crac.getNetworkAction("pstSetpoint").getExtensions().size());
+        NetworkActionResultExtension exportedPstSetpointResultExtension = crac.getNetworkAction("pstSetpoint").getExtension(NetworkActionResultExtension.class);
+        assertNotNull(exportedPstSetpointResultExtension);
+        assertTrue(exportedPstSetpointResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
+        assertFalse(exportedPstSetpointResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
+
     }
 
     @Test
