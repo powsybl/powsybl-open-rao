@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 
-@JsonIgnoreProperties(value = { "ok" })
 public class RaoResult {
 
     public enum Status {
@@ -44,7 +43,8 @@ public class RaoResult {
         this.status = status;
     }
 
-    public boolean isOk() {
+    @JsonIgnore
+    public boolean isSuccessful() {
         return status == Status.SUCCESS;
     }
 

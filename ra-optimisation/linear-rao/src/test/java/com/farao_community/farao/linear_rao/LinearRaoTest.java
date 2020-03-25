@@ -168,7 +168,7 @@ public class LinearRaoTest {
         assertNotNull(linearRaoResultCF);
         try {
             RaoResult linearRaoResult = linearRaoResultCF.get();
-            assertTrue(linearRaoResult.isOk());
+            assertTrue(linearRaoResult.isSuccessful());
             assertEquals("preOptimVariant", linearRaoResult.getPreOptimVariantId());
             assertEquals("currentVariant2", linearRaoResult.getPostOptimVariantId());
 

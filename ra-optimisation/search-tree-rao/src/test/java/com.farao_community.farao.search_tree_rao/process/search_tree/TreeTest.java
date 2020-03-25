@@ -44,7 +44,7 @@ public class TreeTest {
         // build output
         RaoResult result = Tree.buildOutput(rootLeaf, optimalLeaf);
 
-        assertTrue(result.isOk());
+        assertTrue(result.isSuccessful());
         assertEquals("rootPreOptim", result.getPreOptimVariantId());
         assertEquals("leafPostOptim", result.getPostOptimVariantId());
     }

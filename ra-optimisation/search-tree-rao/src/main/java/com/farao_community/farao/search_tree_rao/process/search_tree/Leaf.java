@@ -193,7 +193,7 @@ class Leaf {
     }
 
     private Status buildStatus(RaoResult results) {
-        if (results.isOk()) {
+        if (results.isSuccessful()) {
             return Status.EVALUATION_SUCCESS;
         } else {
             return Status.EVALUATION_ERROR;
