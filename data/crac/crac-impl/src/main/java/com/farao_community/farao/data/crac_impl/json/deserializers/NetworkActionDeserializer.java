@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.ActionType;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
@@ -20,6 +17,9 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ final class NetworkActionDeserializer {
 
     private NetworkActionDeserializer() { }
 
-    static Set<NetworkAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    static Set<NetworkAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard NetworkAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the NetworkAction with the NetworkElements of the Crac
 
@@ -56,7 +56,7 @@ final class NetworkActionDeserializer {
             String type = jsonParser.nextTextValue();
             switch (type) {
                 case TOPOLOGY_TYPE:
-                    networkAction = deserializeTopology(jsonParser, simpleCrac);
+                    networkAction = deserializeTopology(jsonParser, simpleCrac, deserializationContext);
                     break;
 
                 case PST_SETPOINT_TYPE:
@@ -64,19 +64,20 @@ final class NetworkActionDeserializer {
                     break;
 
                 case COMPLEX_NETWORK_ACTION_TYPE:
-                    networkAction = deserializeComplexNetworkAction(jsonParser, simpleCrac);
+                    networkAction = deserializeComplexNetworkAction(jsonParser, simpleCrac, deserializationContext);
                     break;
 
                 default:
                     throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
             }
+
             networkActions.add(networkAction);
         }
 
         return networkActions;
     }
 
-    private static Topology deserializeTopology(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static Topology deserializeTopology(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard Topology deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the Topology with the NetworkElements of the Crac
 
@@ -86,6 +87,7 @@ final class NetworkActionDeserializer {
         List<UsageRule> usageRules = new ArrayList<>();
         String networkElementId = null;
         ActionType actionType = null;
+        List <Extension< NetworkAction >> extensions = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -124,6 +126,12 @@ final class NetworkActionDeserializer {
                     actionType = jsonParser.readValueAs(ActionType.class);
                     break;
 
+                case EXTENSIONS:
+                    jsonParser.nextToken();
+                    jsonParser.nextToken();
+                    extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
+                    break;
+
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
@@ -134,7 +142,11 @@ final class NetworkActionDeserializer {
             throw new FaraoException(String.format("The network element [%s] mentioned in the topology is not defined", networkElementId));
         }
 
-        return new Topology(id, name, operator, usageRules, ne, actionType);
+        Topology topology = new Topology(id, name, operator, usageRules, ne, actionType);
+        if (extensions != null) {
+            ExtensionsHandler.getExtensionsSerializers().addExtensions(topology, extensions);
+        }
+        return topology;
     }
 
     private static PstSetpoint deserializePstSetPoint(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
@@ -194,7 +206,7 @@ final class NetworkActionDeserializer {
         return new PstSetpoint(id, name, operator, usageRules, ne, setPoint);
     }
 
-    private static ComplexNetworkAction deserializeComplexNetworkAction(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static ComplexNetworkAction deserializeComplexNetworkAction(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard ComplexNetworkAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the ComplexNetworkAction with the NetworkElements of the SimpleCrac
 
@@ -210,7 +222,7 @@ final class NetworkActionDeserializer {
 
                 case ELEMENTARY_NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
+                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac, deserializationContext);
                     networkActions.forEach(na -> {
                         if (!(na instanceof AbstractElementaryNetworkAction)) {
                             throw new FaraoException("A complex network action can only contain elementary network actions");

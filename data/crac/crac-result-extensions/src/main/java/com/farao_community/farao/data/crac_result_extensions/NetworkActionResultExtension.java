@@ -14,4 +14,9 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
  */
 public class NetworkActionResultExtension extends AbstractResultExtension<NetworkAction, NetworkActionResult> {
 
+    @Override
+    public String getName() {
+        return "NetworkActionResultExtension";
+    }
+
 }

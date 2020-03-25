@@ -87,7 +87,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
 
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
+                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac, deserializationContext);
                     networkActions.forEach(simpleCrac::addNetworkAction);
                     break;
 

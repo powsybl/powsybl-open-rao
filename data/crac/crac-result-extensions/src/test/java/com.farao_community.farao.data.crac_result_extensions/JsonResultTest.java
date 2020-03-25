@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
@@ -53,6 +54,12 @@ public class JsonResultTest {
         PstWithRange pstWithRange1 = new PstWithRange("pst1", networkElement1);
         simpleCrac.addRangeAction(pstWithRange1);
 
+        // NetworkActions: Topology
+        NetworkElement networkElement2 = new NetworkElement("topologyNetworkElement");
+        simpleCrac.addNetworkElement(networkElement2);
+        Topology topology = new Topology("topology", networkElement2, ActionType.CLOSE);
+        simpleCrac.addNetworkAction(topology);
+
         // add a ResultVariantManager to the Crac
         simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager());
 
@@ -86,6 +93,11 @@ public class JsonResultTest {
         ((PstRangeResult) rangeActionResultExtension.getVariant("variant1")).setTap(preventiveState.getId(), pstRangeTapVariant1);
         rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant2);
         ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveState.getId(), pstRangeTapVariant2);
+
+        // NetworkActionResult
+        NetworkActionResultExtension networkActionResultExtension = simpleCrac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
+        networkActionResultExtension.getVariant("variant1").activate(preventiveState.getId());
+        networkActionResultExtension.getVariant("variant2").deactivate(preventiveState.getId());
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -135,6 +147,13 @@ public class JsonResultTest {
         assertEquals(pstRangeTapVariant1, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant1")).getTap(preventiveState.getId()));
         assertEquals(pstRangeSetPointVariant2, rangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveState.getId()));
         assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveState.getId()));
+
+        // assert that the Topology has a NetworkActionResultExtension with the expected content
+        assertEquals(1, crac.getNetworkAction("topology").getExtensions().size());
+        NetworkActionResultExtension networkActionResultExtension1 = crac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
+        assertNotNull(networkActionResultExtension1);
+        assertTrue(networkActionResultExtension1.getVariant("variant1").isActivated(preventiveState.getId()));
+        assertFalse(networkActionResultExtension1.getVariant("variant2").isActivated(preventiveState.getId()));
     }
 
     @Test
