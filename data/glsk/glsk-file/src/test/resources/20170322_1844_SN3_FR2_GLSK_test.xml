@@ -12,7 +12,7 @@
 	<GSKTimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
 	<Domain v="10YDOM-REGION-1V" codingScheme="A01"/>
 	<GSKSeries>
-		<TimeSeriesIdentification v="2"/>
+		<TimeSeriesIdentification v="1"/>
 		<BusinessType v="Z02" share="30"/>
 		<Area v="10YFR-RTE------C" codingScheme="A01"/>
 		<AutoGSK_Block>
