@@ -41,14 +41,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "version":
                     parser.nextToken();
                     break;
-                case "dc-mode":
-                    parser.nextToken();
-                    parameters.setDcMode(parser.getBooleanValue());
-                    break;
-                case "ac-to-dc-fallback":
-                    parser.nextToken();
-                    parameters.setAcToDcFallback(parser.getBooleanValue());
-                    break;
 
                 case "extensions":
                     parser.nextToken();
