@@ -34,6 +34,11 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
 
+        if (linearRaoParameters.getFallbackSensiParameters() != null) {
+            jsonGenerator.writeFieldName("fallback-sensitivity-parameters");
+            JsonSensitivityComputationParameters.serialize(linearRaoParameters.getFallbackSensiParameters(), jsonGenerator, serializerProvider);
+        }
+
         jsonGenerator.writeEndObject();
     }
 
@@ -54,6 +59,10 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                 case "sensitivity-parameters":
                     jsonParser.nextToken();
                     JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, linearRaoParameters.getSensitivityComputationParameters());
+                    break;
+                case "fallback-sensitivity-parameters":
+                    jsonParser.nextToken();
+                    JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, linearRaoParameters.getFallbackSensiParameters());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
