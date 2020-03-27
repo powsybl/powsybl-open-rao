@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.UsageRule;
@@ -18,6 +19,9 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +38,7 @@ final class RangeActionDeserializer {
 
     private RangeActionDeserializer() { }
 
-    static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard RangeAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the RangeAction with the NetworkElements of the Crac
 
@@ -47,19 +51,20 @@ final class RangeActionDeserializer {
 
             // use the deserializer suited to range action type
             String type = jsonParser.nextTextValue();
-            RangeAction rangeAction = deserializeRangeAction(type, jsonParser, simpleCrac);
+            RangeAction rangeAction = deserializeRangeAction(type, jsonParser, simpleCrac, deserializationContext);
 
             simpleCrac.addRangeAction(rangeAction);
         }
     }
 
-    private static RangeAction deserializeRangeAction(String type, JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static RangeAction deserializeRangeAction(String type, JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         String id = null;
         String name = null;
         String operator = null;
         List<UsageRule> usageRules = new ArrayList<>();
         List<Range> ranges = new ArrayList<>();
         Set<String> networkElementsIds = new HashSet<>();
+        List <Extension < RangeAction > > extensions = new ArrayList<>();
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -94,6 +99,11 @@ final class RangeActionDeserializer {
                     });
                     break;
 
+                case EXTENSIONS:
+                    jsonParser.nextToken();
+                    extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
+                    break;
+
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
@@ -101,13 +111,18 @@ final class RangeActionDeserializer {
         }
 
         Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
+        RangeAction rangeAction;
         switch (type) {
             case PST_WITH_RANGE_TYPE:
-                return new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next());
+                rangeAction = new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next());
+                break;
             case ALIGNED_RANGE_ACTIONS_TYPE:
-                return new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
+                rangeAction = new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
+                break;
             default:
                 throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
         }
+        ExtensionsHandler.getExtensionsSerializers().addExtensions(rangeAction, extensions);
+        return rangeAction;
     }
 }

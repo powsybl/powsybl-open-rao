@@ -82,12 +82,12 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
 
                 case RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    RangeActionDeserializer.deserialize(jsonParser, simpleCrac);
+                    RangeActionDeserializer.deserialize(jsonParser, simpleCrac, deserializationContext);
                     break;
 
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac);
+                    Set<NetworkAction> networkActions = NetworkActionDeserializer.deserialize(jsonParser, simpleCrac, deserializationContext);
                     networkActions.forEach(simpleCrac::addNetworkAction);
                     break;
 
