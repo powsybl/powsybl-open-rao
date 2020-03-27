@@ -1,7 +1,5 @@
 {
   "version" : "1.0",
-  "dc-mode" : true,
-  "ac-to-dc-fallback" : true,
   "rao-with-loop-flow-limitation" : false,
   "extensions" : {
     "dummy-extension" : { }
