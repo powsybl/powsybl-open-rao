@@ -30,11 +30,18 @@ public final class LoadFlowService {
     }
 
     public static LoadFlowResult runLoadFlow(Network network,
-                                                String workingStateId) {
+                                             String workingStateId,
+                                             LoadFlowParameters loadFlowParameters) {
         if (!initialised()) {
             init(LoadFlow.find(), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
         }
-        return loadFlowRunner.run(network, workingStateId, computationManager, LoadFlowParameters.load());
+        return loadFlowRunner.run(network, workingStateId, computationManager, loadFlowParameters);
+    }
+
+    public static LoadFlowResult runLoadFlow(Network network,
+                                             String workingStateId) {
+
+        return runLoadFlow(network, workingStateId, LoadFlowParameters.load());
     }
 
     private static boolean initialised() {

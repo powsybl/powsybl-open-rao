@@ -33,18 +33,25 @@ public final class SensitivityComputationService {
     }
 
     public static SensitivityComputationResults runSensitivity(Network network,
-                                                        String workingStateId,
-                                                        SensitivityFactorsProvider factorsProvider) {
+                                                               String workingStateId,
+                                                               SensitivityFactorsProvider factorsProvider,
+                                                               SensitivityComputationParameters sensitivityComputationParameters) {
         if (!initialised()) {
             init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
         }
         SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
-        CompletableFuture<SensitivityComputationResults> results = computation.run(factorsProvider, workingStateId, SensitivityComputationParameters.load());
+        CompletableFuture<SensitivityComputationResults> results = computation.run(factorsProvider, workingStateId, sensitivityComputationParameters);
         try {
             return results.join();
         } catch (CompletionException e) {
             throw new FaraoException("Sensitivity computation failed");
         }
+    }
+
+    public static SensitivityComputationResults runSensitivity(Network network,
+                                                               String workingStateId,
+                                                               SensitivityFactorsProvider factorsProvider) {
+        return runSensitivity(network, workingStateId, factorsProvider, SensitivityComputationParameters.load());
     }
 
     private static boolean initialised() {

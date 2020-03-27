@@ -46,6 +46,7 @@ public class SystematicSensitivityAnalysisServiceTest {
     private Network network;
     private ComputationManager computationManager;
     private SimpleCrac crac;
+    private SensitivityComputationParameters sensitivityComputationParameters;
 
     @Before
     public void setUp() {
@@ -58,6 +59,8 @@ public class SystematicSensitivityAnalysisServiceTest {
         computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
+
+        sensitivityComputationParameters = Mockito.mock(SensitivityComputationParameters.class);
 
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
@@ -78,7 +81,7 @@ public class SystematicSensitivityAnalysisServiceTest {
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenThrow(new FaraoException("test exception."));
         LoadFlowService.init(loadFlowRunner, computationManager);
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
         assertNotNull(result);
     }
 
@@ -101,7 +104,7 @@ public class SystematicSensitivityAnalysisServiceTest {
         }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         LoadFlowService.init(loadFlowRunner, computationManager);
 
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
         assertNotNull(result);
     }
 
@@ -124,12 +127,12 @@ public class SystematicSensitivityAnalysisServiceTest {
         }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         LoadFlowService.init(loadFlowRunner, computationManager);
         crac.addRangeAction(new PstWithRange("myPst", new NetworkElement(network.getTwoWindingsTransformers().iterator().next().getId())));
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
         assertNotNull(result);
 
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactoryBroken();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, false, false);
+        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
     }
 
     public class MockSensitivityComputationFactory implements SensitivityComputationFactory {
