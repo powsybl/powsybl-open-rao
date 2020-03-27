@@ -202,6 +202,7 @@ public class LinearRao implements RaoProvider {
             CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
+            cnecResult.setThresholds(cnec);
         });
     }
 

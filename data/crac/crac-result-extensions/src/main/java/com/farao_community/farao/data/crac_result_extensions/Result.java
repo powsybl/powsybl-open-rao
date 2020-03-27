@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CnecResult.class, name = "cnec-result"),
-        @JsonSubTypes.Type(value = CracResult.class, name = "crac-result")
+        @JsonSubTypes.Type(value = CracResult.class, name = "crac-result"),
+        @JsonSubTypes.Type(value = PstRangeResult.class, name = "pst-range-result"),
+                @JsonSubTypes.Type(value = NetworkActionResult.class, name = "network-action-result")
 })
 public interface Result { }
