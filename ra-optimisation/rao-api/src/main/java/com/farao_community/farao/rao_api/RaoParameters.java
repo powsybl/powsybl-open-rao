@@ -50,9 +50,19 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         Objects.requireNonNull(platformConfig);
 
         RaoParameters parameters = new RaoParameters();
+        load(parameters, platformConfig);
         parameters.readExtensions(platformConfig);
 
         return parameters;
+    }
+
+    protected static void load(RaoParameters parameters, PlatformConfig platformConfig) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(platformConfig);
+
+        platformConfig.getOptionalModuleConfig("rao-parameters")
+            .ifPresent(config -> {
+            });
     }
 
     private void readExtensions(PlatformConfig platformConfig) {

@@ -46,7 +46,7 @@ public class SystematicSensitivityAnalysisServiceTest {
     private Network network;
     private ComputationManager computationManager;
     private SimpleCrac crac;
-    private  SensitivityComputationParameters sensitivityComputationParameters;
+    private SensitivityComputationParameters sensitivityComputationParameters;
 
     @Before
     public void setUp() {
