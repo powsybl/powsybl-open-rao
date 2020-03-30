@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -67,19 +68,18 @@ public final class Tree {
 
             //TODO: manage parallel computation
             generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, referenceNetworkVariant, parameters));
+            generatedLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
-                    if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
-                        hasImproved = true;
-                        resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
-                        optimalLeaf = currentLeaf;
-                    } else {
-                        resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
-                    }
-                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
+                if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
+                    hasImproved = true;
+                    resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
+                    optimalLeaf = currentLeaf;
+                } else {
+                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
                 }
+                resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
             }
         }
 
