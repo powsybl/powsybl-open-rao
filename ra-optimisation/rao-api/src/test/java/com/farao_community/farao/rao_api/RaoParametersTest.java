@@ -7,11 +7,17 @@
 package com.farao_community.farao.rao_api;
 
 import com.google.auto.service.AutoService;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.nio.file.FileSystem;
 
 import static org.junit.Assert.*;
 
@@ -21,10 +27,14 @@ import static org.junit.Assert.*;
 public class RaoParametersTest {
 
     private PlatformConfig config;
+    private InMemoryPlatformConfig platformCfg;
+    private FileSystem fileSystem;
 
     @Before
     public void setUp() {
         config = Mockito.mock(PlatformConfig.class);
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformCfg = new InMemoryPlatformConfig(fileSystem);
     }
 
     @Test
@@ -47,6 +57,17 @@ public class RaoParametersTest {
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertNull(parameters.getExtension(DummyExtension.class));
+    }
+
+    @Test
+    public void checkConfig() {
+
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("rao-with-loop-flow-limitation", Boolean.toString(false));
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(false, parameters.isRaoWithLoopFlowLimitation());
     }
 
     @Test

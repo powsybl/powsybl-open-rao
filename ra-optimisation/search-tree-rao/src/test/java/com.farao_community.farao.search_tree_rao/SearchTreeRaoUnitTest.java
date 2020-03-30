@@ -87,8 +87,6 @@ public class SearchTreeRaoUnitTest {
     public void testRunLoopFlowExtensionInCracNotAvailable() {
         RaoParameters parameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        searchTreeRaoParameters.setRaoWithLoopFlow(true);
-        assertTrue(searchTreeRaoParameters.isRaoWithLoopFlow());
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         List<String> emptyList = new ArrayList<>();
         PowerMockito.mockStatic(SearchTreeConfigurationUtil.class);

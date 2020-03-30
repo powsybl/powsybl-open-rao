@@ -119,6 +119,13 @@ public class LinearRaoProblemTest {
     }
 
     @Test
+    public void maxLoopFlowConstraintTest() {
+        assertNull(linearRaoProblem.getMaxLoopFlowConstraint(cnec));
+        linearRaoProblem.addMaxLoopFlowConstraint(LB, UB, cnec);
+        assertNotNull(linearRaoProblem.getMaxLoopFlowConstraint(cnec));
+    }
+
+    @Test
     public void objectiveTest() {
         assertNotNull(linearRaoProblem.getObjective());
     }

@@ -26,7 +26,6 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
         parameters.getExtension(SearchTreeRaoParameters.class).setRangeActionRao("myRangeActionRao");
-        parameters.getExtension(SearchTreeRaoParameters.class).setRaoWithLoopFlow(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
     }
 

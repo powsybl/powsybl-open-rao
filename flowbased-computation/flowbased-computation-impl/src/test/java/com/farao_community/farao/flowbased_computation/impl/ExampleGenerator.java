@@ -357,10 +357,10 @@ final class ExampleGenerator {
 
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("FR", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("BE", "BE", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE", new LinearGlsk("DE", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("NL", "NL", Collections.singletonMap("Generator NL", 1.f)));
+        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
+        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
+        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
+        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
             @Override
             public Map<String, LinearGlsk> getAllGlsk(Network network) {
@@ -413,73 +413,73 @@ final class ExampleGenerator {
             Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
             expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.375),
-                            entry("BE", -0.375),
-                            entry("DE", 0.125),
-                            entry("NL", -0.125)
+                            entry("10YFR-RTE------C", 0.375),
+                            entry("10YBE----------2", -0.375),
+                            entry("10YCB-GERMANY--8", 0.125),
+                            entry("10YNL----------L", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.375),
-                            entry("BE", 0.125),
-                            entry("DE", -0.375),
-                            entry("NL", -0.125)
+                            entry("10YFR-RTE------C", 0.375),
+                            entry("10YBE----------2", 0.125),
+                            entry("10YCB-GERMANY--8", -0.375),
+                            entry("10YNL----------L", -0.125)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.125),
-                            entry("BE", 0.375),
-                            entry("DE", -0.125),
-                            entry("NL", -0.375)
+                            entry("10YFR-RTE------C", 0.125),
+                            entry("10YBE----------2", 0.375),
+                            entry("10YCB-GERMANY--8", -0.125),
+                            entry("10YNL----------L", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.125),
-                            entry("BE", -0.125),
-                            entry("DE", 0.375),
-                            entry("NL", -0.375)
+                            entry("10YFR-RTE------C", 0.125),
+                            entry("10YBE----------2", -0.125),
+                            entry("10YCB-GERMANY--8", 0.375),
+                            entry("10YNL----------L", -0.375)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-BE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", Double.NaN),
-                            entry("BE", Double.NaN),
-                            entry("DE", Double.NaN),
-                            entry("NL", Double.NaN)
+                            entry("10YFR-RTE------C", Double.NaN),
+                            entry("10YBE----------2", Double.NaN),
+                            entry("10YCB-GERMANY--8", Double.NaN),
+                            entry("10YNL----------L", Double.NaN)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.75),
-                            entry("BE", -0.25),
-                            entry("DE", -0.25),
-                            entry("NL", -0.25)
+                            entry("10YFR-RTE------C", 0.75),
+                            entry("10YBE----------2", -0.25),
+                            entry("10YCB-GERMANY--8", -0.25),
+                            entry("10YNL----------L", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / BE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", -0.25),
-                            entry("BE", 0.75),
-                            entry("DE", -0.25),
-                            entry("NL", -0.25)
+                            entry("10YFR-RTE------C", -0.25),
+                            entry("10YBE----------2", 0.75),
+                            entry("10YCB-GERMANY--8", -0.25),
+                            entry("10YNL----------L", -0.25)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("N-1 FR-BE / DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("FR", 0.5),
-                            entry("BE", -0.5),
-                            entry("DE", 0.5),
-                            entry("NL", -0.5)
+                            entry("10YFR-RTE------C", 0.5),
+                            entry("10YBE----------2", -0.5),
+                            entry("10YCB-GERMANY--8", 0.5),
+                            entry("10YNL----------L", -0.5)
                     )
                             .collect(entriesToMap())
             ));

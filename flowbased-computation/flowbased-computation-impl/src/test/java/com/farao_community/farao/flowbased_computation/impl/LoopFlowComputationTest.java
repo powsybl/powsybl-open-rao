@@ -8,6 +8,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
@@ -16,6 +17,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResultImpl;
@@ -26,6 +28,8 @@ import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,9 +42,9 @@ public class LoopFlowComputationTest {
     private Crac crac;
     private GlskProvider glskProvider;
     private ComputationManager computationManager;
-    private List<String> countries;
-    private Map<String, Double> referenceNetPositionByCountry;
-    private Map<Cnec, Map<String, Double>> ptdfs;
+    private List<Country> countries;
+    private Map<Country, Double> referenceNetPositionByCountry;
+    private Map<Cnec, Map<Country, Double>> ptdfs;
     private Map<Cnec, Double> frefResults;
 
     @Before
@@ -58,7 +62,7 @@ public class LoopFlowComputationTest {
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
         LoadFlowService.init(loadFlowRunner, computationManager);
-        countries = Arrays.asList("FR", "BE", "DE", "NL");
+        countries = Stream.of("FR", "BE", "DE", "NL").map(Country::valueOf).collect(Collectors.toList());
 
         ptdfs = new HashMap<>();
         frefResults = new HashMap<>();
@@ -68,22 +72,25 @@ public class LoopFlowComputationTest {
         frefResults.put(crac.getCnec("DE-NL"), 50.0);
 
         referenceNetPositionByCountry = new HashMap<>();
-        referenceNetPositionByCountry.put("FR", 100.0);
-        referenceNetPositionByCountry.put("BE", 0.0);
-        referenceNetPositionByCountry.put("DE", 0.0);
-        referenceNetPositionByCountry.put("NL", -100.0);
+        referenceNetPositionByCountry.put(Country.valueOf("FR"), 100.0);
+        referenceNetPositionByCountry.put(Country.valueOf("BE"), 0.0);
+        referenceNetPositionByCountry.put(Country.valueOf("DE"), 0.0);
+        referenceNetPositionByCountry.put(Country.valueOf("NL"), -100.0);
     }
 
     @Test
     public void testPtdf() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(network, crac, glskProvider, countries);
-        ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork();
-        assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get("FR"), EPSILON);
-        assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get("FR"), EPSILON);
-        assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get("DE"), EPSILON);
-        assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get("BE"), EPSILON);
-
-        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, ptdfs, referenceNetPositionByCountry);
+        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
+        cracLoopFlowExtension.setGlskProvider(glskProvider);
+        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get(Country.valueOf("FR")), EPSILON);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get(Country.valueOf("FR")), EPSILON);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get(Country.valueOf("DE")), EPSILON);
+        assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get(Country.valueOf("BE")), EPSILON);
+        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildZeroBalanceFlowShift(ptdfs, referenceNetPositionByCountry);
+        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, loopflowShift);
         assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);

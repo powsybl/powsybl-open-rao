@@ -78,52 +78,52 @@ public class FlowBasedComputationImplTest {
         Map<String, Map<String, Double>> ptdfResults = ptdfResultById(result);
         assertEquals(50, frefResults.get("FR-BE"), EPSILON);
         assertEquals(100, fmaxResults.get("FR-BE"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("FR-BE").get("FR"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("FR-BE").get("BE"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("FR-BE").get("DE"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("FR-BE").get("NL"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("FR-BE").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("FR-BE").get("10YBE----------2"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("FR-BE").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("FR-BE").get("10YNL----------L"), EPSILON);
 
         assertEquals(50, frefResults.get("FR-DE"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("FR-DE").get("FR"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("FR-DE").get("BE"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("FR-DE").get("DE"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("FR-DE").get("NL"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("FR-DE").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("FR-DE").get("10YBE----------2"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("FR-DE").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("FR-DE").get("10YNL----------L"), EPSILON);
 
         assertEquals(50, frefResults.get("BE-NL"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("BE-NL").get("FR"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("BE-NL").get("BE"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("BE-NL").get("DE"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("BE-NL").get("NL"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("BE-NL").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("BE-NL").get("10YBE----------2"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("BE-NL").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("BE-NL").get("10YNL----------L"), EPSILON);
 
         assertEquals(50, frefResults.get("DE-NL"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("DE-NL").get("FR"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("DE-NL").get("BE"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("DE-NL").get("DE"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("DE-NL").get("NL"), EPSILON);
+        assertEquals(0.125, ptdfResults.get("DE-NL").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.125, ptdfResults.get("DE-NL").get("10YBE----------2"), EPSILON);
+        assertEquals(0.375, ptdfResults.get("DE-NL").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.375, ptdfResults.get("DE-NL").get("10YNL----------L"), EPSILON);
 
         assertEquals(0, frefResults.get("N-1 FR-BE / FR-BE"), EPSILON);
-        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("FR"), EPSILON);
-        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("BE"), EPSILON);
-        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("DE"), EPSILON);
-        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("NL"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("10YBE----------2"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(0, ptdfResults.get("N-1 FR-BE / FR-BE").get("10YNL----------L"), EPSILON);
 
         assertEquals(100, frefResults.get("N-1 FR-BE / FR-DE"), EPSILON);
-        assertEquals(0.75, ptdfResults.get("N-1 FR-BE / FR-DE").get("FR"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("BE"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("DE"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("NL"), EPSILON);
+        assertEquals(0.75, ptdfResults.get("N-1 FR-BE / FR-DE").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("10YBE----------2"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / FR-DE").get("10YNL----------L"), EPSILON);
 
         assertEquals(0, frefResults.get("N-1 FR-BE / BE-NL"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("FR"), EPSILON);
-        assertEquals(0.75, ptdfResults.get("N-1 FR-BE / BE-NL").get("BE"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("DE"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("NL"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(0.75, ptdfResults.get("N-1 FR-BE / BE-NL").get("10YBE----------2"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.25, ptdfResults.get("N-1 FR-BE / BE-NL").get("10YNL----------L"), EPSILON);
 
         assertEquals(100, frefResults.get("N-1 FR-BE / DE-NL"), EPSILON);
-        assertEquals(0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("FR"), EPSILON);
-        assertEquals(-0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("BE"), EPSILON);
-        assertEquals(0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("DE"), EPSILON);
-        assertEquals(-0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("NL"), EPSILON);
+        assertEquals(0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("10YBE----------2"), EPSILON);
+        assertEquals(0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.5, ptdfResults.get("N-1 FR-BE / DE-NL").get("10YNL----------L"), EPSILON);
 
     }
 
