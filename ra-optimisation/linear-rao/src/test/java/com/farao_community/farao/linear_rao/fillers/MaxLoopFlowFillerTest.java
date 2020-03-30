@@ -16,6 +16,7 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -44,7 +45,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private MaxLoopFlowFiller maxLoopFlowFiller;
     private GlskProvider glskProvider;
     private CracLoopFlowExtension cracLoopFlowExtension;
-    private List<String> countries;
+    private List<Country> countries;
     private ComputationManager computationManager;
 
     @Before
@@ -55,8 +56,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
         countries = new ArrayList<>();
-        countries.add("FR");
-        countries.add("BE");
+        countries.add(Country.FR);
+        countries.add(Country.BE);
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
 

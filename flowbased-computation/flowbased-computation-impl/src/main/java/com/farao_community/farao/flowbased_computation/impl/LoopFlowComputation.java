@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.data.glsk.import_.EICode;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
@@ -37,7 +38,7 @@ public class LoopFlowComputation {
 
     private Crac crac;
     private GlskProvider glskProvider;
-    private List<String> countries;
+    private List<Country> countries;
 
     public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
         this.crac = crac;
@@ -47,14 +48,14 @@ public class LoopFlowComputation {
 
     public Map<String, Double> calculateLoopFlows(Network network) {
         Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(network); //get reference flow
-        Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
-        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
+        Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
+        Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
         return buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
     }
 
-    public Map<Cnec, Map<String, Double>> computePtdfOnCurrentNetwork(Network network) {
-        Map<Cnec, Map<String, Double>> ptdfs = new HashMap<>();
+    public Map<Cnec, Map<Country, Double>> computePtdfOnCurrentNetwork(Network network) {
+        Map<Cnec, Map<Country, Double>> ptdfs = new HashMap<>();
         Set<Cnec> preventivecnecs = crac.getCnecs(crac.getPreventiveState());
         SensitivityFactorsProvider factorsProvider = net -> generateSensitivityFactorsProvider(net, preventivecnecs, glskProvider);
         SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
@@ -71,7 +72,7 @@ public class LoopFlowComputation {
         return factors;
     }
 
-    private void addSensitivityValue(SensitivityValue sensitivityValue, Crac crac, Map<Cnec, Map<String, Double>> ptdfs) {
+    private void addSensitivityValue(SensitivityValue sensitivityValue, Crac crac, Map<Cnec, Map<Country, Double>> ptdfs) {
         String cnecId = sensitivityValue.getFactor().getFunction().getId();
         Cnec cnec = crac.getCnec(cnecId);
         String glskId = sensitivityValue.getFactor().getVariable().getId();
@@ -79,7 +80,15 @@ public class LoopFlowComputation {
         if (!ptdfs.containsKey(cnec)) {
             ptdfs.put(cnec, new HashMap<>());
         }
-        ptdfs.get(cnec).put(glskId, ptdfValue);
+        ptdfs.get(cnec).put(glskIdToCountry(glskId), ptdfValue);
+    }
+
+    private Country glskIdToCountry(String glskId) {
+        if (glskId.length() < EICode.LENGTH) {
+            throw  new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
+        }
+        EICode eiCode = new EICode(glskId.substring(0, EICode.LENGTH));
+        return eiCode.getCountry();
     }
 
     public Map<Cnec, Double> computeRefFlowOnCurrentNetwork(Network network) {
@@ -101,26 +110,26 @@ public class LoopFlowComputation {
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> cnecFlowMap.put(cnec, cnec.getP(network))));
     }
 
-    public Map<String, Double> getRefNetPositionByCountry(Network network) {
+    public Map<Country, Double> getRefNetPositionByCountry(Network network) {
         //get Net Position of each country from Network
-        Map<String, Double> refNpCountry = new HashMap<>();
-        for (String country : countries) {
-            CountryAreaFactory countryAreaFactory = new CountryAreaFactory(Country.valueOf(country));
+        Map<Country, Double> refNpCountry = new HashMap<>();
+        for (Country country : countries) {
+            CountryAreaFactory countryAreaFactory = new CountryAreaFactory(country);
             double countryNetPositionValue = countryAreaFactory.create(network).getNetPosition();
             refNpCountry.put(country, countryNetPositionValue);
         }
         return refNpCountry;
     }
 
-    public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<String, Double>> ptdfResults, Map<String, Double> referenceNetPositionByCountry) {
+    public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults, Map<Country, Double> referenceNetPositionByCountry) {
         Map<Cnec, Double> loopFlowShift = new HashMap<>();
-        for (Map.Entry<Cnec, Map<String, Double>> entry : ptdfResults.entrySet()) {
+        for (Map.Entry<Cnec, Map<Country, Double>> entry : ptdfResults.entrySet()) {
             Cnec cnec = entry.getKey();
-            Map<String, Double> cnecptdf = entry.getValue();
+            Map<Country, Double> cnecptdf = entry.getValue();
             double sum = 0.0;
             // calculate PTDF * NP(ref)
-            for (Map.Entry<String, Double> e : cnecptdf.entrySet()) {
-                String country = e.getKey();
+            for (Map.Entry<Country, Double> e : cnecptdf.entrySet()) {
+                Country country = e.getKey();
                 sum += cnecptdf.get(country) * referenceNetPositionByCountry.get(country);
             }
             loopFlowShift.put(cnec, sum);
@@ -138,8 +147,8 @@ public class LoopFlowComputation {
     }
 
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Network network) {
-        Map<Cnec, Map<String, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
-        Map<String, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
+        Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
+        Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         return buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
     }
 }
