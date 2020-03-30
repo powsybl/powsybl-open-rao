@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Amira Kahya {@literal <amira.kahya@rte-france.com>}
  */
 public class EICodeTest {
     @Test
@@ -29,5 +30,18 @@ public class EICodeTest {
         assertEquals(Country.RO, new EICode("10YRO-TEL------P").getCountry());
         assertEquals(Country.SI, new EICode("10YSI-ELES-----O").getCountry());
         assertEquals(Country.SK, new EICode("10YSK-SEPS-----K").getCountry());
+        assertEquals(Country.ES, new EICode("10YES-REE------0").getCountry());
+        assertEquals(Country.RS, new EICode("10YCS-SERBIATSOV").getCountry());
+        assertEquals(Country.CH, new EICode("10YCH-SWISSGRIDZ").getCountry());
+        assertEquals(Country.PT, new EICode("10YPT-REN------W").getCountry());
+        assertEquals(Country.BG, new EICode("10YCA-BULGARIA-R").getCountry());
+        assertEquals(Country.AL, new EICode("10YAL-KESH-----5").getCountry());
+        assertEquals(Country.TR, new EICode("10YTR-TEIAS----W").getCountry());
+        assertEquals(Country.UA, new EICode("10Y1001C--00003F").getCountry());
+        assertEquals(Country.MK, new EICode("10YMK-MEPSO----8").getCountry());
+        assertEquals(Country.BA, new EICode("10YBA-JPCC-----D").getCountry());
+        assertEquals(Country.ME, new EICode("10YCS-CG-TSO---S").getCountry());
+        assertEquals(Country.GR, new EICode("10YGR-HTSO-----Y").getCountry());
+        assertEquals(Country.IT, new EICode("10YIT-GRTN-----B").getCountry());
     }
 }
