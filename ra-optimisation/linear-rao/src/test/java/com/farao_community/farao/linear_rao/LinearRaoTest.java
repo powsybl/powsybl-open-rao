@@ -106,7 +106,7 @@ public class LinearRaoTest {
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         stateSensiMap.put(new SimpleState(Optional.empty(), new Instant("myInstant", 0)), null);
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, new HashMap<>()));
         RaoComputationResult result;
         try {
@@ -140,7 +140,7 @@ public class LinearRaoTest {
         crac.getCnecs().forEach(cnec -> cnecFlowMap2.put(cnec, 495.));
         crac.getCnecs().forEach(cnec -> cnecFlowMap3.put(cnec, 490.));
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap1),
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2),
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3));
