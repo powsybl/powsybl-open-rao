@@ -71,16 +71,14 @@ public class LinearRao implements RaoProvider {
             .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
         // Failure if some sensitivities are not computed
         if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
-            resultVariantManager.deleteVariant(preOptimVariant);
-            resultVariantManager.deleteVariant(bestResultVariant);
+            resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
         double bestScore = 0;
         try {
             bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
         } catch (FaraoException e) {
-            resultVariantManager.deleteVariant(preOptimVariant);
-            resultVariantManager.deleteVariant(bestResultVariant);
+            resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
             throw e;
         }
 
@@ -107,9 +105,7 @@ public class LinearRao implements RaoProvider {
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             raoResult = linearRaoModeller.solve(currentResultVariant);
             if (raoResult.getStatus() == RaoResult.Status.FAILURE) {
-                resultVariantManager.deleteVariant(preOptimVariant);
-                resultVariantManager.deleteVariant(bestResultVariant);
-                resultVariantManager.deleteVariant(currentResultVariant);
+                resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant, currentResultVariant);
                 return CompletableFuture.completedFuture(raoResult);
             }
 
@@ -130,8 +126,7 @@ public class LinearRao implements RaoProvider {
             try {
                 newScore = getMinMargin(crac, currentSensitivityAnalysisResult);
             } catch (FaraoException e) {
-                resultVariantManager.deleteVariant(preOptimVariant);
-                resultVariantManager.deleteVariant(bestResultVariant);
+                resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
                 throw e;
             }
             if (newScore < bestScore) {
@@ -237,7 +232,7 @@ public class LinearRao implements RaoProvider {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOptimVariantId);
         raoResult.setPostOptimVariantId(postOptimVariantId);
-        LOGGER.info("LinearRaoResult: mininum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ?
+        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
         return raoResult;
     }

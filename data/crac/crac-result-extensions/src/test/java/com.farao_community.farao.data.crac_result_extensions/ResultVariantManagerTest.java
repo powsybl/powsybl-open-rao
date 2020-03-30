@@ -105,4 +105,18 @@ public class ResultVariantManagerTest {
             // should throw
         }
     }
+
+    @Test
+    public void deleteMultipleVariants() {
+        variantManager.createVariant("var1");
+        variantManager.createVariant("var2");
+        variantManager.createVariant("var3");
+
+        assertEquals(3, variantManager.getVariants().size());
+
+        variantManager.deleteVariants("var1", "var3");
+
+        assertEquals(1, variantManager.getVariants().size());
+        assertEquals("var2", variantManager.getVariants().iterator().next());
+    }
 }

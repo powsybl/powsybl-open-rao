@@ -124,7 +124,6 @@ public class LeafTest {
     public void evaluateOkTest() {
         crac = new SimpleCrac("CracOk");
         crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
-        //Mockito.when(crac.getName()).thenReturn("CracOk");
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         Leaf rootLeaf = new Leaf();

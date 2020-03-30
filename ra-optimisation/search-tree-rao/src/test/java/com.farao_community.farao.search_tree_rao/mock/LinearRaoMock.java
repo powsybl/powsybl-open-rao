@@ -29,21 +29,6 @@ public class LinearRaoMock implements RaoProvider {
     public static final String CRAC_NAME_RAO_RETURNS_FAILURE = "StatusFailure";
 
     private RaoResult createLittleResult(Crac crac) {
-        /*MonitoredBranchResult mb1 = new MonitoredBranchResult("id1", "name1", "branchId1", 1000, 800, 800);
-        MonitoredBranchResult mb2 = new MonitoredBranchResult("id2", "name2", "branchId2", 1000, -1500, -1500);
-        MonitoredBranchResult mb3 = new MonitoredBranchResult("id3", "name3", "branchId3", 1000, 500, 500);
-        List<MonitoredBranchResult> monitoredBranchResults = new ArrayList<>(Arrays.asList(mb1, mb2, mb3));
-
-        RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.SUCCESS, new PreContingencyResult(monitoredBranchResults, null));
-
-        MonitoredBranchResult mb4 = new MonitoredBranchResult("id4", "name4", "branchId4", 1000, 2500, 2500);
-        MonitoredBranchResult mb5 = new MonitoredBranchResult("id5", "name5", "branchId5", 1000, 900, 900);
-
-        ContingencyResult contingencyResult1 = new ContingencyResult("idCo1", "nameCo1", new ArrayList<>(Arrays.asList(mb1, mb3)));
-        ContingencyResult contingencyResult2 = new ContingencyResult("idCo2", "nameCo2", new ArrayList<>(Arrays.asList(mb2, mb4, mb5)));
-        raoComputationResult.addContingencyResult(contingencyResult1);
-        raoComputationResult.addContingencyResult(contingencyResult2);*/
-
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
             resultVariantManager = new ResultVariantManager();
