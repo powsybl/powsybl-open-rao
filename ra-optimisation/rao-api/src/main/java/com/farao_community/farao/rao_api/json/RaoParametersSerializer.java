@@ -30,9 +30,6 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
 
         jsonGenerator.writeStringField("version", RaoParameters.VERSION);
 
-        jsonGenerator.writeBooleanField("dc-mode", parameters.isDcMode());
-        jsonGenerator.writeBooleanField("ac-to-dc-fallback", parameters.isAcToDcFallback());
-
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();

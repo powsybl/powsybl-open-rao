@@ -21,6 +21,7 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,11 +65,12 @@ public class LinearRao implements RaoProvider {
         }
 
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        SensitivityComputationParameters sensitivityComputationParameters = linearRaoParameters.getSensitivityComputationParameters();
 
-        preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
+        preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
 
         // Failure if some sensitivities are not computed
-        if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
+        if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || preOptimSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
             return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
         }
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
@@ -99,7 +101,7 @@ public class LinearRao implements RaoProvider {
             }
 
             applyRAs(crac, network, newRemedialActionsResultList);
-            tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager,  RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
+            tempSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
 
             // If some sensitivities are not computed, the bes result found so far is returned
             if (tempSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
