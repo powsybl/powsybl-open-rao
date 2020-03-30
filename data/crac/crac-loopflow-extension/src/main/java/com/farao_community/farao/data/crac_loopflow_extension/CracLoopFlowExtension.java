@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.Country;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class CracLoopFlowExtension extends AbstractExtension<Crac> {
     private GlskProvider glskProvider; //glsk for loop flow
-    private List<String> countriesForLoopFlow; // list of countries for loop flow
+    private List<Country> countriesForLoopFlow; // list of countries for loop flow
 
     public GlskProvider getGlskProvider() {
         return glskProvider;
@@ -30,11 +31,11 @@ public class CracLoopFlowExtension extends AbstractExtension<Crac> {
         this.glskProvider = glskProvider;
     }
 
-    public List<String> getCountriesForLoopFlow() {
+    public List<Country> getCountriesForLoopFlow() {
         return countriesForLoopFlow;
     }
 
-    public void setCountriesForLoopFlow(List<String> countriesForLoopFlow) {
+    public void setCountriesForLoopFlow(List<Country> countriesForLoopFlow) {
         this.countriesForLoopFlow = countriesForLoopFlow;
     }
 

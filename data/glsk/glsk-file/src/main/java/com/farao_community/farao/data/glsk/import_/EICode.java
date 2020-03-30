@@ -15,6 +15,12 @@ import com.powsybl.iidm.network.Country;
 public class EICode {
     //EIC = Energy Identification Code
     //EICode = Energy Identification Code
+
+    /**
+     * number of character in an EI Code
+     */
+    public static final int LENGTH = 16;
+
     /**
      * code string
      */
