@@ -112,6 +112,8 @@ public class RaoTool implements Tool {
         //Crac
         context.getOutputStream().println("Importing crac '" + cracFile + "'");
         Crac crac = CracImporters.importCrac(cracFile);
+        crac.generateValidityReport(network);
+        crac.synchronize(network);
 
         //Rao Parameter
         context.getOutputStream().println("Loading RAO parameters");
