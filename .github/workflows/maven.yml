@@ -35,8 +35,15 @@ jobs:
       - name: Test library
         run: ls -lisah $OR_TOOLS_PATH
 
+      - name: Test java library path
+        run: |
+          echo 'public class X{public static void main(String[]args){System.out.println(System.getProperty("java.library.path"));}}' >X.java
+          javac X.java && java X
+
       - name: Build with Maven
-        run: mvn --batch-mode -Pcoverage install
+        run: |
+          exit 1
+          mvn --batch-mode -Pcoverage install
 
       - name: Run SonarCloud analysis
         run: >
