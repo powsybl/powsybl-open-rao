@@ -11,6 +11,9 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
+      - name: Download CI Docker image
+        uses: docker://farao/farao-core-ci:latest
+        
       - name: Checkout sources
         uses: actions/checkout@v1
 
