@@ -34,8 +34,7 @@ public final class SystematicSensitivityAnalysisService {
     public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
                                                                   Crac crac,
                                                                   ComputationManager computationManager,
-                                                                  boolean dcMode,
-                                                                  boolean acToDcFallback) {
+                                                                  SensitivityComputationParameters sensitivityComputationParameters) {
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
@@ -43,12 +42,12 @@ public final class SystematicSensitivityAnalysisService {
         Map<Cnec, Double> cnecIntensityMap = new HashMap<>();
 
         // 1. pre
-        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
+        LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId, sensitivityComputationParameters.getLoadFlowParameters());
         if (loadFlowResult.isOk()) {
             buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, null);
         }
         List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
-        SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers);
+        SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers, sensitivityComputationParameters);
         stateSensiMap.put(crac.getPreventiveState(), preSensi);
 
         // 2. analysis for each contingency
@@ -61,12 +60,12 @@ public final class SystematicSensitivityAnalysisService {
                             network.getVariantManager().setWorkingVariant(workingVariant);
                             contingency.apply(network, computationManager);
 
-                            LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant);
+                            LoadFlowResult currentloadFlowResult = LoadFlowService.runLoadFlow(network, workingVariant, sensitivityComputationParameters.getLoadFlowParameters());
                             if (currentloadFlowResult.isOk()) {
                                 buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, contingency);
                             }
 
-                            SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers);
+                            SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers, sensitivityComputationParameters);
                             crac.getStates(contingency).forEach(state -> {
                                 if (!stateSensiMap.containsKey(state)) {
                                     stateSensiMap.put(state, sensiResults);
@@ -124,7 +123,8 @@ public final class SystematicSensitivityAnalysisService {
     private static SensitivityComputationResults runSensitivityComputation(
             Network network,
             Crac crac,
-            List<TwoWindingsTransformer> psts) {
+            List<TwoWindingsTransformer> psts,
+            SensitivityComputationParameters sensitivityComputationParameters) {
         SensitivityFactorsProvider factorsProvider = net -> {
             List<SensitivityFactor> factors = new ArrayList<>();
             crac.getCnecs().forEach(cnec -> {
@@ -145,7 +145,7 @@ public final class SystematicSensitivityAnalysisService {
             return new SensitivityComputationResults(false, Collections.emptyMap(), "", new ArrayList<>());
         }
         try {
-            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
+            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, sensitivityComputationParameters);
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             return null;

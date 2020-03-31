@@ -32,11 +32,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     }
 
     public static final String VERSION = "1.0";
-    static final boolean DEFAULT_DC_MODE = false;
-    static final boolean DEFAULT_AC_TO_DC_FALLBACK = false;
-
-    private boolean dcMode = DEFAULT_DC_MODE;
-    private boolean acToDcFallback = DEFAULT_AC_TO_DC_FALLBACK;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "rao-parameters"));
@@ -67,8 +62,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
         platformConfig.getOptionalModuleConfig("rao-parameters")
             .ifPresent(config -> {
-                parameters.setDcMode(config.getBooleanProperty("dc-mode", DEFAULT_DC_MODE));
-                parameters.setAcToDcFallback(config.getBooleanProperty("ac-to-dc-fallback", DEFAULT_AC_TO_DC_FALLBACK));
+                parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
             });
     }
 
@@ -78,20 +72,17 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
-    public boolean isDcMode() {
-        return dcMode;
+    //loop flow parameter section
+    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+
+    private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
+
+    public void setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
+        this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
     }
 
-    public void setDcMode(boolean dcMode) {
-        this.dcMode = dcMode;
+    public boolean isRaoWithLoopFlowLimitation() {
+        return raoWithLoopFlowLimitation;
     }
-
-    public boolean isAcToDcFallback() {
-        return acToDcFallback;
-    }
-
-    public void setAcToDcFallback(boolean acToDcFallback) {
-        this.acToDcFallback = acToDcFallback;
-    }
-
+    //end loop flow parameter section
 }
