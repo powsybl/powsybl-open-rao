@@ -30,10 +30,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ClosedOptimisationRao implements RaoComputation {
 
-    static {
-        NativeLibraryLoader.loadNativeLibrary("jniortools");
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ClosedOptimisationRao.class);
 
     private Network network;
@@ -51,6 +47,7 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         LoadFlowService.init(loadFlowRunner, computationManager);
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
     @Override
