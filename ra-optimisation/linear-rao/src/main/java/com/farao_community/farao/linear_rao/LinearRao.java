@@ -36,16 +36,17 @@ import static java.lang.String.format;
  */
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
+
+    static {
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
     private static final double MIN_CHANGE_THRESHOLD = 0.0001;
 
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
     private SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
     private List<RemedialActionResult> oldRemedialActionResultList = new ArrayList<>();
-
-    public LinearRao() {
-        NativeLibraryLoader.loadNativeLibrary("jniortools");
-    }
 
     @Override
     public String getName() {
