@@ -23,11 +23,12 @@ jobs:
           mkdir -p $HOME/farao-dep/runtime/or-tools
           tar -xzf /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
           rm -f /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
-          echo '# OR-Tools config' >> $HOME/.bashrc
-          echo 'export OR_TOOLS_HOME=$HOME/farao-dep/runtime/or-tools' >> $HOME/.bashrc
-          echo ::set-env name=OR_TOOLS_PATH::$HOME/farao-dep/runtime/or-tools
-          echo ::set-env name=PATH::$PATH:$OR_TOOLS_PATH/bin
-          echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH:$OR_TOOLS_PATH/lib
+          export OR_TOOLS_PATH=$HOME/farao-dep/runtime/or-tools
+          export PATH=$PATH:$OR_TOOLS_PATH/bin
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OR_TOOLS_PATH/lib'
+          echo ::set-env name=OR_TOOLS_PATH::$OR_TOOLS_PATH
+          echo ::set-env name=PATH::$PATH
+          echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH
 
       - name: Test env
         shell: bash
