@@ -19,13 +19,13 @@ import java.util.Set;
  */
 public final class NativeLibraryLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(NativeLibraryLoader.class);
-    private static volatile Set<String> nativeLibrariesLoaded = Collections.synchronizedSet(new HashSet<>());
+    private static final Set<String> NATIVE_LIBRARIES_LOADED = Collections.synchronizedSet(new HashSet<>());
 
     private NativeLibraryLoader() {
     }
 
     private static synchronized boolean alreadyLoaded(String libraryName) {
-        return nativeLibrariesLoaded.contains(libraryName);
+        return NATIVE_LIBRARIES_LOADED.contains(libraryName);
     }
 
     public static synchronized void loadNativeLibrary(String libraryName) {
@@ -33,7 +33,7 @@ public final class NativeLibraryLoader {
             try {
                 LOGGER.info("Loading library '{}'", libraryName);
                 System.loadLibrary(libraryName);
-                nativeLibrariesLoaded.add(libraryName);
+                NATIVE_LIBRARIES_LOADED.add(libraryName);
             } catch (UnsatisfiedLinkError e) {
                 LOGGER.error("Failed to load library '{}'", libraryName);
                 throw new FaraoException(String.format("Failed to load library '%s'", libraryName));
