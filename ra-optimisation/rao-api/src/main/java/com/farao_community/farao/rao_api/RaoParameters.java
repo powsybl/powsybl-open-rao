@@ -62,6 +62,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
         platformConfig.getOptionalModuleConfig("rao-parameters")
             .ifPresent(config -> {
+                parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
             });
     }
 
@@ -70,4 +71,18 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
     }
+
+    //loop flow parameter section
+    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+
+    private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
+
+    public void setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
+        this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
+    }
+
+    public boolean isRaoWithLoopFlowLimitation() {
+        return raoWithLoopFlowLimitation;
+    }
+    //end loop flow parameter section
 }

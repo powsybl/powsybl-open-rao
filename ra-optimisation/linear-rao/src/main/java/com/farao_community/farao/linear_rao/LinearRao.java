@@ -96,7 +96,7 @@ public class LinearRao implements RaoProvider {
 
         SystematicSensitivityAnalysisResult tempSensitivityAnalysisResult;
 
-        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult);
+        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, preOptimSensitivityAnalysisResult, parameters);
         linearRaoModeller.buildProblem();
 
         RaoComputationResult raoComputationResult;
@@ -143,9 +143,9 @@ public class LinearRao implements RaoProvider {
     //defined to be able to run unit tests
     LinearRaoModeller createLinearRaoModeller(Crac crac,
                                               Network network,
-                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem());
-
+                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                                              RaoParameters raoParameters) {
+        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), raoParameters);
     }
 
     private double getRemedialActionResultPostOptimisationValue(RemedialActionResult remedialActionResult) {
@@ -181,7 +181,6 @@ public class LinearRao implements RaoProvider {
         for (RemedialActionResult remedialActionResult : raResultList) {
             crac.getRangeAction(remedialActionResult.getId()).apply(network, getRemedialActionResultPostOptimisationValue(remedialActionResult));
         }
-
     }
 
     private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {

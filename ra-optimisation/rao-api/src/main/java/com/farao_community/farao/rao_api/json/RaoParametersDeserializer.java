@@ -41,12 +41,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "version":
                     parser.nextToken();
                     break;
-
+                case "rao-with-loop-flow-limitation":
+                    parser.nextToken();
+                    parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
                     break;
-
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }

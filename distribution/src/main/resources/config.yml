@@ -62,6 +62,7 @@ rao:
     default: SearchTreeRao
 
 rao-parameters:
+    rao-with-loop-flow-limitation: false
 
 linear-rao-parameters:
     max-number-of-iterations: 10
@@ -69,4 +70,3 @@ linear-rao-parameters:
 
 search-tree-rao-parameters:
     range-action-rao : LinearRao
-    rao-with-loop-flow: false

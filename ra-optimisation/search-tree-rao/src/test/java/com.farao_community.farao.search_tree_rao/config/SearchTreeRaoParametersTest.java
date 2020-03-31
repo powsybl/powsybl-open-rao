@@ -49,7 +49,5 @@ public class SearchTreeRaoParametersTest {
     public void testLoopFlowExtensionParameters() {
         parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
-        searchTreeRaoParameters.setRaoWithLoopFlow(true);
-        assertTrue(searchTreeRaoParameters.isRaoWithLoopFlow());
     }
 }

@@ -29,6 +29,7 @@ public class LinearRaoProblem {
     private static final String SET_POINT = "setpoint";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
+    private static final String MAX_LOOPFLOW = "maxloopflow";
 
     public enum AbsExtension {
         POSITIVE,
@@ -138,6 +139,20 @@ public class LinearRaoProblem {
     public MPVariable getMinimumMarginVariable() {
         return solver.lookupVariableOrNull(minimumMarginVariableId());
     }
+
+    //Begin MaxLoopFlowFiller section
+    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, Cnec cnec) {
+        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec));
+    }
+
+    private String maxLoopFlowConstraintId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint getMaxLoopFlowConstraint(Cnec cnec) {
+        return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec));
+    }
+    //End MaxLoopFlowFiller section
 
     public double infinity() {
         return MPSolver.infinity();
