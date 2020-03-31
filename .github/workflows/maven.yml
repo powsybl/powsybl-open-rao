@@ -5,12 +5,9 @@ on: [push]
 jobs:
   build:
     name: Build OS ${{ matrix.os }}
-    runs-on: ubuntu-latest
+    container: farao/farao-core-ci:latest
 
     steps:
-      - name: Docker
-        uses: docker://farao/farao-core-ci:latest
-        
       - name: Checkout sources
         uses: actions/checkout@v1
 
