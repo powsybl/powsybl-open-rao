@@ -17,7 +17,6 @@ jobs:
           java-version: 1.8
 
       - name: Download and install OR-Tools
-        shell: bash
         run: |
           wget -P /tmp https://github.com/google/or-tools/releases/download/v6.10/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
           mkdir -p $HOME/farao-dep/runtime/or-tools
@@ -31,8 +30,10 @@ jobs:
           echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH
 
       - name: Test env
-        shell: bash
         run: env
+
+      - name: Test library
+        run: ls -lisah $OR_TOOLS_PATH
 
       - name: Build with Maven
         run: mvn --batch-mode -Pcoverage install
