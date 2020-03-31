@@ -17,16 +17,19 @@ jobs:
           java-version: 1.8
 
       - name: Download and install OR-Tools
+        shell: bash
         run: |
-          wget -P /tmp https://github.com/google/or-tools/releases/download/v6.10/or-tools_centos-7_v6.10.6025.tar.gz
+          wget -P /tmp https://github.com/google/or-tools/releases/download/v6.10/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
           mkdir -p $HOME/farao-dep/runtime/or-tools
-          tar -xzf /tmp/or-tools_centos-7_v6.10.6025.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
-          rm -f /tmp/or-tools_centos-7_v6.10.6025.tar.gz
-          set-env OR_TOOLS_PATH $HOME/farao-dep/runtime/or-tools
-          set-env PATH $PATH:$OR_TOOLS_PATH/bin
-          set-env LD_LIBRARY_PATH $LD_LIBRARY_PATH:$OR_TOOLS_PATH/lib
+          tar -xzf /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
+          rm -f /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
+          echo '# OR-Tools config' >> $HOME/.bashrc
+          echo 'export OR_TOOLS_HOME=$HOME/farao-dep/runtime/or-tools' >> $HOME/.bashrc
+          echo 'export PATH=$PATH:$OR_TOOLS_HOME/bin' >> $HOME/.bashrc
+          echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OR_TOOLS_HOME/lib' >> $HOME/.bashrc
 
       - name: Test env
+        shell: bash
         run: env
 
       - name: Build with Maven
