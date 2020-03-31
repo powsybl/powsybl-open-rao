@@ -37,7 +37,7 @@ jobs:
 
       - name: Test java library path
         run: |
-          echo 'public class X{public static void main(String[]args){System.out.println(System.getProperty("java.library.path"));}}' >X.java
+          echo 'public class X{public static void main(String[]args){Systel.loadLibrary("jniortools");}}' >X.java
           javac X.java && java X
 
       - name: Build with Maven
