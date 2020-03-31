@@ -17,7 +17,7 @@ jobs:
           java-version: 1.8
 
       - name: Download and install OR-Tools
-        run: >
+        run: |
           wget https://github.com/google/or-tools/releases/download/v6.10/or-tools_centos-7_v6.10.6025.tar.gz --output-file /tmp/or-tools.tar.gz
           mkdir -p $HOME/farao-dep/runtime/or-tools
           tar -xzf /tmp/or-tools.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
