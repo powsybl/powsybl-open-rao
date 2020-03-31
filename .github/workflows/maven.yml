@@ -25,8 +25,9 @@ jobs:
           rm -f /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
           echo '# OR-Tools config' >> $HOME/.bashrc
           echo 'export OR_TOOLS_HOME=$HOME/farao-dep/runtime/or-tools' >> $HOME/.bashrc
-          echo 'export PATH=$PATH:$OR_TOOLS_HOME/bin' >> $HOME/.bashrc
-          echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OR_TOOLS_HOME/lib' >> $HOME/.bashrc
+          echo ::set-env name=OR_TOOLS_PATH::$(echo $HOME/farao-dep/runtime/or-tools)
+          echo ::set-env name=PATH::$(echo $PATH:$OR_TOOLS_PATH/bin)
+          echo ::set-env name=LD_LIBRARY_PATH::$(echo $LD_LIBRARY_PATH:$OR_TOOLS_PATH/lib)
 
       - name: Test env
         shell: bash
