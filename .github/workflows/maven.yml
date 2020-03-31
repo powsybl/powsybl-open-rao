@@ -30,9 +30,11 @@ jobs:
           echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH
 
       - name: Build with Maven
+        if: false
         run: mvn --batch-mode -Pcoverage install
 
       - name: Run SonarCloud analysis
+        if: false
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
@@ -41,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
+
   build-macos:
     name: Build MacOS
     runs-on: macos-latest
@@ -54,6 +56,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+
+      - name: Test java library path
+        run: |
+          echo 'public class X{public static void main(String[]args){System.loadLibrary("jniortools");}}' >X.java
+          javac X.java && java X
 
       - name: Download and install OR-Tools
         run: |
@@ -69,4 +76,5 @@ jobs:
           echo ::set-env name=DYLD_LIBRARY_PATH::$DYLD_LIBRARY_PATH
 
       - name: Build with Maven
+        if: false
         run: mvn --batch-mode -Pcoverage install
