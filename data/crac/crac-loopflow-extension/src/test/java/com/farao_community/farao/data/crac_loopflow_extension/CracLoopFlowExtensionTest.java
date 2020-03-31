@@ -7,13 +7,13 @@
 package com.farao_community.farao.data.crac_loopflow_extension;
 
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.powsybl.iidm.network.Country;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,7 +24,8 @@ public class CracLoopFlowExtensionTest {
     @Test
     public void testCracLoopFlowExtension() {
         GlskProvider glskProvider = Mockito.mock(GlskProvider.class);
-        List<String> countries = new ArrayList<>(Arrays.asList("FR", "DE", "BE", "NL"));
+        List<String> countriesAsString = new ArrayList<>(Arrays.asList("FR", "DE", "BE", "NL"));
+        List<Country> countries = countriesAsString.stream().map(Country::valueOf).collect(Collectors.toList());
 
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);

@@ -93,6 +93,10 @@ public final class Rao {
             return run(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
         }
 
+        public RaoResult run(Network network, Crac crac, String variantId, RaoParameters parameters) {
+            return run(network, crac, variantId, LocalComputationManager.getDefault(), parameters);
+        }
+
         public RaoResult run(Network network, Crac crac) {
             return run(network, crac, RaoParameters.load());
         }
@@ -200,6 +204,10 @@ public final class Rao {
 
     public static RaoResult run(Network network, Crac crac, RaoParameters parameters) {
         return find().run(network, crac, parameters);
+    }
+
+    public static RaoResult run(Network network, Crac crac, String workingStateId, RaoParameters parameters) {
+        return find().run(network, crac, workingStateId, parameters);
     }
 
     public static RaoResult run(Network network, Crac crac) {

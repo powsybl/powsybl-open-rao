@@ -29,7 +29,6 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
             parameters.setRangeActionRao(config.getStringProperty("range-action-rao", SearchTreeRaoParameters.DEFAULT_RANGE_ACTION_RAO));
-            parameters.setRaoWithLoopFlow(config.getBooleanProperty("rao-with-loop-flow", SearchTreeRaoParameters.DEFAULT_RAO_WITH_LOOP_FLOW));
         }
         return parameters;
     }

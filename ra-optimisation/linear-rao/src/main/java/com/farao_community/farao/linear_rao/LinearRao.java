@@ -20,6 +20,7 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,12 +66,15 @@ public class LinearRao implements RaoProvider {
         }
         String preOptimVariant = resultVariantManager.createNewUniqueVariantId();
         String bestResultVariant = resultVariantManager.createNewUniqueVariantId();
+      
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        SensitivityComputationParameters sensitivityComputationParameters = linearRaoParameters.getSensitivityComputationParameters();
 
         // Initiate sensitivity analysis results
         SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-            .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
+            .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
         // Failure if some sensitivities are not computed
-        if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
+        if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || preOptimSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
@@ -86,15 +90,14 @@ public class LinearRao implements RaoProvider {
         updateResultExtensions(crac, bestScore, preOptimVariant, currentSensitivityAnalysisResult);
         fillPreOptimRangeActionResultsFromNetwork(crac, preOptimVariant, network);
 
-        // Check if we're only doing a network analysis or if we are optimizing range actions
-        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
+        // Check if we need to optimize Range Actions
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             updateResultExtensions(crac, bestScore, bestResultVariant, currentSensitivityAnalysisResult);
             return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
         }
 
         // Initiate the LP
-        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, currentSensitivityAnalysisResult);
+        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, currentSensitivityAnalysisResult, parameters);
         linearRaoModeller.buildProblem();
 
         // Initiate looping variables
@@ -115,7 +118,7 @@ public class LinearRao implements RaoProvider {
 
             applyRAs(crac, network, currentResultVariant);
             currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-                .runAnalysis(network, crac, computationManager, RaoParameters.load().isDcMode(), RaoParameters.load().isAcToDcFallback());
+                .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
 
             // If some sensitivities are not computed, the bes result found so far is returned
             if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
@@ -151,9 +154,9 @@ public class LinearRao implements RaoProvider {
     //defined to be able to run unit tests
     LinearRaoModeller createLinearRaoModeller(Crac crac,
                                               Network network,
-                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem());
-
+                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                                              RaoParameters raoParameters) {
+        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), raoParameters);
     }
 
     private boolean sameRemedialActions(Crac crac, String resultVariant1, String resultVariant2) {

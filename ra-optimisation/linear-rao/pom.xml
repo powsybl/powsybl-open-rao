@@ -24,6 +24,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-loopflow-extension</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-result-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -33,7 +38,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.farao-community.farao</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-search-tree-rao</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-util</artifactId>
             <version>${project.version}</version>
         </dependency>

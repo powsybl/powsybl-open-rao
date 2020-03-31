@@ -156,7 +156,7 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant);
+            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant, parameters);
             this.raoResult = results;
             updateRaoResultWithNetworkActions(crac);
             this.status = buildStatus(results);
