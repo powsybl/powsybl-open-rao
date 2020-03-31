@@ -4,8 +4,8 @@ on: [push]
 
 jobs:
   build:
-    name: Build OS ${{ matrix.os }}
     container: farao/farao-core-ci:latest
+    name: Build OS ${{ matrix.os }}
 
     steps:
       - name: Checkout sources
