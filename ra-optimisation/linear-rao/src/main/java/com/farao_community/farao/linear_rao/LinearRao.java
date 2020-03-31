@@ -85,7 +85,7 @@ public class LinearRao implements RaoProvider {
 
         // Failure if some sensitivities are not computed
         if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || preOptimSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
-            return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE)); // FAILURE 1
+            return CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE));
         }
         postOptimSensitivityAnalysisResult = preOptimSensitivityAnalysisResult;
         double oldScore = getMinMargin(crac, preOptimSensitivityAnalysisResult);
@@ -104,7 +104,7 @@ public class LinearRao implements RaoProvider {
 
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             raoComputationResult = linearRaoModeller.solve();
-            if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) { // FAILURE 2
+            if (raoComputationResult.getStatus() == RaoComputationResult.Status.FAILURE) {
                 return CompletableFuture.completedFuture(raoComputationResult);
             }
 
