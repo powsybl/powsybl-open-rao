@@ -16,6 +16,7 @@ import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.ra_optimisation.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
@@ -41,6 +42,10 @@ public class LinearRao implements RaoProvider {
     private SystematicSensitivityAnalysisResult preOptimSensitivityAnalysisResult;
     private SystematicSensitivityAnalysisResult postOptimSensitivityAnalysisResult;
     private List<RemedialActionResult> oldRemedialActionResultList = new ArrayList<>();
+
+    public LinearRao() {
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
+    }
 
     @Override
     public String getName() {

@@ -7,24 +7,35 @@
 package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class NativeLibraryLoader {
-
-    private static volatile boolean nativeLibrariesLoaded = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(NativeLibraryLoader.class);
+    private static volatile Set<String> nativeLibrariesLoaded = new HashSet<>();
 
     private NativeLibraryLoader() {
     }
 
-    public static synchronized void loadNativeLibraries() {
-        if (!nativeLibrariesLoaded) {
+    private static synchronized boolean alreadyLoaded(String libraryName) {
+        return nativeLibrariesLoaded.contains(libraryName);
+    }
+
+    public static synchronized void loadNativeLibrary(String libraryName) {
+        if (!alreadyLoaded(libraryName)) {
             try {
-                System.loadLibrary("jniortools");
-                nativeLibrariesLoaded = true;
+                LOGGER.info("Loading library '{}'", libraryName);
+                System.loadLibrary(libraryName);
+                nativeLibrariesLoaded.add(libraryName);
             } catch (UnsatisfiedLinkError e) {
-                throw new FaraoException("Failed to load the library.");
+                LOGGER.error("Failed to load library '{}'", libraryName);
+                throw new FaraoException(String.format("Failed to load library '%s'", libraryName));
             }
         }
     }

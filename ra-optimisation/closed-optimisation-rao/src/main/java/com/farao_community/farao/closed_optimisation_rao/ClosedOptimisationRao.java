@@ -32,10 +32,6 @@ public class ClosedOptimisationRao implements RaoComputation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClosedOptimisationRao.class);
 
-    static {
-        NativeLibraryLoader.loadNativeLibraries();
-    }
-
     private Network network;
     private CracFile cracFile;
     private ComputationManager computationManager;
@@ -51,6 +47,7 @@ public class ClosedOptimisationRao implements RaoComputation {
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         LoadFlowService.init(loadFlowRunner, computationManager);
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
     @Override
