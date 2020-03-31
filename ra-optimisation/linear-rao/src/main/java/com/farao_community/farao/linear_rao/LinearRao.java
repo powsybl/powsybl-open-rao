@@ -68,9 +68,9 @@ public class LinearRao implements RaoProvider {
         SensitivityComputationParameters sensitivityComputationParameters = linearRaoParameters.getSensitivityComputationParameters();
         SensitivityComputationParameters fallbackSensiParameters = linearRaoParameters.getFallbackSensiParameters();
 
-        CompletableFuture<RaoComputationResult> resultCompletableFuture = run(network, crac, computationManager, linearRaoParameters, sensitivityComputationParameters);
+        CompletableFuture<RaoComputationResult> resultCompletableFuture = run(network, crac, computationManager, parameters, sensitivityComputationParameters);
         if (resultCompletableFuture.equals(CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE))) && fallbackSensiParameters != null) {
-            return run(network, crac, computationManager, linearRaoParameters, fallbackSensiParameters);
+            return run(network, crac, computationManager, parameters, fallbackSensiParameters);
         } else {
             return resultCompletableFuture;
         }
@@ -79,9 +79,10 @@ public class LinearRao implements RaoProvider {
     private CompletableFuture<RaoComputationResult> run(Network network,
                                                         Crac crac,
                                                         ComputationManager computationManager,
-                                                        LinearRaoParameters linearRaoParameters,
+                                                        RaoParameters parameters,
                                                         SensitivityComputationParameters sensitivityComputationParameters) {
         preOptimSensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+        LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
 
         // Failure if some sensitivities are not computed
         if (preOptimSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || preOptimSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
