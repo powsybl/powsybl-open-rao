@@ -29,21 +29,8 @@ jobs:
           echo ::set-env name=PATH::$PATH
           echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH
 
-      - name: Test env
-        run: env
-
-      - name: Test library
-        run: ls -lisah $OR_TOOLS_PATH
-
-      - name: Test java library path
-        run: |
-          echo 'public class X{public static void main(String[]args){System.loadLibrary("jniortools");}}' >X.java
-          javac X.java && java X
-
       - name: Build with Maven
-        run: |
-          exit 1
-          mvn --batch-mode -Pcoverage install
+        run: mvn --batch-mode -Pcoverage install
 
       - name: Run SonarCloud analysis
         run: >
