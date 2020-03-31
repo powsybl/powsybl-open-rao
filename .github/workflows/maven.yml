@@ -4,9 +4,8 @@ on: [push]
 
 jobs:
   build:
-    name: Build OS ${{ matrix.os }}
+    name: Build
     runs-on: ubuntu-latest
-
     container: farao/farao-core-ci:latest
 
     steps:
