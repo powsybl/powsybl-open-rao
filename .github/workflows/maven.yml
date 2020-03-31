@@ -30,11 +30,9 @@ jobs:
           echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH
 
       - name: Build with Maven
-        if: false
         run: mvn --batch-mode -Pcoverage install
 
       - name: Run SonarCloud analysis
-        if: false
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
@@ -70,60 +68,5 @@ jobs:
           echo ::set-env name=PATH::$PATH
           echo ::set-env name=JAVA_LIBRARY_PATH::$JAVA_LIBRARY_PATH
 
-      - name: Test env
-        run: env
-
-      - name: Test java library path value
-        run: |
-          echo 'public class X{public static void main(String[]args){System.out.println(System.getProperty("java.library.path"));}}' >X.java
-          javac X.java && java X
-
-      - name: Test jniortools import
-        run: |
-          echo 'public class X{public static void main(String[]args){System.loadLibrary("jniortools");}}' >X.java
-          javac X.java && java X
-
       - name: Build with Maven
-        if: false
-        run: mvn --batch-mode -Pcoverage install
-
-  build-windows:
-    name: Build on Windows
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v1
-
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-
-      - name: Download and install OR-Tools
-        run: |
-          wget -P %TEMP% https://github.com/google/or-tools/releases/download/v6.10/or-tools_VisualStudio2017-64bit_v6.10.6025.zip
-          mkdir -p %HOMEDRIVE%%HOMEPATH%\farao-dep\runtime\or-tools
-          unzip %TEMP%\or-tools_VisualStudio2017-64bit_v6.10.6025.zip -C $HOME/farao-dep/runtime/or-tools --strip-components 1
-          rm -f %TEMP%\or-tools_VisualStudio2017-64bit_v6.10.6025.zip
-          set OR_TOOLS_PATH=%HOMEDRIVE%%HOMEPATH%\farao-dep\runtime\or-tools
-          set PATH=%PATH%;%OR_TOOLS_PATH%\bin
-          echo ::set-env name=OR_TOOLS_PATH::%OR_TOOLS_PATH%
-          echo ::set-env name=PATH::%PATH%
-
-      - name: Test env
-        run: set
-
-      - name: Test java library path value
-        run: |
-          echo 'public class X{public static void main(String[]args){System.out.println(System.getProperty("java.library.path"));}}' >X.java
-          javac X.java && java X
-
-      - name: Test jniortools import
-        run: |
-          echo 'public class X{public static void main(String[]args){System.loadLibrary("jniortools");}}' >X.java
-          javac X.java && java X
-
-      - name: Build with Maven
-        if: false
         run: mvn --batch-mode -Pcoverage install
