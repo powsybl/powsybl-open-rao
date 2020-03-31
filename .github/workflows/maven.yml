@@ -65,10 +65,10 @@ jobs:
           rm -f /tmp/or-tools_MacOsX-10.14.1_v6.10.6025.tar.gz
           export OR_TOOLS_PATH=$HOME/farao-dep/runtime/or-tools
           export PATH=$PATH:$OR_TOOLS_PATH/bin
-          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$OR_TOOLS_PATH/lib
+          export JAVA_LIBRARY_PATH=$JAVA_LIBRARY_PATH:$OR_TOOLS_PATH/lib
           echo ::set-env name=OR_TOOLS_PATH::$OR_TOOLS_PATH
           echo ::set-env name=PATH::$PATH
-          echo ::set-env name=DYLD_LIBRARY_PATH::$DYLD_LIBRARY_PATH
+          echo ::set-env name=JAVA_LIBRARY_PATH::$JAVA_LIBRARY_PATH
 
       - name: Test env
         run: env
