@@ -158,8 +158,10 @@ class Leaf {
         try {
             RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant, parameters);
             this.raoResult = results;
-            updateRaoResultWithNetworkActions(crac);
             this.status = buildStatus(results);
+            if (this.status == Status.EVALUATION_SUCCESS) {
+                updateRaoResultWithNetworkActions(crac);
+            }
             deleteVariant(network, leafNetworkVariant);
 
         } catch (FaraoException e) {

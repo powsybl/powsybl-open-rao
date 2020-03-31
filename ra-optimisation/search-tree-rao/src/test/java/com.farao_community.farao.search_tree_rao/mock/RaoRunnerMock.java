@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.Rao;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.Network;
@@ -25,7 +26,7 @@ public class RaoRunnerMock extends Rao.Runner {
     }
 
     @Override
-    public RaoResult run(Network network, Crac crac, String variantId) {
+    public RaoResult run(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
         String preOpt = "preOpt-".concat(variantId);
         String postOpt = "postOpt-".concat(variantId);
 

@@ -165,7 +165,7 @@ public class LinearRaoTest {
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
         Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         CompletableFuture<RaoResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
-      
+
         assertNotNull(linearRaoResultCF);
         try {
             RaoResult linearRaoResult = linearRaoResultCF.get();

@@ -66,7 +66,7 @@ public class LinearRao implements RaoProvider {
         }
         String preOptimVariant = resultVariantManager.createNewUniqueVariantId();
         String bestResultVariant = resultVariantManager.createNewUniqueVariantId();
-      
+
         LinearRaoParameters linearRaoParameters = parameters.getExtensionByName("LinearRaoParameters");
         SensitivityComputationParameters sensitivityComputationParameters = linearRaoParameters.getSensitivityComputationParameters();
 
@@ -74,7 +74,7 @@ public class LinearRao implements RaoProvider {
         SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
             .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
         // Failure if some sensitivities are not computed
-        if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || preOptimSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+        if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || currentSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
