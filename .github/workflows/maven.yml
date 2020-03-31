@@ -18,10 +18,10 @@ jobs:
 
       - name: Download and install OR-Tools
         run: |
-          wget -P /tmp https://github.com/google/or-tools/releases/download/v6.10/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
+          wget -P /tmp https://github.com/google/or-tools/releases/download/v6.10/or-tools_ubuntu-18.04_v6.10.6025.tar.gz
           mkdir -p $HOME/farao-dep/runtime/or-tools
-          tar -xzf /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
-          rm -f /tmp/or-tools_flatzinc_ubuntu-18.04_v6.10.6025.tar.gz
+          tar -xzf /tmp/or-tools_ubuntu-18.04_v6.10.6025.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
+          rm -f /tmp/or-tools_ubuntu-18.04_v6.10.6025.tar.gz
           export OR_TOOLS_PATH=$HOME/farao-dep/runtime/or-tools
           export PATH=$PATH:$OR_TOOLS_PATH/bin
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OR_TOOLS_PATH/lib
