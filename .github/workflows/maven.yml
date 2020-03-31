@@ -6,20 +6,19 @@ jobs:
   build:
     name: Build OS ${{ matrix.os }}
     container: farao/farao-core-ci:latest
+      steps:
+        - name: Checkout sources
+          uses: actions/checkout@v1
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v1
+        - name: Build with Maven
+          run: mvn --batch-mode -Pcoverage install
 
-      - name: Build with Maven
-        run: mvn --batch-mode -Pcoverage install
-
-      - name: Run SonarCloud analysis
-        run: >
-          mvn --batch-mode -DskipTests sonar:sonar
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.organization=farao-community
-          -Dsonar.projectKey=com.farao-community.farao:farao-core
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        - name: Run SonarCloud analysis
+          run: >
+            mvn --batch-mode -DskipTests sonar:sonar
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.organization=farao-community
+            -Dsonar.projectKey=com.farao-community.farao:farao-core
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
