@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public final class NativeLibraryLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(NativeLibraryLoader.class);
-    private static volatile Set<String> nativeLibrariesLoaded = new HashSet<>();
+    private static volatile Set<String> nativeLibrariesLoaded = Collections.synchronizedSet(new HashSet<>());
 
     private NativeLibraryLoader() {
     }
