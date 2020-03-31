@@ -70,11 +70,19 @@ jobs:
           echo ::set-env name=PATH::$PATH
           echo ::set-env name=LD_LIBRARY_PATH::$LD_LIBRARY_PATH
 
-      - name: Test java library path
+      - name: Test env
+        run: env
+
+      - name: Test java library path value
+        run: |
+          echo 'public class X{public static void main(String[]args){System.out.println(System.getProperty("java.library.path"));}}' >X.java
+          javac X.java && java X
+
+      - name: Test jniortools import
         run: |
           echo 'public class X{public static void main(String[]args){System.loadLibrary("jniortools");}}' >X.java
           javac X.java && java X
-          
+
       - name: Build with Maven
         if: false
         run: mvn --batch-mode -Pcoverage install
