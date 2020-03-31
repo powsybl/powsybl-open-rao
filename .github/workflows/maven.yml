@@ -18,10 +18,10 @@ jobs:
 
       - name: Download and install OR-Tools
         run: |
-          wget https://github.com/google/or-tools/releases/download/v6.10/or-tools_centos-7_v6.10.6025.tar.gz --output-file /tmp/or-tools.tar.gz
+          wget -P /tmp https://github.com/google/or-tools/releases/download/v6.10/or-tools_centos-7_v6.10.6025.tar.gz
           mkdir -p $HOME/farao-dep/runtime/or-tools
-          tar -xzf /tmp/or-tools.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
-          rm -f /tmp/or-tools.tar.gz
+          tar -xzf /tmp/or-tools_centos-7_v6.10.6025.tar.gz -C $HOME/farao-dep/runtime/or-tools --strip-components 1
+          rm -f /tmp/or-tools_centos-7_v6.10.6025.tar.gz
           echo '# OR-Tools config' >> $HOME/.bashrc
           echo 'export OR_TOOLS_HOME=$HOME/farao-dep/runtime/or-tools' >> $HOME/.bashrc
           echo 'export PATH=$PATH:$OR_TOOLS_HOME/bin' >> $HOME/.bashrc
