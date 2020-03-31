@@ -106,6 +106,7 @@ public final class JsonRaoParameters {
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
             write(parameters, outputStream);
+            int i = 1;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

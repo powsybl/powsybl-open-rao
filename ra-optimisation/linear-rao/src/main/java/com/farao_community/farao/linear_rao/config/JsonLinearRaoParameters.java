@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 
 import java.io.IOException;
@@ -62,6 +63,9 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                     break;
                 case "fallback-sensitivity-parameters":
                     jsonParser.nextToken();
+                    if (linearRaoParameters.getFallbackSensiParameters() == null) {
+                        linearRaoParameters.setFallbackSensiParameters(new SensitivityComputationParameters());
+                    }
                     JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, linearRaoParameters.getFallbackSensiParameters());
                     break;
                 default:
