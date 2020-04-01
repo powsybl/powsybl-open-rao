@@ -72,21 +72,17 @@ public class TreeTest {
     }
 
     @Test
-    public void brokenRootSearchTest() {
+    public void brokenRootSearchTest() throws ExecutionException, InterruptedException {
         Network network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         RaoResult result;
-        try {
-            result = Tree.search(network, Mockito.mock(Crac.class), "", Mockito.mock(RaoParameters.class)).get();
-            assertEquals(RaoResult.Status.FAILURE, result.getStatus());
-        } catch (Exception e) {
-            throw new AssertionError();
-        }
+        result = Tree.search(network, Mockito.mock(Crac.class), "", Mockito.mock(RaoParameters.class)).get();
+        assertEquals(RaoResult.Status.FAILURE, result.getStatus());
     }
 
     @Test
-    public void searchTest() {
+    public void searchTest() throws ExecutionException, InterruptedException {
         SimpleCrac crac = new SimpleCrac("id");
         crac.addState(new SimpleState(Optional.empty(), new Instant("inst", 0)));
         NetworkElement networkElement = new NetworkElement("BBE1AA1  BBE2AA1  1");
@@ -104,16 +100,9 @@ public class TreeTest {
         PowerMockito.mockStatic(Rao.class);
         when(Rao.find(Mockito.anyString())).thenReturn(new RaoRunnerMock(new LinearRaoMock()));
 
-        try {
-            RaoResult raoResult = Tree.search(network, crac, referenceNetworkVariant, raoParameters).get();
-            String postOptId = raoResult.getPostOptimVariantId();
-            String prevStateId = crac.getPreventiveState().getId();
-            assertFalse(topo.getExtension(NetworkActionResultExtension.class).getVariant(postOptId).isActivated(prevStateId));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
+        RaoResult raoResult = Tree.search(network, crac, referenceNetworkVariant, raoParameters).get();
+        String postOptId = raoResult.getPostOptimVariantId();
+        String prevStateId = crac.getPreventiveState().getId();
+        assertFalse(topo.getExtension(NetworkActionResultExtension.class).getVariant(postOptId).isActivated(prevStateId));
     }
 }

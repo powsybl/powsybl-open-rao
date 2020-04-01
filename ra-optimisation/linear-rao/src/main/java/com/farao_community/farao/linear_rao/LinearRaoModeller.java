@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtens
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;
 import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -53,7 +52,6 @@ public class LinearRaoModeller {
         }
 
         postProcessorList = new ArrayList<>();
-        postProcessorList.add(new PstTapPostProcessor());
         postProcessorList.add(new RaoResultPostProcessor());
     }
 
