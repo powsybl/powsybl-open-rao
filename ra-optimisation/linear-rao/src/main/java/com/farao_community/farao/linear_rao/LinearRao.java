@@ -69,7 +69,7 @@ public class LinearRao implements RaoProvider {
         SensitivityComputationParameters fallbackSensiParameters = linearRaoParameters.getFallbackSensiParameters();
 
         CompletableFuture<RaoComputationResult> resultCompletableFuture = run(network, crac, computationManager, parameters, sensitivityComputationParameters);
-        if (resultCompletableFuture.equals(CompletableFuture.completedFuture(new RaoComputationResult(RaoComputationResult.Status.FAILURE))) && fallbackSensiParameters != null) {
+        if (resultCompletableFuture.join().getStatus().equals(RaoComputationResult.Status.FAILURE) && fallbackSensiParameters != null) {
             return run(network, crac, computationManager, parameters, fallbackSensiParameters);
         } else {
             return resultCompletableFuture;
