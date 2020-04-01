@@ -44,7 +44,6 @@ public final class Tree {
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
-        //TODO: manage result variants
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
