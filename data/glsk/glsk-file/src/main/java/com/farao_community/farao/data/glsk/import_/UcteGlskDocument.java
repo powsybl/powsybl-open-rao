@@ -63,7 +63,6 @@ public class UcteGlskDocument {
 
         List<UcteGlskSeries> rawlistUcteGlskSeries = new ArrayList<>();
         ucteGlskSeriesByCountry = new HashMap<>();
-
         NodeList glskSeriesNodeList = document.getElementsByTagName("GSKSeries");
         for (int i = 0; i < glskSeriesNodeList.getLength(); i++) {
             if (glskSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -81,7 +80,6 @@ public class UcteGlskDocument {
             if (!ucteGlskSeriesByCountry.containsKey(currentArea)) {
                 ucteGlskSeriesByCountry.put(currentArea, glskSeries);
             } else {
-
                 UcteGlskSeries mergedSeries = mergeUcteGlskSeries(glskSeries, ucteGlskSeriesByCountry.get(currentArea));
                 ucteGlskSeriesByCountry.put(currentArea, mergedSeries);
             }
@@ -107,27 +105,23 @@ public class UcteGlskDocument {
     }
 
     /**
-     * merge LSK and GSK of the same time series id
+     * merge LSK and GSK of the same country
      * @param incomingSeries incoming time series to be merged with old time series
      * @param oldSeries current time series to be updated
      * @return
      */
     private UcteGlskSeries mergeUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
-        if (!incomingSeries.getArea().equals(oldSeries.getArea())) {
-            return oldSeries;
-        } else {
-            List<GlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
-            List<GlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
-            for (GlskPoint oldPoint : oldPoints) {
-                for (GlskPoint incomingPoint : incomingPoints) {
-                    if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
-                        oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
-                        break;
-                    }
+        List<GlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
+        List<GlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
+        for (GlskPoint oldPoint : oldPoints) {
+            for (GlskPoint incomingPoint : incomingPoints) {
+                if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
+                    oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
+                    break;
                 }
             }
-            return oldSeries;
         }
+        return oldSeries;
     }
 
 
