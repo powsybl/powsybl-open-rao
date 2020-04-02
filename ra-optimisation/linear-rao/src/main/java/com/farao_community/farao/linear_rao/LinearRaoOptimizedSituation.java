@@ -3,7 +3,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 
-public class LinearRaoOptimizedSituation extends LinearRaoSituation {
+public final class LinearRaoOptimizedSituation extends LinearRaoSituation {
 
     boolean initial;
 
@@ -12,6 +12,8 @@ public class LinearRaoOptimizedSituation extends LinearRaoSituation {
     String situationId;
 
     ComputationStatus lpStatus;
+
+    LinearRaoOptimizedSituation(Crac crac) {super(crac);}
 
     void evaluateCost() {
     }

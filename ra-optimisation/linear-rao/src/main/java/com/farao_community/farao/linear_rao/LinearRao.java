@@ -51,14 +51,16 @@ public class LinearRao implements RaoProvider {
                                             String variantId,
                                             ComputationManager computationManager,
                                             RaoParameters parameters) {
-        // qualityCheck(RaoParameters);
 
+        qualityCheck(parameters);
         LinearRaoParameters linearRaoParameters = parameters.getExtension(LinearRaoParameters.class);
 
-        LinearRaoInitialSituation initialSituation = new LinearRaoInitialSituation(crac);
+        // evaluate initial sensitivity coefficients and costs on the initial network situation
 
+        LinearRaoInitialSituation initialSituation = new LinearRaoInitialSituation(crac);
         initialSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
         initialSituation.completeResults();
+
 
 
         // initialSituation.completeResults(crac)
@@ -83,6 +85,13 @@ public class LinearRao implements RaoProvider {
 
     }
 
+    private void qualityCheck(RaoParameters parameters) {
+        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
+        if (!configQualityCheck.isEmpty()) {
+            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
+        }
+    }
+
 
     @Override
     public CompletableFuture<RaoResult> run(Network network,
@@ -94,10 +103,7 @@ public class LinearRao implements RaoProvider {
         ResultBuilder resultBuilder = new ResultBuilder(crac);
 
         // quality check
-        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
-        if (!configQualityCheck.isEmpty()) {
-            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
-        }
+
 
         // Initiate result variants
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);

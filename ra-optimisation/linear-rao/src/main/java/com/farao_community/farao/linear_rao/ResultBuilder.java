@@ -44,18 +44,7 @@ public class ResultBuilder {
         }
     }
 
-    void updateResultExtensions(double minMargin, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        updateCracExtension(resultVariantId, minMargin);
-        updateCnecExtensions(resultVariantId, systematicSensitivityAnalysisResult);
-        //The range action extensions are already updated by the solve method.
-        //The network action extensions are not to be updated by the linear rao. They will be updated by the search tree rao if required.
-    }
 
-    void updateCracExtension(String resultVariantId, double minMargin) {
-        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
-        CracResult cracResult = cracResultMap.getVariant(resultVariantId);
-        cracResult.setCost(-minMargin);
-    }
 
     RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
