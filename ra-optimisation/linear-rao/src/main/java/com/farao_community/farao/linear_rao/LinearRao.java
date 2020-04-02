@@ -158,9 +158,8 @@ public class LinearRao implements RaoProvider {
                                                          Crac crac,
                                                          ComputationManager computationManager,
                                                          SensitivityComputationParameters parameters) {
-
-        // Run sensitivity analysis
         SystematicSensitivityAnalysisResult sensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, parameters);
+        // Failure if some sensitivities are not computed
         if (sensitivityAnalysisResult.getStateSensiMap().containsValue(null) || sensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
             throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", useFallbackSensiParams ? "fallback" : "default"));
         } else {
