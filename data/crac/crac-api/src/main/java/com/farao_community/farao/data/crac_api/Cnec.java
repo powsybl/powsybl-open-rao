@@ -80,7 +80,7 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
     /**
      * Get the current (in A) transmitted by Cnec in a given Network. Note that an I
      * value exists in the Network only if an AC load-flow has been previously run.
-     * If no value is present in the network, throws a FaraoException.
+     * If no value is present in the network, returns Double.NaN.
      *
      * @param network: Network on which the current is evaluated.
      * @return Current value on the network element.
