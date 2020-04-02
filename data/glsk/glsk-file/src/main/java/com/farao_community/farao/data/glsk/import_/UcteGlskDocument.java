@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.FaraoException;
+import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -68,9 +69,7 @@ public class UcteGlskDocument {
             if (glskSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element glskSeriesElement = (Element) glskSeriesNodeList.item(i);
                 UcteGlskSeries glskSeries = new UcteGlskSeries(glskSeriesElement);
-
                 rawlistUcteGlskSeries.add(glskSeries);
-
             }
         }
 
@@ -80,8 +79,8 @@ public class UcteGlskDocument {
             if (!ucteGlskSeriesByCountry.containsKey(currentArea)) {
                 ucteGlskSeriesByCountry.put(currentArea, glskSeries);
             } else {
-                UcteGlskSeries mergedSeries = mergeUcteGlskSeries(glskSeries, ucteGlskSeriesByCountry.get(currentArea));
-                ucteGlskSeriesByCountry.put(currentArea, mergedSeries);
+                UcteGlskSeries ucteGlskSeries = calculateUcteGlskSeries(glskSeries, ucteGlskSeriesByCountry.get(currentArea));
+                ucteGlskSeriesByCountry.put(currentArea, ucteGlskSeries);
             }
         }
 
@@ -105,25 +104,35 @@ public class UcteGlskDocument {
     }
 
     /**
-     * merge LSK and GSK of the same country
+     * merge LSK and GSK of the same country and Same Point Interval
+     * and add glsk Point for missed  intervals
      * @param incomingSeries incoming time series to be merged with old time series
-     * @param oldSeries current time series to be updated
+     * @param oldSeries      current time series to be updated
      * @return
      */
-    private UcteGlskSeries mergeUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
+    private UcteGlskSeries calculateUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
+        List<GlskPoint> glskPointListTobeAdded = new ArrayList();
+        List<Interval> oldPointsIntervalsList = new ArrayList<>();
         List<GlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
         List<GlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
         for (GlskPoint oldPoint : oldPoints) {
             for (GlskPoint incomingPoint : incomingPoints) {
                 if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
                     oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
-                    break;
+                } else {
+                    glskPointListTobeAdded = Collections.singletonList(incomingPoint);
+
                 }
             }
         }
+        oldPoints.forEach(oldPoint -> oldPointsIntervalsList.add(oldPoint.getPointInterval()));
+        glskPointListTobeAdded.forEach(glskPointToBeAdded -> {
+            if (!oldPointsIntervalsList.contains(glskPointToBeAdded.getPointInterval())) {
+                oldPoints.add(glskPointToBeAdded);
+            }
+        });
         return oldSeries;
     }
-
 
     /**
      * @return getter list of glsk point in the document
