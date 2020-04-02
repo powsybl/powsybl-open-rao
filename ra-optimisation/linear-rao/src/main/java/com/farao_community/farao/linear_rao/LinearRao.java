@@ -46,12 +46,53 @@ public class LinearRao implements RaoProvider {
         return "1.0.0";
     }
 
+    public CompletableFuture<RaoResult> run2(Network network,
+                                            Crac crac,
+                                            String variantId,
+                                            ComputationManager computationManager,
+                                            RaoParameters parameters) {
+        // qualityCheck(RaoParameters);
+
+        LinearRaoParameters linearRaoParameters = parameters.getExtension(LinearRaoParameters.class);
+
+        LinearRaoInitialSituation initialSituation = new LinearRaoInitialSituation(crac);
+
+        initialSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
+        initialSituation.completeResults();
+
+
+        // initialSituation.completeResults(crac)
+
+        // if ! doOptim() break
+
+        // initiate LP
+
+        /* for(it = ...) {
+
+            situation = new LinearRaoOptimizedSituation()
+
+            situation.solveLp(LP)
+            situation.evaluateSensiAndCost()
+
+
+
+
+         */
+
+
+
+    }
+
+
     @Override
     public CompletableFuture<RaoResult> run(Network network,
                                             Crac crac,
                                             String variantId,
                                             ComputationManager computationManager,
                                             RaoParameters parameters) {
+
+        ResultBuilder resultBuilder = new ResultBuilder(crac);
+
         // quality check
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
         if (!configQualityCheck.isEmpty()) {
@@ -78,7 +119,9 @@ public class LinearRao implements RaoProvider {
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
+
         double bestScore = 0;
+
         try {
             bestScore = getMinMargin(crac, currentSensitivityAnalysisResult);
         } catch (FaraoException e) {
@@ -87,13 +130,13 @@ public class LinearRao implements RaoProvider {
         }
 
         // Complete result extensions for pre optim variant
-        updateResultExtensions(crac, bestScore, preOptimVariant, currentSensitivityAnalysisResult);
-        fillPreOptimRangeActionResultsFromNetwork(crac, preOptimVariant, network);
+        resultBuilder.updateResultExtensions(bestScore, preOptimVariant, currentSensitivityAnalysisResult);
+        resultBuilder.fillPreOptimRangeActionResultsFromNetwork(preOptimVariant, network);
 
         // Check if we need to optimize Range Actions
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
-            updateResultExtensions(crac, bestScore, bestResultVariant, currentSensitivityAnalysisResult);
-            return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
+            resultBuilder.updateResultExtensions(bestScore, bestResultVariant, currentSensitivityAnalysisResult);
+            return CompletableFuture.completedFuture(resultBuilder.buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
         }
 
         // Initiate the LP
@@ -147,8 +190,8 @@ public class LinearRao implements RaoProvider {
         }
 
         resultVariantManager.deleteVariant(currentResultVariant);
-        updateResultExtensions(crac, bestScore, bestResultVariant, bestOptimSensitivityAnalysisResult);
-        return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
+        resultBuilder.updateResultExtensions(bestScore, bestResultVariant, bestOptimSensitivityAnalysisResult);
+        return CompletableFuture.completedFuture(resultBuilder.buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
     }
 
     //defined to be able to run unit tests
@@ -181,62 +224,4 @@ public class LinearRao implements RaoProvider {
         }
     }
 
-    private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        double minMargin = Double.POSITIVE_INFINITY;
-        for (Cnec cnec : crac.getCnecs()) {
-            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
-            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
-            if (Double.isNaN(margin)) {
-                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
-            }
-            minMargin = Math.min(minMargin, margin);
-        }
-        return minMargin;
-    }
-
-    private void updateCnecExtensions(Crac crac, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        crac.getCnecs().forEach(cnec -> {
-            CnecResultExtension cnecResultMap = cnec.getExtension(CnecResultExtension.class);
-            CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
-            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setThresholds(cnec);
-        });
-    }
-
-    //this method is only used for pre optim result (to store all the rangeAction initial setPoints)
-    private void fillPreOptimRangeActionResultsFromNetwork(Crac crac, String resultVariantId, Network network) {
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
-            double valueInNetwork = rangeAction.getCurrentValue(network);
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
-            rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
-            if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
-            }
-        }
-    }
-
-    private void updateResultExtensions(Crac crac, double minMargin, String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        updateCracExtension(crac, resultVariantId, minMargin);
-        updateCnecExtensions(crac, resultVariantId, systematicSensitivityAnalysisResult);
-        //The range action extensions are already updated by the solve method.
-        //The network action extensions are not to be updated by the linear rao. They will be updated by the search tree rao if required.
-    }
-
-    private void updateCracExtension(Crac crac, String resultVariantId, double minMargin) {
-        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
-        CracResult cracResult = cracResultMap.getVariant(resultVariantId);
-        cracResult.setCost(-minMargin);
-    }
-
-    private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(preOptimVariantId);
-        raoResult.setPostOptimVariantId(postOptimVariantId);
-        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ?
-            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
-        return raoResult;
-    }
 }
