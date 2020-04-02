@@ -80,7 +80,7 @@ public class LinearRao implements RaoProvider {
             currentSensitivityAnalysisResult = runWithParamSelection(network, crac, computationManager, linearRaoParameters);
         } catch (SensitivityComputationException e) { // Failure if some sensitivities are not computed
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
-            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE, useFallbackSensiParams));
         }
         double bestScore = 0;
         try {
@@ -174,7 +174,7 @@ public class LinearRao implements RaoProvider {
         if (!useFallbackSensiParams) { // with default parameters
             try {
                 return runSensi(network, crac, computationManager, parameters.getSensitivityComputationParameters());
-            } catch (SensitivityComputationException e1) {
+            } catch (SensitivityComputationException e) {
                 useFallbackSensiParams = true;
                 return runWithParamSelection(network, crac, computationManager, parameters);
             }
@@ -182,10 +182,11 @@ public class LinearRao implements RaoProvider {
             if (parameters.getFallbackSensiParameters() != null) {
                 try {
                     return runSensi(network, crac, computationManager, parameters.getFallbackSensiParameters());
-                } catch (SensitivityComputationException e2) {
+                } catch (SensitivityComputationException e) {
                     throw new SensitivityComputationException("Sensitivity computation failed with all sensitivity parameters.");
                 }
             } else {
+                useFallbackSensiParams = false; // in order to show in the export that no fallback computation was run
                 throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.");
             }
         }
@@ -272,7 +273,7 @@ public class LinearRao implements RaoProvider {
     }
 
     private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS, useFallbackSensiParams);
         raoResult.setPreOptimVariantId(preOptimVariantId);
         raoResult.setPostOptimVariantId(postOptimVariantId);
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ?

@@ -1,0 +1,6 @@
+{
+  "status" : "FAILURE",
+  "lastSensiParams" : "DEFAULT",
+  "preOptimVariantId" : "variant1",
+  "postOptimVariantId" : "variant2"
+}
