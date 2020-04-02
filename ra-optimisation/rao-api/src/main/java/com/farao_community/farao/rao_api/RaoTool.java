@@ -101,7 +101,6 @@ public class RaoTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path cracFile = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
-        String format = line.getOptionValue(OUTPUT_FORMAT_OPTION);
 
         //Network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
