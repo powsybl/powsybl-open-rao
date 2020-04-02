@@ -15,6 +15,7 @@ import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
@@ -34,7 +35,13 @@ import static java.lang.String.format;
  */
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
+    public enum ActiveSensiParameters {
+        DEFAULT,
+        FALLBACK
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
+    private ActiveSensiParameters activeSensiParameters;
 
     @Override
     public String getName() {
@@ -52,6 +59,8 @@ public class LinearRao implements RaoProvider {
                                             String variantId,
                                             ComputationManager computationManager,
                                             RaoParameters parameters) {
+        activeSensiParameters = ActiveSensiParameters.DEFAULT;
+
         // quality check
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
         if (!configQualityCheck.isEmpty()) {
@@ -71,10 +80,10 @@ public class LinearRao implements RaoProvider {
         SensitivityComputationParameters sensitivityComputationParameters = linearRaoParameters.getSensitivityComputationParameters();
 
         // Initiate sensitivity analysis results
-        SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-            .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
-        // Failure if some sensitivities are not computed
-        if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || currentSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+        SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult;
+        try {
+            currentSensitivityAnalysisResult = runWithParamSelection(network, crac, computationManager, linearRaoParameters);
+        } catch (SensitivityComputationException e) { // Failure if some sensitivities are not computed
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
@@ -117,11 +126,10 @@ public class LinearRao implements RaoProvider {
             }
 
             applyRAs(crac, network, currentResultVariant);
-            currentSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-                .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
 
-            // If some sensitivities are not computed, the bes result found so far is returned
-            if (currentSensitivityAnalysisResult.getStateSensiMap().containsValue(null)) {
+            try { // If some sensitivities are not computed, the best result found so far is returned
+                currentSensitivityAnalysisResult = runWithParamSelection(network, crac, computationManager, linearRaoParameters);
+            } catch (SensitivityComputationException e) {
                 break;
             }
 
@@ -149,6 +157,47 @@ public class LinearRao implements RaoProvider {
         resultVariantManager.deleteVariant(currentResultVariant);
         updateResultExtensions(crac, bestScore, bestResultVariant, bestOptimSensitivityAnalysisResult);
         return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
+    }
+
+    private SensitivityComputationParameters selectSensiParameters(LinearRaoParameters parameters) {
+
+        if (activeSensiParameters.equals(ActiveSensiParameters.DEFAULT)) {
+            return parameters.getSensitivityComputationParameters();
+        } else if (activeSensiParameters.equals(ActiveSensiParameters.FALLBACK) && parameters.getFallbackSensiParameters() != null) {
+            return parameters.getFallbackSensiParameters();
+        } else {
+            throw new SensitivityComputationException(String.format("No sensitivity parameters available for %s configuration.", activeSensiParameters.toString()));
+        }
+    }
+
+    private SystematicSensitivityAnalysisResult runSensi(Network network,
+                                                         Crac crac,
+                                                         ComputationManager computationManager,
+                                                         LinearRaoParameters parameters) {
+
+        // Run sensitivity analysis
+        SystematicSensitivityAnalysisResult sensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, selectSensiParameters(parameters));
+        if (sensitivityAnalysisResult.getStateSensiMap().containsValue(null) || sensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+            throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", activeSensiParameters.toString()));
+        } else {
+            return sensitivityAnalysisResult;
+        }
+    }
+
+    private SystematicSensitivityAnalysisResult runWithParamSelection(Network network,
+                                                                      Crac crac,
+                                                                      ComputationManager computationManager,
+                                                                      LinearRaoParameters parameters) {
+        try { // with default parameters
+            return runSensi(network, crac, computationManager, parameters);
+        } catch (SensitivityComputationException e1) {
+            activeSensiParameters = ActiveSensiParameters.FALLBACK;
+            try { // with fallback parameters
+                return runSensi(network, crac, computationManager, parameters);
+            } catch (SensitivityComputationException e2) {
+                throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.");
+            }
+        }
     }
 
     //defined to be able to run unit tests
