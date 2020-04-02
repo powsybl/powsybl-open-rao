@@ -20,32 +20,6 @@ public class ResultBuilder {
         this.crac = crac;
     }
 
-    void updateCnecExtensions(String resultVariantId, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        crac.getCnecs().forEach(cnec -> {
-            CnecResultExtension cnecResultMap = cnec.getExtension(CnecResultExtension.class);
-            CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
-            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setThresholds(cnec);
-        });
-    }
-
-    //this method is only used for pre optim result (to store all the rangeAction initial setPoints)
-    void fillPreOptimRangeActionResultsFromNetwork(String resultVariantId, Network network) {
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
-            double valueInNetwork = rangeAction.getCurrentValue(network);
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
-            rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
-            if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
-            }
-        }
-    }
-
-
-
     RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOptimVariantId);

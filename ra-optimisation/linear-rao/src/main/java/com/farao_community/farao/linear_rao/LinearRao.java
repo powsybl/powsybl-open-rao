@@ -59,29 +59,53 @@ public class LinearRao implements RaoProvider {
 
         LinearRaoInitialSituation initialSituation = new LinearRaoInitialSituation(crac);
         initialSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
-        initialSituation.completeResults();
-
-
-
-        // initialSituation.completeResults(crac)
+        if (initialSituation.getSensiStatus() != LinearRaoSituation.ComputationStatus.RUN_OK) {
+            initialSituation.deleteResultVariant();
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        }
 
         // if ! doOptim() break
+        if (skipOptim(linearRaoParameters, crac)) {
+            initialSituation.completeResults();
+            return CompletableFuture.completedFuture(buildRaoResult(initialSituation.getCost(), initialSituation.getResultVariant(), initialSituation.getResultVariant()));
+        }
 
         // initiate LP
+        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, initialSituation.getSystematicSensitivityAnalysisResult(), parameters);
+        linearRaoModeller.buildProblem();
 
-        /* for(it = ...) {
+        LinearRaoSituation bestSituation = initialSituation;
+        for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
+            LinearRaoOptimizedSituation currentSituation = new LinearRaoOptimizedSituation(crac);
 
-            situation = new LinearRaoOptimizedSituation()
+            currentSituation.solveLp(linearRaoModeller);
+            if (currentSituation.getLpStatus() != LinearRaoSituation.ComputationStatus.RUN_OK) {
+                currentSituation.deleteResultVariant();
+                return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+            }
 
-            situation.solveLp(LP)
-            situation.evaluateSensiAndCost()
+            if (bestSituation.sameRaResults(currentSituation)) {
+                currentSituation.deleteResultVariant();
+                break;
+            }
 
+            currentSituation.applyRAs(network);
+            currentSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
 
+            if (currentSituation.getCost() >= bestSituation.getCost()) {
+                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestSituation.getCost(), -currentSituation.getCost());
+                break;
+            }
 
+            bestSituation.deleteResultVariant();
+            bestSituation = currentSituation;
+            linearRaoModeller.updateProblem(network, currentSituation.getSystematicSensitivityAnalysisResult());
 
-         */
+        }
 
-
+        initialSituation.completeResults();
+        bestSituation.completeResults();
+        return CompletableFuture.completedFuture(buildRaoResult(bestSituation.getCost(), initialSituation.getResultVariant(), bestSituation.getResultVariant()));
 
     }
 
@@ -230,4 +254,16 @@ public class LinearRao implements RaoProvider {
         }
     }
 
+    private boolean skipOptim(LinearRaoParameters linearRaoParameters, Crac crac) {
+        return linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty();
+    }
+
+    private RaoResult buildRaoResult(double cost, String preOptimVariantId, String postOptimVariantId) {
+        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        raoResult.setPreOptimVariantId(preOptimVariantId);
+        raoResult.setPostOptimVariantId(postOptimVariantId);
+        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) -cost, cost <= 0 ?
+            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
+        return raoResult;
+    }
 }

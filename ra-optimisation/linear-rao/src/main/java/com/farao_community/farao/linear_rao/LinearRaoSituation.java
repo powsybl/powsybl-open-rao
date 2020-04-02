@@ -3,12 +3,14 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Unit;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import static java.lang.String.format;
@@ -35,12 +37,42 @@ class LinearRaoSituation {
         this.crac = crac;
     }
 
-    boolean compareRaResults(LinearRaoInitialSituation otherLinearRaoSituation) {
+    boolean sameRaResults(LinearRaoSituation otherLinearRaoSituation) {
+        String otherResultVariantId = otherLinearRaoSituation.getResultVariant();
+        //TODO: manage curative RA
+        String preventiveState = crac.getPreventiveState().getId();
+        for (RangeAction rangeAction : crac.getRangeActions()) {
+            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+            double value1 = rangeActionResultMap.getVariant(resultVariantId).getSetPoint(preventiveState);
+            double value2 = rangeActionResultMap.getVariant(otherResultVariantId).getSetPoint(preventiveState);
+            if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
+                return false;
+            }
+        }
         return true;
     }
 
-    void delete() {
+    void deleteResultVariant() {
+        crac.getExtension(ResultVariantManager.class).deleteVariant(resultVariantId);
+    }
 
+    void evaluateSensiAndCost(Network network, ComputationManager computationManager, SensitivityComputationParameters sensitivityComputationParameters) {
+
+        systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+            .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+
+        // Failure if some sensitivities are not computed
+        if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+            // delete()
+            sensiStatus = ComputationStatus.RUN_NOK;
+        } else {
+            cost = -getMinMargin();
+            sensiStatus = ComputationStatus.RUN_OK;
+        }
+    }
+
+    ComputationStatus getSensiStatus() {
+        return sensiStatus;
     }
 
     protected double getMinMargin() {
@@ -75,5 +107,17 @@ class LinearRaoSituation {
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setThresholds(cnec);
         });
+    }
+
+    double getCost() {
+        return cost;
+    }
+
+    String getResultVariant() {
+        return resultVariantId;
+    }
+
+    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        return systematicSensitivityAnalysisResult;
     }
 }

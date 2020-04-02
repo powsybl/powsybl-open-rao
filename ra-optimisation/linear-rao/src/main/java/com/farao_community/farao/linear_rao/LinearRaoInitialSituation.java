@@ -27,22 +27,6 @@ public final class LinearRaoInitialSituation extends LinearRaoSituation{
 
     }
 
-    void evaluateSensiAndCost(Network network, ComputationManager computationManager, SensitivityComputationParameters sensitivityComputationParameters) {
-
-        systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-            .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
-
-        // Failure if some sensitivities are not computed
-        if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
-            // delete()
-            sensiStatus = ComputationStatus.RUN_NOK;
-        } else {
-            cost = -getMinMargin();
-            sensiStatus = ComputationStatus.RUN_OK;
-        }
-    }
-
-
     void completeResults(Network network) {
         super.completeResults();
 
