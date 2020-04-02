@@ -129,5 +129,9 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.github.oliviercailloux</groupId>
+            <artifactId>google-or-tools</artifactId>
+        </dependency>
     </dependencies>
 </project>

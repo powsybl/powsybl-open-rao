@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
@@ -48,17 +48,17 @@ public class LinearRaoModellerTest {
     public void testOptimalSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
 
-        RaoComputationResult raoComputationResult = linearRaoModeller.solve("");
-        assertNotNull(raoComputationResult);
-        assertEquals(RaoComputationResult.Status.SUCCESS, raoComputationResult.getStatus());
+        RaoResult raoResult = linearRaoModeller.solve("");
+        assertNotNull(raoResult);
+        assertEquals(RaoResult.Status.SUCCESS, raoResult.getStatus());
     }
 
     @Test
     public void testUnboundedSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
 
-        RaoComputationResult raoComputationResult = linearRaoModeller.solve("");
-        assertNotNull(raoComputationResult);
-        assertEquals(RaoComputationResult.Status.FAILURE, raoComputationResult.getStatus());
+        RaoResult raoResult = linearRaoModeller.solve("");
+        assertNotNull(raoResult);
+        assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());
     }
 }

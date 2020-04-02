@@ -174,6 +174,7 @@ final class NetworkActionDeserializer {
         String operator = null;
         List<UsageRule> usageRules = new ArrayList<>();
         Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
+        List <Extension< NetworkAction >> extensions = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -207,11 +208,21 @@ final class NetworkActionDeserializer {
                     name = jsonParser.nextTextValue();
                     break;
 
+                case EXTENSIONS:
+                    jsonParser.nextToken();
+                    jsonParser.nextToken();
+                    extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
+                    break;
+
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
 
-        return new ComplexNetworkAction(id, name, operator, usageRules, elementaryNetworkActions);
+        ComplexNetworkAction networkAction = new ComplexNetworkAction(id, name, operator, usageRules, elementaryNetworkActions);
+        if (extensions != null) {
+            ExtensionsHandler.getExtensionsSerializers().addExtensions(networkAction, extensions);
+        }
+        return networkAction;
     }
 }

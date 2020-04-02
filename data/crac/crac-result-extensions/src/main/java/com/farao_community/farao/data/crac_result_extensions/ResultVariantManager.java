@@ -159,6 +159,18 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
     }
 
     /**
+     * Delete the variants with ids in variantIds.
+     * Remove the {@link Result} associated to the variants to be deleted of all the
+     * {@link AbstractResultExtension} of the Crac.
+     * Can take any number of arguments.
+     */
+    public void deleteVariants(String... variantIds) {
+        for (String variantId : variantIds) {
+            deleteVariant(variantId);
+        }
+    }
+
+    /**
      * Computes a string that is not present in the set, creates a new variant from that string, and returns the string.
      */
     public String createNewUniqueVariantId() {
