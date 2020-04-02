@@ -6,24 +6,40 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
-import com.farao_community.farao.ra_optimisation.json.JsonRaoComputationResult;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
+import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
+import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.search_tree_rao.mock.LinearRaoMock;
+import com.farao_community.farao.search_tree_rao.mock.RaoRunnerMock;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Collections;
+import java.nio.file.FileSystem;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Rao.class)
 public class TreeTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
@@ -32,58 +48,61 @@ public class TreeTest {
     public void buildOutputTest() {
 
         // Get RaoComputationResults
-        RaoComputationResult raoResultRoot = JsonRaoComputationResult.read(getClass().getResourceAsStream("/RaoComputationResultRoot.json"));
-        RaoComputationResult raoResultOptimal = JsonRaoComputationResult.read(getClass().getResourceAsStream("/RaoComputationResultOptimal.json"));
+        RaoResult rootRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        rootRaoResult.setPreOptimVariantId("rootPreOptim");
+        rootRaoResult.setPostOptimVariantId("rootPostOptim");
+        RaoResult optimalRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        optimalRaoResult.setPreOptimVariantId("leafPreOptim");
+        optimalRaoResult.setPostOptimVariantId("leafPostOptim");
 
         // Mock root leaf
-        Leaf leafRoot = Mockito.mock(Leaf.class);
-        Mockito.when(leafRoot.getRaoResult()).thenReturn(raoResultRoot);
+        Leaf rootLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(rootLeaf.getRaoResult()).thenReturn(rootRaoResult);
 
         // Mock optimal Leaf
-        NetworkAction na = Mockito.mock(NetworkAction.class);
-        Mockito.when(na.getId()).thenReturn("RA1");
-        Mockito.when(na.getName()).thenReturn("topological_RA");
-
-        Leaf leafOptimal = Mockito.mock(Leaf.class);
-        Mockito.when(leafOptimal.getRaoResult()).thenReturn(raoResultOptimal);
-        Mockito.when(leafOptimal.getNetworkActions()).thenReturn(Collections.singletonList(na));
-        Mockito.when(leafOptimal.getCost()).thenReturn(0.0);
+        Leaf optimalLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(optimalLeaf.getRaoResult()).thenReturn(optimalRaoResult);
 
         // build output
-        RaoComputationResult result = Tree.buildOutput(leafRoot, leafOptimal);
+        RaoResult result = Tree.buildOutput(rootLeaf, optimalLeaf);
 
-        assertEquals(2, result.getPreContingencyResult().getMonitoredBranchResults().size());
-        assertEquals("MONITORED_BRANCH_1", result.getPreContingencyResult().getMonitoredBranchResults().get(0).getId());
-        assertEquals(105.0, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPreOptimisationFlow(), DOUBLE_TOLERANCE);
-        assertEquals(95.0, result.getPreContingencyResult().getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
-
-        assertEquals(2, result.getContingencyResults().size());
-        assertEquals("CONTINGENCY_1", result.getContingencyResults().get(0).getId());
-        assertEquals("MONITORED_BRANCH_1_CO_1", result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getId());
-        assertEquals(115.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPreOptimisationFlow(), DOUBLE_TOLERANCE);
-        assertEquals(98.0, result.getContingencyResults().get(0).getMonitoredBranchResults().get(0).getPostOptimisationFlow(), DOUBLE_TOLERANCE);
-
-        assertEquals(2, result.getPreContingencyResult().getRemedialActionResults().size());
-        assertEquals("RA1", result.getPreContingencyResult().getRemedialActionResults().get(0).getId());
-        assertEquals("PRA_PST_BE", result.getPreContingencyResult().getRemedialActionResults().get(1).getId());
-
-        assertNotNull(result.getExtension(SearchTreeRaoResult.class));
-        assertEquals(SearchTreeRaoResult.ComputationStatus.SECURE, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
-        assertEquals(SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED, result.getExtension(SearchTreeRaoResult.class).getStopCriterion());
+        assertTrue(result.isSuccessful());
+        assertEquals("rootPreOptim", result.getPreOptimVariantId());
+        assertEquals("leafPostOptim", result.getPostOptimVariantId());
     }
 
     @Test
-    public void brokenRootSearchTest() {
+    public void brokenRootSearchTest() throws ExecutionException, InterruptedException {
         Network network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        RaoComputationResult result;
-        try {
-            result = Tree.search(network, Mockito.mock(Crac.class), "", Mockito.mock(RaoParameters.class)).get();
-            assertEquals(RaoComputationResult.Status.FAILURE, result.getStatus());
-            assertEquals(SearchTreeRaoResult.ComputationStatus.ERROR, result.getExtension(SearchTreeRaoResult.class).getComputationStatus());
-        } catch (Exception e) {
-            throw new AssertionError();
-        }
+        RaoResult result;
+        result = Tree.search(network, Mockito.mock(Crac.class), "", Mockito.mock(RaoParameters.class)).get();
+        assertEquals(RaoResult.Status.FAILURE, result.getStatus());
+    }
+
+    @Test
+    public void searchTest() throws ExecutionException, InterruptedException {
+        SimpleCrac crac = new SimpleCrac("id");
+        crac.addState(new SimpleState(Optional.empty(), new Instant("inst", 0)));
+        NetworkElement networkElement = new NetworkElement("BBE1AA1  BBE2AA1  1");
+        crac.addNetworkElement(networkElement);
+        Topology topo = new Topology("topo", networkElement, ActionType.OPEN);
+        crac.addNetworkAction(topo);
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        crac.synchronize(network);
+        String referenceNetworkVariant = network.getVariantManager().getWorkingVariantId();
+
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        RaoParameters raoParameters = RaoParameters.load(platformConfig);
+
+        PowerMockito.mockStatic(Rao.class);
+        when(Rao.find(Mockito.anyString())).thenReturn(new RaoRunnerMock(new LinearRaoMock()));
+
+        RaoResult raoResult = Tree.search(network, crac, referenceNetworkVariant, raoParameters).get();
+        String postOptId = raoResult.getPostOptimVariantId();
+        String prevStateId = crac.getPreventiveState().getId();
+        assertFalse(topo.getExtension(NetworkActionResultExtension.class).getVariant(postOptId).isActivated(prevStateId));
     }
 }

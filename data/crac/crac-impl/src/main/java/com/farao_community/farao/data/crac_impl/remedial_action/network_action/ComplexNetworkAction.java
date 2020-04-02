@@ -27,7 +27,7 @@ import java.util.Set;
  */
 @JsonTypeName("complex-network-action")
 @JsonSerialize(using = ComplexNetworkActionSerializer.class)
-public class ComplexNetworkAction extends AbstractNetworkAction<ComplexNetworkAction> {
+public class ComplexNetworkAction extends AbstractNetworkAction {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
     @JsonCreator

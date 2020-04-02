@@ -22,7 +22,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("hvdc-setpoint")
-public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction<HvdcSetpoint> {
+public final class HvdcSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
     public HvdcSetpoint(@JsonProperty("id") String id,

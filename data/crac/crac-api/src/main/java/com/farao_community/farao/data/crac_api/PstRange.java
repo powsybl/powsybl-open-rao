@@ -5,7 +5,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface PstRange<I extends PstRange<I>> extends RangeAction<I> {
+public interface PstRange extends RangeAction {
     int computeTapPosition(double finalAngle);
 
     int getCurrentTapPosition(Network network, RangeDefinition rangeDefinition);

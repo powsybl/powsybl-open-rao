@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstWithRangeSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-@JsonSerialize(using = PstWithRangeSerializer.class)
-public final class PstWithRange extends AbstractElementaryRangeAction<PstWithRange> implements PstRange<PstWithRange> {
+@JsonSerialize(using = RangeActionSerializer.class)
+public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;

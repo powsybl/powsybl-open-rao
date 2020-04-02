@@ -11,7 +11,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.json.serializers.ComplexContingencySerializer;
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.iidm.network.Branch;
@@ -27,15 +29,12 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("complex-contingency")
-@JsonIdentityInfo(scope = ComplexContingency.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonSerialize(using = ComplexContingencySerializer.class)
 public class ComplexContingency extends AbstractIdentifiable implements Contingency {
 
-    @JsonProperty("networkElements")
     private Set<NetworkElement> networkElements;
 
-    @JsonCreator
-    public ComplexContingency(@JsonProperty("id") String id,  @JsonProperty("name") String name,
-                              @JsonProperty("networkElements") final Set<NetworkElement> networkElements) {
+    public ComplexContingency(String id, String name, final Set<NetworkElement> networkElements) {
         super(id, name);
         this.networkElements = networkElements;
     }

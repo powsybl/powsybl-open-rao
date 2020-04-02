@@ -1,0 +1,5 @@
+{
+  "status" : "FAILURE",
+  "preOptimVariantId" : "var1",
+  "postOptimVariantId" : "var2"
+}

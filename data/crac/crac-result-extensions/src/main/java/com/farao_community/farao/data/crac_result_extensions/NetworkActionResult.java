@@ -7,6 +7,11 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +19,15 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@JsonTypeName("network-action-result")
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class NetworkActionResult implements Result {
     protected Map<String, Boolean> activationMap;
+
+    @JsonCreator
+    public NetworkActionResult(@JsonProperty("activationMap") Map<String, Boolean> activationMap) {
+        this.activationMap = activationMap;
+    }
 
     public NetworkActionResult(Set<String> stateIds) {
         activationMap = new HashMap<>();

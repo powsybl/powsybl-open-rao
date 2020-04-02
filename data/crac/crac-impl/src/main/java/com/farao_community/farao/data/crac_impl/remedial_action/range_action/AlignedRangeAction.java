@@ -31,7 +31,7 @@ import java.util.*;
  */
 @JsonTypeName("aligned-range-action")
 @JsonSerialize(using = AlignedRangeActionSerializer.class)
-public class AlignedRangeAction extends AbstractRangeAction<AlignedRangeAction> implements RangeAction<AlignedRangeAction> {
+public class AlignedRangeAction extends AbstractRangeAction {
     public static final int TEMP_VALUE_ARA = 0;
 
     @JsonProperty("networkElements")

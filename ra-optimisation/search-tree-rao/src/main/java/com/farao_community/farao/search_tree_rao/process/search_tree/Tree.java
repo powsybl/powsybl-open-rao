@@ -6,19 +6,18 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.ra_optimisation.*;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.search_tree_rao.SearchTreeRaoResult;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -38,22 +37,27 @@ public final class Tree {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    public static CompletableFuture<RaoComputationResult> search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+    public static CompletableFuture<RaoResult> search(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager == null) {
+            resultVariantManager = new ResultVariantManager();
+            crac.addExtension(ResultVariantManager.class, resultVariantManager);
+        }
+
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
         if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
-            RaoComputationResult raoComputationResult = new RaoComputationResult(RaoComputationResult.Status.FAILURE);
-            raoComputationResult.addExtension(SearchTreeRaoResult.class, new SearchTreeRaoResult(SearchTreeRaoResult.ComputationStatus.ERROR, SearchTreeRaoResult.StopCriterion.DIVERGENCE));
-            return CompletableFuture.completedFuture(raoComputationResult);
+            RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
+            return CompletableFuture.completedFuture(raoResult);
         }
 
         Leaf optimalLeaf = rootLeaf;
         boolean hasImproved = true;
 
         //TODO: generalize to handle different stop criterion
-        while (optimalLeaf.getCost() > 0 && hasImproved) {
+        while (optimalLeaf.getCost(crac) > 0 && hasImproved) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
@@ -63,13 +67,18 @@ public final class Tree {
 
             //TODO: manage parallel computation
             generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, referenceNetworkVariant, parameters));
+            generatedLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS && currentLeaf.getCost() < optimalLeaf.getCost()) {
+                if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
                     hasImproved = true;
+                    resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
                     optimalLeaf = currentLeaf;
+                } else {
+                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
                 }
+                resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
             }
         }
 
@@ -77,76 +86,10 @@ public final class Tree {
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
     }
 
-    static RaoComputationResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
-
-        RaoComputationResult output = new RaoComputationResult(optimalLeaf.getRaoResult().getStatus(), buildPreContingencyResult(rootLeaf, optimalLeaf));
-
-        optimalLeaf.getRaoResult().getContingencyResults().forEach(contingencyResult ->
-                output.addContingencyResult(buildContingencyResult(contingencyResult, rootLeaf)));
-
-        output.addExtension(SearchTreeRaoResult.class, buildExtension(optimalLeaf));
-
-        return output;
-    }
-
-    private static PreContingencyResult buildPreContingencyResult(Leaf rootLeaf, Leaf optimalLeaf) {
-        RaoComputationResult outputRoot = rootLeaf.getRaoResult();
-        RaoComputationResult outputOptimal = optimalLeaf.getRaoResult();
-
-        List<MonitoredBranchResult> monitoredBranchResultList = new ArrayList<>();
-        List<RemedialActionResult> remedialActionResultList = new ArrayList<>();
-
-        // preventive monitored branches
-        outputRoot.getPreContingencyResult().getMonitoredBranchResults().forEach(mbrRoot -> {
-            double preOptimisationFlow = mbrRoot.getPreOptimisationFlow();
-            double postOptimisationFlow = outputOptimal.getPreContingencyResult().getMonitoredBranchResults().stream()
-                    .filter(mbrOptimal -> mbrOptimal.getId().equals(mbrRoot.getId())).findAny().orElseThrow(FaraoException::new)
-                    .getPostOptimisationFlow();
-            monitoredBranchResultList.add(new MonitoredBranchResult(mbrRoot.getId(), mbrRoot.getName(), mbrRoot.getBranchId(), mbrRoot.getMaximumFlow(), preOptimisationFlow, postOptimisationFlow));
-        });
-
-        // preventive Network Actions
-        optimalLeaf.getNetworkActions().forEach(na -> remedialActionResultList.add(
-                new RemedialActionResult(na.getId(), na.getName(), true, buildRemedialActionElementResult(na))));
-
-        // preventive Range Actions
-        remedialActionResultList.addAll(optimalLeaf.getRaoResult().getPreContingencyResult().getRemedialActionResults());
-
-        return new PreContingencyResult(monitoredBranchResultList, remedialActionResultList);
-    }
-
-    private static ContingencyResult buildContingencyResult(ContingencyResult optimalContingencyResult, Leaf rootLeaf) {
-
-        RaoComputationResult outputRoot = rootLeaf.getRaoResult();
-        List<MonitoredBranchResult> monitoredBranchResultList = new ArrayList<>();
-
-        // N-1 monitored branches
-        optimalContingencyResult.getMonitoredBranchResults().forEach(mbr -> {
-            double preOptimisationFlow = outputRoot.getContingencyResults().stream()
-                    .filter(cr -> cr.getId().equals(optimalContingencyResult.getId())).findFirst().orElseThrow(FaraoException::new)
-                    .getMonitoredBranchResults().stream()
-                    .filter(mbr2 -> mbr2.getId().equals(mbr.getId())).findAny().orElseThrow(FaraoException::new)
-                    .getPreOptimisationFlow();
-            double postOptimisationFlow = mbr.getPostOptimisationFlow();
-            monitoredBranchResultList.add(new MonitoredBranchResult(mbr.getId(), mbr.getName(), mbr.getBranchId(), mbr.getMaximumFlow(), preOptimisationFlow, postOptimisationFlow));
-        });
-
-        // no curative RA yet
-        return new ContingencyResult(optimalContingencyResult.getId(), optimalContingencyResult.getName(), monitoredBranchResultList);
-    }
-
-    private static List<RemedialActionElementResult> buildRemedialActionElementResult(NetworkAction na) {
-        // Return always topological remedial action element result with state "OPEN".
-        // PST setpoints appears as topological remedial action as they cannot be handled
-        // differently with the current RaoComputationResult object
-        ArrayList<RemedialActionElementResult> raer = new ArrayList<>();
-        raer.add(new TopologicalActionElementResult(na.getId(), TopologicalActionElementResult.TopologicalState.OPEN));
-        return raer;
-    }
-
-    private static SearchTreeRaoResult buildExtension(Leaf optimalLeaf) {
-        SearchTreeRaoResult.ComputationStatus computationStatus = optimalLeaf.getCost() > 0 ? SearchTreeRaoResult.ComputationStatus.UNSECURE : SearchTreeRaoResult.ComputationStatus.SECURE;
-        SearchTreeRaoResult.StopCriterion stopCriterion = SearchTreeRaoResult.StopCriterion.OPTIMIZATION_FINISHED;
-        return new SearchTreeRaoResult(computationStatus, stopCriterion);
+    static RaoResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
+        RaoResult raoResult = new RaoResult(optimalLeaf.getRaoResult().getStatus());
+        raoResult.setPreOptimVariantId(rootLeaf.getRaoResult().getPreOptimVariantId());
+        raoResult.setPostOptimVariantId(optimalLeaf.getRaoResult().getPostOptimVariantId());
+        return raoResult;
     }
 }

@@ -24,7 +24,7 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("hvdc-range")
-public final class HvdcRange extends AbstractElementaryRangeAction<HvdcRange> {
+public final class HvdcRange extends AbstractElementaryRangeAction {
 
     protected static int hvdcRangeTempValue = 0;
 

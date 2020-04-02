@@ -18,10 +18,12 @@ import java.util.Map;
 public class SystematicSensitivityAnalysisResult {
     private Map<State, SensitivityComputationResults> stateSensiMap;
     private Map<Cnec, Double> cnecFlowMap;
+    private Map<Cnec, Double> cnecIntensityMap;
 
-    public SystematicSensitivityAnalysisResult(Map<State, SensitivityComputationResults> stateSensiMap, Map<Cnec, Double> cnecFlowMap) {
+    public SystematicSensitivityAnalysisResult(Map<State, SensitivityComputationResults> stateSensiMap, Map<Cnec, Double> cnecFlowMap, Map<Cnec, Double> cnecIntensityMap) {
         this.stateSensiMap = stateSensiMap;
         this.cnecFlowMap = cnecFlowMap;
+        this.cnecIntensityMap = cnecIntensityMap;
     }
 
     public Map<State, SensitivityComputationResults> getStateSensiMap() {
@@ -30,6 +32,10 @@ public class SystematicSensitivityAnalysisResult {
 
     public Map<Cnec, Double> getCnecFlowMap() {
         return cnecFlowMap;
+    }
+
+    public Map<Cnec, Double> getCnecIntensityMap() {
+        return cnecIntensityMap;
     }
 
 }

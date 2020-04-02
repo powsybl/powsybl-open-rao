@@ -27,7 +27,7 @@ import java.util.List;
  */
 @JsonTypeName("pst-setpoint")
 @JsonSerialize(using = PstSetPointSerializer.class)
-public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction<PstSetpoint> {
+public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,

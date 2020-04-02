@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_api;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.powsybl.commons.Versionable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -29,5 +28,5 @@ public interface RaoProvider extends Versionable {
      * @param parameters: RAO parameters.
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
-    CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters);
+    CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters);
 }

@@ -7,12 +7,12 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoResult;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public abstract class AbstractPostProcessor {
 
-    protected abstract void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoComputationResult raoComputationResult);
+    protected abstract void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String variantId);
 }
