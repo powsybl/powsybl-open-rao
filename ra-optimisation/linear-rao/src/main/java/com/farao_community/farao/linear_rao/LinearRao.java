@@ -163,11 +163,11 @@ public class LinearRao implements RaoProvider {
                                                                                  Crac crac,
                                                                                  ComputationManager computationManager,
                                                                                  SensitivityComputationParameters parameters,
-                                                                                 AtomicBoolean useFallbackSensiParams) {
+                                                                                 boolean useFallbackSensiParams) {
         SystematicSensitivityAnalysisResult sensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, parameters);
         // Failure if some sensitivities are not computed
         if (sensitivityAnalysisResult.getStateSensiMap().containsValue(null) || sensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
-            throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", useFallbackSensiParams.get() ? "fallback" : "default"));
+            throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", useFallbackSensiParams ? "fallback" : "default"));
         } else {
             return sensitivityAnalysisResult;
         }
@@ -180,7 +180,7 @@ public class LinearRao implements RaoProvider {
                                                                                                      AtomicBoolean useFallbackSensiParams) {
         if (!useFallbackSensiParams.get()) { // with default parameters
             try {
-                return runSystematicSensitivityAnalysis(network, crac, computationManager, parameters.getSensitivityComputationParameters(), useFallbackSensiParams);
+                return runSystematicSensitivityAnalysis(network, crac, computationManager, parameters.getSensitivityComputationParameters(), useFallbackSensiParams.get());
             } catch (SensitivityComputationException e) {
                 useFallbackSensiParams.set(true);
                 return runSystematicSensitivityAnalysisWithParametersSwitch(network, crac, computationManager, parameters, useFallbackSensiParams);
@@ -189,7 +189,7 @@ public class LinearRao implements RaoProvider {
             if (parameters.getFallbackSensiParameters() != null) {
                 try {
                     LOGGER.warn("Fallback sensitivity parameters are used.");
-                    return runSystematicSensitivityAnalysis(network, crac, computationManager, parameters.getFallbackSensiParameters(), useFallbackSensiParams);
+                    return runSystematicSensitivityAnalysis(network, crac, computationManager, parameters.getFallbackSensiParameters(), useFallbackSensiParams.get());
                 } catch (SensitivityComputationException e) {
                     throw new SensitivityComputationException("Sensitivity computation failed with all sensitivity parameters.");
                 }
