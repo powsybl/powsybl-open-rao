@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
+import com.farao_community.farao.linear_rao.engines.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -53,9 +55,9 @@ public class LinearRao implements RaoProvider {
         LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 
         // evaluate initial sensitivity coefficients and costs on the initial network situation
-        LinearRaoInitialSituation initialSituation = new LinearRaoInitialSituation(crac);
+        InitialSituation initialSituation = new InitialSituation(crac);
         initialSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
-        if (initialSituation.getSensiStatus() != AbstractLinearRaoSituation.ComputationStatus.RUN_OK) {
+        if (initialSituation.getSensiStatus() != AbstractSituation.ComputationStatus.RUN_OK) {
             initialSituation.deleteResultVariant();
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
@@ -66,15 +68,15 @@ public class LinearRao implements RaoProvider {
         }
 
         // initiate LP
-        LinearRaoModeller linearRaoModeller = createLinearRaoModeller(crac, network, initialSituation.getSystematicSensitivityAnalysisResult(), raoParameters);
-        linearRaoModeller.buildProblem();
+        LinearOptimisationEngine linearOptimisationEngine = createLinearRaoModeller(crac, network, initialSituation.getSystematicSensitivityAnalysisResult(), raoParameters);
+        linearOptimisationEngine.buildProblem();
 
-        AbstractLinearRaoSituation bestSituation = initialSituation;
+        AbstractSituation bestSituation = initialSituation;
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
-            LinearRaoOptimizedSituation currentSituation = new LinearRaoOptimizedSituation(crac);
+            OptimizedSituation currentSituation = new OptimizedSituation(crac);
 
-            currentSituation.solveLp(linearRaoModeller);
-            if (currentSituation.getLpStatus() != AbstractLinearRaoSituation.ComputationStatus.RUN_OK) {
+            currentSituation.solveLp(linearOptimisationEngine);
+            if (currentSituation.getLpStatus() != AbstractSituation.ComputationStatus.RUN_OK) {
                 currentSituation.deleteResultVariant();
                 return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
             }
@@ -94,7 +96,7 @@ public class LinearRao implements RaoProvider {
 
             bestSituation.deleteResultVariant();
             bestSituation = currentSituation;
-            linearRaoModeller.updateProblem(network, currentSituation.getSystematicSensitivityAnalysisResult());
+            linearOptimisationEngine.updateProblem(network, currentSituation.getSystematicSensitivityAnalysisResult());
 
         }
 
@@ -109,13 +111,11 @@ public class LinearRao implements RaoProvider {
         }
     }
 
-
-    //defined to be able to run unit tests
-    LinearRaoModeller createLinearRaoModeller(Crac crac,
-                                              Network network,
-                                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                                              RaoParameters raoParameters) {
-        return new LinearRaoModeller(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), raoParameters);
+    LinearOptimisationEngine createLinearRaoModeller(Crac crac,
+                                                     Network network,
+                                                     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                                                     RaoParameters raoParameters) {
+        return new LinearOptimisationEngine(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), raoParameters);
     }
 
     private boolean skipOptim(LinearRaoParameters linearRaoParameters, Crac crac) {

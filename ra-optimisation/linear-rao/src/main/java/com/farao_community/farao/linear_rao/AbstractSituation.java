@@ -21,16 +21,16 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import static java.lang.String.format;
 
 /**
- * An AbstractLinearRaoSituation includes a set of information associated to a
- * given network situation (i.e. a given combination of RangeActions set-points).
- * An AbstractLinearRaoSituation also embeds some methods enabling to do some
+ * An AbstractSituation includes a set of information associated to a given
+ * network situation (i.e. a given combination of RangeActions set-points).
+ * An AbstractSituation also embeds some methods enabling to do some
  * computation on this network situation. The computation common to all
- * AbstractLinearRaoSituation is a systematic sensitivity analysis.
+ * AbstractSituation is a systematic sensitivity analysis.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-abstract class AbstractLinearRaoSituation {
+abstract class AbstractSituation {
 
     enum ComputationStatus {
         NOT_RUN,
@@ -67,7 +67,7 @@ abstract class AbstractLinearRaoSituation {
     /**
      * constructor
      */
-    AbstractLinearRaoSituation(Crac crac) {
+    AbstractSituation(Crac crac) {
         sensiStatus = ComputationStatus.NOT_RUN;
         this.crac = crac;
         this.cost = Double.NaN;
@@ -104,7 +104,7 @@ abstract class AbstractLinearRaoSituation {
 
     /**
      * evaluate the sensitivity coefficients and the objective function value of the
-     * AbstractLinearRaoSituation. The results are written in the attributes
+     * AbstractSituation. The results are written in the attributes
      * systematicSensitivityAnalysisResult, cost and in the Crac variant with id
      * resultVariantId.
      */
@@ -126,10 +126,10 @@ abstract class AbstractLinearRaoSituation {
 
     /**
      * Compare the network situations (i.e. the RangeActions set-points) of two
-     * AbstractLinearRaoSituation. Returns true if the situations are identical,
-     * and false if they are not.
+     * AbstractSituation. Returns true if the situations are identical, and false
+     * if they are not.
      */
-    boolean sameRaResults(AbstractLinearRaoSituation otherLinearRaoSituation) {
+    boolean sameRaResults(AbstractSituation otherLinearRaoSituation) {
         String otherResultVariantId = otherLinearRaoSituation.getResultVariant();
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {

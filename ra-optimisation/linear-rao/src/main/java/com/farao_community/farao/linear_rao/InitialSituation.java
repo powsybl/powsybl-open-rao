@@ -15,17 +15,17 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.powsybl.iidm.network.Network;
 
 /**
- * The LinearRaoInitialSituation is the first AbstractLinearRaoSituation handled
- * by the LinearRao, it is the situation with the RangeActions set-points initially
- * set in the input Network. That is to say the situation before the optimisation of
- * the RangeActions set-points.
+ * The InitialSituation is the first AbstractSituation handled by the LinearRao,
+ * it is the situation with the RangeActions set-points initially set in the input
+ * Network. That is to say the situation before the optimisation of the RangeActions
+ * set-points.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-final class LinearRaoInitialSituation extends AbstractLinearRaoSituation {
+final class InitialSituation extends AbstractSituation {
 
-    LinearRaoInitialSituation(Crac crac) {
+    InitialSituation(Crac crac) {
         super(crac);
     }
 
@@ -59,6 +59,6 @@ final class LinearRaoInitialSituation extends AbstractLinearRaoSituation {
 
     @Override
     void deleteResultVariant() {
-        //We don't want to delete the pre Optim result variant.
+        //We don't want to delete the pre-optimisation result variant.
     }
 }

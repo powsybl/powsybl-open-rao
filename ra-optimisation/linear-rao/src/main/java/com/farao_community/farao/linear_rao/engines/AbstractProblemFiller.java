@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.linear_rao.engines;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}

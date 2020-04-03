@@ -4,7 +4,7 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.post_processors;
+package com.farao_community.farao.linear_rao.engines.post_processors;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.linear_rao.LinearRaoData;
-import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.engines.LinearRaoData;
+import com.farao_community.farao.linear_rao.engines.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPConstraint;

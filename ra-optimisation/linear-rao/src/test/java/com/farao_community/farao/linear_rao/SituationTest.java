@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
@@ -38,7 +39,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystematicSensitivityAnalysisService.class})
-public class LinearRaoSituationTest {
+public class SituationTest {
     private static final double PRECISION_FLOW = 1.0;
     private static final double PRECISION_SET_POINT = 1.0;
 
@@ -67,22 +68,22 @@ public class LinearRaoSituationTest {
 
     @Test
     public void initialSituationTest() {
-        LinearRaoInitialSituation linearRaoInitialSituation = new LinearRaoInitialSituation(crac);
+        InitialSituation initialSituation = new InitialSituation(crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
 
-        linearRaoInitialSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
-        assertEquals(-488, linearRaoInitialSituation.getCost(), PRECISION_FLOW);
+        initialSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
+        assertEquals(-488, initialSituation.getCost(), PRECISION_FLOW);
 
-        String variant = linearRaoInitialSituation.getResultVariant();
+        String variant = initialSituation.getResultVariant();
         String preventive = crac.getPreventiveState().getId();
         assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
         assertEquals(0, crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive), PRECISION_SET_POINT);
 
-        linearRaoInitialSituation.deleteResultVariant();
+        initialSituation.deleteResultVariant();
         // We don't want to delete the initial variant
         assertEquals(1, resultVariantManager.getVariants().size());
     }
@@ -90,28 +91,28 @@ public class LinearRaoSituationTest {
     @Test
     public void optimizedSituationTest() {
         //Needed to create the variant manager
-        new LinearRaoInitialSituation(crac);
+        new InitialSituation(crac);
 
-        LinearRaoOptimizedSituation linearRaoOptimizedSituation = new LinearRaoOptimizedSituation(crac);
+        OptimizedSituation optimizedSituation = new OptimizedSituation(crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(2, resultVariantManager.getVariants().size());
 
-        LinearRaoModeller linearRaoModeller = Mockito.mock(LinearRaoModeller.class);
-        Mockito.when(linearRaoModeller.solve(Mockito.anyString())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
-        linearRaoOptimizedSituation.solveLp(linearRaoModeller);
+        LinearOptimisationEngine linearOptimisationEngine = Mockito.mock(LinearOptimisationEngine.class);
+        Mockito.when(linearOptimisationEngine.solve(Mockito.anyString())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
+        optimizedSituation.solveLp(linearOptimisationEngine);
 
-        linearRaoOptimizedSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
-        assertEquals(-488, linearRaoOptimizedSituation.getCost(), PRECISION_FLOW);
+        optimizedSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
+        assertEquals(-488, optimizedSituation.getCost(), PRECISION_FLOW);
 
-        String variant = linearRaoOptimizedSituation.getResultVariant();
+        String variant = optimizedSituation.getResultVariant();
         String preventive = crac.getPreventiveState().getId();
         assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
         assertTrue(Double.isNaN(crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive)));
 
-        linearRaoOptimizedSituation.deleteResultVariant();
+        optimizedSituation.deleteResultVariant();
         assertEquals(1, resultVariantManager.getVariants().size());
     }
 }

@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao.fillers;
+package com.farao_community.farao.linear_rao.engines.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.linear_rao.AbstractProblemFiller;
-import com.farao_community.farao.linear_rao.LinearRaoData;
-import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.engines.AbstractProblemFiller;
+import com.farao_community.farao.linear_rao.engines.LinearRaoData;
+import com.farao_community.farao.linear_rao.engines.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 

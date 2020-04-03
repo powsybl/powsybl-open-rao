@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -158,11 +159,11 @@ public class LinearRaoTest {
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2, new HashMap<>()),
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3, new HashMap<>()));
 
-        LinearRaoModeller linearRaoModellerMock = Mockito.mock(LinearRaoModeller.class);
-        Mockito.when(linearRaoModellerMock.solve(Mockito.any())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
+        LinearOptimisationEngine linearOptimisationEngineMock = Mockito.mock(LinearOptimisationEngine.class);
+        Mockito.when(linearOptimisationEngineMock.solve(Mockito.any())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
 
         LinearRao linearRaoSpy = Mockito.spy(linearRao);
-        Mockito.doReturn(linearRaoModellerMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doReturn(linearOptimisationEngineMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         CompletableFuture<RaoResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
 
         assertNotNull(linearRaoResultCF);

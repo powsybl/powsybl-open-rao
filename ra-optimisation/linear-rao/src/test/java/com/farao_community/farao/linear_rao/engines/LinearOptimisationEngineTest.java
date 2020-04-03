@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.linear_rao.engines;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -27,8 +27,8 @@ import static org.junit.Assert.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class LinearRaoModellerTest {
-    private LinearRaoModeller linearRaoModeller;
+public class LinearOptimisationEngineTest {
+    private LinearOptimisationEngine linearOptimisationEngine;
     private LinearRaoProblem linearRaoProblemMock;
 
     @Before
@@ -41,14 +41,14 @@ public class LinearRaoModellerTest {
         SystematicSensitivityAnalysisResult sensitivityResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
         RaoParameters raoParametersMock = Mockito.mock(RaoParameters.class);
 
-        linearRaoModeller = new LinearRaoModeller(crac, networkMock, sensitivityResultMock, linearRaoProblemMock, raoParametersMock);
+        linearOptimisationEngine = new LinearOptimisationEngine(crac, networkMock, sensitivityResultMock, linearRaoProblemMock, raoParametersMock);
     }
 
     @Test
     public void testOptimalSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
 
-        RaoResult raoResult = linearRaoModeller.solve("");
+        RaoResult raoResult = linearOptimisationEngine.solve("");
         assertNotNull(raoResult);
         assertEquals(RaoResult.Status.SUCCESS, raoResult.getStatus());
     }
@@ -57,7 +57,7 @@ public class LinearRaoModellerTest {
     public void testUnboundedSolve() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
 
-        RaoResult raoResult = linearRaoModeller.solve("");
+        RaoResult raoResult = linearOptimisationEngine.solve("");
         assertNotNull(raoResult);
         assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());
     }

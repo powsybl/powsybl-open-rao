@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.linear_rao.engines;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
-import com.farao_community.farao.linear_rao.fillers.MaxLoopFlowFiller;
-import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
+import com.farao_community.farao.linear_rao.engines.fillers.CoreProblemFiller;
+import com.farao_community.farao.linear_rao.engines.fillers.MaxLoopFlowFiller;
+import com.farao_community.farao.linear_rao.engines.fillers.MaxMinMarginFiller;
+import com.farao_community.farao.linear_rao.engines.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -27,19 +27,19 @@ import java.util.Objects;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class LinearRaoModeller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearRaoModeller.class);
+public class LinearOptimisationEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearOptimisationEngine.class);
 
     private LinearRaoProblem linearRaoProblem;
     private LinearRaoData linearRaoData;
     private List<AbstractProblemFiller> fillerList;
     private List<AbstractPostProcessor> postProcessorList;
 
-    public LinearRaoModeller(Crac crac,
-                             Network network,
-                             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                             LinearRaoProblem linearRaoProblem,
-                             RaoParameters raoParameters) {
+    public LinearOptimisationEngine(Crac crac,
+                                    Network network,
+                                    SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
+                                    LinearRaoProblem linearRaoProblem,
+                                    RaoParameters raoParameters) {
         this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         this.linearRaoProblem = linearRaoProblem;
 

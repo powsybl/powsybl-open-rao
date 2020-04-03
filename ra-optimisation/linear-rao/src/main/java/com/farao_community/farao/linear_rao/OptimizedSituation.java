@@ -10,19 +10,19 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.Network;
 
 /**
- * The LinearRaoOptimizedSituation is an AbstractLinearRaoSituation in which
- * the RangeAction set-points are optimized. The LinearRao might go through
- * several LinearRaoOptimizedSituations as its algorithm iterates over several
- * network situations.
+ * The OptimizedSituation is an AbstractSituation in which the RangeAction
+ * set-points are optimized. The LinearRao might go through several
+ * OptimizedSituations as its algorithm iterates over several network situations.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class LinearRaoOptimizedSituation extends AbstractLinearRaoSituation {
+public final class OptimizedSituation extends AbstractSituation {
 
     /**
      * Computation status of the optimisation problem resolution
@@ -32,7 +32,7 @@ public final class LinearRaoOptimizedSituation extends AbstractLinearRaoSituatio
     /**
      * Constructor
      */
-    LinearRaoOptimizedSituation(Crac crac) {
+    OptimizedSituation(Crac crac) {
         super(crac);
         this.lpStatus = ComputationStatus.NOT_RUN;
     }
@@ -50,8 +50,8 @@ public final class LinearRaoOptimizedSituation extends AbstractLinearRaoSituatio
      * Solve the LinearRaoProblem associated to this network situation. Results are
      * set in the Crac result variant with id resultVariantId.
      */
-    void solveLp(LinearRaoModeller linearRaoModeller) {
-        RaoResult lpRaoResult = linearRaoModeller.solve(resultVariantId);
+    void solveLp(LinearOptimisationEngine linearOptimisationEngine) {
+        RaoResult lpRaoResult = linearOptimisationEngine.solve(resultVariantId);
         if (lpRaoResult.getStatus() == RaoResult.Status.FAILURE) {
             lpStatus = ComputationStatus.RUN_NOK;
         } else {
