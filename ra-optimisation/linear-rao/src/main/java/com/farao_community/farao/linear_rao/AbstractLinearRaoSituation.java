@@ -11,11 +11,10 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import static java.lang.String.format;
 
-class LinearRaoSituation {
+abstract class AbstractLinearRaoSituation {
 
     enum ComputationStatus {
         NOT_RUN,
@@ -31,13 +30,12 @@ class LinearRaoSituation {
 
     protected double cost;
 
-
-    LinearRaoSituation(Crac crac) {
+    AbstractLinearRaoSituation(Crac crac) {
         sensiStatus = ComputationStatus.NOT_RUN;
         this.crac = crac;
     }
 
-    boolean sameRaResults(LinearRaoSituation otherLinearRaoSituation) {
+    boolean sameRaResults(AbstractLinearRaoSituation otherLinearRaoSituation) {
         String otherResultVariantId = otherLinearRaoSituation.getResultVariant();
         //TODO: manage curative RA
         String preventiveState = crac.getPreventiveState().getId();
@@ -88,7 +86,7 @@ class LinearRaoSituation {
         return minMargin;
     }
 
-    protected void completeResults() {
+    void completeResults(Network network) {
         updateCracExtension();
         updateCnecExtensions();
     }

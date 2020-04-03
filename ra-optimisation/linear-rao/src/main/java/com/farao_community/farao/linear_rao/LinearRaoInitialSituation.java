@@ -7,12 +7,9 @@ import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
 
-public final class LinearRaoInitialSituation extends LinearRaoSituation{
+public final class LinearRaoInitialSituation extends AbstractLinearRaoSituation {
 
     LinearRaoInitialSituation(Crac crac) {
 
@@ -23,12 +20,12 @@ public final class LinearRaoInitialSituation extends LinearRaoSituation{
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
-        this.resultVariantId = "preOptimisationResults-".concat(resultVariantManager.createNewUniqueVariantId());
-
+        this.resultVariantId = resultVariantManager.createNewUniqueVariantId("preOptimisationResults-");
     }
 
+    @Override
     void completeResults(Network network) {
-        super.completeResults();
+        super.completeResults(network);
 
         // add into Crac initial RA setpoints
         String preventiveState = crac.getPreventiveState().getId();
@@ -43,4 +40,8 @@ public final class LinearRaoInitialSituation extends LinearRaoSituation{
         }
     }
 
+    @Override
+    void deleteResultVariant() {
+        //We don't want to delete the pre Optim result variant.
+    }
 }

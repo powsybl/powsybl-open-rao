@@ -73,12 +73,12 @@ public final class Tree {
             for (Leaf currentLeaf: generatedLeaves) {
                 if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
                     hasImproved = true;
-                    resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
+                    optimalLeaf.deletePostOptimResultVariant(crac);
                     optimalLeaf = currentLeaf;
                 } else {
-                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
+                    currentLeaf.deletePostOptimResultVariant(crac);
                 }
-                resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
+                currentLeaf.deletePreOptimResultVariant(crac);
             }
         }
 
