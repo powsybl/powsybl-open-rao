@@ -19,6 +19,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.LoadFlowService;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.common.jimfs.Configuration;
@@ -49,14 +50,16 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class})
+@PrepareForTest({SystematicSensitivityAnalysisService.class, NativeLibraryLoader.class})
 public class LinearRaoTest {
+
     private LinearRao linearRao;
     private ComputationManager computationManager;
     private RaoParameters raoParameters;
 
     @Before
     public void setUp() {
+        mockNativeLibraryLoader();
         linearRao = new LinearRao();
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -67,6 +70,12 @@ public class LinearRaoTest {
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
         LoadFlowService.init(loadFlowRunner, computationManager);
+    }
+
+    private void mockNativeLibraryLoader() {
+        PowerMockito.mockStatic(NativeLibraryLoader.class);
+        PowerMockito.doNothing().when(NativeLibraryLoader.class);
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
     @Test
