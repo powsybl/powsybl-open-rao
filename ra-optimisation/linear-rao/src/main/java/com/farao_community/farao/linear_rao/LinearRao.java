@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 
@@ -42,7 +43,6 @@ public class LinearRao implements RaoProvider {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
-    private boolean useFallbackSensiParams = false;
 
     @Override
     public String getName() {
@@ -60,7 +60,7 @@ public class LinearRao implements RaoProvider {
                                             String variantId,
                                             ComputationManager computationManager,
                                             RaoParameters parameters) {
-        useFallbackSensiParams = false;
+        AtomicBoolean useFallbackSensiParams = new AtomicBoolean(false);
 
         // quality check
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
@@ -82,10 +82,10 @@ public class LinearRao implements RaoProvider {
         // Initiate sensitivity analysis results
         SystematicSensitivityAnalysisResult currentSensitivityAnalysisResult;
         try {
-            currentSensitivityAnalysisResult = runWithParamSelection(network, crac, computationManager, linearRaoParameters);
+            currentSensitivityAnalysisResult = runSystematicSensitivityAnalysisWithParametersSwitch(network, crac, computationManager, linearRaoParameters, useFallbackSensiParams);
         } catch (SensitivityComputationException e) { // Failure if some sensitivities are not computed
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
-            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE, useFallbackSensiParams));
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE, useFallbackSensiParams.get()));
         }
         double bestScore = 0;
         try {
@@ -102,7 +102,7 @@ public class LinearRao implements RaoProvider {
         // Check if we need to optimize Range Actions
         if (linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty()) {
             updateResultExtensions(crac, bestScore, bestResultVariant, currentSensitivityAnalysisResult);
-            return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
+            return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant, useFallbackSensiParams.get()));
         }
 
         // Initiate the LP
@@ -128,7 +128,7 @@ public class LinearRao implements RaoProvider {
             applyRAs(crac, network, currentResultVariant);
 
             try { // If some sensitivities are not computed, the best result found so far is returned
-                currentSensitivityAnalysisResult = runWithParamSelection(network, crac, computationManager, linearRaoParameters);
+                currentSensitivityAnalysisResult = runSystematicSensitivityAnalysisWithParametersSwitch(network, crac, computationManager, linearRaoParameters, useFallbackSensiParams);
             } catch (SensitivityComputationException e) {
                 break;
             }
@@ -156,42 +156,45 @@ public class LinearRao implements RaoProvider {
 
         resultVariantManager.deleteVariant(currentResultVariant);
         updateResultExtensions(crac, bestScore, bestResultVariant, bestOptimSensitivityAnalysisResult);
-        return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant));
+        return CompletableFuture.completedFuture(buildRaoResult(bestScore, preOptimVariant, bestResultVariant, useFallbackSensiParams.get()));
     }
 
-    private SystematicSensitivityAnalysisResult runSensi(Network network,
-                                                         Crac crac,
-                                                         ComputationManager computationManager,
-                                                         SensitivityComputationParameters parameters) {
+    private SystematicSensitivityAnalysisResult runSystematicSensitivityAnalysis(Network network,
+                                                                                 Crac crac,
+                                                                                 ComputationManager computationManager,
+                                                                                 SensitivityComputationParameters parameters,
+                                                                                 AtomicBoolean useFallbackSensiParams) {
         SystematicSensitivityAnalysisResult sensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, parameters);
         // Failure if some sensitivities are not computed
         if (sensitivityAnalysisResult.getStateSensiMap().containsValue(null) || sensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
-            throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", useFallbackSensiParams ? "fallback" : "default"));
+            throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", useFallbackSensiParams.get() ? "fallback" : "default"));
         } else {
             return sensitivityAnalysisResult;
         }
     }
 
-    private SystematicSensitivityAnalysisResult runWithParamSelection(Network network,
-                                                                      Crac crac,
-                                                                      ComputationManager computationManager,
-                                                                      LinearRaoParameters parameters) {
-        if (!useFallbackSensiParams) { // with default parameters
+    private SystematicSensitivityAnalysisResult runSystematicSensitivityAnalysisWithParametersSwitch(Network network,
+                                                                                                     Crac crac,
+                                                                                                     ComputationManager computationManager,
+                                                                                                     LinearRaoParameters parameters,
+                                                                                                     AtomicBoolean useFallbackSensiParams) {
+        if (!useFallbackSensiParams.get()) { // with default parameters
             try {
-                return runSensi(network, crac, computationManager, parameters.getSensitivityComputationParameters());
+                return runSystematicSensitivityAnalysis(network, crac, computationManager, parameters.getSensitivityComputationParameters(), useFallbackSensiParams);
             } catch (SensitivityComputationException e) {
-                useFallbackSensiParams = true;
-                return runWithParamSelection(network, crac, computationManager, parameters);
+                useFallbackSensiParams.set(true);
+                return runSystematicSensitivityAnalysisWithParametersSwitch(network, crac, computationManager, parameters, useFallbackSensiParams);
             }
         } else { // with fallback parameters
             if (parameters.getFallbackSensiParameters() != null) {
                 try {
-                    return runSensi(network, crac, computationManager, parameters.getFallbackSensiParameters());
+                    LOGGER.warn("Fallback sensitivity parameters are used.");
+                    return runSystematicSensitivityAnalysis(network, crac, computationManager, parameters.getFallbackSensiParameters(), useFallbackSensiParams);
                 } catch (SensitivityComputationException e) {
                     throw new SensitivityComputationException("Sensitivity computation failed with all sensitivity parameters.");
                 }
             } else {
-                useFallbackSensiParams = false; // in order to show in the export that no fallback computation was run
+                useFallbackSensiParams.set(false); // in order to show in the export that no fallback computation was run
                 throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.");
             }
         }
@@ -277,7 +280,7 @@ public class LinearRao implements RaoProvider {
         cracResult.setCost(-minMargin);
     }
 
-    private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId) {
+    private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId, boolean useFallbackSensiParams) {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS, useFallbackSensiParams);
         raoResult.setPreOptimVariantId(preOptimVariantId);
         raoResult.setPostOptimVariantId(postOptimVariantId);
