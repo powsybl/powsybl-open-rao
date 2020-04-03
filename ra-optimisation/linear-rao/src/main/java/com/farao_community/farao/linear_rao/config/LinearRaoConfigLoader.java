@@ -26,6 +26,7 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
     @Override
     public LinearRaoParameters load(PlatformConfig platformConfig) {
         LinearRaoParameters parameters = new LinearRaoParameters();
+        // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
         parameters.setSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {

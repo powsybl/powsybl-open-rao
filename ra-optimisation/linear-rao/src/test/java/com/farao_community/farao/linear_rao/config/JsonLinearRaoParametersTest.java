@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,6 +29,17 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParameters.json");
+    }
+
+    @Test
+    public void roundTripWithFallback() throws IOException {
+        RaoParameters parameters = new RaoParameters();
+        parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
+        parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
+        parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
+        SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+        parameters.getExtension(LinearRaoParameters.class).setFallbackSensiParameters(sensitivityComputationParameters);
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParametersWithFallback.json");
     }
 
     @Test
