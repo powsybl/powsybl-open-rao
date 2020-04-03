@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_api;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.extensions.AbstractExtendable;
 
 /**
  * RAO result API. This class will contain information about the RAO computation (computation status, logs, etc).
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 
-public class RaoResult {
+public class RaoResult extends AbstractExtendable<RaoResult> {
 
     public enum Status {
         FAILURE,

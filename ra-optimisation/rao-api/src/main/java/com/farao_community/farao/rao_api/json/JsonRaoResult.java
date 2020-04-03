@@ -8,9 +8,18 @@
 package com.farao_community.farao.rao_api.json;
 
 import com.farao_community.farao.rao_api.RaoResult;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +34,29 @@ import java.util.Objects;
  *
  * @author Philippe Edwards <philippe.edwards at rte-france.com>
  */
-public class JsonRaoResult extends SimpleModule {
+public class JsonRaoResult {
+
+    /**
+     * A configuration loader interface for the RaoComputationResult extensions loaded
+     *
+     * @param <E> The extension class
+     */
+    public interface ExtensionSerializer<E extends Extension<RaoResult>> extends ExtensionJsonSerializer<RaoResult, E> {
+    }
+
+    /**
+     * Lazily initialized list of extension serializers.
+     */
+    private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "rao-computation-result"));
+
+    /**
+     * Gets the known extension serializers.
+     */
+    public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
+        return SUPPLIER.get();
+    }
+
     /**
      * Reads result from a JSON file (will NOT rely on platform config).
      */
@@ -44,7 +75,7 @@ public class JsonRaoResult extends SimpleModule {
      */
     public static RaoResult read(InputStream jsonStream) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readerFor(RaoResult.class).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -69,11 +100,37 @@ public class JsonRaoResult extends SimpleModule {
      */
     public static void write(RaoResult result, OutputStream outputStream) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, result);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * Low level deserialization method, to be used for instance for reading rao computation parameters nested in another object.
+     */
+    public static RaoResult deserialize(JsonParser parser, DeserializationContext context, RaoResult parameters) throws IOException {
+        return new RaoResultDeserializer().deserialize(parser, context, parameters);
+    }
+
+    /**
+     * Low level deserialization method, to be used for instance for updating rao computation parameters nested in another object.
+     */
+    public static RaoResult deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        return new RaoResultDeserializer().deserialize(parser, context);
+    }
+
+    /**
+     * Low level serialization method, to be used for instance for writing rao computation parameters nested in another object.
+     */
+    public static void serialize(RaoResult parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        new RaoResultSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        return JsonUtil.createObjectMapper()
+            .registerModule(new RaoResultJsonModule());
     }
 }
