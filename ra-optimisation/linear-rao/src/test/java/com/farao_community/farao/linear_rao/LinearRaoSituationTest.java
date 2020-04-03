@@ -77,7 +77,6 @@ public class LinearRaoSituationTest {
         linearRaoInitialSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
         assertEquals(-488, linearRaoInitialSituation.getCost(), PRECISION_FLOW);
 
-        linearRaoInitialSituation.completeResults(network);
         String variant = linearRaoInitialSituation.getResultVariant();
         String preventive = crac.getPreventiveState().getId();
         assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
@@ -107,7 +106,6 @@ public class LinearRaoSituationTest {
         linearRaoOptimizedSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
         assertEquals(-488, linearRaoOptimizedSituation.getCost(), PRECISION_FLOW);
 
-        linearRaoOptimizedSituation.completeResults(network);
         String variant = linearRaoOptimizedSituation.getResultVariant();
         String preventive = crac.getPreventiveState().getId();
         assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);

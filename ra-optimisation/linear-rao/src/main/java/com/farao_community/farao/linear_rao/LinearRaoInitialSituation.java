@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
 
 /**
