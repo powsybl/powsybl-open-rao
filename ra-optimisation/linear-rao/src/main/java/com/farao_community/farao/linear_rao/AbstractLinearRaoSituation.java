@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
@@ -14,6 +20,16 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import static java.lang.String.format;
 
+/**
+ * An AbstractLinearRaoSituation includes a set of information associated to a
+ * given network situation (i.e. a given combination of RangeActions set-points).
+ * An AbstractLinearRaoSituation also embeds some methods enabling to do some
+ * computation on this network situation. The computation common to all
+ * AbstractLinearRaoSituation is a systematic sensitivity analysis.
+ *
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 abstract class AbstractLinearRaoSituation {
 
     enum ComputationStatus {
@@ -22,38 +38,76 @@ abstract class AbstractLinearRaoSituation {
         RUN_NOK
     }
 
+    /**
+     * Computation status of the systematic sensitivity analysis
+     */
     protected ComputationStatus sensiStatus;
 
-    protected Crac crac;
+    /**
+     * Results of the systematic sensitivity analysis performed on the situation
+     */
     protected SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+
+    /**
+     * variant id in which some information about the situation are stored (including
+     * the RangeActions' set-points)
+     */
     protected String resultVariantId;
 
+    /**
+     * Crac object
+     */
+    protected Crac crac;
+
+    /**
+     * cost, value of the objective function for this situation
+     */
     protected double cost;
 
+    /**
+     * constructor
+     */
     AbstractLinearRaoSituation(Crac crac) {
         sensiStatus = ComputationStatus.NOT_RUN;
         this.crac = crac;
-    }
+        this.cost = Double.NaN;
 
-    boolean sameRaResults(AbstractLinearRaoSituation otherLinearRaoSituation) {
-        String otherResultVariantId = otherLinearRaoSituation.getResultVariant();
-        //TODO: manage curative RA
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            double value1 = rangeActionResultMap.getVariant(resultVariantId).getSetPoint(preventiveState);
-            double value2 = rangeActionResultMap.getVariant(otherResultVariantId).getSetPoint(preventiveState);
-            if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
-                return false;
-            }
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager == null) {
+            resultVariantManager = new ResultVariantManager();
+            crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
-        return true;
+
+        resultVariantId = resultVariantManager.createNewUniqueVariantId(this.getVariantPrefix());
     }
 
-    void deleteResultVariant() {
-        crac.getExtension(ResultVariantManager.class).deleteVariant(resultVariantId);
+    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        return systematicSensitivityAnalysisResult;
     }
 
+    ComputationStatus getSensiStatus() {
+        return sensiStatus;
+    }
+
+    String getResultVariant() {
+        return resultVariantId;
+    }
+
+    double getCost() {
+        return cost;
+    }
+
+    /**
+     * get the variant prefix used in the Crac ResultVariantManager
+     */
+    protected abstract String getVariantPrefix();
+
+    /**
+     * evaluate the sensitivity coefficients and the objective function value of the
+     * AbstractLinearRaoSituation. The results are written in the attributes
+     * systematicSensitivityAnalysisResult, cost and in the Crac variant with id
+     * resultVariantId.
+     */
     void evaluateSensiAndCost(Network network, ComputationManager computationManager, SensitivityComputationParameters sensitivityComputationParameters) {
 
         systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
@@ -66,14 +120,40 @@ abstract class AbstractLinearRaoSituation {
         } else {
             cost = -getMinMargin();
             sensiStatus = ComputationStatus.RUN_OK;
+            addSystematicSensitivityAnalysisResultsToCracVariant(network);
         }
     }
 
-    ComputationStatus getSensiStatus() {
-        return sensiStatus;
+    /**
+     * Compare the network situations (i.e. the RangeActions set-points) of two
+     * AbstractLinearRaoSituation. Returns true if the situations are identical,
+     * and false if they are not.
+     */
+    boolean sameRaResults(AbstractLinearRaoSituation otherLinearRaoSituation) {
+        String otherResultVariantId = otherLinearRaoSituation.getResultVariant();
+        String preventiveState = crac.getPreventiveState().getId();
+        for (RangeAction rangeAction : crac.getRangeActions()) {
+            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+            double value1 = rangeActionResultMap.getVariant(resultVariantId).getSetPoint(preventiveState);
+            double value2 = rangeActionResultMap.getVariant(otherResultVariantId).getSetPoint(preventiveState);
+            if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    protected double getMinMargin() {
+    /**
+     * Delete the Crac result variant associated to this situation
+     */
+    void deleteResultVariant() {
+        crac.getExtension(ResultVariantManager.class).deleteVariant(resultVariantId);
+    }
+
+    /**
+     * Compute the objective function, the minimal margin.
+     */
+    private double getMinMargin() {
         double minMargin = Double.POSITIVE_INFINITY;
         for (Cnec cnec : crac.getCnecs()) {
             double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
@@ -86,7 +166,12 @@ abstract class AbstractLinearRaoSituation {
         return minMargin;
     }
 
-    void completeResults(Network network) {
+
+    /**
+     * add results of the systematic analysis (flows and objective function value) in the
+     * Crac result variant associated to this situation.
+     */
+    protected void addSystematicSensitivityAnalysisResultsToCracVariant(Network network) {
         updateCracExtension();
         updateCnecExtensions();
     }
@@ -105,17 +190,5 @@ abstract class AbstractLinearRaoSituation {
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setThresholds(cnec);
         });
-    }
-
-    double getCost() {
-        return cost;
-    }
-
-    String getResultVariant() {
-        return resultVariantId;
-    }
-
-    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
-        return systematicSensitivityAnalysisResult;
     }
 }

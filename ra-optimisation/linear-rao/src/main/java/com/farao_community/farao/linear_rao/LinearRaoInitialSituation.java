@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
@@ -9,25 +15,37 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
 
-public final class LinearRaoInitialSituation extends AbstractLinearRaoSituation {
+/**
+ * The LinearRaoInitialSituation is the first AbstractLinearRaoSituation handled
+ * by the LinearRao, it is the situation with the RangeActions set-points initially
+ * set in the input Network. That is to say the situation before the optimisation of
+ * the RangeActions set-points.
+ *
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+final class LinearRaoInitialSituation extends AbstractLinearRaoSituation {
 
     LinearRaoInitialSituation(Crac crac) {
-
         super(crac);
-        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager == null) {
-            resultVariantManager = new ResultVariantManager();
-            crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        }
-
-        this.resultVariantId = resultVariantManager.createNewUniqueVariantId("preOptimisationResults-");
     }
 
     @Override
-    void completeResults(Network network) {
-        super.completeResults(network);
+    protected String getVariantPrefix() {
+        return "preOptimisationResults-";
+    }
 
-        // add into Crac initial RA setpoints
+    @Override
+    protected void addSystematicSensitivityAnalysisResultsToCracVariant(Network network) {
+        super.addSystematicSensitivityAnalysisResultsToCracVariant(network);
+        // in addition to a standard Situation, add in the Crac the initial RA set-points
+        updateRangeActionExtensions(network);
+    }
+
+    /**
+     * Add in the Crac extension the initial RangeActions set-points
+     */
+    private void updateRangeActionExtensions(Network network) {
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(network);

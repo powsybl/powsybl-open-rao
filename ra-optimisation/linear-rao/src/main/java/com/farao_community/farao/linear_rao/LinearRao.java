@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -61,7 +60,6 @@ public class LinearRao implements RaoProvider {
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
 
-        initialSituation.completeResults(network);
         // if ! doOptim() break
         if (skipOptim(linearRaoParameters, crac)) {
             return CompletableFuture.completedFuture(buildRaoResult(initialSituation.getCost(), initialSituation.getResultVariant(), initialSituation.getResultVariant()));
@@ -100,7 +98,6 @@ public class LinearRao implements RaoProvider {
 
         }
 
-        bestSituation.completeResults(network);
         return CompletableFuture.completedFuture(buildRaoResult(bestSituation.getCost(), initialSituation.getResultVariant(), bestSituation.getResultVariant()));
 
     }
