@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
@@ -372,13 +372,13 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkActions;
     }
 
-    public void addNetworkAction(NetworkAction<?> networkAction) {
+    public void addNetworkAction(NetworkAction networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.add(networkAction);
     }
 
-    public void addRangeAction(RangeAction<?> rangeAction) {
+    public void addRangeAction(RangeAction rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);
     }
@@ -446,7 +446,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         });
         absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
-        for (RangeAction<?> rangeAction: getRangeActions()) {
+        for (RangeAction rangeAction: getRangeActions()) {
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);
@@ -457,7 +457,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
 
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
-        for (NetworkAction<?> networkAction: getNetworkActions()) {
+        for (NetworkAction networkAction: getNetworkActions()) {
             networkAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkNetworkActions.add(networkAction);

@@ -29,7 +29,7 @@ import java.util.List;
  */
 @JsonTypeName("topology")
 @JsonSerialize(using = TopologySerializer.class)
-public final class Topology extends AbstractElementaryNetworkAction<Topology> {
+public final class Topology extends AbstractElementaryNetworkAction {
 
     private ActionType actionType;
 

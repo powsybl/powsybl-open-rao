@@ -37,7 +37,7 @@ public class ResultVariantManagerTest {
 
         CracResultExtension cracExtension;
         CnecResultExtension cnecExtension;
-        PstRangeResultExtension pstExtension;
+        RangeActionResultExtension pstExtension;
 
         assertTrue(variantManager.getVariants().isEmpty());
 
@@ -49,7 +49,7 @@ public class ResultVariantManagerTest {
 
         cracExtension = crac.getExtension(CracResultExtension.class);
         cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
-        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(PstRangeResultExtension.class);
+        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class);
 
         assertNotNull(cracExtension.getVariant(variantId1));
         assertNotNull(cracExtension.getVariant(variantId2));
@@ -78,7 +78,7 @@ public class ResultVariantManagerTest {
 
         cracExtension = crac.getExtension(CracResultExtension.class);
         cnecExtension = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
-        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(PstRangeResultExtension.class);
+        pstExtension = crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class);
 
         assertNull(cracExtension);
         assertNull(cnecExtension);
@@ -104,5 +104,19 @@ public class ResultVariantManagerTest {
         } catch (FaraoException e) {
             // should throw
         }
+    }
+
+    @Test
+    public void deleteMultipleVariants() {
+        variantManager.createVariant("var1");
+        variantManager.createVariant("var2");
+        variantManager.createVariant("var3");
+
+        assertEquals(3, variantManager.getVariants().size());
+
+        variantManager.deleteVariants("var1", "var3");
+
+        assertEquals(1, variantManager.getVariants().size());
+        assertEquals("var2", variantManager.getVariants().iterator().next());
     }
 }

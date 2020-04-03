@@ -7,11 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -29,5 +31,6 @@ public class ComplexNetworkActionSerializer extends NetworkActionSerializer<Comp
             jsonGenerator.writeObject(abstractElementaryNetworkAction);
         }
         jsonGenerator.writeEndArray();
+        JsonUtil.writeExtensions(networkAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
     }
 }
