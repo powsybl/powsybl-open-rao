@@ -10,13 +10,10 @@
 package com.farao_community.farao.rao_api.json;
 
 import com.farao_community.farao.rao_api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
@@ -36,23 +33,29 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
 
     @Override
     public RaoResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new RaoResult());
+        return deserialize(parser, deserializationContext, new RaoResult());//TODO
     }
 
     @Override
-    public RaoResult deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoResult parameters) throws IOException {
+    public RaoResult deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoResult raoResult) throws IOException {
 
         List<Extension<RaoResult>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
-                case "version":
+                case "status":
                     parser.nextToken();
+                    raoResult.setStatus(parser.getValueAsString().equals("")); //TODO
                     break;
 
-                case "load-flow-parameters":
+                case "preOptimVariantId":
                     parser.nextToken();
-                    JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
+                    raoResult.setPreOptimVariantId(parser.getValueAsString());
+                    break;
+
+                case "postOptimVariantId":
+                    parser.nextToken();
+                    raoResult.setPostOptimVariantId(parser.getValueAsString());
                     break;
 
                 case "extensions":
@@ -65,9 +68,9 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
             }
         }
 
-        JsonRaoResult.getExtensionSerializers().addExtensions(parameters, extensions);
+        JsonRaoResult.getExtensionSerializers().addExtensions(raoResult, extensions);
 
-        return parameters;
+        return raoResult;
     }
 
 }

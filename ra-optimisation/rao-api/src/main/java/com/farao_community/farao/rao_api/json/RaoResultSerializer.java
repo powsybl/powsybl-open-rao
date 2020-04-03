@@ -32,14 +32,9 @@ public class RaoResultSerializer extends StdSerializer<RaoResult> {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeFieldName("status");
-        JsonLoadFlowParameters.serialize(raoResult.getStatus(), jsonGenerator, serializerProvider);
-
-        jsonGenerator.writeFieldName("preOptimVariantId");
-        JsonLoadFlowParameters.serialize(raoResult.getPreOptimVariantId(), jsonGenerator, serializerProvider);
-
-        jsonGenerator.writeFieldName("postOptimVariantId");
-        JsonLoadFlowParameters.serialize(raoResult.getPostOptimVariantId(), jsonGenerator, serializerProvider);
+        jsonGenerator.writeStringField("status", raoResult.getStatus().toString());
+        jsonGenerator.writeStringField("preOptimVariantId", raoResult.getPreOptimVariantId());
+        jsonGenerator.writeStringField("postOptimVariantId", raoResult.getPostOptimVariantId());
 
         JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, JsonRaoResult.getExtensionSerializers());
 
