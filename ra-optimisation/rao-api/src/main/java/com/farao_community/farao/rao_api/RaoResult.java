@@ -9,7 +9,6 @@ package com.farao_community.farao.rao_api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -25,15 +24,7 @@ public class RaoResult {
         SUCCESS
     }
 
-    public enum LastSensiParams {
-        DEFAULT,
-        FALLBACK
-    }
-
     private Status status;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private LastSensiParams lastSensiParams;
 
     private String preOptimVariantId;
 
@@ -44,30 +35,12 @@ public class RaoResult {
         this.status = status;
     }
 
-    public RaoResult(Status status, LastSensiParams lastSensiParams) {
-        this.status = status;
-        this.lastSensiParams = lastSensiParams;
-    }
-
-    public RaoResult(Status status, boolean lastSensiIsFallback) {
-        this.status = status;
-        this.lastSensiParams = lastSensiIsFallback ? LastSensiParams.FALLBACK : LastSensiParams.DEFAULT;
-    }
-
     public Status getStatus() {
         return status;
     }
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public LastSensiParams getLastSensiParams() {
-        return lastSensiParams;
-    }
-
-    public void setLastSensiParams(LastSensiParams lastSensiParams) {
-        this.lastSensiParams = lastSensiParams;
     }
 
     @JsonIgnore

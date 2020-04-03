@@ -36,22 +36,6 @@ public class JsonRaoResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripDefaultSensiParams() throws IOException {
-        raoResult = new RaoResult(RaoResult.Status.FAILURE, false);
-        raoResult.setPreOptimVariantId("variant1");
-        raoResult.setPostOptimVariantId("variant2");
-        roundTripTest(raoResult, JsonRaoResult::write, JsonRaoResult::read, "/RaoResultDefaultSensi.json");
-    }
-
-    @Test
-    public void roundTripFallbackSensiParams() throws IOException {
-        raoResult = new RaoResult(RaoResult.Status.SUCCESS, true);
-        raoResult.setPreOptimVariantId("variant1");
-        raoResult.setPostOptimVariantId("variant2");
-        roundTripTest(raoResult, JsonRaoResult::write, JsonRaoResult::read, "/RaoResultFallbackSensi.json");
-    }
-
-    @Test
     public void writeExtension() throws IOException {
         raoResult.setStatus(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId("var1");

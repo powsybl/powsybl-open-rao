@@ -85,7 +85,7 @@ public class LinearRao implements RaoProvider {
             currentSensitivityAnalysisResult = runSystematicSensitivityAnalysisWithParametersSwitch(network, crac, computationManager, linearRaoParameters, useFallbackSensiParams);
         } catch (SensitivityComputationException e) { // Failure if some sensitivities are not computed
             resultVariantManager.deleteVariants(preOptimVariant, bestResultVariant);
-            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE, useFallbackSensiParams.get()));
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
         double bestScore = 0;
         try {
@@ -281,7 +281,7 @@ public class LinearRao implements RaoProvider {
     }
 
     private RaoResult buildRaoResult(double minMargin, String preOptimVariantId, String postOptimVariantId, boolean useFallbackSensiParams) {
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS, useFallbackSensiParams);
+        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOptimVariantId);
         raoResult.setPostOptimVariantId(postOptimVariantId);
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin >= 0 ?
