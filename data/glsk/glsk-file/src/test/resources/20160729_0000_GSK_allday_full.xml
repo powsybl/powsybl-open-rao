@@ -221,7 +221,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="3"/>
+		<TimeSeriesIdentification v="2"/>
 		<BusinessType v="Z05" share="50"/>
 		<Area v="10YHU-MAVIR----U" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -944,7 +944,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="4"/>
+		<TimeSeriesIdentification v="3"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YNL----------L" codingScheme="A01"/>
 		<ManualGSK_Block>
@@ -5073,7 +5073,7 @@
 		</ManualGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="5"/>
+		<TimeSeriesIdentification v="4"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YAT-APG------L" codingScheme="A01"/>
 		<ManualGSK_Block>
@@ -5354,7 +5354,7 @@
 		</ManualGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="6"/>
+		<TimeSeriesIdentification v="5"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YCZ-CEPS-----N" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -7527,7 +7527,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="7"/>
+		<TimeSeriesIdentification v="6"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YFR-RTE------C" codingScheme="A01"/>
 		<CountryGSK_Block>
@@ -7536,7 +7536,7 @@
 		</CountryGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="8"/>
+		<TimeSeriesIdentification v="7"/>
 		<BusinessType v="Z02" share="35"/>
 		<Area v="10YHR-HEP------M" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -7700,7 +7700,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="9"/>
+		<TimeSeriesIdentification v="7"/>
 		<BusinessType v="Z05" share="65"/>
 		<Area v="10YHR-HEP------M" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -8212,7 +8212,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="10"/>
+		<TimeSeriesIdentification v="8"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YPL-AREA-----S" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -9524,7 +9524,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="11"/>
+		<TimeSeriesIdentification v="9"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YRO-TEL------P" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -9596,7 +9596,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="12"/>
+		<TimeSeriesIdentification v="10"/>
 		<BusinessType v="Z02" share="50"/>
 		<Area v="10YSI-ELES-----O" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -9614,7 +9614,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="13"/>
+		<TimeSeriesIdentification v="10"/>
 		<BusinessType v="Z05" share="50"/>
 		<Area v="10YSI-ELES-----O" codingScheme="A01"/>
 		<AutoGSK_Block>
@@ -9743,7 +9743,7 @@
 		</AutoGSK_Block>
 	</GSKSeries>
 	<GSKSeries>
-		<TimeSeriesIdentification v="14"/>
+		<TimeSeriesIdentification v="12"/>
 		<BusinessType v="Z02" share="100"/>
 		<Area v="10YCB-GERMANY--8" codingScheme="A01"/>
 		<ManualGSK_Block>

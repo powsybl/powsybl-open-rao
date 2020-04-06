@@ -56,7 +56,7 @@
 		<Area v="10YFR-RTE------C" codingScheme="A01"/>
 		<AutoGSK_Block>
 			<GSK_Name v="FR"/>
-			<TimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
+			<TimeInterval v="2016-07-29T22:00Z/2016-07-30T22:00Z"/>
 			<AutoNodes>
 				<NodeName v="FFR1AA1 "/>
 			</AutoNodes>

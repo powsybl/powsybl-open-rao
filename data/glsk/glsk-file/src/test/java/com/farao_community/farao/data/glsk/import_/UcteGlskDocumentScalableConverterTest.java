@@ -12,7 +12,6 @@ import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -123,7 +122,6 @@ public class UcteGlskDocumentScalableConverterTest {
     }
 
     @Test
-    @Ignore
     public void testConvertWithoutIdDuplication() {
         Map<String, DataChronology<Scalable>> mapGlskDocScalable = UcteGlskDocumentScalableConverter.convert(getResourceAsPath(UCTE_TEST_NO_ID_DUPLICATION), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
