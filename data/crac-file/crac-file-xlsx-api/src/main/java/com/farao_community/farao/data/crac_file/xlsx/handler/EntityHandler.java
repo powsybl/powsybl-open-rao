@@ -29,7 +29,6 @@ import java.util.Objects;
  */
 public class EntityHandler<T> {
 
-    private final Class<T> type;
     private final EntityExcelSheetHandler<T> entitySheetHandler;
     private final String sheetName;
     private final boolean skipHeaderRow;
@@ -38,18 +37,14 @@ public class EntityHandler<T> {
     @Builder
     public EntityHandler(Class<T> clazz, String sheetName, TimesSeries timesSeries, boolean skipHeaderRow) {
         Objects.requireNonNull(clazz);
-        this.type = clazz;
         this.sheetName = sheetName;
         this.skipHeaderRow = skipHeaderRow;
         this.timesSeries = timesSeries;
-        this.entitySheetHandler = createSheetHandler(clazz, null);
+        this.entitySheetHandler = createSheetHandler(clazz);
     }
 
-    private EntityExcelSheetHandler<T> createSheetHandler(Class<T> clazz, ExcelColumnMapping columnMap) {
-        ExcelColumnMapping columnMapping = null;
-        if (columnMap == null) {
-            columnMapping = readColumnInfoViaReflection(clazz);
-        }
+    private EntityExcelSheetHandler<T> createSheetHandler(Class<T> clazz) {
+        ExcelColumnMapping columnMapping = readColumnInfoViaReflection(clazz);
         final ExcelColumnInfo rowNumberColumn = columnMapping.getRowNumberInfo();
         final List<ExcelColumnInfo> list = columnMapping.getColumns();
         final ExcelColumnInfo[] columns = new ExcelColumnInfo[list.size()];
