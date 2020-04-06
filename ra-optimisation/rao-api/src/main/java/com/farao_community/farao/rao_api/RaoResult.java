@@ -22,7 +22,8 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
 
     public enum Status {
         FAILURE,
-        SUCCESS
+        SUCCESS,
+        UNDEFINED
     }
 
     private Status status;

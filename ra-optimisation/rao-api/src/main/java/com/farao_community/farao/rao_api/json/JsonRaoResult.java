@@ -34,7 +34,9 @@ import java.util.Objects;
  *
  * @author Philippe Edwards <philippe.edwards at rte-france.com>
  */
-public class JsonRaoResult {
+public final class JsonRaoResult {
+
+    private JsonRaoResult() { }
 
     /**
      * A configuration loader interface for the RaoComputationResult extensions loaded

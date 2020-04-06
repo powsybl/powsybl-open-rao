@@ -9,6 +9,7 @@
 
 package com.farao_community.farao.rao_api.json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -33,7 +33,7 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
 
     @Override
     public RaoResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new RaoResult());//TODO
+        return deserialize(parser, deserializationContext, new RaoResult(RaoResult.Status.UNDEFINED));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
 
                 case "status":
                     parser.nextToken();
-                    raoResult.setStatus(parser.getValueAsString().equals("")); //TODO
+                    raoResult.setStatus(getStatusFromString(parser.getValueAsString()));
                     break;
 
                 case "preOptimVariantId":
@@ -73,4 +73,20 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
         return raoResult;
     }
 
+    private RaoResult.Status getStatusFromString(String status) {
+        switch (status) {
+
+            case "FAILURE":
+                return RaoResult.Status.FAILURE;
+
+            case "SUCCESS":
+                return RaoResult.Status.SUCCESS;
+
+            case "UNDEFINED":
+                return RaoResult.Status.UNDEFINED;
+
+            default:
+                throw new FaraoException("Unexpected field: " + status);
+        }
+    }
 }
