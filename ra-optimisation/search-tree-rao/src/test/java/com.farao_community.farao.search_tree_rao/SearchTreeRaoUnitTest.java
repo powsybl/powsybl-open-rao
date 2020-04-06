@@ -10,8 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
@@ -87,14 +87,12 @@ public class SearchTreeRaoUnitTest {
     public void testRunLoopFlowExtensionInCracNotAvailable() {
         RaoParameters parameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        searchTreeRaoParameters.setRaoWithLoopFlow(true);
-        assertTrue(searchTreeRaoParameters.isRaoWithLoopFlow());
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         List<String> emptyList = new ArrayList<>();
         PowerMockito.mockStatic(SearchTreeConfigurationUtil.class);
         Mockito.when(SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters)).thenReturn(emptyList);
         PowerMockito.mockStatic(Tree.class);
-        RaoComputationResult result = Mockito.mock(RaoComputationResult.class);
+        RaoResult result = Mockito.mock(RaoResult.class);
         Mockito.when(Tree.search(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(result));
         searchTreeRao.run(Mockito.mock(Network.class), Mockito.mock(Crac.class), "", computationManager, parameters);
     }

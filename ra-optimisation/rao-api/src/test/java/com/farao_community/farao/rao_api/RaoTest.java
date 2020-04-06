@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.rao_mock.AnotherRaoProviderMock;
 import com.farao_community.farao.rao_api.rao_mock.RaoProviderMock;
 import com.google.common.collect.ImmutableList;
@@ -68,12 +67,12 @@ public class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoComputationResult result = defaultRao.run(network, crac, computationManager, new RaoParameters());
+        RaoResult result = defaultRao.run(network, crac, computationManager, new RaoParameters());
         assertNotNull(result);
-        assertEquals(result.getStatus(), RaoComputationResult.Status.SUCCESS);
-        RaoComputationResult resultAsync = defaultRao.runAsync(network, crac, computationManager, new RaoParameters()).join();
+        assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
+        RaoResult resultAsync = defaultRao.runAsync(network, crac, computationManager, new RaoParameters()).join();
         assertNotNull(resultAsync);
-        assertEquals(resultAsync.getStatus(), RaoComputationResult.Status.SUCCESS);
+        assertEquals(RaoResult.Status.SUCCESS, resultAsync.getStatus());
     }
 
     @Test(expected = FaraoException.class)

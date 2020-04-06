@@ -30,7 +30,7 @@ import java.util.Set;
         @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
         @JsonSubTypes.Type(value = Topology.class, name = "topology")
     })
-public abstract class AbstractElementaryNetworkAction<I extends AbstractElementaryNetworkAction<I>> extends AbstractNetworkAction<I> {
+public abstract class AbstractElementaryNetworkAction extends AbstractNetworkAction {
     protected NetworkElement networkElement;
 
     @JsonCreator

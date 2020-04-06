@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractRangeAction<I extends RangeAction<I>> extends AbstractRemedialAction<I> implements RangeAction<I> {
+public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAction> implements RangeAction {
     protected List<Range> ranges;
 
     public AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges) {

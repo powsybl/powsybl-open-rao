@@ -8,11 +8,13 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
+import com.farao_community.farao.linear_rao.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.linear_rao.post_processors.PstTapPostProcessor;
 import com.farao_community.farao.linear_rao.post_processors.RaoResultPostProcessor;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
+import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -35,7 +38,8 @@ public class LinearRaoModeller {
     public LinearRaoModeller(Crac crac,
                              Network network,
                              SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                             LinearRaoProblem linearRaoProblem) {
+                             LinearRaoProblem linearRaoProblem,
+                             RaoParameters raoParameters) {
         this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         this.linearRaoProblem = linearRaoProblem;
 
@@ -43,9 +47,11 @@ public class LinearRaoModeller {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
+        if (raoParameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
+            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
+        }
 
         postProcessorList = new ArrayList<>();
-        postProcessorList.add(new PstTapPostProcessor());
         postProcessorList.add(new RaoResultPostProcessor());
     }
 
@@ -59,19 +65,19 @@ public class LinearRaoModeller {
         fillerList.forEach(AbstractProblemFiller::update);
     }
 
-    public RaoComputationResult solve() {
+    public RaoResult solve(String resultVariantId) {
         Enum solverResultStatus = linearRaoProblem.solve();
-        RaoComputationResult raoComputationResult;
+        RaoResult raoResult;
         String solverResultStatusString = solverResultStatus.name();
         if (solverResultStatusString.equals("OPTIMAL")) {
-            RaoComputationResult.Status status = RaoComputationResult.Status.SUCCESS;
-            raoComputationResult = new RaoComputationResult(status);
-            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoComputationResult));
+            RaoResult.Status status = RaoResult.Status.SUCCESS;
+            raoResult = new RaoResult(status);
+            postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, resultVariantId));
         } else {
-            RaoComputationResult.Status status = RaoComputationResult.Status.FAILURE;
-            raoComputationResult = new RaoComputationResult(status);
+            RaoResult.Status status = RaoResult.Status.FAILURE;
+            raoResult = new RaoResult(status);
             LOGGER.warn("Linear rao computation failed: MPSolver status is {}", solverResultStatusString);
         }
-        return raoComputationResult;
+        return raoResult;
     }
 }

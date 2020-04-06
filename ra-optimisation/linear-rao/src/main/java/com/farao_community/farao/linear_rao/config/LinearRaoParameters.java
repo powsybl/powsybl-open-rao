@@ -24,6 +24,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+    private SensitivityComputationParameters fallbackSensiParameters = null;
     private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
     private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
 
@@ -38,6 +39,15 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     public LinearRaoParameters setSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
         this.sensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+        return this;
+    }
+
+    public SensitivityComputationParameters getFallbackSensiParameters() {
+        return fallbackSensiParameters;
+    }
+
+    public LinearRaoParameters setFallbackSensiParameters(SensitivityComputationParameters sensiParameters) {
+        this.fallbackSensiParameters = Objects.requireNonNull(sensiParameters);
         return this;
     }
 

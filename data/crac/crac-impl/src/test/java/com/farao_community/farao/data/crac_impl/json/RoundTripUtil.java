@@ -45,9 +45,9 @@ public final class RoundTripUtil {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             SimpleModule module = new CracImplJsonModule();
             objectMapper.registerModule(module);
+            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, object);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

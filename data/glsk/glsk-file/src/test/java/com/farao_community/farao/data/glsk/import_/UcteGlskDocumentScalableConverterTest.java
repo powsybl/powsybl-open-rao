@@ -12,12 +12,10 @@ import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -31,6 +29,8 @@ import static org.junit.Assert.*;
 public class UcteGlskDocumentScalableConverterTest {
 
     private static final String UCTETEST = "/20170322_1844_SN3_FR2_GLSK_test.xml";
+    private static final String UCTE_TEST_ID_DUPLICATION = "/20170322_1844_SN3_FR2_GLSK_test_id_duplication.xml";
+    private static final String UCTE_TEST_NO_ID_DUPLICATION = "/20170322_1844_SN3_FR2_GLSK_test_no_id_duplication.xml";
     private Network testNetwork;
 
     @Before
@@ -47,7 +47,7 @@ public class UcteGlskDocumentScalableConverterTest {
     }
 
     @Test
-    public void testConvertUcteGlskDocumentToScalableDataChronologyFromFilePathString() throws ParserConfigurationException, SAXException, IOException {
+    public void testConvertUcteGlskDocumentToScalableDataChronologyFromFilePathString() {
         Map<String, DataChronology<Scalable>> mapGlskDocScalable = UcteGlskDocumentScalableConverter.convert(getResourceAsPathString(UCTETEST), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
 
@@ -65,7 +65,7 @@ public class UcteGlskDocumentScalableConverterTest {
     }
 
     @Test
-    public void testConvertUcteGlskDocumentToScalableDataChronologyFromFilePath() throws ParserConfigurationException, SAXException, IOException {
+    public void testConvertUcteGlskDocumentToScalableDataChronologyFromFilePath() {
         Map<String, DataChronology<Scalable>> mapGlskDocScalable = UcteGlskDocumentScalableConverter.convert(getResourceAsPath(UCTETEST), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
 
@@ -80,6 +80,87 @@ public class UcteGlskDocumentScalableConverterTest {
         assertEquals("FFR1AA1 _generator", scalable.filterInjections(testNetwork).get(0).getId());
         assertEquals("FFR1AA1 _load", scalable.filterInjections(testNetwork).get(1).getId());
         assertEquals("FFR2AA1 _load", scalable.filterInjections(testNetwork).get(2).getId());
+    }
+
+    @Test
+    public void testConvertWithIdDuplication() {
+        Map<String, DataChronology<Scalable>> mapGlskDocScalable = UcteGlskDocumentScalableConverter.convert(getResourceAsPath(UCTE_TEST_ID_DUPLICATION), testNetwork);
+        assertFalse(mapGlskDocScalable.isEmpty());
+        DataChronology<Scalable> dataChronolog = mapGlskDocScalable.get("10YFR-RTE------C");
+
+        String initialNetworkVariant = testNetwork.getVariantManager().getWorkingVariantId();
+        String firstInstant = "2016-07-29T00:00:00Z";
+        testNetwork.getVariantManager().cloneVariant(initialNetworkVariant, firstInstant);
+        testNetwork.getVariantManager().setWorkingVariant(firstInstant);
+        assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+
+        Scalable scalable1 =  dataChronolog.getDataForInstant(Instant.parse(firstInstant)).get();
+        assertEquals("FFR1AA1 _generator", scalable1.filterInjections(testNetwork).get(0).getId());
+        assertEquals("FFR1AA1 _load", scalable1.filterInjections(testNetwork).get(1).getId());
+        assertEquals("FFR2AA1 _load", scalable1.filterInjections(testNetwork).get(2).getId());
+        scalable1.scale(testNetwork, 1000);
+        assertEquals(2300., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(845., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(2955., testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+
+        String secondInstant = "2016-07-30T00:00:00Z";
+        testNetwork.getVariantManager().cloneVariant(initialNetworkVariant, secondInstant);
+        testNetwork.getVariantManager().setWorkingVariant(secondInstant);
+        assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+
+        Scalable scalable2 =  dataChronolog.getDataForInstant(Instant.parse(secondInstant)).get();
+        assertEquals("FFR1AA1 _generator", scalable2.filterInjections(testNetwork).get(0).getId());
+        assertEquals("FFR1AA1 _load", scalable2.filterInjections(testNetwork).get(1).getId());
+        assertEquals("FFR2AA1 _load", scalable2.filterInjections(testNetwork).get(2).getId());
+        scalable2.scale(testNetwork, 1000);
+        assertEquals(2700., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(933., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(3267, testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+    }
+
+    @Test
+    @Ignore
+    public void testConvertWithoutIdDuplication() {
+        Map<String, DataChronology<Scalable>> mapGlskDocScalable = UcteGlskDocumentScalableConverter.convert(getResourceAsPath(UCTE_TEST_NO_ID_DUPLICATION), testNetwork);
+        assertFalse(mapGlskDocScalable.isEmpty());
+        DataChronology<Scalable> dataChronolog = mapGlskDocScalable.get("10YFR-RTE------C");
+
+        String initialNetworkVariant = testNetwork.getVariantManager().getWorkingVariantId();
+        String firstInstant = "2016-07-29T00:00:00Z";
+        testNetwork.getVariantManager().cloneVariant(initialNetworkVariant, firstInstant);
+        testNetwork.getVariantManager().setWorkingVariant(firstInstant);
+        assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+
+        Scalable scalable1 =  dataChronolog.getDataForInstant(Instant.parse(firstInstant)).get();
+        assertEquals("FFR1AA1 _generator", scalable1.filterInjections(testNetwork).get(0).getId());
+        assertEquals("FFR1AA1 _load", scalable1.filterInjections(testNetwork).get(1).getId());
+        assertEquals("FFR2AA1 _load", scalable1.filterInjections(testNetwork).get(2).getId());
+        scalable1.scale(testNetwork, 1000);
+        assertEquals(2300., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(845., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(2955., testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+
+        String secondInstant = "2016-07-30T00:00:00Z";
+        testNetwork.getVariantManager().cloneVariant(initialNetworkVariant, secondInstant);
+        testNetwork.getVariantManager().setWorkingVariant(secondInstant);
+        assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
+
+        Scalable scalable2 =  dataChronolog.getDataForInstant(Instant.parse(secondInstant)).get();
+        assertEquals("FFR1AA1 _generator", scalable2.filterInjections(testNetwork).get(0).getId());
+        assertEquals("FFR1AA1 _load", scalable2.filterInjections(testNetwork).get(1).getId());
+        assertEquals("FFR2AA1 _load", scalable2.filterInjections(testNetwork).get(2).getId());
+        scalable2.scale(testNetwork, 1000);
+        assertEquals(2700., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 1);
+        assertEquals(933., testNetwork.getLoad("FFR1AA1 _load").getP0(), 1);
+        assertEquals(3267, testNetwork.getLoad("FFR2AA1 _load").getP0(), 1);
     }
 
 }

@@ -1,7 +1,6 @@
 {
   "version" : "1.0",
-  "dc-mode" : false,
-  "ac-to-dc-fallback" : false,
+  "rao-with-loop-flow-limitation" : false,
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,

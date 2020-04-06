@@ -61,17 +61,13 @@ public class RaoParametersTest {
 
     @Test
     public void checkConfig() {
-        boolean dcMode = false;
-        boolean acToDcFallback = true;
 
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
-        moduleConfig.setStringProperty("dc-mode", Boolean.toString(dcMode));
-        moduleConfig.setStringProperty("ac-to-dc-fallback", Boolean.toString(acToDcFallback));
+        moduleConfig.setStringProperty("rao-with-loop-flow-limitation", Boolean.toString(false));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
-        assertEquals(dcMode, parameters.isDcMode());
-        assertEquals(acToDcFallback, parameters.isAcToDcFallback());
+        assertEquals(false, parameters.isRaoWithLoopFlowLimitation());
     }
 
     @Test

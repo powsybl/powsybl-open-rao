@@ -31,16 +31,4 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     public void setRangeActionRao(String rangeActionRaoName) {
         this.rangeActionRao = rangeActionRaoName;
     }
-
-    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW = false; //loop flow is for CORE D2CC, default value set to false
-
-    private boolean raoWithLoopFlow = DEFAULT_RAO_WITH_LOOP_FLOW;
-
-    public void setRaoWithLoopFlow(boolean raoWithLoopFlow) {
-        this.raoWithLoopFlow = raoWithLoopFlow;
-    }
-
-    public boolean isRaoWithLoopFlow() {
-        return raoWithLoopFlow;
-    }
 }

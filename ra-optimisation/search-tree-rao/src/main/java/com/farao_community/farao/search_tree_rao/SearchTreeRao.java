@@ -11,17 +11,14 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
-import com.farao_community.farao.ra_optimisation.RaoComputationResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -31,8 +28,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(RaoProvider.class)
 public class SearchTreeRao implements RaoProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRao.class);
-
     @Override
     public String getName() {
         return "SearchTreeRao";
@@ -44,8 +39,7 @@ public class SearchTreeRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoComputationResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
-
+    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
         // quality check
         List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters);
         if (!configQualityCheck.isEmpty()) {
@@ -54,18 +48,16 @@ public class SearchTreeRao implements RaoProvider {
         crac.generateValidityReport(network);
 
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
         CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
-        if (!Objects.isNull(searchTreeRaoParameters) && useLoopFlowExtension(searchTreeRaoParameters)
-            && !Objects.isNull(cracLoopFlowExtension)) {
+        if (useLoopFlowExtension(parameters) && !Objects.isNull(cracLoopFlowExtension)) {
             //For the initial Network, compute the F_(0,all)_init
-            LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(network, crac, cracLoopFlowExtension.getGlskProvider(), cracLoopFlowExtension.getCountriesForLoopFlow());
-            Map<String, Double> fZeroAll = initialLoopFlowComputation.calculateLoopFlows();
-            updateCnecsLoopFlowConstraint(crac, fZeroAll);
+            LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+            Map<String, Double> loopFlows = initialLoopFlowComputation.calculateLoopFlows(network);
+            updateCnecsLoopFlowConstraint(crac, loopFlows); //todo: cnec loop flow extension need to be based on ResultVariantManger
         }
 
         // run optimisation
-        RaoComputationResult result = Tree.search(network, crac, variantId, parameters).join();
+        RaoResult result = Tree.search(network, crac, variantId, parameters).join();
         return CompletableFuture.completedFuture(result);
     }
 
@@ -78,12 +70,12 @@ public class SearchTreeRao implements RaoProvider {
                 //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
                 double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
                 double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
-                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold));
+                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
             }
         });
     }
 
-    private static boolean useLoopFlowExtension(SearchTreeRaoParameters searchTreeRaoParameters) {
-        return searchTreeRaoParameters.isRaoWithLoopFlow();
+    private static boolean useLoopFlowExtension(RaoParameters parameters) {
+        return parameters.isRaoWithLoopFlowLimitation();
     }
 }
