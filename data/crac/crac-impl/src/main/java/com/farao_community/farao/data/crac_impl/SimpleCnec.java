@@ -136,11 +136,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public double getI(Network network) {
-        double i = isCnecDisconnected(network) ? 0 : getTerminal(network).getI();
-        if (Double.isNaN(i)) {
-            throw new FaraoException(String.format("No intensity (I) data available for CNEC %s", getName()));
-        }
-        return i;
+        return isCnecDisconnected(network) ? 0 : getTerminal(network).getI();
     }
 
     @Override
