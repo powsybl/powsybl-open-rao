@@ -16,28 +16,29 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class LinearRaoResult extends AbstractExtension<RaoResult> {
 
-    public enum SystematicSensitivityAnalysisParameters {
+    public enum SystematicSensitivityAnalysisStatus {
         DEFAULT,
-        FALLBACK
+        FALLBACK,
+        FAILURE
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private SystematicSensitivityAnalysisParameters systematicSensitivityAnalysisParameters;
+    private SystematicSensitivityAnalysisStatus systematicSensitivityAnalysisStatus;
 
     @Override
     public String getName() {
         return "LinearRaoResult";
     }
 
-    public SystematicSensitivityAnalysisParameters getSystematicSensitivityAnalysisParameters() {
-        return systematicSensitivityAnalysisParameters;
+    public SystematicSensitivityAnalysisStatus getSystematicSensitivityAnalysisStatus() {
+        return systematicSensitivityAnalysisStatus;
     }
 
-    public void setSystematicSensitivityAnalysisParameters(SystematicSensitivityAnalysisParameters systematicSensitivityAnalysisParameters) {
-        this.systematicSensitivityAnalysisParameters = systematicSensitivityAnalysisParameters;
+    public void setSystematicSensitivityAnalysisStatus(SystematicSensitivityAnalysisStatus systematicSensitivityAnalysisStatus) {
+        this.systematicSensitivityAnalysisStatus = systematicSensitivityAnalysisStatus;
     }
 
-    public void setSystematicSensitivityAnalysisParameters(boolean lastSensiIsFallback) {
-        this.systematicSensitivityAnalysisParameters = lastSensiIsFallback ? SystematicSensitivityAnalysisParameters.FALLBACK : SystematicSensitivityAnalysisParameters.DEFAULT;
+    public void setSuccessfulSystematicSensitivityAnalysisStatus(boolean lastSensiIsFallback) {
+        this.systematicSensitivityAnalysisStatus = lastSensiIsFallback ? SystematicSensitivityAnalysisStatus.FALLBACK : SystematicSensitivityAnalysisStatus.DEFAULT;
     }
 }
