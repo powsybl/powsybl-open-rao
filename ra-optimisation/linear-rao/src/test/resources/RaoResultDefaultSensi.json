@@ -1,6 +1,10 @@
 {
   "status" : "SUCCESS",
-  "lastSensiParams" : "DEFAULT",
   "preOptimVariantId" : "variant1",
-  "postOptimVariantId" : "variant2"
+  "postOptimVariantId" : "variant2",
+  "extensions" : {
+    "LinearRaoResult" : {
+      "systematicSensitivityAnalysisParameters" : "DEFAULT"
+    }
+  }
 }

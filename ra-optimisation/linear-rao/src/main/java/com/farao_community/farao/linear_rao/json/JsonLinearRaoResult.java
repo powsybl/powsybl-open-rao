@@ -11,6 +11,7 @@ package com.farao_community.farao.linear_rao.json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.linear_rao.LinearRaoResult;
+import com.farao_community.farao.linear_rao.LinearRaoResult.SystematicSensitivityAnalysisParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -28,7 +29,6 @@ public class JsonLinearRaoResult implements JsonRaoResult.ExtensionSerializer<Li
 
     @Override
     public void serialize(LinearRaoResult resultExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        //jsonGenerator.configure(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS, true);
         jsonGenerator.writeStartObject();
         jsonGenerator.writeObjectField("systematicSensitivityAnalysisParameters", resultExtension.getSystematicSensitivityAnalysisParameters());
         jsonGenerator.writeEndObject();
@@ -42,7 +42,7 @@ public class JsonLinearRaoResult implements JsonRaoResult.ExtensionSerializer<Li
             switch (jsonParser.getCurrentName()) {
                 case "systematicSensitivityAnalysisParameters":
                     jsonParser.nextToken();
-                    resultExtension.setSystematicSensitivityAnalysisParameters(jsonParser.getBooleanValue());
+                    resultExtension.setSystematicSensitivityAnalysisParameters(getSystematicSensitivityAnalysisParametersFromString(jsonParser.getValueAsString()));
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -65,5 +65,19 @@ public class JsonLinearRaoResult implements JsonRaoResult.ExtensionSerializer<Li
     @Override
     public Class<? super LinearRaoResult> getExtensionClass() {
         return LinearRaoResult.class;
+    }
+
+    private SystematicSensitivityAnalysisParameters getSystematicSensitivityAnalysisParametersFromString(String systematicSensitivityAnalysisParameters) {
+        switch (systematicSensitivityAnalysisParameters) {
+
+            case "DEFAULT":
+                return SystematicSensitivityAnalysisParameters.DEFAULT;
+
+            case "FALLBACK":
+                return SystematicSensitivityAnalysisParameters.FALLBACK;
+
+            default:
+                throw new FaraoException("Unexpected field: " + systematicSensitivityAnalysisParameters);
+        }
     }
 }

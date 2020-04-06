@@ -9,12 +9,12 @@
 
 package com.farao_community.farao.linear_rao.json;
 
-//import com.farao_community.farao.linear_rao.LinearRaoResult;
+import com.farao_community.farao.linear_rao.LinearRaoResult;
 import com.farao_community.farao.rao_api.RaoResult;
-//import com.farao_community.farao.rao_api.json.JsonRaoResult;
+import com.farao_community.farao.rao_api.json.JsonRaoResult;
 import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Before;
-//import org.junit.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -33,8 +33,9 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
         super.setUp();
     }
 
-    /*@Test
+    @Test
     public void roundTripDefaultSensiParams() throws IOException {
+        JsonRaoResult.read(getClass().getResourceAsStream("/RaoResultDefaultSensi.json"));
         LinearRaoResult resultExtension = new LinearRaoResult();
         resultExtension.setSystematicSensitivityAnalysisParameters(false);
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
@@ -47,5 +48,5 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
         resultExtension.setSystematicSensitivityAnalysisParameters(true);
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
         roundTripTest(raoResult, JsonRaoResult::write, JsonRaoResult::read, "/RaoResultFallbackSensi.json");
-    }*/
+    }
 }

@@ -39,7 +39,7 @@ public final class JsonRaoResult {
     private JsonRaoResult() { }
 
     /**
-     * A configuration loader interface for the RaoComputationResult extensions loaded
+     * A configuration loader interface for the RaoResult extensions loaded
      *
      * @param <E> The extension class
      */
@@ -50,7 +50,7 @@ public final class JsonRaoResult {
      * Lazily initialized list of extension serializers.
      */
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "rao-computation-result"));
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "rao-result"));
 
     /**
      * Gets the known extension serializers.
