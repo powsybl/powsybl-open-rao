@@ -149,7 +149,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                 throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
             }
 
-            double sensitivity = rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(cnec.getState()), cnec);
+            double sensitivity = linearRaoData.getSensitivity(cnec, rangeAction);
             double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set

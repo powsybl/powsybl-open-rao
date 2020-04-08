@@ -6,11 +6,19 @@
  */
 package com.farao_community.farao.util;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityValue;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -30,12 +38,45 @@ public class SystematicSensitivityAnalysisResult {
         return stateSensiMap;
     }
 
-    public Map<Cnec, Double> getCnecFlowMap() {
-        return cnecFlowMap;
+    public Optional<Double> getFlow(Cnec cnec) {
+        return Optional.ofNullable(cnecFlowMap.get(cnec));
     }
 
-    public Map<Cnec, Double> getCnecIntensityMap() {
-        return cnecIntensityMap;
+    public Optional<Double> getIntensity(Cnec cnec) {
+        return Optional.ofNullable(cnecIntensityMap.get(cnec));
     }
 
+    public Optional<Double> getSensitivity(Cnec cnec, State state, RangeAction rangeAction) {
+        if (!stateSensiMap.containsKey(state)) {
+            return Optional.empty();
+        }
+        return Optional.of(getSensitivityValues(cnec, rangeAction, stateSensiMap.get(state)).stream()
+                .mapToDouble(SensitivityValue::getValue)
+                .sum());
+    }
+
+    private List<SensitivityValue> getSensitivityValues(Cnec cnec, RangeAction rangeAction, SensitivityComputationResults stateResults) {
+        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
+        return networkElements.stream().map(netEl -> networkElementToSensitivityValue(cnec, netEl, stateResults)).collect(Collectors.toList());
+    }
+
+    private SensitivityValue networkElementToSensitivityValue(Cnec cnec, NetworkElement rangeElement, SensitivityComputationResults stateResults) {
+        List<SensitivityValue> sensitivityValues;
+        sensitivityValues = stateResults.getSensitivityValues().stream()
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().getId().equals(rangeElement.getId()))
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().getId().equals(cnec.getId()))
+                .collect(Collectors.toList());
+
+        if (sensitivityValues.size() > 1) {
+            throw new FaraoException(String.format("More than one sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), rangeElement.getId()));
+        }
+        if (sensitivityValues.isEmpty()) {
+            throw new FaraoException(String.format("No sensitivity value found for couple Cnec %s - RA %s", cnec.getId(), rangeElement.getId()));
+        }
+        return sensitivityValues.get(0);
+    }
+
+    public boolean anyStateDiverged() {
+        return stateSensiMap.containsValue(null) || cnecFlowMap.isEmpty();
+    }
 }

@@ -166,7 +166,7 @@ public class LinearRao implements RaoProvider {
                                                                                  boolean useFallbackSensiParams) {
         SystematicSensitivityAnalysisResult sensitivityAnalysisResult = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, parameters);
         // Failure if some sensitivities are not computed
-        if (sensitivityAnalysisResult.getStateSensiMap().containsValue(null) || sensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+        if (sensitivityAnalysisResult.anyStateDiverged()) {
             throw new SensitivityComputationException(String.format("Sensitivity computation failed with %s sensitivity parameters.", useFallbackSensiParams ? "fallback" : "default"));
         } else {
             return sensitivityAnalysisResult;
@@ -233,7 +233,7 @@ public class LinearRao implements RaoProvider {
     private double getMinMargin(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         double minMargin = Double.POSITIVE_INFINITY;
         for (Cnec cnec : crac.getCnecs()) {
-            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+            double flow = systematicSensitivityAnalysisResult.getFlow(cnec).orElse(Double.NaN);
             double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
             if (Double.isNaN(margin)) {
                 throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
@@ -247,8 +247,8 @@ public class LinearRao implements RaoProvider {
         crac.getCnecs().forEach(cnec -> {
             CnecResultExtension cnecResultMap = cnec.getExtension(CnecResultExtension.class);
             CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
-            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
+            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getFlow(cnec).orElse(Double.NaN));
+            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getIntensity(cnec).orElse(Double.NaN));
             cnecResult.setThresholds(cnec);
         });
     }

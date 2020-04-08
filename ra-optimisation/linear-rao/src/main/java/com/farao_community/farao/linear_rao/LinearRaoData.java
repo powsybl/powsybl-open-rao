@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationResults;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -35,16 +34,8 @@ public class LinearRaoData {
         this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
     }
 
-    public SensitivityComputationResults getSensitivityComputationResults(State state) {
-        SensitivityComputationResults out = systematicSensitivityAnalysisResult.getStateSensiMap().get(state);
-        if (out == null) {
-            throw new FaraoException(String.format("No SensitivityComputationResults found for state %s", state.getId()));
-        }
-        return out;
-    }
-
     public double getReferenceFlow(Cnec cnec) {
-        return systematicSensitivityAnalysisResult.getCnecFlowMap().get(cnec);
+        return systematicSensitivityAnalysisResult.getFlow(cnec).orElseThrow(FaraoException::new);
     }
 
     public Crac getCrac() {
@@ -53,5 +44,9 @@ public class LinearRaoData {
 
     public Network getNetwork() {
         return this.network;
+    }
+
+    public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
+        return systematicSensitivityAnalysisResult.getSensitivity(cnec, cnec.getState(), rangeAction).orElse(Double.NaN);
     }
 }
