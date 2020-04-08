@@ -47,8 +47,8 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     }
 
     private void initPercentageOfMax(double percentageOfMax) {
-        if (percentageOfMax < 0 || percentageOfMax > 100) {
-            throw new FaraoException("PercentageOfMax of RelativeFlowThresholds must be in [0, 100]");
+        if (percentageOfMax < 0) {
+            throw new FaraoException("PercentageOfMax of RelativeFlowThresholds must be positive.");
         }
         this.percentageOfMax = percentageOfMax;
     }
