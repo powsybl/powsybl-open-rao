@@ -54,7 +54,10 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
     }
 
     private SensitivityVariable defaultSensitivityVariable(Network network) {
-        Generator genKept = network.getGeneratorStream().filter(gen -> willBeKeptInSensi(gen)).findAny().get();
+        Generator genKept = network.getGeneratorStream()
+                .filter(this::willBeKeptInSensi)
+                .findFirst()
+                .orElseThrow(() -> new FaraoException(String.format("Unable to create sensitivity factors for CRAC '%s'. Did not find any generator in network '%s'.", crac.getId(), network.getId())));
         return new InjectionIncrease(genKept.getId(), genKept.getName(), genKept.getId());
     }
 
