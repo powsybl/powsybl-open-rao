@@ -15,22 +15,32 @@ import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
+
+    static {
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
     @Override
@@ -45,25 +55,42 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(Network network,
+                                             Crac crac,
+                                             String variantId,
+                                             ComputationManager computationManager,
+                                             RaoParameters raoParameters) {
+        CompletableFuture<RaoResult> result;
+        try {
+            result = run2(network, crac, variantId, computationManager, raoParameters);
+        } catch (SensitivityComputationException e) {
+            result = CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        } catch (FaraoException e) {
+            result = CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        } catch (Exception e) {
+            result = CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        }
+        return result;
+    }
+
+    public CompletableFuture<RaoResult> run2(Network network,
                                             Crac crac,
                                             String variantId,
                                             ComputationManager computationManager,
-                                            RaoParameters raoParameters) {
+                                            RaoParameters raoParameters) throws FaraoException, SensitivityComputationException{
+        AtomicBoolean useFallbackSensiParams = new AtomicBoolean(false);
 
         raoParametersQualityCheck(raoParameters);
         LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(network, linearRaoParameters, computationManager, useFallbackSensiParams);
+
         // evaluate initial sensitivity coefficients and costs on the initial network situation
-        InitialSituation initialSituation = new InitialSituation(crac);
-        initialSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
-        if (initialSituation.getSensiStatus() != AbstractSituation.ComputationStatus.RUN_OK) {
-            initialSituation.deleteResultVariant();
-            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
-        }
+        InitialSituation initialSituation = new InitialSituation(crac, network);
+        systematicAnalysisEngine.runWithParametersSwitch(initialSituation);
 
         // if ! doOptim() break
         if (skipOptim(linearRaoParameters, crac)) {
-            return CompletableFuture.completedFuture(buildRaoResult(initialSituation.getCost(), initialSituation.getResultVariant(), initialSituation.getResultVariant()));
+            return CompletableFuture.completedFuture(buildRaoResult(initialSituation.getCost(), initialSituation.getResultVariant(), initialSituation.getResultVariant(), useFallbackSensiParams.get()));
         }
 
         // initiate LP
@@ -72,7 +99,7 @@ public class LinearRao implements RaoProvider {
 
         AbstractSituation bestSituation = initialSituation;
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
-            OptimizedSituation currentSituation = new OptimizedSituation(crac);
+            OptimizedSituation currentSituation = new OptimizedSituation(crac, network);
 
             currentSituation.solveLp(linearOptimisationEngine);
             if (currentSituation.getLpStatus() != AbstractSituation.ComputationStatus.RUN_OK) {
@@ -85,8 +112,8 @@ public class LinearRao implements RaoProvider {
                 break;
             }
 
-            currentSituation.applyRAs(network);
-            currentSituation.evaluateSensiAndCost(network, computationManager, linearRaoParameters.getSensitivityComputationParameters());
+            currentSituation.applyRAs();
+            systematicAnalysisEngine.runWithParametersSwitch(currentSituation);
 
             if (currentSituation.getCost() >= bestSituation.getCost()) {
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestSituation.getCost(), -currentSituation.getCost());
@@ -99,7 +126,7 @@ public class LinearRao implements RaoProvider {
 
         }
 
-        return CompletableFuture.completedFuture(buildRaoResult(bestSituation.getCost(), initialSituation.getResultVariant(), bestSituation.getResultVariant()));
+        return CompletableFuture.completedFuture(buildRaoResult(bestSituation.getCost(), initialSituation.getResultVariant(), bestSituation.getResultVariant(), useFallbackSensiParams.get()));
 
     }
 
@@ -121,8 +148,11 @@ public class LinearRao implements RaoProvider {
         return linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty();
     }
 
-    private RaoResult buildRaoResult(double cost, String preOptimVariantId, String postOptimVariantId) {
+    private RaoResult buildRaoResult(double cost, String preOptimVariantId, String postOptimVariantId, boolean useFallbackSensiParams) {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        LinearRaoResult resultExtension = new LinearRaoResult();
+        resultExtension.setSuccessfulSystematicSensitivityAnalysisStatus(useFallbackSensiParams);
+        raoResult.addExtension(LinearRaoResult.class, resultExtension);
         raoResult.setPreOptimVariantId(preOptimVariantId);
         raoResult.setPostOptimVariantId(postOptimVariantId);
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) -cost, cost <= 0 ?

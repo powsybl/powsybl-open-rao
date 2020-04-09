@@ -31,8 +31,8 @@ public final class OptimizedSituation extends AbstractSituation {
     /**
      * Constructor
      */
-    OptimizedSituation(Crac crac) {
-        super(crac);
+    OptimizedSituation(Crac crac, Network network) {
+        super(crac, network);
         this.lpStatus = ComputationStatus.NOT_RUN;
     }
 
@@ -61,7 +61,7 @@ public final class OptimizedSituation extends AbstractSituation {
     /**
      * Apply the optimised RangeAction on a Network
      */
-    void applyRAs(Network network) {
+    void applyRAs() {
         if (lpStatus != ComputationStatus.RUN_OK) {
             throw new FaraoException("RangeAction have not been optimized yet and therefore cannot be applied");
         }

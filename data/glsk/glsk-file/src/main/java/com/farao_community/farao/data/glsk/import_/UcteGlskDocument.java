@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.FaraoException;
+import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,6 +26,7 @@ import java.util.*;
 /**
  * Ucte type GLSK document object: contains a list of GlskPoint
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
+ * @author Amira Kahya {@literal <amira.kahya@rte-france.com>}
  */
 public class UcteGlskDocument {
     /**
@@ -32,9 +34,9 @@ public class UcteGlskDocument {
      */
     private List<GlskPoint> listUcteGlskBlocks;
     /**
-     * map of time series id and time series
+     * map of Country EIC and time series
      */
-    private Map<String, UcteGlskSeries> ucteGlskSeriesByID; //map<timeSerieID, UcteGlskSeries>
+    private Map<String, UcteGlskSeries> ucteGlskSeriesByCountry; //map<countryEICode, UcteGlskSeries>
     /**
      * List of Glsk point by country code
      */
@@ -52,6 +54,8 @@ public class UcteGlskDocument {
      */
     public UcteGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         documentBuilderFactory.setNamespaceAware(true);
 
@@ -61,45 +65,40 @@ public class UcteGlskDocument {
         document.getDocumentElement().normalize();
 
         List<UcteGlskSeries> rawlistUcteGlskSeries = new ArrayList<>();
-        ucteGlskSeriesByID = new HashMap<>();
-
+        ucteGlskSeriesByCountry = new HashMap<>();
         NodeList glskSeriesNodeList = document.getElementsByTagName("GSKSeries");
         for (int i = 0; i < glskSeriesNodeList.getLength(); i++) {
             if (glskSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element glskSeriesElement = (Element) glskSeriesNodeList.item(i);
                 UcteGlskSeries glskSeries = new UcteGlskSeries(glskSeriesElement);
-
                 rawlistUcteGlskSeries.add(glskSeries);
-
             }
         }
 
-        //construct ucteGlskSeriesByID, merging LSK and GSK for same TimeInterval
+        //construct ucteGlskSeriesByCountry, merging LSK and GSK for same TimeInterval
         for (UcteGlskSeries glskSeries : rawlistUcteGlskSeries) {
-
-            String currentID = glskSeries.getTimeSeriesID();
-            if (!ucteGlskSeriesByID.containsKey(currentID)) {
-                ucteGlskSeriesByID.put(currentID, glskSeries);
+            String currentArea = glskSeries.getArea();
+            if (!ucteGlskSeriesByCountry.containsKey(currentArea)) {
+                ucteGlskSeriesByCountry.put(currentArea, glskSeries);
             } else {
-
-                UcteGlskSeries mergedSeries = mergeUcteGlskSeries(glskSeries, ucteGlskSeriesByID.get(currentID));
-                ucteGlskSeriesByID.put(currentID, mergedSeries);
+                UcteGlskSeries ucteGlskSeries = calculateUcteGlskSeries(glskSeries, ucteGlskSeriesByCountry.get(currentArea));
+                ucteGlskSeriesByCountry.put(currentArea, ucteGlskSeries);
             }
         }
 
         //construct list gsk points
         listUcteGlskBlocks = new ArrayList<>();
-        ucteGlskSeriesByID.keySet().forEach(id -> listUcteGlskBlocks.addAll(ucteGlskSeriesByID.get(id).getUcteGlskBlocks()));
+        ucteGlskSeriesByCountry.keySet().forEach(id -> listUcteGlskBlocks.addAll(ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks()));
 
         //construct map ucteGlskPointsByCountry
         ucteGlskPointsByCountry = new HashMap<>();
-        ucteGlskSeriesByID.keySet().forEach(id -> {
-            String country = ucteGlskSeriesByID.get(id).getArea();
+        ucteGlskSeriesByCountry.keySet().forEach(id -> {
+            String country = ucteGlskSeriesByCountry.get(id).getArea();
             if (!ucteGlskPointsByCountry.containsKey(country)) {
-                List<GlskPoint> glskPointList = ucteGlskSeriesByID.get(id).getUcteGlskBlocks();
+                List<GlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
                 ucteGlskPointsByCountry.put(country, glskPointList);
             } else {
-                List<GlskPoint> glskPointList = ucteGlskSeriesByID.get(id).getUcteGlskBlocks();
+                List<GlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
                 glskPointList.addAll(ucteGlskPointsByCountry.get(country));
                 ucteGlskPointsByCountry.put(country, glskPointList);
             }
@@ -107,29 +106,35 @@ public class UcteGlskDocument {
     }
 
     /**
-     * merge LSK and GSK of the same time series id
+     * merge LSK and GSK of the same country and Same Point Interval
+     * and add glsk Point for missed  intervals
      * @param incomingSeries incoming time series to be merged with old time series
-     * @param oldSeries current time series to be updated
+     * @param oldSeries      current time series to be updated
      * @return
      */
-    private UcteGlskSeries mergeUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
-        if (!incomingSeries.getArea().equals(oldSeries.getArea())) {
-            return oldSeries;
-        } else {
-            List<GlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
-            List<GlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
-            for (GlskPoint oldPoint : oldPoints) {
-                for (GlskPoint incomingPoint : incomingPoints) {
-                    if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
-                        oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
-                        break;
-                    }
+    private UcteGlskSeries calculateUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
+        List<GlskPoint> glskPointListTobeAdded = new ArrayList();
+        List<Interval> oldPointsIntervalsList = new ArrayList<>();
+        List<GlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
+        List<GlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
+        for (GlskPoint oldPoint : oldPoints) {
+            for (GlskPoint incomingPoint : incomingPoints) {
+                if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
+                    oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
+                } else {
+                    glskPointListTobeAdded = Collections.singletonList(incomingPoint);
+
                 }
             }
-            return oldSeries;
         }
+        oldPoints.forEach(oldPoint -> oldPointsIntervalsList.add(oldPoint.getPointInterval()));
+        glskPointListTobeAdded.forEach(glskPointToBeAdded -> {
+            if (!oldPointsIntervalsList.contains(glskPointToBeAdded.getPointInterval())) {
+                oldPoints.add(glskPointToBeAdded);
+            }
+        });
+        return oldSeries;
     }
-
 
     /**
      * @return getter list of glsk point in the document
@@ -142,7 +147,7 @@ public class UcteGlskDocument {
      * @return getter list of time series
      */
     public List<UcteGlskSeries> getListGlskSeries() {
-        return new ArrayList<>(ucteGlskSeriesByID.values());
+        return new ArrayList<>(ucteGlskSeriesByCountry.values());
     }
 
     /**

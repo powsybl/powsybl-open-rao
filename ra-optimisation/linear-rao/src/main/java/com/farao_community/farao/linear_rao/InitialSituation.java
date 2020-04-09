@@ -25,8 +25,8 @@ import com.powsybl.iidm.network.Network;
  */
 final class InitialSituation extends AbstractSituation {
 
-    InitialSituation(Crac crac) {
-        super(crac);
+    InitialSituation(Crac crac, Network network) {
+        super(crac, network);
     }
 
     @Override
@@ -35,8 +35,8 @@ final class InitialSituation extends AbstractSituation {
     }
 
     @Override
-    protected void addSystematicSensitivityAnalysisResultsToCracVariant(Network network) {
-        super.addSystematicSensitivityAnalysisResultsToCracVariant(network);
+    protected void addSystematicSensitivityAnalysisResultsToCracVariant() {
+        super.addSystematicSensitivityAnalysisResultsToCracVariant();
         // in addition to a standard Situation, add in the Crac the initial RA set-points
         updateRangeActionExtensions(network);
     }
