@@ -117,28 +117,6 @@ abstract class AbstractSituation {
     protected abstract String getVariantPrefix();
 
     /**
-     * evaluate the sensitivity coefficients and the objective function value of the
-     * AbstractSituation. The results are written in the attributes
-     * systematicSensitivityAnalysisResult, cost and in the Crac variant with id
-     * resultVariantId.
-     */
-    void evaluateSensiAndCost(Network network, ComputationManager computationManager, SensitivityComputationParameters sensitivityComputationParameters) {
-
-        systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-            .runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
-
-        // Failure if some sensitivities are not computed
-        if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
-            // delete()
-            sensiStatus = ComputationStatus.RUN_NOK;
-        } else {
-            cost = -getMinMargin();
-            sensiStatus = ComputationStatus.RUN_OK;
-            addSystematicSensitivityAnalysisResultsToCracVariant(network);
-        }
-    }
-
-    /**
      * Compare the network situations (i.e. the RangeActions set-points) of two
      * AbstractSituation. Returns true if the situations are identical, and false
      * if they are not.
@@ -180,12 +158,18 @@ abstract class AbstractSituation {
         return minMargin;
     }
 
+    void setResults(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+        cost = -getMinMargin();
+        addSystematicSensitivityAnalysisResultsToCracVariant();
+        sensiStatus = ComputationStatus.RUN_OK;
+    }
 
     /**
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant associated to this situation.
      */
-    protected void addSystematicSensitivityAnalysisResultsToCracVariant(Network network) {
+    protected void addSystematicSensitivityAnalysisResultsToCracVariant() {
         updateCracExtension();
         updateCnecExtensions();
     }

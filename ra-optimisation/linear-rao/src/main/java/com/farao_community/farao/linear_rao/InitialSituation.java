@@ -35,10 +35,10 @@ final class InitialSituation extends AbstractSituation {
     }
 
     @Override
-    protected void addSystematicSensitivityAnalysisResultsToCracVariant(Network network) {
-        super.addSystematicSensitivityAnalysisResultsToCracVariant(network);
+    protected void addSystematicSensitivityAnalysisResultsToCracVariant() {
+        super.addSystematicSensitivityAnalysisResultsToCracVariant();
         // in addition to a standard Situation, add in the Crac the initial RA set-points
-        updateRangeActionExtensions(network);
+        updateRangeActionExtensions(this.getNetwork());
     }
 
     /**

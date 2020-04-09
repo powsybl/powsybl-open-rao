@@ -30,11 +30,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ClosedOptimisationRao implements RaoComputation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClosedOptimisationRao.class);
-
     static {
-        NativeLibraryLoader.loadNativeLibraries();
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClosedOptimisationRao.class);
 
     private Network network;
     private CracFile cracFile;
