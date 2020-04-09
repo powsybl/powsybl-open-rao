@@ -82,6 +82,9 @@ public class LinearRao implements RaoProvider {
         raoParametersQualityCheck(raoParameters);
         LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 
+        // initiate engines
+        LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
+
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(network, linearRaoParameters, computationManager, useFallbackSensiParams);
 
         // evaluate initial sensitivity coefficients and costs on the initial network situation
@@ -93,15 +96,11 @@ public class LinearRao implements RaoProvider {
             return CompletableFuture.completedFuture(buildRaoResult(initialSituation.getCost(), initialSituation.getResultVariant(), initialSituation.getResultVariant(), useFallbackSensiParams.get()));
         }
 
-        // initiate LP
-        LinearOptimisationEngine linearOptimisationEngine = createLinearRaoModeller(crac, network, initialSituation.getSystematicSensitivityAnalysisResult(), raoParameters);
-        linearOptimisationEngine.buildProblem();
-
         AbstractSituation bestSituation = initialSituation;
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
-            OptimizedSituation currentSituation = new OptimizedSituation(crac, network);
 
-            currentSituation.solveLp(linearOptimisationEngine);
+            OptimizedSituation currentSituation = linearOptimisationEngine.solve(bestSituation);
+
             if (currentSituation.getLpStatus() != AbstractSituation.ComputationStatus.RUN_OK) {
                 currentSituation.deleteResultVariant();
                 return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
@@ -115,15 +114,13 @@ public class LinearRao implements RaoProvider {
             currentSituation.applyRAs();
             systematicAnalysisEngine.runWithParametersSwitch(currentSituation);
 
-            if (currentSituation.getCost() >= bestSituation.getCost()) {
+            if (currentSituation.getCost() < bestSituation.getCost()) {
+                bestSituation.deleteResultVariant();
+                bestSituation = currentSituation;
+            } else {
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestSituation.getCost(), -currentSituation.getCost());
                 break;
             }
-
-            bestSituation.deleteResultVariant();
-            bestSituation = currentSituation;
-            linearOptimisationEngine.updateProblem(network, currentSituation.getSystematicSensitivityAnalysisResult());
-
         }
 
         return CompletableFuture.completedFuture(buildRaoResult(bestSituation.getCost(), initialSituation.getResultVariant(), bestSituation.getResultVariant(), useFallbackSensiParams.get()));
@@ -135,13 +132,6 @@ public class LinearRao implements RaoProvider {
         if (!configQualityCheck.isEmpty()) {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
-    }
-
-    LinearOptimisationEngine createLinearRaoModeller(Crac crac,
-                                                     Network network,
-                                                     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult,
-                                                     RaoParameters raoParameters) {
-        return new LinearOptimisationEngine(crac, network, systematicSensitivityAnalysisResult, new LinearRaoProblem(), raoParameters);
     }
 
     private boolean skipOptim(LinearRaoParameters linearRaoParameters, Crac crac) {

@@ -158,7 +158,7 @@ public class LinearRaoProblem {
         return MPSolver.infinity();
     }
 
-    public Enum solve() {
+    public MPSolver.ResultStatus solve() {
         return solver.solve();
     }
 

@@ -14,5 +14,5 @@ import com.farao_community.farao.rao_api.RaoResult;
  */
 public abstract class AbstractPostProcessor {
 
-    protected abstract void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String variantId);
+    public abstract void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String variantId);
 }

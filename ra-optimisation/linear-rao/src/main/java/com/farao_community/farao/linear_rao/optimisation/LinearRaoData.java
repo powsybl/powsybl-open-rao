@@ -17,6 +17,8 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearRaoData {
+
+
     private Crac crac;
     private Network network;
     private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
