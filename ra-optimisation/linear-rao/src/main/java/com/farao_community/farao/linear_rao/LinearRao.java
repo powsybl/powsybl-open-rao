@@ -84,7 +84,6 @@ public class LinearRao implements RaoProvider {
 
         // initiate engines
         LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
-
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(network, linearRaoParameters, computationManager, useFallbackSensiParams);
 
         // evaluate initial sensitivity coefficients and costs on the initial network situation
@@ -99,12 +98,7 @@ public class LinearRao implements RaoProvider {
         AbstractSituation bestSituation = initialSituation;
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
 
-            OptimizedSituation currentSituation = linearOptimisationEngine.solve(bestSituation);
-
-            if (currentSituation.getLpStatus() != AbstractSituation.ComputationStatus.RUN_OK) {
-                currentSituation.deleteResultVariant();
-                return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
-            }
+            OptimizedSituation currentSituation = linearOptimisationEngine.run(bestSituation);
 
             if (bestSituation.sameRaResults(currentSituation)) {
                 currentSituation.deleteResultVariant();

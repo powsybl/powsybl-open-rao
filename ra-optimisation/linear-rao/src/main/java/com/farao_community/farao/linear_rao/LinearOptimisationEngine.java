@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
@@ -17,9 +15,7 @@ import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFil
 import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
-import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +27,7 @@ import java.util.Objects;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LinearOptimisationEngine {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearOptimisationEngine.class);
 
     private boolean initialised;
@@ -53,9 +50,10 @@ public class LinearOptimisationEngine {
         postProcessorList = getPostProcessorList();
     }
 
-    OptimizedSituation solve(AbstractSituation situationIn) {
+    OptimizedSituation run(AbstractSituation situationIn) {
 
         // update data
+        // todo : remove linear data
         this.linearRaoData = new LinearRaoData(situationIn.getCrac(), situationIn.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult());
 
         // prepare optimisation problem
@@ -67,21 +65,15 @@ public class LinearOptimisationEngine {
         }
 
         // solve optimisation problem
-        MPSolver.ResultStatus solverResultStatus = linearRaoProblem.solve();
+        solveProblem();
 
-        if (solverResultStatus != MPSolver.ResultStatus.OPTIMAL) {
-            String errorMessage = String.format("Linear optimisation failed with MPSolver status %s", solverResultStatus.toString());
-            LOGGER.error(errorMessage);
-            throw new LinearOptimisationException(errorMessage);
-        }
-
-        // todo : do not create a RaoResult anymore
         OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getNetwork(), linearRaoData.getCrac());
 
+        // todo : do not create a RaoResult anymore
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getResultVariant()));
 
-        // todo : check if it is still necessary to have two implementations of the AbstractSItuation
+        // todo : check if it is still necessary to have two implementations of the AbstractSituation
         return situationOut;
     }
 
@@ -89,9 +81,9 @@ public class LinearOptimisationEngine {
         try {
             fillerList.forEach(AbstractProblemFiller::fill);
         } catch (Exception e) {
-            String errorMessage = String.format("Linear optimisation failed while building the problem, with the following error : %s", e.getMessage());
+            String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
-            throw new LinearOptimisationException(errorMessage);
+            throw new LinearOptimisationException(errorMessage, e);
         }
     }
 
@@ -99,15 +91,16 @@ public class LinearOptimisationEngine {
         try {
             fillerList.forEach(AbstractProblemFiller::fill);
         } catch (Exception e) {
-            String errorMessage = String.format("Linear optimisation failed while updating the problem, with the following error : %s", e.getMessage());
+            String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
-            throw new LinearOptimisationException(errorMessage);
+            throw new LinearOptimisationException(errorMessage, e);
         }
     }
 
-    private void solve() {
+    private void solveProblem() {
         try {
-        MPSolver.ResultStatus solverResultStatus = linearRaoProblem.solve();
+
+            MPSolver.ResultStatus solverResultStatus = linearRaoProblem.solve();
 
             if (solverResultStatus != MPSolver.ResultStatus.OPTIMAL) {
                 String errorMessage = String.format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatus.toString());
@@ -116,13 +109,11 @@ public class LinearOptimisationEngine {
             }
 
         } catch (Exception e) {
-            String errorMessage = String.format("Solving of the linear problem failed, with the following error : %s", e.getMessage());
+            String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
-            throw new LinearOptimisationException(errorMessage);
+            throw new LinearOptimisationException(errorMessage, e);
         }
     }
-
-
 
     private List<AbstractProblemFiller> getFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
