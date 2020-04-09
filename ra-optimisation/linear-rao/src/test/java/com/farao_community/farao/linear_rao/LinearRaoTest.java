@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
-import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoResult;

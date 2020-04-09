@@ -1,8 +1,8 @@
-package com.farao_community.farao.linear_rao.engines.post_processors;
+package com.farao_community.farao.linear_rao.optimisation.post_processors;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.linear_rao.engines.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
 import org.junit.Before;

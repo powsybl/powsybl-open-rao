@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.Network;
 

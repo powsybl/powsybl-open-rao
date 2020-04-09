@@ -4,10 +4,10 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.engines.fillers;
+package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.linear_rao.engines.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;

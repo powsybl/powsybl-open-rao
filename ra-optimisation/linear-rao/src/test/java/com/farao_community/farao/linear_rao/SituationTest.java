@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.linear_rao.engines.LinearOptimisationEngine;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;

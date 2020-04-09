@@ -5,14 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao.engines;
+package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.linear_rao.engines.fillers.CoreProblemFiller;
-import com.farao_community.farao.linear_rao.engines.fillers.MaxLoopFlowFiller;
-import com.farao_community.farao.linear_rao.engines.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.linear_rao.engines.post_processors.RaoResultPostProcessor;
+import com.farao_community.farao.linear_rao.optimisation.AbstractPostProcessor;
+import com.farao_community.farao.linear_rao.optimisation.AbstractProblemFiller;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoData;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
+import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
+import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFiller;
+import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -80,4 +84,12 @@ public class LinearOptimisationEngine {
         }
         return raoResult;
     }
+
+    OptimizedSituation solve2(AbstractSituation situationIn) {
+        updateProblem(linearRaoData.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult());
+        OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getCrac());
+        solve(situationOut.getResultVariant());
+        return situationOut;
+    }
+
 }

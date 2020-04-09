@@ -4,7 +4,7 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.engines.fillers;
+package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
@@ -12,9 +12,9 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
-import com.farao_community.farao.linear_rao.engines.AbstractProblemFiller;
-import com.farao_community.farao.linear_rao.engines.LinearRaoData;
-import com.farao_community.farao.linear_rao.engines.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.optimisation.AbstractProblemFiller;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoData;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
