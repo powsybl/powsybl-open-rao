@@ -35,7 +35,7 @@ public class SystematicSensitivityAnalysisResultTest {
     @Before
     public void setUp() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.create();
+        Crac crac = CommonCracCreation.createWithPstRange();
         SensitivityComputationResults sensiResults = (new MockSensiFactory()).create(network, null, 0)
                 .run(new CracFactorsProvider(crac), null, null).join();
         state = crac.getPreventiveState();

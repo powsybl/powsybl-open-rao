@@ -46,7 +46,6 @@ public final class CommonCracCreation {
         //NetworkElement
         NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1 name");
         NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1 name");
-        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
@@ -80,6 +79,15 @@ public final class CommonCracCreation {
         crac.addCnec(cnec2basecase);
         crac.addCnec(cnec2stateCurativeContingency1);
         crac.addCnec(cnec2stateCurativeContingency2);
+
+        return crac;
+    }
+
+    public static SimpleCrac createWithPstRange() {
+        SimpleCrac crac = create();
+
+        //NetworkElement
+        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
         crac.addRangeAction(pstWithRange);
