@@ -18,7 +18,6 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
  */
 public class LinearRaoData {
 
-
     private Crac crac;
     private Network network;
     private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;

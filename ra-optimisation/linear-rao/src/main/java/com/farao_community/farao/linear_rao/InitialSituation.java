@@ -27,18 +27,12 @@ final class InitialSituation extends AbstractSituation {
 
     InitialSituation(Network network, Crac crac) {
         super(network, crac);
+        updateRangeActionExtensions(network);
     }
 
     @Override
     protected String getVariantPrefix() {
         return "preOptimisationResults-";
-    }
-
-    @Override
-    protected void addSystematicSensitivityAnalysisResultsToCracVariant() {
-        super.addSystematicSensitivityAnalysisResultsToCracVariant();
-        // in addition to a standard Situation, add in the Crac the initial RA set-points
-        updateRangeActionExtensions(this.getNetwork());
     }
 
     /**

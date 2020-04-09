@@ -4,17 +4,19 @@ import com.farao_community.farao.commons.FaraoException;
 
 public class LinearOptimisationException extends FaraoException {
 
-    private String failureReason;
+    private final String failureReason;
 
     public String getFailureReason() {
         return failureReason;
     }
 
     public LinearOptimisationException() {
+        failureReason = "";
     }
 
     public LinearOptimisationException(final String msg) {
         super(msg);
+        failureReason = "";
     }
 
     public LinearOptimisationException(final String msg, final String failureReason) {
@@ -24,10 +26,12 @@ public class LinearOptimisationException extends FaraoException {
 
     public LinearOptimisationException(final Throwable throwable) {
         super(throwable);
+        failureReason = "";
     }
 
     public LinearOptimisationException(final String message, final Throwable cause) {
         super(message, cause);
+        failureReason = "";
     }
 
 }

@@ -13,10 +13,10 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+
+import java.util.Objects;
+import java.util.UUID;
 
 import static java.lang.String.format;
 
@@ -31,17 +31,6 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 abstract class AbstractSituation {
-
-    enum ComputationStatus {
-        NOT_RUN,
-        RUN_OK,
-        RUN_NOK
-    }
-
-    /**
-     * Computation status of the systematic sensitivity analysis
-     */
-    private ComputationStatus sensiStatus;
 
     /**
      * Results of the systematic sensitivity analysis performed on the situation
@@ -65,6 +54,11 @@ abstract class AbstractSituation {
     private Network network;
 
     /**
+     * Network variant id
+     */
+    private String networkVariant;
+
+    /**
      * cost, value of the objective function for this situation
      */
     private double cost;
@@ -73,17 +67,17 @@ abstract class AbstractSituation {
      * constructor
      */
     AbstractSituation(Network network, Crac crac) {
-        sensiStatus = ComputationStatus.NOT_RUN;
         this.crac = crac;
         this.network = network;
         this.cost = Double.NaN;
+
+        this.networkVariant = createAndSwitchToNewVariant(network, network.getVariantManager().getWorkingVariantId());
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
             resultVariantManager = new ResultVariantManager();
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
-
         resultVariantId = resultVariantManager.createNewUniqueVariantId(this.getVariantPrefix());
     }
 
@@ -97,10 +91,6 @@ abstract class AbstractSituation {
 
     SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
         return systematicSensitivityAnalysisResult;
-    }
-
-    ComputationStatus getSensiStatus() {
-        return sensiStatus;
     }
 
     String getResultVariant() {
@@ -158,18 +148,14 @@ abstract class AbstractSituation {
         return minMargin;
     }
 
-    void setResults(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
-        cost = -getMinMargin();
-        addSystematicSensitivityAnalysisResultsToCracVariant();
-        sensiStatus = ComputationStatus.RUN_OK;
-    }
 
     /**
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant associated to this situation.
      */
-    protected void addSystematicSensitivityAnalysisResultsToCracVariant() {
+    void setResults(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+        cost = -getMinMargin();
         updateCracExtension();
         updateCnecExtensions();
     }
@@ -188,5 +174,28 @@ abstract class AbstractSituation {
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setThresholds(cnec);
         });
+    }
+
+    public void switchToNetworkVariant() {
+        network.getVariantManager().setWorkingVariant(networkVariant);
+    }
+
+    private String getUniqueVariantId(Network network) {
+        String uniqueId;
+        do {
+            uniqueId = UUID.randomUUID().toString();
+        } while (network.getVariantManager().getVariantIds().contains(uniqueId));
+        return uniqueId;
+    }
+
+    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
+        Objects.requireNonNull(referenceNetworkVariant);
+        if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
+            throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
+        }
+        String uniqueId = getUniqueVariantId(network);
+        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
+        network.getVariantManager().setWorkingVariant(uniqueId);
+        return uniqueId;
     }
 }

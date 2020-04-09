@@ -6,11 +6,9 @@
  */
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -28,6 +26,7 @@ public final class OptimizedSituation extends AbstractSituation {
      */
     OptimizedSituation(Network network, Crac crac) {
         super(network, crac);
+        applyRAs();
     }
 
     @Override
@@ -38,7 +37,7 @@ public final class OptimizedSituation extends AbstractSituation {
     /**
      * Apply the optimised RangeAction on a Network
      */
-    void applyRAs() {
+    private void applyRAs() {
         String preventiveState = this.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);

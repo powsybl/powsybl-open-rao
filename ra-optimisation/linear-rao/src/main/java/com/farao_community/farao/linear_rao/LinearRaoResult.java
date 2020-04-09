@@ -23,7 +23,6 @@ public class LinearRaoResult extends AbstractExtension<RaoResult> {
     }
 
     public enum LpStatus {
-        NOT_RUN,
         RUN_OK,
         FAILURE
     }

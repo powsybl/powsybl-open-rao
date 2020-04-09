@@ -5,12 +5,9 @@ import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SystematicAnalysisEngine {
 
@@ -19,18 +16,16 @@ public class SystematicAnalysisEngine {
     private LinearRaoParameters linearRaoParameters;
     private ComputationManager computationManager;
     private boolean useFallbackSensiParams;
-    private Network network;
 
-    SystematicAnalysisEngine(Network network, LinearRaoParameters linearRaoParameters, ComputationManager computationManager) {
-        this.network = network;
+    SystematicAnalysisEngine(LinearRaoParameters linearRaoParameters, ComputationManager computationManager) {
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
         this.useFallbackSensiParams = false;
     }
 
-    public void run(AbstractSituation abstractSituation, SensitivityComputationParameters sensitivityComputationParameters, boolean useFallbackSensiParams) {
+    private void run(AbstractSituation abstractSituation, SensitivityComputationParameters sensitivityComputationParameters) {
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-            .runAnalysis(network, abstractSituation.getCrac(), computationManager, sensitivityComputationParameters);
+            .runAnalysis(abstractSituation.getNetwork(), abstractSituation.getCrac(), computationManager, sensitivityComputationParameters);
 
         // Failure if some sensitivities are not computed
         if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
@@ -40,19 +35,19 @@ public class SystematicAnalysisEngine {
         }
     }
 
-    public void runWithParametersSwitch(AbstractSituation abstractSituation) throws SensitivityComputationException{
+    public void run(AbstractSituation abstractSituation) throws SensitivityComputationException {
         if (!useFallbackSensiParams) { // with default parameters
             try {
-                run(abstractSituation, linearRaoParameters.getSensitivityComputationParameters(), useFallbackSensiParams);
+                run(abstractSituation, linearRaoParameters.getSensitivityComputationParameters());
             } catch (SensitivityComputationException e) {
                 useFallbackSensiParams = true;
-                runWithParametersSwitch(abstractSituation);
+                run(abstractSituation);
             }
         } else { // with fallback parameters
             if (linearRaoParameters.getFallbackSensiParameters() != null) {
                 try {
                     LOGGER.warn("Fallback sensitivity parameters are used.");
-                    run(abstractSituation,  linearRaoParameters.getFallbackSensiParameters(), useFallbackSensiParams);
+                    run(abstractSituation,  linearRaoParameters.getFallbackSensiParameters());
                 } catch (SensitivityComputationException e) {
                     abstractSituation.deleteResultVariant();
                     throw new SensitivityComputationException("Sensitivity computation failed with all sensitivity parameters.");

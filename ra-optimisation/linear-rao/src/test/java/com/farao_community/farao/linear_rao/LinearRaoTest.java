@@ -167,12 +167,7 @@ public class LinearRaoTest {
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2, new HashMap<>()),
                             new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3, new HashMap<>()));
 
-        LinearOptimisationEngine linearOptimisationEngineMock = Mockito.mock(LinearOptimisationEngine.class);
-        Mockito.when(linearOptimisationEngineMock.solve(Mockito.any())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
-
-        LinearRao linearRaoSpy = Mockito.spy(linearRao);
-        Mockito.doReturn(linearOptimisationEngineMock).when(linearRaoSpy).createLinearRaoModeller(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        CompletableFuture<RaoResult> linearRaoResultCF = linearRaoSpy.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
+        CompletableFuture<RaoResult> linearRaoResultCF = linearRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
 
         assertNotNull(linearRaoResultCF);
         try {

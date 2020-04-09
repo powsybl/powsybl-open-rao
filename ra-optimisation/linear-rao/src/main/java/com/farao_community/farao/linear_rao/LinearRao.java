@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.NativeLibraryLoader;
@@ -25,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -58,12 +58,8 @@ public class LinearRao implements RaoProvider {
         CompletableFuture<RaoResult> result;
         try {
             result = run2(network, crac, variantId, computationManager, raoParameters);
-        } catch (SensitivityComputationException e) {
-            result = CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
-        } catch (FaraoException e) {
-            result = CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         } catch (Exception e) {
-            result = CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+            result = buildFailedCompletableRaoResult(e);
         }
         return result;
     }
@@ -72,17 +68,17 @@ public class LinearRao implements RaoProvider {
                                             Crac crac,
                                             String variantId,
                                             ComputationManager computationManager,
-                                            RaoParameters raoParameters) throws FaraoException, SensitivityComputationException{
+                                            RaoParameters raoParameters) throws FaraoException, SensitivityComputationException {
         raoParametersQualityCheck(raoParameters);
         LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 
         // initiate engines
         LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(network, linearRaoParameters, computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
 
         // evaluate initial sensitivity coefficients and costs on the initial network situation
         InitialSituation initialSituation = new InitialSituation(network, crac);
-        systematicAnalysisEngine.runWithParametersSwitch(initialSituation);
+        systematicAnalysisEngine.run(initialSituation);
 
         // if ! doOptim() break
         if (skipOptim(linearRaoParameters, crac)) {
@@ -99,8 +95,7 @@ public class LinearRao implements RaoProvider {
                 break;
             }
 
-            currentSituation.applyRAs();
-            systematicAnalysisEngine.runWithParametersSwitch(currentSituation);
+            systematicAnalysisEngine.run(currentSituation);
 
             if (currentSituation.getCost() < bestSituation.getCost()) {
                 bestSituation.deleteResultVariant();
@@ -139,12 +134,12 @@ public class LinearRao implements RaoProvider {
         return raoResult;
     }
 
-    private CompletableFuture<RaoResult> buildFailedCompletableRaoResult(Exception e){
+    private CompletableFuture<RaoResult> buildFailedCompletableRaoResult(Exception e) {
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         LinearRaoResult resultExtension = new LinearRaoResult();
         if (e instanceof SensitivityComputationException) {
             resultExtension.setSystematicSensitivityAnalysisStatus(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE);
-        } else if (e instanceof FaraoException) {
+        } else if (e instanceof LinearOptimisationException) {
             resultExtension.setLpStatus(LinearRaoResult.LpStatus.FAILURE);
         }
         resultExtension.setErrorMessage(e.getMessage());
