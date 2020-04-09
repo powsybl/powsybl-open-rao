@@ -25,8 +25,8 @@ import com.powsybl.iidm.network.Network;
  */
 final class InitialSituation extends AbstractSituation {
 
-    InitialSituation(Crac crac) {
-        super(crac);
+    InitialSituation(Network network, Crac crac) {
+        super(network, crac);
     }
 
     @Override
@@ -45,11 +45,11 @@ final class InitialSituation extends AbstractSituation {
      * Add in the Crac extension the initial RangeActions set-points
      */
     private void updateRangeActionExtensions(Network network) {
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
+        String preventiveState = this.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(network);
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(resultVariantId);
+            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(this.getResultVariant());
             rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
             if (rangeAction instanceof PstRange) {
                 ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));

@@ -31,8 +31,8 @@ public final class OptimizedSituation extends AbstractSituation {
     /**
      * Constructor
      */
-    OptimizedSituation(Crac crac) {
-        super(crac);
+    OptimizedSituation(Network network, Crac crac) {
+        super(network, crac);
         this.lpStatus = ComputationStatus.NOT_RUN;
     }
 
@@ -50,7 +50,7 @@ public final class OptimizedSituation extends AbstractSituation {
      * set in the Crac result variant with id resultVariantId.
      */
     void solveLp(LinearOptimisationEngine linearOptimisationEngine) {
-        RaoResult lpRaoResult = linearOptimisationEngine.solve(resultVariantId);
+        RaoResult lpRaoResult = linearOptimisationEngine.solve(this.getResultVariant());
         if (lpRaoResult.getStatus() == RaoResult.Status.FAILURE) {
             lpStatus = ComputationStatus.RUN_NOK;
         } else {
@@ -65,10 +65,10 @@ public final class OptimizedSituation extends AbstractSituation {
         if (lpStatus != ComputationStatus.RUN_OK) {
             throw new FaraoException("RangeAction have not been optimized yet and therefore cannot be applied");
         }
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
+        String preventiveState = this.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(network, rangeActionResultMap.getVariant(resultVariantId).getSetPoint(preventiveState));
+            rangeAction.apply(network, rangeActionResultMap.getVariant(this.getResultVariant()).getSetPoint(preventiveState));
         }
     }
 

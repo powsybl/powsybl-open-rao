@@ -41,35 +41,41 @@ abstract class AbstractSituation {
     /**
      * Computation status of the systematic sensitivity analysis
      */
-    protected ComputationStatus sensiStatus;
+    private ComputationStatus sensiStatus;
 
     /**
      * Results of the systematic sensitivity analysis performed on the situation
      */
-    protected SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
     /**
      * variant id in which some information about the situation are stored (including
      * the RangeActions' set-points)
      */
-    protected String resultVariantId;
+    private String resultVariantId;
 
     /**
      * Crac object
      */
-    protected Crac crac;
+    private Crac crac;
+
+    /**
+     * Network object
+     */
+    private Network network;
 
     /**
      * cost, value of the objective function for this situation
      */
-    protected double cost;
+    private double cost;
 
     /**
      * constructor
      */
-    AbstractSituation(Crac crac) {
+    AbstractSituation(Network network, Crac crac) {
         sensiStatus = ComputationStatus.NOT_RUN;
         this.crac = crac;
+        this.network = network;
         this.cost = Double.NaN;
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
@@ -79,6 +85,14 @@ abstract class AbstractSituation {
         }
 
         resultVariantId = resultVariantManager.createNewUniqueVariantId(this.getVariantPrefix());
+    }
+
+    Crac getCrac() {
+        return crac;
+    }
+
+    Network getNetwork() {
+        return network;
     }
 
     SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
