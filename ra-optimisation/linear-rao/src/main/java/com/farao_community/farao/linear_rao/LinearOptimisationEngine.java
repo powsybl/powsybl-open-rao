@@ -86,12 +86,43 @@ public class LinearOptimisationEngine {
     }
 
     private void buildProblem() {
-        fillerList.forEach(AbstractProblemFiller::fill);
+        try {
+            fillerList.forEach(AbstractProblemFiller::fill);
+        } catch (Exception e) {
+            String errorMessage = String.format("Linear optimisation failed while building the problem, with the following error : %s", e.getMessage());
+            LOGGER.error(errorMessage);
+            throw new LinearOptimisationException(errorMessage);
+        }
     }
 
     private void updateProblem() {
-        fillerList.forEach(AbstractProblemFiller::update);
+        try {
+            fillerList.forEach(AbstractProblemFiller::fill);
+        } catch (Exception e) {
+            String errorMessage = String.format("Linear optimisation failed while updating the problem, with the following error : %s", e.getMessage());
+            LOGGER.error(errorMessage);
+            throw new LinearOptimisationException(errorMessage);
+        }
     }
+
+    private void solve() {
+        try {
+        MPSolver.ResultStatus solverResultStatus = linearRaoProblem.solve();
+
+            if (solverResultStatus != MPSolver.ResultStatus.OPTIMAL) {
+                String errorMessage = String.format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatus.toString());
+                LOGGER.error(errorMessage);
+                throw new LinearOptimisationException(errorMessage);
+            }
+
+        } catch (Exception e) {
+            String errorMessage = String.format("Solving of the linear problem failed, with the following error : %s", e.getMessage());
+            LOGGER.error(errorMessage);
+            throw new LinearOptimisationException(errorMessage);
+        }
+    }
+
+
 
     private List<AbstractProblemFiller> getFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
