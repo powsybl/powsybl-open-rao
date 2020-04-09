@@ -92,12 +92,7 @@ public class LinearRao implements RaoProvider {
         AbstractSituation bestSituation = initialSituation;
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
 
-            OptimizedSituation currentSituation = linearOptimisationEngine.solve(bestSituation);
-
-            if (false) {
-                currentSituation.deleteResultVariant();
-                return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
-            }
+            OptimizedSituation currentSituation = linearOptimisationEngine.run(bestSituation);
 
             if (bestSituation.sameRaResults(currentSituation)) {
                 currentSituation.deleteResultVariant();

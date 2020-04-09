@@ -45,5 +45,4 @@ public final class OptimizedSituation extends AbstractSituation {
             rangeAction.apply(this.getNetwork(), rangeActionResultMap.getVariant(this.getResultVariant()).getSetPoint(preventiveState));
         }
     }
-
 }
