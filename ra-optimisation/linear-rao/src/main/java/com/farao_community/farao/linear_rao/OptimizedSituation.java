@@ -24,20 +24,10 @@ import com.powsybl.iidm.network.Network;
 public final class OptimizedSituation extends AbstractSituation {
 
     /**
-     * Computation status of the optimisation problem resolution
-     */
-    ComputationStatus lpStatus;
-
-    /**
      * Constructor
      */
     OptimizedSituation(Network network, Crac crac) {
         super(network, crac);
-        this.lpStatus = ComputationStatus.NOT_RUN;
-    }
-
-    ComputationStatus getLpStatus() {
-        return lpStatus;
     }
 
     @Override
@@ -49,9 +39,6 @@ public final class OptimizedSituation extends AbstractSituation {
      * Apply the optimised RangeAction on a Network
      */
     void applyRAs() {
-        if (lpStatus != ComputationStatus.RUN_OK) {
-            throw new FaraoException("RangeAction have not been optimized yet and therefore cannot be applied");
-        }
         String preventiveState = this.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);

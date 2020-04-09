@@ -18,14 +18,14 @@ public class SystematicAnalysisEngine {
 
     private LinearRaoParameters linearRaoParameters;
     private ComputationManager computationManager;
-    private AtomicBoolean useFallbackSensiParams;
+    private boolean useFallbackSensiParams;
     private Network network;
 
-    SystematicAnalysisEngine(Network network, LinearRaoParameters linearRaoParameters, ComputationManager computationManager, AtomicBoolean useFallbackSensiParams) {
+    SystematicAnalysisEngine(Network network, LinearRaoParameters linearRaoParameters, ComputationManager computationManager) {
         this.network = network;
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
-        this.useFallbackSensiParams = useFallbackSensiParams;
+        this.useFallbackSensiParams = false;
     }
 
     public void run(AbstractSituation abstractSituation, SensitivityComputationParameters sensitivityComputationParameters, boolean useFallbackSensiParams) {
@@ -41,27 +41,31 @@ public class SystematicAnalysisEngine {
     }
 
     public void runWithParametersSwitch(AbstractSituation abstractSituation) throws SensitivityComputationException{
-        if (!useFallbackSensiParams.get()) { // with default parameters
+        if (!useFallbackSensiParams) { // with default parameters
             try {
-                run(abstractSituation, linearRaoParameters.getSensitivityComputationParameters(), useFallbackSensiParams.get());
+                run(abstractSituation, linearRaoParameters.getSensitivityComputationParameters(), useFallbackSensiParams);
             } catch (SensitivityComputationException e) {
-                useFallbackSensiParams.set(true);
+                useFallbackSensiParams = true;
                 runWithParametersSwitch(abstractSituation);
             }
         } else { // with fallback parameters
             if (linearRaoParameters.getFallbackSensiParameters() != null) {
                 try {
                     LOGGER.warn("Fallback sensitivity parameters are used.");
-                    run(abstractSituation,  linearRaoParameters.getFallbackSensiParameters(), useFallbackSensiParams.get());
+                    run(abstractSituation,  linearRaoParameters.getFallbackSensiParameters(), useFallbackSensiParams);
                 } catch (SensitivityComputationException e) {
                     abstractSituation.deleteResultVariant();
                     throw new SensitivityComputationException("Sensitivity computation failed with all sensitivity parameters.");
                 }
             } else {
                 abstractSituation.deleteResultVariant();
-                useFallbackSensiParams.set(false); // in order to show in the export that no fallback computation was run
+                useFallbackSensiParams = false; // in order to show in the export that no fallback computation was run
                 throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.");
             }
         }
+    }
+
+    public boolean isSensiFallback() {
+        return useFallbackSensiParams;
     }
 }

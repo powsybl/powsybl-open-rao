@@ -22,8 +22,20 @@ public class LinearRaoResult extends AbstractExtension<RaoResult> {
         FAILURE
     }
 
+    public enum LpStatus {
+        NOT_RUN,
+        RUN_OK,
+        FAILURE
+    }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private SystematicSensitivityAnalysisStatus systematicSensitivityAnalysisStatus;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private LpStatus lpStatus;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String errorMessage;
 
     @Override
     public String getName() {
@@ -40,5 +52,21 @@ public class LinearRaoResult extends AbstractExtension<RaoResult> {
 
     public void setSuccessfulSystematicSensitivityAnalysisStatus(boolean lastSensiIsFallback) {
         this.systematicSensitivityAnalysisStatus = lastSensiIsFallback ? SystematicSensitivityAnalysisStatus.FALLBACK : SystematicSensitivityAnalysisStatus.DEFAULT;
+    }
+
+    public LpStatus getLpStatus() {
+        return lpStatus;
+    }
+
+    public void setLpStatus(LpStatus lpStatus) {
+        this.lpStatus = lpStatus;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }
