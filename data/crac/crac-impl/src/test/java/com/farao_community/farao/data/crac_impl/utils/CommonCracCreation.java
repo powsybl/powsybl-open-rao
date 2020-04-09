@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
@@ -45,6 +46,7 @@ public final class CommonCracCreation {
         //NetworkElement
         NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1 name");
         NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1 name");
+        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);
@@ -78,6 +80,9 @@ public final class CommonCracCreation {
         crac.addCnec(cnec2basecase);
         crac.addCnec(cnec2stateCurativeContingency1);
         crac.addCnec(cnec2stateCurativeContingency2);
+
+        PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
+        crac.addRangeAction(pstWithRange);
 
         return crac;
     }

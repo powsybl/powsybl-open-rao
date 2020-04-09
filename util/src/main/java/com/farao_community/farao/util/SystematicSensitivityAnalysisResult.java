@@ -14,10 +14,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,10 +31,6 @@ public class SystematicSensitivityAnalysisResult {
         this.cnecIntensityMap = cnecIntensityMap;
     }
 
-    public Map<State, SensitivityComputationResults> getStateSensiMap() {
-        return stateSensiMap;
-    }
-
     public Optional<Double> getFlow(Cnec cnec) {
         return Optional.ofNullable(cnecFlowMap.get(cnec));
     }
@@ -47,7 +40,7 @@ public class SystematicSensitivityAnalysisResult {
     }
 
     public Optional<Double> getSensitivity(Cnec cnec, State state, RangeAction rangeAction) {
-        if (!stateSensiMap.containsKey(state)) {
+        if (!stateSensiMap.containsKey(state) || Objects.isNull(stateSensiMap.get(state))) {
             return Optional.empty();
         }
         return Optional.of(getSensitivityValues(cnec, rangeAction, stateSensiMap.get(state)).stream()
