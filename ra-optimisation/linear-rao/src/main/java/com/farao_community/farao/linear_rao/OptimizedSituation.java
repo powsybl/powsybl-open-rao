@@ -46,19 +46,6 @@ public final class OptimizedSituation extends AbstractSituation {
     }
 
     /**
-     * Solve the LinearRaoProblem associated to this network situation. Results are
-     * set in the Crac result variant with id resultVariantId.
-     */
-    void solveLp(LinearOptimisationEngine linearOptimisationEngine) {
-        RaoResult lpRaoResult = linearOptimisationEngine.solve(this.getResultVariant());
-        if (lpRaoResult.getStatus() == RaoResult.Status.FAILURE) {
-            lpStatus = ComputationStatus.RUN_NOK;
-        } else {
-            lpStatus = ComputationStatus.RUN_OK;
-        }
-    }
-
-    /**
      * Apply the optimised RangeAction on a Network
      */
     void applyRAs() {
@@ -68,7 +55,7 @@ public final class OptimizedSituation extends AbstractSituation {
         String preventiveState = this.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(network, rangeActionResultMap.getVariant(this.getResultVariant()).getSetPoint(preventiveState));
+            rangeAction.apply(this.getNetwork(), rangeActionResultMap.getVariant(this.getResultVariant()).getSetPoint(preventiveState));
         }
     }
 

@@ -88,7 +88,7 @@ public class LinearRao implements RaoProvider {
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(network, linearRaoParameters, computationManager, useFallbackSensiParams);
 
         // evaluate initial sensitivity coefficients and costs on the initial network situation
-        InitialSituation initialSituation = new InitialSituation(crac, network);
+        InitialSituation initialSituation = new InitialSituation(network, crac);
         systematicAnalysisEngine.runWithParametersSwitch(initialSituation);
 
         // if ! doOptim() break
