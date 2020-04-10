@@ -30,5 +30,4 @@ public final class OptimizedSituation extends AbstractSituation {
     protected String getVariantPrefix() {
         return "postOptimisationResults-";
     }
-
 }
