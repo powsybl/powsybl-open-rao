@@ -22,31 +22,12 @@ import static java.lang.String.format;
 
 /**
  * An AbstractSituation includes a set of information associated to a given
- * network situation (i.e. a given combination of RangeActions set-points).
- * An AbstractSituation also embeds some methods enabling to do some
- * computation on this network situation. The computation common to all
- * AbstractSituation is a systematic sensitivity analysis.
+ * network situation, with one combination of RangeActions set-points.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 abstract class AbstractSituation {
-
-    /**
-     * Results of the systematic sensitivity analysis performed on the situation
-     */
-    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
-
-    /**
-     * variant id in which some information about the situation are stored (including
-     * the RangeActions' set-points)
-     */
-    private String resultVariantId;
-
-    /**
-     * Crac object
-     */
-    private Crac crac;
 
     /**
      * Network object
@@ -56,7 +37,23 @@ abstract class AbstractSituation {
     /**
      * Network variant id
      */
-    private String networkVariant;
+    private String networkVariantId;
+
+    /**
+     * Crac object
+     */
+    private Crac crac;
+
+    /**
+     * variant id in which some information about the situation are stored (including
+     * the RangeActions' set-points)
+     */
+    private String resultVariantId;
+
+    /**
+     * Results of the systematic sensitivity analysis performed on the situation
+     */
+    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
     /**
      * cost, value of the objective function for this situation
@@ -66,39 +63,19 @@ abstract class AbstractSituation {
     /**
      * constructor
      */
-    AbstractSituation(Network network, Crac crac) {
-        this.crac = crac;
+    AbstractSituation(Network network, String referenceNetworkVariantId, Crac crac) {
         this.network = network;
-        this.cost = Double.NaN;
-
-        this.networkVariant = createAndSwitchToNewVariant(network, network.getVariantManager().getWorkingVariantId());
+        this.networkVariantId = createAndSwitchToNewNetworkVariant(network, referenceNetworkVariantId);
+        this.crac = crac;
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
             resultVariantManager = new ResultVariantManager();
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
-        resultVariantId = resultVariantManager.createNewUniqueVariantId(this.getVariantPrefix());
-    }
+        this.resultVariantId = resultVariantManager.createNewUniqueVariantId(this.getVariantPrefix());
 
-    Crac getCrac() {
-        return crac;
-    }
-
-    Network getNetwork() {
-        return network;
-    }
-
-    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
-        return systematicSensitivityAnalysisResult;
-    }
-
-    String getResultVariant() {
-        return resultVariantId;
-    }
-
-    double getCost() {
-        return cost;
+        this.cost = Double.NaN;
     }
 
     /**
@@ -126,28 +103,12 @@ abstract class AbstractSituation {
     }
 
     /**
-     * Delete the Crac result variant associated to this situation
+     * Delete the Network and Crac result variants associated to this situation
      */
     void deleteResultVariant() {
+        network.getVariantManager().removeVariant(networkVariantId);
         crac.getExtension(ResultVariantManager.class).deleteVariant(resultVariantId);
     }
-
-    /**
-     * Compute the objective function, the minimal margin.
-     */
-    private double getMinMargin() {
-        double minMargin = Double.POSITIVE_INFINITY;
-        for (Cnec cnec : crac.getCnecs()) {
-            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
-            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
-            if (Double.isNaN(margin)) {
-                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
-            }
-            minMargin = Math.min(minMargin, margin);
-        }
-        return minMargin;
-    }
-
 
     /**
      * add results of the systematic analysis (flows and objective function value) in the
@@ -158,6 +119,24 @@ abstract class AbstractSituation {
         cost = -getMinMargin();
         updateCracExtension();
         updateCnecExtensions();
+    }
+
+    /**
+     * Compute the objective function, the minimal margin.
+     */
+    private double getMinMargin() {
+        Objects.requireNonNull(systematicSensitivityAnalysisResult);
+
+        double minMargin = Double.POSITIVE_INFINITY;
+        for (Cnec cnec : crac.getCnecs()) {
+            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
+            if (Double.isNaN(margin)) {
+                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
+            }
+            minMargin = Math.min(minMargin, margin);
+        }
+        return minMargin;
     }
 
     private void updateCracExtension() {
@@ -176,10 +155,6 @@ abstract class AbstractSituation {
         });
     }
 
-    public void switchToNetworkVariant() {
-        network.getVariantManager().setWorkingVariant(networkVariant);
-    }
-
     private String getUniqueVariantId(Network network) {
         String uniqueId;
         do {
@@ -188,7 +163,8 @@ abstract class AbstractSituation {
         return uniqueId;
     }
 
-    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
+    private String createAndSwitchToNewNetworkVariant(Network network, String referenceNetworkVariant) {
+        // todo : share network variant operation methods in an util class
         Objects.requireNonNull(referenceNetworkVariant);
         if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
             throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
@@ -198,4 +174,29 @@ abstract class AbstractSituation {
         network.getVariantManager().setWorkingVariant(uniqueId);
         return uniqueId;
     }
+
+    Crac getCrac() {
+        return crac;
+    }
+
+    Network getNetwork() {
+        return network;
+    }
+
+    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        return systematicSensitivityAnalysisResult;
+    }
+
+    String getResultVariant() {
+        return resultVariantId;
+    }
+
+    double getCost() {
+        return cost;
+    }
+
+    String getNetworkVariantId() {
+        return networkVariantId;
+    }
+
 }

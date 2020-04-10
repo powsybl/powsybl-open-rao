@@ -24,9 +24,8 @@ public final class OptimizedSituation extends AbstractSituation {
     /**
      * Constructor
      */
-    OptimizedSituation(Network network, Crac crac) {
-        super(network, crac);
-        applyRAs();
+    OptimizedSituation(Network network, String referenceNetworkVariantId, Crac crac) {
+        super(network, referenceNetworkVariantId, crac);
     }
 
     @Override
@@ -34,14 +33,4 @@ public final class OptimizedSituation extends AbstractSituation {
         return "postOptimisationResults-";
     }
 
-    /**
-     * Apply the optimised RangeAction on a Network
-     */
-    private void applyRAs() {
-        String preventiveState = this.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(this.getNetwork(), rangeActionResultMap.getVariant(this.getResultVariant()).getSetPoint(preventiveState));
-        }
-    }
 }
