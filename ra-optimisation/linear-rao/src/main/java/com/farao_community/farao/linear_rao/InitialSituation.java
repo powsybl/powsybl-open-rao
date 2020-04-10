@@ -25,8 +25,8 @@ import com.powsybl.iidm.network.Network;
  */
 final class InitialSituation extends AbstractSituation {
 
-    InitialSituation(Network network, Crac crac) {
-        super(network, crac);
+    InitialSituation(Network network, String referenceNetworkVariantId, Crac crac) {
+        super(network, referenceNetworkVariantId, crac);
         updateRangeActionExtensions(network);
     }
 
@@ -53,6 +53,7 @@ final class InitialSituation extends AbstractSituation {
 
     @Override
     void deleteResultVariant() {
-        //We don't want to delete the pre-optimisation result variant.
+        this.getNetwork().getVariantManager().removeVariant(this.getNetworkVariantId());
+        //The pre-optimisation Crac result variant is never deleted
     }
 }

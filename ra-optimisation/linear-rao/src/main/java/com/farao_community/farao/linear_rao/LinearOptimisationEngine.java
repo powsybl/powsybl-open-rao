@@ -8,7 +8,9 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
@@ -84,13 +86,16 @@ class LinearOptimisationEngine {
      * optimisation problem of the LinearRao. It returns an OptimizedSituation which
      * is set with a new Network variant incorporating the optimal combination of
      * RangeAction set-points and a new Crac ResultVariant which contains the results
-     * of the optimisation. Throws a LinearOptimisationException is the solving fails.
+     * of the optimisation.
      *
      * @param situationIn defines the data on which the creation of the optimisation
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
+     *
      * @return an OptimizedSituation, set with the optimal combination of RangeAction
      * calculated by the optimization problem,
+     *
+     * @throws LinearOptimisationException is the method fails
      */
     OptimizedSituation run(AbstractSituation situationIn) throws LinearOptimisationException {
 
@@ -113,11 +118,14 @@ class LinearOptimisationEngine {
         // solve optimisation problem
         solveProblem();
 
-        OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getNetwork(), linearRaoData.getCrac());
+        OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getNetwork(), situationIn.getNetworkVariantId(), linearRaoData.getCrac());
 
         // todo : do not create a RaoResult anymore and refactor the post processors
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getResultVariant()));
+
+        // apply RA on network
+        applyRAs(situationOut);
 
         return situationOut;
     }
@@ -176,4 +184,14 @@ class LinearOptimisationEngine {
         return postProcessorList;
     }
 
+    /**
+     * Apply the optimised RangeAction on a Network
+     */
+    private void applyRAs(OptimizedSituation optimizedSituation) {
+        String preventiveState = optimizedSituation.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction : optimizedSituation.getCrac().getRangeActions()) {
+            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+            rangeAction.apply(optimizedSituation.getNetwork(), rangeActionResultMap.getVariant(optimizedSituation.getResultVariant()).getSetPoint(preventiveState));
+        }
+    }
 }

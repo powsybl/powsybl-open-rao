@@ -21,6 +21,7 @@ import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class LinearRao implements RaoProvider {
         try {
             return runLinearRao(network, crac, variantId, computationManager, raoParameters);
         } catch (FaraoException e) {
-            return buildFailedCompletableRaoResult(e);
+            return CompletableFuture.completedFuture(buildFailedCompletableRaoResult(e));
         }
     }
 
@@ -76,15 +77,12 @@ public class LinearRao implements RaoProvider {
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
 
         // evaluate initial sensitivity coefficients and costs on the initial network situation
-        InitialSituation initialSituation = new InitialSituation(network, crac);
+        InitialSituation initialSituation = new InitialSituation(network, variantId, crac);
         systematicAnalysisEngine.run(initialSituation);
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, crac)) {
-            return CompletableFuture.completedFuture(buildRaoResult(initialSituation.getCost(),
-                initialSituation.getResultVariant(),
-                initialSituation.getResultVariant(),
-                systematicAnalysisEngine.isFallback()));
+            return CompletableFuture.completedFuture(buildSucessfullRaoResult(initialSituation, initialSituation, systematicAnalysisEngine));
         }
 
         // start optimisation loop
@@ -103,18 +101,18 @@ public class LinearRao implements RaoProvider {
             if (optimizedSituation.getCost() < bestSituation.getCost()) { // the solution has been improved, continue the search
                 bestSituation.deleteResultVariant();
                 bestSituation = optimizedSituation;
-            } else {
+            } else { // unexpected behaviour, stop the search
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestSituation.getCost(), -optimizedSituation.getCost());
                 break;
             }
         }
 
-        return CompletableFuture.completedFuture(buildRaoResult(bestSituation.getCost(),
-            initialSituation.getResultVariant(),
-            bestSituation.getResultVariant(),
-            systematicAnalysisEngine.isFallback()));
+        return CompletableFuture.completedFuture(buildSucessfullRaoResult(initialSituation, bestSituation, systematicAnalysisEngine));
     }
 
+    /**
+     * Quality check of the configuration
+     */
     private void raoParametersQualityCheck(RaoParameters parameters) {
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
         if (!configQualityCheck.isEmpty()) {
@@ -122,35 +120,56 @@ public class LinearRao implements RaoProvider {
         }
     }
 
+    /**
+     * Method returning a boolean indicating whether an optimisation should be done,
+     * or whether the LinearRao should only perform a security analysis
+     */
     private boolean skipOptim(LinearRaoParameters linearRaoParameters, Crac crac) {
         return linearRaoParameters.isSecurityAnalysisWithoutRao() || linearRaoParameters.getMaxIterations() == 0 || crac.getRangeActions().isEmpty();
     }
 
-    private RaoResult buildRaoResult(double cost, String preOptimVariantId, String postOptimVariantId, boolean useFallbackSensiParams) {
+    /**
+     * Build the RaoResult in case of optimisation success
+     */
+    private RaoResult buildSucessfullRaoResult(InitialSituation preOptimSituation, AbstractSituation postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
+
+        // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        raoResult.setPreOptimVariantId(preOptimSituation.getResultVariant());
+        raoResult.setPostOptimVariantId(postOptimVariantId.getResultVariant());
+
+        // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
-        resultExtension.setSuccessfulSystematicSensitivityAnalysisStatus(useFallbackSensiParams);
+        resultExtension.setSuccessfulSystematicSensitivityAnalysisStatus(systematicAnalysisEngine.isFallback());
         resultExtension.setLpStatus(LinearRaoResult.LpStatus.RUN_OK);
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
-        raoResult.setPreOptimVariantId(preOptimVariantId);
-        raoResult.setPostOptimVariantId(postOptimVariantId);
-        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) -cost, cost <= 0 ?
+
+        // log
+        double minMargin = -postOptimVariantId.getCost();
+        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
+
         return raoResult;
     }
 
-    private CompletableFuture<RaoResult> buildFailedCompletableRaoResult(Exception e) {
-        RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
-        LinearRaoResult resultExtension = new LinearRaoResult();
+    /**
+     * Build the RaoResult in case of optimisation failure
+     */
+    private RaoResult buildFailedCompletableRaoResult(Exception e) {
 
+        // build RaoResult
+        RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
+
+        // build extension
+        LinearRaoResult resultExtension = new LinearRaoResult();
         if (e instanceof SensitivityComputationException) {
             resultExtension.setSystematicSensitivityAnalysisStatus(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE);
         } else if (e instanceof LinearOptimisationException) {
             resultExtension.setLpStatus(LinearRaoResult.LpStatus.FAILURE);
         }
-
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
-        return CompletableFuture.completedFuture(raoResult);
+
+        return raoResult;
     }
 }
