@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.computation.ComputationManager;
@@ -46,6 +45,7 @@ public class SituationTest {
     Crac crac;
     ComputationManager computationManager;
     SensitivityComputationParameters sensitivityComputationParameters;
+    SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
     @Before
     public void setUp() {
@@ -61,20 +61,21 @@ public class SituationTest {
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
+        systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(new HashMap<>(), cnecFlowMap, new HashMap<>());
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(new SystematicSensitivityAnalysisResult(new HashMap<>(), cnecFlowMap, new HashMap<>()));
     }
 
     @Test
     public void initialSituationTest() {
-        InitialSituation initialSituation = new InitialSituation(crac);
+        InitialSituation initialSituation = new InitialSituation(network, crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
 
-        initialSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
+        initialSituation.setResults(systematicSensitivityAnalysisResult);
         assertEquals(-488, initialSituation.getCost(), PRECISION_FLOW);
 
         String variant = initialSituation.getResultVariant();
@@ -90,9 +91,9 @@ public class SituationTest {
     @Test
     public void optimizedSituationTest() {
         //Needed to create the variant manager
-        new InitialSituation(crac);
+        new InitialSituation(network, crac);
 
-        OptimizedSituation optimizedSituation = new OptimizedSituation(crac);
+        OptimizedSituation optimizedSituation = new OptimizedSituation(network, crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
@@ -100,10 +101,8 @@ public class SituationTest {
         assertEquals(2, resultVariantManager.getVariants().size());
 
         LinearOptimisationEngine linearOptimisationEngine = Mockito.mock(LinearOptimisationEngine.class);
-        Mockito.when(linearOptimisationEngine.solve(Mockito.anyString())).thenReturn(new RaoResult(RaoResult.Status.SUCCESS));
-        optimizedSituation.solveLp(linearOptimisationEngine);
 
-        optimizedSituation.evaluateSensiAndCost(network, computationManager, sensitivityComputationParameters);
+        optimizedSituation.setResults(systematicSensitivityAnalysisResult);
         assertEquals(-488, optimizedSituation.getCost(), PRECISION_FLOW);
 
         String variant = optimizedSituation.getResultVariant();

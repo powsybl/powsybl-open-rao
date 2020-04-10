@@ -12,9 +12,8 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
-import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
-import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
@@ -51,8 +50,9 @@ public class LinearOptimisationEngineTest {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolver.ResultStatus.OPTIMAL);
 
         OptimizedSituation situation = linearOptimisationEngine.run(Mockito.mock(OptimizedSituation.class));
-        //assertNotNull(raoResult);
-        //assertEquals(RaoResult.Status.SUCCESS, raoResult.getStatus());
+        assertNotNull(situation);
+
+
     }
 
     @Test
