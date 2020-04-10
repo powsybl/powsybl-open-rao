@@ -13,13 +13,13 @@ import com.powsybl.iidm.network.Network;
 
 /**
  * The OptimizedSituation is an AbstractSituation in which the RangeAction
- * set-points are optimized. The LinearRao might go through several
+ * set-points have been optimized. The LinearRao might go through several
  * OptimizedSituations as its algorithm iterates over several network situations.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class OptimizedSituation extends AbstractSituation {
+class OptimizedSituation extends AbstractSituation {
 
     /**
      * Constructor
@@ -29,8 +29,7 @@ public final class OptimizedSituation extends AbstractSituation {
     }
 
     @Override
-    protected String getVariantPrefix() {
+    String getVariantPrefix() {
         return "postOptimisationResults-";
     }
-
 }

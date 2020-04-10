@@ -78,7 +78,7 @@ public class SituationTest {
         initialSituation.setResults(systematicSensitivityAnalysisResult);
         assertEquals(-488, initialSituation.getCost(), PRECISION_FLOW);
 
-        String variant = initialSituation.getResultVariant();
+        String variant = initialSituation.getCracResultVariant();
         String preventive = crac.getPreventiveState().getId();
         assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
         assertEquals(0, crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive), PRECISION_SET_POINT);
@@ -105,7 +105,7 @@ public class SituationTest {
         optimizedSituation.setResults(systematicSensitivityAnalysisResult);
         assertEquals(-488, optimizedSituation.getCost(), PRECISION_FLOW);
 
-        String variant = optimizedSituation.getResultVariant();
+        String variant = optimizedSituation.getCracResultVariant();
         String preventive = crac.getPreventiveState().getId();
         assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
         assertTrue(Double.isNaN(crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive)));

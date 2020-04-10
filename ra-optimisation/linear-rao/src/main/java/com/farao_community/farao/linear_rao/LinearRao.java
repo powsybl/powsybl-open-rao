@@ -21,7 +21,6 @@ import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +58,7 @@ public class LinearRao implements RaoProvider {
         try {
             return runLinearRao(network, crac, variantId, computationManager, raoParameters);
         } catch (FaraoException e) {
-            return CompletableFuture.completedFuture(buildFailedCompletableRaoResult(e));
+            return CompletableFuture.completedFuture(buildFailedRaoResult(e));
         }
     }
 
@@ -76,29 +75,32 @@ public class LinearRao implements RaoProvider {
         LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
 
-        // evaluate initial sensitivity coefficients and costs on the initial network situation
+        // evaluate sensitivity coefficients and cost on the initial network situation
         InitialSituation initialSituation = new InitialSituation(network, variantId, crac);
         systematicAnalysisEngine.run(initialSituation);
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, crac)) {
-            return CompletableFuture.completedFuture(buildSucessfullRaoResult(initialSituation, initialSituation, systematicAnalysisEngine));
+            return CompletableFuture.completedFuture(buildSuccessfulRaoResult(initialSituation, initialSituation, systematicAnalysisEngine));
         }
 
         // start optimisation loop
         AbstractSituation bestSituation = initialSituation;
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
 
+            // look for a new RangeAction combination, optimized with the LinearOptimisationEngine
             OptimizedSituation optimizedSituation = linearOptimisationEngine.run(bestSituation);
 
-            if (bestSituation.sameRaResults(optimizedSituation)) { // the solution cannot be improved, stop the search
+            // if the solution has not changed, stop the search
+            if (bestSituation.sameRaResults(optimizedSituation)) {
                 optimizedSituation.deleteResultVariant();
                 break;
             }
 
+            // evaluate sensitivity coefficients and cost on the newly optimised situation
             systematicAnalysisEngine.run(optimizedSituation);
 
-            if (optimizedSituation.getCost() < bestSituation.getCost()) { // the solution has been improved, continue the search
+            if (optimizedSituation.getCost() < bestSituation.getCost()) { // if the solution has been improved, continue the search
                 bestSituation.deleteResultVariant();
                 bestSituation = optimizedSituation;
             } else { // unexpected behaviour, stop the search
@@ -107,7 +109,7 @@ public class LinearRao implements RaoProvider {
             }
         }
 
-        return CompletableFuture.completedFuture(buildSucessfullRaoResult(initialSituation, bestSituation, systematicAnalysisEngine));
+        return CompletableFuture.completedFuture(buildSuccessfulRaoResult(initialSituation, bestSituation, systematicAnalysisEngine));
     }
 
     /**
@@ -131,12 +133,12 @@ public class LinearRao implements RaoProvider {
     /**
      * Build the RaoResult in case of optimisation success
      */
-    private RaoResult buildSucessfullRaoResult(InitialSituation preOptimSituation, AbstractSituation postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
+    private RaoResult buildSuccessfulRaoResult(InitialSituation preOptimSituation, AbstractSituation postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(preOptimSituation.getResultVariant());
-        raoResult.setPostOptimVariantId(postOptimVariantId.getResultVariant());
+        raoResult.setPreOptimVariantId(preOptimSituation.getCracResultVariant());
+        raoResult.setPostOptimVariantId(postOptimVariantId.getCracResultVariant());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -155,7 +157,7 @@ public class LinearRao implements RaoProvider {
     /**
      * Build the RaoResult in case of optimisation failure
      */
-    private RaoResult buildFailedCompletableRaoResult(Exception e) {
+    private RaoResult buildFailedRaoResult(Exception e) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
