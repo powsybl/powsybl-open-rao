@@ -12,10 +12,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.computation.ComputationManager;
@@ -91,5 +88,30 @@ public class SituationTest {
 
         optimizedSituation.deleteResultVariant();
         assertEquals(0, resultVariantManager.getVariants().size());
+    }
+
+    @Test
+    public void sameRasTest() {
+        OptimizedSituation sameSituation1 = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        OptimizedSituation sameSituation2 = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        OptimizedSituation differentSituation = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+
+        String variant1 = sameSituation1.getCracResultVariant();
+        String variant2 = sameSituation2.getCracResultVariant();
+        String variant3 = differentSituation.getCracResultVariant();
+
+        RangeActionResultExtension rangeActionResultExtension = crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class);
+        RangeActionResult pstResult1 = rangeActionResultExtension.getVariant(variant1);
+        RangeActionResult pstResult2 = rangeActionResultExtension.getVariant(variant2);
+        RangeActionResult pstResult3 = rangeActionResultExtension.getVariant(variant3);
+
+        String prevStateId = crac.getPreventiveState().getId();
+        pstResult1.setSetPoint(prevStateId, 3);
+        pstResult2.setSetPoint(prevStateId, 3);
+        pstResult3.setSetPoint(prevStateId, 2);
+
+        assertTrue(sameSituation1.sameRaResults(sameSituation2));
+        assertTrue(sameSituation2.sameRaResults(sameSituation1));
+        assertFalse(sameSituation1.sameRaResults(differentSituation));
     }
 }

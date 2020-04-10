@@ -56,7 +56,7 @@ public class SystematicAnalysisEngineTest {
         assertNotNull(initialSituation);
         assertEquals(512.5, initialSituation.getCost(), FLOW_TOLERANCE);
 
-        String resultVariant = initialSituation.getResultVariant();
+        String resultVariant = initialSituation.getCracResultVariant();
         assertEquals(1500., initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
     }
 
