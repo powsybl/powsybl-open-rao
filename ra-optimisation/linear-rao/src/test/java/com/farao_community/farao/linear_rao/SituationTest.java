@@ -75,14 +75,6 @@ public class SituationTest {
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
 
-        initialSituation.setResults(systematicSensitivityAnalysisResult);
-        assertEquals(-488, initialSituation.getCost(), PRECISION_FLOW);
-
-        String variant = initialSituation.getCracResultVariant();
-        String preventive = crac.getPreventiveState().getId();
-        assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
-        assertEquals(0, crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive), PRECISION_SET_POINT);
-
         initialSituation.deleteResultVariant();
         // We never want the initial situation to delete its variant. Allows us to call delete variant on any situation without having to worry if it's the initial one or not.
         assertEquals(1, resultVariantManager.getVariants().size());
@@ -96,16 +88,6 @@ public class SituationTest {
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
-
-        LinearOptimisationEngine linearOptimisationEngine = Mockito.mock(LinearOptimisationEngine.class);
-
-        optimizedSituation.setResults(systematicSensitivityAnalysisResult);
-        assertEquals(-488, optimizedSituation.getCost(), PRECISION_FLOW);
-
-        String variant = optimizedSituation.getCracResultVariant();
-        String preventive = crac.getPreventiveState().getId();
-        assertEquals(499, crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class).getVariant(variant).getFlowInMW(), PRECISION_FLOW);
-        assertTrue(Double.isNaN(crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive)));
 
         optimizedSituation.deleteResultVariant();
         assertEquals(0, resultVariantManager.getVariants().size());
