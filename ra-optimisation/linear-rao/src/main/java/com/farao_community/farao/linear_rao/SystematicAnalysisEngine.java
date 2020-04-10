@@ -9,58 +9,91 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SystematicAnalysisEngine {
+/**
+ * A computation engine dedicated to the systematic sensitivity analyses, performed
+ * in the scope of the LinearRao.
+ *
+ * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+class SystematicAnalysisEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicAnalysisEngine.class);
 
+    /**
+     * LinearRao configurations, containing the default and fallback configurations
+     * of the sensitivity computation
+     */
     private LinearRaoParameters linearRaoParameters;
-    private ComputationManager computationManager;
-    private boolean useFallbackSensiParams;
 
+    /**
+     * A boolean indicating whether or not the fallback mode of the sensitivity computation
+     * engine is active.
+     */
+    private boolean fallbackMode;
+
+    /**
+     * Computation Manager
+     */
+    private ComputationManager computationManager;
+
+    /**
+     * Constructor
+     */
     SystematicAnalysisEngine(LinearRaoParameters linearRaoParameters, ComputationManager computationManager) {
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
-        this.useFallbackSensiParams = false;
+        this.fallbackMode = false;
     }
 
-    private void run(AbstractSituation abstractSituation, SensitivityComputationParameters sensitivityComputationParameters) {
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-            .runAnalysis(abstractSituation.getNetwork(), abstractSituation.getCrac(), computationManager, sensitivityComputationParameters);
-
-        // Failure if some sensitivities are not computed
-        if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
-
-        } else {
-            abstractSituation.setResults(systematicSensitivityAnalysisResult);
-        }
+    boolean isFallback() {
+        return fallbackMode;
     }
 
-    public void run(AbstractSituation abstractSituation) throws SensitivityComputationException {
-        if (!useFallbackSensiParams) { // with default parameters
-            try {
-                run(abstractSituation, linearRaoParameters.getSensitivityComputationParameters());
-            } catch (SensitivityComputationException e) {
-                useFallbackSensiParams = true;
+    /**
+     * Run the systematic sensitivity analysis on one Situation. Throws a SensitivityComputationException
+     * if the computation fails.
+     */
+    void run(AbstractSituation abstractSituation) throws SensitivityComputationException {
+
+        SensitivityComputationParameters sensiConfig = fallbackMode ? linearRaoParameters.getFallbackSensiParameters() : linearRaoParameters.getSensitivityComputationParameters();
+
+        try {
+            runWithConfig(abstractSituation, sensiConfig);
+        } catch (SensitivityComputationException e) {
+            if (!fallbackMode && linearRaoParameters.getFallbackSensiParameters() != null) { // default mode fails, retry in fallback mode
+                LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
+                fallbackMode = true;
                 run(abstractSituation);
-            }
-        } else { // with fallback parameters
-            if (linearRaoParameters.getFallbackSensiParameters() != null) {
-                try {
-                    LOGGER.warn("Fallback sensitivity parameters are used.");
-                    run(abstractSituation,  linearRaoParameters.getFallbackSensiParameters());
-                } catch (SensitivityComputationException e) {
-                    abstractSituation.deleteResultVariant();
-                    throw new SensitivityComputationException("Sensitivity computation failed with all sensitivity parameters.");
-                }
-            } else {
+            } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 abstractSituation.deleteResultVariant();
-                useFallbackSensiParams = false; // in order to show in the export that no fallback computation was run
-                throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.");
+                throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
+            } else { // fallback mode fails, throw an exception
+                abstractSituation.deleteResultVariant();
+                throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.", e);
             }
         }
     }
 
-    public boolean isSensiFallback() {
-        return useFallbackSensiParams;
+    /**
+     * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
+     * SensitivityComputationException is the computation fails.
+     */
+    private void runWithConfig(AbstractSituation abstractSituation, SensitivityComputationParameters sensitivityComputationParameters) {
+
+        try {
+            SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+                .runAnalysis(abstractSituation.getNetwork(), abstractSituation.getCrac(), computationManager, sensitivityComputationParameters);
+
+            if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+                throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
+            }
+
+            abstractSituation.setResults(systematicSensitivityAnalysisResult);
+
+        } catch (Exception e) {
+            throw new SensitivityComputationException("Sensitivity computation fails.", e);
+        }
     }
 }

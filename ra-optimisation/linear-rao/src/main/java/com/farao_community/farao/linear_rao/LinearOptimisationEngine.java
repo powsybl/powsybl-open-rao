@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
@@ -24,25 +25,53 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ * A computation engine dedicated to the construction and solving of the linear
+ * optimisation problem of the LinearRao.
+ *
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LinearOptimisationEngine {
+class LinearOptimisationEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearOptimisationEngine.class);
 
-    private boolean initialised;
-
+    /**
+     * Linear optimisation problem, core object the LinearOptimisationEngine that
+     * is solved each time the run method of this class is called.
+     */
     private LinearRaoProblem linearRaoProblem;
 
+    /**
+     * Boolean indicating whether the linear problem has been already initialised
+     * or not.
+     */
+    private boolean lpInitialised;
+
+    /**
+     * List of problem fillers used by the engine. Each filler is responsible for
+     * the creation/update of one part of the optimisation problem (i.e. of some
+     * variables and constraints of the optimisation problem.
+     */
+    private static List<AbstractProblemFiller> fillerList;
+
+    /**
+     * List of problem fillers used by the engine. Each filler is responsible for
+     * the creation/update of one part of the optimisation problem (i.e. of some
+     * variables and constraints of the optimisation problem).
+     */
+    private static List<AbstractPostProcessor> postProcessorList;
+
+    /**
+     * Some data required by the fillers and postProcessors.
+     */
     private LinearRaoData linearRaoData;
 
-    private List<AbstractProblemFiller> fillerList;
-
-    private List<AbstractPostProcessor> postProcessorList;
-
+    /**
+     * Constructor
+     */
     LinearOptimisationEngine(RaoParameters raoParameters) {
 
-        this.initialised = false;
+        this.lpInitialised = false;
         this.linearRaoProblem = new LinearRaoProblem();
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
@@ -50,16 +79,33 @@ public class LinearOptimisationEngine {
         postProcessorList = getPostProcessorList();
     }
 
-    OptimizedSituation run(AbstractSituation situationIn) {
+    /**
+     * The run method of the LinearOptimisationEngine creates and solves the core
+     * optimisation problem of the LinearRao. It returns an OptimizedSituation which
+     * is set with a new Network variant incorporating the optimal combination of
+     * RangeAction set-points and a new Crac ResultVariant which contains the results
+     * of the optimisation. Throws a LinearOptimisationException is the solving fails.
+     *
+     * @param situationIn defines the data on which the creation of the optimisation
+     *                    is based (i.e. a given Network situation with associated Crac
+     *                    and sensitivities).
+     * @return an OptimizedSituation, set with the optimal combination of RangeAction
+     * calculated by the optimization problem,
+     */
+    OptimizedSituation run(AbstractSituation situationIn) throws LinearOptimisationException {
+
+        if (situationIn.getSystematicSensitivityAnalysisResult() == null) {
+            throw new FaraoException("LinearOptimisationEngine cannot run on a situation without sensitivities.");
+        }
 
         // update data
-        // todo : remove linear data
+        // todo : refactor the LinearRaoData
         this.linearRaoData = new LinearRaoData(situationIn.getCrac(), situationIn.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult());
 
         // prepare optimisation problem
-        if (!initialised) {
+        if (!lpInitialised) {
             buildProblem();
-            initialised = true;
+            lpInitialised = true;
         } else {
             updateProblem();
         }
@@ -69,11 +115,10 @@ public class LinearOptimisationEngine {
 
         OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getNetwork(), linearRaoData.getCrac());
 
-        // todo : do not create a RaoResult anymore
+        // todo : do not create a RaoResult anymore and refactor the post processors
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getResultVariant()));
 
-        // todo : check if it is still necessary to have two implementations of the AbstractSituation
         return situationOut;
     }
 
