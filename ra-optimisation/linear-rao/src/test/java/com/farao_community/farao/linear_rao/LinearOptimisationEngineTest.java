@@ -11,26 +11,57 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(LinearRaoProblem.class)
 public class LinearOptimisationEngineTest {
     private LinearOptimisationEngine linearOptimisationEngine;
     private LinearRaoProblem linearRaoProblemMock;
 
     @Before
     public void setUp() {
+
+        try {
+            PowerMockito.whenNew(MPSolver.class).withAnyArguments().thenReturn(new MPSolverMock());
+        } catch (Exception e) {
+            throw new IllegalArgumentException();
+        }
+
+        // RaoParameters
+        RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
+        linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
+
+        /*linearOptimisationEngine = Mockito.spy(new LinearOptimisationEngine(raoParameters));
+
+        Mockito.when(linearOptimisationEngine.createLinearRaoProblem()).thenReturn(linearRaoProblemMock);
+        Mockito.when(linearOptimisationEngine.getFillerL()).thenReturn(linearRaoProblemMock);
+        Mockito.when(linearOptimisationEngine.createLinearRaoProblem()).thenReturn(linearRaoProblemMock);
+
+
         linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
+
 
         Crac crac = new SimpleCrac("id");
         crac.addState(new SimpleState(Optional.empty(), new Instant("preventive", 0)));
@@ -39,22 +70,14 @@ public class LinearOptimisationEngineTest {
         RaoParameters raoParametersMock = Mockito.mock(RaoParameters.class);
 
         //linearOptimisationEngine = new LinearOptimisationEngine(raoParametersMock);
+
+         */
     }
 
     @Test
-    public void testOptimalSolve() {
-        /*Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolver.ResultStatus.OPTIMAL);
+    public void test() {
 
-        OptimizedSituation situation = linearOptimisationEngine.run(Mockito.mock(OptimizedSituation.class));
-        assertNotNull(situation);*/
     }
 
-    @Test
-    public void testUnboundedSolve() {
-        /*Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.UNBOUNDED);
 
-        RaoResult raoResult = linearOptimisationEngine.solve("");
-        assertNotNull(raoResult);
-        assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());*/
-    }
 }

@@ -54,14 +54,14 @@ class LinearOptimisationEngine {
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem.
      */
-    private static List<AbstractProblemFiller> fillerList;
+    private List<AbstractProblemFiller> fillerList;
 
     /**
      * List of problem fillers used by the engine. Each filler is responsible for
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem).
      */
-    private static List<AbstractPostProcessor> postProcessorList;
+    private List<AbstractPostProcessor> postProcessorList;
 
     /**
      * Some data required by the fillers and postProcessors.
@@ -77,8 +77,8 @@ class LinearOptimisationEngine {
         this.linearRaoProblem = new LinearRaoProblem();
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
-        fillerList = getFillerList(raoParameters);
-        postProcessorList = getPostProcessorList();
+        this.fillerList = createFillerList(raoParameters);
+        this.postProcessorList = createPostProcessorList();
     }
 
     /**
@@ -109,6 +109,7 @@ class LinearOptimisationEngine {
 
         // prepare optimisation problem
         if (!lpInitialised) {
+            createLinearRaoProblem();
             buildProblem();
             lpInitialised = true;
         } else {
@@ -168,7 +169,7 @@ class LinearOptimisationEngine {
         }
     }
 
-    private List<AbstractProblemFiller> getFillerList(RaoParameters raoParameters) {
+    List<AbstractProblemFiller> createFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
@@ -178,10 +179,14 @@ class LinearOptimisationEngine {
         return fillerList;
     }
 
-    private List<AbstractPostProcessor> getPostProcessorList() {
+    List<AbstractPostProcessor> createPostProcessorList() {
         postProcessorList = new ArrayList<>();
         postProcessorList.add(new RaoResultPostProcessor());
         return postProcessorList;
+    }
+
+    LinearRaoProblem createLinearRaoProblem() {
+        return new LinearRaoProblem();
     }
 
     /**

@@ -21,6 +21,7 @@ import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,24 +57,29 @@ public class LinearRao implements RaoProvider {
                                              ComputationManager computationManager,
                                              RaoParameters raoParameters) {
         try {
-            return runLinearRao(network, crac, variantId, computationManager, raoParameters);
+            // check config
+            raoParametersQualityCheck(raoParameters);
+
+            // initiate engines
+            LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
+            SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters), computationManager);
+
+            // run RAO algorithm
+            return runLinearRao(network, crac, variantId, systematicAnalysisEngine, linearOptimisationEngine, raoParameters);
+
         } catch (FaraoException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResult(e));
         }
     }
 
-    private CompletableFuture<RaoResult> runLinearRao(Network network,
+    CompletableFuture<RaoResult> runLinearRao(Network network,
                                             Crac crac,
                                             String variantId,
-                                            ComputationManager computationManager,
+                                            SystematicAnalysisEngine systematicAnalysisEngine,
+                                            LinearOptimisationEngine linearOptimisationEngine,
                                             RaoParameters raoParameters) throws FaraoException {
-        // check config
-        raoParametersQualityCheck(raoParameters);
-        LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 
-        // initiate engines
-        LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
+        LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 
         // evaluate sensitivity coefficients and cost on the initial network situation
         InitialSituation initialSituation = new InitialSituation(network, variantId, crac);
