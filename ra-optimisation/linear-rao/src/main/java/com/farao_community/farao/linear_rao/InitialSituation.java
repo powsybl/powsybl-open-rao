@@ -23,27 +23,27 @@ import com.powsybl.iidm.network.Network;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-final class InitialSituation extends AbstractSituation {
+class InitialSituation extends AbstractSituation {
 
     InitialSituation(Network network, String referenceNetworkVariantId, Crac crac) {
         super(network, referenceNetworkVariantId, crac);
-        updateRangeActionExtensions(network);
+        addRangeActionInitialSetPointsInCracExtension(network);
     }
 
     @Override
-    protected String getVariantPrefix() {
+    String getVariantPrefix() {
         return "preOptimisationResults-";
     }
 
     /**
      * Add in the Crac extension the initial RangeActions set-points
      */
-    private void updateRangeActionExtensions(Network network) {
+    private void addRangeActionInitialSetPointsInCracExtension(Network network) {
         String preventiveState = this.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction : this.getCrac().getRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(network);
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(this.getResultVariant());
+            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(this.getCracResultVariant());
             rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
             if (rangeAction instanceof PstRange) {
                 ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));

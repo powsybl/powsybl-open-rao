@@ -1,5 +1,11 @@
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -10,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A computation engine dedicated to the systematic sensitivity analyses, performed
+ * A computation engine dedicated to the systematic sensitivity analyses performed
  * in the scope of the LinearRao.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -52,8 +58,10 @@ class SystematicAnalysisEngine {
     }
 
     /**
-     * Run the systematic sensitivity analysis on one Situation. Throws a SensitivityComputationException
-     * if the computation fails.
+     * Run the systematic sensitivity analysis on one Situation, and evaluate the value of the
+     * objective function on this Situation.
+     *
+     * Throw a SensitivityComputationException if the computation fails.
      */
     void run(AbstractSituation abstractSituation) throws SensitivityComputationException {
 
@@ -90,10 +98,53 @@ class SystematicAnalysisEngine {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            abstractSituation.setResults(systematicSensitivityAnalysisResult);
+            setResults(abstractSituation, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
         }
+    }
+
+    /**
+     * add results of the systematic analysis (flows and objective function value) in the
+     * Crac result variant of the situation.
+     */
+    private void setResults(AbstractSituation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        situation.setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
+        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        updateCracExtension(situation);
+        updateCnecExtensions(situation, systematicSensitivityAnalysisResult);
+    }
+
+    /**
+     * Compute the objective function, the minimal margin.
+     */
+    private double getMinMargin(AbstractSituation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+
+        double minMargin = Double.POSITIVE_INFINITY;
+        for (Cnec cnec : situation.getCrac().getCnecs()) {
+            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
+            if (Double.isNaN(margin)) {
+                throw new SensitivityComputationException(String.format("Cnec %s is not present in the sensitivity analysis results. Bad behaviour.", cnec.getId()));
+            }
+            minMargin = Math.min(minMargin, margin);
+        }
+        return minMargin;
+    }
+
+    private void updateCracExtension(AbstractSituation situation) {
+        CracResult cracResult = situation.getCrac().getExtension(CracResultExtension.class).getVariant(situation.getCracResultVariant());
+        cracResult.setCost(situation.getCost());
+        cracResult.setNetworkSecurityStatus();
+    }
+
+    private void updateCnecExtensions(AbstractSituation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        situation.getCrac().getCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(situation.getCracResultVariant());
+            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
+            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
+            cnecResult.setThresholds(cnec);
+        });
     }
 }

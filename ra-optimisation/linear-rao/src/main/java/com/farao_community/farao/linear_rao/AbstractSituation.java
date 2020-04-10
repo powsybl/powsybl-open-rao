@@ -7,10 +7,8 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
@@ -22,7 +20,7 @@ import static java.lang.String.format;
 
 /**
  * An AbstractSituation includes a set of information associated to a given
- * network situation, with one combination of RangeActions set-points.
+ * network situation.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -75,13 +73,14 @@ abstract class AbstractSituation {
         }
         this.resultVariantId = resultVariantManager.createNewUniqueVariantId(this.getVariantPrefix());
 
+        this.systematicSensitivityAnalysisResult = null;
         this.cost = Double.NaN;
     }
 
     /**
      * get the variant prefix used in the Crac ResultVariantManager
      */
-    protected abstract String getVariantPrefix();
+    abstract String getVariantPrefix();
 
     /**
      * Compare the network situations (i.e. the RangeActions set-points) of two
@@ -89,7 +88,7 @@ abstract class AbstractSituation {
      * if they are not.
      */
     boolean sameRaResults(AbstractSituation otherLinearRaoSituation) {
-        String otherResultVariantId = otherLinearRaoSituation.getResultVariant();
+        String otherResultVariantId = otherLinearRaoSituation.getCracResultVariant();
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
@@ -111,51 +110,9 @@ abstract class AbstractSituation {
     }
 
     /**
-     * add results of the systematic analysis (flows and objective function value) in the
-     * Crac result variant associated to this situation.
+     * get a unique network variant ID
      */
-    void setResults(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
-        cost = -getMinMargin();
-        updateCracExtension();
-        updateCnecExtensions();
-    }
-
-    /**
-     * Compute the objective function, the minimal margin.
-     */
-    private double getMinMargin() {
-        Objects.requireNonNull(systematicSensitivityAnalysisResult);
-
-        double minMargin = Double.POSITIVE_INFINITY;
-        for (Cnec cnec : crac.getCnecs()) {
-            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
-            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
-            if (Double.isNaN(margin)) {
-                throw new FaraoException(format("Cnec %s is not present in the linear RAO result. Bad behaviour.", cnec.getId()));
-            }
-            minMargin = Math.min(minMargin, margin);
-        }
-        return minMargin;
-    }
-
-    private void updateCracExtension() {
-        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
-        CracResult cracResult = cracResultMap.getVariant(resultVariantId);
-        cracResult.setCost(cost);
-    }
-
-    private void updateCnecExtensions() {
-        crac.getCnecs().forEach(cnec -> {
-            CnecResultExtension cnecResultMap = cnec.getExtension(CnecResultExtension.class);
-            CnecResult cnecResult = cnecResultMap.getVariant(resultVariantId);
-            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setThresholds(cnec);
-        });
-    }
-
-    private String getUniqueVariantId(Network network) {
+    private String getUniqueNetworkVariantId(Network network) {
         String uniqueId;
         do {
             uniqueId = UUID.randomUUID().toString();
@@ -163,40 +120,51 @@ abstract class AbstractSituation {
         return uniqueId;
     }
 
+    /**
+     * Create and switch on a new network variant
+     */
     private String createAndSwitchToNewNetworkVariant(Network network, String referenceNetworkVariant) {
         // todo : share network variant operation methods in an util class
         Objects.requireNonNull(referenceNetworkVariant);
         if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
             throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
         }
-        String uniqueId = getUniqueVariantId(network);
+        String uniqueId = getUniqueNetworkVariantId(network);
         network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
         network.getVariantManager().setWorkingVariant(uniqueId);
         return uniqueId;
     }
 
-    Crac getCrac() {
-        return crac;
-    }
-
+    /**
+     * Getters and setters
+     */
     Network getNetwork() {
         return network;
-    }
-
-    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
-        return systematicSensitivityAnalysisResult;
-    }
-
-    String getResultVariant() {
-        return resultVariantId;
-    }
-
-    double getCost() {
-        return cost;
     }
 
     String getNetworkVariantId() {
         return networkVariantId;
     }
 
+    Crac getCrac() {
+        return crac;
+    }
+
+    String getCracResultVariant() {
+        return resultVariantId;
+    }
+
+    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        return systematicSensitivityAnalysisResult;
+    }
+
+    void setSystematicSensitivityAnalysisResult(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+    }
+
+    double getCost() {
+        return cost;
+    }
+
+    void setCost(double cost) {this.cost = cost;}
 }

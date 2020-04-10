@@ -88,12 +88,12 @@ class LinearOptimisationEngine {
      * RangeAction set-points and a new Crac ResultVariant which contains the results
      * of the optimisation.
      *
-     * @param situationIn defines the data on which the creation of the optimisation
+     * @param situationIn defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
      * @return an OptimizedSituation, set with the optimal combination of RangeAction
-     * calculated by the optimization problem,
+     * calculated by the optimisation problem,
      *
      * @throws LinearOptimisationException is the method fails
      */
@@ -122,7 +122,7 @@ class LinearOptimisationEngine {
 
         // todo : do not create a RaoResult anymore and refactor the post processors
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getResultVariant()));
+        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getCracResultVariant()));
 
         // apply RA on network
         applyRAs(situationOut);
@@ -191,7 +191,7 @@ class LinearOptimisationEngine {
         String preventiveState = optimizedSituation.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction : optimizedSituation.getCrac().getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(optimizedSituation.getNetwork(), rangeActionResultMap.getVariant(optimizedSituation.getResultVariant()).getSetPoint(preventiveState));
+            rangeAction.apply(optimizedSituation.getNetwork(), rangeActionResultMap.getVariant(optimizedSituation.getCracResultVariant()).getSetPoint(preventiveState));
         }
     }
 }
