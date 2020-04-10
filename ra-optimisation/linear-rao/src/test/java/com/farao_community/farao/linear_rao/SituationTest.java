@@ -68,7 +68,7 @@ public class SituationTest {
 
     @Test
     public void initialSituationTest() {
-        InitialSituation initialSituation = new InitialSituation(network, crac);
+        InitialSituation initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
@@ -84,21 +84,18 @@ public class SituationTest {
         assertEquals(0, crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive), PRECISION_SET_POINT);
 
         initialSituation.deleteResultVariant();
-        // We don't want to delete the initial variant
+        // We never want the initial situation to delete its variant. Allows us to call delete variant on any situation without having to worry if it's the initial one or not.
         assertEquals(1, resultVariantManager.getVariants().size());
     }
 
     @Test
     public void optimizedSituationTest() {
-        //Needed to create the variant manager
-        new InitialSituation(network, crac);
-
-        OptimizedSituation optimizedSituation = new OptimizedSituation(network, crac);
+        OptimizedSituation optimizedSituation = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        assertEquals(2, resultVariantManager.getVariants().size());
+        assertEquals(1, resultVariantManager.getVariants().size());
 
         LinearOptimisationEngine linearOptimisationEngine = Mockito.mock(LinearOptimisationEngine.class);
 
@@ -111,6 +108,6 @@ public class SituationTest {
         assertTrue(Double.isNaN(crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class).getVariant(variant).getSetPoint(preventive)));
 
         optimizedSituation.deleteResultVariant();
-        assertEquals(1, resultVariantManager.getVariants().size());
+        assertEquals(0, resultVariantManager.getVariants().size());
     }
 }

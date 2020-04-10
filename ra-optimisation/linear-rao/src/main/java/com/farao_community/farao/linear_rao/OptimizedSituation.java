@@ -7,8 +7,6 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.powsybl.iidm.network.Network;
 
 /**

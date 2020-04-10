@@ -7,24 +7,19 @@
 
 package com.farao_community.farao.linear_rao;
 
-
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -46,7 +41,7 @@ public class SystematicAnalysisEngineTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
         crac.synchronize(network);
-        initialSituation = new InitialSituation(network, crac);
+        initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
     }
 
     @Test
@@ -59,7 +54,7 @@ public class SystematicAnalysisEngineTest {
 
         systematicAnalysisEngine.run(initialSituation);
         assertNotNull(initialSituation);
-        assertEquals(512.5,initialSituation.getCost(),FLOW_TOLERANCE);
+        assertEquals(512.5, initialSituation.getCost(), FLOW_TOLERANCE);
 
         String resultVariant = initialSituation.getResultVariant();
         assertEquals(1500., initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
@@ -71,7 +66,7 @@ public class SystematicAnalysisEngineTest {
         try {
             systematicAnalysisEngine.run(initialSituation);
             fail();
-        } catch(SensitivityComputationException e) {
+        } catch (SensitivityComputationException e) {
             assertEquals("Sensitivity computation failed with default parameters. No fallback parameters available.", e.getMessage());
         }
     }
