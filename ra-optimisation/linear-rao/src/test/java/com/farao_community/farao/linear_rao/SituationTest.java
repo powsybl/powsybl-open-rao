@@ -73,8 +73,8 @@ public class SituationTest {
         assertEquals(1, resultVariantManager.getVariants().size());
 
         initialSituation.deleteResultVariant();
-        // We never want the initial situation to delete its variant. Allows us to call delete variant on any situation without having to worry if it's the initial one or not.
-        assertEquals(1, resultVariantManager.getVariants().size());
+
+        assertEquals(0, resultVariantManager.getVariants().size());
     }
 
     @Test

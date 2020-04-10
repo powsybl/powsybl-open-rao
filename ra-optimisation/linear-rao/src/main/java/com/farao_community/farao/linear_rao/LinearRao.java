@@ -101,7 +101,9 @@ public class LinearRao implements RaoProvider {
             systematicAnalysisEngine.run(optimizedSituation);
 
             if (optimizedSituation.getCost() < bestSituation.getCost()) { // if the solution has been improved, continue the search
-                bestSituation.deleteResultVariant();
+                if(!(bestSituation instanceof InitialSituation)) {
+                    bestSituation.deleteResultVariant();
+                }
                 bestSituation = optimizedSituation;
             } else { // unexpected behaviour, stop the search
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestSituation.getCost(), -optimizedSituation.getCost());

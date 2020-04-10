@@ -50,10 +50,4 @@ class InitialSituation extends AbstractSituation {
             }
         }
     }
-
-    @Override
-    void deleteResultVariant() {
-        this.getNetwork().getVariantManager().removeVariant(this.getNetworkVariantId());
-        //The pre-optimisation Crac result variant is never deleted
-    }
 }
