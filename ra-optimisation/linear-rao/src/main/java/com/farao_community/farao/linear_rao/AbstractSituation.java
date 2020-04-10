@@ -16,8 +16,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 import java.util.UUID;
 
-import static java.lang.String.format;
-
 /**
  * An AbstractSituation includes a set of information associated to a given
  * network situation.
@@ -166,5 +164,7 @@ abstract class AbstractSituation {
         return cost;
     }
 
-    void setCost(double cost) {this.cost = cost;}
+    void setCost(double cost) {
+        this.cost = cost;
+    }
 }
