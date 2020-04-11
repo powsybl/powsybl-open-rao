@@ -2,7 +2,6 @@ package com.farao_community.farao.linear_rao.optimisation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
 import org.junit.Before;
@@ -12,7 +11,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
