@@ -21,7 +21,6 @@ import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +106,7 @@ public class LinearRao implements RaoProvider {
             systematicAnalysisEngine.run(optimizedSituation);
 
             if (optimizedSituation.getCost() < bestSituation.getCost()) { // if the solution has been improved, continue the search
-                if(!(bestSituation instanceof InitialSituation)) {
+                if (!(bestSituation instanceof InitialSituation)) {
                     bestSituation.deleteResultVariant();
                 }
                 bestSituation = optimizedSituation;
