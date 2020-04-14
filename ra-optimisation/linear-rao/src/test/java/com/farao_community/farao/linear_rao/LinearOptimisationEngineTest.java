@@ -16,6 +16,9 @@ import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Before;
@@ -27,6 +30,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -48,6 +53,12 @@ public class LinearOptimisationEngineTest {
 
         linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
+        Mockito.when(linearRaoProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.getFlowVariable(Mockito.any())).thenReturn(Mockito.mock(MPVariable.class));
+        Mockito.when(linearRaoProblemMock.getMinimumMarginVariable()).thenReturn(Mockito.mock(MPVariable.class));
+        Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(Mockito.mock(MPObjective.class));
         Mockito.doReturn(linearRaoProblemMock).when(linearOptimisationEngine).createLinearRaoProblem();
 
         network = NetworkImportsUtil.import12NodesNetwork();
@@ -66,5 +77,7 @@ public class LinearOptimisationEngineTest {
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>());
         Mockito.doReturn(systematicSensitivityAnalysisResult).when(initialSituation).getSystematicSensitivityAnalysisResult();
         OptimizedSituation optimizedSituation = linearOptimisationEngine.run(initialSituation);
+
+        assertNotNull(optimizedSituation);
     }
 }
