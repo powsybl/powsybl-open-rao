@@ -35,14 +35,9 @@ import static org.junit.Assert.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class SituationTest {
-    private static final double PRECISION_FLOW = 1.0;
-    private static final double PRECISION_SET_POINT = 1.0;
 
-    Network network;
-    Crac crac;
-    ComputationManager computationManager;
-    SensitivityComputationParameters sensitivityComputationParameters;
-    SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+    private Network network;
+    private Crac crac;
 
     @Before
     public void setUp() {
@@ -52,15 +47,6 @@ public class SituationTest {
         PstRange pstRange = new PstWithRange("RA PST BE", pstElement);
         ((SimpleCrac) crac).addRangeAction(pstRange);
         crac.synchronize(network);
-
-        computationManager = Mockito.mock(ComputationManager.class);
-        sensitivityComputationParameters = Mockito.mock(SensitivityComputationParameters.class);
-        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
-        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
-        crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
-        systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(new HashMap<>(), cnecFlowMap, new HashMap<>());
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(new SystematicSensitivityAnalysisResult(new HashMap<>(), cnecFlowMap, new HashMap<>()));
     }
 
     @Test
