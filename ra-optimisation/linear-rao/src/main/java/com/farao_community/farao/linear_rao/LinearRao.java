@@ -15,7 +15,6 @@ import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
@@ -32,10 +31,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(RaoProvider.class)
 public class LinearRao implements RaoProvider {
-
-    static {
-        NativeLibraryLoader.loadNativeLibrary("jniortools");
-    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
