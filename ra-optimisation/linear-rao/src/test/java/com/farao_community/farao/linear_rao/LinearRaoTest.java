@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -25,6 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -32,6 +36,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -40,6 +45,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class})
 public class LinearRaoTest {
+
+    private static final double DOUBLE_TOLERANCE = 0.1;
 
     private LinearRao linearRao;
     private ComputationManager computationManager;
@@ -172,69 +179,56 @@ public class LinearRaoTest {
     }
 
     @Test
-    public void runTest() {
-        /*Network network = NetworkImportsUtil.import12NodesNetwork();
-        SimpleCrac crac = create();
-        crac.synchronize(network);
-        String variantId = "variant-test";
+    public void runLinearRaoTestConvergeInTwoIterations() {
 
-        ResultVariantManager variantManager = new ResultVariantManager();
-        ResultVariantManager variantManagerSpy = Mockito.spy(variantManager);
-        crac.addExtension(ResultVariantManager.class, variantManagerSpy);
-        variantManagerSpy.createVariant("preOptimVariant");
-        variantManagerSpy.createVariant("currentVariant1");
-        variantManagerSpy.createVariant("currentVariant2");
-        variantManagerSpy.createVariant("currentVariant3");
-        Mockito.doReturn("preOptimVariant").doReturn("currentVariant1").doReturn("currentVariant2").doReturn("currentVariant3")
-                .when(variantManagerSpy).createNewUniqueVariantId(Mockito.anyString());
+        // mock sensitivity engine
+        // sensitivity computation returns a cost of 100 before optim, and 50 after optim
+        doAnswer(new Answer() {
 
-        String preventiveState = crac.getPreventiveState().getId();
-        RangeActionResultExtension rangeActionResultMap;
-        rangeActionResultMap = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class);
-        PstRangeResult currentVariant1 = (PstRangeResult) rangeActionResultMap.getVariant("currentVariant1");
-        currentVariant1.setSetPoint(preventiveState, 3);
-        currentVariant1.setTap(preventiveState, 4);
-        PstRangeResult currentVariant2 = (PstRangeResult) rangeActionResultMap.getVariant("currentVariant2");
-        currentVariant2.setSetPoint(preventiveState, 2);
-        currentVariant2.setTap(preventiveState, 3);
-        PstRangeResult currentVariant3 = (PstRangeResult) rangeActionResultMap.getVariant("currentVariant3");
-        currentVariant3.setSetPoint(preventiveState, 2);
-        currentVariant3.setTap(preventiveState, 3);
+            private int count = 1;
 
-        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap1 = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap2 = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap3 = new HashMap<>();
-        crac.getCnecs().forEach(cnec -> cnecFlowMap1.put(cnec, 499.));
-        crac.getCnecs().forEach(cnec -> cnecFlowMap2.put(cnec, 495.));
-        crac.getCnecs().forEach(cnec -> cnecFlowMap3.put(cnec, 490.));
-        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap1, new HashMap<>()),
-                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap2, new HashMap<>()),
-                            new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap3, new HashMap<>()));
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                AbstractSituation situation = (AbstractSituation) args[0];
+                situation.setCost(count == 1 ? 100.0 : 50.0);
+                crac.getExtension(CracResultExtension.class).getVariant(situation.getCracResultVariant()).setCost(count == 1 ? 100.0 : 50.0);
+                count += 1;
+                return null;
+            }
+        }).when(systematicAnalysisEngine).run(any());
 
-        CompletableFuture<RaoResult> linearRaoResultCF = linearRao.run(network, crac, variantId, LocalComputationManager.getDefault(), raoParameters);
+        // mock linear optimisation engine
+        // linear optimisation returns always the same value -> optimal solution is 1.0 for all RAs
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
 
-        assertNotNull(linearRaoResultCF);
-        try {
-            RaoResult linearRaoResult = linearRaoResultCF.get();
-            assertTrue(linearRaoResult.isSuccessful());
-            assertEquals("preOptimVariant", linearRaoResult.getPreOptimVariantId());
-            assertEquals("currentVariant2", linearRaoResult.getPostOptimVariantId());
+                OptimizedSituation situationOut = new OptimizedSituation(network, variantId, crac);
+                crac.getStates().forEach(st ->
+                    crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(situationOut.getCracResultVariant()).setSetPoint(st.getId(), 1.0)
+                );
 
-            CnecResultExtension cnecResultMap = crac.getCnecs().iterator().next().getExtension(CnecResultExtension.class);
-            assertEquals(499, cnecResultMap.getVariant("preOptimVariant").getFlowInMW(), 0.01);
-            assertEquals(490, cnecResultMap.getVariant("currentVariant2").getFlowInMW(), 0.01);
-            RangeActionResultExtension pstResultMap = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class);
-            assertEquals(0, ((PstRangeResult) pstResultMap.getVariant("preOptimVariant")).getTap(preventiveState));
-            assertEquals(0., pstResultMap.getVariant("preOptimVariant").getSetPoint(preventiveState), 0.01);
-            assertEquals(3, ((PstRangeResult) pstResultMap.getVariant("currentVariant2")).getTap(preventiveState));
-            assertEquals(2., pstResultMap.getVariant("currentVariant2").getSetPoint(preventiveState), 0.01);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/
+                return situationOut;
+            }
+        }).when(linearOptimisationEngine).run(any());
+
+        // run Rao
+        RaoResult results = linearRao.runLinearRao(network, crac, variantId, systematicAnalysisEngine, linearOptimisationEngine, raoParameters).join();
+
+        // check results
+        assertNotNull(results);
+        assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
+        assertNotNull(results.getExtension(LinearRaoResult.class));
+        assertEquals(LinearRaoResult.SystematicSensitivityAnalysisStatus.DEFAULT, results.getExtension(LinearRaoResult.class).getSystematicSensitivityAnalysisStatus());
+        assertEquals(LinearRaoResult.LpStatus.RUN_OK, results.getExtension(LinearRaoResult.class).getLpStatus());
+
+        String preOptimVariant = results.getPreOptimVariantId();
+        String postOptimVariant = results.getPostOptimVariantId();
+
+        assertEquals(100.0, crac.getExtension(CracResultExtension.class).getVariant(preOptimVariant).getCost(), DOUBLE_TOLERANCE);
+        assertEquals(50, crac.getExtension(CracResultExtension.class).getVariant(postOptimVariant).getCost(), DOUBLE_TOLERANCE);
+
+        crac.getStates().forEach(st ->
+            assertEquals(1.0,  crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(postOptimVariant).getSetPoint(st.getId()), DOUBLE_TOLERANCE)
+        );
     }
 }
