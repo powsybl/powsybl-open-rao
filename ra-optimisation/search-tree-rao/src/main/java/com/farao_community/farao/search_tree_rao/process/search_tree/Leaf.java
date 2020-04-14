@@ -220,6 +220,9 @@ class Leaf {
     }
 
     void deletePreOptimResultVariant(Crac crac) {
+        if (!isRoot() && raoResult.getPostOptimVariantId().equals(raoResult.getPreOptimVariantId())) {
+            return;
+        }
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager.getVariants().contains(raoResult.getPreOptimVariantId())) {
             resultVariantManager.deleteVariant(raoResult.getPreOptimVariantId());

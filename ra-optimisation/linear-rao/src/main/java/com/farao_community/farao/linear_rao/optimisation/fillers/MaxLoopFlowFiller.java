@@ -79,5 +79,6 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
     @Override
     public void update() {
+        //This should do nothing.
     }
 }

@@ -110,7 +110,7 @@ public class LinearOptimisationEngineTest {
     @Test
     public void testUpdateError() {
         linearOptimisationEngine.run(initialSituation);
-        Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
+        Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
             linearOptimisationEngine.run(initialSituation);
             fail();
