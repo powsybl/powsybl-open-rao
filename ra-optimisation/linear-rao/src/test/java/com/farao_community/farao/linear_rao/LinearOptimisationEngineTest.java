@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -31,6 +32,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -43,6 +45,7 @@ public class LinearOptimisationEngineTest {
     private LinearRaoProblem linearRaoProblemMock;
     private Network network;
     private Crac crac;
+    private InitialSituation initialSituation;
 
     @Before
     public void setUp() {
@@ -64,11 +67,8 @@ public class LinearOptimisationEngineTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         crac.synchronize(network);
-    }
 
-    @Test
-    public void test() {
-        InitialSituation initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
         initialSituation = Mockito.spy(initialSituation);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
@@ -76,8 +76,31 @@ public class LinearOptimisationEngineTest {
         crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>());
         Mockito.doReturn(systematicSensitivityAnalysisResult).when(initialSituation).getSystematicSensitivityAnalysisResult();
-        OptimizedSituation optimizedSituation = linearOptimisationEngine.run(initialSituation);
+    }
 
+    @Test
+    public void testOptimal() {
+        OptimizedSituation optimizedSituation = linearOptimisationEngine.run(initialSituation);
         assertNotNull(optimizedSituation);
+    }
+
+    @Test
+    public void testNonOptimal() {
+        Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
+        try {
+            linearOptimisationEngine.run(initialSituation);
+        } catch (LinearOptimisationException e) {
+            assertEquals(e.getCause().getMessage(), "Solving of the linear problem failed failed with MPSolver status ABNORMAL");
+        }
+    }
+
+    @Test
+    public void testFillerError() {
+        Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
+        try {
+            linearOptimisationEngine.run(initialSituation);
+        } catch (LinearOptimisationException e) {
+            assertEquals(e.getMessage(), "Linear optimisation failed when building the problem.");
+        }
     }
 }
