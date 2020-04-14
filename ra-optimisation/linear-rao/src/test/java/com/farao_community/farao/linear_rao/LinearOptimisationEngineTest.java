@@ -32,8 +32,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -99,8 +98,22 @@ public class LinearOptimisationEngineTest {
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
         try {
             linearOptimisationEngine.run(initialSituation);
+            fail();
         } catch (LinearOptimisationException e) {
             assertEquals(e.getMessage(), "Linear optimisation failed when building the problem.");
         }
+    }
+
+    @Test
+    public void testUpdateError() {
+        linearOptimisationEngine.run(initialSituation);
+        Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
+        try {
+            linearOptimisationEngine.run(initialSituation);
+            fail();
+        } catch (LinearOptimisationException e) {
+            assertEquals(e.getMessage(), "Linear optimisation failed when updating the problem.");
+        }
+
     }
 }
