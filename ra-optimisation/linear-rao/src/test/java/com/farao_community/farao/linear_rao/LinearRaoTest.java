@@ -28,6 +28,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -48,7 +50,7 @@ public class LinearRaoTest {
     public void setUp() {
         //mockNativeLibraryLoader();
 
-        linearRao = Mockito.mock(LinearRao.class);
+        linearRao = new LinearRao();
 
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
@@ -69,12 +71,12 @@ public class LinearRaoTest {
 
     @Test
     public void getName() {
-        //assertEquals("LinearRao", linearRao.getName());
+        assertEquals("LinearRao", linearRao.getName());
     }
 
     @Test
     public void getVersion() {
-        //assertEquals("1.0.0", linearRao.getVersion());
+        assertEquals("1.0.0", linearRao.getVersion());
     }
 
     @Test
