@@ -21,6 +21,7 @@ import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
