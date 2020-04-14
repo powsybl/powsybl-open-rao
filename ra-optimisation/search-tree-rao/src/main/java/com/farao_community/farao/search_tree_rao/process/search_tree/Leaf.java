@@ -54,6 +54,7 @@ class Leaf {
      * Status of the leaf's Network Action evaluation
      */
     private Status status;
+    private int depth;
 
     enum Status {
         CREATED,
@@ -70,6 +71,7 @@ class Leaf {
         this.networkActions = new ArrayList<>(); //! root leaf has no network action
         this.raoResult = null;
         this.status = Status.CREATED;
+        this.depth = 0;
     }
 
     /**
@@ -84,6 +86,7 @@ class Leaf {
 
         this.raoResult = null;
         this.status = Status.CREATED;
+        this.depth = parentLeaf.depth + 1;
     }
 
     /**
@@ -112,6 +115,13 @@ class Leaf {
     }
 
     /**
+     * Leaf depth getter
+     */
+    int getDepth() {
+        return depth;
+    }
+
+    /**
      * Is this Leaf the initial one of the tree
      */
     boolean isRoot() {
@@ -126,6 +136,19 @@ class Leaf {
         return availableNetworkActions.stream().
                 filter(na -> !networkActions.contains(na)).
                 map(na -> new Leaf(this, na)).collect(Collectors.toList());
+    }
+
+    /**
+     * Extend the tree from the current Leaf with N new children Leaves
+     * for the N Network Actions given in argument, as long as the maximum
+     * search depth is not reached
+     */
+    List<Leaf> bloom(Set<NetworkAction> availableNetworkActions, int maxSearchDepth) {
+        if (depth < maxSearchDepth) {
+            return bloom(availableNetworkActions);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     /**

@@ -62,7 +62,7 @@ public final class Tree {
 
         while (doNewIteration(searchTreeRaoParameters.getStopCriterion(), hasImproved, optimalLeaf.getCost(crac))) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
+            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions, searchTreeRaoParameters.getMaximumSearchDepth());
 
             if (generatedLeaves.isEmpty()) {
                 break;
