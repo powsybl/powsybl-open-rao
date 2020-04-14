@@ -63,7 +63,7 @@ class SystematicAnalysisEngine {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    void run(AbstractSituation abstractSituation) throws SensitivityComputationException {
+    void run(AbstractSituation abstractSituation) {
 
         SensitivityComputationParameters sensiConfig = fallbackMode ? linearRaoParameters.getFallbackSensiParameters() : linearRaoParameters.getSensitivityComputationParameters();
 

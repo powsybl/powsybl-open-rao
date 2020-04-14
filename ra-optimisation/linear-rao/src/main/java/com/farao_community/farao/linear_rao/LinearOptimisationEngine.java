@@ -95,7 +95,7 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    OptimizedSituation run(AbstractSituation situationIn) throws LinearOptimisationException {
+    OptimizedSituation run(AbstractSituation situationIn) {
 
         if (situationIn.getSystematicSensitivityAnalysisResult() == null) {
             throw new FaraoException("LinearOptimisationEngine cannot run on a situation without sensitivities.");

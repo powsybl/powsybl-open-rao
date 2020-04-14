@@ -76,7 +76,7 @@ public class LinearRao implements RaoProvider {
                                             String variantId,
                                             SystematicAnalysisEngine systematicAnalysisEngine,
                                             LinearOptimisationEngine linearOptimisationEngine,
-                                            RaoParameters raoParameters) throws FaraoException {
+                                            RaoParameters raoParameters) {
 
         LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
 

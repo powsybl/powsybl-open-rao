@@ -78,9 +78,12 @@ public class LinearOptimisationEngineTest {
     }
 
     @Test
-    public void testOptimal() {
+    public void testOptimalAndUpdate() {
         OptimizedSituation optimizedSituation = linearOptimisationEngine.run(initialSituation);
         assertNotNull(optimizedSituation);
+        optimizedSituation = linearOptimisationEngine.run(initialSituation);
+        assertNotNull(optimizedSituation);
+
     }
 
     @Test
@@ -89,7 +92,7 @@ public class LinearOptimisationEngineTest {
         try {
             linearOptimisationEngine.run(initialSituation);
         } catch (LinearOptimisationException e) {
-            assertEquals(e.getCause().getMessage(), "Solving of the linear problem failed failed with MPSolver status ABNORMAL");
+            assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
     }
 
@@ -100,7 +103,7 @@ public class LinearOptimisationEngineTest {
             linearOptimisationEngine.run(initialSituation);
             fail();
         } catch (LinearOptimisationException e) {
-            assertEquals(e.getMessage(), "Linear optimisation failed when building the problem.");
+            assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
         }
     }
 
@@ -112,7 +115,7 @@ public class LinearOptimisationEngineTest {
             linearOptimisationEngine.run(initialSituation);
             fail();
         } catch (LinearOptimisationException e) {
-            assertEquals(e.getMessage(), "Linear optimisation failed when updating the problem.");
+            assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());
         }
 
     }

@@ -33,24 +33,22 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
             double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
             double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
 
-            if (rangeActionVar > 0) {
-                if (rangeAction instanceof PstRange) {
-                    PstRange pstRange = (PstRange) rangeAction;
-                    TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+            if (rangeActionVar > 0 && rangeAction instanceof PstRange) {
+                PstRange pstRange = (PstRange) rangeAction;
+                TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
-                    //todo : get pre optim angle and tap with a cleaner manner
-                    double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
-                    int preOptimTap = pstRange.computeTapPosition(preOptimAngle);
+                //todo : get pre optim angle and tap with a cleaner manner
+                double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
+                int preOptimTap = pstRange.computeTapPosition(preOptimAngle);
 
-                    int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
-                    double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+                int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
+                double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
-                    if (approximatedPostOptimTap != preOptimTap) {
-                        RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-                        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(resultVariantId);
-                        pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
-                        pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
-                    }
+                if (approximatedPostOptimTap != preOptimTap) {
+                    RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                    PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(resultVariantId);
+                    pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
+                    pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
                 }
             }
         }
