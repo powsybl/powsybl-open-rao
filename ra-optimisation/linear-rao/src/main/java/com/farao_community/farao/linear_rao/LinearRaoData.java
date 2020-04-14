@@ -47,6 +47,6 @@ public class LinearRaoData {
     }
 
     public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
-        return systematicSensitivityAnalysisResult.getSensitivity(cnec, cnec.getState(), rangeAction).orElse(Double.NaN);
+        return systematicSensitivityAnalysisResult.getSensitivity(cnec, rangeAction).orElse(Double.NaN);
     }
 }

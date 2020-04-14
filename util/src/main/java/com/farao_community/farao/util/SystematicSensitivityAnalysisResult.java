@@ -39,7 +39,8 @@ public class SystematicSensitivityAnalysisResult {
         return Optional.ofNullable(cnecIntensityMap.get(cnec));
     }
 
-    public Optional<Double> getSensitivity(Cnec cnec, State state, RangeAction rangeAction) {
+    public Optional<Double> getSensitivity(Cnec cnec, RangeAction rangeAction) {
+        State state = cnec.getState();
         if (!stateSensiMap.containsKey(state) || Objects.isNull(stateSensiMap.get(state))) {
             return Optional.empty();
         }
