@@ -26,6 +26,9 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     public void serialize(SearchTreeRaoParameters searchTreeRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("range-action-rao", searchTreeRaoParameters.getRangeActionRao());
+        jsonGenerator.writeObjectField("stop-criterion", searchTreeRaoParameters.getStopCriterion());
+        jsonGenerator.writeNumberField("maximum-search-depth", searchTreeRaoParameters.getMaximumSearchDepth());
+        jsonGenerator.writeNumberField("network-action-minimum-impact-threshold", searchTreeRaoParameters.getNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeEndObject();
     }
 
@@ -37,6 +40,15 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
             switch (jsonParser.getCurrentName()) {
                 case "range-action-rao":
                     parameters.setRangeActionRao(jsonParser.nextTextValue());
+                    break;
+                case "stop-criterion":
+                    parameters.setStopCriterion(getStopCriterionFromString(jsonParser.nextTextValue()));
+                    break;
+                case "maximum-search-depth":
+                    parameters.setMaximumSearchDepth(jsonParser.getValueAsInt());
+                    break;
+                case "network-action-minimum-impact-threshold":
+                    parameters.setNetworkActionMinimumImpactThreshold(jsonParser.getValueAsDouble());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -59,5 +71,19 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     @Override
     public Class<? super SearchTreeRaoParameters> getExtensionClass() {
         return SearchTreeRaoParameters.class;
+    }
+
+    private SearchTreeRaoParameters.StopCriterion getStopCriterionFromString(String stopCriterion) {
+        switch (stopCriterion) {
+
+            case "POSITIVE_MARGIN":
+                return SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
+
+            case "MAXIMUM_MARGIN":
+                return SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN;
+
+            default:
+                throw new FaraoException("Unexpected field: " + stopCriterion);
+        }
     }
 }

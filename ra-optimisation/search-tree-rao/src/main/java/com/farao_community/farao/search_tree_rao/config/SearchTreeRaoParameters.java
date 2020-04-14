@@ -15,9 +15,20 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
+    public enum StopCriterion {
+        POSITIVE_MARGIN,
+        MAXIMUM_MARGIN
+    }
+
     static final String DEFAULT_RANGE_ACTION_RAO = "LinearRao";
+    static final StopCriterion DEFAULT_STOP_CRITERION = StopCriterion.POSITIVE_MARGIN;
+    static final int DEFAULT_MAXIMUM_SEARCH_DEPTH = Integer.MAX_VALUE;
+    static final double DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD = 0;
 
     private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
+    private StopCriterion stopCriterion = DEFAULT_STOP_CRITERION;
+    private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
+    private double networkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
 
     @Override
     public String getName() {
@@ -30,5 +41,29 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setRangeActionRao(String rangeActionRaoName) {
         this.rangeActionRao = rangeActionRaoName;
+    }
+
+    public StopCriterion getStopCriterion() {
+        return stopCriterion;
+    }
+
+    public void setStopCriterion(StopCriterion stopCriterion) {
+        this.stopCriterion = stopCriterion;
+    }
+
+    public int getMaximumSearchDepth() {
+        return maximumSearchDepth;
+    }
+
+    public void setMaximumSearchDepth(int maximumSearchDepth) {
+        this.maximumSearchDepth = maximumSearchDepth;
+    }
+
+    public double getNetworkActionMinimumImpactThreshold() {
+        return networkActionMinimumImpactThreshold;
+    }
+
+    public void setNetworkActionMinimumImpactThreshold(double networkActionMinimumImpactThreshold) {
+        this.networkActionMinimumImpactThreshold = networkActionMinimumImpactThreshold;
     }
 }
