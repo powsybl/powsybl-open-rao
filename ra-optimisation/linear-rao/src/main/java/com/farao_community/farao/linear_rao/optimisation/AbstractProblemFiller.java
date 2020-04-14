@@ -19,6 +19,14 @@ public abstract class AbstractProblemFiller {
         this.linearRaoData = linearRaoData;
     }
 
+    public void setLinearRaoProblem(LinearRaoProblem linearRaoProblem) {
+        this.linearRaoProblem = linearRaoProblem;
+    }
+
+    public void setLinearRaoData(LinearRaoData linearRaoData) {
+        this.linearRaoData = linearRaoData;
+    }
+
     public abstract void fill();
 
     public abstract void update();

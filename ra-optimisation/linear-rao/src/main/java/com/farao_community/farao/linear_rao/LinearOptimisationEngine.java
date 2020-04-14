@@ -18,7 +18,6 @@ import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFil
 import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.google.ortools.linearsolver.MPSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +73,6 @@ class LinearOptimisationEngine {
     LinearOptimisationEngine(RaoParameters raoParameters) {
 
         this.lpInitialised = false;
-        this.linearRaoProblem = new LinearRaoProblem();
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
@@ -97,7 +95,7 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    OptimizedSituation run(AbstractSituation situationIn) throws LinearOptimisationException {
+    OptimizedSituation run(AbstractSituation situationIn) {
 
         if (situationIn.getSystematicSensitivityAnalysisResult() == null) {
             throw new FaraoException("LinearOptimisationEngine cannot run on a situation without sensitivities.");
@@ -109,7 +107,7 @@ class LinearOptimisationEngine {
 
         // prepare optimisation problem
         if (!lpInitialised) {
-            createLinearRaoProblem();
+            this.linearRaoProblem = createLinearRaoProblem();
             buildProblem();
             lpInitialised = true;
         } else {
@@ -133,6 +131,8 @@ class LinearOptimisationEngine {
 
     private void buildProblem() {
         try {
+            fillerList.forEach(filler -> filler.setLinearRaoData(linearRaoData));
+            fillerList.forEach(filler -> filler.setLinearRaoProblem(linearRaoProblem));
             fillerList.forEach(AbstractProblemFiller::fill);
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
@@ -154,10 +154,10 @@ class LinearOptimisationEngine {
     private void solveProblem() {
         try {
 
-            MPSolver.ResultStatus solverResultStatus = linearRaoProblem.solve();
-
-            if (solverResultStatus != MPSolver.ResultStatus.OPTIMAL) {
-                String errorMessage = String.format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatus.toString());
+            Enum solverResultStatus = linearRaoProblem.solve();
+            String solverResultStatusString = solverResultStatus.name();
+            if (!solverResultStatusString.equals("OPTIMAL")) {
+                String errorMessage = String.format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatusString);
                 LOGGER.error(errorMessage);
                 throw new LinearOptimisationException(errorMessage);
             }
