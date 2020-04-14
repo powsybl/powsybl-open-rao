@@ -23,7 +23,7 @@ public abstract class AbstractProblemFiller {
         this.linearRaoProblem = linearRaoProblem;
     }
 
-    public void setLinearRaoData (LinearRaoData linearRaoData) {
+    public void setLinearRaoData(LinearRaoData linearRaoData) {
         this.linearRaoData = linearRaoData;
     }
 
