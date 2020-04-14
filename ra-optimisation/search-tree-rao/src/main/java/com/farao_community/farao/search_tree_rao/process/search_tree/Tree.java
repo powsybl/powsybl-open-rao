@@ -6,12 +6,14 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -44,6 +46,8 @@ public final class Tree {
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
+        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
+
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
 
@@ -56,8 +60,7 @@ public final class Tree {
         Leaf optimalLeaf = rootLeaf;
         boolean hasImproved = true;
 
-        //TODO: generalize to handle different stop criterion
-        while (optimalLeaf.getCost(crac) > 0 && hasImproved) {
+        while (doNewIteration(searchTreeRaoParameters.getStopCriterion(), hasImproved, optimalLeaf.getCost(crac))) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
@@ -84,6 +87,16 @@ public final class Tree {
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
+    }
+
+    static boolean doNewIteration(SearchTreeRaoParameters.StopCriterion stopCriterion, boolean hasImproved, double optimalCost) {
+        if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
+            return hasImproved && optimalCost > 0;
+        } else if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
+            return hasImproved;
+        } else {
+            throw new FaraoException("Unexpected stop criterion: " + stopCriterion);
+        }
     }
 
     static RaoResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
