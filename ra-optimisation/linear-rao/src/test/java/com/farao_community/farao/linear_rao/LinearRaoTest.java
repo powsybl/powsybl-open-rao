@@ -21,7 +21,7 @@ import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class LinearRaoTest {
         variantId = network.getVariantManager().getWorkingVariantId();
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
         raoParameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(false);
-        computationManager = LocalComputationManager.getDefault();
+        computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         systematicAnalysisEngine = Mockito.mock(SystematicAnalysisEngine.class);
         linearOptimisationEngine = Mockito.mock(LinearOptimisationEngine.class);

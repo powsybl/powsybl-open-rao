@@ -7,67 +7,182 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.nio.file.FileSystem;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class SystematicAnalysisEngineTest {
-    private static final double FLOW_TOLERANCE = 1.;
-    InitialSituation initialSituation;
+
+    private static final double FLOW_TOLERANCE = 0.1;
+
+    private Crac crac;
+    private InitialSituation initialSituation;
 
     @Before
     public void setUp() {
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.create();
+        crac = CommonCracCreation.create();
         crac.synchronize(network);
+
         initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
     }
 
     @Test
-    public void testRun() {
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        RaoParameters raoParameters = RaoParameters.load(platformConfig);
-        ComputationManager computationManager = LocalComputationManager.getDefault();
+    public void testRunDefaultConfigOk() {
+
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        // mock sensi service - run OK
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(getSensiResultOk());
+
+        // run engine
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        systematicAnalysisEngine.run(initialSituation);
+
+        // assert results
+        assertNotNull(initialSituation);
+        assertFalse(systematicAnalysisEngine.isFallback());
+        String resultVariant = initialSituation.getCracResultVariant();
+        assertEquals(10.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(15.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+
+    }
+
+    @Test
+    public void testRunDefaultConfigFailsAndNoFallback() {
+
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        // mock sensi service - run with null sensi
+
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(getSensiResultWithNull());
+
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
 
-        systematicAnalysisEngine.run(initialSituation);
-        assertNotNull(initialSituation);
-        assertEquals(512.5, initialSituation.getCost(), FLOW_TOLERANCE);
-
-        String resultVariant = initialSituation.getCracResultVariant();
-        assertEquals(1500., initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-    }
-
-    @Test
-    public void testFailedRunNoFallbackParams() {
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(Mockito.mock(LinearRaoParameters.class), Mockito.mock(ComputationManager.class));
+        // run - expected failure
         try {
             systematicAnalysisEngine.run(initialSituation);
             fail();
         } catch (SensitivityComputationException e) {
-            assertEquals("Sensitivity computation failed with default parameters. No fallback parameters available.", e.getMessage());
+            assertTrue(e.getMessage().contains("Sensitivity computation failed with default parameters. No fallback parameters available."));
         }
+    }
+
+    @Test
+    public void testRunDefaultConfigFailsButFallbackOk() {
+
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersWithFallback.json"));
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        // mock sensi service - run with null sensi
+        SensitivityComputationParameters defaultConfig = raoParameters.getExtension(LinearRaoParameters.class).getSensitivityComputationParameters();
+        SensitivityComputationParameters fallbackConfig = raoParameters.getExtension(LinearRaoParameters.class).getFallbackSensiParameters();
+
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(defaultConfig)))
+            .thenReturn(getSensiResultWithNull());
+
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
+            .thenReturn(getSensiResultOk());
+
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+
+        // run
+        systematicAnalysisEngine.run(initialSituation);
+
+        // assert
+        assertTrue(systematicAnalysisEngine.isFallback());
+        String resultVariant = initialSituation.getCracResultVariant();
+        assertEquals(10.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(15.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+    }
+
+    @Test
+    public void testRunDefaultConfigAndFallbackFail() {
+
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersWithFallback.json"));
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        // mock sensi service - run with null sensi
+        SensitivityComputationParameters defaultConfig = raoParameters.getExtension(LinearRaoParameters.class).getSensitivityComputationParameters();
+        SensitivityComputationParameters fallbackConfig = raoParameters.getExtension(LinearRaoParameters.class).getFallbackSensiParameters();
+
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(defaultConfig)))
+            .thenReturn(getSensiResultWithNull());
+
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
+            .thenReturn(getSensiResultWithNull());
+
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+
+        // run - expected failure
+        try {
+            systematicAnalysisEngine.run(initialSituation);
+            fail();
+        } catch (SensitivityComputationException e) {
+            assertTrue(e.getMessage().contains("Sensitivity computation failed with all available sensitivity parameters."));
+        }
+    }
+
+    private SystematicSensitivityAnalysisResult getSensiResultOk() {
+        Map<State, SensitivityComputationResults> sensi = new HashMap<>();
+        Map<Cnec, Double> flowInAmpere = new HashMap<>();
+        Map<Cnec, Double> flowInMW = new HashMap<>();
+
+        SensitivityComputationResults oneSensiMock = Mockito.mock(SensitivityComputationResults.class);
+        crac.getStates().forEach(st -> sensi.put(st, oneSensiMock));
+        crac.getCnecs().forEach(c -> flowInAmpere.put(c, 15.0));
+        crac.getCnecs().forEach(c -> flowInMW.put(c, 10.0));
+
+        return new SystematicSensitivityAnalysisResult(sensi, flowInMW, flowInAmpere);
+    }
+
+    private SystematicSensitivityAnalysisResult getSensiResultWithNull() {
+        Map<State, SensitivityComputationResults> sensi = new HashMap<>();
+        Map<Cnec, Double> flowInAmpere = new HashMap<>();
+        Map<Cnec, Double> flowInMW = new HashMap<>();
+
+        crac.getStates().forEach(st -> sensi.put(st, null));
+        crac.getCnecs().forEach(c -> flowInAmpere.put(c, null));
+        crac.getCnecs().forEach(c -> flowInMW.put(c, null));
+        return new SystematicSensitivityAnalysisResult(sensi, flowInMW, flowInAmpere);
     }
 }
