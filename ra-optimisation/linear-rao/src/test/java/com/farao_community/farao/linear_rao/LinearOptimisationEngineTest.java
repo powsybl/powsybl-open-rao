@@ -83,7 +83,6 @@ public class LinearOptimisationEngineTest {
         assertNotNull(optimizedSituation);
         optimizedSituation = linearOptimisationEngine.run(initialSituation);
         assertNotNull(optimizedSituation);
-
     }
 
     @Test
@@ -117,6 +116,5 @@ public class LinearOptimisationEngineTest {
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());
         }
-
     }
 }
