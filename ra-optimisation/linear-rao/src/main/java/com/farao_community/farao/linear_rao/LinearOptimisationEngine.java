@@ -143,6 +143,7 @@ class LinearOptimisationEngine {
 
     private void updateProblem() {
         try {
+            fillerList.forEach(filler -> filler.setLinearRaoData(linearRaoData));
             fillerList.forEach(AbstractProblemFiller::update);
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
