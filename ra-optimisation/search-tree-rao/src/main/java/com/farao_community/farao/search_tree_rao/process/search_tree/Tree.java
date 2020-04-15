@@ -47,6 +47,13 @@ public final class Tree {
         }
 
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
+        double relativeImpact = 0;
+        double absoluteImpact = 0;
+
+        if (searchTreeRaoParameters != null) {
+            relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
+            absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
+        }
 
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
@@ -74,7 +81,7 @@ public final class Tree {
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
+                if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), relativeImpact, absoluteImpact)) {
                     hasImproved = true;
                     resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
                     optimalLeaf = currentLeaf;
@@ -87,6 +94,10 @@ public final class Tree {
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
+    }
+
+    static boolean improvedEnough(double oldCost, double newCost, double relativeImpact, double absoluteImpact) {
+        return oldCost - absoluteImpact > newCost && (1 - Math.signum(oldCost) * relativeImpact) * oldCost > newCost;
     }
 
     static boolean doNewIteration(SearchTreeRaoParameters.StopCriterion stopCriterion, boolean hasImproved, double optimalCost) {
