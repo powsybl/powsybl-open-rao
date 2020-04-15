@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.mock.LinearRaoMock;
 import com.farao_community.farao.search_tree_rao.mock.RaoRunnerMock;
 import com.google.common.jimfs.Configuration;
@@ -104,5 +105,34 @@ public class TreeTest {
         String postOptId = raoResult.getPostOptimVariantId();
         String prevStateId = crac.getPreventiveState().getId();
         assertFalse(topo.getExtension(NetworkActionResultExtension.class).getVariant(postOptId).isActivated(prevStateId));
+    }
+
+    @Test
+    public void goDeeperTests() {
+        assertTrue(Tree.goDeeper(10, 12));
+        assertFalse(Tree.goDeeper(14, 12));
+    }
+
+    @Test
+    public void improvedEnoughTest() {
+        assertTrue(Tree.improvedEnough(100, 75, 0.2, 0));
+        assertFalse(Tree.improvedEnough(100, 75, 0.3, 0));
+        assertTrue(Tree.improvedEnough(100, 75, 0, 20));
+        assertFalse(Tree.improvedEnough(100, 75, 0, 30));
+
+        assertTrue(Tree.improvedEnough(-100, -125, 0.2, 0));
+        assertFalse(Tree.improvedEnough(-100, -125, 0.3, 0));
+        assertTrue(Tree.improvedEnough(-100, -125, 0, 20));
+        assertFalse(Tree.improvedEnough(-100, -125, 0, 30));
+    }
+
+    @Test
+    public void doNewIterationTests() {
+        assertTrue(Tree.doNewIteration(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN, true, 10));
+        assertFalse(Tree.doNewIteration(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN, true, -10));
+        assertFalse(Tree.doNewIteration(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN, false, 10));
+        assertFalse(Tree.doNewIteration(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN, false, -10));
+        assertTrue(Tree.doNewIteration(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN, true, 10));
+        assertFalse(Tree.doNewIteration(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN, false, 10));
     }
 }
