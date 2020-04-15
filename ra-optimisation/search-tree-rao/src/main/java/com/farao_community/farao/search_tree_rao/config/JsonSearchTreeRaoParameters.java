@@ -28,7 +28,8 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeStringField("range-action-rao", searchTreeRaoParameters.getRangeActionRao());
         jsonGenerator.writeObjectField("stop-criterion", searchTreeRaoParameters.getStopCriterion());
         jsonGenerator.writeNumberField("maximum-search-depth", searchTreeRaoParameters.getMaximumSearchDepth());
-        jsonGenerator.writeNumberField("network-action-minimum-impact-threshold", searchTreeRaoParameters.getNetworkActionMinimumImpactThreshold());
+        jsonGenerator.writeNumberField("relative-network-action-minimum-impact-threshold", searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold());
+        jsonGenerator.writeNumberField("absolute-network-action-minimum-impact-threshold", searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeEndObject();
     }
 
@@ -47,8 +48,11 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "maximum-search-depth":
                     parameters.setMaximumSearchDepth(jsonParser.getValueAsInt());
                     break;
-                case "network-action-minimum-impact-threshold":
-                    parameters.setNetworkActionMinimumImpactThreshold(jsonParser.getValueAsDouble());
+                case "relative-network-action-minimum-impact-threshold":
+                    parameters.setRelativeNetworkActionMinimumImpactThreshold(jsonParser.getValueAsDouble());
+                    break;
+                case "absolute-network-action-minimum-impact-threshold":
+                    parameters.setAbsoluteNetworkActionMinimumImpactThreshold(jsonParser.getValueAsDouble());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());

@@ -28,7 +28,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
     private StopCriterion stopCriterion = DEFAULT_STOP_CRITERION;
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
-    private double networkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
+    private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
+    private double absoluteNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
 
     @Override
     public String getName() {
@@ -59,11 +60,19 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         this.maximumSearchDepth = maximumSearchDepth;
     }
 
-    public double getNetworkActionMinimumImpactThreshold() {
-        return networkActionMinimumImpactThreshold;
+    public double getRelativeNetworkActionMinimumImpactThreshold() {
+        return relativeNetworkActionMinimumImpactThreshold;
     }
 
-    public void setNetworkActionMinimumImpactThreshold(double networkActionMinimumImpactThreshold) {
-        this.networkActionMinimumImpactThreshold = networkActionMinimumImpactThreshold;
+    public void setRelativeNetworkActionMinimumImpactThreshold(double relativeNetworkActionMinimumImpactThreshold) {
+        this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
+    }
+
+    public double getAbsoluteNetworkActionMinimumImpactThreshold() {
+        return absoluteNetworkActionMinimumImpactThreshold;
+    }
+
+    public void setAbsoluteNetworkActionMinimumImpactThreshold(double absoluteNetworkActionMinimumImpactThreshold) {
+        this.absoluteNetworkActionMinimumImpactThreshold = absoluteNetworkActionMinimumImpactThreshold;
     }
 }

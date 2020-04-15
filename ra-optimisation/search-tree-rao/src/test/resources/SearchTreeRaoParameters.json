@@ -6,7 +6,8 @@
       "range-action-rao" : "myRangeActionRao",
       "stop-criterion" : "MAXIMUM_MARGIN",
       "maximum-search-depth" : 10,
-      "network-action-minimum-impact-threshold" : 0.1
+      "relative-network-action-minimum-impact-threshold" : 0.1,
+      "absolute-network-action-minimum-impact-threshold" : 20.0
     }
   }
 }
