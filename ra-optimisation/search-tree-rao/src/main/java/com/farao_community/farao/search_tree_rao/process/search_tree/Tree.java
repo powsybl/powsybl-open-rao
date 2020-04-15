@@ -49,14 +49,19 @@ public final class Tree {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
         double relativeImpact = 0;
         double absoluteImpact = 0;
+        int maximumSearchDepth = Integer.MAX_VALUE;
+        SearchTreeRaoParameters.StopCriterion stopCriterion = SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
 
         if (searchTreeRaoParameters != null) {
+            stopCriterion = searchTreeRaoParameters.getStopCriterion();
+            maximumSearchDepth = Math.max(searchTreeRaoParameters.getMaximumSearchDepth(), 0);
             relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
             absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
         }
 
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
+        int depth = 0;
 
         if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
@@ -67,9 +72,9 @@ public final class Tree {
         Leaf optimalLeaf = rootLeaf;
         boolean hasImproved = true;
 
-        while (doNewIteration(searchTreeRaoParameters.getStopCriterion(), hasImproved, optimalLeaf.getCost(crac))) {
+        while (goDeeper(depth, maximumSearchDepth) && doNewIteration(stopCriterion, hasImproved, optimalLeaf.getCost(crac))) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions, searchTreeRaoParameters.getMaximumSearchDepth());
+            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
             if (generatedLeaves.isEmpty()) {
                 break;
@@ -83,6 +88,7 @@ public final class Tree {
             for (Leaf currentLeaf: generatedLeaves) {
                 if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), relativeImpact, absoluteImpact)) {
                     hasImproved = true;
+                    depth = depth + 1;
                     resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
                     optimalLeaf = currentLeaf;
                 } else {
@@ -96,10 +102,23 @@ public final class Tree {
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
     }
 
+    /**
+     * Stop criterion check: maximum research depth reached
+     */
+    static boolean goDeeper(int currentDepth, int maxDepth) {
+        return currentDepth < maxDepth;
+    }
+
+    /**
+     * Stop criterion check: the remedial action has enough impact on the cost
+     */
     static boolean improvedEnough(double oldCost, double newCost, double relativeImpact, double absoluteImpact) {
         return oldCost - absoluteImpact > newCost && (1 - Math.signum(oldCost) * relativeImpact) * oldCost > newCost;
     }
 
+    /**
+     * Stop criterion check: is positive or maximum margin reached?
+     */
     static boolean doNewIteration(SearchTreeRaoParameters.StopCriterion stopCriterion, boolean hasImproved, double optimalCost) {
         if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
             return hasImproved && optimalCost > 0;
