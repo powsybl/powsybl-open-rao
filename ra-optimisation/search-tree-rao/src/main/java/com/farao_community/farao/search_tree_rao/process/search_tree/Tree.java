@@ -47,17 +47,6 @@ public final class Tree {
         }
 
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
-        double relativeImpact = 0;
-        double absoluteImpact = 0;
-        int maximumSearchDepth = Integer.MAX_VALUE;
-        SearchTreeRaoParameters.StopCriterion stopCriterion = SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
-
-        if (searchTreeRaoParameters != null) {
-            stopCriterion = searchTreeRaoParameters.getStopCriterion();
-            maximumSearchDepth = Math.max(searchTreeRaoParameters.getMaximumSearchDepth(), 0);
-            relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
-            absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
-        }
 
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
@@ -72,7 +61,7 @@ public final class Tree {
         Leaf optimalLeaf = rootLeaf;
         boolean hasImproved = true;
 
-        while (goDeeper(depth, maximumSearchDepth) && doNewIteration(stopCriterion, hasImproved, optimalLeaf.getCost(crac))) {
+        while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
@@ -86,7 +75,7 @@ public final class Tree {
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), relativeImpact, absoluteImpact)) {
+                if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), searchTreeRaoParameters)) {
                     hasImproved = true;
                     depth = depth + 1;
                     resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
@@ -103,27 +92,42 @@ public final class Tree {
     }
 
     /**
-     * Stop criterion check: maximum research depth reached
-     */
-    static boolean goDeeper(int currentDepth, int maxDepth) {
-        return currentDepth < maxDepth;
-    }
-
-    /**
      * Stop criterion check: the remedial action has enough impact on the cost
      */
-    static boolean improvedEnough(double oldCost, double newCost, double relativeImpact, double absoluteImpact) {
-        return oldCost - absoluteImpact > newCost && (1 - Math.signum(oldCost) * relativeImpact) * oldCost > newCost;
+    private static boolean improvedEnough(double oldCost, double newCost, SearchTreeRaoParameters searchTreeRaoParameters) {
+        // check if defined
+        double relativeImpact = 0;
+        double absoluteImpact = 0;
+        if (searchTreeRaoParameters != null) {
+            relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
+            absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
+        }
+
+        // stop criterion check
+        return oldCost - absoluteImpact > newCost // enough absolute impact
+            && (1 - Math.signum(oldCost) * relativeImpact) * oldCost > newCost; // enough relative impact
     }
 
     /**
-     * Stop criterion check: is positive or maximum margin reached?
+     * Stop criterion check 1: maximum research depth reached
+     * Stop criterion check 2: is positive or maximum margin reached?
      */
-    static boolean doNewIteration(SearchTreeRaoParameters.StopCriterion stopCriterion, boolean hasImproved, double optimalCost) {
+    private static boolean doNewIteration(SearchTreeRaoParameters searchTreeRaoParameters, boolean hasImproved, double optimalCost, int currentDepth) {
+        // check if defined
+        SearchTreeRaoParameters.StopCriterion stopCriterion = SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
+        int maximumSearchDepth = Integer.MAX_VALUE;
+        if (searchTreeRaoParameters != null) {
+            stopCriterion = searchTreeRaoParameters.getStopCriterion();
+            maximumSearchDepth = Math.max(searchTreeRaoParameters.getMaximumSearchDepth(), 0);
+        }
+
+        // stop criterion check
         if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
-            return hasImproved && optimalCost > 0;
+            return currentDepth < maximumSearchDepth // maximum research depth reached
+                &&  hasImproved && optimalCost > 0; // positive margin
         } else if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
-            return hasImproved;
+            return currentDepth < maximumSearchDepth // maximum research depth reached
+                && hasImproved; // maximum margin
         } else {
             throw new FaraoException("Unexpected stop criterion: " + stopCriterion);
         }
