@@ -75,10 +75,12 @@ class SystematicAnalysisEngine {
                 fallbackMode = true;
                 run(abstractSituation);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
-                abstractSituation.deleteResultVariant();
+                abstractSituation.deleteNetworkVariant();
+                abstractSituation.deleteCracResultVariant();
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
-                abstractSituation.deleteResultVariant();
+                abstractSituation.deleteNetworkVariant();
+                abstractSituation.deleteCracResultVariant();
                 throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.", e);
             }
         }

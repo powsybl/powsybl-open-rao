@@ -98,7 +98,8 @@ public class LinearRao implements RaoProvider {
 
             // if the solution has not changed, stop the search
             if (bestSituation.sameRaResults(optimizedSituation)) {
-                optimizedSituation.deleteResultVariant();
+                optimizedSituation.deleteCracResultVariant();
+                optimizedSituation.deleteNetworkVariant();
                 break;
             }
 
@@ -107,7 +108,8 @@ public class LinearRao implements RaoProvider {
 
             if (optimizedSituation.getCost() < bestSituation.getCost()) { // if the solution has been improved, continue the search
                 if (!(bestSituation instanceof InitialSituation)) {
-                    bestSituation.deleteResultVariant();
+                    bestSituation.deleteCracResultVariant();
+                    bestSituation.deleteNetworkVariant();
                 }
                 bestSituation = optimizedSituation;
             } else { // unexpected behaviour, stop the search
@@ -140,12 +142,12 @@ public class LinearRao implements RaoProvider {
     /**
      * Build the RaoResult in case of optimisation success
      */
-    private RaoResult buildSuccessfulRaoResult(InitialSituation preOptimSituation, AbstractSituation postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
+    private RaoResult buildSuccessfulRaoResult(InitialSituation preOptimSituation, AbstractSituation postOptimSituation, SystematicAnalysisEngine systematicAnalysisEngine) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOptimSituation.getCracResultVariant());
-        raoResult.setPostOptimVariantId(postOptimVariantId.getCracResultVariant());
+        raoResult.setPostOptimVariantId(postOptimSituation.getCracResultVariant());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -153,8 +155,14 @@ public class LinearRao implements RaoProvider {
         resultExtension.setLpStatus(LinearRaoResult.LpStatus.RUN_OK);
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
+        // remove network variants
+        preOptimSituation.deleteNetworkVariant();
+        if (!preOptimSituation.getNetworkVariantId().equals(postOptimSituation.getNetworkVariantId())) {
+            postOptimSituation.deleteNetworkVariant();
+        }
+
         // log
-        double minMargin = -postOptimVariantId.getCost();
+        double minMargin = -postOptimSituation.getCost();
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
 

@@ -50,10 +50,14 @@ public class SituationTest {
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
+        assertEquals(2, network.getVariantManager().getVariantIds().size());
 
-        initialSituation.deleteResultVariant();
-
+        initialSituation.deleteCracResultVariant();
         assertEquals(0, resultVariantManager.getVariants().size());
+
+        initialSituation.deleteNetworkVariant();
+        assertEquals(1, network.getVariantManager().getVariantIds().size());
+
     }
 
     @Test
@@ -64,9 +68,13 @@ public class SituationTest {
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
+        assertEquals(2, network.getVariantManager().getVariantIds().size());
 
-        optimizedSituation.deleteResultVariant();
+        optimizedSituation.deleteCracResultVariant();
         assertEquals(0, resultVariantManager.getVariants().size());
+
+        optimizedSituation.deleteNetworkVariant();
+        assertEquals(1, network.getVariantManager().getVariantIds().size());
     }
 
     @Test

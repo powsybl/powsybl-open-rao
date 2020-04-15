@@ -100,11 +100,17 @@ abstract class AbstractSituation {
     }
 
     /**
-     * Delete the Network and Crac result variants associated to this situation
+     * Delete the Crac result variant associated to this situation
      */
-    void deleteResultVariant() {
-        network.getVariantManager().removeVariant(networkVariantId);
+    void deleteCracResultVariant() {
         crac.getExtension(ResultVariantManager.class).deleteVariant(resultVariantId);
+    }
+
+    /**
+     * Delete the Network variant associated to this situation
+     */
+    void deleteNetworkVariant() {
+        network.getVariantManager().removeVariant(networkVariantId);
     }
 
     /**
