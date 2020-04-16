@@ -9,7 +9,10 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
@@ -84,6 +87,11 @@ public class LinearRao implements RaoProvider {
         InitialSituation initialSituation = new InitialSituation(network, variantId, crac);
         systematicAnalysisEngine.run(initialSituation);
 
+        // compute Loopflow on initial situation
+        if (useLoopFlowExtension(raoParameters)) {
+            computeLoopflowOnCurrentSituation(initialSituation);
+        }
+
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, crac)) {
             return CompletableFuture.completedFuture(buildSuccessfulRaoResult(initialSituation, initialSituation, systematicAnalysisEngine));
@@ -105,6 +113,11 @@ public class LinearRao implements RaoProvider {
 
             // evaluate sensitivity coefficients and cost on the newly optimised situation
             systematicAnalysisEngine.run(optimizedSituation);
+
+            // update Loopflow
+            if (useLoopFlowExtension(raoParameters)) {
+                computeLoopflowOnCurrentSituation(optimizedSituation);
+            }
 
             if (optimizedSituation.getCost() < bestSituation.getCost()) { // if the solution has been improved, continue the search
                 if (!(bestSituation instanceof InitialSituation)) {
@@ -188,5 +201,34 @@ public class LinearRao implements RaoProvider {
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         return raoResult;
+    }
+
+    private void computeLoopflowOnCurrentSituation(AbstractSituation situation) {
+        Crac crac = situation.getCrac();
+        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+        // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
+        if (!Objects.isNull(cracLoopFlowExtension)) {
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+            Map<String, Double> loopFlows = loopFlowComputation.calculateLoopFlows(situation.getNetwork());
+            updateCnecsLoopFlowConstraint(crac, loopFlows);
+        }
+    }
+
+    private void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll) {
+        // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
+        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
+            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+            if (!Objects.isNull(cnecLoopFlowExtension)) {
+                //!!! note here we use the result of branch flow of preventive state for all cnec of all states
+                //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
+                double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
+                double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
+                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
+            }
+        });
+    }
+
+    private static boolean useLoopFlowExtension(RaoParameters parameters) {
+        return parameters.isRaoWithLoopFlowLimitation();
     }
 }
