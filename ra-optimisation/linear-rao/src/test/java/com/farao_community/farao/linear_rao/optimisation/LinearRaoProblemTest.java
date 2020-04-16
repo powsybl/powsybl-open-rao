@@ -120,9 +120,12 @@ public class LinearRaoProblemTest {
 
     @Test
     public void maxLoopFlowConstraintTest() {
-        assertNull(linearRaoProblem.getMaxLoopFlowConstraint(cnec));
-        linearRaoProblem.addMaxLoopFlowConstraint(LB, UB, cnec);
-        assertNotNull(linearRaoProblem.getMaxLoopFlowConstraint(cnec));
+        assertNull(linearRaoProblem.getMaxLoopFlowConstraintPositiveViolation(cnec));
+        linearRaoProblem.addMaxLoopFlowConstraintPositiveViolation(LB, UB, cnec);
+        assertNotNull(linearRaoProblem.getMaxLoopFlowConstraintPositiveViolation(cnec));
+        assertNull(linearRaoProblem.getMaxLoopFlowConstraintNegativeViolation(cnec));
+        linearRaoProblem.addMaxLoopFlowConstraintNegativeViolation(LB, UB, cnec);
+        assertNotNull(linearRaoProblem.getMaxLoopFlowConstraintNegativeViolation(cnec));
     }
 
     @Test

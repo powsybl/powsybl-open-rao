@@ -56,6 +56,10 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
      * then max loopflow MPConstraint is: - maxLoopFlow <= currentLoopFlow <= maxLoopFlow
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
+     * the "maxLoopFlow" contains a adjustment coefficient read from config file
+     *
+     * In addition we introduce a "loopflow violation variable" into the above function:
+     * -maxLoopFlow + loopFlowShift <= flowVariable +/- "loopflow violation variable" <= maxLoopFlow + loopFlowShift,
      */
     private void buildMaxLoopFlowConstraint() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac(), cracLoopFlowExtension);
@@ -68,7 +72,11 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);
             }
-            MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(
+            MPConstraint maxLoopflowConstraintPositiveViolation = linearRaoProblem.addMaxLoopFlowConstraintPositiveViolation(
+                    -maxLoopFlowLimit + loopFlowShift,
+                    maxLoopFlowLimit + loopFlowShift,
+                    cnec);
+            MPConstraint maxLoopflowConstraintNegativeViolation = linearRaoProblem.addMaxLoopFlowConstraintNegativeViolation(
                     -maxLoopFlowLimit + loopFlowShift,
                     maxLoopFlowLimit + loopFlowShift,
                     cnec);
@@ -76,7 +84,15 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
             if (Objects.isNull(flowVariable)) {
                 throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
             }
-            maxLoopflowConstraint.setCoefficient(flowVariable, 1);
+            maxLoopflowConstraintPositiveViolation.setCoefficient(flowVariable, 1);
+            maxLoopflowConstraintNegativeViolation.setCoefficient(flowVariable, 1);
+
+            MPVariable cnecLoopflowViolationVariable = linearRaoProblem.addLoopflowViolationVariable(0, linearRaoProblem.infinity(), cnec);
+            if (Objects.isNull(cnecLoopflowViolationVariable)) {
+                throw new FaraoException(String.format("LoopflowViolationVariable on %s has not been defined yet.", cnec.getId()));
+            }
+            maxLoopflowConstraintPositiveViolation.setCoefficient(cnecLoopflowViolationVariable, 1);
+            maxLoopflowConstraintNegativeViolation.setCoefficient(cnecLoopflowViolationVariable, -1);
         }
     }
 

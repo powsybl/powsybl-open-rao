@@ -26,10 +26,12 @@ public class LinearRaoProblem {
     private static final String SEPARATOR = "_";
 
     private static final String FLOW = "flow";
+    private static final String LOOPFLOWVIOLATION = "Loopflowviolation";
     private static final String SET_POINT = "setpoint";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
-    private static final String MAX_LOOPFLOW = "maxloopflow";
+    private static final String MAX_LOOPFLOW_POSITIVE = "maxloopflowpositive";
+    private static final String MAX_LOOPFLOW_NEGATIVE = "maxloopflownegative";
 
     public enum AbsExtension {
         POSITIVE,
@@ -141,16 +143,40 @@ public class LinearRaoProblem {
     }
 
     //Begin MaxLoopFlowFiller section
-    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, Cnec cnec) {
-        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec));
+    public MPConstraint addMaxLoopFlowConstraintPositiveViolation(double lb, double ub, Cnec cnec) {
+        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintPositiveViolationId(cnec));
     }
 
-    private String maxLoopFlowConstraintId(Cnec cnec) {
-        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + SEPARATOR + CONSTRAINT_SUFFIX;
+    public MPConstraint addMaxLoopFlowConstraintNegativeViolation(double lb, double ub, Cnec cnec) {
+        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintNegativeViolationId(cnec));
     }
 
-    public MPConstraint getMaxLoopFlowConstraint(Cnec cnec) {
-        return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec));
+    private String maxLoopFlowConstraintPositiveViolationId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW_POSITIVE + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    private String maxLoopFlowConstraintNegativeViolationId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW_NEGATIVE + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint getMaxLoopFlowConstraintPositiveViolation(Cnec cnec) {
+        return solver.lookupConstraintOrNull(maxLoopFlowConstraintPositiveViolationId(cnec));
+    }
+
+    public MPConstraint getMaxLoopFlowConstraintNegativeViolation(Cnec cnec) {
+        return solver.lookupConstraintOrNull(maxLoopFlowConstraintNegativeViolationId(cnec));
+    }
+
+    private String loopflowViolationVariableId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + LOOPFLOWVIOLATION + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public MPVariable addLoopflowViolationVariable(double lb, double ub, Cnec cnec) {
+        return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec));
+    }
+
+    public MPVariable getLoopflowViolationVariable(Cnec cnec) {
+        return solver.lookupVariableOrNull(loopflowViolationVariableId(cnec));
     }
     //End MaxLoopFlowFiller section
 
