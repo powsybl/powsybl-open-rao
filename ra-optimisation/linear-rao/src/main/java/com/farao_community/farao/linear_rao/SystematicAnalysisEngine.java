@@ -114,11 +114,11 @@ class SystematicAnalysisEngine {
 
             // update Loopflow
             if (useLoopFlowExtension(raoParameters)) {
-                computeLoopflowOnCurrentSituation(abstractSituation); //todo move loopflow threshold to CnecResult
+                computeLoopflowOnCurrentSituationAndUpdateInCnecResult(abstractSituation);
             }
             // end update loopflow
 
-            setResults(abstractSituation, systematicSensitivityAnalysisResult); //todo add loopflow result / virtual cost / functional cost etc...
+            setResults(abstractSituation, systematicSensitivityAnalysisResult); //todo update cost / virtual cost / functional cost etc...
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -168,7 +168,7 @@ class SystematicAnalysisEngine {
         });
     }
 
-    private void computeLoopflowOnCurrentSituation(AbstractSituation situation) {
+    private void computeLoopflowOnCurrentSituationAndUpdateInCnecResult(AbstractSituation situation) {
         Crac crac = situation.getCrac();
         CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
         // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
