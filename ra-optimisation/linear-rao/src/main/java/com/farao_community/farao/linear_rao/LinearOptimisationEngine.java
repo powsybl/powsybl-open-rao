@@ -175,7 +175,7 @@ class LinearOptimisationEngine {
         fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
         fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
         if (raoParameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
+            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData, raoParameters.getLoopflowConstraintAdjustmentCoefficient()));
         }
         return fillerList;
     }

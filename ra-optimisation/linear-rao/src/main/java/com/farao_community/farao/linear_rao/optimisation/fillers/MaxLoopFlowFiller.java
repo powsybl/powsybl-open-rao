@@ -36,12 +36,14 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
     private Set<Cnec> preventiveCnecs; //currently we only forcus on preventive state cnec
     private CracLoopFlowExtension cracLoopFlowExtension;
+    private double loopflowConstraintAdjustmentCoefficient;
 
-    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, double loopflowConstraintAdjustmentCoefficient) {
         super(linearRaoProblem, linearRaoData);
         Crac crac = linearRaoData.getCrac();
         this.preventiveCnecs = crac.getCnecs(crac.getPreventiveState());
         this.cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+        this.loopflowConstraintAdjustmentCoefficient = loopflowConstraintAdjustmentCoefficient;
     }
 
     @Override
@@ -62,6 +64,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+            maxLoopFlowLimit = Math.max(0, maxLoopFlowLimit - this.loopflowConstraintAdjustmentCoefficient);
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);
             }
