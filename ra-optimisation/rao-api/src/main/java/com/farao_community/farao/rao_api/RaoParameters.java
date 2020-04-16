@@ -63,6 +63,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         platformConfig.getOptionalModuleConfig("rao-parameters")
             .ifPresent(config -> {
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
+                parameters.setLoopflowConstraintAdjustmentCoefficient(config.getDoubleProperty("loopflow-constraint-adjustment-coefficient", DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
             });
     }
 
@@ -74,15 +75,25 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     //loop flow parameter section
     static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+    private static final double DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
+    private double loopflowConstraintAdjustmentCoefficient = DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
     public void setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
         this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
     }
 
+    public void setLoopflowConstraintAdjustmentCoefficient(double loopflowConstraintAdjustmentCoefficient) {
+        this.loopflowConstraintAdjustmentCoefficient = loopflowConstraintAdjustmentCoefficient;
+    }
+
     public boolean isRaoWithLoopFlowLimitation() {
         return raoWithLoopFlowLimitation;
+    }
+
+    public double getLoopflowConstraintAdjustmentCoefficient() {
+        return loopflowConstraintAdjustmentCoefficient;
     }
     //end loop flow parameter section
 }

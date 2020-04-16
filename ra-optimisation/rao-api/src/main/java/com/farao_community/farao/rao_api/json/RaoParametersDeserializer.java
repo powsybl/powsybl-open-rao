@@ -45,6 +45,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
                     break;
+                case "loopflow-constraint-adjustment-coefficient":
+                    parser.nextToken();
+                    parameters.setLoopflowConstraintAdjustmentCoefficient(parser.getDoubleValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());

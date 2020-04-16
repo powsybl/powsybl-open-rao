@@ -1,4 +1,5 @@
 {
   "version" : "1.0",
-  "rao-with-loop-flow-limitation" : false
+  "rao-with-loop-flow-limitation" : false,
+  "loopflow-constraint-adjustment-coefficient" : 0.0
 }
