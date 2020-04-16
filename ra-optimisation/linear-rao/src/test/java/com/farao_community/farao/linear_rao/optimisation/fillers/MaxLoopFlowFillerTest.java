@@ -65,7 +65,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData, 0.0);
+        maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData, 0.0, 10.0);
         computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = sensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);

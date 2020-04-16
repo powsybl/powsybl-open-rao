@@ -37,18 +37,23 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
     private Set<Cnec> preventiveCnecs; //currently we only forcus on preventive state cnec
     private CracLoopFlowExtension cracLoopFlowExtension;
     private double loopflowConstraintAdjustmentCoefficient;
+    private double loopflowViolationCost;
 
-    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, double loopflowConstraintAdjustmentCoefficient) {
+    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData,
+                             double loopflowConstraintAdjustmentCoefficient,
+                             double loopflowViolationCost) {
         super(linearRaoProblem, linearRaoData);
         Crac crac = linearRaoData.getCrac();
         this.preventiveCnecs = crac.getCnecs(crac.getPreventiveState());
         this.cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
         this.loopflowConstraintAdjustmentCoefficient = loopflowConstraintAdjustmentCoefficient;
+        this.loopflowViolationCost = loopflowViolationCost;
     }
 
     @Override
     public void fill() {
         buildMaxLoopFlowConstraint();
+        buildObjectiveFunctionWithLoopFlowViolation();
     }
 
     /**
@@ -93,6 +98,13 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
             }
             maxLoopflowConstraintPositiveViolation.setCoefficient(cnecLoopflowViolationVariable, 1);
             maxLoopflowConstraintNegativeViolation.setCoefficient(cnecLoopflowViolationVariable, -1);
+        }
+    }
+
+    private void buildObjectiveFunctionWithLoopFlowViolation() {
+        for (Cnec cnec : preventiveCnecs) {
+            MPVariable cnecLoopflowViolationVariable = linearRaoProblem.getLoopflowViolationVariable(cnec);
+            linearRaoProblem.getObjective().setCoefficient(cnecLoopflowViolationVariable, this.loopflowViolationCost);
         }
     }
 
