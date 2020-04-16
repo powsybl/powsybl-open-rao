@@ -103,7 +103,7 @@ class LinearOptimisationEngine {
 
         // update data
         // todo : refactor the LinearRaoData
-        this.linearRaoData = new LinearRaoData(situationIn.getCrac(), situationIn.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult());
+        this.linearRaoData = new LinearRaoData(situationIn.getCrac(), situationIn.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult(), situationIn.getCracResultVariant());
 
         // prepare optimisation problem
         if (!lpInitialised) {

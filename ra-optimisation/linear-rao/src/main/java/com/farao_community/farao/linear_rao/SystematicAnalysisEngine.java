@@ -175,20 +175,22 @@ class SystematicAnalysisEngine {
         if (!Objects.isNull(cracLoopFlowExtension)) {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
             Map<String, Double> loopFlows = loopFlowComputation.calculateLoopFlows(situation.getNetwork());
-            updateCnecsLoopFlowConstraint(crac, loopFlows);
+            updateCnecsLoopFlowConstraint(situation, crac, loopFlows);
         }
     }
 
-    private void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll) {
+    private void updateCnecsLoopFlowConstraint(AbstractSituation situation, Crac crac, Map<String, Double> fZeroAll) {
         // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(situation.getCracResultVariant());
             if (!Objects.isNull(cnecLoopFlowExtension)) {
                 //!!! note here we use the result of branch flow of preventive state for all cnec of all states
                 //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
-                double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
-                double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
-                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
+                double currentLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
+                double inputLoopflowLimit = cnecLoopFlowExtension.getInputLoopFlow();
+                double cnecLoopflowThreshold = Math.max(currentLoopFlow, inputLoopflowLimit);
+                cnecResult.setLoopFlowConstraint(cnecLoopflowThreshold); //todo: cnec loop flow extension need to be based on ResultVariantManger
             }
         });
     }

@@ -87,5 +87,6 @@ abstract class AbstractFillerTest {
         linearRaoData = mock(LinearRaoData.class);
         when(linearRaoData.getCrac()).thenReturn(crac);
         when(linearRaoData.getNetwork()).thenReturn(network);
+        when(linearRaoData.getResultVariantId()).thenReturn("variant-id");
     }
 }

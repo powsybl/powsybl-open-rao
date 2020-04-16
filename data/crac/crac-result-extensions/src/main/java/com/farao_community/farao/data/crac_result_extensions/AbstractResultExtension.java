@@ -73,7 +73,7 @@ public abstract class AbstractResultExtension<T extends Identifiable<T>, S exten
      * @param newVariantId: Variant unique identifier.
      * @param resultElement: Result object to add to the variant.
      */
-    void addVariant(String newVariantId, S resultElement) {
+    public void addVariant(String newVariantId, S resultElement) {
         if (resultMap.containsKey(newVariantId)) {
             throw new FaraoException(String.format("Cannot create result variant with id [%s] for [%s] as it already exists", newVariantId, getExtendable().getId()));
         }

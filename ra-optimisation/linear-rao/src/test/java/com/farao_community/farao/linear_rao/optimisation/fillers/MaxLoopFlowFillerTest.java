@@ -8,6 +8,8 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.util.SensitivityComputationService;
@@ -51,6 +53,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
+
         coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
         glskProvider = glskProvider();
         cracLoopFlowExtension = new CracLoopFlowExtension();
@@ -62,8 +65,12 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
 
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
-        cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        CnecResultExtension cnecResultExtension = new CnecResultExtension();
+        CnecResult cnecResult = new CnecResult();
+        cnecResult.setLoopFlowConstraint(-100);
+        cnecResultExtension.addVariant("variant-id", cnecResult);
+        cnec1.addExtension(CnecResultExtension.class, cnecResultExtension);
 
         maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData, 0.0, 10.0);
         computationManager = LocalComputationManager.getDefault();

@@ -16,9 +16,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
-    private double loopFlowConstraint;
     private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec. absolute value in MW
-    // todo change inputloopflow from double to Threshold if necessary for better unit and absolute/relative management?
 
     public CnecLoopFlowExtension() {
         this.inputLoopFlow = 0.0; // default value 0
@@ -26,23 +24,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
     public CnecLoopFlowExtension(double inputLoopFlow) {
         this.inputLoopFlow = inputLoopFlow;
-    }
-
-    /**
-     * set loop flow constraint used during optimization.
-     * The value is equal to MAX value of initial loop flow calculated from network and
-     * loop flow threshold which is a input parameter from TSO
-     * @param loopFlowConstraint = Max(init_Loop_flow, input loop flow)
-     */
-    public void setLoopFlowConstraint(double loopFlowConstraint) {
-        this.loopFlowConstraint = loopFlowConstraint;
-    }
-
-    /**
-     * return loop flow constraint used in linear optimization
-     */
-    public double getLoopFlowConstraint() {
-        return loopFlowConstraint;
     }
 
     /**

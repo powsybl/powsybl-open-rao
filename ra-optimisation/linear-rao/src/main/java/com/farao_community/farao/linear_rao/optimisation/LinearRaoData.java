@@ -21,11 +21,13 @@ public class LinearRaoData {
     private Crac crac;
     private Network network;
     private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+    private String resultVariantId;
 
-    public LinearRaoData(Crac crac, Network network, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    public LinearRaoData(Crac crac, Network network, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, String resultVariantId) {
         this.crac = crac;
         this.network = network;
         this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+        this.resultVariantId = resultVariantId;
     }
 
     public void setNetwork(Network network) {
@@ -54,5 +56,9 @@ public class LinearRaoData {
 
     public Network getNetwork() {
         return this.network;
+    }
+
+    public String getResultVariantId() {
+        return this.resultVariantId;
     }
 }

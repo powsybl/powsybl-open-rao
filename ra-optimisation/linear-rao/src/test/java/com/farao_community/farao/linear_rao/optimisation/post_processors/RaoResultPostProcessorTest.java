@@ -61,7 +61,7 @@ public class RaoResultPostProcessorTest {
         variantManager.createVariant("test-variant");
 
         // Arrange linearRaoData
-        linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
+        linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult, "test-variant");
 
         // Arrange linearRaoProblem
         linearRaoProblem = Mockito.mock(LinearRaoProblem.class);
