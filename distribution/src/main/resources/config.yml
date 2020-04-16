@@ -70,7 +70,7 @@ linear-rao-parameters:
 
 search-tree-rao-parameters:
     range-action-rao : LinearRao
-    "stop-criterion" : POSITIVE_MARGIN
-    "maximum-search-depth" : 20
-    "relative-network-action-minimum-impact-threshold" : 0
-    "absolute-network-action-minimum-impact-threshold" : 0
+    stop-criterion : POSITIVE_MARGIN
+    maximum-search-depth : 20
+    relative-network-action-minimum-impact-threshold : 0
+    absolute-network-action-minimum-impact-threshold : 0
