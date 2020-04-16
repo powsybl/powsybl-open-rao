@@ -53,6 +53,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setLoopflowConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
+                case "loopflow-violation-cost":
+                    parser.nextToken();
+                    parameters.setLoopflowViolationCost(parser.getDoubleValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());

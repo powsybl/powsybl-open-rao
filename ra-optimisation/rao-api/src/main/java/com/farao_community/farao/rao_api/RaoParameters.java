@@ -65,6 +65,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
                 parameters.setLoopflowApproximation(config.getBooleanProperty("loopflow-approximation", DEFAULT_LOOPFLOW_APPROXIMATION));
                 parameters.setLoopflowConstraintAdjustmentCoefficient(config.getDoubleProperty("loopflow-constraint-adjustment-coefficient", DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                parameters.setLoopflowViolationCost(config.getDoubleProperty("loopflow-violation-cost", DEFAULT_LOOPFLOW_VIOLATION_COST));
             });
     }
 
@@ -78,9 +79,11 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
     static final boolean DEFAULT_LOOPFLOW_APPROXIMATION = false;
     private static final double DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    private static final double DEFAULT_LOOPFLOW_VIOLATION_COST = 10.0;
 
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private double loopflowConstraintAdjustmentCoefficient = DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+    private double loopflowViolationCost = DEFAULT_LOOPFLOW_VIOLATION_COST;
 
     /**
      *  loopflow approximation means using previous calculated ptdf and net position values to compute loopflow
@@ -99,6 +102,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.loopflowConstraintAdjustmentCoefficient = loopflowConstraintAdjustmentCoefficient;
     }
 
+    public void setLoopflowViolationCost(double loopflowViolationCost) {
+        this.loopflowViolationCost = loopflowViolationCost;
+    }
+
     public boolean isRaoWithLoopFlowLimitation() {
         return raoWithLoopFlowLimitation;
     }
@@ -113,6 +120,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public double getLoopflowConstraintAdjustmentCoefficient() {
         return loopflowConstraintAdjustmentCoefficient;
+    }
+
+    public double getLoopflowViolationCost() {
+        return loopflowViolationCost;
     }
     //end loop flow parameter section
 }
