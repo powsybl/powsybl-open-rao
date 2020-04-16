@@ -68,7 +68,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
         CnecResultExtension cnecResultExtension = new CnecResultExtension();
         CnecResult cnecResult = new CnecResult();
-        cnecResult.setLoopFlowConstraint(-100);
+        cnecResult.setLoopflowconstraint(-100);
         cnecResultExtension.addVariant("variant-id", cnecResult);
         cnec1.addExtension(CnecResultExtension.class, cnecResultExtension);
 

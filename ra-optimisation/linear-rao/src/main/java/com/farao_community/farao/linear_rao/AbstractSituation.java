@@ -56,6 +56,8 @@ abstract class AbstractSituation {
      */
     private double cost;
 
+    private boolean isInitialSituation;
+
     /**
      * constructor
      */
@@ -172,5 +174,13 @@ abstract class AbstractSituation {
 
     void setCost(double cost) {
         this.cost = cost;
+    }
+
+    public boolean isInitialSituation() {
+        return isInitialSituation;
+    }
+
+    public void setInitialSituation(boolean initialSituation) {
+        isInitialSituation = initialSituation;
     }
 }

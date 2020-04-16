@@ -118,7 +118,7 @@ class SystematicAnalysisEngine {
             }
             // end update loopflow
 
-            setResults(abstractSituation, systematicSensitivityAnalysisResult); //todo update cost / virtual cost / functional cost etc...
+            setResults(abstractSituation, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -175,22 +175,24 @@ class SystematicAnalysisEngine {
         if (!Objects.isNull(cracLoopFlowExtension)) {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
             Map<String, Double> loopFlows = loopFlowComputation.calculateLoopFlows(situation.getNetwork());
-            updateCnecsLoopFlowConstraint(situation, crac, loopFlows);
+            updateLoopflowInCnecResult(situation, crac, loopFlows);
         }
     }
 
-    private void updateCnecsLoopFlowConstraint(AbstractSituation situation, Crac crac, Map<String, Double> fZeroAll) {
-        // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
+    private void updateLoopflowInCnecResult(AbstractSituation situation, Crac crac, Map<String, Double> fZeroAll) {
+        boolean isInitialSituation = situation.isInitialSituation(); // test if initial situation or optimized situation
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(situation.getCracResultVariant());
             if (!Objects.isNull(cnecLoopFlowExtension)) {
-                //!!! note here we use the result of branch flow of preventive state for all cnec of all states
-                //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
                 double currentLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
-                double inputLoopflowLimit = cnecLoopFlowExtension.getInputLoopFlow();
-                double cnecLoopflowThreshold = Math.max(currentLoopFlow, inputLoopflowLimit);
-                cnecResult.setLoopFlowConstraint(cnecLoopflowThreshold); //todo: cnec loop flow extension need to be based on ResultVariantManger
+                if (isInitialSituation) {
+                    double inputLoopflowLimit = cnecLoopFlowExtension.getInputLoopFlow();
+                    double cnecLoopflowThreshold = Math.max(currentLoopFlow, inputLoopflowLimit);
+                    cnecResult.setLoopflowconstraint(cnecLoopflowThreshold); // add initial loopflow limit
+                } else {
+                    cnecResult.setFinalLoopflow(currentLoopFlow); // set current loopflow result
+                }
             }
         });
     }

@@ -27,6 +27,7 @@ class InitialSituation extends AbstractSituation {
 
     InitialSituation(Network network, String referenceNetworkVariantId, Crac crac) {
         super(network, referenceNetworkVariantId, crac);
+        setInitialSituation(true);
         addRangeActionInitialSetPointsInCracExtension(network);
     }
 

@@ -24,6 +24,7 @@ class OptimizedSituation extends AbstractSituation {
      */
     OptimizedSituation(Network network, String referenceNetworkVariantId, Crac crac) {
         super(network, referenceNetworkVariantId, crac);
+        setInitialSituation(false);
     }
 
     @Override

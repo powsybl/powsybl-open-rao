@@ -74,7 +74,7 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
         for (Cnec cnec : preventiveCnecs) {
             double loopFlowShift = 0.0;
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(linearRaoData.getResultVariantId());
-            double maxLoopFlowLimit = Math.abs(cnecResult.getLoopFlowConstraint());
+            double maxLoopFlowLimit = Math.abs(cnecResult.getLoopflowconstraint());
             maxLoopFlowLimit = Math.max(0, maxLoopFlowLimit - this.loopflowConstraintAdjustmentCoefficient);
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);

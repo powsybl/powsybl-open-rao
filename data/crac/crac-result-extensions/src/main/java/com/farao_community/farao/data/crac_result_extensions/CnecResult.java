@@ -28,7 +28,8 @@ public class CnecResult implements Result {
     private double minThresholdInA;
     private double maxThresholdInA;
 
-    private double loopFlowConstraint;
+    private double loopflowconstraint;
+    private double finalLoopflow;
 
     @JsonCreator
     public CnecResult(@JsonProperty("flowInMW") double flowInMW, @JsonProperty("flowInA") double flowInA) {
@@ -38,7 +39,8 @@ public class CnecResult implements Result {
         this.maxThresholdInMW = Double.NaN;
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
-        this.loopFlowConstraint = Double.NaN;
+        this.loopflowconstraint = Double.NaN;
+        this.finalLoopflow = Double.NaN;
     }
 
     public CnecResult(double flowInMW) {
@@ -48,7 +50,8 @@ public class CnecResult implements Result {
         this.maxThresholdInMW = Double.NaN;
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
-        this.loopFlowConstraint = Double.NaN;
+        this.loopflowconstraint = Double.NaN;
+        this.finalLoopflow = Double.NaN;
     }
 
     public CnecResult() {
@@ -58,7 +61,8 @@ public class CnecResult implements Result {
         this.maxThresholdInMW = Double.NaN;
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
-        this.loopFlowConstraint = Double.NaN;
+        this.loopflowconstraint = Double.NaN;
+        this.finalLoopflow = Double.NaN;
     }
 
     public void setFlowInMW(double flow) {
@@ -120,16 +124,24 @@ public class CnecResult implements Result {
      * set loop flow constraint used during optimization.
      * The value is equal to MAX value of initial loop flow calculated from network and
      * loop flow threshold which is a input parameter from TSO
-     * @param loopFlowConstraint = Max(init_Loop_flow, input loop flow)
+     * @param loopflowconstraint = Max(init_Loop_flow, input loop flow)
      */
-    public void setLoopFlowConstraint(double loopFlowConstraint) {
-        this.loopFlowConstraint = loopFlowConstraint;
+    public void setLoopflowconstraint(double loopflowconstraint) {
+        this.loopflowconstraint = loopflowconstraint;
     }
 
     /**
      * return loop flow constraint used in linear optimization
      */
-    public double getLoopFlowConstraint() {
-        return loopFlowConstraint;
+    public double getLoopflowconstraint() {
+        return loopflowconstraint;
+    }
+
+    public double getFinalLoopflow() {
+        return finalLoopflow;
+    }
+
+    public void setFinalLoopflow(double finalLoopflow) {
+        this.finalLoopflow = finalLoopflow;
     }
 }
