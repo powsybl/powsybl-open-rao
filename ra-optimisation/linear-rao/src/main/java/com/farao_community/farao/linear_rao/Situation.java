@@ -100,7 +100,7 @@ public class Situation {
     private String getUniqueSituationId() {
         String networkVariantId = getUniqueNetworkVariantId();
         String cracVariantId = crac.getExtension(ResultVariantManager.class).getUniqueVariantId();
-        return String.valueOf(networkVariantId.concat(cracVariantId).hashCode());
+        return networkVariantId.concat(cracVariantId);
     }
 
     /**
