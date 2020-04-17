@@ -11,8 +11,8 @@ import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.linear_rao.Situation;
 import com.farao_community.farao.linear_rao.optimisation.AbstractPostProcessor;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -24,10 +24,10 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 public class RaoResultPostProcessor extends AbstractPostProcessor {
 
     @Override
-    public void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String resultVariantId) {
-        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+    public void process(LinearRaoProblem linearRaoProblem, Situation situation, RaoResult raoResult) {
+        String preventiveState = situation.getCrac().getPreventiveState().getId();
 
-        for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction: situation.getCrac().getRangeActions()) {
             String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
 
             double rangeActionVar = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue();
@@ -35,7 +35,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
 
             if (rangeActionVar > 0 && rangeAction instanceof PstRange) {
                 PstRange pstRange = (PstRange) rangeAction;
-                TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+                TwoWindingsTransformer transformer = situation.getNetwork().getTwoWindingsTransformer(networkElementId);
 
                 //todo : get pre optim angle and tap with a cleaner manner
                 double preOptimAngle = linearRaoProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE).lb();
@@ -46,7 +46,7 @@ public class RaoResultPostProcessor extends AbstractPostProcessor {
 
                 if (approximatedPostOptimTap != preOptimTap) {
                     RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-                    PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(resultVariantId);
+                    PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(situation.getWorkingVariantId());
                     pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                     pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
                 }

@@ -4,8 +4,6 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -63,22 +61,20 @@ class SystematicAnalysisEngine {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    void run(AbstractSituation abstractSituation) {
+    void run(Situation situation) {
 
         SensitivityComputationParameters sensiConfig = fallbackMode ? linearRaoParameters.getFallbackSensiParameters() : linearRaoParameters.getSensitivityComputationParameters();
 
         try {
-            runWithConfig(abstractSituation, sensiConfig);
+            runWithConfig(situation, sensiConfig);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && linearRaoParameters.getFallbackSensiParameters() != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                run(abstractSituation);
+                run(situation);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
-                abstractSituation.deleteResultVariant();
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
-                abstractSituation.deleteResultVariant();
                 throw new SensitivityComputationException("Sensitivity computation failed with all available sensitivity parameters.", e);
             }
         }
@@ -88,17 +84,17 @@ class SystematicAnalysisEngine {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private void runWithConfig(AbstractSituation abstractSituation, SensitivityComputationParameters sensitivityComputationParameters) {
+    private void runWithConfig(Situation situation, SensitivityComputationParameters sensitivityComputationParameters) {
 
         try {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-                .runAnalysis(abstractSituation.getNetwork(), abstractSituation.getCrac(), computationManager, sensitivityComputationParameters);
+                .runAnalysis(situation.getNetwork(), situation.getCrac(), computationManager, sensitivityComputationParameters);
 
             if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            setResults(abstractSituation, systematicSensitivityAnalysisResult);
+            setResults(situation, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -109,17 +105,16 @@ class SystematicAnalysisEngine {
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    private void setResults(AbstractSituation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void setResults(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         situation.setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
-        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        updateCracExtension(situation);
+        situation.setSystematicSensitivityAnalysisResultMap(systematicSensitivityAnalysisResult);
         updateCnecExtensions(situation, systematicSensitivityAnalysisResult);
     }
 
     /**
      * Compute the objective function, the minimal margin.
      */
-    private double getMinMargin(AbstractSituation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private double getMinMargin(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
 
         double minMargin = Double.POSITIVE_INFINITY;
         for (Cnec cnec : situation.getCrac().getCnecs()) {
@@ -133,15 +128,9 @@ class SystematicAnalysisEngine {
         return minMargin;
     }
 
-    private void updateCracExtension(AbstractSituation situation) {
-        CracResult cracResult = situation.getCrac().getExtension(CracResultExtension.class).getVariant(situation.getCracResultVariant());
-        cracResult.setCost(situation.getCost());
-        cracResult.setNetworkSecurityStatus();
-    }
-
-    private void updateCnecExtensions(AbstractSituation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void updateCnecExtensions(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         situation.getCrac().getCnecs().forEach(cnec -> {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(situation.getCracResultVariant());
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(situation.getWorkingVariantId());
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
             cnecResult.setThresholds(cnec);

@@ -49,7 +49,7 @@ public class SystematicAnalysisEngineTest {
     private static final double FLOW_TOLERANCE = 0.1;
 
     private Crac crac;
-    private InitialSituation initialSituation;
+    private Situation initialSituation;
 
     @Before
     public void setUp() {
@@ -58,7 +58,7 @@ public class SystematicAnalysisEngineTest {
         crac = CommonCracCreation.create();
         crac.synchronize(network);
 
-        initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        initialSituation = new Situation(network, crac);
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
     }
 
@@ -79,7 +79,7 @@ public class SystematicAnalysisEngineTest {
         // assert results
         assertNotNull(initialSituation);
         assertFalse(systematicAnalysisEngine.isFallback());
-        String resultVariant = initialSituation.getCracResultVariant();
+        String resultVariant = initialSituation.getWorkingVariantId();
         assertEquals(10.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
         assertEquals(15.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
 
@@ -130,7 +130,7 @@ public class SystematicAnalysisEngineTest {
 
         // assert
         assertTrue(systematicAnalysisEngine.isFallback());
-        String resultVariant = initialSituation.getCracResultVariant();
+        String resultVariant = initialSituation.getWorkingVariantId();
         assertEquals(10.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
         assertEquals(15.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
     }

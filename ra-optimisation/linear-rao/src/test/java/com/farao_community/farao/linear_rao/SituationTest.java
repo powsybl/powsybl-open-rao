@@ -21,6 +21,8 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -44,40 +46,40 @@ public class SituationTest {
 
     @Test
     public void initialSituationTest() {
-        InitialSituation initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        Situation initialSituation = new Situation(network, crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
 
-        initialSituation.deleteResultVariant();
+        initialSituation.clear(Collections.emptyList());
 
         assertEquals(0, resultVariantManager.getVariants().size());
     }
 
     @Test
     public void optimizedSituationTest() {
-        OptimizedSituation optimizedSituation = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        Situation optimizedSituation = new Situation(network, crac);
 
         assertNotNull(crac.getExtension(CracResultExtension.class));
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         assertEquals(1, resultVariantManager.getVariants().size());
 
-        optimizedSituation.deleteResultVariant();
+        optimizedSituation.clear(Collections.emptyList());
         assertEquals(0, resultVariantManager.getVariants().size());
     }
 
     @Test
     public void sameRasTest() {
-        OptimizedSituation sameSituation1 = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
-        OptimizedSituation sameSituation2 = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
-        OptimizedSituation differentSituation = new OptimizedSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        Situation sameSituation1 = new Situation(network, crac);
+        Situation sameSituation2 = new Situation(network, crac);
+        Situation differentSituation = new Situation(network, crac);
 
-        String variant1 = sameSituation1.getCracResultVariant();
-        String variant2 = sameSituation2.getCracResultVariant();
-        String variant3 = differentSituation.getCracResultVariant();
+        String variant1 = sameSituation1.getWorkingVariantId();
+        String variant2 = sameSituation2.getWorkingVariantId();
+        String variant3 = differentSituation.getWorkingVariantId();
 
         RangeActionResultExtension rangeActionResultExtension = crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class);
         RangeActionResult pstResult1 = rangeActionResultExtension.getVariant(variant1);
@@ -88,9 +90,5 @@ public class SituationTest {
         pstResult1.setSetPoint(prevStateId, 3);
         pstResult2.setSetPoint(prevStateId, 3);
         pstResult3.setSetPoint(prevStateId, 2);
-
-        assertTrue(sameSituation1.sameRaResults(sameSituation2));
-        assertTrue(sameSituation2.sameRaResults(sameSituation1));
-        assertFalse(sameSituation1.sameRaResults(differentSituation));
     }
 }

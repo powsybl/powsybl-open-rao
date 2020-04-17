@@ -86,7 +86,7 @@ class LinearOptimisationEngine {
      * RangeAction set-points and a new Crac ResultVariant which contains the results
      * of the optimisation.
      *
-     * @param situationIn defines the data on which the creation of the optimisation problem
+     * @param situation defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
@@ -95,15 +95,15 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    OptimizedSituation run(AbstractSituation situationIn) {
+    void run(Situation situation) {
 
-        if (situationIn.getSystematicSensitivityAnalysisResult() == null) {
+        if (situation.getSystematicSensitivityAnalysisResult() == null) {
             throw new FaraoException("LinearOptimisationEngine cannot run on a situation without sensitivities.");
         }
 
         // update data
         // todo : refactor the LinearRaoData
-        this.linearRaoData = new LinearRaoData(situationIn.getCrac(), situationIn.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult());
+        this.linearRaoData = new LinearRaoData(situation.getCrac(), situation.getNetwork(), situation.getSystematicSensitivityAnalysisResult());
 
         // prepare optimisation problem
         if (!lpInitialised) {
@@ -117,16 +117,12 @@ class LinearOptimisationEngine {
         // solve optimisation problem
         solveProblem();
 
-        OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getNetwork(), situationIn.getNetworkVariantId(), linearRaoData.getCrac());
-
         // todo : do not create a RaoResult anymore and refactor the post processors
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getCracResultVariant()));
+        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, situation, raoResult));
 
         // apply RA on network
-        applyRAs(situationOut);
-
-        return situationOut;
+        applyRAs(situation);
     }
 
     private void buildProblem() {
@@ -154,7 +150,6 @@ class LinearOptimisationEngine {
 
     private void solveProblem() {
         try {
-
             Enum solverResultStatus = linearRaoProblem.solve();
             String solverResultStatusString = solverResultStatus.name();
             if (!solverResultStatusString.equals("OPTIMAL")) {
@@ -162,7 +157,6 @@ class LinearOptimisationEngine {
                 LOGGER.error(errorMessage);
                 throw new LinearOptimisationException(errorMessage);
             }
-
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
@@ -193,11 +187,11 @@ class LinearOptimisationEngine {
     /**
      * Apply the optimised RangeAction on a Network
      */
-    private void applyRAs(OptimizedSituation optimizedSituation) {
-        String preventiveState = optimizedSituation.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : optimizedSituation.getCrac().getRangeActions()) {
+    private void applyRAs(Situation situation) {
+        String preventiveState = situation.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction : situation.getCrac().getRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(optimizedSituation.getNetwork(), rangeActionResultMap.getVariant(optimizedSituation.getCracResultVariant()).getSetPoint(preventiveState));
+            rangeAction.apply(situation.getNetwork(), rangeActionResultMap.getVariant(situation.getWorkingVariantId()).getSetPoint(preventiveState));
         }
     }
 }

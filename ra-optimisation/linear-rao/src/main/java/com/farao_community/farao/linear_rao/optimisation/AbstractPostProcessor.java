@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao.optimisation;
 
+import com.farao_community.farao.linear_rao.Situation;
 import com.farao_community.farao.rao_api.RaoResult;
 
 /**
@@ -14,5 +15,5 @@ import com.farao_community.farao.rao_api.RaoResult;
  */
 public abstract class AbstractPostProcessor {
 
-    public abstract void process(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, RaoResult raoResult, String variantId);
+    public abstract void process(LinearRaoProblem linearRaoProblem, Situation situation, RaoResult raoResult);
 }

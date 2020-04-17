@@ -44,7 +44,7 @@ public class LinearOptimisationEngineTest {
     private LinearRaoProblem linearRaoProblemMock;
     private Network network;
     private Crac crac;
-    private InitialSituation initialSituation;
+    private Situation initialSituation;
 
     @Before
     public void setUp() {
@@ -67,7 +67,7 @@ public class LinearOptimisationEngineTest {
         crac = CommonCracCreation.create();
         crac.synchronize(network);
 
-        initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
+        initialSituation = new Situation(network, crac);
         initialSituation = Mockito.spy(initialSituation);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
@@ -79,10 +79,10 @@ public class LinearOptimisationEngineTest {
 
     @Test
     public void testOptimalAndUpdate() {
-        OptimizedSituation optimizedSituation = linearOptimisationEngine.run(initialSituation);
-        assertNotNull(optimizedSituation);
-        optimizedSituation = linearOptimisationEngine.run(initialSituation);
-        assertNotNull(optimizedSituation);
+        linearOptimisationEngine.run(initialSituation);
+        assertNotNull(initialSituation);
+        linearOptimisationEngine.run(initialSituation);
+        assertNotNull(initialSituation);
     }
 
     @Test
