@@ -139,6 +139,7 @@ public class Situation {
         }
         String situationVariantId = getUniqueSituationId();
         network.getVariantManager().cloneVariant(referenceVariantId, situationVariantId);
+        systematicSensitivityAnalysisResultMap.put(situationVariantId, systematicSensitivityAnalysisResultMap.get(referenceVariantId));
         crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
         variantIds.add(situationVariantId);
         return situationVariantId;

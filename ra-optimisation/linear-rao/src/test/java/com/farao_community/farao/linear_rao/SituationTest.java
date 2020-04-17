@@ -131,6 +131,18 @@ public class SituationTest {
     }
 
     @Test
+    public void createNewVariantAfterClear() {
+        situation.cloneVariant(initialVariantId);
+        situation.cloneVariant(initialVariantId);
+        situation.clear();
+        String variantId = situation.createVariant();
+        situation.setWorkingVariant(variantId);
+        assertEquals(variantId, situation.getNetwork().getVariantManager().getWorkingVariantId());
+        assertEquals(1, crac.getExtension(ResultVariantManager.class).getVariants().size());
+        assertEquals(1, situation.getVariantIds().size());
+    }
+
+    @Test
     public void sameRasTest() {
         Situation situation = new Situation(network, crac);
         String initialVariantId = situation.getWorkingVariantId();
