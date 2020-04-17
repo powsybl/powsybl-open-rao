@@ -88,7 +88,9 @@ public class LinearRao implements RaoProvider {
         }
 
         String bestVariantId = initialVariantId;
+        double bestCost = situation.getCost();
         String optimizedVariantId;
+        double optimizedCost;
 
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             optimizedVariantId = situation.cloneVariant(bestVariantId);
@@ -107,12 +109,12 @@ public class LinearRao implements RaoProvider {
             // evaluate sensitivity coefficients and cost on the newly optimised situation
             systematicAnalysisEngine.run(situation);
 
-            double previousLowestCost = situation.setWorkingVariant(bestVariantId).getCost();
-            double optimizedCost = situation.setWorkingVariant(optimizedVariantId).getCost();
-            if (optimizedCost < previousLowestCost) { // if the solution has been improved, continue the search
+            optimizedCost = situation.getCost();
+            if (optimizedCost < bestCost) { // if the solution has been improved, continue the search
                 bestVariantId = optimizedVariantId;
+                bestCost = optimizedCost;
             } else { // unexpected behaviour, stop the search
-                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -previousLowestCost, -optimizedCost);
+                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestCost, -optimizedCost);
                 break;
             }
         }
