@@ -25,6 +25,8 @@ import java.util.*;
  */
 public class Situation {
 
+    private static final String NO_WORKING_VARIANT = "No working variant is defined.";
+
     private List<String> variantIds;
 
     private String workingVariantId;
@@ -33,6 +35,8 @@ public class Situation {
      * Network object
      */
     private Network network;
+
+    private String initialNetworkVariantId;
 
     /**
      * Crac object
@@ -49,6 +53,7 @@ public class Situation {
      */
     public Situation(Network network, Crac crac) {
         this.network = network;
+        this.initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
         this.crac = crac;
         this.variantIds = new ArrayList<>();
 
@@ -58,10 +63,7 @@ public class Situation {
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
-        String situationVariantId = getUniqueSituationId();
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), situationVariantId);
-        crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
-        variantIds.add(situationVariantId);
+        String situationVariantId = createVariant();
         setWorkingVariant(situationVariantId);
         init();
 
@@ -119,6 +121,18 @@ public class Situation {
         return true;
     }
 
+    public List<String> getVariantIds() {
+        return variantIds;
+    }
+
+    String createVariant() {
+        String situationVariantId = getUniqueSituationId();
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), situationVariantId);
+        crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
+        variantIds.add(situationVariantId);
+        return situationVariantId;
+    }
+
     String cloneVariant(String referenceVariantId) {
         if (!variantIds.contains(referenceVariantId)) {
             throw new FaraoException(String.format("Situation does not contain %s  as reference variant", referenceVariantId));
@@ -131,6 +145,9 @@ public class Situation {
     }
 
     public String getWorkingVariantId() {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
         return workingVariantId;
     }
 
@@ -142,26 +159,48 @@ public class Situation {
         return this;
     }
 
+    /**
+     * This method deletes a variant according to its ID. If the variant ID is not present in the situation
+     * it will throw an error. If the working variant is the variant to be deleted nothing would be done.
+     * @param variantId: Variant ID that is required to delete.
+     * @param keepCracResult: If true it will delete the variant as situation variant and the related network variant
+     *                      but it will keep the crac variant.
+     */
     void deleteVariant(String variantId, boolean keepCracResult) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format("Unknown situation variant %s", variantId));
         }
-        network.getVariantManager().removeVariant(variantId);
-        if (!keepCracResult) {
-            crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
+        if (!variantId.equals(workingVariantId)) {
+            network.getVariantManager().removeVariant(variantId);
+            if (!keepCracResult) {
+                crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
+            }
+            variantIds.remove(variantId);
         }
     }
 
+    void clear() {
+        clear(Collections.emptyList());
+    }
+
     void clear(List<String> remainingVariantsForCrac) {
-        for (String variantId: variantIds) {
+        network.getVariantManager().setWorkingVariant(initialNetworkVariantId);
+        workingVariantId = null;
+        String[] copiedIds = new String[variantIds.size()];
+        variantIds.toArray(copiedIds);
+        for (String variantId: copiedIds) {
             deleteVariant(variantId, remainingVariantsForCrac.contains(variantId));
         }
+        variantIds.clear();
     }
 
     /**
      * Getters and setters
      */
     public Network getNetwork() {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
         network.getVariantManager().setWorkingVariant(workingVariantId);
         return network;
     }
@@ -171,6 +210,9 @@ public class Situation {
     }
 
     SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
         return systematicSensitivityAnalysisResultMap.get(workingVariantId);
     }
 
@@ -179,6 +221,9 @@ public class Situation {
     }
 
     double getCost() {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
         return crac.getExtension(CracResultExtension.class).getVariant(workingVariantId).getCost();
     }
 
