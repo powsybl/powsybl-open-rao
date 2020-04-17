@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
@@ -18,6 +17,7 @@ import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFil
 import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,15 +95,10 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    void run(Situation situation) {
-
-        if (situation.getSystematicSensitivityAnalysisResult() == null) {
-            throw new FaraoException("LinearOptimisationEngine cannot run on a situation without sensitivities.");
-        }
-
+    void run(Situation situation, SystematicSensitivityAnalysisResult sensitivities) {
         // update data
         // todo : refactor the LinearRaoData
-        this.linearRaoData = new LinearRaoData(situation.getCrac(), situation.getNetwork(), situation.getSystematicSensitivityAnalysisResult());
+        this.linearRaoData = new LinearRaoData(situation.getCrac(), situation.getNetwork(), sensitivities);
 
         // prepare optimisation problem
         if (!lpInitialised) {

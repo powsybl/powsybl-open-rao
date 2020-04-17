@@ -18,6 +18,7 @@ import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -80,7 +81,7 @@ public class LinearRao implements RaoProvider {
                                             LinearOptimisationEngine linearOptimisationEngine,
                                             LinearRaoParameters linearRaoParameters) {
         String initialVariantId = situation.getWorkingVariantId();
-        systematicAnalysisEngine.run(situation);
+        SystematicSensitivityAnalysisResult sensitivities = systematicAnalysisEngine.run(situation);
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, situation.getCrac())) {
@@ -88,9 +89,7 @@ public class LinearRao implements RaoProvider {
         }
 
         String bestVariantId = initialVariantId;
-        double bestCost = situation.getCost();
         String optimizedVariantId;
-        double optimizedCost;
 
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
             optimizedVariantId = situation.cloneVariant(bestVariantId);
@@ -99,7 +98,7 @@ public class LinearRao implements RaoProvider {
             // Look for a new RangeAction combination, optimized with the LinearOptimisationEngine
             // Stores found solutions in crac extension working variant
             // Apply remedial actions on the network working variant
-            linearOptimisationEngine.run(situation);
+            linearOptimisationEngine.run(situation, sensitivities);
 
             // if the solution has not changed, stop the search
             if (situation.sameRemedialActions(bestVariantId, optimizedVariantId)) {
@@ -107,14 +106,13 @@ public class LinearRao implements RaoProvider {
             }
 
             // evaluate sensitivity coefficients and cost on the newly optimised situation
-            systematicAnalysisEngine.run(situation);
+            sensitivities = systematicAnalysisEngine.run(situation);
 
-            optimizedCost = situation.getCost();
-            if (optimizedCost < bestCost) { // if the solution has been improved, continue the search
+            if (situation.getCost(optimizedVariantId) < situation.getCost(bestVariantId)) { // if the solution has been improved, continue the search
                 bestVariantId = optimizedVariantId;
-                bestCost = optimizedCost;
             } else { // unexpected behaviour, stop the search
-                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW", -bestCost, -optimizedCost);
+                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW",
+                    -situation.getCost(bestVariantId), -situation.getCost(optimizedVariantId));
                 break;
             }
         }

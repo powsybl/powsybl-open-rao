@@ -13,6 +13,7 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
  * in the scope of the LinearRao.
@@ -61,17 +62,17 @@ class SystematicAnalysisEngine {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    void run(Situation situation) {
+    SystematicSensitivityAnalysisResult run(Situation situation) {
 
         SensitivityComputationParameters sensiConfig = fallbackMode ? linearRaoParameters.getFallbackSensiParameters() : linearRaoParameters.getSensitivityComputationParameters();
 
         try {
-            runWithConfig(situation, sensiConfig);
+            return runWithConfig(situation, sensiConfig);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && linearRaoParameters.getFallbackSensiParameters() != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                run(situation);
+                return run(situation);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -84,7 +85,7 @@ class SystematicAnalysisEngine {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private void runWithConfig(Situation situation, SensitivityComputationParameters sensitivityComputationParameters) {
+    private SystematicSensitivityAnalysisResult runWithConfig(Situation situation, SensitivityComputationParameters sensitivityComputationParameters) {
 
         try {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
@@ -95,6 +96,7 @@ class SystematicAnalysisEngine {
             }
 
             setResults(situation, systematicSensitivityAnalysisResult);
+            return systematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -107,7 +109,6 @@ class SystematicAnalysisEngine {
      */
     private void setResults(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         situation.setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
-        situation.setSystematicSensitivityAnalysisResultMap(systematicSensitivityAnalysisResult);
         updateCnecExtensions(situation, systematicSensitivityAnalysisResult);
     }
 

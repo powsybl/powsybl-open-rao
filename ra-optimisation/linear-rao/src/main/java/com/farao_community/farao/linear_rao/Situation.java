@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -44,11 +43,6 @@ public class Situation {
     private Crac crac;
 
     /**
-     * Results of the systematic sensitivity analysis performed on the situation
-     */
-    private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
-
-    /**
      * constructor
      */
     public Situation(Network network, Crac crac) {
@@ -66,8 +60,6 @@ public class Situation {
         String situationVariantId = createVariant();
         setWorkingVariant(situationVariantId);
         init();
-
-        this.systematicSensitivityAnalysisResultMap = new HashMap<>();
     }
 
     /**
@@ -139,7 +131,6 @@ public class Situation {
         }
         String situationVariantId = getUniqueSituationId();
         network.getVariantManager().cloneVariant(referenceVariantId, situationVariantId);
-        systematicSensitivityAnalysisResultMap.put(situationVariantId, systematicSensitivityAnalysisResultMap.get(referenceVariantId));
         crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
         variantIds.add(situationVariantId);
         return situationVariantId;
@@ -210,22 +201,15 @@ public class Situation {
         return crac;
     }
 
-    SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        return systematicSensitivityAnalysisResultMap.get(workingVariantId);
-    }
-
-    void setSystematicSensitivityAnalysisResultMap(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        this.systematicSensitivityAnalysisResultMap.put(workingVariantId, systematicSensitivityAnalysisResult);
-    }
-
     double getCost() {
         if (workingVariantId == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
-        return crac.getExtension(CracResultExtension.class).getVariant(workingVariantId).getCost();
+        return getCost(workingVariantId);
+    }
+
+    double getCost(String variantId) {
+        return crac.getExtension(CracResultExtension.class).getVariant(variantId).getCost();
     }
 
     void setCost(double cost) {
