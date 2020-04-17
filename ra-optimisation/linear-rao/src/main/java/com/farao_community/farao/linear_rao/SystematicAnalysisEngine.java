@@ -43,6 +43,8 @@ class SystematicAnalysisEngine {
      */
     private ComputationManager computationManager;
 
+    private SystematicSensitivityAnalysisResult lastSystematicSensitivityAnalysisResult;
+
     /**
      * Constructor
      */
@@ -50,10 +52,15 @@ class SystematicAnalysisEngine {
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;
+        this.lastSystematicSensitivityAnalysisResult = null;
     }
 
     boolean isFallback() {
         return fallbackMode;
+    }
+
+    public SystematicSensitivityAnalysisResult getLastSystematicSensitivityAnalysisResult() {
+        return lastSystematicSensitivityAnalysisResult;
     }
 
     /**
@@ -62,17 +69,17 @@ class SystematicAnalysisEngine {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    SystematicSensitivityAnalysisResult run(Situation situation) {
+    void run(Situation situation) {
 
         SensitivityComputationParameters sensiConfig = fallbackMode ? linearRaoParameters.getFallbackSensiParameters() : linearRaoParameters.getSensitivityComputationParameters();
 
         try {
-            return runWithConfig(situation, sensiConfig);
+            runWithConfig(situation, sensiConfig);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && linearRaoParameters.getFallbackSensiParameters() != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                return run(situation);
+                run(situation);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -85,7 +92,7 @@ class SystematicAnalysisEngine {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityAnalysisResult runWithConfig(Situation situation, SensitivityComputationParameters sensitivityComputationParameters) {
+    private void runWithConfig(Situation situation, SensitivityComputationParameters sensitivityComputationParameters) {
 
         try {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
@@ -96,7 +103,6 @@ class SystematicAnalysisEngine {
             }
 
             setResults(situation, systematicSensitivityAnalysisResult);
-            return systematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -108,6 +114,7 @@ class SystematicAnalysisEngine {
      * Crac result variant of the situation.
      */
     private void setResults(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        lastSystematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
         situation.setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
         updateCnecExtensions(situation, systematicSensitivityAnalysisResult);
     }

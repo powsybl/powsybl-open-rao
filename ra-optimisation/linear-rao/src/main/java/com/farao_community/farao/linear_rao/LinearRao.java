@@ -18,7 +18,6 @@ import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -81,7 +80,7 @@ public class LinearRao implements RaoProvider {
                                             LinearOptimisationEngine linearOptimisationEngine,
                                             LinearRaoParameters linearRaoParameters) {
         String initialVariantId = situation.getWorkingVariantId();
-        SystematicSensitivityAnalysisResult sensitivities = systematicAnalysisEngine.run(situation);
+        systematicAnalysisEngine.run(situation);
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, situation.getCrac())) {
@@ -98,7 +97,7 @@ public class LinearRao implements RaoProvider {
             // Look for a new RangeAction combination, optimized with the LinearOptimisationEngine
             // Stores found solutions in crac extension working variant
             // Apply remedial actions on the network working variant
-            linearOptimisationEngine.run(situation, sensitivities);
+            linearOptimisationEngine.run(situation, systematicAnalysisEngine.getLastSystematicSensitivityAnalysisResult());
 
             // if the solution has not changed, stop the search
             if (situation.sameRemedialActions(bestVariantId, optimizedVariantId)) {
@@ -106,7 +105,7 @@ public class LinearRao implements RaoProvider {
             }
 
             // evaluate sensitivity coefficients and cost on the newly optimised situation
-            sensitivities = systematicAnalysisEngine.run(situation);
+            systematicAnalysisEngine.run(situation);
 
             if (situation.getCost(optimizedVariantId) < situation.getCost(bestVariantId)) { // if the solution has been improved, continue the search
                 bestVariantId = optimizedVariantId;
