@@ -58,8 +58,11 @@ public class Situation {
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
-        String initialVariantId = cloneVariant(network.getVariantManager().getWorkingVariantId());
-        setWorkingVariant(initialVariantId);
+        String situationVariantId = getUniqueSituationId();
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), situationVariantId);
+        crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
+        variantIds.add(situationVariantId);
+        setWorkingVariant(situationVariantId);
         init();
 
         this.systematicSensitivityAnalysisResultMap = new HashMap<>();
@@ -143,11 +146,9 @@ public class Situation {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format("Unknown situation variant %s", variantId));
         }
-        if (!workingVariantId.equals(variantId)) {
-            network.getVariantManager().removeVariant(variantId);
-            if (!keepCracResult) {
-                crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
-            }
+        network.getVariantManager().removeVariant(variantId);
+        if (!keepCracResult) {
+            crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
         }
     }
 

@@ -116,7 +116,7 @@ public class RaoResultPostProcessorTest {
 
         String preventiveState = situation.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = situation.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
-        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant("test-variant");
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(situation.getWorkingVariantId());
         assertEquals(-12, pstRangeResult.getTap(preventiveState));
         assertEquals(0.39 - 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
     }
@@ -132,7 +132,7 @@ public class RaoResultPostProcessorTest {
 
         String preventiveState = situation.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = situation.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
-        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant("test-variant");
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(situation.getWorkingVariantId());
         assertEquals(14, pstRangeResult.getTap(preventiveState));
         assertEquals(0.39 + 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
     }

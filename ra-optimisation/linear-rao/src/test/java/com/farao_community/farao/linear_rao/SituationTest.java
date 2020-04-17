@@ -73,22 +73,23 @@ public class SituationTest {
 
     @Test
     public void sameRasTest() {
-        Situation sameSituation1 = new Situation(network, crac);
-        Situation sameSituation2 = new Situation(network, crac);
-        Situation differentSituation = new Situation(network, crac);
-
-        String variant1 = sameSituation1.getWorkingVariantId();
-        String variant2 = sameSituation2.getWorkingVariantId();
-        String variant3 = differentSituation.getWorkingVariantId();
+        Situation situation = new Situation(network, crac);
+        String initialVariantId = situation.getWorkingVariantId();
+        String sameVariantId = situation.cloneVariant(initialVariantId);
+        String differentVariantId = situation.cloneVariant(initialVariantId);
 
         RangeActionResultExtension rangeActionResultExtension = crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class);
-        RangeActionResult pstResult1 = rangeActionResultExtension.getVariant(variant1);
-        RangeActionResult pstResult2 = rangeActionResultExtension.getVariant(variant2);
-        RangeActionResult pstResult3 = rangeActionResultExtension.getVariant(variant3);
+        RangeActionResult pstResult1 = rangeActionResultExtension.getVariant(initialVariantId);
+        RangeActionResult pstResult2 = rangeActionResultExtension.getVariant(sameVariantId);
+        RangeActionResult pstResult3 = rangeActionResultExtension.getVariant(differentVariantId);
 
         String prevStateId = crac.getPreventiveState().getId();
         pstResult1.setSetPoint(prevStateId, 3);
         pstResult2.setSetPoint(prevStateId, 3);
         pstResult3.setSetPoint(prevStateId, 2);
+
+        assertTrue(situation.sameRemedialActions(initialVariantId, sameVariantId));
+        assertTrue(situation.sameRemedialActions(sameVariantId, initialVariantId));
+        assertFalse(situation.sameRemedialActions(initialVariantId, differentVariantId));
     }
 }
