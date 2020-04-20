@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -25,6 +26,7 @@ import java.util.*;
 public class Situation {
 
     private static final String NO_WORKING_VARIANT = "No working variant is defined.";
+    private static final String UNKNOWN_VARIANT = "Unknown situation variant %s";
 
     private List<String> variantIds;
 
@@ -42,6 +44,8 @@ public class Situation {
      */
     private Crac crac;
 
+    private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
+
     /**
      * constructor
      */
@@ -50,6 +54,7 @@ public class Situation {
         this.initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
         this.crac = crac;
         this.variantIds = new ArrayList<>();
+        this.systematicSensitivityAnalysisResultMap = new HashMap<>();
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
@@ -76,6 +81,27 @@ public class Situation {
                 ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
             }
         }
+    }
+
+    public SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
+        return systematicSensitivityAnalysisResultMap.get(workingVariantId);
+    }
+
+    public SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult(String variantId) {
+        if (!variantIds.contains(variantId)) {
+            throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
+        }
+        return systematicSensitivityAnalysisResultMap.get(variantId);
+    }
+
+    public void setSystematicSensitivityAnalysisResult(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
+        systematicSensitivityAnalysisResultMap.put(workingVariantId, systematicSensitivityAnalysisResult);
     }
 
     /**
@@ -122,6 +148,7 @@ public class Situation {
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), situationVariantId);
         crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
         variantIds.add(situationVariantId);
+        systematicSensitivityAnalysisResultMap.put(situationVariantId, null);
         return situationVariantId;
     }
 
@@ -133,6 +160,7 @@ public class Situation {
         network.getVariantManager().cloneVariant(referenceVariantId, situationVariantId);
         crac.getExtension(ResultVariantManager.class).createVariant(situationVariantId);
         variantIds.add(situationVariantId);
+        systematicSensitivityAnalysisResultMap.put(situationVariantId, null);
         return situationVariantId;
     }
 
@@ -145,7 +173,7 @@ public class Situation {
 
     Situation setWorkingVariant(String variantId) {
         if (!variantIds.contains(variantId)) {
-            throw new FaraoException(String.format("Unknown situation variant %s", variantId));
+            throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         workingVariantId = variantId;
         return this;
@@ -160,7 +188,7 @@ public class Situation {
      */
     void deleteVariant(String variantId, boolean keepCracResult) {
         if (!variantIds.contains(variantId)) {
-            throw new FaraoException(String.format("Unknown situation variant %s", variantId));
+            throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         if (!variantId.equals(workingVariantId)) {
             network.getVariantManager().removeVariant(variantId);
@@ -213,6 +241,9 @@ public class Situation {
     }
 
     void setCost(double cost) {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
         crac.getExtension(CracResultExtension.class).getVariant(workingVariantId).setCost(cost);
     }
 }

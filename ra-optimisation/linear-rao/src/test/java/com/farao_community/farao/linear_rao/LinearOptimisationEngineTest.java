@@ -45,7 +45,6 @@ public class LinearOptimisationEngineTest {
     private Network network;
     private Crac crac;
     private Situation initialSituation;
-    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
     @Before
     public void setUp() {
@@ -74,14 +73,14 @@ public class LinearOptimisationEngineTest {
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
-        systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>());
+        initialSituation.setSystematicSensitivityAnalysisResult(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>()));
     }
 
     @Test
     public void testOptimalAndUpdate() {
-        linearOptimisationEngine.run(initialSituation, systematicSensitivityAnalysisResult);
+        linearOptimisationEngine.run(initialSituation);
         assertNotNull(initialSituation);
-        linearOptimisationEngine.run(initialSituation, systematicSensitivityAnalysisResult);
+        linearOptimisationEngine.run(initialSituation);
         assertNotNull(initialSituation);
     }
 
@@ -89,7 +88,7 @@ public class LinearOptimisationEngineTest {
     public void testNonOptimal() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
         try {
-            linearOptimisationEngine.run(initialSituation, systematicSensitivityAnalysisResult);
+            linearOptimisationEngine.run(initialSituation);
         } catch (LinearOptimisationException e) {
             assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
@@ -99,7 +98,7 @@ public class LinearOptimisationEngineTest {
     public void testFillerError() {
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
         try {
-            linearOptimisationEngine.run(initialSituation, systematicSensitivityAnalysisResult);
+            linearOptimisationEngine.run(initialSituation);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
@@ -108,10 +107,10 @@ public class LinearOptimisationEngineTest {
 
     @Test
     public void testUpdateError() {
-        linearOptimisationEngine.run(initialSituation, systematicSensitivityAnalysisResult);
+        linearOptimisationEngine.run(initialSituation);
         Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
-            linearOptimisationEngine.run(initialSituation, systematicSensitivityAnalysisResult);
+            linearOptimisationEngine.run(initialSituation);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());

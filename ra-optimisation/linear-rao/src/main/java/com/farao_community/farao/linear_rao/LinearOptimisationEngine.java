@@ -17,7 +17,6 @@ import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFil
 import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +78,10 @@ class LinearOptimisationEngine {
         this.postProcessorList = createPostProcessorList();
     }
 
+    void run(Situation situation) {
+        run(situation, situation.getWorkingVariantId());
+    }
+
     /**
      * The run method of the LinearOptimisationEngine creates and solves the core
      * optimisation problem of the LinearRao. It returns an OptimizedSituation which
@@ -95,10 +98,10 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    void run(Situation situation, SystematicSensitivityAnalysisResult sensitivities) {
+    void run(Situation situation, String variantForSensitivitiesResult) {
         // update data
         // todo : refactor the LinearRaoData
-        this.linearRaoData = new LinearRaoData(situation.getCrac(), situation.getNetwork(), sensitivities);
+        this.linearRaoData = new LinearRaoData(situation.getCrac(), situation.getNetwork(), situation.getSystematicSensitivityAnalysisResult(variantForSensitivitiesResult));
 
         // prepare optimisation problem
         if (!lpInitialised) {

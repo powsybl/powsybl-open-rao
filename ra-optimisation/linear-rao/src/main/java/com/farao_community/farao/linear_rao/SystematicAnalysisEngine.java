@@ -43,8 +43,6 @@ class SystematicAnalysisEngine {
      */
     private ComputationManager computationManager;
 
-    private SystematicSensitivityAnalysisResult lastSystematicSensitivityAnalysisResult;
-
     /**
      * Constructor
      */
@@ -52,15 +50,10 @@ class SystematicAnalysisEngine {
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;
-        this.lastSystematicSensitivityAnalysisResult = null;
     }
 
     boolean isFallback() {
         return fallbackMode;
-    }
-
-    public SystematicSensitivityAnalysisResult getLastSystematicSensitivityAnalysisResult() {
-        return lastSystematicSensitivityAnalysisResult;
     }
 
     /**
@@ -114,7 +107,7 @@ class SystematicAnalysisEngine {
      * Crac result variant of the situation.
      */
     private void setResults(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        lastSystematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
         situation.setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
         updateCnecExtensions(situation, systematicSensitivityAnalysisResult);
     }
