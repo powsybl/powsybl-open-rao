@@ -55,7 +55,7 @@ public class SystematicSensitivityAnalysisResultTest {
         assertEquals(10, result.getFlow(cnec).get(), 0.1);
         assertEquals(100, result.getIntensity(cnec).get(), 0.1);
         assertFalse(result.anyStateDiverged());
-        assertEquals(0.5, result.getSensitivity(cnec, state, rangeAction).get(), 0.1);
+        assertEquals(0.5, result.getSensitivity(cnec, rangeAction).get(), 0.1);
 
     }
 
@@ -66,7 +66,7 @@ public class SystematicSensitivityAnalysisResultTest {
 
         // Then
         assertTrue(result.anyStateDiverged());
-        assertFalse(result.getSensitivity(cnec, state, rangeAction).isPresent());
+        assertFalse(result.getSensitivity(cnec, rangeAction).isPresent());
     }
 
     private final class MockSensiFactory implements SensitivityComputationFactory {
