@@ -8,13 +8,12 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
-import com.farao_community.farao.linear_rao.optimisation.AbstractProblemFiller;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoData;
+import com.farao_community.farao.linear_rao.Situation;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -34,19 +33,14 @@ import java.util.*;
  */
 public class MaxLoopFlowFiller extends AbstractProblemFiller {
 
-    private Set<Cnec> preventiveCnecs; //currently we only forcus on preventive state cnec
-    private CracLoopFlowExtension cracLoopFlowExtension;
-
-    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        super(linearRaoProblem, linearRaoData);
-        Crac crac = linearRaoData.getCrac();
-        this.preventiveCnecs = crac.getCnecs(crac.getPreventiveState());
-        this.cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);
+    @Override
+    public void fill(Situation situation, SystematicSensitivityAnalysisResult sensitivities, LinearRaoProblem linearRaoProblem) {
+        buildMaxLoopFlowConstraint(situation, linearRaoProblem);
     }
 
     @Override
-    public void fill() {
-        buildMaxLoopFlowConstraint();
+    public void update(Situation situation, SystematicSensitivityAnalysisResult sensitivities, LinearRaoProblem linearRaoProblem) {
+        // do nothing
     }
 
     /**
@@ -55,11 +49,11 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
-    private void buildMaxLoopFlowConstraint() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac(), cracLoopFlowExtension);
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
+    private void buildMaxLoopFlowConstraint(Situation situation, LinearRaoProblem linearRaoProblem) {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(situation.getCrac(), situation.getCrac().getExtension(CracLoopFlowExtension.class));
+        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(situation.getNetwork());
 
-        for (Cnec cnec : preventiveCnecs) {
+        for (Cnec cnec : situation.getCrac().getCnecs(situation.getCrac().getPreventiveState())) {
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             if (loopFlowShifts.containsKey(cnec)) {
@@ -75,10 +69,5 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
             }
             maxLoopflowConstraint.setCoefficient(flowVariable, 1);
         }
-    }
-
-    @Override
-    public void update() {
-        //This should do nothing.
     }
 }

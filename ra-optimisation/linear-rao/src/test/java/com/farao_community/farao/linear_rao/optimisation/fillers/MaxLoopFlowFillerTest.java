@@ -20,28 +20,25 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 @RunWith(PowerMockRunner.class)
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
+
     private MaxLoopFlowFiller maxLoopFlowFiller;
     private GlskProvider glskProvider;
     private CracLoopFlowExtension cracLoopFlowExtension;
@@ -49,9 +46,9 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private ComputationManager computationManager;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller();
         glskProvider = glskProvider();
         cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
@@ -65,23 +62,20 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData);
+        maxLoopFlowFiller = new MaxLoopFlowFiller();
         computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = sensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
 
     @Test
-    public void testFill() throws IOException {
+    public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
-        coreProblemFiller.fill();
+        coreProblemFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
 
         // fill max loop flow
-        maxLoopFlowFiller.fill();
+        maxLoopFlowFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);

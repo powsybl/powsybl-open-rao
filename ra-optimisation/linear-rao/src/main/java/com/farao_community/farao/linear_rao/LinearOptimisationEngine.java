@@ -8,9 +8,9 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
+import com.farao_community.farao.linear_rao.optimisation.fillers.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFiller;
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A computation engine dedicated to the construction and solving of the linear
@@ -62,11 +61,6 @@ class LinearOptimisationEngine {
     private List<AbstractPostProcessor> postProcessorList;
 
     /**
-     * Some data required by the fillers and postProcessors.
-     */
-    private LinearRaoData linearRaoData;
-
-    /**
      * Constructor
      */
     LinearOptimisationEngine(RaoParameters raoParameters) {
@@ -99,17 +93,13 @@ class LinearOptimisationEngine {
      * @throws LinearOptimisationException is the method fails
      */
     void run(Situation situation, String variantForSensitivitiesResult) {
-        // update data
-        // todo : refactor the LinearRaoData
-        this.linearRaoData = new LinearRaoData(situation.getCrac(), situation.getNetwork(), situation.getSystematicSensitivityAnalysisResult(variantForSensitivitiesResult));
-
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearRaoProblem = createLinearRaoProblem();
-            buildProblem();
+            buildProblem(situation, sensitivities);
             lpInitialised = true;
         } else {
-            updateProblem();
+            updateProblem(situation, sensitivities);
         }
 
         // solve optimisation problem
@@ -123,11 +113,11 @@ class LinearOptimisationEngine {
         applyRAs(situation);
     }
 
-    private void buildProblem() {
+    private void buildProblem(Situation situation, SystematicSensitivityAnalysisResult sensitivities) {
         try {
-            fillerList.forEach(filler -> filler.setLinearRaoData(linearRaoData));
-            fillerList.forEach(filler -> filler.setLinearRaoProblem(linearRaoProblem));
-            fillerList.forEach(AbstractProblemFiller::fill);
+            for (AbstractProblemFiller abstractProblemFiller : fillerList) {
+                abstractProblemFiller.fill(situation, sensitivities, createLinearRaoProblem());
+            }
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -135,10 +125,9 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void updateProblem() {
+    private void updateProblem(Situation situation, SystematicSensitivityAnalysisResult sensitivities) {
         try {
-            fillerList.forEach(filler -> filler.setLinearRaoData(linearRaoData));
-            fillerList.forEach(AbstractProblemFiller::update);
+            fillerList.forEach(abstractProblemFiller -> abstractProblemFiller.update(situation, sensitivities, linearRaoProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -164,10 +153,10 @@ class LinearOptimisationEngine {
 
     List<AbstractProblemFiller> createFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
-        fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
-        fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
-        if (raoParameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
+        fillerList.add(new CoreProblemFiller());
+        fillerList.add(new MaxMinMarginFiller());
+        if (raoParameters.isRaoWithLoopFlowLimitation()) { // && !Objects.isNull(situation.getCrac().getExtension(CracLoopFlowExtension.class)))
+            fillerList.add(new MaxLoopFlowFiller());
         }
         return fillerList;
     }

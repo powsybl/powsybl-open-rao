@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -31,23 +30,17 @@ import static org.mockito.Mockito.*;
 public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller();
     }
 
     private void fillProblemWithCoreFiller() throws IOException {
         // arrange some additional data
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
-
-        // complete the mock of linearRaoData
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
+        situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         // fill the problem
-        coreProblemFiller.fill();
+        coreProblemFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
     }
 
     @Test
@@ -56,10 +49,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         fillProblemWithCoreFiller();
 
         // some additional data
-        final double minAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
-        final double maxAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double minAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
+        final double maxAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double currentAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
@@ -124,16 +116,15 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void updateProblemWithCoreFiller() throws IOException {
         // arrange some additional data
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
+        situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
 
-        // complete the mock of linearRaoData
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT2);
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
+        systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec1, REF_FLOW_CNEC1_IT2);
+        systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT2);
+        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
+        situation.getCrac().getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
 
         // fill the problem
-        coreProblemFiller.update();
+        coreProblemFiller.update(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
     }
 
     @Test
@@ -146,8 +137,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateProblemWithCoreFiller();
 
         // some additional data
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
 

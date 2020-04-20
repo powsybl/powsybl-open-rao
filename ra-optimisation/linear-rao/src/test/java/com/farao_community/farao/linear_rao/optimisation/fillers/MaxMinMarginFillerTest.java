@@ -23,8 +23,6 @@ import java.io.InputStreamReader;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
@@ -36,10 +34,10 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     private MaxMinMarginFiller maxMinMarginFiller;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller();
+        maxMinMarginFiller = new MaxMinMarginFiller();
     }
 
     private void fillProblemWithFiller() throws IOException {
@@ -47,14 +45,9 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
 
-        // complete the mock of linearRaoData
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
-
         // fill the problem : the core filler is required
-        coreProblemFiller.fill();
-        maxMinMarginFiller.fill();
+        coreProblemFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
+        maxMinMarginFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
     }
 
     @Test
@@ -101,7 +94,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         try {
             // AbsoluteRangeActionVariables present, but no the FlowVariables
             linearRaoProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
-            maxMinMarginFiller.fill();
+            maxMinMarginFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -114,7 +107,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             // FlowVariables present , but not the absoluteRangeActionVariables present,
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec1);
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec2);
-            maxMinMarginFiller.fill();
+            maxMinMarginFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Range action variable"));
