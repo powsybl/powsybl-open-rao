@@ -79,7 +79,7 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
         if (networkIdentifiable instanceof Branch) {
             return new BranchFlow(id, name, branchId);
         } else {
-            throw new FaraoException("Unable to create sensitivity funtion for " + id);
+            throw new FaraoException("Unable to create sensitivity function for " + id);
         }
     }
 
