@@ -57,7 +57,6 @@ public class LinearRao implements RaoProvider {
                                              RaoParameters raoParameters) {
         network.getVariantManager().setWorkingVariant(variantId);
         Situation situation = new Situation(network, crac);
-        String initialVariantId = situation.getWorkingVariantId();
         try {
             // check config
             raoParametersQualityCheck(raoParameters);
@@ -71,7 +70,7 @@ public class LinearRao implements RaoProvider {
             return runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters);
 
         } catch (FaraoException e) {
-            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(situation, initialVariantId, e));
+            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(situation, e));
         }
     }
 
@@ -79,16 +78,15 @@ public class LinearRao implements RaoProvider {
                                             SystematicAnalysisEngine systematicAnalysisEngine,
                                             LinearOptimisationEngine linearOptimisationEngine,
                                             LinearRaoParameters linearRaoParameters) {
-        String initialVariantId = situation.getWorkingVariantId();
         situation.fillRangeActionResultsWithNetworkValues();
         systematicAnalysisEngine.run(situation);
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, situation.getCrac())) {
-            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(situation, initialVariantId, initialVariantId, systematicAnalysisEngine));
+            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(situation, situation.getInitialVariantId(), systematicAnalysisEngine));
         }
 
-        String bestVariantId = initialVariantId;
+        String bestVariantId = situation.getInitialVariantId();
         String optimizedVariantId;
 
         for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
@@ -117,7 +115,7 @@ public class LinearRao implements RaoProvider {
             }
         }
 
-        return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(situation, initialVariantId, bestVariantId, systematicAnalysisEngine));
+        return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(situation, bestVariantId, systematicAnalysisEngine));
     }
 
     /**
@@ -141,11 +139,11 @@ public class LinearRao implements RaoProvider {
     /**
      * Build the RaoResult in case of optimisation success
      */
-    private RaoResult buildSuccessfulRaoResultAndClearVariants(Situation situation, String initialVariantId, String postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
+    private RaoResult buildSuccessfulRaoResultAndClearVariants(Situation situation, String postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(initialVariantId);
+        raoResult.setPreOptimVariantId(situation.getInitialVariantId());
         raoResult.setPostOptimVariantId(postOptimVariantId);
 
         // build extension
@@ -159,14 +157,14 @@ public class LinearRao implements RaoProvider {
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
 
-        situation.clear(Arrays.asList(initialVariantId, postOptimVariantId));
+        situation.clear(Arrays.asList(situation.getInitialVariantId(), postOptimVariantId));
         return raoResult;
     }
 
     /**
      * Build the RaoResult in case of optimisation failure
      */
-    private RaoResult buildFailedRaoResultAndClearVariants(Situation situation, String initialVariantId, Exception e) {
+    private RaoResult buildFailedRaoResultAndClearVariants(Situation situation, Exception e) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
@@ -181,7 +179,7 @@ public class LinearRao implements RaoProvider {
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
-        situation.clear(Arrays.asList(initialVariantId, situation.getWorkingVariantId()));
+        situation.clear(Arrays.asList(situation.getInitialVariantId(), situation.getWorkingVariantId()));
 
         return raoResult;
     }

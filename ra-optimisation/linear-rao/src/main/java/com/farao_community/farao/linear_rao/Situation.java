@@ -74,6 +74,13 @@ public class Situation {
         return workingVariantId;
     }
 
+    public String getInitialVariantId() {
+        if (workingVariantId == null) {
+            throw new FaraoException(NO_WORKING_VARIANT);
+        }
+        return variantIds.get(0);
+    }
+
     public void setWorkingVariant(String variantId) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));

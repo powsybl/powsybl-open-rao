@@ -7,14 +7,17 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
 import com.farao_community.farao.linear_rao.optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
-import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,22 +55,13 @@ class LinearOptimisationEngine {
     private List<ProblemFiller> fillerList;
 
     /**
-     * List of problem fillers used by the engine. Each filler is responsible for
-     * the creation/update of one part of the optimisation problem (i.e. of some
-     * variables and constraints of the optimisation problem).
-     */
-    private List<AbstractPostProcessor> postProcessorList;
-
-    /**
      * Constructor
      */
     LinearOptimisationEngine(RaoParameters raoParameters) {
-
         this.lpInitialised = false;
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
-        this.postProcessorList = createPostProcessorList();
     }
 
     /**
@@ -96,13 +90,8 @@ class LinearOptimisationEngine {
             updateProblem(situation);
         }
 
-        // solve optimisation problem
-        solveProblem();
-
-        // todo : do not create a RaoResult anymore and refactor the post processors
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, situation, raoResult));
-
+        solveLinearProblem();
+        fillCracResults(linearRaoProblem, situation);
         situation.applyRangeActionResultsOnNetwork();
     }
 
@@ -128,7 +117,7 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void solveProblem() {
+    private void solveLinearProblem() {
         try {
             Enum solverResultStatus = linearRaoProblem.solve();
             String solverResultStatusString = solverResultStatus.name();
@@ -154,13 +143,27 @@ class LinearOptimisationEngine {
         return fillerList;
     }
 
-    List<AbstractPostProcessor> createPostProcessorList() {
-        postProcessorList = new ArrayList<>();
-        postProcessorList.add(new RaoResultPostProcessor());
-        return postProcessorList;
-    }
-
     LinearRaoProblem createLinearRaoProblem() {
         return new LinearRaoProblem();
+    }
+
+    public void fillCracResults(LinearRaoProblem linearRaoProblem, Situation situation) {
+        String preventiveState = situation.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction: situation.getCrac().getRangeActions()) {
+            if (rangeAction instanceof PstRange) {
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
+                PstRange pstRange = (PstRange) rangeAction;
+                TwoWindingsTransformer transformer = situation.getNetwork().getTwoWindingsTransformer(networkElementId);
+
+                int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
+                double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+
+                RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(situation.getWorkingVariantId());
+                pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
+                pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
+            }
+        }
     }
 }
