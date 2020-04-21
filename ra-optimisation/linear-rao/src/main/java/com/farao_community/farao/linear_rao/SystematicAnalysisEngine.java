@@ -108,7 +108,7 @@ class SystematicAnalysisEngine {
      */
     private void setResults(Situation situation, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        situation.setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
+        situation.getCracResult().setCost(-getMinMargin(situation, systematicSensitivityAnalysisResult));
         updateCnecExtensions(situation, systematicSensitivityAnalysisResult);
     }
 

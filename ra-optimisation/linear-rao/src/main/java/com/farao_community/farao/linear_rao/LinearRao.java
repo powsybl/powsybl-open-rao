@@ -80,6 +80,7 @@ public class LinearRao implements RaoProvider {
                                             LinearOptimisationEngine linearOptimisationEngine,
                                             LinearRaoParameters linearRaoParameters) {
         String initialVariantId = situation.getWorkingVariantId();
+        situation.fillRangeActionResultsWithNetworkValues();
         systematicAnalysisEngine.run(situation);
 
         // stop here if no optimisation should be done
@@ -107,11 +108,11 @@ public class LinearRao implements RaoProvider {
             // evaluate sensitivity coefficients and cost on the newly optimised situation
             systematicAnalysisEngine.run(situation);
 
-            if (situation.getCost(optimizedVariantId) < situation.getCost(bestVariantId)) { // if the solution has been improved, continue the search
+            if (situation.getCracResult(optimizedVariantId).getCost() < situation.getCracResult(bestVariantId).getCost()) { // if the solution has been improved, continue the search
                 bestVariantId = optimizedVariantId;
             } else { // unexpected behaviour, stop the search
                 LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW",
-                    -situation.getCost(bestVariantId), -situation.getCost(optimizedVariantId));
+                    -situation.getCracResult(bestVariantId).getCost(), -situation.getCracResult(optimizedVariantId).getCost());
                 break;
             }
         }
@@ -154,7 +155,7 @@ public class LinearRao implements RaoProvider {
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         // log
-        double minMargin = -situation.setWorkingVariant(postOptimVariantId).getCost();
+        double minMargin = -situation.getCracResult(postOptimVariantId).getCost();
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
 

@@ -193,7 +193,7 @@ public class LinearRaoTest {
             public Object answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
                 Situation situation = (Situation) args[0];
-                situation.setCost(count == 1 ? 100.0 : 50.0);
+                situation.getCracResult().setCost(count == 1 ? 100.0 : 50.0);
                 crac.getExtension(CracResultExtension.class).getVariant(situation.getWorkingVariantId()).setCost(count == 1 ? 100.0 : 50.0);
                 count += 1;
                 return null;

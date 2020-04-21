@@ -64,6 +64,7 @@ public class SituationTest {
     @Test
     public void rangeActionsInitializationTest() {
         RangeActionResult rangeActionResult = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class).getVariant(initialVariantId);
+        situation.fillRangeActionResultsWithNetworkValues();
         assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
         assertEquals(0, ((PstRangeResult) rangeActionResult).getTap("none-initial"));
     }

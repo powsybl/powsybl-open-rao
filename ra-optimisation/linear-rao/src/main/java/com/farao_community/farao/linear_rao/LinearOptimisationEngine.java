@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
 import com.farao_community.farao.linear_rao.optimisation.fillers.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
@@ -105,8 +103,7 @@ class LinearOptimisationEngine {
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, situation, raoResult));
 
-        // apply RA on network
-        applyRAs(situation);
+        situation.applyRangeActionResultsOnNetwork();
     }
 
     private void buildProblem(Situation situation) {
@@ -165,16 +162,5 @@ class LinearOptimisationEngine {
 
     LinearRaoProblem createLinearRaoProblem() {
         return new LinearRaoProblem();
-    }
-
-    /**
-     * Apply the optimised RangeAction on a Network
-     */
-    private void applyRAs(Situation situation) {
-        String preventiveState = situation.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : situation.getCrac().getRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(situation.getNetwork(), rangeActionResultMap.getVariant(situation.getWorkingVariantId()).getSetPoint(preventiveState));
-        }
     }
 }
