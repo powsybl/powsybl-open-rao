@@ -9,14 +9,13 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.linear_rao.Situation;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public abstract class AbstractProblemFiller {
 
-    public abstract void fill(Situation situation, SystematicSensitivityAnalysisResult sensitivities, LinearRaoProblem linearRaoProblem);
+    public abstract void fill(Situation situation, LinearRaoProblem linearRaoProblem);
 
-    public abstract void update(Situation situation, SystematicSensitivityAnalysisResult sensitivities, LinearRaoProblem linearRaoProblem);
+    public abstract void update(Situation situation, LinearRaoProblem linearRaoProblem);
 }

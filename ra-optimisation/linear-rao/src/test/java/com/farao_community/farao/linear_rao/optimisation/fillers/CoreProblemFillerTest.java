@@ -40,7 +40,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         // fill the problem
-        coreProblemFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
+        coreProblemFiller.fill(situation, linearRaoProblem);
     }
 
     @Test
@@ -122,9 +122,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT2);
         SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
         situation.getCrac().getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
+        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
 
         // fill the problem
-        coreProblemFiller.update(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
+        coreProblemFiller.update(situation, linearRaoProblem);
     }
 
     @Test

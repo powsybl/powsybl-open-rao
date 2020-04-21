@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.linear_rao.Situation;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -29,7 +28,7 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
     private static final double PST_PENALTY_COST = 1; // in MW/degree
 
     @Override
-    public void fill(Situation situation, SystematicSensitivityAnalysisResult sensitivities, LinearRaoProblem linearRaoProblem) {
+    public void fill(Situation situation, LinearRaoProblem linearRaoProblem) {
         // build variables
         buildMinimumMarginVariable(linearRaoProblem);
 
@@ -42,7 +41,7 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
     }
 
     @Override
-    public void update(Situation situation, SystematicSensitivityAnalysisResult sensitivities, LinearRaoProblem linearRaoProblem) {
+    public void update(Situation situation, LinearRaoProblem linearRaoProblem) {
         // Objective does not change, nothing to do
     }
 

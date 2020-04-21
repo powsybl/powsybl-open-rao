@@ -118,7 +118,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoWithLinearOptimisationError() {
-        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any(), any());
+        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any());
         try {
             linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
             fail();
@@ -161,7 +161,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoSecurityAnalysisWithoutRao() {
-        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any(), any());
+        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any());
         raoParameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
 
         RaoResult results = linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
@@ -172,7 +172,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoSecurityAnalysisWithZeroIteration() {
-        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any(), any());
+        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any());
         raoParameters.getExtension(LinearRaoParameters.class).setMaxIterations(0);
 
         RaoResult results = linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
@@ -210,7 +210,7 @@ public class LinearRaoTest {
 
                 return situation;
             }
-        }).when(linearOptimisationEngine).run(any(), any());
+        }).when(linearOptimisationEngine).run(any());
 
         // run Rao
         RaoResult results = linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();

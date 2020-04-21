@@ -97,5 +97,6 @@ abstract class AbstractFillerTest {
         crac.getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec1, REF_FLOW_CNEC1_IT1);
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT1);
+        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
     }
 }

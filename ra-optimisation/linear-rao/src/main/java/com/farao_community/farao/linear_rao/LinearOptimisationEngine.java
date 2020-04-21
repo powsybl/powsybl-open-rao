@@ -72,10 +72,6 @@ class LinearOptimisationEngine {
         this.postProcessorList = createPostProcessorList();
     }
 
-    void run(Situation situation) {
-        run(situation, situation.getWorkingVariantId());
-    }
-
     /**
      * The run method of the LinearOptimisationEngine creates and solves the core
      * optimisation problem of the LinearRao. It returns an OptimizedSituation which
@@ -92,14 +88,14 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    void run(Situation situation, String variantForSensitivitiesResult) {
+    void run(Situation situation) {
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearRaoProblem = createLinearRaoProblem();
-            buildProblem(situation, sensitivities);
+            buildProblem(situation);
             lpInitialised = true;
         } else {
-            updateProblem(situation, sensitivities);
+            updateProblem(situation);
         }
 
         // solve optimisation problem
@@ -113,10 +109,10 @@ class LinearOptimisationEngine {
         applyRAs(situation);
     }
 
-    private void buildProblem(Situation situation, SystematicSensitivityAnalysisResult sensitivities) {
+    private void buildProblem(Situation situation) {
         try {
             for (AbstractProblemFiller abstractProblemFiller : fillerList) {
-                abstractProblemFiller.fill(situation, sensitivities, createLinearRaoProblem());
+                abstractProblemFiller.fill(situation, linearRaoProblem);
             }
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
@@ -125,9 +121,9 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void updateProblem(Situation situation, SystematicSensitivityAnalysisResult sensitivities) {
+    private void updateProblem(Situation situation) {
         try {
-            fillerList.forEach(abstractProblemFiller -> abstractProblemFiller.update(situation, sensitivities, linearRaoProblem));
+            fillerList.forEach(abstractProblemFiller -> abstractProblemFiller.update(situation, linearRaoProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);

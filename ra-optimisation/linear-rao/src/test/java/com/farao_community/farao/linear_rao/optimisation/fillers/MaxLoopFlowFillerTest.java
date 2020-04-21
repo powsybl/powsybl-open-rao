@@ -72,10 +72,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-        coreProblemFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
+        coreProblemFiller.fill(situation, linearRaoProblem);
 
         // fill max loop flow
-        maxLoopFlowFiller.fill(situation, systematicSensitivityAnalysisResult, linearRaoProblem);
+        maxLoopFlowFiller.fill(situation, linearRaoProblem);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
