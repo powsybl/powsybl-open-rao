@@ -8,7 +8,7 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.linear_rao.optimisation.*;
-import com.farao_community.farao.linear_rao.optimisation.fillers.AbstractProblemFiller;
+import com.farao_community.farao.linear_rao.optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFiller;
@@ -49,7 +49,7 @@ class LinearOptimisationEngine {
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem.
      */
-    private List<AbstractProblemFiller> fillerList;
+    private List<ProblemFiller> fillerList;
 
     /**
      * List of problem fillers used by the engine. Each filler is responsible for
@@ -108,8 +108,8 @@ class LinearOptimisationEngine {
 
     private void buildProblem(Situation situation) {
         try {
-            for (AbstractProblemFiller abstractProblemFiller : fillerList) {
-                abstractProblemFiller.fill(situation, linearRaoProblem);
+            for (ProblemFiller problemFiller : fillerList) {
+                problemFiller.fill(situation, linearRaoProblem);
             }
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
@@ -120,7 +120,7 @@ class LinearOptimisationEngine {
 
     private void updateProblem(Situation situation) {
         try {
-            fillerList.forEach(abstractProblemFiller -> abstractProblemFiller.update(situation, linearRaoProblem));
+            fillerList.forEach(problemFiller -> problemFiller.update(situation, linearRaoProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -144,7 +144,7 @@ class LinearOptimisationEngine {
         }
     }
 
-    List<AbstractProblemFiller> createFillerList(RaoParameters raoParameters) {
+    List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller());
         fillerList.add(new MaxMinMarginFiller());

@@ -30,7 +30,7 @@ import java.util.*;
  *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class MaxLoopFlowFiller extends AbstractProblemFiller {
+public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
     public void fill(Situation situation, LinearRaoProblem linearRaoProblem) {

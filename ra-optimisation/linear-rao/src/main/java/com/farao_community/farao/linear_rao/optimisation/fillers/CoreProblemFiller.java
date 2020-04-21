@@ -18,7 +18,7 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CoreProblemFiller extends AbstractProblemFiller {
+public class CoreProblemFiller implements ProblemFiller {
 
     @Override
     public void fill(Situation situation, LinearRaoProblem linearRaoProblem) {

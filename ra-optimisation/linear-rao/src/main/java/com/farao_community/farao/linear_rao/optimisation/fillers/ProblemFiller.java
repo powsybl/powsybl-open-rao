@@ -13,9 +13,9 @@ import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public abstract class AbstractProblemFiller {
+public interface ProblemFiller {
 
-    public abstract void fill(Situation situation, LinearRaoProblem linearRaoProblem);
+    void fill(Situation situation, LinearRaoProblem linearRaoProblem);
 
-    public abstract void update(Situation situation, LinearRaoProblem linearRaoProblem);
+    void update(Situation situation, LinearRaoProblem linearRaoProblem);
 }
