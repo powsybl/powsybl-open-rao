@@ -20,21 +20,15 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -72,12 +66,12 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testFill() throws IOException {
+    public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
 
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
+        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(2.);
+        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(5.);
         coreProblemFiller.fill();
 
         // fill max loop flow
@@ -119,22 +113,13 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         public SensitivityComputationFactoryMock() {
         }
 
-        public static <K, V> Map.Entry<K, V> entry(K key, V value) {
-            return new AbstractMap.SimpleEntry<>(key, value);
-        }
-
-        public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-            return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
-        }
-
         @Override
         public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
             return new SensitivityComputation() {
 
                 @Override
                 public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                    List<SensitivityValue> sensitivityValues = new ArrayList<>();
-                    return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues));
+                    return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList()));
                 }
 
                 @Override
