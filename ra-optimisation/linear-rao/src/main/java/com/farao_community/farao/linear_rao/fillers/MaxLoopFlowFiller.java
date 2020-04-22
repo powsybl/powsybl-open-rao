@@ -15,6 +15,7 @@ import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -37,8 +38,8 @@ public class MaxLoopFlowFiller extends AbstractProblemFiller {
     private Set<Cnec> preventiveCnecs; //currently we only forcus on preventive state cnec
     private CracLoopFlowExtension cracLoopFlowExtension;
 
-    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        super(linearRaoProblem, linearRaoData);
+    public MaxLoopFlowFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
+        super(linearRaoProblem, linearRaoData, linearRaoParameters);
         Crac crac = linearRaoData.getCrac();
         this.preventiveCnecs = crac.getCnecs(crac.getPreventiveState());
         this.cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class);

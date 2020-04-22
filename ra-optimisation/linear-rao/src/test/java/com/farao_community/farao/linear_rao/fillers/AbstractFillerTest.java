@@ -10,8 +10,10 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.linear_rao.LinearRao;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
@@ -61,6 +63,7 @@ abstract class AbstractFillerTest {
     CoreProblemFiller coreProblemFiller;
     LinearRaoProblem linearRaoProblem;
     LinearRaoData linearRaoData;
+    LinearRaoParameters linearRaoParameters;
     Crac crac;
     Network network;
 
@@ -87,5 +90,8 @@ abstract class AbstractFillerTest {
         linearRaoData = mock(LinearRaoData.class);
         when(linearRaoData.getCrac()).thenReturn(crac);
         when(linearRaoData.getNetwork()).thenReturn(network);
+
+        // parameters
+        linearRaoParameters = new LinearRaoParameters();
     }
 }

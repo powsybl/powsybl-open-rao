@@ -33,7 +33,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
     }
 
     private void fillProblemWithCoreFiller() throws IOException {

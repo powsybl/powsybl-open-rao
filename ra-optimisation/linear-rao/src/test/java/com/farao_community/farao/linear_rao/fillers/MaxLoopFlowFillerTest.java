@@ -51,7 +51,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
         glskProvider = glskProvider();
         cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
@@ -65,7 +65,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData);
+        maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
         computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = sensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
