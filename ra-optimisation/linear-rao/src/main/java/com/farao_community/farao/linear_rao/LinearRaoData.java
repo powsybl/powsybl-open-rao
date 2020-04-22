@@ -18,8 +18,9 @@ import java.util.*;
 
 /**
  * A LinearRaoData is an object that gathers Network, Crac and SystematicSensitivityAnalysisResult data. It manages
- * variants of these objects to ensure data consistency at any moment. It is a single point of entry to manipulate
- * all data related to linear rao with variant management.
+ * variants of these objects to ensure data consistency at any moment. Network will remain the same at any moment
+ * with no variant management to be able to use this object in a multi-thread environment. It is a single point of
+ * entry to manipulate all data related to linear rao with variant management.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -37,10 +38,9 @@ public class LinearRaoData {
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
 
     /**
-     * This constructor creates a new data variant and set it as the working variant. So accessing data
-     * after this constructor will lead directly to the newly created variant data. CRAC and sensitivity data will
-     * be empty and network data will be copied from the initial network variant. It will create a CRAC
-     * ResultVariantManager if it does not exist yet.
+     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
+     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
+     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
      *
      * @param network: Network object.
      * @param crac: CRAC object.
@@ -203,9 +203,9 @@ public class LinearRaoData {
     }
 
     /**
-     * This methods creates a variant from an already existing data variant. It is advised to use this method
-     * to create a new variant. Network variant will be copied from the reference variant, CRAC result variant will be
-     * created but empty and sensitivity computation results will be copied from the reference variant.
+     * This methods creates a variant from an already existing data variant. CRAC result variant will be
+     * created but empty and sensitivity computation results will be copied from the reference variant. The
+     * variant ID will contain a post optimisation prefix.
      *
      * @return The data variant ID of the newly created variant.
      * @throws FaraoException if referenceVariantId is not an existing variant of the data.
@@ -216,7 +216,7 @@ public class LinearRaoData {
 
     /**
      * This method deletes a variant according to its ID. If the working variant is the variant to be deleted nothing
-     * would be done.
+     * would be done. CRAC result can be kept.
      *
      * @param variantId: Variant ID that is required to delete.
      * @param keepCracResult: If true it will delete the variant as data variant and the related network variant
@@ -237,8 +237,8 @@ public class LinearRaoData {
     }
 
     /**
-     * This method clear all the data variants with their related variants in the different data objects. It
-     * enables to keep some CRAC result variants as it is results.
+     * This method clears all the data variants with their related variants in the different data objects. It
+     * enables to keep some CRAC result variants as it is results of computation.
      *
      * @param remainingCracResults IDs of the variants we want to keep the results in CRAC
      */
