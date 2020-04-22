@@ -1955,7 +1955,7 @@ Note this definition might change when UCTE brings forward its coding requiremen
             <CodeDescription>
               <Title>Constraint situation</Title>
               <Definition>The timeseries describes the constraint situation for a given TimeInterval.
-A constraint situation can be:
+A constraint situation can be: 
 - composed of a list of network elements in outage associated for each outage to a list of network elements on which remedial actions have been carried out accordingly to contingency process 
 - or it can be an external constraint.</Definition>
             </CodeDescription>
