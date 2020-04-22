@@ -40,8 +40,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         // fill the problem : the core filler is required
-        coreProblemFiller.fill(linearRaoData, linearRaoProblem);
-        maxMinMarginFiller.fill(linearRaoData, linearRaoProblem);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         try {
             // AbsoluteRangeActionVariables present, but no the FlowVariables
             linearRaoProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
-            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem);
+            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -101,7 +101,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             // FlowVariables present , but not the absoluteRangeActionVariables present,
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec1);
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec2);
-            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem);
+            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Range action variable"));

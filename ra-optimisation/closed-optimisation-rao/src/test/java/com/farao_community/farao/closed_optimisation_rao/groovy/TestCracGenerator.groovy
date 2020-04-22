@@ -39,7 +39,8 @@ cracFileBuilder = CracFile.builder()
 
 // define interest branches
 def keepBranch(Branch branch) {
-    return branch.getTerminal1().getVoltageLevel().getSubstation().getCountry() == Country.FR &&
+    return branch.getTerminal1().getVoltageLevel().getSubstation().getCountry().isPresent() &&
+            branch.getTerminal1().getVoltageLevel().getSubstation().getCountry().get() == Country.FR &&
             branch.getTerminal1().getVoltageLevel().getNominalV() > 350 &&
             branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected() &&
             branch.getTerminal1().getBusView().getBus() != null && branch.getTerminal2().getBusView().getBus() != null &&
@@ -51,10 +52,11 @@ keptBranches = network.branchStream.filter{br -> keepBranch(br)}.collect()
 
 // define available generators
 static def keepGenerator(Generator generator) {
-    return generator.getTerminal().getVoltageLevel().getSubstation().getCountry() == Country.FR &&
-        generator.getTerminal().isConnected() &&
-        generator.getTerminal().getBusView().getBus() != null &&
-        generator.getTerminal().getBusView().getBus().isInMainSynchronousComponent()
+    return generator.getTerminal().getVoltageLevel().getSubstation().getCountry().isPresent() &&
+            generator.getTerminal().getVoltageLevel().getSubstation().getCountry().get() == Country.FR &&
+            generator.getTerminal().isConnected() &&
+            generator.getTerminal().getBusView().getBus() != null &&
+            generator.getTerminal().getBusView().getBus().isInMainSynchronousComponent()
 }
 
 keptGenerators = network.generatorStream.filter{gen -> keepGenerator(gen)}.collect()

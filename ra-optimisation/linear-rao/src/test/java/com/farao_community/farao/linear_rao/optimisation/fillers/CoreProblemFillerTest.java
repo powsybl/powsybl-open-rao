@@ -37,8 +37,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // arrange some additional data
         linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
+        // add a filter for PST sensis below 2.5
+        linearRaoParameters.setPstSensitivityThreshold(2.5);
+
         // fill the problem
-        coreProblemFiller.fill(linearRaoData, linearRaoProblem);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Test
@@ -72,10 +75,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // check flow constraint for cnec1
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1);
         assertNotNull(flowConstraint);
-        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * 0, flowConstraint.lb(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
+        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * 0, flowConstraint.ub(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
         assertEquals(1, flowConstraint.getCoefficient(flowVariable), 0.1);
-        assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(0, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
 
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearRaoProblem.getFlowVariable(cnec2);
@@ -122,7 +125,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getSensitivity(cnec2, rangeAction)).thenReturn(Optional.of(SENSI_CNEC2_IT2));
 
         // fill the problem
-        coreProblemFiller.update(linearRaoData, linearRaoProblem);
+        coreProblemFiller.update(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Test

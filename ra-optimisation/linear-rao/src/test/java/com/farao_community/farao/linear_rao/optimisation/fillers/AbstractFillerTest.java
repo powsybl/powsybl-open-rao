@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
@@ -66,6 +67,7 @@ abstract class AbstractFillerTest {
     LinearRaoProblem linearRaoProblem;
     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
     LinearRaoData linearRaoData;
+    LinearRaoParameters linearRaoParameters;
     Crac crac;
     Network network;
 
@@ -95,5 +97,8 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getSensitivity(cnec1, rangeAction)).thenReturn(Optional.of(SENSI_CNEC1_IT1));
         when(systematicSensitivityAnalysisResult.getSensitivity(cnec2, rangeAction)).thenReturn(Optional.of(SENSI_CNEC2_IT1));
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+
+        // parameters
+        linearRaoParameters = new LinearRaoParameters();
     }
 }

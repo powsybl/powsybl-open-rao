@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtens
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -33,12 +34,12 @@ import java.util.*;
 public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
-    public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+    public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         buildMaxLoopFlowConstraint(linearRaoData, linearRaoProblem);
     }
 
     @Override
-    public void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+    public void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         // do nothing
     }
 
