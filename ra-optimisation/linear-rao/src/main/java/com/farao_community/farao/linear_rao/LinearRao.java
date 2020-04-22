@@ -97,7 +97,7 @@ public class LinearRao implements RaoProvider {
             // Look for a new RangeAction combination, optimized with the LinearOptimisationEngine
             // Store found solutions in crac extension working variant
             // Apply remedial actions on the network working variant
-            linearOptimisationEngine.run(linearRaoData);
+            linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
 
             // if the solution has not changed, stop the search
             if (linearRaoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {

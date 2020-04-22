@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
@@ -54,6 +55,7 @@ public class LinearOptimisationEngineTest {
     private MPVariable rangeActionSetPoint;
     private MPVariable rangeActionAbsoluteVariation;
     private MPConstraint absoluteRangeActionVariationConstraint;
+    private LinearRaoParameters linearRaoParameters;
 
     @Before
     public void setUp() {
@@ -89,13 +91,14 @@ public class LinearOptimisationEngineTest {
         rangeActionSetPoint = Mockito.mock(MPVariable.class);
         rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
         absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class);
+        linearRaoParameters = new LinearRaoParameters();
     }
 
     @Test
     public void testOptimalAndUpdate() {
-        linearOptimisationEngine.run(linearRaoData);
+        linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
         assertNotNull(linearRaoData);
-        linearOptimisationEngine.run(linearRaoData);
+        linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
         assertNotNull(linearRaoData);
     }
 
@@ -103,7 +106,7 @@ public class LinearOptimisationEngineTest {
     public void testNonOptimal() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
         try {
-            linearOptimisationEngine.run(linearRaoData);
+            linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
         } catch (LinearOptimisationException e) {
             assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
@@ -113,7 +116,7 @@ public class LinearOptimisationEngineTest {
     public void testFillerError() {
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
         try {
-            linearOptimisationEngine.run(linearRaoData);
+            linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
@@ -122,10 +125,10 @@ public class LinearOptimisationEngineTest {
 
     @Test
     public void testUpdateError() {
-        linearOptimisationEngine.run(linearRaoData);
+        linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
         Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
-            linearOptimisationEngine.run(linearRaoData);
+            linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());
