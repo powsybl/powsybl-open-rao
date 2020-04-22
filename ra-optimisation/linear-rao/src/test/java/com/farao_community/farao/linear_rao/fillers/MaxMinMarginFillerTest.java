@@ -11,19 +11,13 @@ import com.farao_community.farao.linear_rao.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -42,15 +36,15 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         maxMinMarginFiller = new MaxMinMarginFiller(linearRaoProblem, linearRaoData);
     }
 
-    private void fillProblemWithFiller() throws IOException {
+    private void fillProblemWithFiller() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
 
         // complete the mock of linearRaoData
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(linearRaoData.getSensitivityComputationResults(any())).thenReturn(sensiResults);
+        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(2.);
+        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(5.);
 
         // fill the problem : the core filler is required
         coreProblemFiller.fill();
@@ -58,7 +52,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithRangeAction() throws IOException  {
+    public void fillWithRangeAction() {
         fillProblemWithFiller();
 
         MPVariable flowCnec1 = linearRaoProblem.getFlowVariable(cnec1);

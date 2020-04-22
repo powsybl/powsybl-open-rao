@@ -14,7 +14,7 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -62,11 +62,11 @@ public final class Rao {
         }
 
         public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
-            return runAsync(network, crac, LocalComputationManager.getDefault(), parameters);
+            return runAsync(network, crac, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
         }
 
         public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String variantId) {
-            return runAsync(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
+            return runAsync(network, crac, variantId, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
         }
 
         public CompletableFuture<RaoResult> runAsync(Network network, Crac crac) {
@@ -86,15 +86,15 @@ public final class Rao {
         }
 
         public RaoResult run(Network network, Crac crac, RaoParameters parameters) {
-            return run(network, crac, LocalComputationManager.getDefault(), parameters);
+            return run(network, crac, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
         }
 
         public RaoResult run(Network network, Crac crac, String variantId) {
-            return run(network, crac, variantId, LocalComputationManager.getDefault(), RaoParameters.load());
+            return run(network, crac, variantId, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
         }
 
         public RaoResult run(Network network, Crac crac, String variantId, RaoParameters parameters) {
-            return run(network, crac, variantId, LocalComputationManager.getDefault(), parameters);
+            return run(network, crac, variantId, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
         }
 
         public RaoResult run(Network network, Crac crac) {
