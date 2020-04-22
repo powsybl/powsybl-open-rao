@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 import java.util.HashSet;
 import java.util.List;
@@ -123,6 +125,12 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     public double getMaxValueWithRange(Network network, Range range) {
         // to implement - specific to Redispatching
         return 0;
+    }
+
+    @Override
+    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
+        // to implement - specific to Redispatching
+        return TEMP_VALUE_REDISPATCH;
     }
 
     @Override

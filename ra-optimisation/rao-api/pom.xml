@@ -27,16 +27,6 @@
             <artifactId>farao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-computation</artifactId>
-            <version>${powsybl.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
-            <version>${powsybl.core.version}</version>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

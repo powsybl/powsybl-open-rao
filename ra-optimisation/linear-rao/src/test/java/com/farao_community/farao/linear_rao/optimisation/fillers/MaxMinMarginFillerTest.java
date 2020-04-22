@@ -11,10 +11,15 @@ import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
@@ -29,15 +34,16 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     private MaxMinMarginFiller maxMinMarginFiller;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         init();
         coreProblemFiller = new CoreProblemFiller();
         maxMinMarginFiller = new MaxMinMarginFiller();
     }
 
-    private void fillProblemWithFiller() {
+    private void fillProblemWithFiller() throws IOException {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
 
         // fill the problem : the core filler is required
         coreProblemFiller.fill(linearRaoData, linearRaoProblem);
@@ -45,7 +51,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithRangeAction() {
+    public void fillWithRangeAction() throws IOException  {
         fillProblemWithFiller();
 
         MPVariable flowCnec1 = linearRaoProblem.getFlowVariable(cnec1);

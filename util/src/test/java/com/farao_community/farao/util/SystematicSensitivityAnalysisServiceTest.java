@@ -12,6 +12,9 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +26,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -35,6 +41,8 @@ import static org.junit.Assert.*;
  */
 public class SystematicSensitivityAnalysisServiceTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisServiceTest.class);
+
     private Network network;
     private ComputationManager computationManager;
     private SimpleCrac crac;
@@ -42,6 +50,9 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Before
     public void setUp() {
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
 
@@ -60,6 +71,7 @@ public class SystematicSensitivityAnalysisServiceTest {
     public void testSensiSAresult() {
         SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(new HashMap<>(), new HashMap<>(), new HashMap<>());
         assertNotNull(result);
+        assertNotNull(result.getStateSensiMap());
     }
 
     @Test(expected = FaraoException.class)

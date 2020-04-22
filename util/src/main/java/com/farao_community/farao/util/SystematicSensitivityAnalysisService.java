@@ -10,8 +10,12 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
+import com.powsybl.sensitivity.factors.functions.BranchFlow;
+import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +46,8 @@ public final class SystematicSensitivityAnalysisService {
         if (loadFlowResult.isOk()) {
             buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, null);
         }
-        SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, sensitivityComputationParameters);
+        List<TwoWindingsTransformer> twoWindingsTransformers = getPstInRangeActions(network, crac.getRangeActions());
+        SensitivityComputationResults preSensi = runSensitivityComputation(network, crac, twoWindingsTransformers, sensitivityComputationParameters);
         stateSensiMap.put(crac.getPreventiveState(), preSensi);
 
         // 2. analysis for each contingency
@@ -60,7 +65,7 @@ public final class SystematicSensitivityAnalysisService {
                                 buildFlowFromNetwork(network, crac, cnecFlowMap, cnecIntensityMap, contingency);
                             }
 
-                            SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, sensitivityComputationParameters);
+                            SensitivityComputationResults sensiResults = runSensitivityComputation(network, crac, twoWindingsTransformers, sensitivityComputationParameters);
                             crac.getStates(contingency).forEach(state -> {
                                 if (!stateSensiMap.containsKey(state)) {
                                     stateSensiMap.put(state, sensiResults);
@@ -100,11 +105,41 @@ public final class SystematicSensitivityAnalysisService {
         }));
     }
 
+    private static List<TwoWindingsTransformer> getPstInRangeActions(Network network, Set<RangeAction> rangeActions) {
+        List<TwoWindingsTransformer> psts = new ArrayList<>();
+        for (RangeAction rangeAction : rangeActions) {
+            Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
+            for (NetworkElement networkElement : networkElements) {
+                if (isPst(network, networkElement)) {
+                    psts.add(network.getTwoWindingsTransformer(networkElement.getId()));
+                } else {
+                    LOGGER.warn("In SystematicSensitivityAnalysisService getPstInRangeActions: not supported type of range action");
+                }
+            }
+        }
+        return psts;
+    }
+
     private static SensitivityComputationResults runSensitivityComputation(
             Network network,
             Crac crac,
+            List<TwoWindingsTransformer> psts,
             SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac);
+        SensitivityFactorsProvider factorsProvider = net -> {
+            List<SensitivityFactor> factors = new ArrayList<>();
+            crac.getCnecs().forEach(cnec -> {
+                String monitoredBranchId = cnec.getId();
+                String monitoredBranchName = cnec.getName();
+                String branchId = cnec.getNetworkElement().getId();
+                BranchFlow branchFlow = new BranchFlow(monitoredBranchId, monitoredBranchName, branchId);
+                psts.forEach(twt -> {
+                    String twtId = twt.getId();
+                    factors.add(new BranchFlowPerPSTAngle(branchFlow,
+                            new PhaseTapChangerAngle(twtId, twtId, twtId)));
+                });
+            });
+            return factors;
+        };
 
         if (factorsProvider.getFactors(network).isEmpty()) {
             return new SensitivityComputationResults(false, Collections.emptyMap(), "", new ArrayList<>());
@@ -115,6 +150,11 @@ public final class SystematicSensitivityAnalysisService {
             LOGGER.error(e.getMessage());
             return null;
         }
+
+    }
+
+    private static boolean isPst(Network network, NetworkElement networkElement) {
+        return network.getTwoWindingsTransformer(networkElement.getId()) != null;
     }
 
 }

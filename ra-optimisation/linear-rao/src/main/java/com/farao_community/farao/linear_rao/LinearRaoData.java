@@ -4,11 +4,9 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -110,7 +108,7 @@ public class LinearRaoData {
         return getCracResult(workingVariantId);
     }
 
-    private SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+    public SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
         if (workingVariantId == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
@@ -259,13 +257,5 @@ public class LinearRaoData {
      */
     void clear() {
         clearWithKeepingCracResults(Collections.emptyList());
-    }
-
-    public double getReferenceFlow(Cnec cnec) {
-        return getSystematicSensitivityAnalysisResult().getFlow(cnec).orElseThrow(FaraoException::new);
-    }
-
-    public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
-        return getSystematicSensitivityAnalysisResult().getSensitivity(cnec, rangeAction).orElse(Double.NaN);
     }
 }

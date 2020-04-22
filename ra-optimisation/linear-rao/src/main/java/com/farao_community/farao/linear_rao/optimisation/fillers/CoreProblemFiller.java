@@ -93,7 +93,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildFlowConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
             // create constraint
-            double referenceFlow = linearRaoData.getReferenceFlow(cnec);
+            double referenceFlow = linearRaoData.getSystematicSensitivityAnalysisResult().getCnecFlowMap().get(cnec);
             MPConstraint flowConstraint = linearRaoProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
 
             MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
@@ -115,7 +115,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void updateFlowConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
-            double referenceFlow = linearRaoData.getReferenceFlow(cnec);
+            double referenceFlow = linearRaoData.getSystematicSensitivityAnalysisResult().getCnecFlowMap().get(cnec);
             MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
                 throw new FaraoException(String.format("Flow constraint on %s has not been defined yet.", cnec.getId()));
@@ -144,7 +144,7 @@ public class CoreProblemFiller implements ProblemFiller {
                 throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
             }
 
-            double sensitivity = linearRaoData.getSensitivity(cnec, rangeAction);
+            double sensitivity = rangeAction.getSensitivityValue(linearRaoData.getSystematicSensitivityAnalysisResult().getStateSensiMap().get(cnec.getState()), cnec);
             double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityComputationResults;
 
 
 /**
@@ -25,6 +26,8 @@ public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable
     double getMinValue(Network network);
 
     double getMaxValue(Network network);
+
+    double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec);
 
     double getCurrentValue(Network network);
 

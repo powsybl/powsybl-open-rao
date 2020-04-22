@@ -6,14 +6,12 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -46,11 +44,8 @@ public final class Tree {
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
-
         Leaf rootLeaf = new Leaf();
         rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
-        int depth = 0;
 
         if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
@@ -61,7 +56,8 @@ public final class Tree {
         Leaf optimalLeaf = rootLeaf;
         boolean hasImproved = true;
 
-        while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
+        //TODO: generalize to handle different stop criterion
+        while (optimalLeaf.getCost(crac) > 0 && hasImproved) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
@@ -75,9 +71,8 @@ public final class Tree {
 
             hasImproved = false;
             for (Leaf currentLeaf: generatedLeaves) {
-                if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), searchTreeRaoParameters)) {
+                if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
                     hasImproved = true;
-                    depth = depth + 1;
                     optimalLeaf.deletePostOptimResultVariant(crac);
                     optimalLeaf = currentLeaf;
                 } else {
@@ -89,48 +84,6 @@ public final class Tree {
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
-    }
-
-    /**
-     * Stop criterion check: the remedial action has enough impact on the cost
-     */
-    private static boolean improvedEnough(double oldCost, double newCost, SearchTreeRaoParameters searchTreeRaoParameters) {
-        // check if defined
-        double relativeImpact = 0;
-        double absoluteImpact = 0;
-        if (searchTreeRaoParameters != null) {
-            relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
-            absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
-        }
-
-        // stop criterion check
-        return oldCost - absoluteImpact > newCost // enough absolute impact
-            && (1 - Math.signum(oldCost) * relativeImpact) * oldCost > newCost; // enough relative impact
-    }
-
-    /**
-     * Stop criterion check 1: maximum research depth reached
-     * Stop criterion check 2: is positive or maximum margin reached?
-     */
-    private static boolean doNewIteration(SearchTreeRaoParameters searchTreeRaoParameters, boolean hasImproved, double optimalCost, int currentDepth) {
-        // check if defined
-        SearchTreeRaoParameters.StopCriterion stopCriterion = SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
-        int maximumSearchDepth = Integer.MAX_VALUE;
-        if (searchTreeRaoParameters != null) {
-            stopCriterion = searchTreeRaoParameters.getStopCriterion();
-            maximumSearchDepth = Math.max(searchTreeRaoParameters.getMaximumSearchDepth(), 0);
-        }
-
-        // stop criterion check
-        if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
-            return currentDepth < maximumSearchDepth // maximum research depth reached
-                &&  hasImproved && optimalCost > 0; // positive margin
-        } else if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
-            return currentDepth < maximumSearchDepth // maximum research depth reached
-                && hasImproved; // maximum margin
-        } else {
-            throw new FaraoException("Unexpected stop criterion: " + stopCriterion);
-        }
     }
 
     static RaoResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
