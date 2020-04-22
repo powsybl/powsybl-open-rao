@@ -40,8 +40,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // complete the mock of linearRaoData
         when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
         when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(2.);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(5.);
+        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(SENSI_CNEC1_IT1);
+        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(SENSI_CNEC2_IT1);
+
+        // add a filter for PST sensis below 2.5
+        linearRaoParameters.setPstSensitivityThreshold(2.5);
 
         // fill the problem
         coreProblemFiller.fill();
@@ -79,10 +82,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // check flow constraint for cnec1
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec1);
         assertNotNull(flowConstraint);
-        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * 0, flowConstraint.lb(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
+        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * 0, flowConstraint.ub(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
         assertEquals(1, flowConstraint.getCoefficient(flowVariable), 0.1);
-        assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(0, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
 
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearRaoProblem.getFlowVariable(cnec2);

@@ -151,7 +151,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             }
 
             double sensitivity = linearRaoData.getSensitivity(cnec, rangeAction);
-            if (sensitivity >= linearRaoParameters.getPstSensitivityThreshold()) {
+            if (Math.abs(sensitivity) >= linearRaoParameters.getPstSensitivityThreshold()) {
 
                 double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
                 // care : might not be robust as getCurrentValue get the current setPoint from a network variant
