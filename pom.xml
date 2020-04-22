@@ -512,7 +512,7 @@
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
+                <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
 
@@ -524,15 +524,13 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- Runtime dependencies -->
+            <!-- Test dependencies -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
-                <scope>runtime</scope>
+                <scope>test</scope>
             </dependency>
-
-            <!-- Test dependencies -->
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jsonSchema</artifactId>
@@ -616,12 +614,6 @@
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-config-test</artifactId>
                 <version>${powsybl.core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
