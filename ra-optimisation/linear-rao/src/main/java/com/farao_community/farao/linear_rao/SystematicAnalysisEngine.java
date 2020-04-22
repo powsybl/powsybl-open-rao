@@ -91,7 +91,7 @@ class SystematicAnalysisEngine {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
                 .runAnalysis(linearRaoData.getNetwork(), linearRaoData.getCrac(), computationManager, sensitivityComputationParameters);
 
-            if (systematicSensitivityAnalysisResult.getStateSensiMap().containsValue(null) || systematicSensitivityAnalysisResult.getCnecFlowMap().isEmpty()) {
+            if (systematicSensitivityAnalysisResult.anyStateDiverged()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
@@ -119,7 +119,7 @@ class SystematicAnalysisEngine {
 
         double minMargin = Double.POSITIVE_INFINITY;
         for (Cnec cnec : linearRaoData.getCrac().getCnecs()) {
-            double flow = systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN);
+            double flow = systematicSensitivityAnalysisResult.getFlow(cnec).orElse(Double.NaN);
             double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
             if (Double.isNaN(margin)) {
                 throw new SensitivityComputationException(String.format("Cnec %s is not present in the sensitivity analysis results. Bad behaviour.", cnec.getId()));
@@ -132,8 +132,8 @@ class SystematicAnalysisEngine {
     private void updateCnecExtensions(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(linearRaoData.getWorkingVariantId());
-            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getCnecFlowMap().getOrDefault(cnec, Double.NaN));
-            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getCnecIntensityMap().getOrDefault(cnec, Double.NaN));
+            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getFlow(cnec).orElse(Double.NaN));
+            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getIntensity(cnec).orElse(Double.NaN));
             cnecResult.setThresholds(cnec);
         });
     }

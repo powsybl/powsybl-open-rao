@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
@@ -114,10 +116,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // arrange some additional data
         linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
 
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT2);
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(SENSI_CNEC1_IT2);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(SENSI_CNEC1_IT2);
+        when(systematicSensitivityAnalysisResult.getFlow(cnec1)).thenReturn(Optional.of(REF_FLOW_CNEC1_IT2));
+        when(systematicSensitivityAnalysisResult.getFlow(cnec2)).thenReturn(Optional.of(REF_FLOW_CNEC2_IT2));
+        when(systematicSensitivityAnalysisResult.getSensitivity(cnec1, rangeAction)).thenReturn(Optional.of(SENSI_CNEC1_IT2));
+        when(systematicSensitivityAnalysisResult.getSensitivity(cnec2, rangeAction)).thenReturn(Optional.of(SENSI_CNEC2_IT2));
 
         // fill the problem
         coreProblemFiller.update(linearRaoData, linearRaoProblem);
