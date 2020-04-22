@@ -9,7 +9,7 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.linear_rao.Situation;
+import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -28,20 +28,20 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private static final double PST_PENALTY_COST = 1; // in MW/degree
 
     @Override
-    public void fill(Situation situation, LinearRaoProblem linearRaoProblem) {
+    public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         // build variables
         buildMinimumMarginVariable(linearRaoProblem);
 
         // build constraints
-        buildMinimumMarginConstraints(situation, linearRaoProblem);
+        buildMinimumMarginConstraints(linearRaoData, linearRaoProblem);
 
         // complete objective
         fillObjectiveWithMinMargin(linearRaoProblem);
-        fillObjectiveWithRangeActionPenaltyCost(situation, linearRaoProblem);
+        fillObjectiveWithRangeActionPenaltyCost(linearRaoData, linearRaoProblem);
     }
 
     @Override
-    public void update(Situation situation, LinearRaoProblem linearRaoProblem) {
+    public void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         // Objective does not change, nothing to do
     }
 
@@ -65,8 +65,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints(Situation situation, LinearRaoProblem linearRaoProblem) {
-        situation.getCrac().getCnecs().forEach(cnec -> {
+    private void buildMinimumMarginConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+        linearRaoData.getCrac().getCnecs().forEach(cnec -> {
 
             MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
 
@@ -121,8 +121,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      *
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
-    private void fillObjectiveWithRangeActionPenaltyCost(Situation situation, LinearRaoProblem linearRaoProblem) {
-        situation.getCrac().getRangeActions().forEach(rangeAction -> {
+    private void fillObjectiveWithRangeActionPenaltyCost(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+        linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
 
             MPVariable absoluteVariationVariable = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 

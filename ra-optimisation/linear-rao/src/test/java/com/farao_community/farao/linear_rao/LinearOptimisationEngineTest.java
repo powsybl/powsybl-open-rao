@@ -44,7 +44,7 @@ public class LinearOptimisationEngineTest {
     private LinearRaoProblem linearRaoProblemMock;
     private Network network;
     private Crac crac;
-    private Situation initialSituation;
+    private LinearRaoData initialLinearRaoData;
 
     @Before
     public void setUp() {
@@ -67,28 +67,28 @@ public class LinearOptimisationEngineTest {
         crac = CommonCracCreation.create();
         crac.synchronize(network);
 
-        initialSituation = new Situation(network, crac);
-        initialSituation = Mockito.spy(initialSituation);
+        initialLinearRaoData = new LinearRaoData(network, crac);
+        initialLinearRaoData = Mockito.spy(initialLinearRaoData);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
-        initialSituation.setSystematicSensitivityAnalysisResult(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>()));
+        initialLinearRaoData.setSystematicSensitivityAnalysisResult(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>()));
     }
 
     @Test
     public void testOptimalAndUpdate() {
-        linearOptimisationEngine.run(initialSituation);
-        assertNotNull(initialSituation);
-        linearOptimisationEngine.run(initialSituation);
-        assertNotNull(initialSituation);
+        linearOptimisationEngine.run(initialLinearRaoData);
+        assertNotNull(initialLinearRaoData);
+        linearOptimisationEngine.run(initialLinearRaoData);
+        assertNotNull(initialLinearRaoData);
     }
 
     @Test
     public void testNonOptimal() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
         try {
-            linearOptimisationEngine.run(initialSituation);
+            linearOptimisationEngine.run(initialLinearRaoData);
         } catch (LinearOptimisationException e) {
             assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
@@ -98,7 +98,7 @@ public class LinearOptimisationEngineTest {
     public void testFillerError() {
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
         try {
-            linearOptimisationEngine.run(initialSituation);
+            linearOptimisationEngine.run(initialLinearRaoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
@@ -107,10 +107,10 @@ public class LinearOptimisationEngineTest {
 
     @Test
     public void testUpdateError() {
-        linearOptimisationEngine.run(initialSituation);
+        linearOptimisationEngine.run(initialLinearRaoData);
         Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
-            linearOptimisationEngine.run(initialSituation);
+            linearOptimisationEngine.run(initialLinearRaoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());

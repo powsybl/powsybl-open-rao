@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
-import com.farao_community.farao.linear_rao.Situation;
+import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -33,12 +33,12 @@ import java.util.*;
 public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
-    public void fill(Situation situation, LinearRaoProblem linearRaoProblem) {
-        buildMaxLoopFlowConstraint(situation, linearRaoProblem);
+    public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+        buildMaxLoopFlowConstraint(linearRaoData, linearRaoProblem);
     }
 
     @Override
-    public void update(Situation situation, LinearRaoProblem linearRaoProblem) {
+    public void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         // do nothing
     }
 
@@ -48,11 +48,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
-    private void buildMaxLoopFlowConstraint(Situation situation, LinearRaoProblem linearRaoProblem) {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(situation.getCrac(), situation.getCrac().getExtension(CracLoopFlowExtension.class));
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(situation.getNetwork());
+    private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac(), linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class));
+        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
 
-        for (Cnec cnec : situation.getCrac().getCnecs(situation.getCrac().getPreventiveState())) {
+        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             if (loopFlowShifts.containsKey(cnec)) {

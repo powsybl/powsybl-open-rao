@@ -185,8 +185,19 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      * Computes a string with a prefix that is not present in the set, creates a new variant from that string, and returns the string.
      */
     public String createNewUniqueVariantId() {
-        String id = getUniqueVariantId();
-        createVariant(id);
-        return id;
+        return createNewUniqueVariantId("");
+    }
+
+    /**
+     * Computes a string with a prefix that is not present in the set, creates a new variant from that string, and returns the string.
+     */
+    public String createNewUniqueVariantId(String prefix) {
+        String startingId = prefix.concat("-");
+        String uniqueId = "";
+        do {
+            uniqueId = startingId.concat(UUID.randomUUID().toString());
+        } while (variants.contains(uniqueId));
+        createVariant(uniqueId);
+        return uniqueId;
     }
 }

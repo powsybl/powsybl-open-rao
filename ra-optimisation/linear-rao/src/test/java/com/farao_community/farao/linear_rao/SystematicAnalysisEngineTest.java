@@ -49,7 +49,7 @@ public class SystematicAnalysisEngineTest {
     private static final double FLOW_TOLERANCE = 0.1;
 
     private Crac crac;
-    private Situation initialSituation;
+    private LinearRaoData initialLinearRaoData;
 
     @Before
     public void setUp() {
@@ -58,7 +58,7 @@ public class SystematicAnalysisEngineTest {
         crac = CommonCracCreation.create();
         crac.synchronize(network);
 
-        initialSituation = new Situation(network, crac);
+        initialLinearRaoData = new LinearRaoData(network, crac);
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
     }
 
@@ -74,14 +74,14 @@ public class SystematicAnalysisEngineTest {
 
         // run engine
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
-        systematicAnalysisEngine.run(initialSituation);
+        systematicAnalysisEngine.run(initialLinearRaoData);
 
         // assert results
-        assertNotNull(initialSituation);
+        assertNotNull(initialLinearRaoData);
         assertFalse(systematicAnalysisEngine.isFallback());
-        String resultVariant = initialSituation.getWorkingVariantId();
-        assertEquals(10.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        assertEquals(15.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        String resultVariant = initialLinearRaoData.getWorkingVariantId();
+        assertEquals(10.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(15.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
 
     }
 
@@ -100,7 +100,7 @@ public class SystematicAnalysisEngineTest {
 
         // run - expected failure
         try {
-            systematicAnalysisEngine.run(initialSituation);
+            systematicAnalysisEngine.run(initialLinearRaoData);
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with default parameters. No fallback parameters available."));
@@ -126,13 +126,13 @@ public class SystematicAnalysisEngineTest {
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
 
         // run
-        systematicAnalysisEngine.run(initialSituation);
+        systematicAnalysisEngine.run(initialLinearRaoData);
 
         // assert
         assertTrue(systematicAnalysisEngine.isFallback());
-        String resultVariant = initialSituation.getWorkingVariantId();
-        assertEquals(10.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        assertEquals(15.0, initialSituation.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        String resultVariant = initialLinearRaoData.getWorkingVariantId();
+        assertEquals(10.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(15.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
     }
 
     @Test
@@ -155,7 +155,7 @@ public class SystematicAnalysisEngineTest {
 
         // run - expected failure
         try {
-            systematicAnalysisEngine.run(initialSituation);
+            systematicAnalysisEngine.run(initialLinearRaoData);
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with all available sensitivity parameters."));

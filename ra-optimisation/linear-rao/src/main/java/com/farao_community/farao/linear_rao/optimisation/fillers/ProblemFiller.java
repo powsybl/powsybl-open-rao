@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.linear_rao.optimisation.fillers;
 
-import com.farao_community.farao.linear_rao.Situation;
+import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 
 /**
@@ -15,7 +15,7 @@ import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
  */
 public interface ProblemFiller {
 
-    void fill(Situation situation, LinearRaoProblem linearRaoProblem);
+    void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem);
 
-    void update(Situation situation, LinearRaoProblem linearRaoProblem);
+    void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem);
 }

@@ -37,10 +37,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void fillProblemWithCoreFiller() throws IOException {
         // arrange some additional data
-        situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         // fill the problem
-        coreProblemFiller.fill(situation, linearRaoProblem);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem);
     }
 
     @Test
@@ -49,9 +49,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         fillProblemWithCoreFiller();
 
         // some additional data
-        final double minAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
-        final double maxAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
-        final double currentAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double minAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
+        final double maxAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double currentAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
@@ -116,16 +116,16 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void updateProblemWithCoreFiller() throws IOException {
         // arrange some additional data
-        situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
+        linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
 
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec1, REF_FLOW_CNEC1_IT2);
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT2);
         SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
-        situation.getCrac().getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
-        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        linearRaoData.getCrac().getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
+        linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
 
         // fill the problem
-        coreProblemFiller.update(situation, linearRaoProblem);
+        coreProblemFiller.update(linearRaoData, linearRaoProblem);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateProblemWithCoreFiller();
 
         // some additional data
-        final double currentAlpha = situation.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
 

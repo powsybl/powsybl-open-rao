@@ -56,7 +56,7 @@ public class LinearRaoTest {
     private Network network;
     private Crac crac;
     private String variantId;
-    private Situation situation;
+    private LinearRaoData linearRaoData;
 
     @Before
     public void setUp() {
@@ -68,7 +68,7 @@ public class LinearRaoTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         variantId = network.getVariantManager().getWorkingVariantId();
-        situation = new Situation(network, crac);
+        linearRaoData = new LinearRaoData(network, crac);
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
         linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
         linearRaoParameters.setSecurityAnalysisWithoutRao(false);
@@ -98,7 +98,7 @@ public class LinearRaoTest {
     public void runLinearRaoWithSensitivityComputationError() {
         Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(systematicAnalysisEngine).run(any());
         try {
-            linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
+            linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
             fail();
         } catch (SensitivityComputationException e) {
             // should throw
@@ -120,7 +120,7 @@ public class LinearRaoTest {
     public void runLinearRaoWithLinearOptimisationError() {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any());
         try {
-            linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
+            linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
             fail();
         } catch (LinearOptimisationException e) {
             // should throw
@@ -164,7 +164,7 @@ public class LinearRaoTest {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any());
         raoParameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
 
-        RaoResult results = linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
@@ -175,7 +175,7 @@ public class LinearRaoTest {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any());
         raoParameters.getExtension(LinearRaoParameters.class).setMaxIterations(0);
 
-        RaoResult results = linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
@@ -192,9 +192,9 @@ public class LinearRaoTest {
 
             public Object answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
-                Situation situation = (Situation) args[0];
-                situation.getCracResult().setCost(count == 1 ? 100.0 : 50.0);
-                crac.getExtension(CracResultExtension.class).getVariant(situation.getWorkingVariantId()).setCost(count == 1 ? 100.0 : 50.0);
+                LinearRaoData linearRaoData = (LinearRaoData) args[0];
+                linearRaoData.getCracResult().setCost(count == 1 ? 100.0 : 50.0);
+                crac.getExtension(CracResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setCost(count == 1 ? 100.0 : 50.0);
                 count += 1;
                 return null;
             }
@@ -205,15 +205,15 @@ public class LinearRaoTest {
         doAnswer(new Answer() {
             public Object answer(InvocationOnMock invocation) {
                 crac.getStates().forEach(st ->
-                    crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(situation.getWorkingVariantId()).setSetPoint(st.getId(), 1.0)
+                    crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setSetPoint(st.getId(), 1.0)
                 );
 
-                return situation;
+                return linearRaoData;
             }
         }).when(linearOptimisationEngine).run(any());
 
         // run Rao
-        RaoResult results = linearRao.runLinearRao(situation, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
 
         // check results
         assertNotNull(results);

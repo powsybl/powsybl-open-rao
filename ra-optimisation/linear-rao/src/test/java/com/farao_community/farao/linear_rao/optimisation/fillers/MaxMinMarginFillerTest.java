@@ -46,8 +46,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
 
         // fill the problem : the core filler is required
-        coreProblemFiller.fill(situation, linearRaoProblem);
-        maxMinMarginFiller.fill(situation, linearRaoProblem);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem);
+        maxMinMarginFiller.fill(linearRaoData, linearRaoProblem);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         try {
             // AbsoluteRangeActionVariables present, but no the FlowVariables
             linearRaoProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
-            maxMinMarginFiller.fill(situation, linearRaoProblem);
+            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -107,7 +107,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             // FlowVariables present , but not the absoluteRangeActionVariables present,
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec1);
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec2);
-            maxMinMarginFiller.fill(situation, linearRaoProblem);
+            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Range action variable"));

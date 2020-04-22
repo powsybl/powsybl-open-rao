@@ -71,7 +71,7 @@ class LinearOptimisationEngine {
      * RangeAction set-points and a new Crac ResultVariant which contains the results
      * of the optimisation.
      *
-     * @param situation defines the data on which the creation of the optimisation problem
+     * @param linearRaoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
@@ -80,25 +80,25 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    void run(Situation situation) {
+    void run(LinearRaoData linearRaoData) {
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearRaoProblem = createLinearRaoProblem();
-            buildProblem(situation);
+            buildProblem(linearRaoData);
             lpInitialised = true;
         } else {
-            updateProblem(situation);
+            updateProblem(linearRaoData);
         }
 
         solveLinearProblem();
-        fillCracResults(linearRaoProblem, situation);
-        situation.applyRangeActionResultsOnNetwork();
+        fillCracResults(linearRaoProblem, linearRaoData);
+        linearRaoData.applyRangeActionResultsOnNetwork();
     }
 
-    private void buildProblem(Situation situation) {
+    private void buildProblem(LinearRaoData linearRaoData) {
         try {
             for (ProblemFiller problemFiller : fillerList) {
-                problemFiller.fill(situation, linearRaoProblem);
+                problemFiller.fill(linearRaoData, linearRaoProblem);
             }
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
@@ -107,9 +107,9 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void updateProblem(Situation situation) {
+    private void updateProblem(LinearRaoData linearRaoData) {
         try {
-            fillerList.forEach(problemFiller -> problemFiller.update(situation, linearRaoProblem));
+            fillerList.forEach(problemFiller -> problemFiller.update(linearRaoData, linearRaoProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -137,7 +137,7 @@ class LinearOptimisationEngine {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller());
         fillerList.add(new MaxMinMarginFiller());
-        if (raoParameters.isRaoWithLoopFlowLimitation()) { // && !Objects.isNull(situation.getCrac().getExtension(CracLoopFlowExtension.class)))
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillerList.add(new MaxLoopFlowFiller());
         }
         return fillerList;
@@ -147,20 +147,20 @@ class LinearOptimisationEngine {
         return new LinearRaoProblem();
     }
 
-    public void fillCracResults(LinearRaoProblem linearRaoProblem, Situation situation) {
-        String preventiveState = situation.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction: situation.getCrac().getRangeActions()) {
+    public void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                 double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
                 PstRange pstRange = (PstRange) rangeAction;
-                TwoWindingsTransformer transformer = situation.getNetwork().getTwoWindingsTransformer(networkElementId);
+                TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
                 int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
                 double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(situation.getWorkingVariantId());
+                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                 pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
             }

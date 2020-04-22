@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.linear_rao.Situation;
+import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -68,7 +68,7 @@ abstract class AbstractFillerTest {
     CoreProblemFiller coreProblemFiller;
     LinearRaoProblem linearRaoProblem;
     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
-    Situation situation;
+    LinearRaoData linearRaoData;
     Crac crac;
     Network network;
 
@@ -79,7 +79,7 @@ abstract class AbstractFillerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        situation = new Situation(network, crac);
+        linearRaoData = new LinearRaoData(network, crac);
 
         // get cnec and rangeAction
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
@@ -97,6 +97,6 @@ abstract class AbstractFillerTest {
         crac.getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec1, REF_FLOW_CNEC1_IT1);
         systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT1);
-        situation.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
     }
 }
