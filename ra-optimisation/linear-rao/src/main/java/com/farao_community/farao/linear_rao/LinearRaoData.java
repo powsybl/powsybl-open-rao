@@ -7,6 +7,7 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -120,6 +121,14 @@ public class LinearRaoData {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
         systematicSensitivityAnalysisResultMap.put(workingVariantId, systematicSensitivityAnalysisResult);
+    }
+
+    public double getReferenceFlow(Cnec cnec) {
+        return getSystematicSensitivityAnalysisResult().getFlow(cnec).orElseThrow(FaraoException::new);
+    }
+
+    public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
+        return getSystematicSensitivityAnalysisResult().getSensitivity(cnec, rangeAction).orElse(Double.NaN);
     }
 
     /**

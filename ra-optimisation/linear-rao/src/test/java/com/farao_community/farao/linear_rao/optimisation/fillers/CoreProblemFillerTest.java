@@ -10,17 +10,13 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.sensitivity.*;
-import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -30,12 +26,12 @@ import static org.junit.Assert.*;
 public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
     }
 
-    private void fillProblemWithCoreFiller() throws IOException {
+    private void fillProblemWithCoreFiller() {
         // arrange some additional data
         linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
@@ -44,7 +40,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillTest() throws IOException {
+    public void fillTest() {
 
         fillProblemWithCoreFiller();
 
@@ -114,22 +110,21 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(4, linearRaoProblem.getSolver().numConstraints());
     }
 
-    private void updateProblemWithCoreFiller() throws IOException {
+    private void updateProblemWithCoreFiller() {
         // arrange some additional data
         linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
 
-        systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec1, REF_FLOW_CNEC1_IT2);
-        systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT2);
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-2.json")));
-        linearRaoData.getCrac().getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
-        linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT2);
+        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT2);
+        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(SENSI_CNEC1_IT2);
+        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(SENSI_CNEC1_IT2);
 
         // fill the problem
         coreProblemFiller.update(linearRaoData, linearRaoProblem);
     }
 
     @Test
-    public void updateTest() throws IOException {
+    public void updateTest() {
 
         // fill a first time the linearRaoProblem with some data
         fillProblemWithCoreFiller();
@@ -182,7 +177,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void updateWithoutFillingTest() throws IOException {
+    public void updateWithoutFillingTest() {
         try {
             updateProblemWithCoreFiller();
             fail();
