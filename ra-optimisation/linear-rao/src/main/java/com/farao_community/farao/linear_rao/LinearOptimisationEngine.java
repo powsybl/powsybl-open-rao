@@ -147,7 +147,7 @@ class LinearOptimisationEngine {
         return new LinearRaoProblem();
     }
 
-    public void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+    public static void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
