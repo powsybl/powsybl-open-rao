@@ -9,8 +9,7 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.linear_rao.optimisation.AbstractProblemFiller;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoData;
+import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -19,35 +18,31 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CoreProblemFiller extends AbstractProblemFiller {
-
-    public CoreProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        super(linearRaoProblem, linearRaoData);
-    }
+public class CoreProblemFiller implements ProblemFiller {
 
     @Override
-    public void fill() {
+    public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         // add variables
-        buildFlowVariables();
-        buildRangeActionSetPointVariables();
-        buildRangeActionAbsoluteVariationVariables();
+        buildFlowVariables(linearRaoData, linearRaoProblem);
+        buildRangeActionSetPointVariables(linearRaoData, linearRaoProblem);
+        buildRangeActionAbsoluteVariationVariables(linearRaoData, linearRaoProblem);
 
         // add constraints
-        buildFlowConstraints();
-        buildRangeActionConstraints();
+        buildFlowConstraints(linearRaoData, linearRaoProblem);
+        buildRangeActionConstraints(linearRaoData, linearRaoProblem);
     }
 
     @Override
-    public void update() {
+    public void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         // update reference flow and sensitivities of flow constraints
-        updateFlowConstraints();
+        updateFlowConstraints(linearRaoData, linearRaoProblem);
     }
 
     /**
      * Build one flow variable F[c] for each Cnec c
      * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
      */
-    private void buildFlowVariables() {
+    private void buildFlowVariables(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getCnecs().forEach(cnec ->
                 linearRaoProblem.addFlowVariable(-linearRaoProblem.infinity(), linearRaoProblem.infinity(), cnec)
         );
@@ -66,7 +61,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables() {
+    private void buildRangeActionSetPointVariables(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
             double minSetPoint = rangeAction.getMinValue(linearRaoData.getNetwork());
             double maxSetPoint = rangeAction.getMaxValue(linearRaoData.getNetwork());
@@ -82,7 +77,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      *     <li>in DEGREE for PST range actions</li>
      * </ul>
      */
-    private void buildRangeActionAbsoluteVariationVariables() {
+    private void buildRangeActionAbsoluteVariationVariables(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction ->
                 linearRaoProblem.addAbsoluteRangeActionVariationVariable(0, linearRaoProblem.infinity(), rangeAction)
         );
@@ -95,10 +90,10 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints() {
+    private void buildFlowConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
             // create constraint
-            double referenceFlow = linearRaoData.getReferenceFlow(cnec);
+            double referenceFlow = linearRaoData.getSystematicSensitivityAnalysisResult().getCnecFlowMap().get(cnec);
             MPConstraint flowConstraint = linearRaoProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
 
             MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
@@ -109,7 +104,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(cnec);
+            addImpactOfRangeActionOnCnec(linearRaoData, linearRaoProblem, cnec);
         });
     }
 
@@ -118,9 +113,9 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void updateFlowConstraints() {
+    private void updateFlowConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
-            double referenceFlow = linearRaoData.getReferenceFlow(cnec);
+            double referenceFlow = linearRaoData.getSystematicSensitivityAnalysisResult().getCnecFlowMap().get(cnec);
             MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
                 throw new FaraoException(String.format("Flow constraint on %s has not been defined yet.", cnec.getId()));
@@ -131,11 +126,11 @@ public class CoreProblemFiller extends AbstractProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(cnec);
+            addImpactOfRangeActionOnCnec(linearRaoData, linearRaoProblem, cnec);
         });
     }
 
-    private void addImpactOfRangeActionOnCnec(Cnec cnec) {
+    private void addImpactOfRangeActionOnCnec(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, Cnec cnec) {
         MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
         MPConstraint flowConstraint = linearRaoProblem.getFlowConstraint(cnec);
 
@@ -149,7 +144,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
                 throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
             }
 
-            double sensitivity = rangeAction.getSensitivityValue(linearRaoData.getSensitivityComputationResults(cnec.getState()), cnec);
+            double sensitivity = rangeAction.getSensitivityValue(linearRaoData.getSystematicSensitivityAnalysisResult().getStateSensiMap().get(cnec.getState()), cnec);
             double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
@@ -169,7 +164,7 @@ public class CoreProblemFiller extends AbstractProblemFiller {
      * AV[r] >= S[r] - initialSetPoint[r]     (NEGATIVE)
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
-    private void buildRangeActionConstraints() {
+    private void buildRangeActionConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
             double initialSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
             MPConstraint varConstraintNegative = linearRaoProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearRaoProblem.infinity(), rangeAction, LinearRaoProblem.AbsExtension.NEGATIVE);

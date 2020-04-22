@@ -7,11 +7,14 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
@@ -40,11 +43,17 @@ import static org.junit.Assert.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LinearRaoProblem.class)
 public class LinearOptimisationEngineTest {
+    private static final double ANGLE_TAP_APPROX_TOLERANCE = 0.5;
+
     private LinearOptimisationEngine linearOptimisationEngine;
     private LinearRaoProblem linearRaoProblemMock;
     private Network network;
-    private Crac crac;
-    private InitialSituation initialSituation;
+    private SimpleCrac crac;
+    private PstRange rangeAction;
+    private LinearRaoData linearRaoData;
+    private MPVariable rangeActionSetPoint;
+    private MPVariable rangeActionAbsoluteVariation;
+    private MPConstraint absoluteRangeActionVariationConstraint;
 
     @Before
     public void setUp() {
@@ -67,29 +76,34 @@ public class LinearOptimisationEngineTest {
         crac = CommonCracCreation.create();
         crac.synchronize(network);
 
-        initialSituation = new InitialSituation(network, network.getVariantManager().getWorkingVariantId(), crac);
-        initialSituation = Mockito.spy(initialSituation);
+        rangeAction = new PstWithRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+
+        linearRaoData = new LinearRaoData(network, crac);
+        linearRaoData = Mockito.spy(linearRaoData);
 
         Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
         Map<Cnec, Double> cnecFlowMap = new HashMap<>();
         crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>());
-        Mockito.doReturn(systematicSensitivityAnalysisResult).when(initialSituation).getSystematicSensitivityAnalysisResult();
+        linearRaoData.setSystematicSensitivityAnalysisResult(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>()));
+
+        rangeActionSetPoint = Mockito.mock(MPVariable.class);
+        rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
+        absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class);
     }
 
     @Test
     public void testOptimalAndUpdate() {
-        OptimizedSituation optimizedSituation = linearOptimisationEngine.run(initialSituation);
-        assertNotNull(optimizedSituation);
-        optimizedSituation = linearOptimisationEngine.run(initialSituation);
-        assertNotNull(optimizedSituation);
+        linearOptimisationEngine.run(linearRaoData);
+        assertNotNull(linearRaoData);
+        linearOptimisationEngine.run(linearRaoData);
+        assertNotNull(linearRaoData);
     }
 
     @Test
     public void testNonOptimal() {
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
         try {
-            linearOptimisationEngine.run(initialSituation);
+            linearOptimisationEngine.run(linearRaoData);
         } catch (LinearOptimisationException e) {
             assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
@@ -99,7 +113,7 @@ public class LinearOptimisationEngineTest {
     public void testFillerError() {
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(null);
         try {
-            linearOptimisationEngine.run(initialSituation);
+            linearOptimisationEngine.run(linearRaoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
@@ -108,13 +122,86 @@ public class LinearOptimisationEngineTest {
 
     @Test
     public void testUpdateError() {
-        linearOptimisationEngine.run(initialSituation);
+        linearOptimisationEngine.run(linearRaoData);
         Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
-            linearOptimisationEngine.run(initialSituation);
+            linearOptimisationEngine.run(linearRaoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());
+        }
+    }
+
+    private void setUpForFillCracResults() {
+        crac = CommonCracCreation.create();
+        crac.addRangeAction(rangeAction);
+        crac.synchronize(network);
+        linearRaoData = new LinearRaoData(network, crac);
+        Mockito.when(linearRaoProblemMock.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
+        Mockito.when(linearRaoProblemMock.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
+        Mockito.when(linearRaoProblemMock.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearRaoProblem.AbsExtension.POSITIVE)).thenReturn(absoluteRangeActionVariationConstraint);
+    }
+
+    @Test
+    public void fillPstResultWithNoActivationAndNeutralRangeAction() {
+        setUpForFillCracResults();
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.0);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
+
+        LinearOptimisationEngine.fillCracResults(linearRaoProblemMock, linearRaoData);
+
+        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
+        assertEquals(0, pstRangeResult.getSetPoint(preventiveState), 0.1);
+        assertTrue(pstRangeResult.isActivated(preventiveState));
+    }
+
+    @Test
+    public void fillPstResultWithNegativeActivation() {
+        setUpForFillCracResults();
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 - 5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
+
+        LinearOptimisationEngine.fillCracResults(linearRaoProblemMock, linearRaoData);
+
+        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
+        assertEquals(-12, pstRangeResult.getTap(preventiveState));
+        assertEquals(0.39 - 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
+    }
+
+    @Test
+    public void fillPstResultWithPositiveActivation() {
+        setUpForFillCracResults();
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
+
+        LinearOptimisationEngine.fillCracResults(linearRaoProblemMock, linearRaoData);
+
+        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+        RangeActionResultExtension pstRangeResultMap = linearRaoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
+        assertEquals(14, pstRangeResult.getTap(preventiveState));
+        assertEquals(0.39 + 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
+    }
+
+    @Test
+    public void fillPstResultWithAngleTooHigh() {
+        setUpForFillCracResults();
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 99.0); // value out of PST Range
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(99.0);
+
+        try {
+            LinearOptimisationEngine.fillCracResults(linearRaoProblemMock, linearRaoData);
+            fail();
+        } catch (FaraoException e) {
+            // should throw
         }
     }
 }

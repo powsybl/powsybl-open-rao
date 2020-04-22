@@ -7,23 +7,22 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.optimisation.*;
+import com.farao_community.farao.linear_rao.optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.linear_rao.optimisation.post_processors.RaoResultPostProcessor;
-import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A computation engine dedicated to the construction and solving of the linear
@@ -53,30 +52,16 @@ class LinearOptimisationEngine {
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem.
      */
-    private List<AbstractProblemFiller> fillerList;
-
-    /**
-     * List of problem fillers used by the engine. Each filler is responsible for
-     * the creation/update of one part of the optimisation problem (i.e. of some
-     * variables and constraints of the optimisation problem).
-     */
-    private List<AbstractPostProcessor> postProcessorList;
-
-    /**
-     * Some data required by the fillers and postProcessors.
-     */
-    private LinearRaoData linearRaoData;
+    private List<ProblemFiller> fillerList;
 
     /**
      * Constructor
      */
     LinearOptimisationEngine(RaoParameters raoParameters) {
-
         this.lpInitialised = false;
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
-        this.postProcessorList = createPostProcessorList();
     }
 
     /**
@@ -86,7 +71,7 @@ class LinearOptimisationEngine {
      * RangeAction set-points and a new Crac ResultVariant which contains the results
      * of the optimisation.
      *
-     * @param situationIn defines the data on which the creation of the optimisation problem
+     * @param linearRaoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
@@ -95,45 +80,26 @@ class LinearOptimisationEngine {
      *
      * @throws LinearOptimisationException is the method fails
      */
-    OptimizedSituation run(AbstractSituation situationIn) {
-
-        if (situationIn.getSystematicSensitivityAnalysisResult() == null) {
-            throw new FaraoException("LinearOptimisationEngine cannot run on a situation without sensitivities.");
-        }
-
-        // update data
-        // todo : refactor the LinearRaoData
-        this.linearRaoData = new LinearRaoData(situationIn.getCrac(), situationIn.getNetwork(), situationIn.getSystematicSensitivityAnalysisResult());
-
+    void run(LinearRaoData linearRaoData) {
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearRaoProblem = createLinearRaoProblem();
-            buildProblem();
+            buildProblem(linearRaoData);
             lpInitialised = true;
         } else {
-            updateProblem();
+            updateProblem(linearRaoData);
         }
 
-        // solve optimisation problem
-        solveProblem();
-
-        OptimizedSituation situationOut = new OptimizedSituation(linearRaoData.getNetwork(), situationIn.getNetworkVariantId(), linearRaoData.getCrac());
-
-        // todo : do not create a RaoResult anymore and refactor the post processors
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        postProcessorList.forEach(postProcessor -> postProcessor.process(linearRaoProblem, linearRaoData, raoResult, situationOut.getCracResultVariant()));
-
-        // apply RA on network
-        applyRAs(situationOut);
-
-        return situationOut;
+        solveLinearProblem();
+        fillCracResults(linearRaoProblem, linearRaoData);
+        linearRaoData.applyRangeActionResultsOnNetwork();
     }
 
-    private void buildProblem() {
+    private void buildProblem(LinearRaoData linearRaoData) {
         try {
-            fillerList.forEach(filler -> filler.setLinearRaoData(linearRaoData));
-            fillerList.forEach(filler -> filler.setLinearRaoProblem(linearRaoProblem));
-            fillerList.forEach(AbstractProblemFiller::fill);
+            for (ProblemFiller problemFiller : fillerList) {
+                problemFiller.fill(linearRaoData, linearRaoProblem);
+            }
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -141,10 +107,9 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void updateProblem() {
+    private void updateProblem(LinearRaoData linearRaoData) {
         try {
-            fillerList.forEach(filler -> filler.setLinearRaoData(linearRaoData));
-            fillerList.forEach(AbstractProblemFiller::update);
+            fillerList.forEach(problemFiller -> problemFiller.update(linearRaoData, linearRaoProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -152,9 +117,8 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void solveProblem() {
+    private void solveLinearProblem() {
         try {
-
             Enum solverResultStatus = linearRaoProblem.solve();
             String solverResultStatusString = solverResultStatus.name();
             if (!solverResultStatusString.equals("OPTIMAL")) {
@@ -162,7 +126,6 @@ class LinearOptimisationEngine {
                 LOGGER.error(errorMessage);
                 throw new LinearOptimisationException(errorMessage);
             }
-
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
@@ -170,34 +133,37 @@ class LinearOptimisationEngine {
         }
     }
 
-    List<AbstractProblemFiller> createFillerList(RaoParameters raoParameters) {
+    List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
-        fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
-        fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
-        if (raoParameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
+        fillerList.add(new CoreProblemFiller());
+        fillerList.add(new MaxMinMarginFiller());
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            fillerList.add(new MaxLoopFlowFiller());
         }
         return fillerList;
-    }
-
-    List<AbstractPostProcessor> createPostProcessorList() {
-        postProcessorList = new ArrayList<>();
-        postProcessorList.add(new RaoResultPostProcessor());
-        return postProcessorList;
     }
 
     LinearRaoProblem createLinearRaoProblem() {
         return new LinearRaoProblem();
     }
 
-    /**
-     * Apply the optimised RangeAction on a Network
-     */
-    private void applyRAs(OptimizedSituation optimizedSituation) {
-        String preventiveState = optimizedSituation.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : optimizedSituation.getCrac().getRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(optimizedSituation.getNetwork(), rangeActionResultMap.getVariant(optimizedSituation.getCracResultVariant()).getSetPoint(preventiveState));
+    public static void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+        for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
+            if (rangeAction instanceof PstRange) {
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
+                PstRange pstRange = (PstRange) rangeAction;
+                TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+
+                int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
+                double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+
+                RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
+                pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
+                pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
+            }
         }
     }
 }
