@@ -82,7 +82,7 @@
           <xsd:documentation>
             <CodeDescription>
               <Title>Flow</Title>
-              <Definition>This is the computed flow for the monitored element in the constraint linearRaoData ("N linearRaoData", "N-1 linearRaoData" ...) after the capacity calculation. The flow is expressed in A, %, or MW.</Definition>
+              <Definition>This is the computed flow for the monitored element in the constraint situation ("N situation", "N-1 situation" ...) after the capacity calculation. The flow is expressed in A, %, or MW.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -102,7 +102,7 @@
           <xsd:documentation>
             <CodeDescription>
               <Title>Flow reliability margin</Title>
-              <Definition>This is the flow reliability margin for a given critical network element. The amount of MW or A that is reserved for this critical network element and shall not be used for the computed outage linearRaoData, in order to secure the power network.</Definition>
+              <Definition>This is the flow reliability margin for a given critical network element. The amount of MW or A that is reserved for this critical network element and shall not be used for the computed outage situation, in order to secure the power network.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -1953,9 +1953,9 @@ Note this definition might change when UCTE brings forward its coding requiremen
         <xsd:annotation>
           <xsd:documentation>
             <CodeDescription>
-              <Title>Constraint linearRaoData</Title>
-              <Definition>The timeseries describes the constraint linearRaoData for a given TimeInterval.
-A constraint linearRaoData can be:
+              <Title>Constraint situation</Title>
+              <Definition>The timeseries describes the constraint situation for a given TimeInterval.
+A constraint situation can be:
 - composed of a list of network elements in outage associated for each outage to a list of network elements on which remedial actions have been carried out accordingly to contingency process 
 - or it can be an external constraint.</Definition>
             </CodeDescription>
@@ -2128,8 +2128,8 @@ Critical network elements are displayed in details and their impact on the marke
         <xsd:annotation>
           <xsd:documentation>
             <CodeDescription>
-              <Title>Network constraint linearRaoData</Title>
-              <Definition>The TimeSeries describes the network elements to be taken into account to simulate a network constraint during the network load flow studies. The network linearRaoData includes the contingencies, the remedial actions, the monitored network elements and the potential additional constraints.</Definition>
+              <Title>Network constraint situation</Title>
+              <Definition>The TimeSeries describes the network elements to be taken into account to simulate a network constraint during the network load flow studies. The network situation includes the contingencies, the remedial actions, the monitored network elements and the potential additional constraints.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -2471,7 +2471,7 @@ Critical network elements are displayed in details and their impact on the marke
           <xsd:documentation>
             <CodeDescription>
               <Title>Base Case Network Situation</Title>
-              <Definition>The TimeSeries describes the network elements to be taken into account to simulate a base case network linearRaoData during the network load flow studies, without any contingency.</Definition>
+              <Definition>The TimeSeries describes the network elements to be taken into account to simulate a base case network situation during the network load flow studies, without any contingency.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -3913,7 +3913,7 @@ This enumeration is used in the XML instances based on IEC 62325.</Definition>
           <xsd:documentation>
             <CodeDescription>
               <Title>Imbalance report</Title>
-              <Definition>The report containing the complete linearRaoData of a given period for a party and including the schedules, regulation data and actual or calculated readings.</Definition>
+              <Definition>The report containing the complete situation of a given period for a party and including the schedules, regulation data and actual or calculated readings.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -4123,7 +4123,7 @@ This enumeration is used in the XML instances based on IEC 62325.</Definition>
           <xsd:documentation>
             <CodeDescription>
               <Title>Escalation document</Title>
-              <Definition>A document which requesting the escalation of a linearRaoData.</Definition>
+              <Definition>A document which requesting the escalation of a situation.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -4413,7 +4413,7 @@ This enumeration is used in the XML instances based on IEC 62325.</Definition>
           <xsd:documentation>
             <CodeDescription>
               <Title>Redispatch notice</Title>
-              <Definition>A notice to confirm the actions agreed between System Operators to resolve a congestion linearRaoData through redispatch.</Definition>
+              <Definition>A notice to confirm the actions agreed between System Operators to resolve a congestion situation through redispatch.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -4443,7 +4443,7 @@ This enumeration is used in the XML instances based on IEC 62325.</Definition>
           <xsd:documentation>
             <CodeDescription>
               <Title>Final MOL</Title>
-              <Definition>A document providing the information concerning the linearRaoData of the MOL at the end of an activation period.</Definition>
+              <Definition>A document providing the information concerning the situation of the MOL at the end of an activation period.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -4652,8 +4652,8 @@ This enumeration is used in the XML instances based on IEC 62325.</Definition>
         <xsd:annotation>
           <xsd:documentation>
             <CodeDescription>
-              <Title>Financial linearRaoData</Title>
-              <Definition>A document providing the financial linearRaoData for reserves.</Definition>
+              <Title>Financial situation</Title>
+              <Definition>A document providing the financial situation for reserves.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -4923,7 +4923,7 @@ This enumeration is used in the XML instances based on IEC 62325.</Definition>
           <xsd:documentation>
             <CodeDescription>
               <Title>Network constraint document</Title>
-              <Definition>A document providing the network constraint situations used for the load flow studies. A network constraint linearRaoData includes contingencies, monitored elements and remedial actions.</Definition>
+              <Definition>A document providing the network constraint situations used for the load flow studies. A network constraint situation includes contingencies, monitored elements and remedial actions.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -6584,7 +6584,7 @@ In the case of a Final Confirmation Report this is informing the recipient that 
         <xsd:annotation>
           <xsd:documentation>
             <CodeDescription>
-              <Title>Not possible to send document on time, and furthermore no expected time of return to normal linearRaoData</Title>
+              <Title>Not possible to send document on time, and furthermore no expected time of return to normal situation</Title>
               <Definition>The document that is due cannot be transmitted within the required timeframe. The time of transmission of the document is unknown.</Definition>
             </CodeDescription>
           </xsd:documentation>
@@ -6904,8 +6904,8 @@ In the case of a Final Confirmation Report this is informing the recipient that 
         <xsd:annotation>
           <xsd:documentation>
             <CodeDescription>
-              <Title>Emergency linearRaoData curtailment</Title>
-              <Definition>Curtailment due to emergency linearRaoData. A code that enables the identification of the curtailment reason for settlement purposes.</Definition>
+              <Title>Emergency situation curtailment</Title>
+              <Definition>Curtailment due to emergency situation. A code that enables the identification of the curtailment reason for settlement purposes.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -7441,7 +7441,7 @@ A party that is financially accountable for the reconciled volume of energy prod
           <xsd:documentation>
             <CodeDescription>
               <Title>Weather analyser</Title>
-              <Definition>A party that analyses the current and forecast weather linearRaoData and establishes a prognosis of its impact on the renewable energy environment as well as the overall load.</Definition>
+              <Definition>A party that analyses the current and forecast weather situation and establishes a prognosis of its impact on the renewable energy environment as well as the overall load.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -8503,7 +8503,7 @@ The DocumentTypeList is only used in XML instances using the ENTSO-E schema; oth
           <xsd:documentation>
             <CodeDescription>
               <Title>Imbalance report</Title>
-              <Definition>The report containing the complete linearRaoData of a given period for a party and including the schedules, regulation data and actual or calculated readings.</Definition>
+              <Definition>The report containing the complete situation of a given period for a party and including the schedules, regulation data and actual or calculated readings.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -8713,7 +8713,7 @@ The DocumentTypeList is only used in XML instances using the ENTSO-E schema; oth
           <xsd:documentation>
             <CodeDescription>
               <Title>Escalation document</Title>
-              <Definition>A document which requesting the escalation of a linearRaoData.</Definition>
+              <Definition>A document which requesting the escalation of a situation.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -9003,7 +9003,7 @@ The DocumentTypeList is only used in XML instances using the ENTSO-E schema; oth
           <xsd:documentation>
             <CodeDescription>
               <Title>Redispatch notice</Title>
-              <Definition>A notice to confirm the actions agreed between System Operators to resolve a congestion linearRaoData through redispatch.</Definition>
+              <Definition>A notice to confirm the actions agreed between System Operators to resolve a congestion situation through redispatch.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -9033,7 +9033,7 @@ The DocumentTypeList is only used in XML instances using the ENTSO-E schema; oth
           <xsd:documentation>
             <CodeDescription>
               <Title>Final MOL</Title>
-              <Definition>A document providing the information concerning the linearRaoData of the MOL at the end of an activation period.</Definition>
+              <Definition>A document providing the information concerning the situation of the MOL at the end of an activation period.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
@@ -9242,8 +9242,8 @@ The DocumentTypeList is only used in XML instances using the ENTSO-E schema; oth
         <xsd:annotation>
           <xsd:documentation>
             <CodeDescription>
-              <Title>Financial linearRaoData</Title>
-              <Definition>A document providing the financial linearRaoData for reserves.</Definition>
+              <Title>Financial situation</Title>
+              <Definition>A document providing the financial situation for reserves.</Definition>
             </CodeDescription>
           </xsd:documentation>
         </xsd:annotation>
