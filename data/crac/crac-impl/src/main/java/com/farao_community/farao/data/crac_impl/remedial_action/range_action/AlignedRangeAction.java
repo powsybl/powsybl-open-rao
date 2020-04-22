@@ -15,8 +15,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
-import com.powsybl.sensitivity.SensitivityComputationResults;
-
 import java.util.*;
 
 
@@ -78,12 +76,6 @@ public class AlignedRangeAction extends AbstractRangeAction {
     @Override
     public double getMaxValue(Network network) {
         return ranges.stream().map(Range::getMax).min(Double::compareTo).orElseThrow(FaraoException::new);
-    }
-
-    @Override
-    public double getSensitivityValue(SensitivityComputationResults sensitivityComputationResults, Cnec cnec) {
-        // to implement
-        return TEMP_VALUE_ARA;
     }
 
     @Override

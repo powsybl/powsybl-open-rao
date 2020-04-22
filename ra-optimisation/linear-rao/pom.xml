@@ -39,7 +39,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-search-tree-rao</artifactId>
+            <artifactId>farao-rao-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-computation-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
