@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -39,9 +40,10 @@ public class LinearRaoModellerTest {
         crac.addState(new SimpleState(Optional.empty(), new Instant("preventive", 0)));
         Network networkMock = Mockito.mock(Network.class);
         SystematicSensitivityAnalysisResult sensitivityResultMock = Mockito.mock(SystematicSensitivityAnalysisResult.class);
-        RaoParameters raoParametersMock = Mockito.mock(RaoParameters.class);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
 
-        linearRaoModeller = new LinearRaoModeller(crac, networkMock, sensitivityResultMock, linearRaoProblemMock, raoParametersMock);
+        linearRaoModeller = new LinearRaoModeller(crac, networkMock, sensitivityResultMock, linearRaoProblemMock, raoParameters);
     }
 
     @Test

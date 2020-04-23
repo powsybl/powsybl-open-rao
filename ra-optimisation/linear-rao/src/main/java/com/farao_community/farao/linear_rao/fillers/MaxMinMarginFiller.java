@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.linear_rao.AbstractProblemFiller;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -28,8 +29,8 @@ public class MaxMinMarginFiller extends AbstractProblemFiller {
     //TODO : load from config
     private static final double PST_PENALTY_COST = 1; // in MW/degree
 
-    public MaxMinMarginFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        super(linearRaoProblem, linearRaoData);
+    public MaxMinMarginFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
+        super(linearRaoProblem, linearRaoData, linearRaoParameters);
     }
 
     @Override

@@ -9,6 +9,8 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.fillers.CoreProblemFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.linear_rao.fillers.MaxMinMarginFiller;
@@ -43,12 +45,14 @@ public class LinearRaoModeller {
         this.linearRaoData = new LinearRaoData(crac, network, systematicSensitivityAnalysisResult);
         this.linearRaoProblem = linearRaoProblem;
 
+        LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
+
         // TODO : load the filler list from the config file and make sure they are ordered properly
         fillerList = new ArrayList<>();
-        fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData));
-        fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData));
+        fillerList.add(new CoreProblemFiller(linearRaoProblem, linearRaoData, linearRaoParameters));
+        fillerList.add(new MaxMinMarginFiller(linearRaoProblem, linearRaoData, linearRaoParameters));
         if (raoParameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
-            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData));
+            fillerList.add(new MaxLoopFlowFiller(linearRaoProblem, linearRaoData, linearRaoParameters));
         }
 
         postProcessorList = new ArrayList<>();
