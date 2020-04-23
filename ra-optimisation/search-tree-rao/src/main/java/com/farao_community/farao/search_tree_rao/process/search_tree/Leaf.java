@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -162,12 +163,12 @@ class Leaf {
             if (this.status == Status.EVALUATION_SUCCESS) {
                 updateRaoResultWithNetworkActions(crac);
             }
-            deleteVariant(network, leafNetworkVariant);
+            deleteNetworkVariant(network, leafNetworkVariant);
 
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
-            deleteVariant(network, leafNetworkVariant);
+            deleteNetworkVariant(network, leafNetworkVariant);
         }
     }
 
@@ -202,9 +203,29 @@ class Leaf {
         }
     }
 
-    private void deleteVariant(Network network, String leafNetworkVariant) {
+    private void deleteNetworkVariant(Network network, String leafNetworkVariant) {
         if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
             network.getVariantManager().removeVariant(leafNetworkVariant);
+        }
+    }
+
+    void deletePostOptimResultVariant(Crac crac) {
+        if (isRoot() && raoResult.getPostOptimVariantId().equals(raoResult.getPreOptimVariantId())) {
+            return;
+        }
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager.getVariants().contains(raoResult.getPostOptimVariantId())) {
+            resultVariantManager.deleteVariant(raoResult.getPostOptimVariantId());
+        }
+    }
+
+    void deletePreOptimResultVariant(Crac crac) {
+        if (!isRoot() && raoResult.getPostOptimVariantId().equals(raoResult.getPreOptimVariantId())) {
+            return;
+        }
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager.getVariants().contains(raoResult.getPreOptimVariantId())) {
+            resultVariantManager.deleteVariant(raoResult.getPreOptimVariantId());
         }
     }
 

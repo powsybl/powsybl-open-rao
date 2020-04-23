@@ -1,4 +1,4 @@
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.linear_rao.optimisation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;

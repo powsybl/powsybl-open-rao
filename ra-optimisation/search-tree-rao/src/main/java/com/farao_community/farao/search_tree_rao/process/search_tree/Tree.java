@@ -78,12 +78,12 @@ public final class Tree {
                 if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), searchTreeRaoParameters)) {
                     hasImproved = true;
                     depth = depth + 1;
-                    resultVariantManager.deleteVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
+                    optimalLeaf.deletePostOptimResultVariant(crac);
                     optimalLeaf = currentLeaf;
                 } else {
-                    resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPostOptimVariantId());
+                    currentLeaf.deletePostOptimResultVariant(crac);
                 }
-                resultVariantManager.deleteVariant(currentLeaf.getRaoResult().getPreOptimVariantId());
+                currentLeaf.deletePreOptimResultVariant(crac);
             }
         }
 
