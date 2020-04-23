@@ -175,6 +175,8 @@ public class LinearRao implements RaoProvider {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
+        raoResult.setPreOptimVariantId(linearRaoData.getInitialVariantId());
+        raoResult.setPostOptimVariantId(linearRaoData.getWorkingVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();

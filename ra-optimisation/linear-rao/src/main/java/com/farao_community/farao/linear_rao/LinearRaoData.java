@@ -74,8 +74,8 @@ public class LinearRaoData {
     }
 
     public String getInitialVariantId() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
+        if (variantIds.isEmpty()) {
+            throw new FaraoException("No variants are present in the data");
         }
         return variantIds.get(0);
     }
