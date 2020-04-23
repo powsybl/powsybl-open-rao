@@ -145,24 +145,33 @@ public class CoreProblemFiller extends AbstractProblemFiller {
         }
 
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
-            MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
-            if (setPointVariable == null) {
-                throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
-            }
-
-            double sensitivity = linearRaoData.getSensitivity(cnec, rangeAction);
-            if (Math.abs(sensitivity) >= linearRaoParameters.getPstSensitivityThreshold()) {
-
-                double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
-                // care : might not be robust as getCurrentValue get the current setPoint from a network variant
-                //        we need to be sure that this variant has been properly set
-
-                flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
-                flowConstraint.setUb(flowConstraint.ub() - sensitivity * currentSetPoint);
-
-                flowConstraint.setCoefficient(setPointVariable, -sensitivity);
+            if (rangeAction instanceof PstRange) {
+                addImpactOfPstOnCnec(rangeAction, cnec, flowConstraint);
+            } else {
+                throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
             }
         });
+    }
+
+    private void addImpactOfPstOnCnec(RangeAction rangeAction, Cnec cnec, MPConstraint flowConstraint) {
+        MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
+        if (setPointVariable == null) {
+            throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
+        }
+
+        double sensitivity = linearRaoData.getSensitivity(cnec, rangeAction);
+
+        if (Math.abs(sensitivity) >= linearRaoParameters.getPstSensitivityThreshold()) {
+
+            double currentSetPoint = rangeAction.getCurrentValue(linearRaoData.getNetwork());
+            // care : might not be robust as getCurrentValue get the current setPoint from a network variant
+            //        we need to be sure that this variant has been properly set
+
+            flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
+            flowConstraint.setUb(flowConstraint.ub() - sensitivity * currentSetPoint);
+
+            flowConstraint.setCoefficient(setPointVariable, -sensitivity);
+        }
     }
 
     /**
