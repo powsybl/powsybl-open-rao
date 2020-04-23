@@ -6,17 +6,20 @@
  */
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.util.FaraoVariantsPool;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -59,18 +62,33 @@ public final class Tree {
         //TODO: generalize to handle different stop criterion
         while (optimalLeaf.getCost(crac) > 0 && hasImproved) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
+            final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
             if (generatedLeaves.isEmpty()) {
                 break;
             }
 
-            //TODO: manage parallel computation
-            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, referenceNetworkVariant, parameters));
-            generatedLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
+            try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant)) {
+                variantsPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
+                    // Create contingency variant
+                    try {
+                        String workingVariant = variantsPool.getAvailableVariant();
+                        leaf.evaluate(network, crac, workingVariant, parameters);
+                        variantsPool.releaseUsedVariant(workingVariant);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                })).get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                throw new FaraoException(e);
+            }
+
+            List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
-            for (Leaf currentLeaf: generatedLeaves) {
+            for (Leaf currentLeaf: successfulLeaves) {
                 if (currentLeaf.getCost(crac) < optimalLeaf.getCost(crac)) {
                     hasImproved = true;
                     optimalLeaf.deletePostOptimResultVariant(crac);

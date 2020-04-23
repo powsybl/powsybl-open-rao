@@ -16,6 +16,7 @@ import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +134,7 @@ class Leaf {
      * Evaluate the impact of Network Actions (from the current Leaf and
      * its parents)
      */
-    void evaluate(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+    void evaluate(Network network, Crac crac, String networkVariant, RaoParameters parameters) {
         this.status = Status.EVALUATION_RUNNING;
         String leafNetworkVariant;
 
@@ -147,9 +148,10 @@ class Leaf {
 
         // apply Network Actions
         try {
-            leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
+            //leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
+            network.getVariantManager().setWorkingVariant(networkVariant);
             networkActions.forEach(na -> na.apply(network));
-        } catch (FaraoException e) {
+        } catch (FaraoException | PowsyblException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
             return;
@@ -157,18 +159,18 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant, parameters);
+            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, networkVariant, parameters);
             this.raoResult = results;
             this.status = buildStatus(results);
             if (this.status == Status.EVALUATION_SUCCESS) {
                 updateRaoResultWithNetworkActions(crac);
             }
-            deleteNetworkVariant(network, leafNetworkVariant);
+            //deleteNetworkVariant(network, leafNetworkVariant);
 
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
-            deleteNetworkVariant(network, leafNetworkVariant);
+            //deleteNetworkVariant(network, leafNetworkVariant);
         }
     }
 
