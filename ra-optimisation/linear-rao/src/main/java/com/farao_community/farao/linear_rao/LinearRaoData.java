@@ -20,8 +20,8 @@ import java.util.*;
 /**
  * A LinearRaoData is an object that gathers Network, Crac and SystematicSensitivityAnalysisResult data. It manages
  * variants of these objects to ensure data consistency at any moment. Network will remain the same at any moment
- * with no variant management to be able to use this object in a multi-thread environment. It is a single point of
- * entry to manipulate all data related to linear rao with variant management.
+ * with no variant management. It is a single point of entry to manipulate all data related to linear rao with
+ * variant management.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

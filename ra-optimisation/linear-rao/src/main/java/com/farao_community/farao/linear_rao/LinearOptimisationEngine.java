@@ -67,19 +67,14 @@ class LinearOptimisationEngine {
 
     /**
      * The run method of the LinearOptimisationEngine creates and solves the core
-     * optimisation problem of the LinearRao. It returns an OptimizedSituation which
-     * is set with a new Network variant incorporating the optimal combination of
-     * RangeAction set-points and a new Crac ResultVariant which contains the results
-     * of the optimisation.
+     * optimisation problem of the LinearRao. It updates the LinearRaoData with optimisation result in the CRAC
+     * and apply the new range action set points on the netork.
      *
      * @param linearRaoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
-     * @return an OptimizedSituation, set with the optimal combination of RangeAction
-     * calculated by the optimisation problem,
-     *
-     * @throws LinearOptimisationException is the method fails
+     * @throws LinearOptimisationException if the method fails
      */
     void run(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
         // prepare optimisation problem
