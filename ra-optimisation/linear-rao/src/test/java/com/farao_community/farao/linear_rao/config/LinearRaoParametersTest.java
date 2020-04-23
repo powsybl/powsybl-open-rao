@@ -19,6 +19,8 @@ import static org.junit.Assert.*;
  */
 public class LinearRaoParametersTest {
 
+    private static final double DOUBLE_TOLERANCE = 0.1;
+
     private LinearRaoParameters raoParameters;
 
     @Before
@@ -52,5 +54,11 @@ public class LinearRaoParametersTest {
 
         raoParameters.setSecurityAnalysisWithoutRao(true);
         assertEquals(true, raoParameters.isSecurityAnalysisWithoutRao());
+    }
+
+    @Test
+    public void setPstSensitivityThreshold() {
+        raoParameters.setPstSensitivityThreshold(5.0);
+        assertEquals(5.0, raoParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
     }
 }

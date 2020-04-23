@@ -33,6 +33,7 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
             ModuleConfig config = configOptional.get();
             parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", LinearRaoParameters.DEFAULT_MAX_NUMBER_OF_ITERATIONS));
             parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", LinearRaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
+            parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", LinearRaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD));
         }
         return parameters;
     }

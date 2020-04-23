@@ -28,6 +28,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
+        parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParameters.json");
     }
 
@@ -37,6 +38,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
+        parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
         parameters.getExtension(LinearRaoParameters.class).setFallbackSensiParameters(sensitivityComputationParameters);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParametersWithFallback.json");

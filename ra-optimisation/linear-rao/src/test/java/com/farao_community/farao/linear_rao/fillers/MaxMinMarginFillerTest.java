@@ -32,8 +32,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
     }
 
     private void fillProblemWithFiller() {

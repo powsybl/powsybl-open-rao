@@ -68,6 +68,6 @@ public class MPConstraintMock extends MPConstraint {
 
     @Override
     public double getCoefficient(MPVariable var) {
-        return coefficients.get(var.name());
+        return coefficients.getOrDefault(var.name(), 0.);
     }
 }

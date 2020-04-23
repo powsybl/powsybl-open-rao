@@ -7,16 +7,20 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public abstract class AbstractProblemFiller {
     protected LinearRaoProblem linearRaoProblem;
     protected LinearRaoData linearRaoData;
+    protected LinearRaoParameters linearRaoParameters;
 
-    public AbstractProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+    public AbstractProblemFiller(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
         this.linearRaoProblem = linearRaoProblem;
         this.linearRaoData = linearRaoData;
+        this.linearRaoParameters = linearRaoParameters;
     }
 
     public abstract void fill();
