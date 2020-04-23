@@ -4,20 +4,24 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.fillers;
+package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoData;
-import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -61,6 +65,7 @@ abstract class AbstractFillerTest {
 
     CoreProblemFiller coreProblemFiller;
     LinearRaoProblem linearRaoProblem;
+    SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
     LinearRaoData linearRaoData;
     LinearRaoParameters linearRaoParameters;
     Crac crac;
@@ -73,6 +78,7 @@ abstract class AbstractFillerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
+        linearRaoData = new LinearRaoData(network, crac);
 
         // get cnec and rangeAction
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
@@ -85,10 +91,12 @@ abstract class AbstractFillerTest {
         when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
         linearRaoProblem = new LinearRaoProblem(solver);
 
-        // LinearRaoData
-        linearRaoData = mock(LinearRaoData.class);
-        when(linearRaoData.getCrac()).thenReturn(crac);
-        when(linearRaoData.getNetwork()).thenReturn(network);
+        systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        when(systematicSensitivityAnalysisResult.getFlow(cnec1)).thenReturn(Optional.of(REF_FLOW_CNEC1_IT1));
+        when(systematicSensitivityAnalysisResult.getFlow(cnec2)).thenReturn(Optional.of(REF_FLOW_CNEC2_IT1));
+        when(systematicSensitivityAnalysisResult.getSensitivity(cnec1, rangeAction)).thenReturn(Optional.of(SENSI_CNEC1_IT1));
+        when(systematicSensitivityAnalysisResult.getSensitivity(cnec2, rangeAction)).thenReturn(Optional.of(SENSI_CNEC2_IT1));
+        linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
 
         // parameters
         linearRaoParameters = new LinearRaoParameters();

@@ -4,10 +4,10 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.fillers;
+package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.linear_rao.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
@@ -18,7 +18,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
@@ -32,23 +31,17 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearRaoProblem, linearRaoData, linearRaoParameters);
+        coreProblemFiller = new CoreProblemFiller();
+        maxMinMarginFiller = new MaxMinMarginFiller();
     }
 
     private void fillProblemWithFiller() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
-        // complete the mock of linearRaoData
-        when(linearRaoData.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(linearRaoData.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(2.);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(5.);
-
         // fill the problem : the core filler is required
-        coreProblemFiller.fill();
-        maxMinMarginFiller.fill();
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Test
@@ -95,7 +88,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         try {
             // AbsoluteRangeActionVariables present, but no the FlowVariables
             linearRaoProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
-            maxMinMarginFiller.fill();
+            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -108,7 +101,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             // FlowVariables present , but not the absoluteRangeActionVariables present,
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec1);
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec2);
-            maxMinMarginFiller.fill();
+            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Range action variable"));
