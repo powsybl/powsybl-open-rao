@@ -451,6 +451,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);
                     LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
+                    return;
                 }
             });
         }
@@ -462,10 +463,29 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkNetworkActions.add(networkAction);
                     LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
+                    return;
                 }
             });
         }
         absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
-        // TODO: remove contingencies that are not present in the network (and states associated...)
+
+        ArrayList<Contingency> absentFromNetworkContingencies = new ArrayList<>();
+        for (Contingency contingency : getContingencies()) {
+            contingency.getNetworkElements().forEach(networkElement -> {
+                if (network.getIdentifiable(networkElement.getId()) == null) {
+                    absentFromNetworkContingencies.add(contingency);
+                    LOGGER.warn(String.format("Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
+                    return;
+                }
+            });
+        }
+
+        absentFromNetworkContingencies.forEach(contingency ->  {
+            getStatesFromContingency(contingency.getId()).forEach(state -> {
+                getCnecs(state).forEach(cnec -> this.cnecs.remove(cnec));
+                this.states.remove(state);
+            });
+            this.contingencies.remove(contingency);
+        });
     }
 }
