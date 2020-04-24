@@ -39,11 +39,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-flowbased-computation-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -51,6 +46,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-util</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.oliviercailloux</groupId>
+            <artifactId>google-or-tools</artifactId>
         </dependency>
 
         <!-- test -->
@@ -71,6 +70,11 @@
             <artifactId>farao-crac-impl</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -123,20 +127,6 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.oliviercailloux</groupId>
-            <artifactId>google-or-tools</artifactId>
         </dependency>
     </dependencies>
 </project>

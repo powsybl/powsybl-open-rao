@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.linear_rao.optimisation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -48,7 +48,7 @@ public class LinearRaoProblem {
         solver.objective().setMinimization();
     }
 
-    protected LinearRaoProblem() {
+    public LinearRaoProblem() {
         this(new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
     }
 

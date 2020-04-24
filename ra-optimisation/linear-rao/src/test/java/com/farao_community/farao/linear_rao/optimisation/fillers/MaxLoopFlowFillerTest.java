@@ -4,7 +4,7 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.fillers;
+package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
@@ -29,13 +29,13 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 @RunWith(PowerMockRunner.class)
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
+
     private MaxLoopFlowFiller maxLoopFlowFiller;
     private GlskProvider glskProvider;
     private CracLoopFlowExtension cracLoopFlowExtension;
@@ -45,7 +45,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller(linearRaoProblem, linearRaoData);
+        coreProblemFiller = new CoreProblemFiller();
         glskProvider = glskProvider();
         cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
@@ -59,7 +59,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        maxLoopFlowFiller = new MaxLoopFlowFiller(linearRaoProblem, linearRaoData);
+        maxLoopFlowFiller = new MaxLoopFlowFiller();
         computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = sensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
@@ -69,13 +69,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-
-        when(linearRaoData.getSensitivity(cnec1, rangeAction)).thenReturn(2.);
-        when(linearRaoData.getSensitivity(cnec2, rangeAction)).thenReturn(5.);
-        coreProblemFiller.fill();
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // fill max loop flow
-        maxLoopFlowFiller.fill();
+        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
