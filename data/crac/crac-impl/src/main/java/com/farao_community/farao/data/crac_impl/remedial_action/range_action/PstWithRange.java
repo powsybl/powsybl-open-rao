@@ -106,7 +106,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its min value cannot be accessed", getId()));
         }
-        double minValue = convertTapToAngle(lowTapPosition);
+        double minValue = Math.min(convertTapToAngle(lowTapPosition), convertTapToAngle(highTapPosition));
         for (Range range: ranges) {
             minValue = Math.max(getMinValueWithRange(network, range), minValue);
         }
@@ -121,7 +121,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its max value cannot be accessed", getId()));
         }
-        double maxValue = convertTapToAngle(highTapPosition);
+        double maxValue = Math.max(convertTapToAngle(lowTapPosition), convertTapToAngle(highTapPosition));
         for (Range range: ranges) {
             maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
         }
