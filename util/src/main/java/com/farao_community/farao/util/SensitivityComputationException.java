@@ -15,7 +15,12 @@ import com.farao_community.farao.commons.FaraoException;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class SensitivityComputationException extends FaraoException {
+
     public SensitivityComputationException(String message) {
         super(message);
+    }
+
+    public SensitivityComputationException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

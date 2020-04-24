@@ -22,8 +22,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -31,6 +30,8 @@ import static org.mockito.ArgumentMatchers.eq;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SensitivityComputationParameters.class)
 public class LinearRaoConfigLoaderTest {
+
+    private static final double DOUBLE_TOLERANCE = 0.1;
 
     private PlatformConfig platformConfig;
     private LinearRaoConfigLoader configLoader;
@@ -49,11 +50,16 @@ public class LinearRaoConfigLoaderTest {
 
         ModuleConfig linearRaoParametersModule = Mockito.mock(ModuleConfig.class);
         Mockito.when(linearRaoParametersModule.getIntProperty(eq("max-number-of-iterations"), anyInt())).thenReturn(25);
+        Mockito.when(linearRaoParametersModule.getBooleanProperty(eq("security-analysis-without-rao"), anyBoolean())).thenReturn(false);
+        Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("pst-sensitivity-threshold"), anyDouble())).thenReturn(2.0);
+
         Mockito.when(platformConfig.getOptionalModuleConfig("linear-rao-parameters")).thenReturn(Optional.of(linearRaoParametersModule));
 
         LinearRaoParameters raoParameters = configLoader.load(platformConfig);
         assertSame(sensitivityComputationParameters, raoParameters.getSensitivityComputationParameters());
         assertEquals(25, raoParameters.getMaxIterations());
+        assertFalse(raoParameters.isSecurityAnalysisWithoutRao());
+        assertEquals(2.0, raoParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
     }
 
     @Test
