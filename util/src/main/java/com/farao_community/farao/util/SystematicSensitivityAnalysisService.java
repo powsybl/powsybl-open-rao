@@ -96,7 +96,7 @@ public final class SystematicSensitivityAnalysisService {
 
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> {
             cnecFlowMap.put(cnec, cnec.getP(network));
-            cnecIntensityMap.put(cnec, cnec.getI(network));
+            cnecIntensityMap.put(cnec, Math.signum(cnec.getP(network)) * Math.abs(cnec.getI(network)));
         }));
     }
 
