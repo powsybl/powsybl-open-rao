@@ -619,12 +619,14 @@ public class CracFileTest {
 
         Contingency contingency = simpleCrac.addContingency("contingencyId", "FFR1AA1  FFR2AA1  1");
         simpleCrac.addContingency("contingency2Id", "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE3AA1  1");
+        simpleCrac.addContingency("contThatShouldBeRemoved", "element that does not exist");
 
         Instant initialInstant = simpleCrac.addInstant("N", 0);
         Instant outageInstant = simpleCrac.addInstant("postContingencyId", 5);
 
         State preventiveState = simpleCrac.addState(null, initialInstant);
         State postContingencyState = simpleCrac.addState(contingency, outageInstant);
+        State stateThatShouldBeRemoved = simpleCrac.addState("contThatShouldBeRemoved", "postContingencyId");
 
         simpleCrac.addNetworkElement("neId1");
         simpleCrac.addNetworkElement("neId2");
@@ -633,6 +635,7 @@ public class CracFileTest {
         simpleCrac.addCnec("cnec1prev", "FFR1AA1  FFR2AA1  1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
         simpleCrac.addCnec("cnec2prev", "neId2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
         simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
+        simpleCrac.addCnec("cnec3cur", "BBE1AA1  BBE2AA1  1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), stateThatShouldBeRemoved.getId());
 
         Topology topology1 = new Topology(
                 "topologyId1",
@@ -663,14 +666,18 @@ public class CracFileTest {
         simpleCrac.addNetworkAction(topology2);
         simpleCrac.addRangeAction(pstWithRange);
 
-        assertEquals(3, simpleCrac.getCnecs().size());
+        assertEquals(4, simpleCrac.getCnecs().size());
         assertEquals(2, simpleCrac.getNetworkActions().size());
         assertEquals(1, simpleCrac.getRangeActions().size());
+        assertEquals(3, simpleCrac.getContingencies().size());
+        assertEquals(3, simpleCrac.getStates().size());
 
         simpleCrac.generateValidityReport(network);
 
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
         assertEquals(0, simpleCrac.getRangeActions().size());
+        assertEquals(2, simpleCrac.getContingencies().size());
+        assertEquals(2, simpleCrac.getStates().size());
     }
 }

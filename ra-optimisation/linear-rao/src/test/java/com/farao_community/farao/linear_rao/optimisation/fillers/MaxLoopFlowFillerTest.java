@@ -25,11 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -46,7 +43,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private ComputationManager computationManager;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
         glskProvider = glskProvider();
@@ -72,10 +69,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-        coreProblemFiller.fill(linearRaoData, linearRaoProblem);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // fill max loop flow
-        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem);
+        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
@@ -113,22 +110,13 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         public SensitivityComputationFactoryMock() {
         }
 
-        public static <K, V> Map.Entry<K, V> entry(K key, V value) {
-            return new AbstractMap.SimpleEntry<>(key, value);
-        }
-
-        public static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
-            return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
-        }
-
         @Override
         public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
             return new SensitivityComputation() {
 
                 @Override
                 public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                    List<SensitivityValue> sensitivityValues = new ArrayList<>();
-                    return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues));
+                    return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList()));
                 }
 
                 @Override

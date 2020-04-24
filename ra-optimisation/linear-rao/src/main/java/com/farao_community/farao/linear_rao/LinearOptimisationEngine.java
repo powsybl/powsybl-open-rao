@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.*;
 import com.farao_community.farao.linear_rao.optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
@@ -66,28 +67,23 @@ class LinearOptimisationEngine {
 
     /**
      * The run method of the LinearOptimisationEngine creates and solves the core
-     * optimisation problem of the LinearRao. It returns an OptimizedSituation which
-     * is set with a new Network variant incorporating the optimal combination of
-     * RangeAction set-points and a new Crac ResultVariant which contains the results
-     * of the optimisation.
+     * optimisation problem of the LinearRao. It updates the LinearRaoData with optimisation result in the CRAC
+     * and apply the new range action set points on the netork.
      *
      * @param linearRaoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
-     * @return an OptimizedSituation, set with the optimal combination of RangeAction
-     * calculated by the optimisation problem,
-     *
-     * @throws LinearOptimisationException is the method fails
+     * @throws LinearOptimisationException if the method fails
      */
-    void run(LinearRaoData linearRaoData) {
+    void run(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearRaoProblem = createLinearRaoProblem();
-            buildProblem(linearRaoData);
+            buildProblem(linearRaoData, linearRaoParameters);
             lpInitialised = true;
         } else {
-            updateProblem(linearRaoData);
+            updateProblem(linearRaoData, linearRaoParameters);
         }
 
         solveLinearProblem();
@@ -95,11 +91,9 @@ class LinearOptimisationEngine {
         linearRaoData.applyRangeActionResultsOnNetwork();
     }
 
-    private void buildProblem(LinearRaoData linearRaoData) {
+    private void buildProblem(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
         try {
-            for (ProblemFiller problemFiller : fillerList) {
-                problemFiller.fill(linearRaoData, linearRaoProblem);
-            }
+            fillerList.forEach(problemFiller -> problemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -107,9 +101,9 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void updateProblem(LinearRaoData linearRaoData) {
+    private void updateProblem(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
         try {
-            fillerList.forEach(problemFiller -> problemFiller.update(linearRaoData, linearRaoProblem));
+            fillerList.forEach(problemFiller -> problemFiller.update(linearRaoData, linearRaoProblem, linearRaoParameters));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -147,7 +141,7 @@ class LinearOptimisationEngine {
         return new LinearRaoProblem();
     }
 
-    public void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
+    public static void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
         for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {

@@ -12,18 +12,16 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -69,10 +67,11 @@ abstract class AbstractFillerTest {
     LinearRaoProblem linearRaoProblem;
     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
     LinearRaoData linearRaoData;
+    LinearRaoParameters linearRaoParameters;
     Crac crac;
     Network network;
 
-    void init() throws IOException {
+    void init() {
 
         // arrange some data for all fillers test
         // crac and network
@@ -92,11 +91,14 @@ abstract class AbstractFillerTest {
         when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
         linearRaoProblem = new LinearRaoProblem(solver);
 
-        SensitivityComputationResults sensiResults = SensitivityComputationResultJsonSerializer.read(new InputStreamReader(getClass().getResourceAsStream("/small-sensi-results-1.json")));
-        systematicSensitivityAnalysisResult = new SystematicSensitivityAnalysisResult(new HashMap<>(), new HashMap<>(), new HashMap<>());
-        crac.getStates().forEach(state -> systematicSensitivityAnalysisResult.getStateSensiMap().put(state, sensiResults));
-        systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec1, REF_FLOW_CNEC1_IT1);
-        systematicSensitivityAnalysisResult.getCnecFlowMap().put(cnec2, REF_FLOW_CNEC2_IT1);
+        systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        when(systematicSensitivityAnalysisResult.getFlow(cnec1)).thenReturn(Optional.of(REF_FLOW_CNEC1_IT1));
+        when(systematicSensitivityAnalysisResult.getFlow(cnec2)).thenReturn(Optional.of(REF_FLOW_CNEC2_IT1));
+        when(systematicSensitivityAnalysisResult.getSensitivity(cnec1, rangeAction)).thenReturn(Optional.of(SENSI_CNEC1_IT1));
+        when(systematicSensitivityAnalysisResult.getSensitivity(cnec2, rangeAction)).thenReturn(Optional.of(SENSI_CNEC2_IT1));
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+
+        // parameters
+        linearRaoParameters = new LinearRaoParameters();
     }
 }

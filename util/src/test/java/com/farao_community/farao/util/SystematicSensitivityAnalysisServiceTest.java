@@ -12,9 +12,6 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -26,10 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -41,8 +35,6 @@ import static org.junit.Assert.*;
  */
 public class SystematicSensitivityAnalysisServiceTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisServiceTest.class);
-
     private Network network;
     private ComputationManager computationManager;
     private SimpleCrac crac;
@@ -50,9 +42,6 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Before
     public void setUp() {
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
 
@@ -71,7 +60,6 @@ public class SystematicSensitivityAnalysisServiceTest {
     public void testSensiSAresult() {
         SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(new HashMap<>(), new HashMap<>(), new HashMap<>());
         assertNotNull(result);
-        assertNotNull(result.getStateSensiMap());
     }
 
     @Test(expected = FaraoException.class)
@@ -131,6 +119,63 @@ public class SystematicSensitivityAnalysisServiceTest {
         SensitivityComputationFactory sensitivityComputationFactory = new MockSensitivityComputationFactoryBroken();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+    }
+
+    @Test
+    public void testPositiveIntensitySignManagement() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Network network = (Network) args[0];
+                network.getBranches().forEach(branch -> {
+                    branch.getTerminal1().setP(120.);
+                    branch.getTerminal1().setQ(0);
+                    branch.getTerminal2().setP(120.);
+                    branch.getTerminal2().setQ(0);
+                });
+                network.getBusView().getBuses().forEach(bus -> {
+                    bus.setV(225);
+                });
+
+                return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
+            }
+        }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        LoadFlowService.init(loadFlowRunner, computationManager);
+
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+        crac.getCnecs().forEach(cnec ->  {
+            assertTrue("Failed to produce positive intensity flow when active power flow is positive", result.getIntensity(cnec).get() > 0);
+        });
+    }
+
+    @Test
+    public void testNegativeIntensitySignManagement() {
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Network network = (Network) args[0];
+                network.getBranches().forEach(branch -> {
+                    branch.getTerminal1().setP(-120.);
+                    branch.getTerminal1().setQ(0);
+                    branch.getTerminal2().setP(-120.);
+                    branch.getTerminal2().setQ(0);
+                });
+                network.getBusView().getBuses().forEach(bus -> {
+                    bus.setV(225);
+                });
+                return new LoadFlowResultImpl(true, Collections.emptyMap(), "");
+            }
+        }).when(loadFlowRunner).run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        LoadFlowService.init(loadFlowRunner, computationManager);
+
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+        crac.getCnecs().forEach(cnec ->  {
+            assertTrue("Failed to produce negative intensity flow when active power flow is negative", result.getIntensity(cnec).get() < 0);
+        });
     }
 
     public class MockSensitivityComputationFactory implements SensitivityComputationFactory {

@@ -260,4 +260,21 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
             assertEquals("PST pst_range_id has already been synchronized", e.getMessage());
         }
     }
+
+    @Test
+    public void handleDecreasingAnglesMinMax() {
+        // First test case where deltaU is negative
+        pst.synchronize(network);
+        assertTrue("Failed to compute min and max tap values for PST with negative deltaU",
+                pst.getMinValue(network) <= pst.getMaxValue(network));
+
+        // Then load a new case with a positive delta U and test min and max values
+        Network network2 = Importers.loadNetwork("utils/TestCase12NodesWithPositiveDeltaUPST.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12NodesWithPositiveDeltaUPST.uct"));
+        String networkElementId2 = "BBE2AA1  BBE3AA1  1";
+        NetworkElement networkElement2 = new NetworkElement(networkElementId2);
+        PstWithRange pst2 = new PstWithRange("pst_range_id", networkElement2);
+        pst2.synchronize(network2);
+        assertTrue("Failed to compute min and max tap values for PST with positive deltaU",
+                pst2.getMinValue(network) <= pst2.getMaxValue(network));
+    }
 }
