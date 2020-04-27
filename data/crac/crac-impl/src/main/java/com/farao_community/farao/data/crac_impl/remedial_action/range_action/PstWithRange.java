@@ -131,12 +131,27 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
     // Min value allowed by a range (from Crac)
     @Override
     protected double getMinValueWithRange(Network network, Range range) {
+        return Math.min(lowTapPositionRangeIntersection(network, range), highTapPositionRangeIntersection(network, range));
+    }
+
+    // Max value allowed by a range (from Crac)
+    @Override
+    protected double getMaxValueWithRange(Network network, Range range) {
+        return Math.max(lowTapPositionRangeIntersection(network, range), highTapPositionRangeIntersection(network, range));
+    }
+
+    /**
+    Maximum value between lowTapPosition and lower range bound
+     */
+    private double lowTapPositionRangeIntersection(Network network, Range range) {
         double minValue = range.getMin();
         return convertTapToAngle(Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
     }
 
-    @Override
-    protected double getMaxValueWithRange(Network network, Range range) {
+    /**
+     Minimum value between highTapPosition and upper range bound
+     */
+    private double highTapPositionRangeIntersection(Network network, Range range) {
         double maxValue = range.getMax();
         return convertTapToAngle(Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
     }

@@ -264,6 +264,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void handleDecreasingAnglesMinMax() {
         // First test case where deltaU is negative
+        pst.addRange(new Range(-10.0, 10.0, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         assertTrue("Failed to compute min and max tap values for PST with negative deltaU",
                 pst.getMinValue(network) <= pst.getMaxValue(network));
@@ -273,6 +274,7 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         String networkElementId2 = "BBE2AA1  BBE3AA1  1";
         NetworkElement networkElement2 = new NetworkElement(networkElementId2);
         PstWithRange pst2 = new PstWithRange("pst_range_id", networkElement2);
+        pst2.addRange(new Range(-10.0, 10.0, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
         pst2.synchronize(network2);
         assertTrue("Failed to compute min and max tap values for PST with positive deltaU",
                 pst2.getMinValue(network) <= pst2.getMaxValue(network));
