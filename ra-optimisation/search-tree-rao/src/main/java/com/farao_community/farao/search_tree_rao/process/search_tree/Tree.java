@@ -73,22 +73,7 @@ public final class Tree {
                 break;
             }
 
-            //We use FaraoVariantsPool to manage the multithreading
-            try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant)) {
-                variantsPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
-                    try {
-                        String workingVariant = variantsPool.getAvailableVariant();
-                        leaf.evaluate(network, crac, workingVariant, parameters);
-                        variantsPool.releaseUsedVariant(workingVariant);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                })).get();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                throw new FaraoException(e);
-            }
+            evaluateLeaves(network, crac, referenceNetworkVariant, parameters, generatedLeaves);
 
             List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
@@ -109,6 +94,27 @@ public final class Tree {
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
+    }
+
+    /**
+     * Evaluate all the leaves. We use FaraoVariantsPool to parallelize the computation
+     */
+    private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
+        try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant)) {
+            variantsPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
+                try {
+                    String workingVariant = variantsPool.getAvailableVariant();
+                    leaf.evaluate(network, crac, workingVariant, parameters);
+                    variantsPool.releaseUsedVariant(workingVariant);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            })).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new FaraoException(e);
+        }
     }
 
     /**
