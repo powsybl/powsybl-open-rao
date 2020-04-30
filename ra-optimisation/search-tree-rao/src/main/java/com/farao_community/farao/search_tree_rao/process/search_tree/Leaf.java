@@ -132,11 +132,12 @@ class Leaf {
 
     /**
      * Evaluate the impact of Network Actions (from the current Leaf and
-     * its parents)
+     * its parents).
+     * This method takes a network variant which we switch too, since we may
+     * not generate new variants while multithreading.
      */
     void evaluate(Network network, Crac crac, String networkVariant, RaoParameters parameters) {
         this.status = Status.EVALUATION_RUNNING;
-        String leafNetworkVariant;
 
         if (isRoot()) {
             LOGGER.info("SearchTreeRao: evaluate root leaf");
@@ -148,7 +149,6 @@ class Leaf {
 
         // apply Network Actions
         try {
-            //leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
             network.getVariantManager().setWorkingVariant(networkVariant);
             networkActions.forEach(na -> na.apply(network));
         } catch (FaraoException | PowsyblException e) {
@@ -165,32 +165,10 @@ class Leaf {
             if (this.status == Status.EVALUATION_SUCCESS) {
                 updateRaoResultWithNetworkActions(crac);
             }
-            //deleteNetworkVariant(network, leafNetworkVariant);
-
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
-            //deleteNetworkVariant(network, leafNetworkVariant);
         }
-    }
-
-    private String getUniqueVariantId(Network network) {
-        String uniqueId;
-        do {
-            uniqueId = UUID.randomUUID().toString();
-        } while (network.getVariantManager().getVariantIds().contains(uniqueId));
-        return uniqueId;
-    }
-
-    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
-        Objects.requireNonNull(referenceNetworkVariant);
-        if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
-            throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
-        }
-        String uniqueId = getUniqueVariantId(network);
-        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
-        network.getVariantManager().setWorkingVariant(uniqueId);
-        return uniqueId;
     }
 
     private String getRangeActionRaoName(RaoParameters parameters) {
@@ -202,12 +180,6 @@ class Leaf {
             return Status.EVALUATION_SUCCESS;
         } else {
             return Status.EVALUATION_ERROR;
-        }
-    }
-
-    private void deleteNetworkVariant(Network network, String leafNetworkVariant) {
-        if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
-            network.getVariantManager().removeVariant(leafNetworkVariant);
         }
     }
 

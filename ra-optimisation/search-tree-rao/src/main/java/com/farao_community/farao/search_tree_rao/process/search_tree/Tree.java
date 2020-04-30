@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
  * routing among the leaves in order to converge as quickly as possible to a local
  * minimum of the objective function.
  *
+ * The leaves of a same depth cen be evaluated simultaneously.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -71,9 +73,9 @@ public final class Tree {
                 break;
             }
 
+            //We use FaraoVariantsPool to manage the multithreading
             try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant)) {
                 variantsPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
-                    // Create contingency variant
                     try {
                         String workingVariant = variantsPool.getAvailableVariant();
                         leaf.evaluate(network, crac, workingVariant, parameters);
