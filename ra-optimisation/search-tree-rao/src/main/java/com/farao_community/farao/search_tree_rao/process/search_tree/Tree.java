@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * routing among the leaves in order to converge as quickly as possible to a local
  * minimum of the objective function.
  *
- * The leaves of a same depth cen be evaluated simultaneously.
+ * The leaves of a same depth can be evaluated simultaneously.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -81,7 +81,6 @@ public final class Tree {
             for (Leaf currentLeaf: successfulLeaves) {
                 if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), searchTreeRaoParameters)) {
                     hasImproved = true;
-                    optimalLeaf.deletePostOptimResultVariant(crac);
                     depth = depth + 1;
                     optimalLeaf.deletePostOptimResultVariant(crac);
                     optimalLeaf = currentLeaf;
