@@ -73,7 +73,6 @@
         <module>flow-decomposition</module>
         <module>ra-optimisation</module>
         <module>util</module>
-        <module>data/crac-io/crac-io-xml</module>
     </modules>
 
     <properties>
