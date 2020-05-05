@@ -169,7 +169,7 @@ public class LeafTest {
         String initialVariant = network.getVariantManager().getWorkingVariantId();
 
         Leaf rootLeaf = new Leaf();
-        rootLeaf.evaluate(network, crac, "unknownVariant", raoParameters);
+        rootLeaf.evaluate(network, crac, "unknown variant", raoParameters);
 
         assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
     }
