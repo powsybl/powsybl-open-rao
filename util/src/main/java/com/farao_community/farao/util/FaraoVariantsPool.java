@@ -21,6 +21,8 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
     private final Network network;
     private final String initialVariant;
 
+    private static final Object LOCK = new Object();
+
     public FaraoVariantsPool(Network network, String initialVariant, int parallelism) {
         super(parallelism);
         this.network = network;
@@ -34,16 +36,18 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
     }
 
     private void initAvailableVariants() {
-        for (int i = 0; i < getParallelism(); i++) {
-            String variantId = getVariantByIndex(i);
-            LOGGER.info("Filling variants pool with variant '{}'", variantId);
-            network.getVariantManager().cloneVariant(initialVariant, variantId);
-            boolean isSuccess = variantsQueue.offer(variantId);
-            if (!isSuccess) {
-                throw new AssertionError(String.format("Cannot offer variant '%s' in pool. Should not happen", variantId));
+        synchronized (LOCK) {
+            for (int i = 0; i < getParallelism(); i++) {
+                String variantId = getVariantByIndex(i);
+                LOGGER.info("Filling variants pool with variant '{}'", variantId);
+                network.getVariantManager().cloneVariant(initialVariant, variantId);
+                boolean isSuccess = variantsQueue.offer(variantId);
+                if (!isSuccess) {
+                    throw new AssertionError(String.format("Cannot offer variant '%s' in pool. Should not happen", variantId));
+                }
             }
+            network.getVariantManager().allowVariantMultiThreadAccess(true);
         }
-        network.getVariantManager().allowVariantMultiThreadAccess(true);
     }
 
     public String getAvailableVariant() throws InterruptedException {
@@ -59,9 +63,11 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
     @Override
     public void close() {
         shutdownNow();
-        for (int i = 0; i < getParallelism(); i++) {
-            String variantId = getVariantByIndex(i);
-            network.getVariantManager().removeVariant(variantId);
+        synchronized (LOCK) {
+            for (int i = 0; i < getParallelism(); i++) {
+                String variantId = getVariantByIndex(i);
+                network.getVariantManager().removeVariant(variantId);
+            }
         }
     }
 
