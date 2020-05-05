@@ -69,7 +69,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      * of the Crac.
      */
     @SuppressWarnings("unchecked")
-    public void createVariant(String variantId) {
+    public synchronized void createVariant(String variantId) {
 
         if (variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot create results variant with id [%s], as one with the same id already exists", variantId));
@@ -121,7 +121,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      * {@link AbstractResultExtension} of the Crac.
      */
     @SuppressWarnings("unchecked")
-    public void deleteVariant(String variantId) {
+    public synchronized void deleteVariant(String variantId) {
 
         if (!variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot delete variant with id [%s], as it does not exist", variantId));
@@ -173,7 +173,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
     /**
      * Computes a string with a prefix that is not present in the set, creates a new variant from that string, and returns the string.
      */
-    public String createNewUniqueVariantId(String prefix) {
+    public synchronized String createNewUniqueVariantId(String prefix) {
         String startingId = prefix.concat("-");
         String uniqueId = "";
         do {

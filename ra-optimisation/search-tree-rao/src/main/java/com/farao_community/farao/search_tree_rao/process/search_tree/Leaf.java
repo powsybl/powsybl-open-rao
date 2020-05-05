@@ -16,6 +16,7 @@ import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,11 +132,12 @@ class Leaf {
 
     /**
      * Evaluate the impact of Network Actions (from the current Leaf and
-     * its parents)
+     * its parents).
+     * This method takes a network variant which we switch too, since we may
+     * not generate new variants while multithreading.
      */
-    void evaluate(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters) {
+    void evaluate(Network network, Crac crac, String networkVariant, RaoParameters parameters) {
         this.status = Status.EVALUATION_RUNNING;
-        String leafNetworkVariant;
 
         if (isRoot()) {
             LOGGER.info("SearchTreeRao: evaluate root leaf");
@@ -147,9 +149,9 @@ class Leaf {
 
         // apply Network Actions
         try {
-            leafNetworkVariant = createAndSwitchToNewVariant(network, referenceNetworkVariant);
+            network.getVariantManager().setWorkingVariant(networkVariant);
             networkActions.forEach(na -> na.apply(network));
-        } catch (FaraoException e) {
+        } catch (FaraoException | PowsyblException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
             return;
@@ -157,38 +159,16 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, leafNetworkVariant, parameters);
+            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, networkVariant, parameters);
             this.raoResult = results;
             this.status = buildStatus(results);
             if (this.status == Status.EVALUATION_SUCCESS) {
                 updateRaoResultWithNetworkActions(crac);
             }
-            deleteNetworkVariant(network, leafNetworkVariant);
-
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
-            deleteNetworkVariant(network, leafNetworkVariant);
         }
-    }
-
-    private String getUniqueVariantId(Network network) {
-        String uniqueId;
-        do {
-            uniqueId = UUID.randomUUID().toString();
-        } while (network.getVariantManager().getVariantIds().contains(uniqueId));
-        return uniqueId;
-    }
-
-    private String createAndSwitchToNewVariant(Network network, String referenceNetworkVariant) {
-        Objects.requireNonNull(referenceNetworkVariant);
-        if (!network.getVariantManager().getVariantIds().contains(referenceNetworkVariant)) {
-            throw new FaraoException(String.format("Unknown network variant %s", referenceNetworkVariant));
-        }
-        String uniqueId = getUniqueVariantId(network);
-        network.getVariantManager().cloneVariant(referenceNetworkVariant, uniqueId);
-        network.getVariantManager().setWorkingVariant(uniqueId);
-        return uniqueId;
     }
 
     private String getRangeActionRaoName(RaoParameters parameters) {
@@ -200,12 +180,6 @@ class Leaf {
             return Status.EVALUATION_SUCCESS;
         } else {
             return Status.EVALUATION_ERROR;
-        }
-    }
-
-    private void deleteNetworkVariant(Network network, String leafNetworkVariant) {
-        if (network.getVariantManager().getVariantIds().contains(leafNetworkVariant)) {
-            network.getVariantManager().removeVariant(leafNetworkVariant);
         }
     }
 
