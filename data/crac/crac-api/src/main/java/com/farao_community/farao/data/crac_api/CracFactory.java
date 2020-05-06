@@ -70,7 +70,6 @@ public interface CracFactory {
      * @throws FaraoException if no default has been set and multiple {@code CracFactory} implementations exist.
      */
     static CracFactory findDefault() {
-        Optional<ModuleConfig> configOptional = PlatformConfig.defaultConfig().getOptionalModuleConfig("crac");
         String factoryName = PlatformConfig.defaultConfig().getOptionalModuleConfig("crac")
                 .flatMap(mc -> mc.getOptionalStringProperty("default"))
                 .orElse(null);
