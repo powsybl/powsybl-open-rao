@@ -2,12 +2,9 @@ package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Crac Factory interface.
