@@ -2,12 +2,14 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.google.auto.service.AutoService;
 
 /**
  * Simple Crac Factory implementation.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
+@AutoService(CracFactory.class)
 public class SimpleCracFactory implements CracFactory {
 
     private final String name = "SimpleCracFactory";
@@ -18,8 +20,7 @@ public class SimpleCracFactory implements CracFactory {
     }
 
     @Override
-    public Crac create(String id, String name, String sourceFormat) {
-        Crac simpleCrac = new SimpleCrac(id, name);
-        return simpleCrac;
+    public Crac create(String id, String name) {
+        return new SimpleCrac(id, name);
     }
 }
