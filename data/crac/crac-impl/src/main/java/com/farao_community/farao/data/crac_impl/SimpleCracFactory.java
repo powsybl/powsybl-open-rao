@@ -12,7 +12,7 @@ import com.google.auto.service.AutoService;
 @AutoService(CracFactory.class)
 public class SimpleCracFactory implements CracFactory {
 
-    private final static String NAME = "SimpleCracFactory";
+    private static final String NAME = "SimpleCracFactory";
 
     @Override
     public String getName() {
