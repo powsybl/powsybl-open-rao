@@ -25,6 +25,14 @@ public interface CracFactory {
     Crac create(String id, String name);
 
     /**
+     * Create a {@code Crac} object. Name will be eual to id.
+     *
+     * @param id:           ID to assign to the created Crac.
+     * @return A {@code Crac} instance with given ID, name equal to ID.
+     */
+    Crac create(String id);
+
+    /**
      * Function that returns the name of the implementation
      *
      * @return The name of the CracFactory implementation.

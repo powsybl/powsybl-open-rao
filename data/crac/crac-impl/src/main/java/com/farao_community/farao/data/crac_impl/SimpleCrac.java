@@ -378,6 +378,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.add(networkAction);
     }
 
+    @Override
     public void addRangeAction(RangeAction rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);

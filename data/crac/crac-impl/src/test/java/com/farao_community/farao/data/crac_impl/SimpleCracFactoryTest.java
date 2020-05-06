@@ -17,12 +17,12 @@ public class SimpleCracFactoryTest {
     }
 
     @Test
-    public void testCreateSimpleCrac()
-    {
+    public void testCreateSimpleCrac() {
         String id = "idForTest";
         String name = "testName";
         Crac crac = new SimpleCracFactory().create(id, name);
         assertEquals(crac.getClass(), SimpleCrac.class);
-        assertEquals(crac.);
+        assertEquals(crac.getId(), id);
+        assertEquals(crac.getName(), name);
     }
 }

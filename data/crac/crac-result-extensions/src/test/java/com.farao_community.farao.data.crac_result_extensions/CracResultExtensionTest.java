@@ -9,8 +9,15 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.google.common.jimfs.Jimfs;
+import com.google.common.jimfs.Configuration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.nio.file.FileSystem;
 
 import static org.junit.Assert.*;
 
@@ -18,6 +25,21 @@ import static org.junit.Assert.*;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public class CracResultExtensionTest {
+
+    private FileSystem fileSystem;
+
+    private InMemoryPlatformConfig platformConfig;
+
+    @Before
+    public void setUp() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        fileSystem.close();
+    }
 
     @Test
     public void testCracResultExtension() {
@@ -37,7 +59,7 @@ public class CracResultExtensionTest {
         assertNull(cracResultExtension.getVariant("variant-before-opt"));
 
         // add extension to a Crac
-        Crac crac = new SimpleCrac("cracId");
+        Crac crac = CracFactory.findDefault().create("cracId");
 
         crac.addExtension(CracResultExtension.class, cracResultExtension);
         CracResultExtension ext = crac.getExtension(CracResultExtension.class);

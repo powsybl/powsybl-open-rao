@@ -247,4 +247,10 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     // General methods
     void generateValidityReport(Network network);
+
+    /**
+     * Add a range action to Crac
+     * @param rangeAction: range action object to add
+     */
+    void addRangeAction(RangeAction rangeAction);
 }

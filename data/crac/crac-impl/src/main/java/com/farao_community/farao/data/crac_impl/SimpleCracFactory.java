@@ -23,4 +23,9 @@ public class SimpleCracFactory implements CracFactory {
     public Crac create(String id, String name) {
         return new SimpleCrac(id, name);
     }
+
+    @Override
+    public Crac create(String id) {
+        return new SimpleCrac(id, id);
+    }
 }

@@ -8,9 +8,9 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
@@ -122,7 +122,7 @@ public class LeafTest {
 
     @Test
     public void evaluateOkTest() {
-        crac = new SimpleCrac("CracOk");
+        crac = CracFactory.findDefault().create("CracOk");
         crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
@@ -152,7 +152,7 @@ public class LeafTest {
 
     @Test
     public void evaluateWithRaoFailureTest() {
-        crac = new SimpleCrac(CRAC_NAME_RAO_RETURNS_FAILURE);
+        crac = CracFactory.findDefault().create(CRAC_NAME_RAO_RETURNS_FAILURE);
         crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();

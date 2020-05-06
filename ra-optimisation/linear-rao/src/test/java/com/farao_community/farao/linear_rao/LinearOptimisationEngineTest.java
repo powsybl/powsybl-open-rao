@@ -9,7 +9,6 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -49,7 +48,7 @@ public class LinearOptimisationEngineTest {
     private LinearOptimisationEngine linearOptimisationEngine;
     private LinearRaoProblem linearRaoProblemMock;
     private Network network;
-    private SimpleCrac crac;
+    private Crac crac;
     private PstRange rangeAction;
     private LinearRaoData linearRaoData;
     private MPVariable rangeActionSetPoint;
