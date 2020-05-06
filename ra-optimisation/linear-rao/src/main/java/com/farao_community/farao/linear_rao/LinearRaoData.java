@@ -124,11 +124,11 @@ public class LinearRaoData {
     }
 
     public double getReferenceFlow(Cnec cnec) {
-        return getSystematicSensitivityAnalysisResult().getFlow(cnec).orElseThrow(FaraoException::new);
+        return getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
     }
 
     public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
-        return getSystematicSensitivityAnalysisResult().getSensitivity(cnec, rangeAction).orElse(Double.NaN);
+        return getSystematicSensitivityAnalysisResult().getSensitivityOnFlow(rangeAction, cnec);
     }
 
     /**

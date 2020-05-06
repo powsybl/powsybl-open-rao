@@ -18,23 +18,27 @@ import com.powsybl.sensitivity.SensitivityFunction;
 import com.powsybl.sensitivity.SensitivityVariable;
 import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
 import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
+import com.powsybl.sensitivity.factors.BranchIntensityPerPSTAngle;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
+import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * TODO: Currently, it is not possible to handle the case where there is no PST
+ * available in CRAC file, because of the necessity to generate sensitivity values on
+ * branch intensities. This must be done by adding a BranchIntansityPerInjectionIncrease
+ * factor in PowSyBl sensitivity analysis API.
+ *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class CracFactorsProvider implements SensitivityFactorsProvider {
     private final Crac crac;
 
-    public CracFactorsProvider(Crac crac) {
+    CracFactorsProvider(Crac crac) {
         this.crac = crac;
     }
 
@@ -52,7 +56,8 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
         }
 
         List<SensitivityFunction> sensitivityFunctions = crac.getCnecs().stream()
-                .map(cnec -> cnecToSensitivityFunction(network, cnec))
+                .map(cnec -> cnecToSensitivityFunctions(network, cnec))
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         sensitivityFunctions.forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
@@ -60,24 +65,45 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
     }
 
     private SensitivityVariable defaultSensitivityVariable(Network network) {
-        Generator genKept = network.getGeneratorStream()
+        // First try to get a PST angle
+        Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
                 .filter(this::willBeKeptInSensi)
-                .findFirst()
-                .orElseThrow(() -> new FaraoException(String.format("Unable to create sensitivity factors for CRAC '%s'. Did not find any generator in network '%s'.", crac.getId(), network.getId())));
-        return new InjectionIncrease(genKept.getId(), genKept.getName(), genKept.getId());
+                .findAny();
+
+        if (optionalPst.isPresent()) {
+            TwoWindingsTransformer pst = optionalPst.get();
+            return new PhaseTapChangerAngle(pst.getId(), pst.getNameOrId(), pst.getId());
+        }
+
+        // If no one found, pick a Generator injection
+        Optional<Generator> optionalGen = network.getGeneratorStream()
+                .filter(this::willBeKeptInSensi)
+                .findAny();
+
+        if (optionalGen.isPresent()) {
+            Generator gen = optionalGen.get();
+            return new InjectionIncrease(gen.getId(), gen.getNameOrId(), gen.getId());
+        }
+        throw new FaraoException(String.format("Unable to create sensitivity factors for CRAC '%s'. Did not find any varying element in network '%s'.", crac.getId(), network.getId()));
+    }
+
+    private boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
+        return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
+                twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
+                twoWindingsTransformer.getPhaseTapChanger() != null;
     }
 
     private boolean willBeKeptInSensi(Generator gen) {
-        return gen.getTerminal().isConnected() && gen.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
+        return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    private SensitivityFunction cnecToSensitivityFunction(Network network, Cnec cnec) {
+    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, Cnec cnec) {
         String id = cnec.getId();
         String name = cnec.getName();
         String branchId = cnec.getNetworkElement().getId();
         Identifiable networkIdentifiable = network.getIdentifiable(branchId);
         if (networkIdentifiable instanceof Branch) {
-            return new BranchFlow(id, name, branchId);
+            return Arrays.asList(new BranchFlow(id, name, branchId), new BranchIntensity(id, name, branchId));
         } else {
             throw new FaraoException("Unable to create sensitivity function for " + id);
         }
@@ -106,6 +132,12 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
                 return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);
             } else if (variable instanceof InjectionIncrease) {
                 return new BranchFlowPerInjectionIncrease((BranchFlow) function, (InjectionIncrease) variable);
+            } else {
+                throw new FaraoException("Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName());
+            }
+        } else if (function instanceof BranchIntensity) {
+            if (variable instanceof PhaseTapChangerAngle) {
+                return new BranchIntensityPerPSTAngle((BranchIntensity) function, (PhaseTapChangerAngle) variable);
             } else {
                 throw new FaraoException("Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName());
             }
