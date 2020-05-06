@@ -76,28 +76,26 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public NetworkElementAdderToCrac newNetworkElement() {
+        return new NetworkElementAdderToCrac(this);
+    }
+
+    @Override
     public final Set<NetworkElement> getNetworkElements() {
         return networkElements;
     }
 
+    @Override
     public NetworkElement addNetworkElement(String networkElementId) {
         return addNetworkElement(networkElementId, networkElementId);
     }
 
+    @Override
     public NetworkElement addNetworkElement(NetworkElement networkElement) {
         return addNetworkElement(networkElement.getId(), networkElement.getName());
     }
 
-    /**
-     * This method add a network element to the crac internal set and returns a network element of this set.
-     * If an element with the same data is already added, the element of the internal set will be returned,
-     * otherwise it is created and then returned. An error is thrown when an element with an already
-     * existing ID is added with a different name.
-     *
-     * @param networkElementId: network element ID as in network files
-     * @param networkElementName: network element name for more human readable name
-     * @return a network element object that is already defined in the crac
-     */
+    @Override
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
@@ -109,6 +107,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return cracNetworkElement;
     }
 
+    @Override
     public final NetworkElement getNetworkElement(String id) {
         return networkElements.stream().filter(networkElement -> networkElement.getId().equals(id)).findFirst().orElse(null);
     }
@@ -126,6 +125,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .orElse(null);
     }
 
+    @Override
     public Instant addInstant(String id, int seconds) {
         Instant instant = new Instant(id, seconds);
         checkAndAddInstant(instant);
@@ -163,6 +163,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .orElse(null);
     }
 
+    @Override
     public Contingency addContingency(String id, String... networkElementIds) {
         Set<NetworkElement> networkElementsToAdd = new HashSet<>();
         for (String networkElementId: networkElementIds) {
@@ -201,6 +202,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return states;
     }
 
+    @Override
     public final State getState(String id) {
         return states.stream().filter(state -> state.getId().equals(id)).findFirst().orElse(null);
     }
@@ -234,6 +236,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .orElse(null);
     }
 
+    @Override
+    public StateAdder newState() {
+        return new StateAdder(this);
+    }
+
+    @Override
     public State addState(Contingency contingency, Instant instant) {
         State state;
         if (contingency != null) {
@@ -253,6 +261,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return state;
     }
 
+    @Override
     public State addState(String contingencyId, String instantId) {
         State state;
         if (contingencyId != null) {
@@ -372,6 +381,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkActions;
     }
 
+    @Override
     public void addNetworkAction(NetworkAction networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);

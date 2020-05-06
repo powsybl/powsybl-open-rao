@@ -253,4 +253,67 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param rangeAction: range action object to add
      */
     void addRangeAction(RangeAction rangeAction);
+
+    /**
+     * This method add a network element to the crac internal set and returns a network element of this set.
+     * If an element with the same data is already added, the element of the internal set will be returned,
+     * otherwise it is created and then returned. An error is thrown when an element with an already
+     * existing ID is added with a different name.
+     *
+     * @param networkElementId: network element ID as in network files
+     * @param networkElementName: network element name for more human readable name
+     * @return a network element object that is already defined in the crac
+     */
+    NetworkElement addNetworkElement(String networkElementId, String networkElementName);
+
+    /**
+     * Add a network element to the crac with a specific id
+     * @param networkElementId: ID of the element to add
+     * @return the added {@code NetworkElement} object
+     */
+    NetworkElement addNetworkElement(String networkElementId);
+
+    /**
+     * Add a network element to the crac using a {@code NetworkElement} object
+     * @param networkElement: {@code NetworkElement} to add
+     * @return the added {@code NetworkElement} object
+     */
+    NetworkElement addNetworkElement(NetworkElement networkElement);
+
+    /**
+     * Get a network element by its ID
+     * @param id: ID of the element to get
+     * @return {@code NetworkElement} object
+     */
+    NetworkElement getNetworkElement(String id);
+
+    /**
+     * Add an instant to the crac
+     * @param id: ID of the instant
+     * @param seconds: seconds of the instant
+     * @return: the created {@code Instant} object
+     */
+    Instant addInstant(String id, int seconds);
+
+    Contingency addContingency(String id, String... networkElementIds);
+
+    State addState(String contingencyId, String instantId);
+
+    State getState(String id);
+
+    State addState(Contingency contingency, Instant instant);
+
+    void addNetworkAction(NetworkAction networkAction);
+
+    /**
+     * Get a {@code NetworkElement} adder, to add a network element to the Crac
+     * @return a {@code NetworkelementAdder} instance
+     */
+    NetworkElementAdderToCrac newNetworkElement();
+
+    /**
+     * Get a {@code StateAdder} adder, to add a state to the Crac
+     * @return a {@code StateAdder} instance
+     */
+    StateAdder newState();
 }

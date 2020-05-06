@@ -97,4 +97,10 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      */
     double getP(Network network);
 
+    /**
+     * Set the critical network element
+     * @param networkElement: critical {@code NetworkElement} instance
+     */
+    void setNetworkElement(NetworkElement networkElement);
+
 }

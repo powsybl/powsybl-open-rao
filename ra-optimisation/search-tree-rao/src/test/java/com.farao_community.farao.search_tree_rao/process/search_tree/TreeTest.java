@@ -83,7 +83,7 @@ public class TreeTest {
 
     @Test
     public void searchTest() throws ExecutionException, InterruptedException {
-        SimpleCrac crac = new SimpleCrac("id");
+        Crac crac = CracFactory.findDefault().create("id");
         crac.addState(new SimpleState(Optional.empty(), new Instant("inst", 0)));
         NetworkElement networkElement = new NetworkElement("BBE1AA1  BBE2AA1  1");
         crac.addNetworkElement(networkElement);
