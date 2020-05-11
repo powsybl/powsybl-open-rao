@@ -99,7 +99,8 @@ public final class Tree {
      * Evaluate all the leaves. We use FaraoVariantsPool to parallelize the computation
      */
     private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
-        try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant)) {
+        //TODO: remove the parallelism argument (currently at 1) once a fix is done
+        try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant, 1)) {
             variantsPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
                     String workingVariant = variantsPool.getAvailableVariant();
