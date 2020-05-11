@@ -31,6 +31,8 @@ import static org.junit.Assert.*;
 public class SystematicSensitivityAnalysisResultTest {
     private static final double EPSILON = 1e-2;
     private SensitivityComputationResults sensitivityComputationResults;
+    private Network network;
+    private Crac crac;
     private Cnec nStateCnec;
     private Cnec contingencyCnec;
     private Contingency contingency;
@@ -38,8 +40,8 @@ public class SystematicSensitivityAnalysisResultTest {
 
     @Before
     public void setUp() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPstRange();
+        network = NetworkImportsUtil.import12NodesNetwork();
+        crac = CommonCracCreation.createWithPstRange();
         sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
                 .run(new CracFactorsProvider(crac), new CracContingenciesProvider(crac), network.getVariantManager().getWorkingVariantId(), null).join();
         nStateCnec = crac.getCnec("cnec1basecase");
@@ -51,21 +53,22 @@ public class SystematicSensitivityAnalysisResultTest {
     @Test
     public void testCompleteResultManipulation() {
         // When
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults);
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults, network, crac);
 
         // Then
         assertTrue(result.isSuccess());
         //  in basecase
+        double vNom = network.getBranch(nStateCnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
         assertEquals(10, result.getReferenceFlow(nStateCnec), EPSILON);
-        assertEquals(100, result.getReferenceIntensity(nStateCnec), EPSILON);
+        assertEquals(100 * 100 / vNom, result.getReferenceIntensity(nStateCnec), EPSILON);
         assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec), EPSILON);
-        assertEquals(0.25, result.getSensitivityOnIntensity(rangeAction, nStateCnec), EPSILON);
+        assertEquals(0.25 * 100 / vNom, result.getSensitivityOnIntensity(rangeAction, nStateCnec), EPSILON);
 
         //  after contingency
         assertEquals(-20, result.getReferenceFlow(contingencyCnec), EPSILON);
-        assertEquals(-200, result.getReferenceIntensity(contingencyCnec), EPSILON);
+        assertEquals(-200 * 100 / vNom, result.getReferenceIntensity(contingencyCnec), EPSILON);
         assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec), EPSILON);
-        assertEquals(-5, result.getSensitivityOnIntensity(rangeAction, contingencyCnec), EPSILON);
+        assertEquals(-5 * 100 / vNom, result.getSensitivityOnIntensity(rangeAction, contingencyCnec), EPSILON);
 
     }
 
@@ -74,7 +77,7 @@ public class SystematicSensitivityAnalysisResultTest {
         // When
         SensitivityComputationResults sensitivityComputationResults = Mockito.mock(SensitivityComputationResults.class);
         Mockito.when(sensitivityComputationResults.isOk()).thenReturn(false);
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults);
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults, network, crac);
 
         // Then
         assertFalse(result.isSuccess());

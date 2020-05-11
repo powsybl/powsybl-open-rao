@@ -54,7 +54,7 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Test
     public void testSensiSAresult() {
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(Mockito.mock(SensitivityComputationResults.class));
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(Mockito.mock(SensitivityComputationResults.class), network, crac);
         assertNotNull(result);
     }
 
