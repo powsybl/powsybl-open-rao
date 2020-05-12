@@ -28,7 +28,8 @@ public class CnecResult implements Result {
     private double minThresholdInA;
     private double maxThresholdInA;
 
-    private double loopflowConstraint;
+    private double loopflowConstraint; //loopflow constraint used in rao
+    private double loopflow; //loopflow value
 
     @JsonCreator
     public CnecResult(@JsonProperty("flowInMW") double flowInMW, @JsonProperty("flowInA") double flowInA) {
@@ -39,6 +40,7 @@ public class CnecResult implements Result {
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
         this.loopflowConstraint = Double.NaN;
+        this.loopflow = Double.NaN;
     }
 
     public CnecResult(double flowInMW) {
@@ -49,6 +51,7 @@ public class CnecResult implements Result {
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
         this.loopflowConstraint = Double.NaN;
+        this.loopflow = Double.NaN;
     }
 
     public CnecResult() {
@@ -59,6 +62,7 @@ public class CnecResult implements Result {
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
         this.loopflowConstraint = Double.NaN;
+        this.loopflow = Double.NaN;
     }
 
     public void setFlowInMW(double flow) {
@@ -122,5 +126,13 @@ public class CnecResult implements Result {
 
     public void setLoopflowConstraint(double loopflowConstraint) {
         this.loopflowConstraint = loopflowConstraint;
+    }
+
+    public double getLoopflow() {
+        return loopflow;
+    }
+
+    public void setLoopflow(double loopflow) {
+        this.loopflow = loopflow;
     }
 }

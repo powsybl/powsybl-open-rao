@@ -47,9 +47,11 @@ public class CnecResultTest {
     }
 
     @Test
-    public void testCnecResultSetGetLoopflowConstraint() {
+    public void testCnecResultSetGetLoopflow() {
         CnecResult cnecResult = new CnecResult();
         cnecResult.setLoopflowConstraint(1.0);
         assertEquals(1.0, cnecResult.getLoopflowConstraint(), DOUBLE_TOLERANCE);
+        cnecResult.setLoopflow(2.0);
+        assertEquals(2.0, cnecResult.getLoopflow(), DOUBLE_TOLERANCE);
     }
 }
