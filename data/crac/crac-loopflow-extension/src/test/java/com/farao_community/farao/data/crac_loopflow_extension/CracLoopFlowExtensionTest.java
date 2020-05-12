@@ -39,8 +39,6 @@ public class CracLoopFlowExtensionTest {
     @Test
     public void testCnecLoopFlowExtension() {
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
-        cnecLoopFlowExtension.setLoopFlowConstraint(100);
-        assertEquals(100, cnecLoopFlowExtension.getLoopFlowConstraint(), 0.1);
         assertEquals(0.0, cnecLoopFlowExtension.getInputLoopFlow(), 0.1);
         CnecLoopFlowExtension cnecLoopFlowExtensionBeta = new CnecLoopFlowExtension(100.0);
         assertEquals(100, cnecLoopFlowExtensionBeta.getInputLoopFlow(), 0.1);
