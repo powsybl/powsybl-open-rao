@@ -82,6 +82,9 @@ public class LoopFlowComputationTest {
     public void testPtdf() {
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
+        List<Country> countriesFromGlsk = new ArrayList<>();
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> countriesFromGlsk.add(Country.valueOf(key)));
+        assertEquals(countriesFromGlsk.size(), countries.size());
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
