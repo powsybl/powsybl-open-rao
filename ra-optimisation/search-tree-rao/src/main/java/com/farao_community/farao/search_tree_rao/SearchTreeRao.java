@@ -10,8 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -55,7 +53,7 @@ public class SearchTreeRao implements RaoProvider {
             //For the initial Network, compute the F_(0,all)_init
             LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
             Map<String, Double> loopFlows = initialLoopFlowComputation.calculateLoopFlows(network);
-            updateCnecsLoopFlowConstraint(crac, loopFlows, variantId);
+            updateCnecsLoopFlowConstraint(crac, loopFlows); //todo: cnec loop flow extension need to be based on ResultVariantManger
         }
 
         // run optimisation
@@ -63,19 +61,16 @@ public class SearchTreeRao implements RaoProvider {
         return CompletableFuture.completedFuture(result);
     }
 
-    public void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll, String networkVariantId) {
+    public void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll) {
         // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(networkVariantId);
             if (!Objects.isNull(cnecLoopFlowExtension)) {
                 //!!! note here we use the result of branch flow of preventive state for all cnec of all states
                 //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
-                double currentLoopflow = fZeroAll.get(cnec.getNetworkElement().getId());
-                double inputLoopflowLimit = cnecLoopFlowExtension.getInputLoopFlow();
-                double cnecLoopflowThreshold = Math.max(currentLoopflow, inputLoopflowLimit);
-
-                cnecResult.setLoopflowConstraint(cnecLoopflowThreshold);
+                double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
+                double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
+                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
             }
         });
     }

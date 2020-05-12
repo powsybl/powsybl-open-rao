@@ -8,9 +8,8 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -56,8 +55,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             double loopFlowShift = 0.0;
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(linearRaoData.getWorkingVariantId());
-            double maxLoopFlowLimit = Math.abs(cnecResult.getLoopflowConstraint());
+            double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);
             }
