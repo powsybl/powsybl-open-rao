@@ -1,67 +1,23 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
-import com.powsybl.iidm.network.Branch;
+import com.farao_community.farao.data.crac_api.NetworkElementAdder;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import java.util.Collections;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class NetworkElementAdderImplTest {
 
-    private SimpleCnec cnec;
     private SimpleCrac crac;
-    private Contingency contingency;
 
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
-
-        // mock threshold
-        AbstractFlowThreshold threshold = Mockito.mock(AbstractFlowThreshold.class);
-        Mockito.when(threshold.copy()).thenReturn(threshold);
-        Mockito.when(threshold.getBranchSide()).thenReturn(Branch.Side.ONE);
-        State state = Mockito.mock(State.class);
-
-        // arrange Cnecs
-        cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(threshold), state);
-
-        // init contingency
-        contingency = new ComplexContingency("test-contingecy");
-    }
-
-    @Test
-    public void testCnecAddNetworkElement() {
-        cnec.newNetworkElement()
-                .setId("neID")
-                .setName("neName")
-                .add();
-        assertNotNull(cnec.getNetworkElement());
-        assertEquals("neID", cnec.getNetworkElement().getId());
-        assertEquals("neName", cnec.getNetworkElement().getName());
-    }
-
-    @Test
-    public void testCnecAddNetworkElementNoName() {
-        cnec.newNetworkElement()
-                .setId("neID")
-                .add();
-        assertNotNull(cnec.getNetworkElement());
-        assertEquals("neID", cnec.getNetworkElement().getId());
-        assertEquals("neID", cnec.getNetworkElement().getName());
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testCnecAddNetworkElementNoIdFail() {
-        cnec.newNetworkElement()
-                .setName("neName")
-                .add();
     }
 
     @Test
