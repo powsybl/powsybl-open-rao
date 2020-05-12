@@ -152,7 +152,7 @@ public class LeafTest {
 
     @Test
     public void evaluateWithRaoFailureTest() {
-        crac = crac = new SimpleCrac(CRAC_NAME_RAO_RETURNS_FAILURE);
+        crac = new SimpleCrac(CRAC_NAME_RAO_RETURNS_FAILURE);
         crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();

@@ -94,6 +94,16 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return addNetworkElement(networkElement.getId(), networkElement.getName());
     }
 
+    /**
+     * This method add a network element to the crac internal set and returns a network element of this set.
+     * If an element with the same data is already added, the element of the internal set will be returned,
+     * otherwise it is created and then returned. An error is thrown when an element with an already
+     * existing ID is added with a different name.
+     *
+     * @param networkElementId: network element ID as in network files
+     * @param networkElementName: network element name for more human readable name
+     * @return a network element object that is already defined in the crac
+     */
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
@@ -179,6 +189,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return Objects.requireNonNull(getContingency(contingency.getId()));
     }
 
+    @Override
     public void addContingency(Contingency contingency) {
         // If no strictly equal elements are present in the Crac
         if (contingencies.stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {

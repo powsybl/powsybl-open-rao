@@ -214,7 +214,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     void addCnec(Cnec cnec);
 
-    // Range actions managemen
+    // Range actions management
     /**
      * Get a PstRangeAction adder, to add a {@code PstWithRange}
      * @return a {@code PstRangeActionAdder} instance
