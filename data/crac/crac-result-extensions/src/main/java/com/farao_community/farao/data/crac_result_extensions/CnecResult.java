@@ -28,7 +28,6 @@ public class CnecResult implements Result {
     private double minThresholdInA;
     private double maxThresholdInA;
 
-    private double loopflowConstraint; //loopflow constraint used in rao
     private double loopflow; //loopflow value
 
     @JsonCreator
@@ -39,7 +38,6 @@ public class CnecResult implements Result {
         this.maxThresholdInMW = Double.NaN;
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
-        this.loopflowConstraint = Double.NaN;
         this.loopflow = Double.NaN;
     }
 
@@ -50,7 +48,6 @@ public class CnecResult implements Result {
         this.maxThresholdInMW = Double.NaN;
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
-        this.loopflowConstraint = Double.NaN;
         this.loopflow = Double.NaN;
     }
 
@@ -61,7 +58,6 @@ public class CnecResult implements Result {
         this.maxThresholdInMW = Double.NaN;
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
-        this.loopflowConstraint = Double.NaN;
         this.loopflow = Double.NaN;
     }
 
@@ -118,14 +114,6 @@ public class CnecResult implements Result {
 
     public void setMaxThresholdInA(double maxThresholdInA) {
         this.maxThresholdInA = maxThresholdInA;
-    }
-
-    public double getLoopflowConstraint() {
-        return loopflowConstraint;
-    }
-
-    public void setLoopflowConstraint(double loopflowConstraint) {
-        this.loopflowConstraint = loopflowConstraint;
     }
 
     public double getLoopflow() {
