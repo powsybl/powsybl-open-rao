@@ -36,12 +36,12 @@ import static org.junit.Assert.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class CracFileTest {
-    private Crac crac;
+    private SimpleCrac crac;
     private static final Logger LOGGER = LoggerFactory.getLogger(CracFileTest.class);
 
     @Before
     public void setUp() {
-        crac = CracFactory.findDefault().create("test-crac");
+        crac = new SimpleCrac("test-crac");
     }
 
     @Test
@@ -50,31 +50,6 @@ public class CracFileTest {
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("neID"));
         assertSame(networkElement, crac.getNetworkElement("neID"));
-    }
-
-    @Test
-    public void testAddNetworkElementWithAdder() {
-        Crac crac2 = crac.newNetworkElement()
-                .setId("neID")
-                .setName("neName")
-                .add();
-        Crac crac3 = crac.newNetworkElement()
-                .setId("neID2")
-                .add();
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neID"));
-        assertEquals("neName", crac.getNetworkElement("neID").getName());
-        assertNotNull(crac.getNetworkElement("neID2"));
-        assertEquals("neID2", crac.getNetworkElement("neID2").getName());
-        assertSame(crac, crac2);
-        assertSame(crac, crac3);
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testAddNetworkElementWithAdderNoIdFail() {
-        crac.newNetworkElement()
-                .setName("neName")
-                .add();
     }
 
     @Test
@@ -259,34 +234,10 @@ public class CracFileTest {
     }
 
     @Test
-    public void addStatesWithAdder() {
-        Contingency contingency = crac.addContingency("contingency", "neID");
-        Instant instant = crac.addInstant("instant", 5);
-        Crac crac2 = crac.newState()
-                .setContingency(contingency)
-                .setInstant(instant)
-                .add();
-        assertSame(crac, crac2);
-        assertNotNull(crac.getState("contingency-instant"));
-        assertSame(instant, crac.getState("contingency-instant").getInstant());
-    }
-
-    @Test
     public void addStatesWithObjectPreventive() {
         Instant instant = crac.addInstant("instant", 0);
         crac.addState(null, instant);
         assertNotNull(crac.getState("none-instant"));
-    }
-
-    @Test
-    public void addStatesWithAdderPreventive() {
-        Instant instant = crac.addInstant("instant", 5);
-        Crac crac2 = crac.newState()
-                .setInstant(instant)
-                .add();
-        assertSame(crac, crac2);
-        assertNotNull(crac.getState("none-instant"));
-        assertSame(instant, crac.getState("none-instant").getInstant());
     }
 
     @Test
@@ -297,14 +248,6 @@ public class CracFileTest {
         } catch (FaraoException e) {
             // must throw
         }
-    }
-
-    @Test(expected = FaraoException.class)
-    public void addStatesWithAdderFail() {
-        Contingency contingency = crac.addContingency("contingency", "neID");
-        crac.newState()
-                .setContingency(contingency)
-                .add();
     }
 
     @Test

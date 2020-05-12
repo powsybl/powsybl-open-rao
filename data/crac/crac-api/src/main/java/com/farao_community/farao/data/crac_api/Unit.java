@@ -19,7 +19,8 @@ public enum Unit {
     AMPERE(PhysicalParameter.FLOW),
     DEGREE(PhysicalParameter.ANGLE),
     MEGAWATT(PhysicalParameter.FLOW),
-    KILOVOLT(PhysicalParameter.VOLTAGE);
+    KILOVOLT(PhysicalParameter.VOLTAGE),
+    PERCENT(PhysicalParameter.FLOW);
 
     private PhysicalParameter physicalParameter;
 

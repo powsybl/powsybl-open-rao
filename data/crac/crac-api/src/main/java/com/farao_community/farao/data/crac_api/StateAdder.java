@@ -1,38 +1,27 @@
 package com.farao_community.farao.data.crac_api;
 
-import com.farao_community.farao.commons.FaraoException;
-
-import java.util.Objects;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class StateAdder {
-    Crac parent;
-    private Instant instant = null;
-    private Contingency contingency = null;
+public interface StateAdder {
 
-    public StateAdder(Crac parent) {
-        this.parent = parent;
-    }
+    /**
+     * Set the instant of the new state
+     * @param instant: the instant to set
+     * @return the {@code StateAdder} instance
+     */
+    StateAdder setInstant(Instant instant);
 
-    public StateAdder setInstant(Instant instant) {
-        Objects.requireNonNull(instant);
-        this.instant = instant;
-        return this;
-    }
+    /**
+     * Set the contingency of the new state
+     * @param contingency: the contingency to set
+     * @return the {@code StateAdder} instance
+     */
+    StateAdder setContingency(Contingency contingency);
 
-    public StateAdder setContingency(Contingency contingency) {
-        Objects.requireNonNull(contingency);
-        this.contingency = contingency;
-        return this;
-    }
-
-    public Crac add() {
-        if (this.instant == null) {
-            throw new FaraoException("Cannot add a state with no specified instant");
-        }
-        parent.addState(this.contingency, this.instant);
-        return parent;
-    }
+    /**
+     * Add the new state to the Crac
+     * @return the {@code State} instance create
+     */
+    State add();
 }

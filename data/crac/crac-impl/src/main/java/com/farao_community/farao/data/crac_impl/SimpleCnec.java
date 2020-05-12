@@ -59,9 +59,24 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return Math.min(getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - actualValue, actualValue - getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
     }
 
-    @Override
+    /**
+     * Set the critical network element
+     * @param networkElement: critical {@code NetworkElement} instance
+     *                      TO DO : make private package
+     */
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
+    }
+
+    @Override
+    public NetworkElement addNetworkElement(NetworkElement networkElement) {
+        setNetworkElement(networkElement);
+        return networkElement;
+    }
+
+    @Override
+    public NetworkElementAdder newNetworkElement() {
+        return new NetworkElementAdderImpl<SimpleCnec>(this);
     }
 
     public Set<AbstractThreshold> getThresholds() {

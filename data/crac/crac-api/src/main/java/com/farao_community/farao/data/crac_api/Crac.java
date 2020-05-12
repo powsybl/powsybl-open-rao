@@ -30,18 +30,29 @@ import java.util.TreeSet;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable<Crac>, Synchronizable {
+public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElementParent {
 
     Set<NetworkElement> getNetworkElements();
 
     Set<Instant> getInstants();
 
     // Instants management
+    /**
+     * Get a {@code Instant} adder, to add an instant
+     * @return a {@code InstantAdder} instance
+     */
+    InstantAdder newInstant();
+
     Instant getInstant(String id);
 
     void addInstant(Instant instant);
 
     // Contingencies management
+    /**
+     * Get a {@code Contingency} adder, to add a contingency
+     * @return a {@code ContingencyAdder} instance
+     */
+    ContingencyAdder newContingency();
 
     /**
      * Gather all the contingencies present in the Crac. It returns a set because contingencies
@@ -55,7 +66,15 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     void addContingency(Contingency contingency);
 
-    //States management
+    // States management
+    /**
+     * Get a {@code State} adder, to add a state to the Crac
+     * @return a {@code StateAdder} instance
+     */
+    StateAdder newState();
+
+    State getState(String id);
+
     /**
      * Select the preventive state. This state must be unique. It's the only state that is
      * defined with no contingency.
@@ -157,6 +176,12 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     // Cnecs management
 
     /**
+     * Get a {@code Cnec} adder, to add a cnec to the Crac
+     * @return a {@code CnecAdder} instance
+     */
+    CnecAdder newCnec();
+
+    /**
      * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
@@ -191,7 +216,13 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     void addCnec(Cnec cnec);
 
-    // Range actions management
+    // Range actions managemen
+    /**
+     * Get a PstRangeAction adder, to add a {@code PstWithRange}
+     * @return a {@code PstRangeActionAdder} instance
+     */
+    PstRangeActionAdder newPstRangeAction();
+
     /**
      * Gather all the range actions present in the Crac. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
@@ -245,6 +276,22 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      */
     NetworkAction getNetworkAction(String id);
 
+    /**
+     * Get a network element by its ID
+     * @param id: ID of the element to get
+     * @return {@code NetworkElement} object
+     */
+    NetworkElement getNetworkElement(String id);
+
+    void addNetworkAction(NetworkAction networkAction);
+
+    // Network elements management
+    /**
+     * Get a {@code NetworkElement} adder, to add a network element
+     * @return a {@code NetworkElementAdder} instance
+     */
+    NetworkElementAdder<Crac> newNetworkElement();
+
     // General methods
     void generateValidityReport(Network network);
 
@@ -253,67 +300,4 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param rangeAction: range action object to add
      */
     void addRangeAction(RangeAction rangeAction);
-
-    /**
-     * This method add a network element to the crac internal set and returns a network element of this set.
-     * If an element with the same data is already added, the element of the internal set will be returned,
-     * otherwise it is created and then returned. An error is thrown when an element with an already
-     * existing ID is added with a different name.
-     *
-     * @param networkElementId: network element ID as in network files
-     * @param networkElementName: network element name for more human readable name
-     * @return a network element object that is already defined in the crac
-     */
-    NetworkElement addNetworkElement(String networkElementId, String networkElementName);
-
-    /**
-     * Add a network element to the crac with a specific id
-     * @param networkElementId: ID of the element to add
-     * @return the added {@code NetworkElement} object
-     */
-    NetworkElement addNetworkElement(String networkElementId);
-
-    /**
-     * Add a network element to the crac using a {@code NetworkElement} object
-     * @param networkElement: {@code NetworkElement} to add
-     * @return the added {@code NetworkElement} object
-     */
-    NetworkElement addNetworkElement(NetworkElement networkElement);
-
-    /**
-     * Get a network element by its ID
-     * @param id: ID of the element to get
-     * @return {@code NetworkElement} object
-     */
-    NetworkElement getNetworkElement(String id);
-
-    /**
-     * Add an instant to the crac
-     * @param id: ID of the instant
-     * @param seconds: seconds of the instant
-     * @return: the created {@code Instant} object
-     */
-    Instant addInstant(String id, int seconds);
-
-    Contingency addContingency(String id, String... networkElementIds);
-
-    State addState(String contingencyId, String instantId);
-
-    State getState(String id);
-
-    State addState(Contingency contingency, Instant instant);
-
-    void addNetworkAction(NetworkAction networkAction);
-
-    /**
-     * Get a {@code NetworkElement} adder, to add a network element to the Crac
-     * @return a {@code NetworkelementAdder} instance
-     */
-    NetworkElementAdderToCrac newNetworkElement();
-
-    /**
-     * Get a {@code StateAdder} adder, to add a state to the Crac
-     * @return a {@code StateAdder} instance
-     */
-    StateAdder newState();
 }

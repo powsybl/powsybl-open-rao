@@ -76,8 +76,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public NetworkElementAdderToCrac newNetworkElement() {
-        return new NetworkElementAdderToCrac(this);
+    public NetworkElementAdder newNetworkElement() {
+        return new NetworkElementAdderImpl<SimpleCrac>(this);
     }
 
     @Override
@@ -85,7 +85,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkElements;
     }
 
-    @Override
     public NetworkElement addNetworkElement(String networkElementId) {
         return addNetworkElement(networkElementId, networkElementId);
     }
@@ -95,7 +94,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return addNetworkElement(networkElement.getId(), networkElement.getName());
     }
 
-    @Override
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
@@ -113,6 +111,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public InstantAdder newInstant() {
+        return new InstantAdderImpl(this);
+    }
+
+    @Override
     public final Set<Instant> getInstants() {
         return instants;
     }
@@ -125,7 +128,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .orElse(null);
     }
 
-    @Override
     public Instant addInstant(String id, int seconds) {
         Instant instant = new Instant(id, seconds);
         checkAndAddInstant(instant);
@@ -164,6 +166,10 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public ContingencyAdder newContingency() {
+        return new ComplexContingencyAdder(this);
+    }
+
     public Contingency addContingency(String id, String... networkElementIds) {
         Set<NetworkElement> networkElementsToAdd = new HashSet<>();
         for (String networkElementId: networkElementIds) {
@@ -174,7 +180,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return Objects.requireNonNull(getContingency(contingency.getId()));
     }
 
-    @Override
     public void addContingency(Contingency contingency) {
         // If no strictly equal elements are present in the Crac
         if (contingencies.stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
@@ -237,11 +242,10 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public StateAdder newState() {
-        return new StateAdder(this);
+    public SimpleStateAdder newState() {
+        return new SimpleStateAdder(this);
     }
 
-    @Override
     public State addState(Contingency contingency, Instant instant) {
         State state;
         if (contingency != null) {
@@ -261,7 +265,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return state;
     }
 
-    @Override
     public State addState(String contingencyId, String instantId) {
         State state;
         if (contingencyId != null) {
@@ -314,6 +317,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             contingency = Optional.empty();
         }
         states.add(new SimpleState(contingency, instant));
+    }
+
+    @Override
+    public CnecAdder newCnec() {
+        return new SimpleCnecAdder(this);
     }
 
     @Override
@@ -372,6 +380,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public PstRangeActionAdder newPstRangeAction() {
+        return new PstRangeActionAdderImpl(this);
+    }
+
+    @Override
     public Set<RangeAction> getRangeActions() {
         return rangeActions;
     }
@@ -381,7 +394,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return networkActions;
     }
 
-    @Override
     public void addNetworkAction(NetworkAction networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);

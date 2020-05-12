@@ -21,7 +21,7 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Cnec extends Identifiable<Cnec>, Synchronizable {
+public interface Cnec extends Identifiable<Cnec>, Synchronizable, NetworkElementParent {
 
     State getState();
 
@@ -98,9 +98,9 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
     double getP(Network network);
 
     /**
-     * Set the critical network element
-     * @param networkElement: critical {@code NetworkElement} instance
+     * Get a {@code NetworkElement} adder, to add a network element
+     * @return a {@code NetworkElementAdder} instance
      */
-    void setNetworkElement(NetworkElement networkElement);
+    NetworkElementAdder<Cnec> newNetworkElement();
 
 }
