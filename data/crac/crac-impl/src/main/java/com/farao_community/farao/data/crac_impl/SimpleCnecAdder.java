@@ -74,7 +74,7 @@ public class SimpleCnecAdder implements CnecAdder {
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a cnec without a network element. Please use newNetworkElement.");
         }
-        if (this.thresholds.size() == 0) {
+        if (this.thresholds.isEmpty()) {
             throw new FaraoException("Cannot add a cnec without a threshold. Please use newThreshold.");
         }
         if (this.name == null) {

@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -82,7 +83,7 @@ public class TreeTest {
 
     @Test
     public void searchTest() throws ExecutionException, InterruptedException {
-        Crac crac = CracFactory.findDefault().create("id");
+        SimpleCrac crac = new SimpleCrac("id");
         crac.addState(new SimpleState(Optional.empty(), new Instant("inst", 0)));
         NetworkElement networkElement = new NetworkElement("BBE1AA1  BBE2AA1  1");
         crac.addNetworkElement(networkElement);

@@ -15,13 +15,13 @@ import static org.junit.Assert.*;
  */
 public class NetworkElementAdderImplTest {
 
-    private Cnec cnec;
-    private Crac crac;
+    private SimpleCnec cnec;
+    private SimpleCrac crac;
     private Contingency contingency;
 
     @Before
     public void setUp() {
-        crac = (new SimpleCracFactory()).create("test-crac");
+        crac = new SimpleCrac("test-crac");
 
         // mock threshold
         AbstractFlowThreshold threshold = Mockito.mock(AbstractFlowThreshold.class);
@@ -38,14 +38,13 @@ public class NetworkElementAdderImplTest {
 
     @Test
     public void testCnecAddNetworkElement() {
-        Cnec cnec2 = cnec.newNetworkElement()
+        cnec.newNetworkElement()
                 .setId("neID")
                 .setName("neName")
                 .add();
         assertNotNull(cnec.getNetworkElement());
         assertEquals("neID", cnec.getNetworkElement().getId());
         assertEquals("neName", cnec.getNetworkElement().getName());
-        assertSame(cnec, cnec2);
     }
 
     @Test
@@ -67,11 +66,11 @@ public class NetworkElementAdderImplTest {
 
     @Test
     public void testCracAddNetworkElement() {
-        Crac crac2 = crac.newNetworkElement()
+        crac.newNetworkElement()
                 .setId("neID")
                 .setName("neName")
                 .add();
-        Crac crac3 = crac.newNetworkElement()
+        crac.newNetworkElement()
                 .setId("neID2")
                 .add();
         assertEquals(2, crac.getNetworkElements().size());
@@ -79,8 +78,6 @@ public class NetworkElementAdderImplTest {
         assertEquals("neName", crac.getNetworkElement("neID").getName());
         assertNotNull(crac.getNetworkElement("neID2"));
         assertEquals("neID2", crac.getNetworkElement("neID2").getName());
-        assertSame(crac, crac2);
-        assertSame(crac, crac3);
     }
 
     @Test(expected = FaraoException.class)

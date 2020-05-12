@@ -73,8 +73,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      */
     StateAdder newState();
 
-    State getState(String id);
-
     /**
      * Select the preventive state. This state must be unique. It's the only state that is
      * defined with no contingency.
@@ -276,15 +274,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      */
     NetworkAction getNetworkAction(String id);
 
-    /**
-     * Get a network element by its ID
-     * @param id: ID of the element to get
-     * @return {@code NetworkElement} object
-     */
-    NetworkElement getNetworkElement(String id);
-
-    void addNetworkAction(NetworkAction networkAction);
-
     // Network elements management
     /**
      * Get a {@code NetworkElement} adder, to add a network element
@@ -294,10 +283,4 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     // General methods
     void generateValidityReport(Network network);
-
-    /**
-     * Add a range action to Crac
-     * @param rangeAction: range action object to add
-     */
-    void addRangeAction(RangeAction rangeAction);
 }

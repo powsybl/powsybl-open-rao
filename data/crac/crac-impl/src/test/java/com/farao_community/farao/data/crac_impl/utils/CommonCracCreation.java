@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.utils;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
@@ -27,8 +24,8 @@ public final class CommonCracCreation {
 
     }
 
-    public static Crac create() {
-        Crac crac = (new SimpleCracFactory()).create("idSimpleCracTestUS", "nameSimpleCracTestUS");
+    public static SimpleCrac create() {
+        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
         ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
             new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
@@ -82,8 +79,8 @@ public final class CommonCracCreation {
         return crac;
     }
 
-    public static Crac createWithPstRange() {
-        Crac crac = create();
+    public static SimpleCrac createWithPstRange() {
+        SimpleCrac crac = create();
 
         //NetworkElement
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");

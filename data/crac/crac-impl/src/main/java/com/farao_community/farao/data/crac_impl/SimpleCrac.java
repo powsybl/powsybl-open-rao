@@ -105,7 +105,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return cracNetworkElement;
     }
 
-    @Override
     public final NetworkElement getNetworkElement(String id) {
         return networkElements.stream().filter(networkElement -> networkElement.getId().equals(id)).findFirst().orElse(null);
     }
@@ -207,7 +206,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return states;
     }
 
-    @Override
     public final State getState(String id) {
         return states.stream().filter(state -> state.getId().equals(id)).findFirst().orElse(null);
     }
@@ -400,7 +398,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.add(networkAction);
     }
 
-    @Override
     public void addRangeAction(RangeAction rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.add(rangeAction);

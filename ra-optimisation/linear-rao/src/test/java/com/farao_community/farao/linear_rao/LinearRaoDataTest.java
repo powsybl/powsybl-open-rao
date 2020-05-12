@@ -33,7 +33,7 @@ public class LinearRaoDataTest {
 
     private Network network;
     private String initialNetworkVariantId;
-    private Crac crac;
+    private SimpleCrac crac;
     private LinearRaoData linearRaoData;
     private String initialVariantId;
 

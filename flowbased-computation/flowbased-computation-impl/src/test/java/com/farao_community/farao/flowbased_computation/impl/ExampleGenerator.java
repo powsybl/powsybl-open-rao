@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
@@ -511,7 +512,7 @@ final class ExampleGenerator {
     }
 
     static Crac crac() {
-        Crac crac = CracFactory.findDefault().create("Test", "Test");
+        SimpleCrac crac = new SimpleCrac("Test", "Test");
 
         NetworkElement networkElementFrBe = new NetworkElement("FR-BE", "FR-BE");
         NetworkElement networkElementFrDe = new NetworkElement("FR-DE", "FR-DE");
