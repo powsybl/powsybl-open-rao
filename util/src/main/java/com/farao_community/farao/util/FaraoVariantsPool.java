@@ -11,12 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(FaraoVariantsPool.class);
+    private static final Lock LOCK = new ReentrantLock();
     private final BlockingQueue<String> variantsQueue;
     private final Network network;
     private final String initialVariant;
@@ -34,16 +37,21 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
     }
 
     private void initAvailableVariants() {
-        for (int i = 0; i < getParallelism(); i++) {
-            String variantId = getVariantByIndex(i);
-            LOGGER.info("Filling variants pool with variant '{}'", variantId);
-            network.getVariantManager().cloneVariant(initialVariant, variantId);
-            boolean isSuccess = variantsQueue.offer(variantId);
-            if (!isSuccess) {
-                throw new AssertionError(String.format("Cannot offer variant '%s' in pool. Should not happen", variantId));
+        LOCK.lock();
+        try {
+            for (int i = 0; i < getParallelism(); i++) {
+                String variantId = getVariantByIndex(i);
+                LOGGER.info("Filling variants pool with variant '{}'", variantId);
+                network.getVariantManager().cloneVariant(initialVariant, variantId);
+                boolean isSuccess = variantsQueue.offer(variantId);
+                if (!isSuccess) {
+                    throw new AssertionError(String.format("Cannot offer variant '%s' in pool. Should not happen", variantId));
+                }
             }
+            network.getVariantManager().allowVariantMultiThreadAccess(true);
+        } finally {
+            LOCK.unlock();
         }
-        network.getVariantManager().allowVariantMultiThreadAccess(true);
     }
 
     public String getAvailableVariant() throws InterruptedException {
@@ -58,10 +66,15 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
 
     @Override
     public void close() {
-        shutdownNow();
-        for (int i = 0; i < getParallelism(); i++) {
-            String variantId = getVariantByIndex(i);
-            network.getVariantManager().removeVariant(variantId);
+        LOCK.lock();
+        try {
+            shutdownNow();
+            for (int i = 0; i < getParallelism(); i++) {
+                String variantId = getVariantByIndex(i);
+                network.getVariantManager().removeVariant(variantId);
+            }
+        } finally {
+            LOCK.unlock();
         }
     }
 
