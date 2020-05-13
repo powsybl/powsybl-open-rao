@@ -101,7 +101,7 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
         String id = cnec.getId();
         String name = cnec.getName();
         String branchId = cnec.getNetworkElement().getId();
-        Identifiable networkIdentifiable = network.getIdentifiable(branchId);
+        Identifiable<?> networkIdentifiable = network.getIdentifiable(branchId);
         if (networkIdentifiable instanceof Branch) {
             return Arrays.asList(new BranchFlow(id, name, branchId), new BranchIntensity(id, name, branchId));
         } else {
