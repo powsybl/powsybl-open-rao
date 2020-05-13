@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
 import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
+import com.powsybl.sensitivity.factors.BranchIntensityPerPSTAngle;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,19 +33,35 @@ public class CracFactorsProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
-        assertEquals(6, factorList.size());
-        assertTrue(factorList.stream().allMatch(factor -> factor instanceof BranchFlowPerPSTAngle));
+        assertEquals(12, factorList.size());
+        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
+        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
     }
 
     @Test
-    public void cracWithoutRangeAction() {
+    public void cracWithoutRangeActionButWithPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
         CracFactorsProvider provider = new CracFactorsProvider(crac);
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
-        assertEquals(6, factorList.size());
-        assertTrue(factorList.stream().allMatch(factor -> factor instanceof BranchFlowPerInjectionIncrease));
+        assertEquals(12, factorList.size());
+        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
+        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
+    }
+
+    @Test
+    @Ignore("Broken while there is no BranchIntensityPerInjectionIncrease factor")
+    public void cracWithoutRangeActionNorPst() {
+        Crac crac = CommonCracCreation.create();
+        Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
+        CracFactorsProvider provider = new CracFactorsProvider(crac);
+
+        // Common Crac contains 6 CNEC and 1 range action
+        List<SensitivityFactor> factorList = provider.getFactors(network);
+        assertEquals(12, factorList.size());
+        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchFlowPerInjectionIncrease).count());
+        //assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerInjectionIncrease).count());
     }
 }

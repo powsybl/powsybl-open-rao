@@ -9,11 +9,11 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.commons.RandomizedString;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -174,11 +174,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      * Computes a string with a prefix that is not present in the set, creates a new variant from that string, and returns the string.
      */
     public synchronized String createNewUniqueVariantId(String prefix) {
-        String startingId = prefix.concat("-");
-        String uniqueId = "";
-        do {
-            uniqueId = startingId.concat(UUID.randomUUID().toString());
-        } while (variants.contains(uniqueId));
+        String uniqueId = RandomizedString.getRandomizedString(prefix + "-", variants, 10);
         createVariant(uniqueId);
         return uniqueId;
     }

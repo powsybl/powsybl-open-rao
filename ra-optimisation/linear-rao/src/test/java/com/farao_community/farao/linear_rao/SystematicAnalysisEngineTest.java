@@ -7,9 +7,7 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
@@ -23,7 +21,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +29,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,6 +46,8 @@ public class SystematicAnalysisEngineTest {
 
     private Crac crac;
     private LinearRaoData initialLinearRaoData;
+    private SystematicSensitivityAnalysisResult systematicAnalysisResultOk;
+    private SystematicSensitivityAnalysisResult systematicAnalysisResultFailed;
 
     @Before
     public void setUp() {
@@ -57,6 +55,8 @@ public class SystematicAnalysisEngineTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         crac.synchronize(network);
+        systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
+        systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
         initialLinearRaoData = new LinearRaoData(network, crac);
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
@@ -70,7 +70,7 @@ public class SystematicAnalysisEngineTest {
 
         // mock sensi service - run OK
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(getSensiResultOk());
+            .thenReturn(systematicAnalysisResultOk);
 
         // run engine
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
@@ -94,7 +94,7 @@ public class SystematicAnalysisEngineTest {
         // mock sensi service - run with null sensi
 
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(getSensiResultWithNull());
+            .thenReturn(systematicAnalysisResultFailed);
 
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
 
@@ -118,10 +118,10 @@ public class SystematicAnalysisEngineTest {
         SensitivityComputationParameters fallbackConfig = raoParameters.getExtension(LinearRaoParameters.class).getFallbackSensiParameters();
 
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(defaultConfig)))
-            .thenReturn(getSensiResultWithNull());
+            .thenReturn(systematicAnalysisResultFailed);
 
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
-            .thenReturn(getSensiResultOk());
+            .thenReturn(systematicAnalysisResultOk);
 
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
 
@@ -146,10 +146,10 @@ public class SystematicAnalysisEngineTest {
         SensitivityComputationParameters fallbackConfig = raoParameters.getExtension(LinearRaoParameters.class).getFallbackSensiParameters();
 
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(defaultConfig)))
-            .thenReturn(getSensiResultWithNull());
+            .thenReturn(systematicAnalysisResultFailed);
 
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
-            .thenReturn(getSensiResultWithNull());
+            .thenReturn(systematicAnalysisResultFailed);
 
         SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
 
@@ -162,27 +162,34 @@ public class SystematicAnalysisEngineTest {
         }
     }
 
-    private SystematicSensitivityAnalysisResult getSensiResultOk() {
-        Map<State, SensitivityComputationResults> sensi = new HashMap<>();
-        Map<Cnec, Double> flowInAmpere = new HashMap<>();
-        Map<Cnec, Double> flowInMW = new HashMap<>();
-
-        SensitivityComputationResults oneSensiMock = Mockito.mock(SensitivityComputationResults.class);
-        crac.getStates().forEach(st -> sensi.put(st, oneSensiMock));
-        crac.getCnecs().forEach(c -> flowInAmpere.put(c, 15.0));
-        crac.getCnecs().forEach(c -> flowInMW.put(c, 10.0));
-
-        return new SystematicSensitivityAnalysisResult(sensi, flowInMW, flowInAmpere);
+    private SystematicSensitivityAnalysisResult buildSystematicAnalysisResultOk() {
+        Random random = new Random();
+        random.setSeed(42L);
+        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        Mockito.when(result.isSuccess()).thenReturn(true);
+        crac.getCnecs().forEach(cnec -> {
+            if (cnec.getId().equals("cnec2basecase")) {
+                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(10.);
+                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(15.);
+                crac.getRangeActions().forEach(rangeAction -> {
+                    Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(random.nextDouble());
+                    Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(random.nextDouble());
+                });
+            } else {
+                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(random.nextDouble());
+                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(random.nextDouble());
+                crac.getRangeActions().forEach(rangeAction -> {
+                    Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(random.nextDouble());
+                    Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(random.nextDouble());
+                });
+            }
+        });
+        return result;
     }
 
-    private SystematicSensitivityAnalysisResult getSensiResultWithNull() {
-        Map<State, SensitivityComputationResults> sensi = new HashMap<>();
-        Map<Cnec, Double> flowInAmpere = new HashMap<>();
-        Map<Cnec, Double> flowInMW = new HashMap<>();
-
-        crac.getStates().forEach(st -> sensi.put(st, null));
-        crac.getCnecs().forEach(c -> flowInAmpere.put(c, null));
-        crac.getCnecs().forEach(c -> flowInMW.put(c, null));
-        return new SystematicSensitivityAnalysisResult(sensi, flowInMW, flowInAmpere);
+    private SystematicSensitivityAnalysisResult buildSystematicAnalysisResultFailed() {
+        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        Mockito.when(result.isSuccess()).thenReturn(false);
+        return result;
     }
 }
