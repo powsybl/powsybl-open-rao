@@ -334,17 +334,17 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return cnec;
     }
 
-    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
+    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId, double frm) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId));
+        Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId), frm);
         cnecs.add(cnec);
         return cnec;
     }
 
     public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
-        return this.addCnec(id, id, networkElementId, abstractThresholds, stateId);
+        return this.addCnec(id, id, networkElementId, abstractThresholds, stateId, 0);
     }
 
     @Override
