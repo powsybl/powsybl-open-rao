@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
-import com.farao_community.farao.util.FaraoVariantsPool;
+import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -96,15 +96,15 @@ public final class Tree {
     }
 
     /**
-     * Evaluate all the leaves. We use FaraoVariantsPool to parallelize the computation
+     * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
     private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
-        try (FaraoVariantsPool variantsPool = new FaraoVariantsPool(network, referenceNetworkVariant)) {
-            variantsPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant)) {
+            networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
-                    String workingVariant = variantsPool.getAvailableVariant();
-                    leaf.evaluate(network, crac, workingVariant, parameters);
-                    variantsPool.releaseUsedVariant(workingVariant);
+                    Network networkClone = networkPool.getAvailableNetwork();
+                    leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
+                    networkPool.releaseUsedNetwork(networkClone);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

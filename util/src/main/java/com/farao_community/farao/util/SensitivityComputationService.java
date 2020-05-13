@@ -10,6 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
@@ -35,17 +37,34 @@ public final class SensitivityComputationService {
     public static SensitivityComputationResults runSensitivity(Network network,
                                                                String workingStateId,
                                                                SensitivityFactorsProvider factorsProvider,
-                                                               SensitivityComputationParameters sensitivityComputationParameters) {
+                                                               ContingenciesProvider contingenciesProvider,
+                                                               SensitivityComputationParameters sensitivityComputationParameters,
+                                                               ComputationManager computationManager) {
         if (!initialised()) {
-            init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+            init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), computationManager);
         }
         SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
-        CompletableFuture<SensitivityComputationResults> results = computation.run(factorsProvider, workingStateId, sensitivityComputationParameters);
+        CompletableFuture<SensitivityComputationResults> results = computation.run(factorsProvider, contingenciesProvider, workingStateId, sensitivityComputationParameters);
         try {
             return results.join();
         } catch (CompletionException e) {
             throw new FaraoException("Sensitivity computation failed");
         }
+    }
+
+    public static SensitivityComputationResults runSensitivity(Network network,
+                                                               String workingStateId,
+                                                               SensitivityFactorsProvider factorsProvider,
+                                                               ContingenciesProvider contingenciesProvider,
+                                                               SensitivityComputationParameters sensitivityComputationParameters) {
+        return runSensitivity(network, workingStateId, factorsProvider, contingenciesProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+    }
+
+    public static SensitivityComputationResults runSensitivity(Network network,
+                                                               String workingStateId,
+                                                               SensitivityFactorsProvider factorsProvider,
+                                                               SensitivityComputationParameters sensitivityComputationParameters) {
+        return runSensitivity(network, workingStateId, factorsProvider, new EmptyContingencyListProvider(), sensitivityComputationParameters);
     }
 
     public static SensitivityComputationResults runSensitivity(Network network,

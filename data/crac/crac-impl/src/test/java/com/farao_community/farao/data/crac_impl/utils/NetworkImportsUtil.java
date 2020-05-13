@@ -22,4 +22,8 @@ public final class NetworkImportsUtil {
         return Importers.loadNetwork("utils/TestCase12Nodes.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12Nodes.uct"));
     }
 
+    public static Network import12NodesNoPstNetwork() {
+        return Importers.loadNetwork("TestCase12Nodes_no_pst.uct", NetworkImportsUtil.class.getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
+    }
+
 }

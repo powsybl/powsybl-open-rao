@@ -7,11 +7,14 @@
 package com.farao_community.farao.closed_optimisation_rao.mocks;
 
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -19,36 +22,44 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class MockSensitivityComputationFactory implements SensitivityComputationFactory {
-    class MockSensitivityComputation implements SensitivityComputation {
-        private final Network network;
+    private static final long RANDOM_GENERATION_SEED = 42L;
+    private static final Random RANDOM = new Random();
 
-        MockSensitivityComputation(Network network) {
-            this.network = network;
-        }
-
-        @Override
-        public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-            return CompletableFuture.completedFuture(randomResults(network, sensitivityFactorsProvider));
-        }
-
-        private SensitivityComputationResults randomResults(Network network, SensitivityFactorsProvider sensitivityFactorsProvider) {
-            List<SensitivityValue> randomSensitivities = sensitivityFactorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
-            return new SensitivityComputationResults(true, Collections.emptyMap(), "", randomSensitivities);
-        }
-
-        @Override
-        public String getName() {
-            return "Mock";
-        }
-
-        @Override
-        public String getVersion() {
-            return "Mock";
-        }
+    {
+        RANDOM.setSeed(RANDOM_GENERATION_SEED);
     }
 
     @Override
-    public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
-        return new MockSensitivityComputation(network);
+    public SensitivityComputation create(Network network, ComputationManager computationManager, int priority) {
+        return new SensitivityComputation() {
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
+                List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble())).collect(Collectors.toList());
+                Map<String, List<SensitivityValue>> sensitivityValuesContingencies = contingenciesProvider.getContingencies(network).stream()
+                        .collect(Collectors.toMap(
+                            contingency -> contingency.getId(),
+                            contingency -> factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble())).collect(Collectors.toList())
+                        ));
+                SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, sensitivityValuesContingencies);
+                return CompletableFuture.completedFuture(results);
+            }
+
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
+                List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble())).collect(Collectors.toList());
+                SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, Collections.emptyMap());
+                return CompletableFuture.completedFuture(results);
+            }
+
+            @Override
+            public String getName() {
+                return "Sensitivity computation mock";
+            }
+
+            @Override
+            public String getVersion() {
+                return null;
+            }
+        };
     }
 }
