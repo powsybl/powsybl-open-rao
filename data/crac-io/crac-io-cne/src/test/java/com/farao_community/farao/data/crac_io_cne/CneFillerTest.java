@@ -20,6 +20,6 @@ public class CneFillerTest {
     public void generateTest() {
         CneFiller.generate();
         CriticalNetworkElementMarketDocument cne = CneFiller.getCne();
-        int i = 1;
+        assertEquals("1", cne.getRevisionNumber());
     }
 }
