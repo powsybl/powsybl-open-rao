@@ -44,6 +44,7 @@ final class CnecDeserializer {
             String name = null;
             String networkElementId = null;
             String stateId = null;
+            double frm = 0;
             Set<AbstractThreshold> thresholds = new HashSet<>();
             List<Extension<Cnec>> extensions = new ArrayList<>();
 
@@ -72,6 +73,11 @@ final class CnecDeserializer {
                         stateId = jsonParser.nextTextValue();
                         break;
 
+                    case FRM:
+                        jsonParser.nextToken();
+                        frm = jsonParser.getDoubleValue();
+                        break;
+
                     case THRESHOLDS:
                         jsonParser.nextToken();
                         thresholds = jsonParser.readValueAs(new TypeReference<Set<AbstractThreshold>>() {
@@ -89,7 +95,7 @@ final class CnecDeserializer {
             }
 
             //add SimpleCnec in Crac
-            simpleCrac.addCnec(id, name, networkElementId, thresholds, stateId);
+            simpleCrac.addCnec(id, name, networkElementId, thresholds, stateId, frm);
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac.getCnec(id), extensions);
             }
