@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.util;
 
+import com.farao_community.farao.commons.RandomizedString;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -36,7 +37,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         super(parallelism);
         Objects.requireNonNull(network);
         this.targetVariant = Objects.requireNonNull(targetVariant);
-        this.stateSaveVariant = "FaraoNetworkPool state save dedicated variant";
+        this.stateSaveVariant = RandomizedString.getRandomizedString("FaraoNetworkPool state save ", network.getVariantManager().getVariantIds(), 5);
         this.networksQueue = new ArrayBlockingQueue<>(getParallelism());
         initAvailableNetworks(network);
     }

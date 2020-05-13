@@ -42,7 +42,7 @@ public class CracContingenciesProvider implements ContingenciesProvider {
     private ContingencyElement convertCracContingencyElementToPowsybl(NetworkElement cracContingencyElement, Network network) {
         String elementId = cracContingencyElement.getId();
         Identifiable networkIdentifiable = network.getIdentifiable(elementId);
-        if (networkIdentifiable instanceof Branch) {
+        if (networkIdentifiable instanceof Branch<?>) {
             return new BranchContingency(elementId);
         } else {
             throw new FaraoException("Unable to apply contingency element " + elementId);

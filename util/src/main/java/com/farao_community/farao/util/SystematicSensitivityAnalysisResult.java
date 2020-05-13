@@ -47,7 +47,7 @@ public class SystematicSensitivityAnalysisResult {
 
     private final boolean isSuccess;
     private final StateResult nStateResult = new StateResult();
-    private final Map<String, StateResult> contingencyResults = new TreeMap();
+    private final Map<String, StateResult> contingencyResults = new TreeMap<>();
 
     public SystematicSensitivityAnalysisResult(SensitivityComputationResults results, Network network, Crac crac) {
         if (results == null) {
@@ -68,16 +68,16 @@ public class SystematicSensitivityAnalysisResult {
 
     private void fixIntensityValues(Network network, Crac crac, StateResult stateResult) {
         stateResult.getReferenceIntensities().forEach((cnecId, value) -> {
-            Branch branch = network.getBranch(crac.getCnec(cnecId).getNetworkElement().getId());
+            Branch<?> branch = network.getBranch(crac.getCnec(cnecId).getNetworkElement().getId());
             stateResult.getReferenceIntensities().put(cnecId, convertPuToA(value, branch));
         });
         stateResult.getIntensitySensitivities().forEach((cnecId, sensitivities) -> {
-            Branch branch = network.getBranch(crac.getCnec(cnecId).getNetworkElement().getId());
+            Branch<?> branch = network.getBranch(crac.getCnec(cnecId).getNetworkElement().getId());
             sensitivities.forEach((actionId, sensi) -> sensitivities.put(actionId, convertPuToA(sensi, branch)));
         });
     }
 
-    private double convertPuToA(double intensityPu, Branch referenceBranch) {
+    private double convertPuToA(double intensityPu, Branch<?> referenceBranch) {
         double vNom = referenceBranch.getTerminal1().getVoltageLevel().getNominalV();
         return intensityPu * CGTEBASE / vNom;
     }
