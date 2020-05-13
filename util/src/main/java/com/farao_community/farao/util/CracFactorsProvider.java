@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * TODO: Currently, it is not possible to handle the case where there is no PST
  * available in CRAC file, because of the necessity to generate sensitivity values on
- * branch intensities. This must be done by adding a BranchIntansityPerInjectionIncrease
+ * branch intensities. This must be done by adding a BranchIntensityPerInjectionIncrease
  * factor in PowSyBl sensitivity analysis API.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
