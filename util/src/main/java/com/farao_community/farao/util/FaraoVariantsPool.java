@@ -40,7 +40,7 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
         LOCK.lock();
         try {
             for (int i = 0; i < getParallelism(); i++) {
-                String variantId = getVariantByIndex(i);
+                String variantId = getVariantIdByIndex(i);
                 LOGGER.info("Filling variants pool with variant '{}'", variantId);
                 network.getVariantManager().cloneVariant(initialVariant, variantId);
                 boolean isSuccess = variantsQueue.offer(variantId);
@@ -70,7 +70,7 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
         try {
             shutdownNow();
             for (int i = 0; i < getParallelism(); i++) {
-                String variantId = getVariantByIndex(i);
+                String variantId = getVariantIdByIndex(i);
                 network.getVariantManager().removeVariant(variantId);
             }
         } finally {
@@ -78,7 +78,7 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
         }
     }
 
-    private String getVariantByIndex(int index) {
+    private String getVariantIdByIndex(int index) {
         return initialVariant + " variant modified " + index;
     }
 }
