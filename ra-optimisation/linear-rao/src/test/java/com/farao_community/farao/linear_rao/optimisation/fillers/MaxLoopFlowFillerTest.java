@@ -9,7 +9,7 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
-import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;

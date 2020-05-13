@@ -71,6 +71,7 @@
         <module>distribution</module>
         <module>flowbased-computation</module>
         <module>flow-decomposition</module>
+        <module>loopflow-computation</module>
         <module>ra-optimisation</module>
         <module>util</module>
     </modules>
