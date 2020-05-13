@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:ecl="urn:entsoe.eu:wgedi:codelists" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="LocalAllocationModeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalAnalogType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalAssetType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalAuctionType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalBusinessType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCategoryType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalClassificationType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCodingSchemeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCoordinateSystemType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalContractType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCurrencyType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="BAM" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCurveType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalDirectionType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalEicType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalEnergyProductType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="8716867000016" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalHVDCModeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalIndicatorType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalMessageType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalMarketProductType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalObjectAggregationType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalPaymentTermsType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalPriceCategoryType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalPriceDirectionType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalProcessType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalQualityType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalReasonCodeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="999" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalRightsType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalRoleType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalStatusType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalTarifTypeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalUnitMultiplier">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="1" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalUnitOfMeasureType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A59" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalUnitSymbol">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="AMP" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalDocumentType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>
