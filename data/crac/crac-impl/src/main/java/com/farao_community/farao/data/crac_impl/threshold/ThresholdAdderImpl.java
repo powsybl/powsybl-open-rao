@@ -6,6 +6,9 @@ import com.farao_community.farao.data.crac_impl.SimpleCnecAdder;
 
 import java.util.Objects;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public class ThresholdAdderImpl implements ThresholdAdder {
 
     private SimpleCnecAdder parent;
