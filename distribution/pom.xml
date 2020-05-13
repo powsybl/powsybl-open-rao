@@ -136,6 +136,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-loopflow-computation</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-ra-optimisation-api</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
