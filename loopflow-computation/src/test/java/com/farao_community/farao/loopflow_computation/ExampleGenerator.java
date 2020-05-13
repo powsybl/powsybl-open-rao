@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -496,6 +497,11 @@ final class ExampleGenerator {
                             .map(factor -> new SensitivityValue(factor, expectedPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), expectedFref.get(factor.getFunction().getId()), Double.NaN))
                             .collect(Collectors.toList());
                     return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues));
+                }
+
+                @Override
+                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                    return run(sensitivityFactorsProvider, s, sensitivityComputationParameters);
                 }
 
                 @Override
