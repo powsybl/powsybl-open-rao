@@ -33,6 +33,7 @@ public final class DeserializerNames {
     public static final String CNECS = "cnecs";
 
     public static final String THRESHOLDS = "thresholds";
+    public static final String FRM = "frm";
 
     public static final String RANGE_ACTIONS = "rangeActions";
 

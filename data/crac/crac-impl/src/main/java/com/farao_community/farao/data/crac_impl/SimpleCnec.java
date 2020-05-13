@@ -32,11 +32,13 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private Set<AbstractThreshold> thresholds;
     private State state;
     private boolean isSynchronized;
+    private double frm;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state) {
+                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
+                      @JsonProperty("frm") double frm) {
         super(id, name);
 
         this.networkElement = networkElement;
@@ -44,6 +46,20 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         thresholds.forEach(this::addThreshold);
         this.state = state;
         isSynchronized = false;
+        this.frm = frm;
+    }
+
+    public SimpleCnec(String id, String name,
+                      NetworkElement networkElement,
+                      Set<AbstractThreshold> thresholds, State state) {
+        super(id, name);
+
+        this.networkElement = networkElement;
+        this.thresholds = new HashSet<>();
+        thresholds.forEach(this::addThreshold);
+        this.state = state;
+        isSynchronized = false;
+        this.frm = 0;
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> thresholds, State state) {
@@ -169,6 +185,10 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state);
     }
 
+    public Cnec copy(NetworkElement networkElement, State state, double frm) {
+        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -189,5 +209,13 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         result = 31 * result + networkElement.hashCode();
         result = 31 * result + state.hashCode();
         return result;
+    }
+
+    public double getFrm() {
+        return frm;
+    }
+
+    public void setFrm(double frm) {
+        this.frm = frm;
     }
 }
