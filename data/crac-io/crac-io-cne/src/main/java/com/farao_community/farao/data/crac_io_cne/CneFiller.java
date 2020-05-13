@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -28,7 +29,7 @@ public final class CneFiller {
         return cne;
     }
 
-    public static void generate() {
+    public static void generate(Crac crac) {
         fillHeader();
     }
 
