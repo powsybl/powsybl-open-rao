@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
@@ -44,7 +45,7 @@ public final class CneFiller {
             if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
                 addReasonToPoint(point, Optional.of(cracExtension.getVariant("variant1").getNetworkSecurityStatus()));
-                addContingencies(point, crac);
+                createAllConstraintSeries(point, crac);
 
             } else { // Failure of computation
                 addReasonToPoint(cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0), Optional.empty());
@@ -55,30 +56,36 @@ public final class CneFiller {
         }
     }
 
-    private static void addContingencies(Point point, Crac crac) {
+    private static void createAllConstraintSeries(Point point, Crac crac) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
         crac.getCnecs().forEach(
             cnec -> {
-                if (cnec.getState().getContingency().isPresent()) {
-                    Contingency contingency = cnec.getState().getContingency().get();
-
-                    constraintSeriesList.add(createConstraintSeriesWithContingency("B57", contingency));
-                    constraintSeriesList.add(createConstraintSeriesWithContingency("B56", contingency));
-
-                } else {
-                    constraintSeriesList.add(createConstraintSeries("B57"));
-                    //TODO: do this only if there is a PRA
-                    constraintSeriesList.add(createConstraintSeries("B56"));
-                }
+                createAllConstraintSeriesOfACnec(cnec, constraintSeriesList);
             }
         );
 
         point.constraintSeries = constraintSeriesList;
     }
 
-    private static ConstraintSeries createConstraintSeries(String businessType) {
+    /*****************
+     CONTINGENCIES
+     *****************/
+    private static void createAllConstraintSeriesOfACnec(Cnec cnec, List<ConstraintSeries> constraintSeriesList) {
+        if (cnec.getState().getContingency().isPresent()) {
+            Contingency contingency = cnec.getState().getContingency().get();
+            constraintSeriesList.add(createAConstraintSeriesWithContingency("B57", contingency));
+            constraintSeriesList.add(createAConstraintSeriesWithContingency("B56", contingency));
+
+        } else {
+            constraintSeriesList.add(createAConstraintSeries("B57"));
+            //TODO: do this only if there is a PRA
+            constraintSeriesList.add(createAConstraintSeries("B56"));
+        }
+    }
+
+    private static ConstraintSeries createAConstraintSeries(String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(generateRandomMRID());
         constraintSeries.setBusinessType(businessType);
@@ -86,8 +93,8 @@ public final class CneFiller {
         return constraintSeries;
     }
 
-    private static ConstraintSeries createConstraintSeriesWithContingency(String businessType, Contingency contingency) {
-        ConstraintSeries constraintSeries = createConstraintSeries(businessType);
+    private static ConstraintSeries createAConstraintSeriesWithContingency(String businessType, Contingency contingency) {
+        ConstraintSeries constraintSeries = createAConstraintSeries(businessType);
         ContingencySeries contingencySeries = new ContingencySeries();
         contingencySeries.setMRID(contingency.getId());
         contingencySeries.setName(contingency.getName());
@@ -96,7 +103,9 @@ public final class CneFiller {
         return constraintSeries;
     }
 
-
+    /*****************
+     TIME_SERIES and REASON
+     *****************/
     // TODO: clean it and get the correct network status (from CracResultExtension)
     private static void addReasonToPoint(Point point, Optional<CracResult.NetworkSecurityStatus> status) {
         Reason reason = new Reason();
