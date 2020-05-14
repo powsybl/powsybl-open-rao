@@ -25,16 +25,12 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationResults;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -83,15 +79,27 @@ public class LinearOptimisationEngineTest {
         linearRaoData = new LinearRaoData(network, crac);
         linearRaoData = Mockito.spy(linearRaoData);
 
-        Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-        Map<Cnec, Double> cnecFlowMap = new HashMap<>();
-        crac.getCnecs().forEach(cnec -> cnecFlowMap.put(cnec, 499.));
-        linearRaoData.setSystematicSensitivityAnalysisResult(new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, new HashMap<>()));
+        SystematicSensitivityAnalysisResult result = createSystematicAnalysisResult();
+        linearRaoData.setSystematicSensitivityAnalysisResult(result);
 
         rangeActionSetPoint = Mockito.mock(MPVariable.class);
         rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
         absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class);
         linearRaoParameters = new LinearRaoParameters();
+    }
+
+    private SystematicSensitivityAnalysisResult createSystematicAnalysisResult() {
+        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        Mockito.when(result.isSuccess()).thenReturn(true);
+        crac.getCnecs().forEach(cnec -> {
+            Mockito.when(result.getReferenceFlow(cnec)).thenReturn(499.);
+            Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(11.);
+            crac.getRangeActions().forEach(rangeAction -> {
+                Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(42.);
+                Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(-42.);
+            });
+        });
+        return result;
     }
 
     @Test
