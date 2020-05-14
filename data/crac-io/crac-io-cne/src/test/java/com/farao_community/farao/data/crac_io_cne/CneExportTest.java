@@ -32,5 +32,6 @@ public class CneExportTest {
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(crac1, "CNE", outputStream);
+        int i = 1;
     }
 }

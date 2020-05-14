@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -16,9 +17,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.Random;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -33,22 +32,66 @@ public final class CneFiller {
         return cne;
     }
 
-    private static SimpleDateFormat setDateTimeFormat() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-        return dateFormat;
-    }
-
     public static void generate(Crac crac) {
         SimpleDateFormat dateFormat = setDateTimeFormat();
-
         if (crac.isSynchronized()) {
             fillHeader(crac.getNetworkDate(), dateFormat);
+            createTimeSeries(crac.getNetworkDate(), dateFormat);
+
+            if (crac.getExtension(CracResult.class) != null) {
+                CracResult cracExtension = crac.getExtension(CracResult.class);
+                addReasonToPoint(cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0), Optional.of(cracExtension.getNetworkSecurityStatus()));
+            } else {
+                addReasonToPoint(cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0), Optional.empty());
+            }
+
         } else {
             throw new FaraoException("Crac should be synchronized!");
         }
     }
 
+    // TODO: clean it and get the correct network status (from CracResultExtension)
+    private static void addReasonToPoint(Point point, Optional<CracResult.NetworkSecurityStatus> status) {
+        Reason reason = new Reason();
+        if (status.isPresent()) {
+            if (status.get().equals(CracResult.NetworkSecurityStatus.SECURED)) {
+                reason.setCode("Z13");
+                reason.setText("Situation is secure");
+            } else if (status.get().equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
+                reason.setCode("Z03");
+                reason.setText("Situation is unsecure");
+            } else {
+                throw new FaraoException(String.format("Unexpected status %s.", status));
+            }
+        } else {
+            reason.setCode("999");
+            reason.setText("Other failure");
+        }
+        point.reason = Collections.singletonList(reason);
+    }
+
+    private static void createTimeSeries(DateTime networkDate, SimpleDateFormat dateFormat) {
+
+        Point point = new Point();
+        point.setPosition(1);
+
+        SeriesPeriod period = new SeriesPeriod();
+        period.setTimeInterval(createEsmpDateTimeInterval(networkDate, dateFormat));
+        // TODO: resolution
+        period.point = Collections.singletonList(point);
+
+        TimeSeries timeSeries = new TimeSeries();
+        timeSeries.setMRID(generateRandomMRID());
+        timeSeries.setBusinessType("B54");
+        timeSeries.setCurveType("A01");
+        timeSeries.period = Collections.singletonList(period);
+
+        cne.timeSeries = Collections.singletonList(timeSeries);
+    }
+
+    /*****************
+     HEADER
+     *****************/
     private static void fillHeader(DateTime networkDate, SimpleDateFormat dateFormat) {
         cne.setMRID(generateRandomMRID());
         cne.setRevisionNumber("1");
@@ -63,6 +106,14 @@ public final class CneFiller {
         cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
     }
 
+    // Helper for date format
+    private static SimpleDateFormat setDateTimeFormat() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+        return dateFormat;
+    }
+
+    // Creation of time interval
     private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate, SimpleDateFormat dateFormat) {
         ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
 
@@ -71,6 +122,7 @@ public final class CneFiller {
         return timeInterval;
     }
 
+    // Creation of current date
     private static XMLGregorianCalendar createXMLGregorianCalendarNow(SimpleDateFormat dateFormat) {
         try {
             XMLGregorianCalendar xmlcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
@@ -82,6 +134,7 @@ public final class CneFiller {
         }
     }
 
+    // Creation of ID with code scheme
     private static AreaIDString createAreaIDString(String codingScheme, String value) {
         AreaIDString domainMRID = new AreaIDString();
         domainMRID.setCodingScheme(codingScheme);
@@ -89,6 +142,7 @@ public final class CneFiller {
         return domainMRID;
     }
 
+    // Creation of ID with code scheme
     private static PartyIDString createPartyIDString(String codingScheme, String value) {
         PartyIDString marketParticipantMRID = new PartyIDString();
         marketParticipantMRID.setCodingScheme(codingScheme);
@@ -96,9 +150,7 @@ public final class CneFiller {
         return marketParticipantMRID;
     }
 
-    /*
-    *  Generates a random code with 35 characters
-    * */
+    // Generates a random code with 35 characters
     private static String generateRandomMRID() {
         Random random = new Random(System.nanoTime());
         return String.format("%s-%s-%s-%s", Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()));
