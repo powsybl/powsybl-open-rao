@@ -26,7 +26,6 @@ import java.util.TimeZone;
 public final class CneFiller {
 
     private static CriticalNetworkElementMarketDocument cne = new CriticalNetworkElementMarketDocument();
-    private static SimpleDateFormat dateFormat = null;
 
     private CneFiller() { }
 
@@ -34,23 +33,24 @@ public final class CneFiller {
         return cne;
     }
 
-    private static void setDateTimeFormat() {
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static SimpleDateFormat setDateTimeFormat() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+        return dateFormat;
     }
 
     public static void generate(Crac crac) {
-        setDateTimeFormat();
+        SimpleDateFormat dateFormat = setDateTimeFormat();
 
         /*if (crac.isSynchronized()) {
             fillHeader(crac.getNetworkDate());
         } else {
             throw new FaraoException("Crac should be synchronized!");
         }*/
-        fillHeader(DateTime.now());
+        fillHeader(DateTime.now(), dateFormat);
     }
 
-    private static void fillHeader(DateTime networkDate) {
+    private static void fillHeader(DateTime networkDate, SimpleDateFormat dateFormat) {
         cne.setMRID(generateRandomMRID());
         cne.setRevisionNumber("1");
         cne.setType("B06");
@@ -59,12 +59,12 @@ public final class CneFiller {
         cne.setSenderMarketParticipantMarketRoleType("A44");
         cne.setReceiverMarketParticipantMRID(createPartyIDString("A01", "17XTSO-CS------W"));
         cne.setReceiverMarketParticipantMarketRoleType("A36");
-        cne.setCreatedDateTime(createXMLGregorianCalendarNow());
-        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
+        cne.setCreatedDateTime(createXMLGregorianCalendarNow(dateFormat));
+        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate, dateFormat));
         cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
     }
 
-    private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate) {
+    private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate, SimpleDateFormat dateFormat) {
         ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
 
         timeInterval.setStart(dateFormat.format(networkDate.toDate()));
@@ -72,7 +72,7 @@ public final class CneFiller {
         return timeInterval;
     }
 
-    private static XMLGregorianCalendar createXMLGregorianCalendarNow() {
+    private static XMLGregorianCalendar createXMLGregorianCalendarNow(SimpleDateFormat dateFormat) {
         try {
             XMLGregorianCalendar xmlcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
             xmlcal.setTimezone(0);
