@@ -13,8 +13,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.GregorianCalendar;
+import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.Random;
+import java.util.TimeZone;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -56,14 +59,17 @@ public final class CneFiller {
     }
 
     private static XMLGregorianCalendar createXMLGregorianCalendarNow() {
-        GregorianCalendar gregorianCalendar = new GregorianCalendar();
         try {
-            DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
-            return datatypeFactory.newXMLGregorianCalendar(gregorianCalendar);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+
+            XMLGregorianCalendar xmlcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
+            xmlcal.setTimezone(0);
+
+            return xmlcal;
         } catch (DatatypeConfigurationException e) {
             throw new FaraoException();
         }
-
     }
 
     private static AreaIDString createAreaIDString(String codingScheme, String value) {
