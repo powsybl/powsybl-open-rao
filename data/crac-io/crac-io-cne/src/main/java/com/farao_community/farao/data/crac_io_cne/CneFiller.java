@@ -8,8 +8,10 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -37,11 +39,14 @@ public final class CneFiller {
         if (crac.isSynchronized()) {
             fillHeader(crac.getNetworkDate(), dateFormat);
             createTimeSeries(crac.getNetworkDate(), dateFormat);
+            Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-            if (crac.getExtension(CracResult.class) != null) {
-                CracResult cracExtension = crac.getExtension(CracResult.class);
-                addReasonToPoint(cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0), Optional.of(cracExtension.getNetworkSecurityStatus()));
-            } else {
+            if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
+                CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+                addReasonToPoint(point, Optional.of(cracExtension.getVariant("variant1").getNetworkSecurityStatus()));
+                addContingencies(point, crac);
+
+            } else { // Failure of computation
                 addReasonToPoint(cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0), Optional.empty());
             }
 
@@ -49,6 +54,48 @@ public final class CneFiller {
             throw new FaraoException("Crac should be synchronized!");
         }
     }
+
+    private static void addContingencies(Point point, Crac crac) {
+
+        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+
+        crac.getCnecs().forEach(
+            cnec -> {
+                if (cnec.getState().getContingency().isPresent()) {
+                    Contingency contingency = cnec.getState().getContingency().get();
+
+                    constraintSeriesList.add(createConstraintSeriesWithContingency("B57", contingency));
+                    constraintSeriesList.add(createConstraintSeriesWithContingency("B56", contingency));
+
+                } else {
+                    constraintSeriesList.add(createConstraintSeries("B57"));
+                    //TODO: do this only if there is a PRA
+                    constraintSeriesList.add(createConstraintSeries("B56"));
+                }
+            }
+        );
+
+        point.constraintSeries = constraintSeriesList;
+    }
+
+    private static ConstraintSeries createConstraintSeries(String businessType) {
+        ConstraintSeries constraintSeries = new ConstraintSeries();
+        constraintSeries.setMRID(generateRandomMRID());
+        constraintSeries.setBusinessType(businessType);
+
+        return constraintSeries;
+    }
+
+    private static ConstraintSeries createConstraintSeriesWithContingency(String businessType, Contingency contingency) {
+        ConstraintSeries constraintSeries = createConstraintSeries(businessType);
+        ContingencySeries contingencySeries = new ContingencySeries();
+        contingencySeries.setMRID(contingency.getId());
+        contingencySeries.setName(contingency.getName());
+        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
+
+        return constraintSeries;
+    }
+
 
     // TODO: clean it and get the correct network status (from CracResultExtension)
     private static void addReasonToPoint(Point point, Optional<CracResult.NetworkSecurityStatus> status) {
