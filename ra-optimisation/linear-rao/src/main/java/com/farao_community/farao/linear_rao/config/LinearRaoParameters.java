@@ -23,6 +23,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
     static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
     static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    static final double DEFAULT_PST_PENALTY_COST = 0.5;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensiParameters = null;
@@ -30,6 +31,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
     private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
+    private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
 
     @Override
     public String getName() {
@@ -79,5 +81,13 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     public LinearRaoParameters setPstSensitivityThreshold(double threshold) {
         this.pstSensitivityThreshold = threshold;
         return this;
+    }
+
+    public double getPstPenaltyCost() {
+        return pstPenaltyCost;
+    }
+
+    public void setPstPenaltyCost(double pstPenaltyCost) {
+        this.pstPenaltyCost = pstPenaltyCost;
     }
 }

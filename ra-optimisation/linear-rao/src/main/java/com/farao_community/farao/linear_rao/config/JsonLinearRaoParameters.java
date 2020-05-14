@@ -31,6 +31,7 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
         jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
         jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
+        jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
 
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
@@ -60,6 +61,10 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                 case "pst-sensitivity-threshold":
                     jsonParser.nextToken();
                     linearRaoParameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
+                    break;
+                case "pst-penalty-cost":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setPstPenaltyCost(jsonParser.getDoubleValue());
                     break;
                 case "sensitivity-parameters":
                     jsonParser.nextToken();
