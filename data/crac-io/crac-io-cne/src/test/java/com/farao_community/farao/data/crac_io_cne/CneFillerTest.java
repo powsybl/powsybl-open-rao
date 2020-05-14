@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,7 +20,7 @@ public class CneFillerTest {
 
     @Test
     public void generateTest() {
-        Crac crac = null;
+        Crac crac = new SimpleCrac("cocou");
         CneFiller.generate(crac);
         CriticalNetworkElementMarketDocument cne = CneFiller.getCne();
         assertEquals("1", cne.getRevisionNumber());

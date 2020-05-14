@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private Set<RangeAction> rangeActions;
     private Set<NetworkAction> networkActions;
     private boolean isSynchronized;
+    private DateTime networkDate;
 
     @JsonCreator
     public SimpleCrac(@JsonProperty("id") String id,
@@ -65,6 +67,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         this.rangeActions = rangeActions;
         this.networkActions = networkActions;
         this.isSynchronized = false;
+        this.networkDate = null;
     }
 
     public SimpleCrac(String id, String name) {
@@ -73,6 +76,15 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     public SimpleCrac(String id) {
         this(id, id);
+    }
+
+    @Override
+    public DateTime getNetworkDate() {
+        return networkDate;
+    }
+
+    public void setNetworkDate(DateTime networkDate) {
+        this.networkDate = networkDate;
     }
 
     @Override
@@ -420,6 +432,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
         cnecs.forEach(cnec -> cnec.synchronize(network));
         rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
+        networkDate = network.getCaseDate();
         isSynchronized = true;
     }
 
@@ -427,6 +440,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     public void desynchronize() {
         cnecs.forEach(Synchronizable::desynchronize);
         rangeActions.forEach(Synchronizable::desynchronize);
+        networkDate = null;
         isSynchronized = false;
     }
 

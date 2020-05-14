@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -25,6 +26,7 @@ import java.util.TimeZone;
 public final class CneFiller {
 
     private static CriticalNetworkElementMarketDocument cne = new CriticalNetworkElementMarketDocument();
+    private static SimpleDateFormat dateFormat = null;
 
     private CneFiller() { }
 
@@ -32,11 +34,23 @@ public final class CneFiller {
         return cne;
     }
 
-    public static void generate(Crac crac) {
-        fillHeader();
+    private static void setDateTimeFormat() {
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
     }
 
-    private static void fillHeader() {
+    public static void generate(Crac crac) {
+        setDateTimeFormat();
+
+        /*if (crac.isSynchronized()) {
+            fillHeader(crac.getNetworkDate());
+        } else {
+            throw new FaraoException("Crac should be synchronized!");
+        }*/
+        fillHeader(DateTime.now());
+    }
+
+    private static void fillHeader(DateTime networkDate) {
         cne.setMRID(generateRandomMRID());
         cne.setRevisionNumber("1");
         cne.setType("B06");
@@ -46,23 +60,20 @@ public final class CneFiller {
         cne.setReceiverMarketParticipantMRID(createPartyIDString("A01", "17XTSO-CS------W"));
         cne.setReceiverMarketParticipantMarketRoleType("A36");
         cne.setCreatedDateTime(createXMLGregorianCalendarNow());
-        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval());
+        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
         cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
     }
 
-    // TODO: get real date
-    private static ESMPDateTimeInterval createEsmpDateTimeInterval() {
+    private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate) {
         ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
-        timeInterval.setStart(createXMLGregorianCalendarNow().toString());
-        timeInterval.setEnd(createXMLGregorianCalendarNow().toString());
+
+        timeInterval.setStart(dateFormat.format(networkDate.toDate()));
+        timeInterval.setEnd(dateFormat.format(networkDate.plusHours(1).toDate()));
         return timeInterval;
     }
 
     private static XMLGregorianCalendar createXMLGregorianCalendarNow() {
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-
             XMLGregorianCalendar xmlcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
             xmlcal.setTimezone(0);
 

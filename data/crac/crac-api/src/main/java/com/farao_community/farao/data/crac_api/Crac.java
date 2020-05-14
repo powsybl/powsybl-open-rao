@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_api;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
+import org.joda.time.DateTime;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,8 @@ import java.util.TreeSet;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Crac extends Identifiable<Crac>, Synchronizable {
+
+    DateTime getNetworkDate();
 
     Set<NetworkElement> getNetworkElements();
 
