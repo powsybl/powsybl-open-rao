@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
 
 /**
@@ -118,5 +119,8 @@ public class LoopFlowComputationTest {
         });
 
         assertEquals(4, countriesFromGlsk.size());
+
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network);
+        assertNotNull(loopFlowComputation);
     }
 }

@@ -8,13 +8,16 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.glsk.import_.EICode;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.flowbased_computation.glsk_provider.UcteGlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -44,6 +47,17 @@ public class LoopFlowComputation {
         this.crac = crac;
         this.glskProvider = cracLoopFlowExtension.getGlskProvider();
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
+    }
+
+    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
+        this.glskProvider = glskProvider;
+        this.countries = new ArrayList<>();
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> {
+            this.countries.add(new EICode(key).getCountry());
+        });
+
+        this.crac = crac;
+        this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
     }
 
     public Map<String, Double> calculateLoopFlows(Network network) {
