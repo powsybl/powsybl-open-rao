@@ -9,7 +9,9 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 
@@ -23,10 +25,12 @@ public class CneExportTest {
     @Test
     public void testExport() {
 
-        Crac simpleCrac = null;
+        Crac crac = CracImporters.importCrac("small-crac-with-result-extensions.json", getClass().getResourceAsStream("/small-crac-with-result-extensions.json"));
+        Crac crac1 =  Mockito.spy(crac);
+        Mockito.doReturn(true).when(crac1).isSynchronized();
+
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(simpleCrac, "CNE", outputStream);
-        int i = 1;
+        CracExporters.exportCrac(crac1, "CNE", outputStream);
     }
 }

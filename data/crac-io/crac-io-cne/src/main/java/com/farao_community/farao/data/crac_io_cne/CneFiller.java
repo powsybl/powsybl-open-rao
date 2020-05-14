@@ -42,12 +42,11 @@ public final class CneFiller {
     public static void generate(Crac crac) {
         SimpleDateFormat dateFormat = setDateTimeFormat();
 
-        /*if (crac.isSynchronized()) {
-            fillHeader(crac.getNetworkDate());
+        if (crac.isSynchronized()) {
+            fillHeader(crac.getNetworkDate(), dateFormat);
         } else {
             throw new FaraoException("Crac should be synchronized!");
-        }*/
-        fillHeader(DateTime.now(), dateFormat);
+        }
     }
 
     private static void fillHeader(DateTime networkDate, SimpleDateFormat dateFormat) {
