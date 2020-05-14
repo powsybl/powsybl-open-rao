@@ -45,6 +45,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-io-cne</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-loopflow-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
