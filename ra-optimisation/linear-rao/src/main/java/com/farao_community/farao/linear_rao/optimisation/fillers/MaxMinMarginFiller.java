@@ -25,9 +25,6 @@ import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
  */
 public class MaxMinMarginFiller implements ProblemFiller {
 
-    //TODO : load from config
-    private static final double PST_PENALTY_COST = 1; // in MW/degree
-
     @Override
     public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         // build variables
