@@ -31,4 +31,14 @@ public abstract class AbstractNetworkAction extends AbstractRemedialAction<Netwo
     public AbstractNetworkAction(String id) {
         super(id);
     }
+
+    @Override
+    public boolean isRangeAction() {
+        return false;
+    }
+
+    @Override
+    public boolean isNetworkAction() {
+        return true;
+    }
 }

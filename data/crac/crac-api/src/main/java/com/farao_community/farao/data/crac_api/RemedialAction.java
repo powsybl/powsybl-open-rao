@@ -38,4 +38,8 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      */
     @JsonIgnore
     Set<NetworkElement> getNetworkElements();
+
+    boolean isRangeAction();
+
+    boolean isNetworkAction();
 }

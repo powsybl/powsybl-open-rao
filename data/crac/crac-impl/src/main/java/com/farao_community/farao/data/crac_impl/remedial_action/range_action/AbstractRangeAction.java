@@ -44,6 +44,16 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
     }
 
     @Override
+    public boolean isRangeAction() {
+        return true;
+    }
+
+    @Override
+    public boolean isNetworkAction() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
