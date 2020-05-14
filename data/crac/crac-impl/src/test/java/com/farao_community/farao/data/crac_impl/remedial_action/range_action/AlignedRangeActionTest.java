@@ -66,6 +66,12 @@ public class AlignedRangeActionTest {
     }
 
     @Test
+    public void isRangeAction() {
+        assertTrue(alignedRangeAction.isRangeAction());
+        assertFalse(alignedRangeAction.isNetworkAction());
+    }
+
+    @Test
     public void getRanges() {
         assertEquals(mockedRanges, alignedRangeAction.getRanges());
     }

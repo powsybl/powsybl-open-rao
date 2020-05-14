@@ -54,6 +54,12 @@ public class ComplexNetworkActionTest {
     }
 
     @Test
+    public void isNetworkAction() {
+        assertTrue(complexNetworkAction.isNetworkAction());
+        assertFalse(complexNetworkAction.isRangeAction());
+    }
+
+    @Test
     public void getApplicableNetworkActions() {
 
         Set<NetworkAction> applicableNetworkActions = Collections.singleton(mockedNetworkAction);
