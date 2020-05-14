@@ -9,7 +9,9 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.data.glsk.import_.EICode;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.flowbased_computation.glsk_provider.UcteGlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.common.jimfs.Configuration;
@@ -17,6 +19,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -28,9 +31,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -97,5 +103,20 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("BE-NL"), EPSILON);
+    }
+
+    @Test
+    public void testImportGlsk() {
+        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
+
+        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/glsk_lots_of_lf_12nodes.xml"), network, instant);
+
+        List<Country> countriesFromGlsk = new ArrayList<>();
+        ucteGlskProvider.getAllGlsk(network).keySet().forEach(key -> {
+            countriesFromGlsk.add(new EICode(key).getCountry());
+        });
+
+        assertEquals(4, countriesFromGlsk.size());
     }
 }
