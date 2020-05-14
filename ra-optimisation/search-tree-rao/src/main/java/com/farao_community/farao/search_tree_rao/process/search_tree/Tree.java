@@ -14,11 +14,13 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
+import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
  * one by one. The tree is orchestrating the leaves : it looks for a smart
  * routing among the leaves in order to converge as quickly as possible to a local
  * minimum of the objective function.
+ *
+ * The leaves of a same depth can be evaluated simultaneously.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -63,18 +67,18 @@ public final class Tree {
 
         while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
+            final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
 
             if (generatedLeaves.isEmpty()) {
                 break;
             }
 
-            //TODO: manage parallel computation
-            generatedLeaves.forEach(leaf -> leaf.evaluate(network, crac, referenceNetworkVariant, parameters));
-            generatedLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
+            evaluateLeaves(network, crac, referenceNetworkVariant, parameters, generatedLeaves);
+
+            List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
-            for (Leaf currentLeaf: generatedLeaves) {
+            for (Leaf currentLeaf: successfulLeaves) {
                 if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), searchTreeRaoParameters)) {
                     hasImproved = true;
                     depth = depth + 1;
@@ -89,6 +93,27 @@ public final class Tree {
 
         //TODO: refactor output format
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
+    }
+
+    /**
+     * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
+     */
+    private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant)) {
+            networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
+                try {
+                    Network networkClone = networkPool.getAvailableNetwork();
+                    leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
+                    networkPool.releaseUsedNetwork(networkClone);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            })).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new FaraoException(e);
+        }
     }
 
     /**

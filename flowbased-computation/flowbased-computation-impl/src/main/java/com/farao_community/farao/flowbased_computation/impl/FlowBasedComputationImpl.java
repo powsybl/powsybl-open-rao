@@ -16,6 +16,7 @@ import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.FaraoVariantsPool;
+import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -134,7 +135,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
 
     private DataDomain buildFlowbasedDomain(CracFile cracFile, Map<String, Double> referenceFlows, Map<String, Map<String, Double>> ptdfs) {
         return DataDomain.builder()
-                .id(UUID.randomUUID().toString())
+                .id(RandomizedString.getRandomizedString())
                 .name("FlowBased results")
                 .description("")
                 .sourceFormat("code")
