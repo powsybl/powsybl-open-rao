@@ -32,6 +32,7 @@ public class SensitivityComputationServiceTest {
 
         Mockito.when(sensitivityComputationFactory.create(Mockito.any(), Mockito.any(), Mockito.anyInt())).thenReturn(sensitivityComputation);
         Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
+        Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
 
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
         assertTrue(SensitivityComputationService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(SensitivityFactorsProvider.class)).isOk());

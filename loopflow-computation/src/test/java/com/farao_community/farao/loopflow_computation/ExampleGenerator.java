@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.flowbased_computation.impl;
+package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.data.crac_file.Contingency;
+import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;

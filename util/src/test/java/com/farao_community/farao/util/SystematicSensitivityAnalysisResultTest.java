@@ -10,10 +10,14 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.factors.functions.BranchFlow;
+import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -25,48 +29,58 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class SystematicSensitivityAnalysisResultTest {
-    private Map<State, SensitivityComputationResults> stateSensiMap = new HashMap<>();
-    private Map<Cnec, Double> cnecFlowMap = new HashMap<>();
-    private Map<Cnec, Double> cnecIntensityMap = new HashMap<>();
-    private State state;
-    private Cnec cnec;
+    private static final double EPSILON = 1e-2;
+    private SensitivityComputationResults sensitivityComputationResults;
+    private Network network;
+    private Crac crac;
+    private Cnec nStateCnec;
+    private Cnec contingencyCnec;
+    private Contingency contingency;
     private RangeAction rangeAction;
 
     @Before
     public void setUp() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPstRange();
-        SensitivityComputationResults sensiResults = (new MockSensiFactory()).create(network, null, 0)
-                .run(new CracFactorsProvider(crac), null, null).join();
-        state = crac.getPreventiveState();
-        cnec = crac.getCnec("cnec1basecase");
+        network = NetworkImportsUtil.import12NodesNetwork();
+        crac = CommonCracCreation.createWithPstRange();
+        sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
+                .run(new CracFactorsProvider(crac), new CracContingenciesProvider(crac), network.getVariantManager().getWorkingVariantId(), null).join();
+        nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
-        stateSensiMap.put(state, sensiResults);
-        cnecFlowMap.put(cnec, 10.);
-        cnecIntensityMap.put(cnec, 100.);
+        contingency = crac.getContingency("Contingency FR1 FR3");
+        contingencyCnec = crac.getCnec("cnec1stateCurativeContingency1");
     }
 
     @Test
     public void testCompleteResultManipulation() {
         // When
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(stateSensiMap, cnecFlowMap, cnecIntensityMap);
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults, network, crac);
 
         // Then
-        assertEquals(10, result.getFlow(cnec).get(), 0.1);
-        assertEquals(100, result.getIntensity(cnec).get(), 0.1);
-        assertFalse(result.anyStateDiverged());
-        assertEquals(0.5, result.getSensitivity(cnec, rangeAction).get(), 0.1);
+        assertTrue(result.isSuccess());
+        //  in basecase
+        double vNom = network.getBranch(nStateCnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
+        assertEquals(10, result.getReferenceFlow(nStateCnec), EPSILON);
+        assertEquals(100 * 100 / vNom, result.getReferenceIntensity(nStateCnec), EPSILON);
+        assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec), EPSILON);
+        assertEquals(0.25 * 100 / vNom, result.getSensitivityOnIntensity(rangeAction, nStateCnec), EPSILON);
+
+        //  after contingency
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec), EPSILON);
+        assertEquals(-200 * 100 / vNom, result.getReferenceIntensity(contingencyCnec), EPSILON);
+        assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec), EPSILON);
+        assertEquals(-5 * 100 / vNom, result.getSensitivityOnIntensity(rangeAction, contingencyCnec), EPSILON);
 
     }
 
     @Test
     public void testIncompleteSensiResult() {
         // When
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(Collections.singletonMap(state, null), cnecFlowMap, cnecIntensityMap);
+        SensitivityComputationResults sensitivityComputationResults = Mockito.mock(SensitivityComputationResults.class);
+        Mockito.when(sensitivityComputationResults.isOk()).thenReturn(false);
+        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults, network, crac);
 
         // Then
-        assertTrue(result.anyStateDiverged());
-        assertFalse(result.getSensitivity(cnec, rangeAction).isPresent());
+        assertFalse(result.isSuccess());
     }
 
     private final class MockSensiFactory implements SensitivityComputationFactory {
@@ -80,9 +94,48 @@ public class SystematicSensitivityAnalysisResultTest {
             @Override
             public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
                 List<SensitivityValue> values = sensitivityFactorsProvider.getFactors(network).stream()
-                        .map(factor -> new SensitivityValue(factor, 0.5, 10, 10))
+                        .map(factor -> {
+                            if (factor.getFunction() instanceof BranchFlow) {
+                                return new SensitivityValue(factor, 0.5, 10, 10);
+                            } else if (factor.getFunction() instanceof BranchIntensity) {
+                                return new SensitivityValue(factor, 0.25, 100, -10);
+                            } else {
+                                throw new AssertionError();
+                            }
+                        })
                         .collect(Collectors.toList());
                 return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", values));
+            }
+
+            @Override
+            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getFactors(network).stream()
+                        .map(factor -> {
+                            if (factor.getFunction() instanceof BranchFlow) {
+                                return new SensitivityValue(factor, 0.5, 10, 10);
+                            } else if (factor.getFunction() instanceof BranchIntensity) {
+                                return new SensitivityValue(factor, 0.25, 100, -10);
+                            } else {
+                                throw new AssertionError();
+                            }
+                        })
+                        .collect(Collectors.toList());
+                Map<String, List<SensitivityValue>> contingenciesValues = contingenciesProvider.getContingencies(network).stream()
+                        .collect(Collectors.toMap(
+                            contingency -> contingency.getId(),
+                            contingency -> sensitivityFactorsProvider.getFactors(network).stream()
+                               .map(factor -> {
+                                   if (factor.getFunction() instanceof BranchFlow) {
+                                       return new SensitivityValue(factor, -5, -20, 20);
+                                   } else if (factor.getFunction() instanceof BranchIntensity) {
+                                       return new SensitivityValue(factor, 5, 200, -20);
+                                   } else {
+                                       throw new AssertionError();
+                                   }
+                               })
+                               .collect(Collectors.toList())
+                        ));
+                return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", nStateValues, contingenciesValues));
             }
 
             @Override
