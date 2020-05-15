@@ -11,7 +11,7 @@ hades2:
     debug: false
 
 hades2-default-parameters:
-    dcMode: false
+    dcMode: true
     balanceType: PROPORTIONAL_TO_GENERATION_P
     countriesToBalance: AL,AT,BA,BE,BG,CH,CZ,DE,ES,FR,GR,HR,HU,IT,ME,MK,NL,PL,PT,RO,RS,SI,SK,TR,UA
 
