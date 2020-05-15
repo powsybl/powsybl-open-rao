@@ -89,8 +89,7 @@ public final class CneFiller {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
         // TODO: create MonitoredSeries
-        MonitoredSeries monitoredSeries = new MonitoredSeries();
-        monitoredSeriesList.add(monitoredSeries);
+        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList);
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -103,6 +102,30 @@ public final class CneFiller {
         } else { // preventive
             constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getContingencySeries().isEmpty()).findFirst().orElseThrow(FaraoException::new).monitoredSeries = monitoredSeriesList;
         }
+    }
+
+    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList) {
+        MonitoredSeries monitoredSeries = new MonitoredSeries();
+        monitoredSeries.setMRID(cnec.getId());
+        monitoredSeries.setName(cnec.getName());
+
+        MonitoredRegisteredResource monitoredRegisteredResource = new MonitoredRegisteredResource();
+        monitoredRegisteredResource.setMRID(createResourceIDString("A02", cnec.getNetworkElement().getId()));
+        monitoredRegisteredResource.setName(cnec.getNetworkElement().getName());
+        // TODO: origin and extremity from network?
+        monitoredRegisteredResource.setInAggregateNodeMRID(createResourceIDString("A02", "in"));
+        monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString("A02", "out"));
+
+        monitoredSeries.registeredResource = Collections.singletonList(monitoredRegisteredResource);
+        monitoredSeriesList.add(monitoredSeries);
+    }
+
+    // Creation of ID with code scheme
+    private static ResourceIDString createResourceIDString(String codingScheme, String value) {
+        ResourceIDString resourceMRID = new ResourceIDString();
+        resourceMRID.setCodingScheme(codingScheme);
+        resourceMRID.setValue(value);
+        return resourceMRID;
     }
 
     /*****************
