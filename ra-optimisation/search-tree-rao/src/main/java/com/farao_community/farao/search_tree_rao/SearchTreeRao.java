@@ -68,7 +68,7 @@ public class SearchTreeRao implements RaoProvider {
             if (!Objects.isNull(cnecLoopFlowExtension)) {
                 //!!! note here we use the result of branch flow of preventive state for all cnec of all states
                 //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
-                double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
+                double initialLoopFlow = fZeroAll.get(cnec.getId());
                 double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
                 cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
             }
