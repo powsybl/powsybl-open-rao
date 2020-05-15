@@ -6,7 +6,7 @@
       "max-number-of-iterations" : 20,
       "security-analysis-without-rao" : true,
       "pst-sensitivity-threshold" : 1.0,
-      "pst-penalty-cost" : 0.5,
+      "pst-penalty-cost" : 0.01,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {

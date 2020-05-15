@@ -23,7 +23,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
     static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
     static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
-    static final double DEFAULT_PST_PENALTY_COST = 0.5;
+    static final double DEFAULT_PST_PENALTY_COST = 0.01;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensiParameters = null;
