@@ -8,9 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import org.joda.time.DateTime;
@@ -29,6 +27,7 @@ import java.util.stream.Collectors;
 public final class CneFiller {
 
     private static CriticalNetworkElementMarketDocument cne = new CriticalNetworkElementMarketDocument();
+    private static List<Instant> instants;
 
     private CneFiller() { }
 
@@ -39,6 +38,9 @@ public final class CneFiller {
     public static void generate(Crac crac) {
         SimpleDateFormat dateFormat = setDateTimeFormat();
         if (crac.isSynchronized()) {
+
+            instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
+
             fillHeader(crac.getNetworkDate(), dateFormat);
             createTimeSeries(crac.getNetworkDate(), dateFormat);
             Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
@@ -104,7 +106,13 @@ public final class CneFiller {
         }
     }
 
+    /*****************
+     MONITORED ELEMENTS
+     *****************/
     private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList) {
+        // TODO: handle other units
+        Unit unit = Unit.MEGAWATT;
+
         MonitoredSeries monitoredSeries = new MonitoredSeries();
         monitoredSeries.setMRID(cnec.getId());
         monitoredSeries.setName(cnec.getName());
@@ -116,8 +124,45 @@ public final class CneFiller {
         monitoredRegisteredResource.setInAggregateNodeMRID(createResourceIDString("A02", "in"));
         monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString("A02", "out"));
 
+        List<Analog> measurementsList = new ArrayList<>();
+
+        // TODO: handle flows
+        // Thresholds
+        if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A02", unit, threshold)));
+        } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A07", unit, threshold)));
+        }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A12", unit, threshold)));
+        } else { // After CRA
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A13", unit, threshold)));
+        }
+
+        monitoredRegisteredResource.measurements = measurementsList;
         monitoredSeries.registeredResource = Collections.singletonList(monitoredRegisteredResource);
         monitoredSeriesList.add(monitoredSeries);
+    }
+
+    private static Analog createMeasurement(String measurementType, Unit unit, double flow) {
+        Analog measurement = new Analog();
+        measurement.setMeasurementType(measurementType);
+
+        if (unit.equals(Unit.MEGAWATT)) {
+            measurement.setUnitSymbol("MAW");
+        } else if (unit.equals(Unit.AMPERE)) {
+            measurement.setUnitSymbol("AMP");
+        } else {
+            throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
+        }
+
+        if (flow < 0) {
+            measurement.setPositiveFlowIn("A02");
+        } else {
+            measurement.setPositiveFlowIn("A01");
+        }
+        measurement.setAnalogValuesValue(Math.round(Math.abs(flow)));
+
+        return measurement;
     }
 
     // Creation of ID with code scheme
