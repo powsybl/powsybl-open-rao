@@ -8,6 +8,7 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.glsk.import_.EICode;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
@@ -93,6 +94,8 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(countriesFromGlsk.size(), countries.size());
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        loopFlowComputation.setCnecLoopFlowInputThresholdAsPercetangeOfPmax(0.5);
+        assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputLoopFlow(), EPSILON);
         ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get(Country.valueOf("FR")), EPSILON);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get(Country.valueOf("FR")), EPSILON);
