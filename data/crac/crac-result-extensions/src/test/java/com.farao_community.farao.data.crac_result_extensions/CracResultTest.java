@@ -45,4 +45,14 @@ public class CracResultTest {
         assertEquals(CracResult.NetworkSecurityStatus.SECURED, unknownCracResult.getNetworkSecurityStatus());
         assertEquals(cost, unknownCracResult.getCost(), epsilon);
     }
+
+    @Test
+    public void loopflowStatusTest() {
+        CracResult cracResult = new CracResult();
+        assertEquals(CracResult.LoopFlowViolationStatus.UNKNOWN_LOOPFLOW_VIOLATION_STATUS, cracResult.getLoopFlowViolationStatus());
+        cracResult.setLoopFlowViolationStatus(CracResult.LoopFlowViolationStatus.LOOPFLOW_VIOLATION);
+        assertEquals(CracResult.LoopFlowViolationStatus.LOOPFLOW_VIOLATION, cracResult.getLoopFlowViolationStatus());
+        cracResult.setLoopFlowViolationStatus(CracResult.LoopFlowViolationStatus.NO_LOOPFLOW_VIOLATION);
+        assertEquals(CracResult.LoopFlowViolationStatus.NO_LOOPFLOW_VIOLATION, cracResult.getLoopFlowViolationStatus());
+    }
 }

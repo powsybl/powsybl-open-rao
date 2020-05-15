@@ -70,7 +70,7 @@ public class LoopFlowComputation {
         Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
         Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
-        return buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
+        return buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow, return map<Cnec ID, Cnec's loopflow>
     }
 
     public Map<Cnec, Map<Country, Double>> computePtdfOnCurrentNetwork(Network network) {

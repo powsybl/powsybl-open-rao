@@ -9,11 +9,13 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.NativeLibraryLoader;
@@ -68,7 +70,7 @@ public class LinearRao implements RaoProvider {
             SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
 
             // run RAO algorithm
-            return runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters);
+            return runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, raoParameters);
 
         } catch (FaraoException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(linearRaoData, e));
@@ -78,14 +80,21 @@ public class LinearRao implements RaoProvider {
     CompletableFuture<RaoResult> runLinearRao(LinearRaoData linearRaoData,
                                               SystematicAnalysisEngine systematicAnalysisEngine,
                                               LinearOptimisationEngine linearOptimisationEngine,
-                                              LinearRaoParameters linearRaoParameters) {
+                                              RaoParameters raoParameters) {
+        LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
         linearRaoData.fillRangeActionResultsWithNetworkValues();
         systematicAnalysisEngine.run(linearRaoData);
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, linearRaoData.getCrac())) {
+            if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                checkLoopflowViolationStatusAndUpdateCracResult(linearRaoData); //Loopflow: no loopflow check in optim => Check loopflow here
+                //todo update virtual cost for loopflow in CracResult
+            }
             return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(linearRaoData, linearRaoData.getInitialVariantId(), systematicAnalysisEngine));
         }
+
+        //todo if otpim, then update virtual cost for loopflow
 
         String bestVariantId = linearRaoData.getInitialVariantId();
         String optimizedVariantId;
@@ -119,7 +128,25 @@ public class LinearRao implements RaoProvider {
             }
         }
 
+        //todo: Optim done, loopflow status checked in optim. update loopflow violation status according to virtual cost.
         return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(linearRaoData, bestVariantId, systematicAnalysisEngine));
+    }
+
+    private void checkLoopflowViolationStatusAndUpdateCracResult(LinearRaoData linearRaoData) {
+        Crac crac = linearRaoData.getCrac();
+        Map<String, Double> currentLoopFlows = new LoopFlowComputation(crac, crac.getExtension(CracLoopFlowExtension.class)).calculateLoopFlows(linearRaoData.getNetwork());
+
+        boolean loopflowViolation = false;
+        for (Cnec cnec : crac.getCnecs(crac.getPreventiveState())) {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(linearRaoData.getWorkingVariantId());
+            double cnecLoopflow = currentLoopFlows.get(cnec.getId());
+            cnecResult.setLoopflowInMW(cnecLoopflow); //update cnec result
+            double cnecLoopflowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint();
+            if (Math.abs(cnecLoopflow) > Math.abs(cnecLoopflowLimit)) {
+                loopflowViolation = true;
+            }
+        }
+        linearRaoData.getCracResult(linearRaoData.getWorkingVariantId()).setLoopFlowViolationStatus(loopflowViolation ? CracResult.LoopFlowViolationStatus.LOOPFLOW_VIOLATION : CracResult.LoopFlowViolationStatus.NO_LOOPFLOW_VIOLATION);
     }
 
     /**
@@ -161,8 +188,8 @@ public class LinearRao implements RaoProvider {
 
         // log
         double minMargin = -linearRaoData.getCracResult(postOptimVariantId).getCost();
-        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
-            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
+        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}, loopflow violation status: {}", (int) minMargin, minMargin > 0 ?
+            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED, linearRaoData.getCracResult(postOptimVariantId).getLoopFlowViolationStatus());
 
         linearRaoData.clearWithKeepingCracResults(Arrays.asList(linearRaoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;
