@@ -42,23 +42,11 @@ public class CnecResult implements Result {
     }
 
     public CnecResult(double flowInMW) {
-        this.flowInMW = flowInMW;
-        this.flowInA = Double.NaN;
-        this.minThresholdInMW = Double.NaN;
-        this.maxThresholdInMW = Double.NaN;
-        this.minThresholdInA = Double.NaN;
-        this.maxThresholdInA = Double.NaN;
-        this.loopflowInMW = Double.NaN;
+        this(flowInMW, Double.NaN);
     }
 
     public CnecResult() {
-        this.flowInMW = Double.NaN;
-        this.flowInA = Double.NaN;
-        this.minThresholdInMW = Double.NaN;
-        this.maxThresholdInMW = Double.NaN;
-        this.minThresholdInA = Double.NaN;
-        this.maxThresholdInA = Double.NaN;
-        this.loopflowInMW = Double.NaN;
+        this(Double.NaN, Double.NaN);
     }
 
     public void setFlowInMW(double flow) {
