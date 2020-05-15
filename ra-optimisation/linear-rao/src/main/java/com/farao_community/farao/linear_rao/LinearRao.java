@@ -133,7 +133,7 @@ public class LinearRao implements RaoProvider {
      * Quality check of the configuration
      */
     private void linearRaoParametersQualityCheck(RaoParameters parameters, LinearRaoData linearRaoData) {
-        if (parameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+        if (parameters.isRaoWithLoopFlowLimitation() && Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
             throw new FaraoException("Loop flow parameters are inconsistent with CRAC loopflow extension");
         }
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);

@@ -9,13 +9,14 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
-import com.farao_community.farao.flowbased_computation.impl.LoopFlowComputation;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
@@ -117,6 +118,11 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
                 @Override
                 public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
                     return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList()));
+                }
+
+                @Override
+                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
+                    return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap()));
                 }
 
                 @Override

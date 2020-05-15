@@ -48,7 +48,7 @@ closed-optimisation-rao-parameters:
 load-flow-default-parameters:
     voltageInitMode: DC_VALUES
     transformerVoltageControlOn: false
-    specificCompatibility: true
+    t2wtSplitShuntAdmittance: true
 
 local-app-file-system:
     drive-name: Local

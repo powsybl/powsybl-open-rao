@@ -21,8 +21,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-import java.util.Optional;
-
 import static org.mockito.Mockito.*;
 
 /**
@@ -92,10 +90,10 @@ abstract class AbstractFillerTest {
         linearRaoProblem = new LinearRaoProblem(solver);
 
         systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
-        when(systematicSensitivityAnalysisResult.getFlow(cnec1)).thenReturn(Optional.of(REF_FLOW_CNEC1_IT1));
-        when(systematicSensitivityAnalysisResult.getFlow(cnec2)).thenReturn(Optional.of(REF_FLOW_CNEC2_IT1));
-        when(systematicSensitivityAnalysisResult.getSensitivity(cnec1, rangeAction)).thenReturn(Optional.of(SENSI_CNEC1_IT1));
-        when(systematicSensitivityAnalysisResult.getSensitivity(cnec2, rangeAction)).thenReturn(Optional.of(SENSI_CNEC2_IT1));
+        when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
+        when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
+        when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
 
         // parameters
