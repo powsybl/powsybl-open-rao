@@ -51,9 +51,7 @@ public class LoopFlowComputation {
     public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
         this.glskProvider = glskProvider;
         this.countries = new ArrayList<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> {
-            this.countries.add(new EICode(key).getCountry());
-        });
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> this.countries.add(new EICode(key).getCountry()));
 
         this.crac = crac;
         this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
