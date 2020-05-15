@@ -21,6 +21,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -44,13 +45,17 @@ public final class CneFiller {
 
             if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
-                addSuccessReasonToPoint(point, cracExtension.getVariant("variant1").getNetworkSecurityStatus());
+
+                // TODO: Don't hardcode it, once it can be read from crac
+                String preOptimVariantId = "variant2";
+                String postOptimVariantId = "variant1";
+
+                addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
                 createAllConstraintSeries(point, crac);
 
             } else { // Failure of computation
                 addFailureReasonToPoint(point);
             }
-
         } else {
             throw new FaraoException("Crac should be synchronized!");
         }
@@ -60,30 +65,52 @@ public final class CneFiller {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
-        crac.getCnecs().forEach(
-            cnec -> {
-                createAllConstraintSeriesOfACnec(cnec, constraintSeriesList);
-            }
-        );
+        /* Contingencies */
+        // PREVENTIVE STATE
+        constraintSeriesList.add(createAConstraintSeries("B57"));
+        //TODO: delete this if no PRA
+        constraintSeriesList.add(createAConstraintSeries("B56"));
+
+        // AFTER CONTINGENCY
+        crac.getContingencies().forEach(
+            contingency ->
+                createAllConstraintSeriesOfAContingency(contingency, constraintSeriesList));
+
+        /* Monitored Elements*/
+        List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B57")).collect(Collectors.toList());
+        List<ConstraintSeries> constraintSeriesListB56 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B56")).collect(Collectors.toList());
+
+        crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57));
 
         point.constraintSeries = constraintSeriesList;
+    }
+
+    private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList) {
+
+        List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
+        // TODO: create MonitoredSeries
+        MonitoredSeries monitoredSeries = new MonitoredSeries();
+        monitoredSeriesList.add(monitoredSeries);
+
+        Optional<Contingency> optionalContingency = cnec.getState().getContingency();
+        if (optionalContingency.isPresent()) { // after a contingency
+            Contingency contingency = optionalContingency.get();
+            constraintSeriesList.stream().filter(
+                constraintSeries ->
+                    constraintSeries.getContingencySeries().stream().anyMatch(
+                        contingencySeries -> contingencySeries.getMRID().equals(contingency.getId()))
+            ).findFirst().orElseThrow(FaraoException::new).monitoredSeries = monitoredSeriesList;
+        } else { // preventive
+            constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getContingencySeries().isEmpty()).findFirst().orElseThrow(FaraoException::new).monitoredSeries = monitoredSeriesList;
+        }
     }
 
     /*****************
      CONTINGENCIES
      *****************/
-    private static void createAllConstraintSeriesOfACnec(Cnec cnec, List<ConstraintSeries> constraintSeriesList) {
-        Optional<Contingency> contingencyOptional = cnec.getState().getContingency();
-        if (contingencyOptional.isPresent()) {
-            Contingency contingency = contingencyOptional.get();
-            constraintSeriesList.add(createAConstraintSeriesWithContingency("B57", contingency));
-            constraintSeriesList.add(createAConstraintSeriesWithContingency("B56", contingency));
-
-        } else {
-            constraintSeriesList.add(createAConstraintSeries("B57"));
-            //TODO: do this only if there is a PRA
-            constraintSeriesList.add(createAConstraintSeries("B56"));
-        }
+    private static void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList) {
+        constraintSeriesList.add(createAConstraintSeriesWithContingency("B57", contingency));
+        constraintSeriesList.add(createAConstraintSeriesWithContingency("B56", contingency));
     }
 
     private static ConstraintSeries createAConstraintSeries(String businessType) {
