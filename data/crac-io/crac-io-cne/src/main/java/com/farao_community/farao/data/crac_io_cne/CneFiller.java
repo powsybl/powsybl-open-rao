@@ -44,11 +44,11 @@ public final class CneFiller {
 
             if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
-                addReasonToPoint(point, Optional.of(cracExtension.getVariant("variant1").getNetworkSecurityStatus()));
+                addSuccessReasonToPoint(point, cracExtension.getVariant("variant1").getNetworkSecurityStatus());
                 createAllConstraintSeries(point, crac);
 
             } else { // Failure of computation
-                addReasonToPoint(cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0), Optional.empty());
+                addFailureReasonToPoint(point);
             }
 
         } else {
@@ -73,8 +73,9 @@ public final class CneFiller {
      CONTINGENCIES
      *****************/
     private static void createAllConstraintSeriesOfACnec(Cnec cnec, List<ConstraintSeries> constraintSeriesList) {
-        if (cnec.getState().getContingency().isPresent()) {
-            Contingency contingency = cnec.getState().getContingency().get();
+        Optional<Contingency> contingencyOptional = cnec.getState().getContingency();
+        if (contingencyOptional.isPresent()) {
+            Contingency contingency = contingencyOptional.get();
             constraintSeriesList.add(createAConstraintSeriesWithContingency("B57", contingency));
             constraintSeriesList.add(createAConstraintSeriesWithContingency("B56", contingency));
 
@@ -95,34 +96,37 @@ public final class CneFiller {
 
     private static ConstraintSeries createAConstraintSeriesWithContingency(String businessType, Contingency contingency) {
         ConstraintSeries constraintSeries = createAConstraintSeries(businessType);
+
         ContingencySeries contingencySeries = new ContingencySeries();
         contingencySeries.setMRID(contingency.getId());
         contingencySeries.setName(contingency.getName());
-        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
 
+        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
         return constraintSeries;
     }
 
     /*****************
      TIME_SERIES and REASON
      *****************/
-    // TODO: clean it and get the correct network status (from CracResultExtension)
-    private static void addReasonToPoint(Point point, Optional<CracResult.NetworkSecurityStatus> status) {
+    // TODO: get the correct network status (from CracResultExtension)
+    private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
         Reason reason = new Reason();
-        if (status.isPresent()) {
-            if (status.get().equals(CracResult.NetworkSecurityStatus.SECURED)) {
-                reason.setCode("Z13");
-                reason.setText("Situation is secure");
-            } else if (status.get().equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
-                reason.setCode("Z03");
-                reason.setText("Situation is unsecure");
-            } else {
-                throw new FaraoException(String.format("Unexpected status %s.", status));
-            }
+        if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
+            reason.setCode("Z13");
+            reason.setText("Situation is secure");
+        } else if (status.equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
+            reason.setCode("Z03");
+            reason.setText("Situation is unsecure");
         } else {
-            reason.setCode("999");
-            reason.setText("Other failure");
+            throw new FaraoException(String.format("Unexpected status %s.", status));
         }
+        point.reason = Collections.singletonList(reason);
+    }
+
+    private static void addFailureReasonToPoint(Point point) {
+        Reason reason = new Reason();
+        reason.setCode("999");
+        reason.setText("Other failure");
         point.reason = Collections.singletonList(reason);
     }
 
