@@ -68,7 +68,9 @@ public class UcteGlskDocument {
         Document document = documentBuilder.parse(data);
         document.getDocumentElement().normalize();
 
-        this.gSKTimeInterval = Interval.parse(((Element) document.getElementsByTagName("GSKTimeInterval").item(0)).getAttribute("v"));
+        if (document.getElementsByTagName("GSKTimeInterval").getLength() > 0) {
+            this.gSKTimeInterval = Interval.parse(((Element) document.getElementsByTagName("GSKTimeInterval").item(0)).getAttribute("v"));
+        }
 
         List<UcteGlskSeries> rawlistUcteGlskSeries = new ArrayList<>();
         ucteGlskSeriesByCountry = new HashMap<>();
