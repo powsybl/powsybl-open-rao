@@ -28,7 +28,7 @@ public class CnecResult implements Result {
     private double minThresholdInA;
     private double maxThresholdInA;
 
-    private double loopflowInMW; //loopflow value
+    private double loopflowInMW; //loopflow value in MW
 
     @JsonCreator
     public CnecResult(@JsonProperty("flowInMW") double flowInMW, @JsonProperty("flowInA") double flowInA) {
