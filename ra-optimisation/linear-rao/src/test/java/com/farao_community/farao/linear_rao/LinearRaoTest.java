@@ -98,7 +98,7 @@ public class LinearRaoTest {
     public void runLinearRaoWithSensitivityComputationError() {
         Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(systematicAnalysisEngine).run(any());
         try {
-            linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, raoParameters).join();
+            linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
             fail();
         } catch (SensitivityComputationException e) {
             // should throw
@@ -120,7 +120,7 @@ public class LinearRaoTest {
     public void runLinearRaoWithLinearOptimisationError() {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any(), any());
         try {
-            linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, raoParameters).join();
+            linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
             fail();
         } catch (LinearOptimisationException e) {
             // should throw
@@ -164,7 +164,7 @@ public class LinearRaoTest {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any(), any());
         raoParameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
 
-        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, raoParameters).join();
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
@@ -175,7 +175,7 @@ public class LinearRaoTest {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearOptimisationEngine).run(any(), any());
         raoParameters.getExtension(LinearRaoParameters.class).setMaxIterations(0);
 
-        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, raoParameters).join();
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
@@ -213,7 +213,7 @@ public class LinearRaoTest {
         }).when(linearOptimisationEngine).run(any(), any());
 
         // run Rao
-        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, raoParameters).join();
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
 
         // check results
         assertNotNull(results);

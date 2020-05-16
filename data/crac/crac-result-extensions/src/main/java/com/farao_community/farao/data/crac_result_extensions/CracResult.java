@@ -34,14 +34,7 @@ public class CracResult implements Result {
         UNSECURED
     }
 
-    public enum LoopFlowViolationStatus {
-        UNKNOWN_LOOPFLOW_VIOLATION_STATUS,
-        LOOPFLOW_VIOLATION,
-        NO_LOOPFLOW_VIOLATION
-    }
-
     private NetworkSecurityStatus networkSecurityStatus;
-    private LoopFlowViolationStatus loopFlowViolationStatus;
     private double cost;
 
     public NetworkSecurityStatus getNetworkSecurityStatus() {
@@ -75,20 +68,10 @@ public class CracResult implements Result {
     public CracResult(double cost) {
         this.cost = cost;
         setNetworkSecurityStatus();
-        this.loopFlowViolationStatus = LoopFlowViolationStatus.UNKNOWN_LOOPFLOW_VIOLATION_STATUS;
     }
 
     public CracResult() {
         this.cost = Double.NaN;
         setNetworkSecurityStatus();
-        this.loopFlowViolationStatus = LoopFlowViolationStatus.UNKNOWN_LOOPFLOW_VIOLATION_STATUS;
-    }
-
-    public LoopFlowViolationStatus getLoopFlowViolationStatus() {
-        return loopFlowViolationStatus;
-    }
-
-    public void setLoopFlowViolationStatus(LoopFlowViolationStatus loopFlowViolationStatus) {
-        this.loopFlowViolationStatus = loopFlowViolationStatus;
     }
 }
