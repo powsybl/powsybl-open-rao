@@ -42,12 +42,21 @@ public class LoopFlowComputation {
     private GlskProvider glskProvider;
     private List<Country> countries;
 
+    /**
+     * @param crac
+     * @param cracLoopFlowExtension contains GlskProvider and List of countries
+     */
     public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
         this.crac = crac;
         this.glskProvider = cracLoopFlowExtension.getGlskProvider();
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
     }
 
+    /**
+     * @param crac CracLoopFlowExtension is added to crac
+     * @param glskProvider use list of countires in GlskProvider
+     * @param network necessary to get list of countries from GlskProvider
+     */
     public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
         this.glskProvider = glskProvider;
         this.countries = new ArrayList<>();
@@ -57,6 +66,9 @@ public class LoopFlowComputation {
         this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
     }
 
+    /**
+     * @param percentage of pmax value as Cnec input loopflow threshold
+     */
     public void setCnecLoopFlowInputThresholdAsPercetangeOfPmax(double percentage) {
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             double pMax = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
