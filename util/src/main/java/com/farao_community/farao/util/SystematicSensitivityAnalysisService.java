@@ -33,7 +33,7 @@ public final class SystematicSensitivityAnalysisService {
                                                                   SensitivityComputationParameters sensitivityComputationParameters) {
         SensitivityComputationResults allStatesSensi = runSensitivityComputation(network, crac, computationManager, sensitivityComputationParameters);
 
-        return new SystematicSensitivityAnalysisResult(allStatesSensi, network, crac);
+        return new SystematicSensitivityAnalysisResult(allStatesSensi);
     }
 
     private static SensitivityComputationResults runSensitivityComputation(

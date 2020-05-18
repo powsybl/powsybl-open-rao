@@ -80,7 +80,9 @@ public class LinearRao implements RaoProvider {
                                               LinearOptimisationEngine linearOptimisationEngine,
                                               LinearRaoParameters linearRaoParameters) {
         linearRaoData.fillRangeActionResultsWithNetworkValues();
+        LOGGER.info("Initial systematic analysis [start]");
         systematicAnalysisEngine.run(linearRaoData);
+        LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -linearRaoData.getCracResult().getCost());
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, linearRaoData.getCrac())) {
@@ -97,24 +99,29 @@ public class LinearRao implements RaoProvider {
             // Look for a new RangeAction combination, optimized with the LinearOptimisationEngine
             // Store found solutions in crac extension working variant
             // Apply remedial actions on the network working variant
+            LOGGER.info("Iteration {} - linear optimization [start]", iteration);
             linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
+            LOGGER.info("Iteration {} - linear optimization [end]", iteration);
 
             // if the solution has not changed, stop the search
             if (linearRaoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {
+                LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
                 break;
             }
-
+            LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
             // evaluate sensitivity coefficients and cost on the newly optimised situation
             systematicAnalysisEngine.run(linearRaoData);
+            LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
 
             if (linearRaoData.getCracResult(optimizedVariantId).getCost() < linearRaoData.getCracResult(bestVariantId).getCost()) { // if the solution has been improved, continue the search
+                LOGGER.warn("Iteration {} - Better solution found with a minimum margin of {} MW", iteration, -linearRaoData.getCracResult(optimizedVariantId).getCost());
                 if (!bestVariantId.equals(linearRaoData.getInitialVariantId())) {
                     linearRaoData.deleteVariant(bestVariantId, false);
                 }
                 bestVariantId = optimizedVariantId;
             } else { // unexpected behaviour, stop the search
-                LOGGER.warn("Linear Optimization found a worse result after an iteration: from {} MW to {} MW",
-                    -linearRaoData.getCracResult(bestVariantId).getCost(), -linearRaoData.getCracResult(optimizedVariantId).getCost());
+                LOGGER.warn("Iteration {} - Linear Optimization found a worse result than previous iteration: from {} MW to {} MW",
+                    iteration, -linearRaoData.getCracResult(bestVariantId).getCost(), -linearRaoData.getCracResult(optimizedVariantId).getCost());
                 break;
             }
         }
@@ -126,7 +133,7 @@ public class LinearRao implements RaoProvider {
      * Quality check of the configuration
      */
     private void linearRaoParametersQualityCheck(RaoParameters parameters, LinearRaoData linearRaoData) {
-        if (parameters.isRaoWithLoopFlowLimitation() && !Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+        if (parameters.isRaoWithLoopFlowLimitation() && Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
             throw new FaraoException("Loop flow parameters are inconsistent with CRAC loopflow extension");
         }
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
