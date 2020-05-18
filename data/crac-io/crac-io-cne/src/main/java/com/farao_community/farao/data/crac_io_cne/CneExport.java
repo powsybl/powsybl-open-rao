@@ -81,7 +81,8 @@ public class CneExport implements CracExporter {
     private static boolean validateXMLSchema(String xsdPath, String xmlContent) {
 
         try {
-            SchemaFactory factory = SchemaFactory.newInstance(null);
+            SchemaFactory factory =
+                SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = factory.newSchema(new File(xsdPath));
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
