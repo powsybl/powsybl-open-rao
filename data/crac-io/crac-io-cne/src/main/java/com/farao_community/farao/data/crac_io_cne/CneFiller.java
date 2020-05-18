@@ -38,13 +38,12 @@ public final class CneFiller {
     }
 
     public static void generate(Crac crac) {
-        SimpleDateFormat dateFormat = setDateTimeFormat();
         if (crac.isSynchronized()) {
 
             instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
 
-            fillHeader(crac.getNetworkDate(), dateFormat);
-            createTimeSeries(crac.getNetworkDate(), dateFormat);
+            fillHeader(crac.getNetworkDate());
+            createTimeSeries(crac.getNetworkDate());
             Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
             if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
@@ -263,13 +262,13 @@ public final class CneFiller {
         point.reason = Collections.singletonList(reason);
     }
 
-    private static void createTimeSeries(DateTime networkDate, SimpleDateFormat dateFormat) {
+    private static void createTimeSeries(DateTime networkDate) {
 
         Point point = new Point();
         point.setPosition(1);
 
         SeriesPeriod period = new SeriesPeriod();
-        period.setTimeInterval(createEsmpDateTimeInterval(networkDate, dateFormat));
+        period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
         // TODO: resolution
         period.point = Collections.singletonList(point);
 
@@ -285,7 +284,7 @@ public final class CneFiller {
     /*****************
      HEADER
      *****************/
-    private static void fillHeader(DateTime networkDate, SimpleDateFormat dateFormat) {
+    private static void fillHeader(DateTime networkDate) {
         cne.setMRID(generateRandomMRID());
         cne.setRevisionNumber("1");
         cne.setType("B06");
@@ -294,20 +293,16 @@ public final class CneFiller {
         cne.setSenderMarketParticipantMarketRoleType("A44");
         cne.setReceiverMarketParticipantMRID(createPartyIDString("A01", "17XTSO-CS------W"));
         cne.setReceiverMarketParticipantMarketRoleType("A36");
-        cne.setCreatedDateTime(createXMLGregorianCalendarNow(dateFormat));
-        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate, dateFormat));
+        cne.setCreatedDateTime(createXMLGregorianCalendarNow());
+        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
         cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
     }
 
-    // Helper for date format
-    private static SimpleDateFormat setDateTimeFormat() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-        return dateFormat;
-    }
-
     // Creation of time interval
-    private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate, SimpleDateFormat dateFormat) {
+    private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+
         ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
 
         timeInterval.setStart(dateFormat.format(networkDate.toDate()));
@@ -316,7 +311,9 @@ public final class CneFiller {
     }
 
     // Creation of current date
-    private static XMLGregorianCalendar createXMLGregorianCalendarNow(SimpleDateFormat dateFormat) {
+    private static XMLGregorianCalendar createXMLGregorianCalendarNow() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
         try {
             XMLGregorianCalendar xmlcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
             xmlcal.setTimezone(0);
