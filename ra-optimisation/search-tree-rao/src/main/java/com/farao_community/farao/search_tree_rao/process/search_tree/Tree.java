@@ -18,7 +18,6 @@ import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -56,7 +55,7 @@ public final class Tree {
 
         Leaf rootLeaf = new Leaf();
         String initialNetworkVariant = network.getVariantManager().getWorkingVariantId();
-        String newNetworkVariant = RandomizedString.getRandomizedString(Collections.singleton(initialNetworkVariant));
+        String newNetworkVariant = RandomizedString.getRandomizedString(network.getVariantManager().getVariantIds());
         network.getVariantManager().cloneVariant(initialNetworkVariant, newNetworkVariant);
         rootLeaf.evaluate(network, crac, newNetworkVariant, parameters);
         network.getVariantManager().setWorkingVariant(initialNetworkVariant);
