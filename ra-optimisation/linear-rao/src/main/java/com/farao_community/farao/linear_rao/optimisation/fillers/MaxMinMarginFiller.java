@@ -24,7 +24,7 @@ import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-
+    
     @Override
     public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         // build variables
