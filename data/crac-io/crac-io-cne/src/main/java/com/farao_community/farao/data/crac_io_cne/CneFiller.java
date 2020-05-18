@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -91,7 +92,6 @@ public final class CneFiller {
     private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        // TODO: create MonitoredSeries
         createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId);
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
@@ -128,7 +128,6 @@ public final class CneFiller {
         List<Analog> measurementsList = new ArrayList<>();
         Unit finalUnit = unit;
 
-        // TODO: handle flows
         // Flows
         if (cnec.getExtension(CnecResultExtension.class) != null) {
             CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
@@ -240,7 +239,6 @@ public final class CneFiller {
     /*****************
      TIME_SERIES and REASON
      *****************/
-    // TODO: get the correct network status (from CracResultExtension)
     private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
         Reason reason = new Reason();
         if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
@@ -346,7 +344,7 @@ public final class CneFiller {
 
     // Generates a random code with 35 characters
     private static String generateRandomMRID() {
-        Random random = new Random(System.nanoTime());
+        Random random = new SecureRandom();
         return String.format("%s-%s-%s-%s", Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()));
     }
 }
