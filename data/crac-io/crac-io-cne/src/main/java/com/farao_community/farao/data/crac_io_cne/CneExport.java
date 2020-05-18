@@ -33,7 +33,6 @@ public class CneExport implements CracExporter {
     private static final String CNE_FORMAT = "CNE";
     private static final String CNE_XSD_2_4 = "iec62325-451-n-cne_v2_4.xsd";
     private static final String CNE_LOCATION = "src/main/resources/xsd/" + CNE_XSD_2_4;
-    private static final String XML_SCHEMA_INSTANCE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String CNE_TAG = "CriticalNetworkElement_MarketDocument";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneExport.class);
@@ -57,7 +56,7 @@ public class CneExport implements CracExporter {
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, CNE_XSD_2_4);
 
-            QName qName = new QName(XML_SCHEMA_INSTANCE, CNE_TAG);
+            QName qName = new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, CNE_TAG);
             JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName, CriticalNetworkElementMarketDocument.class, cne);
 
             jaxbMarshaller.marshal(root, stringWriter);
@@ -82,8 +81,7 @@ public class CneExport implements CracExporter {
     private static boolean validateXMLSchema(String xsdPath, String xmlContent) {
 
         try {
-            SchemaFactory factory =
-                SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            SchemaFactory factory = SchemaFactory.newInstance(null);
             Schema schema = factory.newSchema(new File(xsdPath));
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
