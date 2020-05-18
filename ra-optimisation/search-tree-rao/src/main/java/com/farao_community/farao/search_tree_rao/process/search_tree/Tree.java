@@ -16,11 +16,14 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +41,8 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class Tree {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Tree.class);
 
     private Tree() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -68,6 +73,7 @@ public final class Tree {
         while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
+            LOGGER.info(String.format("Research depth: %d, Leaves to evaluate: %d", depth, generatedLeaves.size()));
 
             if (generatedLeaves.isEmpty()) {
                 break;
@@ -100,12 +106,14 @@ public final class Tree {
      */
     private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
+        AtomicInteger remainingLeaves = new AtomicInteger(generatedLeaves.size());
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel())) {
             networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
                     leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
                     networkPool.releaseUsedNetwork(networkClone);
+                    LOGGER.info(String.format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

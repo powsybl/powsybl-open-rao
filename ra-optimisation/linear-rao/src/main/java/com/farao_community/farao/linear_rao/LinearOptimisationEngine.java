@@ -145,6 +145,7 @@ class LinearOptimisationEngine {
 
     public static void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+        LOGGER.debug(format("Expected minimum margin: %f", linearRaoProblem.getMinimumMarginVariable().solutionValue()));
         for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
