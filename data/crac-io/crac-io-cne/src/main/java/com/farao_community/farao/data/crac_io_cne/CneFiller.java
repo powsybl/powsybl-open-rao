@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
@@ -264,21 +265,25 @@ public final class CneFiller {
 
     private static void createTimeSeries(DateTime networkDate) {
 
-        Point point = new Point();
-        point.setPosition(1);
+        try {
+            Point point = new Point();
+            point.setPosition(1);
 
-        SeriesPeriod period = new SeriesPeriod();
-        period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
-        // TODO: resolution
-        period.point = Collections.singletonList(point);
+            SeriesPeriod period = new SeriesPeriod();
+            period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
+            period.setResolution(DatatypeFactory.newInstance().newDuration("PT60M"));
+            period.point = Collections.singletonList(point);
 
-        TimeSeries timeSeries = new TimeSeries();
-        timeSeries.setMRID(generateRandomMRID());
-        timeSeries.setBusinessType("B54");
-        timeSeries.setCurveType("A01");
-        timeSeries.period = Collections.singletonList(period);
+            TimeSeries timeSeries = new TimeSeries();
+            timeSeries.setMRID(generateRandomMRID());
+            timeSeries.setBusinessType("B54");
+            timeSeries.setCurveType("A01");
+            timeSeries.period = Collections.singletonList(period);
 
-        cne.timeSeries = Collections.singletonList(timeSeries);
+            cne.timeSeries = Collections.singletonList(timeSeries);
+        } catch (DatatypeConfigurationException e) {
+            throw new FaraoException("Failure in TimeSeries creation");
+        }
     }
 
     /*****************

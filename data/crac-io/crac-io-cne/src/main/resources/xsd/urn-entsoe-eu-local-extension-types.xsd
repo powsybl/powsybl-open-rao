@@ -127,6 +127,26 @@
   </xsd:simpleType>
   <xsd:simpleType name="LocalReasonCodeType">
     <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="Z03">
+        <xsd:annotation>
+          <xsd:documentation>
+            <CodeDescription>
+              <Title>Unsecure</Title>
+              <Definition>Situation is unsecure</Definition>
+            </CodeDescription>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="Z13">
+        <xsd:annotation>
+          <xsd:documentation>
+            <CodeDescription>
+              <Title>Secure</Title>
+              <Definition>Situation is secure</Definition>
+            </CodeDescription>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
       <xsd:enumeration value="999" />
     </xsd:restriction>
   </xsd:simpleType>
