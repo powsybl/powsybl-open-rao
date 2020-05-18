@@ -96,7 +96,7 @@ class LinearOptimisationEngine {
             fillCracResults(linearRaoProblem, linearRaoData);
             linearRaoData.applyRangeActionResultsOnNetwork();
         } else {
-            //todo handle INFEASIBLE linear rao problem, set cost to Double.INFINITY
+            //todo handle INFEASIBLE linear rao problem, set cost to Double.INFINITY.
         }
     }
 
