@@ -51,7 +51,7 @@ public final class CneFiller {
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
                 // TODO: Don't hardcode it, once it can be read from crac
-                String preOptimVariantId = "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005";
+                //String preOptimVariantId = "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005";
                 String postOptimVariantId = "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e";
 
                 addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
@@ -174,7 +174,7 @@ public final class CneFiller {
         } else if (constraintSeries.getBusinessType().equals("B57")) {
             states.forEach(state -> constraintSeriesMapB57.put(state, constraintSeries));
         } else {
-            new FaraoException(String.format("Unhandled businessType %s", constraintSeries.getBusinessType()));
+            throw new FaraoException(String.format("Unhandled businessType %s", constraintSeries.getBusinessType()));
         }
 
         // add to CNE
