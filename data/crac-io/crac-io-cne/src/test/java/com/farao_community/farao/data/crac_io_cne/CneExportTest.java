@@ -35,7 +35,6 @@ public class CneExportTest {
         CracExporters.exportCrac(crac, "CNE", outputStream);
 
         assertTrue(CneExport.validateCNESchema(outputStream.toString()));
-        int i = 1;
     }
 
     /*@Test
