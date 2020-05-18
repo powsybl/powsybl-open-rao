@@ -10,8 +10,9 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import static org.junit.Assert.*;
@@ -24,6 +25,22 @@ public class CneExportTest {
     @Test
     public void testExport() {
 
+        Crac crac = CracImporters.importCrac("OutputCrac.json", getClass().getResourceAsStream("/OutputCrac.json"));
+
+        Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
+        crac.synchronize(network);
+
+        // export Crac
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        CracExporters.exportCrac(crac, "CNE", outputStream);
+
+        assertTrue(CneExport.validateCNESchema(outputStream.toString()));
+        int i = 1;
+    }
+
+    /*@Test
+    public void testExportOld() {
+
         Crac crac = CracImporters.importCrac("small-crac-with-result-extensions.json", getClass().getResourceAsStream("/small-crac-with-result-extensions.json"));
         Crac crac1 =  Mockito.spy(crac);
         Mockito.doReturn(true).when(crac1).isSynchronized();
@@ -34,5 +51,5 @@ public class CneExportTest {
 
         assertTrue(CneExport.validateCNESchema(outputStream.toString()));
         int i = 1;
-    }
+    }*/
 }

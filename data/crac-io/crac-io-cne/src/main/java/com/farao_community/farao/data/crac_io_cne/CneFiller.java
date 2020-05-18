@@ -9,10 +9,7 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -31,6 +28,8 @@ public final class CneFiller {
 
     private static CriticalNetworkElementMarketDocument cne = new CriticalNetworkElementMarketDocument();
     private static List<Instant> instants;
+    private static Map<State, ConstraintSeries> constraintSeriesMapB57 = new HashMap<>();
+    private static Map<State, ConstraintSeries> constraintSeriesMapB56 = new HashMap<>();
 
     private CneFiller() { }
 
@@ -51,8 +50,8 @@ public final class CneFiller {
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
                 // TODO: Don't hardcode it, once it can be read from crac
-                String preOptimVariantId = "variant2";
-                String postOptimVariantId = "variant1";
+                String preOptimVariantId = "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005";
+                String postOptimVariantId = "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e";
 
                 addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
                 createAllConstraintSeries(point, crac, postOptimVariantId);
@@ -71,14 +70,14 @@ public final class CneFiller {
 
         /* Contingencies */
         // PREVENTIVE STATE
-        constraintSeriesList.add(createAConstraintSeries("B57"));
+        addConstraintToMapAndCne(createAConstraintSeries("B57"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
         //TODO: delete this if no PRA
-        constraintSeriesList.add(createAConstraintSeries("B56"));
+        addConstraintToMapAndCne(createAConstraintSeries("B56"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
 
         // AFTER CONTINGENCY
         crac.getContingencies().forEach(
             contingency ->
-                createAllConstraintSeriesOfAContingency(contingency, constraintSeriesList));
+                createAllConstraintSeriesOfAContingency(contingency, constraintSeriesList, crac.getStates(contingency)));
 
         /* Monitored Elements*/
         List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B57")).collect(Collectors.toList());
@@ -86,9 +85,57 @@ public final class CneFiller {
 
         crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId));
 
+        crac.getNetworkActions().forEach(networkAction -> findAndAddNetworkActions(networkAction, postOptimVariantId));
+
         point.constraintSeries = constraintSeriesList;
     }
 
+    private static void findAndAddNetworkActions(NetworkAction networkAction, String postOptimVariantId) {
+        if (networkAction.getExtension(NetworkActionResultExtension.class) != null) {
+            addActivatedRemedialActionSeries(networkAction, postOptimVariantId, constraintSeriesMapB56);
+            addActivatedRemedialActionSeries(networkAction, postOptimVariantId, constraintSeriesMapB57);
+        }
+    }
+
+    private static void addActivatedRemedialActionSeries(NetworkAction networkAction, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList) {
+        constraintSeriesList.forEach((state, constraintSeries) -> {
+            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
+                if (constraintSeries.remedialActionSeries == null) {
+                    constraintSeries.remedialActionSeries = new ArrayList<>();
+                }
+                constraintSeries.remedialActionSeries.add(createRemedialActionSeries(networkAction));
+            }
+        });
+    }
+
+    private static RemedialActionSeries createRemedialActionSeries(NetworkAction networkAction) {
+        RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
+        remedialActionSeries.setMRID(networkAction.getId());
+        remedialActionSeries.setName(networkAction.getName());
+        // TODO: deal with automatic RA (A20) and curative RA (A19)
+        remedialActionSeries.setApplicationModeMarketObjectStatusStatus("A18");
+
+        return remedialActionSeries;
+    }
+
+    private static void addConstraintToMapAndCne(ConstraintSeries constraintSeries, List<ConstraintSeries> constraintSeriesList, Set<State> states) {
+
+        // add to map
+        if (constraintSeries.getBusinessType().equals("B56")) {
+            states.forEach(state -> constraintSeriesMapB56.put(state, constraintSeries));
+        } else if (constraintSeries.getBusinessType().equals("B57")) {
+            states.forEach(state -> constraintSeriesMapB57.put(state, constraintSeries));
+        } else {
+            new FaraoException(String.format("unhandled businessType %s", constraintSeries.getBusinessType()));
+        }
+
+        // add to CNE
+        constraintSeriesList.add(constraintSeries);
+    }
+
+    /*****************
+     MONITORED ELEMENTS
+     *****************/
     private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
@@ -107,9 +154,6 @@ public final class CneFiller {
         }
     }
 
-    /*****************
-     MONITORED ELEMENTS
-     *****************/
     private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId) {
         // TODO: handle other units
         Unit unit = Unit.MEGAWATT;
@@ -212,9 +256,9 @@ public final class CneFiller {
     /*****************
      CONTINGENCIES
      *****************/
-    private static void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList) {
-        constraintSeriesList.add(createAConstraintSeriesWithContingency("B57", contingency));
-        constraintSeriesList.add(createAConstraintSeriesWithContingency("B56", contingency));
+    private static void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList, SortedSet<State> states) {
+        addConstraintToMapAndCne(createAConstraintSeriesWithContingency("B57", contingency), constraintSeriesList, states);
+        addConstraintToMapAndCne(createAConstraintSeriesWithContingency("B56", contingency), constraintSeriesList, states);
     }
 
     private static ConstraintSeries createAConstraintSeries(String businessType) {
