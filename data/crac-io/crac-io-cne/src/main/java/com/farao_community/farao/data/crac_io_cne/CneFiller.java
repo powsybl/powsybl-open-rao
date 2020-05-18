@@ -127,6 +127,7 @@ public final class CneFiller {
         monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString("A02", "out"));
 
         List<Analog> measurementsList = new ArrayList<>();
+        Unit finalUnit = unit;
 
         // TODO: handle flows
         // Flows
@@ -134,41 +135,50 @@ public final class CneFiller {
             CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
             CnecResult cnecResult = cnecResultExtension.getVariant(postOptimVariantId);
 
-            // TODO: check how to do this correctly
-            if (unit.equals(Unit.AMPERE)) {
-                if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
-                    unit = Unit.MEGAWATT;
-                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
-                } else { // normal case or case when nothing is defined
-                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
-                }
-            } else if (unit.equals(Unit.MEGAWATT)) {
-                if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
-                    unit = Unit.AMPERE;
-                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
-                } else { // normal case or case when nothing is defined
-                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
-                }
-            } else {
-                throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
-            }
+            finalUnit = handleFlow(cnecResult, unit, measurementsList);
         }
 
-        Unit finalUnit = unit;
         // Thresholds
-        if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A02", finalUnit, threshold)));
-        } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A07", finalUnit, threshold)));
-        }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A12", finalUnit, threshold)));
-        } else { // After CRA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A13", finalUnit, threshold)));
-        }
+        handleThresholds(cnec, finalUnit, measurementsList);
 
         monitoredRegisteredResource.measurements = measurementsList;
         monitoredSeries.registeredResource = Collections.singletonList(monitoredRegisteredResource);
         monitoredSeriesList.add(monitoredSeries);
+    }
+
+    // TODO: check how to do this correctly
+    private static Unit handleFlow(CnecResult cnecResult, Unit unit, List<Analog> measurementsList) {
+        Unit finalUnit = unit;
+        if (unit.equals(Unit.AMPERE)) {
+            if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
+                finalUnit = Unit.MEGAWATT;
+                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
+            } else { // normal case or case when nothing is defined
+                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
+            }
+        } else if (unit.equals(Unit.MEGAWATT)) {
+            if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
+                finalUnit = Unit.AMPERE;
+                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
+            } else { // normal case or case when nothing is defined
+                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
+            }
+        } else {
+            throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
+        }
+        return finalUnit;
+    }
+
+    private static void handleThresholds(Cnec cnec, Unit unit, List<Analog> measurementsList) {
+        if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A02", unit, threshold)));
+        } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A07", unit, threshold)));
+        }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A12", unit, threshold)));
+        } else { // After CRA
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A13", unit, threshold)));
+        }
     }
 
     private static Analog createMeasurement(String measurementType, Unit unit, double flow) {
