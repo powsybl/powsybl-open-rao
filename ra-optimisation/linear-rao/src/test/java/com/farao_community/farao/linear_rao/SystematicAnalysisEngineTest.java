@@ -73,7 +73,7 @@ public class SystematicAnalysisEngineTest {
             .thenReturn(systematicAnalysisResultOk);
 
         // run engine
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters, computationManager);
         systematicAnalysisEngine.run(initialLinearRaoData);
 
         // assert results
@@ -96,7 +96,7 @@ public class SystematicAnalysisEngineTest {
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultFailed);
 
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters, computationManager);
 
         // run - expected failure
         try {
@@ -123,7 +123,7 @@ public class SystematicAnalysisEngineTest {
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
             .thenReturn(systematicAnalysisResultOk);
 
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters, computationManager);
 
         // run
         systematicAnalysisEngine.run(initialLinearRaoData);
@@ -151,7 +151,7 @@ public class SystematicAnalysisEngineTest {
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters, computationManager);
 
         // run - expected failure
         try {

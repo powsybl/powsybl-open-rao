@@ -43,13 +43,23 @@ public class LoopFlowComputation {
     private List<Country> countries;
 
     /**
-     * @param crac
-     * @param cracLoopFlowExtension contains GlskProvider and List of countries
+     * @param crac a crac with or without CracLoopFlowExtension.
+     * @param cracLoopFlowExtension contains GlskProvider and List of countries, to add to crac if not already.
      */
     public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
-        this.crac = crac;
         this.glskProvider = cracLoopFlowExtension.getGlskProvider();
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
+        this.crac = crac;
+        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
+            this.crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
+        }
+    }
+
+    /**
+     * @param crac a crac already contains CracLoopFlowExtension
+     */
+    public LoopFlowComputation(Crac crac) {
+        this(crac, crac.getExtension(CracLoopFlowExtension.class));
     }
 
     /**
@@ -63,7 +73,9 @@ public class LoopFlowComputation {
         glskProvider.getAllGlsk(network).keySet().forEach(key -> this.countries.add(new EICode(key).getCountry()));
 
         this.crac = crac;
-        this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
+        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
+            this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
+        }
     }
 
     /**
@@ -82,7 +94,7 @@ public class LoopFlowComputation {
         Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
         Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
-        return buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
+        return buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts); //compute loopflow
     }
 
     public Map<Cnec, Map<Country, Double>> computePtdfOnCurrentNetwork(Network network) {
@@ -168,7 +180,7 @@ public class LoopFlowComputation {
         return loopFlowShift;
     }
 
-    public Map<String, Double> buildLoopFlowsFromResult(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
+    public Map<String, Double> buildLoopFlowsFromReferenceFlowAndLoopflowShifts(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
         Map<String, Double> loopFlows = new HashMap<>();
         for (Map.Entry<Cnec, Double> entry : frefResults.entrySet()) {
             Cnec cnec = entry.getKey();

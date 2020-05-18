@@ -55,6 +55,9 @@ class LinearOptimisationEngine {
      */
     private List<ProblemFiller> fillerList;
 
+    static final String SOLVER_RESULT_STATUS_UNKNOWN = "Unknow";
+    private String solverResultStatus;
+
     /**
      * Constructor
      */
@@ -63,6 +66,8 @@ class LinearOptimisationEngine {
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
+
+        this.solverResultStatus = SOLVER_RESULT_STATUS_UNKNOWN;
     }
 
     /**
@@ -87,8 +92,12 @@ class LinearOptimisationEngine {
         }
 
         solveLinearProblem();
-        fillCracResults(linearRaoProblem, linearRaoData);
-        linearRaoData.applyRangeActionResultsOnNetwork();
+        if (getSolverResultStatus().equals("OPTIMAL")) {
+            fillCracResults(linearRaoProblem, linearRaoData);
+            linearRaoData.applyRangeActionResultsOnNetwork();
+        } else {
+            //todo handle INFEASIBLE linear rao problem, set cost to Double.INFINITY
+        }
     }
 
     private void buildProblem(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
@@ -114,11 +123,11 @@ class LinearOptimisationEngine {
     private void solveLinearProblem() {
         try {
             Enum solverResultStatus = linearRaoProblem.solve();
-            String solverResultStatusString = solverResultStatus.name();
-            if (!solverResultStatusString.equals("OPTIMAL")) {
-                String errorMessage = String.format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatusString);
-                LOGGER.error(errorMessage);
-                throw new LinearOptimisationException(errorMessage);
+            setSolverResultStatus(solverResultStatus.name());
+            if (!getSolverResultStatus().equals("OPTIMAL")) {
+                String errorMessage = String.format("Solving of the linear problem failed with MPSolver status %s", getSolverResultStatus());
+                LOGGER.warn(errorMessage);
+                //Do not throw an exception is solver solution not "OPTIMAL". Handle the status.
             }
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";
@@ -159,5 +168,13 @@ class LinearOptimisationEngine {
                 pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
             }
         }
+    }
+
+    public String getSolverResultStatus() {
+        return solverResultStatus;
+    }
+
+    public void setSolverResultStatus(String solverResultStatus) {
+        this.solverResultStatus = solverResultStatus;
     }
 }

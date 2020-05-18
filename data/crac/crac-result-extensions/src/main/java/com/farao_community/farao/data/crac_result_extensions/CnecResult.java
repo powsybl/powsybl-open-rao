@@ -29,6 +29,7 @@ public class CnecResult implements Result {
     private double maxThresholdInA;
 
     private double loopflowInMW; //loopflow value in MW
+    private double loopflowThresholdInMW; //loopflow threshold in MW. Normally = max(Tso input, initial calculated lp)
 
     @JsonCreator
     public CnecResult(@JsonProperty("flowInMW") double flowInMW, @JsonProperty("flowInA") double flowInA) {
@@ -39,6 +40,7 @@ public class CnecResult implements Result {
         this.minThresholdInA = Double.NaN;
         this.maxThresholdInA = Double.NaN;
         this.loopflowInMW = Double.NaN;
+        this.loopflowThresholdInMW = Double.NaN;
     }
 
     public CnecResult(double flowInMW) {
@@ -110,5 +112,13 @@ public class CnecResult implements Result {
 
     public void setLoopflowInMW(double loopflowInMW) {
         this.loopflowInMW = loopflowInMW;
+    }
+
+    public double getLoopflowThresholdInMW() {
+        return loopflowThresholdInMW;
+    }
+
+    public void setLoopflowThresholdInMW(double loopflowThresholdInMW) {
+        this.loopflowThresholdInMW = loopflowThresholdInMW;
     }
 }

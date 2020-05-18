@@ -51,5 +51,7 @@ public class CnecResultTest {
         CnecResult cnecResult = new CnecResult();
         cnecResult.setLoopflowInMW(2.0);
         assertEquals(2.0, cnecResult.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        cnecResult.setLoopflowThresholdInMW(2.0);
+        assertEquals(2.0, cnecResult.getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
     }
 }

@@ -65,7 +65,7 @@ public class LinearRao implements RaoProvider {
             // initiate engines
             LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
             LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
-            SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
+            SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters, computationManager);
 
             // run RAO algorithm
             return runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters);
@@ -102,6 +102,11 @@ public class LinearRao implements RaoProvider {
             LOGGER.info("Iteration {} - linear optimization [start]", iteration);
             linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
             LOGGER.info("Iteration {} - linear optimization [end]", iteration);
+
+            if (!linearOptimisationEngine.getSolverResultStatus().equals("OPTIMAL")) {
+                LOGGER.info("Iteration {} - linear optimization is infeasible", iteration); //handle INFEASIBLE solver status
+                break;
+            }
 
             // if the solution has not changed, stop the search
             if (linearRaoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {

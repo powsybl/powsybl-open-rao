@@ -2,9 +2,13 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
@@ -13,6 +17,8 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
@@ -43,13 +49,16 @@ class SystematicAnalysisEngine {
      */
     private ComputationManager computationManager;
 
+    private boolean runLoopflow;
+
     /**
      * Constructor
      */
-    SystematicAnalysisEngine(LinearRaoParameters linearRaoParameters, ComputationManager computationManager) {
-        this.linearRaoParameters = linearRaoParameters;
+    SystematicAnalysisEngine(RaoParameters raoParameters, ComputationManager computationManager) {
+        this.linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
         this.computationManager = computationManager;
         this.fallbackMode = false;
+        this.runLoopflow = raoParameters.isRaoWithLoopFlowLimitation();
     }
 
     boolean isFallback() {
@@ -95,7 +104,13 @@ class SystematicAnalysisEngine {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            setResults(linearRaoData, systematicSensitivityAnalysisResult);
+            Map<String, Double> loopflows = new HashMap<>();
+            if (this.runLoopflow) { //todo !!! test difference between newly calculated ptdf with former one => validate assumption that ptdf is constant or not?
+                //todo check if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
+                loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+            }
+
+            setResults(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -106,10 +121,10 @@ class SystematicAnalysisEngine {
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Map<String, Double> loopflows) {
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
         linearRaoData.getCracResult().setCost(-getMinMargin(linearRaoData, systematicSensitivityAnalysisResult));
-        updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult);
+        updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
     }
 
     /**
@@ -129,12 +144,16 @@ class SystematicAnalysisEngine {
         return minMargin;
     }
 
-    private void updateCnecExtensions(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void updateCnecExtensions(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Map<String, Double> loopflows) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(linearRaoData.getWorkingVariantId());
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getReferenceFlow(cnec));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec));
             cnecResult.setThresholds(cnec);
+            if (loopflows.containsKey(cnec.getId())) {
+                cnecResult.setLoopflowInMW(loopflows.get(cnec.getId()));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+            }
         });
     }
 }

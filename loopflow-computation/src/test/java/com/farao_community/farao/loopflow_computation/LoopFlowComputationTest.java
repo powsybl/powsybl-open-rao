@@ -37,8 +37,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -86,6 +87,24 @@ public class LoopFlowComputationTest {
     }
 
     @Test
+    public void testConstructor() {
+        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
+        cracLoopFlowExtension.setGlskProvider(glskProvider);
+        List<Country> countriesFromGlsk = new ArrayList<>();
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> countriesFromGlsk.add(Country.valueOf(key)));
+        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
+
+        assertNull(crac.getExtension(CracLoopFlowExtension.class));
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        assertNotNull(loopFlowComputation);
+        assertNotNull(crac.getExtension(CracLoopFlowExtension.class));
+
+        LoopFlowComputation anotherComputation = new LoopFlowComputation(crac);
+        assertNotNull(anotherComputation);
+
+    }
+
+    @Test
     public void testPtdf() {
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
@@ -102,7 +121,7 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get(Country.valueOf("DE")), EPSILON);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get(Country.valueOf("BE")), EPSILON);
         Map<Cnec, Double> loopflowShift = loopFlowComputation.buildZeroBalanceFlowShift(ptdfs, referenceNetPositionByCountry);
-        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromResult(frefResults, loopflowShift);
+        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopflowShift);
         Assert.assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);

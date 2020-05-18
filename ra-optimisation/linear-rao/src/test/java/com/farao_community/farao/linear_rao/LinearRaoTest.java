@@ -207,10 +207,15 @@ public class LinearRaoTest {
                 crac.getStates().forEach(st ->
                     crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setSetPoint(st.getId(), 1.0)
                 );
-
                 return linearRaoData;
             }
         }).when(linearOptimisationEngine).run(any(), any());
+
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                return "OPTIMAL";
+            }
+        }).when(linearOptimisationEngine).getSolverResultStatus();
 
         // run Rao
         RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
