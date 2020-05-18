@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.*;
+
 /**
  * A computation engine dedicated to the construction and solving of the linear
  * optimisation problem of the LinearRao.
@@ -116,7 +118,7 @@ class LinearOptimisationEngine {
             Enum solverResultStatus = linearRaoProblem.solve();
             String solverResultStatusString = solverResultStatus.name();
             if (!solverResultStatusString.equals("OPTIMAL")) {
-                String errorMessage = String.format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatusString);
+                String errorMessage = format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatusString);
                 LOGGER.error(errorMessage);
                 throw new LinearOptimisationException(errorMessage);
             }
@@ -157,6 +159,7 @@ class LinearOptimisationEngine {
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                 pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
+                LOGGER.debug(format("Range action %s has been set to %d", pstRange.getName(), approximatedPostOptimTap));
             }
         }
     }

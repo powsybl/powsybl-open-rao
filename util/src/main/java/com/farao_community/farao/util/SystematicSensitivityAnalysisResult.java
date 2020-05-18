@@ -11,6 +11,8 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -18,11 +20,14 @@ import java.util.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityAnalysisResult {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisResult.class);
+
     private class StateResult {
-        private final Map<String, Double> referenceFlows = new TreeMap<>();
-        private final Map<String, Double> referenceIntensities = new TreeMap<>();
-        private final Map<String, Map<String, Double>> flowSensitivities = new TreeMap<>();
-        private final Map<String, Map<String, Double>> intensitySensitivities = new TreeMap<>();
+        private final Map<String, Double> referenceFlows = new HashMap<>();
+        private final Map<String, Double> referenceIntensities = new HashMap<>();
+        private final Map<String, Map<String, Double>> flowSensitivities = new HashMap<>();
+        private final Map<String, Map<String, Double>> intensitySensitivities = new HashMap<>();
 
         public Map<String, Double> getReferenceFlows() {
             return referenceFlows;
@@ -43,7 +48,7 @@ public class SystematicSensitivityAnalysisResult {
 
     private final boolean isSuccess;
     private final StateResult nStateResult = new StateResult();
-    private final Map<String, StateResult> contingencyResults = new TreeMap<>();
+    private final Map<String, StateResult> contingencyResults = new HashMap<>();
 
     public SystematicSensitivityAnalysisResult(SensitivityComputationResults results) {
         if (results == null) {
@@ -51,7 +56,9 @@ public class SystematicSensitivityAnalysisResult {
             return;
         }
         this.isSuccess = results.isOk();
+        LOGGER.debug("Filling data...");
         fillData(results);
+        LOGGER.debug("Data post treatment...");
         postTreatIntensities();
     }
 
@@ -93,11 +100,11 @@ public class SystematicSensitivityAnalysisResult {
 
         if (value.getFactor().getFunction() instanceof BranchFlow) {
             stateResult.getReferenceFlows().putIfAbsent(value.getFactor().getFunction().getId(), reference);
-            stateResult.getFlowSensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new TreeMap<>())
+            stateResult.getFlowSensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
                     .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
         } else if (value.getFactor().getFunction() instanceof BranchIntensity) {
             stateResult.getReferenceIntensities().putIfAbsent(value.getFactor().getFunction().getId(), reference);
-            stateResult.getIntensitySensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new TreeMap<>())
+            stateResult.getIntensitySensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
                     .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
         }
     }
