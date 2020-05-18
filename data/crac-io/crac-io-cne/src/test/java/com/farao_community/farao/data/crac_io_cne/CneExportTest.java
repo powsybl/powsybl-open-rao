@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
-
 import static org.junit.Assert.*;
 
 /**
@@ -32,6 +31,8 @@ public class CneExportTest {
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(crac1, "CNE", outputStream);
+
+        assertTrue(CneExport.validateCNESchema(outputStream.toString()));
         int i = 1;
     }
 }
