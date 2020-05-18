@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import org.joda.time.DateTime;
@@ -53,7 +55,7 @@ public final class CneFiller {
                 String postOptimVariantId = "variant1";
 
                 addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
-                createAllConstraintSeries(point, crac);
+                createAllConstraintSeries(point, crac, postOptimVariantId);
 
             } else { // Failure of computation
                 addFailureReasonToPoint(point);
@@ -63,7 +65,7 @@ public final class CneFiller {
         }
     }
 
-    private static void createAllConstraintSeries(Point point, Crac crac) {
+    private static void createAllConstraintSeries(Point point, Crac crac, String postOptimVariantId) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
@@ -82,16 +84,16 @@ public final class CneFiller {
         List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B57")).collect(Collectors.toList());
         List<ConstraintSeries> constraintSeriesListB56 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B56")).collect(Collectors.toList());
 
-        crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57));
+        crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId));
 
         point.constraintSeries = constraintSeriesList;
     }
 
-    private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList) {
+    private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
         // TODO: create MonitoredSeries
-        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList);
+        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId);
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -109,7 +111,7 @@ public final class CneFiller {
     /*****************
      MONITORED ELEMENTS
      *****************/
-    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList) {
+    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId) {
         // TODO: handle other units
         Unit unit = Unit.MEGAWATT;
 
@@ -127,15 +129,41 @@ public final class CneFiller {
         List<Analog> measurementsList = new ArrayList<>();
 
         // TODO: handle flows
+        // Flows
+        if (cnec.getExtension(CnecResultExtension.class) != null) {
+            CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
+            CnecResult cnecResult = cnecResultExtension.getVariant(postOptimVariantId);
+
+            // TODO: check how to do this correctly
+            if (unit.equals(Unit.AMPERE)) {
+                if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
+                    unit = Unit.MEGAWATT;
+                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
+                } else { // normal case or case when nothing is defined
+                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
+                }
+            } else if (unit.equals(Unit.MEGAWATT)) {
+                if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
+                    unit = Unit.AMPERE;
+                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
+                } else { // normal case or case when nothing is defined
+                    measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
+                }
+            } else {
+                throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
+            }
+        }
+
+        Unit finalUnit = unit;
         // Thresholds
         if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A02", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A02", finalUnit, threshold)));
         } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A07", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A07", finalUnit, threshold)));
         }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A12", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A12", finalUnit, threshold)));
         } else { // After CRA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A13", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A13", finalUnit, threshold)));
         }
 
         monitoredRegisteredResource.measurements = measurementsList;
