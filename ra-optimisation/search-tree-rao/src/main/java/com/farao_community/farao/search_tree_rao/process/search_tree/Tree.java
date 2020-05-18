@@ -99,7 +99,8 @@ public final class Tree {
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
     private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, 1)) {
+        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel())) {
             networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
