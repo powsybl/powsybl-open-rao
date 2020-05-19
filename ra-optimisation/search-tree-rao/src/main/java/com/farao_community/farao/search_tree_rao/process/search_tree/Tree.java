@@ -92,9 +92,7 @@ public final class Tree {
             List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
-            LOGGER.info(format("Previous optimal leaf: %s minimum margin = %f",
-                optimalLeaf.isRoot() ? "root leaf" : optimalLeaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
-                -optimalLeaf.getCost(crac)));
+            logOptimalLeaf(optimalLeaf, crac);
             LOGGER.info("Leaves results:");
             for (Leaf currentLeaf: successfulLeaves) {
                 logLeafResults(currentLeaf, crac);
@@ -110,7 +108,7 @@ public final class Tree {
             }
 
             if (hasImproved) {
-                LOGGER.info(format("New optimal leaf: %s", optimalLeaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", "))));
+                logOptimalLeaf(optimalLeaf, crac);
             } else {
                 LOGGER.info("No sufficient improvements at tree depth, optimization will stop");
             }
@@ -191,23 +189,30 @@ public final class Tree {
         RaoResult raoResult = new RaoResult(optimalLeaf.getRaoResult().getStatus());
         raoResult.setPreOptimVariantId(rootLeaf.getRaoResult().getPreOptimVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getRaoResult().getPostOptimVariantId());
-
         return raoResult;
     }
 
+    private static void logOptimalLeaf(Leaf leaf, Crac crac) {
+        LOGGER.info(format("Optimal leaf -  %s", generateLeafResults(leaf, crac)));
+    }
+
     private static void logLeafResults(Leaf leaf, Crac crac) {
+        LOGGER.info(generateLeafResults(leaf, crac));
+    }
+
+    private static String generateLeafResults(Leaf leaf, Crac crac) {
         String rangeActionResults = crac.getRangeActions()
             .stream()
-            .map(rangeAction -> format( "%s: %d",
+            .map(rangeAction -> format("%s: %d",
                 rangeAction.getName(),
                 ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
                     .getVariant(leaf.getRaoResult().getPostOptimVariantId()))
                     .getTap(crac.getPreventiveState().getId())))
             .collect(Collectors.joining(", "));
-        LOGGER.info(format("%s: minimum margin = %f (%s)",
-            leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
+        return format("%s: minimum margin = %f (%s)",
+            leaf.isRoot() ? "root leaf" : leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
             -leaf.getCost(crac),
-            rangeActionResults));
+            rangeActionResults);
     }
 
     private static void logMostLimitingElements(Crac crac, Leaf optimalLeaf) {
