@@ -193,7 +193,7 @@ public final class Tree {
     }
 
     private static void logOptimalLeaf(Leaf leaf, Crac crac) {
-        LOGGER.info(format("Optimal leaf -  %s", generateLeafResults(leaf, crac)));
+        LOGGER.info(format("Optimal leaf - %s", generateLeafResults(leaf, crac)));
     }
 
     private static void logLeafResults(Leaf leaf, Crac crac) {
