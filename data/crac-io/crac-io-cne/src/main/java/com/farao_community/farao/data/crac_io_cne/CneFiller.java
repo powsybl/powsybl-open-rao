@@ -68,8 +68,8 @@ public final class CneFiller {
     /**
      * Returns the list of Preventive Remedial Actions activated
      */
-    private static List<RemedialAction> getListOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
-        List<RemedialAction> pras = new ArrayList<>();
+    private static List<RemedialAction<?>> getListOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
+        List<RemedialAction<?>> pras = new ArrayList<>();
         String preventiveState = crac.getPreventiveState().getId();
         for (RangeAction rangeAction : crac.getRangeActions()) {
             RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
@@ -123,6 +123,7 @@ public final class CneFiller {
     }
 
     private static void findAndAddRemedialActions(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
+
         if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
             addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
             addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, false);
