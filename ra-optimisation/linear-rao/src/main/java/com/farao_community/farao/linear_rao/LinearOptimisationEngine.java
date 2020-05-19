@@ -145,7 +145,8 @@ class LinearOptimisationEngine {
 
     public static void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
         String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
-        LOGGER.debug(format("Expected minimum margin: %f", linearRaoProblem.getMinimumMarginVariable().solutionValue()));
+        double expectedMinimumMargin = linearRaoProblem.getMinimumMarginVariable().solutionValue();
+        LOGGER.debug(format("Expected minimum margin: %f", expectedMinimumMargin));
         for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
@@ -160,7 +161,8 @@ class LinearOptimisationEngine {
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                 pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
-                LOGGER.debug(format("Range action %s has been set to %d", pstRange.getName(), approximatedPostOptimTap));
+                String rangeActionName = pstRange.getName();
+                LOGGER.debug(format("Range action %s has been set to %d", rangeActionName, approximatedPostOptimTap));
             }
         }
     }

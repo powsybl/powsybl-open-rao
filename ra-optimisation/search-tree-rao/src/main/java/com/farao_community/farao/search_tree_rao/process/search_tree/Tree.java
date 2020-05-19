@@ -81,7 +81,8 @@ public final class Tree {
         while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
-            LOGGER.info(format("Research depth: %d, Leaves to evaluate: %d", depth, generatedLeaves.size()));
+            int leavesNumber = generatedLeaves.size();
+            LOGGER.info(format("Research depth: %d, Leaves to evaluate: %d", depth, leavesNumber));
 
             if (generatedLeaves.isEmpty()) {
                 break;
@@ -193,11 +194,13 @@ public final class Tree {
     }
 
     private static void logOptimalLeaf(Leaf leaf, Crac crac) {
-        LOGGER.info(format("Optimal leaf -  %s", generateLeafResults(leaf, crac)));
+        String leafResults = generateLeafResults(leaf, crac);
+        LOGGER.info(format("Optimal leaf - %s", leafResults));
     }
 
     private static void logLeafResults(Leaf leaf, Crac crac) {
-        LOGGER.info(generateLeafResults(leaf, crac));
+        String leafResults = generateLeafResults(leaf, crac);
+        LOGGER.info(leafResults);
     }
 
     private static String generateLeafResults(Leaf leaf, Crac crac) {
@@ -222,11 +225,11 @@ public final class Tree {
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
             Cnec cnec = sortedCnecs.get(i);
-            LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f",
-                i + 1,
-                cnec.getNetworkElement().getName(),
-                cnec.getState().getId(),
-                computeMarginInMW(cnec, postOptimVariantId)));
+            int elementNumber = i + 1;
+            String networkElementName = cnec.getNetworkElement().getName();
+            String stateId = cnec.getState().getId();
+            double margin = computeMarginInMW(cnec, postOptimVariantId);
+            LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f", elementNumber, networkElementName, stateId, margin));
         }
     }
 
