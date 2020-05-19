@@ -7,10 +7,8 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
@@ -19,12 +17,13 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static java.lang.String.*;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -43,6 +42,7 @@ import java.util.stream.Collectors;
 public final class Tree {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Tree.class);
+    private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
 
     private Tree() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -73,7 +73,7 @@ public final class Tree {
         while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
-            LOGGER.info(String.format("Research depth: %d, Leaves to evaluate: %d", depth, generatedLeaves.size()));
+            LOGGER.info(format("Research depth: %d, Leaves to evaluate: %d", depth, generatedLeaves.size()));
 
             if (generatedLeaves.isEmpty()) {
                 break;
@@ -84,7 +84,12 @@ public final class Tree {
             List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
+            LOGGER.info(format("Previous optimal leaf: %s minimum margin = %f",
+                optimalLeaf.isRoot() ? "root leaf" : optimalLeaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
+                -optimalLeaf.getCost(crac)));
+            LOGGER.info("Leaves results:");
             for (Leaf currentLeaf: successfulLeaves) {
+                logLeafResults(currentLeaf, crac);
                 if (improvedEnough(optimalLeaf.getCost(crac), currentLeaf.getCost(crac), searchTreeRaoParameters)) {
                     hasImproved = true;
                     depth = depth + 1;
@@ -95,9 +100,16 @@ public final class Tree {
                 }
                 currentLeaf.deletePreOptimResultVariant(crac);
             }
+
+            if (hasImproved) {
+                LOGGER.info(format("New optimal leaf: %s", optimalLeaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", "))));
+            } else {
+                LOGGER.info("No sufficient improvements at tree depth, optimization will stop");
+            }
         }
 
         //TODO: refactor output format
+        logMostLimitingElements(crac, optimalLeaf);
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
     }
 
@@ -113,7 +125,7 @@ public final class Tree {
                     Network networkClone = networkPool.getAvailableNetwork();
                     leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
                     networkPool.releaseUsedNetwork(networkClone);
-                    LOGGER.info(String.format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
+                    LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -171,6 +183,76 @@ public final class Tree {
         RaoResult raoResult = new RaoResult(optimalLeaf.getRaoResult().getStatus());
         raoResult.setPreOptimVariantId(rootLeaf.getRaoResult().getPreOptimVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getRaoResult().getPostOptimVariantId());
+
         return raoResult;
+    }
+
+    private static void logLeafResults(Leaf leaf, Crac crac) {
+        String rangeActionResults = crac.getRangeActions().stream().map(rangeAction ->
+            format(
+                "%s: %d",
+                rangeAction.getName(),
+                ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
+                    .getVariant(leaf.getRaoResult().getPostOptimVariantId()))
+                    .getTap(crac.getPreventiveState().getId())
+            )
+        ).collect(Collectors.joining(", "));
+        LOGGER.info(format(
+            "%s: minimum margin = %f (%s)",
+            leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
+            -leaf.getCost(crac),
+            rangeActionResults));
+    }
+
+    private static void logMostLimitingElements(Crac crac, Leaf optimalLeaf) {
+        List<CnecOutput> cnecOutputs = new ArrayList<>();
+        crac.getCnecs().forEach(cnec -> {
+            CnecResult cnecResultPostOptim = cnec
+                .getExtension(CnecResultExtension.class)
+                .getVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
+            double margin = Math.min(
+                cnecResultPostOptim.getMaxThresholdInMW() - cnecResultPostOptim.getFlowInMW(),
+                cnecResultPostOptim.getFlowInMW() - cnecResultPostOptim.getMinThresholdInMW());
+            cnecOutputs.add(new CnecOutput(cnec, margin));
+        });
+        Collections.sort(cnecOutputs);
+
+        for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, cnecOutputs.size()); i++) {
+            Cnec cnec = cnecOutputs.get(i).getCnec();
+            LOGGER.info(format(
+                "Limiting element #%d: element %s at state %s with a margin of %f",
+                i + 1,
+                cnec.getNetworkElement().getName(),
+                cnec.getState().getId(),
+                cnecOutputs.get(i).getMargin()));
+        }
+    }
+
+    private static class CnecOutput implements Comparable<CnecOutput> {
+        private final Cnec cnec;
+        private final double margin;
+
+        public CnecOutput(Cnec cnec, double margin) {
+            this.cnec = cnec;
+            this.margin = margin;
+        }
+
+        public Cnec getCnec() {
+            return cnec;
+        }
+
+        public double getMargin() {
+            return margin;
+        }
+
+        @Override
+        public int compareTo(CnecOutput cnecOutput) {
+            if (this.margin < cnecOutput.getMargin()) {
+                return -1;
+            } else if (cnecOutput.getMargin() < this.margin) {
+                return 1;
+            }
+            return 0;
+        }
     }
 }
