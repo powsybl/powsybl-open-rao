@@ -102,38 +102,46 @@ public final class CneFiller {
         }
     }
 
-    private static void addActivatedRemedialActionSeries(RemedialAction remedialAction, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
+    private static void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
         if (remedialAction instanceof NetworkAction) {
-            NetworkAction networkAction = (NetworkAction) remedialAction;
-            constraintSeriesList.forEach((state, constraintSeries) -> {
-                if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
-                    if (constraintSeries.remedialActionSeries == null) {
-                        constraintSeries.remedialActionSeries = new ArrayList<>();
-                    }
-                    constraintSeries.remedialActionSeries.add(createRemedialActionSeries(networkAction, networkAction.getId()));
-                }
-            });
+            addNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
         } else if (remedialAction instanceof RangeAction) {
-            RangeAction rangeAction = (RangeAction) remedialAction;
-            constraintSeriesList.forEach((state, constraintSeries) -> {
-                RangeActionResult rangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
-                if (rangeActionResult.isActivated(state.getId())) {
-                    if (constraintSeries.remedialActionSeries == null) {
-                        constraintSeries.remedialActionSeries = new ArrayList<>();
-                    }
-                    // TODO: check if setpoint has good value (angle VS tap)
-                    double setpoint = Math.ceil(rangeActionResult.getSetPoint(state.getId()));
-                    String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
-                    RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
-                    if (createResource) {
-                        remedialActionSeries.registeredResource = Collections.singletonList(createRemedialActionRegisteredResource(rangeAction, setpoint));
-                    }
-                    constraintSeries.remedialActionSeries.add(remedialActionSeries);
-                }
-            });
+            addRangeAction(remedialAction, constraintSeriesList, postOptimVariantId, createResource);
         } else {
             throw new FaraoException(String.format("Remedial action %s of incorrect type", remedialAction.getId()));
         }
+    }
+
+    private static void addRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId, boolean createResource) {
+        RangeAction rangeAction = (RangeAction) remedialAction;
+        constraintSeriesList.forEach((state, constraintSeries) -> {
+            RangeActionResult rangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
+            if (rangeActionResult.isActivated(state.getId())) {
+                if (constraintSeries.remedialActionSeries == null) {
+                    constraintSeries.remedialActionSeries = new ArrayList<>();
+                }
+                // TODO: check if setpoint has good value (angle VS tap)
+                double setpoint = Math.ceil(rangeActionResult.getSetPoint(state.getId()));
+                String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
+                RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
+                if (createResource) {
+                    remedialActionSeries.registeredResource = Collections.singletonList(createRemedialActionRegisteredResource(rangeAction, setpoint));
+                }
+                constraintSeries.remedialActionSeries.add(remedialActionSeries);
+            }
+        });
+    }
+
+    private static void addNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
+        NetworkAction networkAction = (NetworkAction) remedialAction;
+        constraintSeriesList.forEach((state, constraintSeries) -> {
+            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
+                if (constraintSeries.remedialActionSeries == null) {
+                    constraintSeries.remedialActionSeries = new ArrayList<>();
+                }
+                constraintSeries.remedialActionSeries.add(createRemedialActionSeries(networkAction, networkAction.getId()));
+            }
+        });
     }
 
     private static RemedialActionRegisteredResource createRemedialActionRegisteredResource(RangeAction rangeAction, double setpoint) {
@@ -156,7 +164,7 @@ public final class CneFiller {
         return String.format("%s@%s@", id, setpoint);
     }
 
-    private static RemedialActionSeries createRemedialActionSeries(RemedialAction remedialAction, String id) {
+    private static RemedialActionSeries createRemedialActionSeries(RemedialAction<?> remedialAction, String id) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(id);
         remedialActionSeries.setName(remedialAction.getName());
