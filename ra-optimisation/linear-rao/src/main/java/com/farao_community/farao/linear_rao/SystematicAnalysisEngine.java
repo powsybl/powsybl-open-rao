@@ -50,6 +50,7 @@ class SystematicAnalysisEngine {
     private ComputationManager computationManager;
 
     private boolean runLoopflow;
+    private boolean loopflowViolation;
 
     /**
      * Constructor
@@ -59,6 +60,7 @@ class SystematicAnalysisEngine {
         this.computationManager = computationManager;
         this.fallbackMode = false;
         this.runLoopflow = raoParameters.isRaoWithLoopFlowLimitation();
+        this.loopflowViolation = false;
     }
 
     boolean isFallback() {
@@ -105,9 +107,8 @@ class SystematicAnalysisEngine {
             }
 
             Map<String, Double> loopflows = new HashMap<>();
-            if (this.runLoopflow) { //todo !!! test difference between newly calculated ptdf with former one => validate assumption that ptdf is constant or not?
-                //todo check if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
-                loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+            if (this.runLoopflow) {
+                loopflows = computeLoopflowAndCheckLoopflowConstraint(linearRaoData);
             }
 
             setResults(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
@@ -117,13 +118,30 @@ class SystematicAnalysisEngine {
         }
     }
 
+    private Map<String, Double> computeLoopflowAndCheckLoopflowConstraint(LinearRaoData linearRaoData) {
+        //todo: optim: if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
+        Map<String, Double> loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+            if (Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
+                setLoopflowViolation(true);
+                LOGGER.info("Loopflow constraint violation.");
+                break;
+            }
+        }
+        return loopflows;
+    }
+
     /**
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
     private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Map<String, Double> loopflows) {
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        linearRaoData.getCracResult().setCost(-getMinMargin(linearRaoData, systematicSensitivityAnalysisResult));
+        if (isLoopflowViolation()) {
+            linearRaoData.getCracResult().setCost(Double.POSITIVE_INFINITY); //todo: set a high cost if loopflow constraint violation => use "virtual cost" in the future
+        } else {
+            linearRaoData.getCracResult().setCost(-getMinMargin(linearRaoData, systematicSensitivityAnalysisResult));
+        }
         updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
     }
 
@@ -155,5 +173,13 @@ class SystematicAnalysisEngine {
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             }
         });
+    }
+
+    public boolean isLoopflowViolation() {
+        return loopflowViolation;
+    }
+
+    public void setLoopflowViolation(boolean loopflowViolation) {
+        this.loopflowViolation = loopflowViolation;
     }
 }
