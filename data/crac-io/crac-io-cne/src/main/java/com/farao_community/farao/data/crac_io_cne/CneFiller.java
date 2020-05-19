@@ -38,7 +38,7 @@ public final class CneFiller {
         return cne;
     }
 
-    public static void generate(Crac crac) {
+    public static void generate(Crac crac, Unit chosenExportUnit) {
         if (crac.isSynchronized()) {
 
             instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
@@ -51,11 +51,11 @@ public final class CneFiller {
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
                 // TODO: Don't hardcode it, once it can be read from crac
-                //String preOptimVariantId = "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005";
+                String preOptimVariantId = "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005";
                 String postOptimVariantId = "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e";
 
                 addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
-                createAllConstraintSeries(point, crac, postOptimVariantId);
+                createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit);
 
             } else { // Failure of computation
                 addFailureReasonToPoint(point);
@@ -65,15 +65,46 @@ public final class CneFiller {
         }
     }
 
-    private static void createAllConstraintSeries(Point point, Crac crac, String postOptimVariantId) {
+    /**
+     * Returns the list of Preventive Remedial Actions activated
+     */
+    private static List<RemedialAction> getListOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
+        List<RemedialAction> pras = new ArrayList<>();
+        String preventiveState = crac.getPreventiveState().getId();
+        for (RangeAction rangeAction : crac.getRangeActions()) {
+            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+
+            if (rangeActionResultExtension.getVariant(postOptimVariantId).isActivated(preventiveState) &&
+                rangeActionResultExtension.getVariant(postOptimVariantId).getSetPoint(preventiveState) != rangeActionResultExtension.getVariant(preOptimVariantId).getSetPoint(preventiveState)) {
+                pras.add(rangeAction);
+            }
+        }
+        for (NetworkAction networkAction : crac.getNetworkActions()) {
+            NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
+            if (networkActionResultExtension.getVariant(postOptimVariantId).isActivated(preventiveState)) {
+                pras.add(networkAction);
+            }
+        }
+        return pras;
+    }
+
+    /**
+     * Returns the number of Preventive Remedial Actions activated
+     */
+    private static int getNumberOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
+        return getListOfPra(crac, preOptimVariantId, postOptimVariantId).size();
+    }
+
+    private static void createAllConstraintSeries(Point point, Crac crac, String preOptimVariantId, String postOptimVariantId, Unit chosenExportUnit) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
         /* Contingencies */
         // PREVENTIVE STATE
         addConstraintToMapAndCne(createAConstraintSeries("B57"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
-        //TODO: delete this if no PRA
-        addConstraintToMapAndCne(createAConstraintSeries("B56"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
+        if (getNumberOfPra(crac, preOptimVariantId, postOptimVariantId) != 0) {
+            addConstraintToMapAndCne(createAConstraintSeries("B56"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
+        }
 
         // AFTER CONTINGENCY
         crac.getContingencies().forEach(
@@ -82,46 +113,48 @@ public final class CneFiller {
 
         /* Monitored Elements*/
         List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B57")).collect(Collectors.toList());
-        crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId));
+        crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit));
 
         /* Remedial Actions*/
-        crac.getNetworkActions().forEach(networkAction -> findAndAddRemedialActions(networkAction, postOptimVariantId));
-        crac.getRangeActions().forEach(rangeAction -> findAndAddRemedialActions(rangeAction, postOptimVariantId));
+        crac.getNetworkActions().forEach(networkAction -> findAndAddRemedialActions(networkAction, preOptimVariantId, postOptimVariantId));
+        crac.getRangeActions().forEach(rangeAction -> findAndAddRemedialActions(rangeAction, preOptimVariantId, postOptimVariantId));
 
         point.constraintSeries = constraintSeriesList;
     }
 
-    private static void findAndAddRemedialActions(RemedialAction remedialAction, String postOptimVariantId) {
+    private static void findAndAddRemedialActions(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
         if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
-            addActivatedRemedialActionSeries(remedialAction, postOptimVariantId, constraintSeriesMapB56, false);
-            addActivatedRemedialActionSeries(remedialAction, postOptimVariantId, constraintSeriesMapB57, false);
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, false);
         }
         if (remedialAction.getExtension(RangeActionResultExtension.class) != null) {
-            addActivatedRemedialActionSeries(remedialAction, postOptimVariantId, constraintSeriesMapB56, false);
-            addActivatedRemedialActionSeries(remedialAction, postOptimVariantId, constraintSeriesMapB57, true);
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, true);
         }
     }
 
-    private static void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
+    private static void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String preOptimVariantId, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
         if (remedialAction instanceof NetworkAction) {
-            addNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
+            addActivatecNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
         } else if (remedialAction instanceof RangeAction) {
-            addRangeAction(remedialAction, constraintSeriesList, postOptimVariantId, createResource);
+            addActivatedRangeAction(remedialAction, constraintSeriesList, preOptimVariantId, postOptimVariantId, createResource);
         } else {
             throw new FaraoException(String.format("Remedial action %s of incorrect type", remedialAction.getId()));
         }
     }
 
-    private static void addRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId, boolean createResource) {
+    private static void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, boolean createResource) {
         RangeAction rangeAction = (RangeAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
-            RangeActionResult rangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
-            if (rangeActionResult.isActivated(state.getId())) {
+            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+            RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
+            if (postOptimRangeActionResult.isActivated(state.getId()) &&
+                rangeActionResultExtension.getVariant(postOptimVariantId).getSetPoint(state.getId()) != rangeActionResultExtension.getVariant(preOptimVariantId).getSetPoint(state.getId())) {
                 if (constraintSeries.remedialActionSeries == null) {
                     constraintSeries.remedialActionSeries = new ArrayList<>();
                 }
                 // TODO: check if setpoint has good value (angle VS tap)
-                double setpoint = Math.ceil(rangeActionResult.getSetPoint(state.getId()));
+                double setpoint = Math.ceil(postOptimRangeActionResult.getSetPoint(state.getId()));
                 String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
                 RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
                 if (createResource) {
@@ -132,7 +165,7 @@ public final class CneFiller {
         });
     }
 
-    private static void addNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
+    private static void addActivatecNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
         NetworkAction networkAction = (NetworkAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
             if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
@@ -192,10 +225,10 @@ public final class CneFiller {
     /*****************
      MONITORED ELEMENTS
      *****************/
-    private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
+    private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId);
+        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId, chosenExportUnit);
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -210,10 +243,7 @@ public final class CneFiller {
         }
     }
 
-    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId) {
-        // TODO: handle other units
-        Unit unit = Unit.MEGAWATT;
-
+    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
         MonitoredSeries monitoredSeries = new MonitoredSeries();
         monitoredSeries.setMRID(cnec.getId());
         monitoredSeries.setName(cnec.getName());
@@ -226,14 +256,14 @@ public final class CneFiller {
         monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString("A02", "out"));
 
         List<Analog> measurementsList = new ArrayList<>();
-        Unit finalUnit = unit;
+        Unit finalUnit = chosenExportUnit;
 
         // Flows
         if (cnec.getExtension(CnecResultExtension.class) != null) {
             CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
             CnecResult cnecResult = cnecResultExtension.getVariant(postOptimVariantId);
 
-            finalUnit = handleFlow(cnecResult, unit, measurementsList);
+            finalUnit = handleFlow(cnecResult, chosenExportUnit, measurementsList);
         }
 
         // Thresholds
@@ -244,25 +274,25 @@ public final class CneFiller {
         monitoredSeriesList.add(monitoredSeries);
     }
 
-    // TODO: check how to do this correctly
-    private static Unit handleFlow(CnecResult cnecResult, Unit unit, List<Analog> measurementsList) {
-        Unit finalUnit = unit;
-        if (unit.equals(Unit.AMPERE)) {
+    // TODO: is this done correctly?
+    private static Unit handleFlow(CnecResult cnecResult, Unit chosenExportUnit, List<Analog> measurementsList) {
+        Unit finalUnit = chosenExportUnit;
+        if (chosenExportUnit.equals(Unit.AMPERE)) {
             if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.MEGAWATT;
-                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
+                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInMW()));
             } else { // normal case or case when nothing is defined
-                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
+                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInA()));
             }
-        } else if (unit.equals(Unit.MEGAWATT)) {
+        } else if (chosenExportUnit.equals(Unit.MEGAWATT)) {
             if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.AMPERE;
-                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInA()));
+                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInA()));
             } else { // normal case or case when nothing is defined
-                measurementsList.add(createMeasurement("A01", unit, cnecResult.getFlowInMW()));
+                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInMW()));
             }
         } else {
-            throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
+            throw new FaraoException(String.format("Unhandled unit %s", chosenExportUnit.toString()));
         }
         return finalUnit;
     }

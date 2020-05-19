@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
 import com.google.auto.service.AutoService;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class CneExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, OutputStream outputStream) {
-        CneFiller.generate(crac);
+        CneFiller.generate(crac, Unit.MEGAWATT);
         CriticalNetworkElementMarketDocument cne = CneFiller.getCne();
         StringWriter stringWriter = new StringWriter();
 
