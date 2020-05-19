@@ -170,13 +170,17 @@ public final class CneFiller {
                     constraintSeries.remedialActionSeries = new ArrayList<>();
                 }
                 // TODO: check if setpoint has good value (angle VS tap)
-                double setpoint = Math.ceil(postOptimRangeActionResult.getSetPoint(state.getId()));
-                String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
-                RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
-                if (createResource) {
-                    remedialActionSeries.registeredResource = Collections.singletonList(createRemedialActionRegisteredResource(rangeAction, setpoint));
+                if (postOptimRangeActionResult instanceof PstRangeResult) {
+                    int setpoint = ((PstRangeResult) postOptimRangeActionResult).getTap(state.getId());
+                    String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
+                    RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
+                    if (createResource) {
+                        remedialActionSeries.registeredResource = Collections.singletonList(createPstRangeActionRegisteredResource(rangeAction, setpoint));
+                    }
+                    constraintSeries.remedialActionSeries.add(remedialActionSeries);
+                } else {
+                    throw new FaraoException(String.format("Range action is not PST range: %s not handled.", remedialAction.getId()));
                 }
-                constraintSeries.remedialActionSeries.add(remedialActionSeries);
             }
         });
     }
@@ -193,14 +197,14 @@ public final class CneFiller {
         });
     }
 
-    private static RemedialActionRegisteredResource createRemedialActionRegisteredResource(RangeAction rangeAction, double setpoint) {
+    private static RemedialActionRegisteredResource createPstRangeActionRegisteredResource(RangeAction rangeAction, int tap) {
         RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         if (rangeAction.getNetworkElements().size() == 1) {
             NetworkElement networkElement = rangeAction.getNetworkElements().stream().findFirst().orElseThrow(FaraoException::new);
             remedialActionRegisteredResource.setMRID(createResourceIDString("A01", networkElement.getId()));
             remedialActionRegisteredResource.setName(networkElement.getName());
             remedialActionRegisteredResource.setPSRTypePsrType("A06"); // PST range
-            remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(setpoint));
+            remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(tap));
             remedialActionRegisteredResource.setResourceCapacityUnitSymbol("C62"); // without unit
             remedialActionRegisteredResource.setMarketObjectStatusStatus("A26"); // absolute
             return remedialActionRegisteredResource;
