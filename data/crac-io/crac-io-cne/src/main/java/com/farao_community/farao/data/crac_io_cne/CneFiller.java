@@ -37,15 +37,16 @@ public final class CneFiller {
     }
 
     /*****************
-     MAIN METHODS
+     GENERAL METHODS
      *****************/
+    // Main method
     public static void generate(Crac crac, Unit chosenExportUnit) {
         if (crac.isSynchronized()) {
 
             instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
 
             fillHeader(crac.getNetworkDate());
-            createTimeSeries(crac.getNetworkDate());
+            addTimeSeriesToCne(crac.getNetworkDate());
             Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
             if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
@@ -60,8 +61,8 @@ public final class CneFiller {
                 List<String> variantList = new ArrayList<>(variants);
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
-                String preOptimVariantId = "";
-                String postOptimVariantId = "";
+                String preOptimVariantId;
+                String postOptimVariantId;
                 if (cracExtension.getVariant(variantList.get(0)).getCost() > cracExtension.getVariant(variantList.get(1)).getCost()) {
                     preOptimVariantId = variantList.get(0);
                     postOptimVariantId = variantList.get(1);
@@ -81,6 +82,7 @@ public final class CneFiller {
         }
     }
 
+    // Creates all ConstraintSeries
     private static void createAllConstraintSeries(Point point, Crac crac, String preOptimVariantId, String postOptimVariantId, Unit chosenExportUnit) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
@@ -99,15 +101,16 @@ public final class CneFiller {
 
         /* Monitored Elements*/
         List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).collect(Collectors.toList());
-        crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit));
+        crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit));
 
         /* Remedial Actions*/
-        crac.getNetworkActions().forEach(networkAction -> findAndAddRemedialActions(networkAction, preOptimVariantId, postOptimVariantId));
-        crac.getRangeActions().forEach(rangeAction -> findAndAddRemedialActions(rangeAction, preOptimVariantId, postOptimVariantId));
+        crac.getNetworkActions().forEach(networkAction -> addRemedialActionsToConstraintSeries(networkAction, preOptimVariantId, postOptimVariantId));
+        crac.getRangeActions().forEach(rangeAction -> addRemedialActionsToConstraintSeries(rangeAction, preOptimVariantId, postOptimVariantId));
 
         point.constraintSeries = constraintSeriesList;
     }
 
+    // Helper: fills maps (B56/B57) containing the constraint series corresponding to a state
     private static void addConstraintToMapAndCne(ConstraintSeries constraintSeries, List<ConstraintSeries> constraintSeriesList, Set<State> states) {
 
         // add to map
@@ -126,6 +129,7 @@ public final class CneFiller {
     /*****************
      HEADER
      *****************/
+    // fills the header of the CNE
     private static void fillHeader(DateTime networkDate) {
         cne.setMRID(generateRandomMRID());
         cne.setRevisionNumber("1");
@@ -133,16 +137,17 @@ public final class CneFiller {
         cne.setProcessProcessType("A43");
         cne.setSenderMarketParticipantMRID(createPartyIDString("A01", "22XCORESO------S"));
         cne.setSenderMarketParticipantMarketRoleType("A44");
-        cne.setReceiverMarketParticipantMRID(createPartyIDString("A01", "17XTSO-CS------W"));
+        cne.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, "17XTSO-CS------W"));
         cne.setReceiverMarketParticipantMarketRoleType("A36");
         cne.setCreatedDateTime(createXMLGregorianCalendarNow());
         cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
-        cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
+        cne.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, "10YDOM-REGION-1V"));
     }
 
     /*****************
      TIME_SERIES and REASON
      *****************/
+    // creates the Reason of a Point after the end of the rao
     private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
         Reason reason = new Reason();
         if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
@@ -157,6 +162,7 @@ public final class CneFiller {
         point.reason = Collections.singletonList(reason);
     }
 
+    // creates the Reason of a Point after a failure
     private static void addFailureReasonToPoint(Point point) {
         Reason reason = new Reason();
         reason.setCode("999");
@@ -164,8 +170,8 @@ public final class CneFiller {
         point.reason = Collections.singletonList(reason);
     }
 
-    private static void createTimeSeries(DateTime networkDate) {
-
+    // creates and adds the TimeSeries to the CNE
+    private static void addTimeSeriesToCne(DateTime networkDate) {
         try {
             Point point = new Point();
             point.setPosition(1);
@@ -190,11 +196,13 @@ public final class CneFiller {
     /*****************
      CONTINGENCIES
      *****************/
+    // Create  one B56 and one B57 ConstraintSeries relative to a contingency
     private static void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList, SortedSet<State> states) {
         addConstraintToMapAndCne(createAConstraintSeriesWithContingency(B57_BUSINESS_TYPE, contingency), constraintSeriesList, states);
         addConstraintToMapAndCne(createAConstraintSeriesWithContingency(B56_BUSINESS_TYPE, contingency), constraintSeriesList, states);
     }
 
+    // Create an empty ConstraintSeries
     private static ConstraintSeries createAConstraintSeries(String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(generateRandomMRID());
@@ -203,6 +211,7 @@ public final class CneFiller {
         return constraintSeries;
     }
 
+    // Create a ConstraintSeries containing a ContingencySeries
     private static ConstraintSeries createAConstraintSeriesWithContingency(String businessType, Contingency contingency) {
         ConstraintSeries constraintSeries = createAConstraintSeries(businessType);
 
@@ -217,7 +226,8 @@ public final class CneFiller {
     /*****************
      MONITORED ELEMENTS
      *****************/
-    private static void findAndAddConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
+    // Adds to the ConstraintSeries all elements relative to a cnec
+    private static void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
         createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId, chosenExportUnit);
@@ -235,17 +245,18 @@ public final class CneFiller {
         }
     }
 
+    // Creates a MonitoredSeries from a given cnec
     private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
         MonitoredSeries monitoredSeries = new MonitoredSeries();
         monitoredSeries.setMRID(cnec.getId());
         monitoredSeries.setName(cnec.getName());
 
         MonitoredRegisteredResource monitoredRegisteredResource = new MonitoredRegisteredResource();
-        monitoredRegisteredResource.setMRID(createResourceIDString("A02", cnec.getNetworkElement().getId()));
+        monitoredRegisteredResource.setMRID(createResourceIDString(A02_CODING_SCHEME, cnec.getNetworkElement().getId()));
         monitoredRegisteredResource.setName(cnec.getNetworkElement().getName());
         // TODO: origin and extremity from network?
-        monitoredRegisteredResource.setInAggregateNodeMRID(createResourceIDString("A02", "in"));
-        monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString("A02", "out"));
+        monitoredRegisteredResource.setInAggregateNodeMRID(createResourceIDString(A02_CODING_SCHEME, "in"));
+        monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString(A02_CODING_SCHEME, "out"));
 
         List<Analog> measurementsList = new ArrayList<>();
         Unit finalUnit = chosenExportUnit;
@@ -267,6 +278,7 @@ public final class CneFiller {
     }
 
     // TODO: is this done correctly?
+    // Creates a Measurement from flow
     private static Unit handleFlow(CnecResult cnecResult, Unit chosenExportUnit, List<Analog> measurementsList) {
         Unit finalUnit = chosenExportUnit;
         if (chosenExportUnit.equals(Unit.AMPERE)) {
@@ -289,45 +301,24 @@ public final class CneFiller {
         return finalUnit;
     }
 
+    // Creates Measurements from thresholds
     private static void handleThresholds(Cnec cnec, Unit unit, List<Analog> measurementsList) {
         if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A02", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(PATL_MEASUREMENT_TYPE, unit, threshold)));
         } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A07", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(TATL_MEASUREMENT_TYPE, unit, threshold)));
         }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A12", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(TATL_AFTER_AUTO_MEASUREMENT_TYPE, unit, threshold)));
         } else { // After CRA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement("A13", unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(TATL_AFTER_CRA_MEASUREMENT_TYPE, unit, threshold)));
         }
     }
-
-    private static Analog createMeasurement(String measurementType, Unit unit, double flow) {
-        Analog measurement = new Analog();
-        measurement.setMeasurementType(measurementType);
-
-        if (unit.equals(Unit.MEGAWATT)) {
-            measurement.setUnitSymbol("MAW");
-        } else if (unit.equals(Unit.AMPERE)) {
-            measurement.setUnitSymbol("AMP");
-        } else {
-            throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
-        }
-
-        if (flow < 0) {
-            measurement.setPositiveFlowIn("A02");
-        } else {
-            measurement.setPositiveFlowIn("A01");
-        }
-        measurement.setAnalogValuesValue(Math.round(Math.abs(flow)));
-
-        return measurement;
-    }
-
 
     /*****************
      REMEDIAL ACTIONS
      *****************/
-    private static void findAndAddRemedialActions(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
+    // Adds to the ConstraintSeries all RemedialActionSeries needed
+    private static void addRemedialActionsToConstraintSeries(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
 
         if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
             addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
@@ -339,9 +330,10 @@ public final class CneFiller {
         }
     }
 
+    // Adds to the ConstraintSeries a complete RemedialActionSeries created after any RemedialAction
     private static void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String preOptimVariantId, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
         if (remedialAction instanceof NetworkAction) {
-            addActivatecNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
+            addActivatedNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
         } else if (remedialAction instanceof RangeAction) {
             addActivatedRangeAction(remedialAction, constraintSeriesList, preOptimVariantId, postOptimVariantId, createResource);
         } else {
@@ -349,6 +341,7 @@ public final class CneFiller {
         }
     }
 
+    // Adds to the ConstraintSeries a complete RemedialActionSeries created after a RangeAction
     private static void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, boolean createResource) {
         RangeAction rangeAction = (RangeAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
@@ -374,7 +367,8 @@ public final class CneFiller {
         });
     }
 
-    private static void addActivatecNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
+    // Adds to the ConstraintSeries a complete RemedialActionSeries created after a NetworkAction
+    private static void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
         NetworkAction networkAction = (NetworkAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
             if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
@@ -386,11 +380,12 @@ public final class CneFiller {
         });
     }
 
+    // Creates a RegisteredResource from a PST range remedial action
     private static RemedialActionRegisteredResource createPstRangeActionRegisteredResource(RangeAction rangeAction, int tap) {
         RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         if (rangeAction.getNetworkElements().size() == 1) {
             NetworkElement networkElement = rangeAction.getNetworkElements().stream().findFirst().orElseThrow(FaraoException::new);
-            remedialActionRegisteredResource.setMRID(createResourceIDString("A01", networkElement.getId()));
+            remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, networkElement.getId()));
             remedialActionRegisteredResource.setName(networkElement.getName());
             remedialActionRegisteredResource.setPSRTypePsrType("A06"); // PST range
             remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(tap));
@@ -402,12 +397,13 @@ public final class CneFiller {
         }
     }
 
+    // Creates a RemedialActionSeries from a remedial action
     private static RemedialActionSeries createRemedialActionSeries(RemedialAction<?> remedialAction, String id) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(id);
         remedialActionSeries.setName(remedialAction.getName());
-        // TODO: deal with automatic RA (A20) and curative RA (A19)
         remedialActionSeries.setApplicationModeMarketObjectStatusStatus("A18"); // Preventive
+        // deal with automatic RA (A20) and curative RA (A19) once developed
 
         return remedialActionSeries;
     }

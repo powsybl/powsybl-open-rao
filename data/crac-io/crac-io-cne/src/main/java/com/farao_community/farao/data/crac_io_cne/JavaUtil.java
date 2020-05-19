@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import org.joda.time.DateTime;
@@ -31,6 +28,20 @@ public final class JavaUtil {
 
     public static final String B56_BUSINESS_TYPE = "B56";
     public static final String B57_BUSINESS_TYPE = "B57";
+
+    public static final String A01_CODING_SCHEME = "A01";
+    public static final String A02_CODING_SCHEME = "A02";
+
+    public static final String AMP_UNIT_SYMBOL = "AMP";
+    public static final String MAW_UNIT_SYMBOL = "MAW";
+
+    public static final String DIRECT_POSITIVE_FLOW_IN = "A01";
+    public static final String OPPOSITE_POSITIVE_FLOW_IN = "A02";
+
+    public static final String PATL_MEASUREMENT_TYPE = "A02";
+    public static final String TATL_MEASUREMENT_TYPE = "A07";
+    public static final String TATL_AFTER_AUTO_MEASUREMENT_TYPE = "A12";
+    public static final String TATL_AFTER_CRA_MEASUREMENT_TYPE = "A13";
 
     private JavaUtil() { }
 
@@ -92,6 +103,29 @@ public final class JavaUtil {
 
     public static String createRangeActionId(String id, double setpoint) {
         return String.format("%s@%s@", id, setpoint);
+    }
+
+    // Creates any measurement
+    public static Analog createMeasurement(String measurementType, Unit unit, double flow) {
+        Analog measurement = new Analog();
+        measurement.setMeasurementType(measurementType);
+
+        if (unit.equals(Unit.MEGAWATT)) {
+            measurement.setUnitSymbol(MAW_UNIT_SYMBOL);
+        } else if (unit.equals(Unit.AMPERE)) {
+            measurement.setUnitSymbol(AMP_UNIT_SYMBOL);
+        } else {
+            throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
+        }
+
+        if (flow < 0) {
+            measurement.setPositiveFlowIn(OPPOSITE_POSITIVE_FLOW_IN);
+        } else {
+            measurement.setPositiveFlowIn(DIRECT_POSITIVE_FLOW_IN);
+        }
+        measurement.setAnalogValuesValue(Math.round(Math.abs(flow)));
+
+        return measurement;
     }
 
     /**
