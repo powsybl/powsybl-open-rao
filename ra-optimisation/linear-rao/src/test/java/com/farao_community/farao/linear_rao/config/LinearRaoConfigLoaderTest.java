@@ -52,6 +52,7 @@ public class LinearRaoConfigLoaderTest {
         Mockito.when(linearRaoParametersModule.getIntProperty(eq("max-number-of-iterations"), anyInt())).thenReturn(25);
         Mockito.when(linearRaoParametersModule.getBooleanProperty(eq("security-analysis-without-rao"), anyBoolean())).thenReturn(false);
         Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("pst-sensitivity-threshold"), anyDouble())).thenReturn(2.0);
+        Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("pst-penalty-cost"), anyDouble())).thenReturn(0.5);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("linear-rao-parameters")).thenReturn(Optional.of(linearRaoParametersModule));
 
@@ -60,6 +61,7 @@ public class LinearRaoConfigLoaderTest {
         assertEquals(25, raoParameters.getMaxIterations());
         assertFalse(raoParameters.isSecurityAnalysisWithoutRao());
         assertEquals(2.0, raoParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(0.5, raoParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
     }
 
     @Test

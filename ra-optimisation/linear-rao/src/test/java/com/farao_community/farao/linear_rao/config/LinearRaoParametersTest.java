@@ -61,4 +61,10 @@ public class LinearRaoParametersTest {
         raoParameters.setPstSensitivityThreshold(5.0);
         assertEquals(5.0, raoParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void setPstPenaltyCost() {
+        raoParameters.setPstPenaltyCost(0.5);
+        assertEquals(0.5, raoParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
+    }
 }
