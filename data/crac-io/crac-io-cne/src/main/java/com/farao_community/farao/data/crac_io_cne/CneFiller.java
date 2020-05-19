@@ -48,11 +48,26 @@ public final class CneFiller {
             Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
             if (crac.getExtension(CracResultExtension.class) != null) { // Computation ended
+
+                Set<String> variants = crac.getExtension(ResultVariantManager.class).getVariants();
+
+                if (variants != null && variants.size() != 2) {
+                    throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
+                }
+
+                assert variants != null;
+                List<String> variantList = new ArrayList<>(variants);
                 CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
-                // TODO: Don't hardcode it, once it can be read from crac
-                String preOptimVariantId = "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005";
-                String postOptimVariantId = "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e";
+                String preOptimVariantId = "";
+                String postOptimVariantId = "";
+                if (cracExtension.getVariant(variantList.get(0)).getCost() > cracExtension.getVariant(variantList.get(1)).getCost()) {
+                    preOptimVariantId = variantList.get(0);
+                    postOptimVariantId = variantList.get(1);
+                } else {
+                    preOptimVariantId = variantList.get(1);
+                    postOptimVariantId = variantList.get(0);
+                }
 
                 addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
                 createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit);
