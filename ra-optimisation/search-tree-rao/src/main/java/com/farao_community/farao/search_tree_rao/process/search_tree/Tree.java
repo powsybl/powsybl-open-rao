@@ -188,71 +188,38 @@ public final class Tree {
     }
 
     private static void logLeafResults(Leaf leaf, Crac crac) {
-        String rangeActionResults = crac.getRangeActions().stream().map(rangeAction ->
-            format(
-                "%s: %d",
+        String rangeActionResults = crac.getRangeActions()
+            .stream()
+            .map(rangeAction -> format( "%s: %d",
                 rangeAction.getName(),
                 ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
                     .getVariant(leaf.getRaoResult().getPostOptimVariantId()))
-                    .getTap(crac.getPreventiveState().getId())
-            )
-        ).collect(Collectors.joining(", "));
-        LOGGER.info(format(
-            "%s: minimum margin = %f (%s)",
+                    .getTap(crac.getPreventiveState().getId())))
+            .collect(Collectors.joining(", "));
+        LOGGER.info(format("%s: minimum margin = %f (%s)",
             leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
             -leaf.getCost(crac),
             rangeActionResults));
     }
 
     private static void logMostLimitingElements(Crac crac, Leaf optimalLeaf) {
-        List<CnecOutput> cnecOutputs = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> {
-            CnecResult cnecResultPostOptim = cnec
-                .getExtension(CnecResultExtension.class)
-                .getVariant(optimalLeaf.getRaoResult().getPostOptimVariantId());
-            double margin = Math.min(
-                cnecResultPostOptim.getMaxThresholdInMW() - cnecResultPostOptim.getFlowInMW(),
-                cnecResultPostOptim.getFlowInMW() - cnecResultPostOptim.getMinThresholdInMW());
-            cnecOutputs.add(new CnecOutput(cnec, margin));
-        });
-        Collections.sort(cnecOutputs);
+        List<Cnec> sortedCnecs = new ArrayList<>(crac.getCnecs());
+        String postOptimVariantId = optimalLeaf.getRaoResult().getPostOptimVariantId();
+        sortedCnecs.sort(Comparator.comparingDouble(cnec -> computeMarginInMW(cnec, postOptimVariantId)));
 
-        for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, cnecOutputs.size()); i++) {
-            Cnec cnec = cnecOutputs.get(i).getCnec();
-            LOGGER.info(format(
-                "Limiting element #%d: element %s at state %s with a margin of %f",
+        for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
+            Cnec cnec = sortedCnecs.get(i);
+            LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f",
                 i + 1,
                 cnec.getNetworkElement().getName(),
                 cnec.getState().getId(),
-                cnecOutputs.get(i).getMargin()));
+                computeMarginInMW(cnec, postOptimVariantId)));
         }
     }
 
-    private static class CnecOutput implements Comparable<CnecOutput> {
-        private final Cnec cnec;
-        private final double margin;
-
-        public CnecOutput(Cnec cnec, double margin) {
-            this.cnec = cnec;
-            this.margin = margin;
-        }
-
-        public Cnec getCnec() {
-            return cnec;
-        }
-
-        public double getMargin() {
-            return margin;
-        }
-
-        @Override
-        public int compareTo(CnecOutput cnecOutput) {
-            if (this.margin < cnecOutput.getMargin()) {
-                return -1;
-            } else if (cnecOutput.getMargin() < this.margin) {
-                return 1;
-            }
-            return 0;
-        }
+    private static double computeMarginInMW(Cnec cnec, String variantId) {
+        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+        return Math.min(cnecResult.getMaxThresholdInMW() - cnecResult.getFlowInMW(),
+            cnecResult.getFlowInMW() - cnecResult.getMinThresholdInMW());
     }
 }
