@@ -36,19 +36,4 @@ public class CneExportTest {
 
         assertTrue(CneExport.validateCNESchema(outputStream.toString()));
     }
-
-    /*@Test
-    public void testExportOld() {
-
-        Crac crac = CracImporters.importCrac("small-crac-with-result-extensions.json", getClass().getResourceAsStream("/small-crac-with-result-extensions.json"));
-        Crac crac1 =  Mockito.spy(crac);
-        Mockito.doReturn(true).when(crac1).isSynchronized();
-
-        // export Crac
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(crac1, "CNE", outputStream);
-
-        assertTrue(CneExport.validateCNESchema(outputStream.toString()));
-        int i = 1;
-    }*/
 }

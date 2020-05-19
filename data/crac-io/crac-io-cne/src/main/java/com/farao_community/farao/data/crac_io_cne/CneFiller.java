@@ -14,13 +14,11 @@ import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
-import java.security.SecureRandom;
-import java.text.SimpleDateFormat;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.data.crac_io_cne.JavaUtil.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -38,6 +36,9 @@ public final class CneFiller {
         return cne;
     }
 
+    /*****************
+     MAIN METHODS
+     *****************/
     public static void generate(Crac crac, Unit chosenExportUnit) {
         if (crac.isSynchronized()) {
 
@@ -80,45 +81,15 @@ public final class CneFiller {
         }
     }
 
-    /**
-     * Returns the list of Preventive Remedial Actions activated
-     */
-    private static List<RemedialAction<?>> getListOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
-        List<RemedialAction<?>> pras = new ArrayList<>();
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
-            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
-
-            if (rangeActionResultExtension.getVariant(postOptimVariantId).isActivated(preventiveState) &&
-                rangeActionResultExtension.getVariant(postOptimVariantId).getSetPoint(preventiveState) != rangeActionResultExtension.getVariant(preOptimVariantId).getSetPoint(preventiveState)) {
-                pras.add(rangeAction);
-            }
-        }
-        for (NetworkAction networkAction : crac.getNetworkActions()) {
-            NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
-            if (networkActionResultExtension.getVariant(postOptimVariantId).isActivated(preventiveState)) {
-                pras.add(networkAction);
-            }
-        }
-        return pras;
-    }
-
-    /**
-     * Returns the number of Preventive Remedial Actions activated
-     */
-    private static int getNumberOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
-        return getListOfPra(crac, preOptimVariantId, postOptimVariantId).size();
-    }
-
     private static void createAllConstraintSeries(Point point, Crac crac, String preOptimVariantId, String postOptimVariantId, Unit chosenExportUnit) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
         /* Contingencies */
         // PREVENTIVE STATE
-        addConstraintToMapAndCne(createAConstraintSeries("B57"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
+        addConstraintToMapAndCne(createAConstraintSeries(B57_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
         if (getNumberOfPra(crac, preOptimVariantId, postOptimVariantId) != 0) {
-            addConstraintToMapAndCne(createAConstraintSeries("B56"), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
+            addConstraintToMapAndCne(createAConstraintSeries(B56_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
         }
 
         // AFTER CONTINGENCY
@@ -127,7 +98,7 @@ public final class CneFiller {
                 createAllConstraintSeriesOfAContingency(contingency, constraintSeriesList, crac.getStates(contingency)));
 
         /* Monitored Elements*/
-        List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals("B57")).collect(Collectors.toList());
+        List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).collect(Collectors.toList());
         crac.getCnecs().forEach(cnec -> findAndAddConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit));
 
         /* Remedial Actions*/
@@ -137,102 +108,12 @@ public final class CneFiller {
         point.constraintSeries = constraintSeriesList;
     }
 
-    private static void findAndAddRemedialActions(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
-
-        if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, false);
-        }
-        if (remedialAction.getExtension(RangeActionResultExtension.class) != null) {
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, true);
-        }
-    }
-
-    private static void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String preOptimVariantId, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
-        if (remedialAction instanceof NetworkAction) {
-            addActivatecNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
-        } else if (remedialAction instanceof RangeAction) {
-            addActivatedRangeAction(remedialAction, constraintSeriesList, preOptimVariantId, postOptimVariantId, createResource);
-        } else {
-            throw new FaraoException(String.format("Remedial action %s of incorrect type", remedialAction.getId()));
-        }
-    }
-
-    private static void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, boolean createResource) {
-        RangeAction rangeAction = (RangeAction) remedialAction;
-        constraintSeriesList.forEach((state, constraintSeries) -> {
-            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
-            RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
-            if (postOptimRangeActionResult.isActivated(state.getId()) &&
-                rangeActionResultExtension.getVariant(postOptimVariantId).getSetPoint(state.getId()) != rangeActionResultExtension.getVariant(preOptimVariantId).getSetPoint(state.getId())) {
-                if (constraintSeries.remedialActionSeries == null) {
-                    constraintSeries.remedialActionSeries = new ArrayList<>();
-                }
-                // TODO: check if setpoint has good value (angle VS tap)
-                if (postOptimRangeActionResult instanceof PstRangeResult) {
-                    int setpoint = ((PstRangeResult) postOptimRangeActionResult).getTap(state.getId());
-                    String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
-                    RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
-                    if (createResource) {
-                        remedialActionSeries.registeredResource = Collections.singletonList(createPstRangeActionRegisteredResource(rangeAction, setpoint));
-                    }
-                    constraintSeries.remedialActionSeries.add(remedialActionSeries);
-                } else {
-                    throw new FaraoException(String.format("Range action is not PST range: %s not handled.", remedialAction.getId()));
-                }
-            }
-        });
-    }
-
-    private static void addActivatecNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
-        NetworkAction networkAction = (NetworkAction) remedialAction;
-        constraintSeriesList.forEach((state, constraintSeries) -> {
-            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
-                if (constraintSeries.remedialActionSeries == null) {
-                    constraintSeries.remedialActionSeries = new ArrayList<>();
-                }
-                constraintSeries.remedialActionSeries.add(createRemedialActionSeries(networkAction, networkAction.getId()));
-            }
-        });
-    }
-
-    private static RemedialActionRegisteredResource createPstRangeActionRegisteredResource(RangeAction rangeAction, int tap) {
-        RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
-        if (rangeAction.getNetworkElements().size() == 1) {
-            NetworkElement networkElement = rangeAction.getNetworkElements().stream().findFirst().orElseThrow(FaraoException::new);
-            remedialActionRegisteredResource.setMRID(createResourceIDString("A01", networkElement.getId()));
-            remedialActionRegisteredResource.setName(networkElement.getName());
-            remedialActionRegisteredResource.setPSRTypePsrType("A06"); // PST range
-            remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(tap));
-            remedialActionRegisteredResource.setResourceCapacityUnitSymbol("C62"); // without unit
-            remedialActionRegisteredResource.setMarketObjectStatusStatus("A26"); // absolute
-            return remedialActionRegisteredResource;
-        } else {
-            throw new FaraoException(String.format("Number of network elements is not 1 for range action %s", rangeAction.getId()));
-        }
-    }
-
-    private static String createRangeActionId(String id, double setpoint) {
-        return String.format("%s@%s@", id, setpoint);
-    }
-
-    private static RemedialActionSeries createRemedialActionSeries(RemedialAction<?> remedialAction, String id) {
-        RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
-        remedialActionSeries.setMRID(id);
-        remedialActionSeries.setName(remedialAction.getName());
-        // TODO: deal with automatic RA (A20) and curative RA (A19)
-        remedialActionSeries.setApplicationModeMarketObjectStatusStatus("A18");
-
-        return remedialActionSeries;
-    }
-
     private static void addConstraintToMapAndCne(ConstraintSeries constraintSeries, List<ConstraintSeries> constraintSeriesList, Set<State> states) {
 
         // add to map
-        if (constraintSeries.getBusinessType().equals("B56")) {
+        if (constraintSeries.getBusinessType().equals(B56_BUSINESS_TYPE)) {
             states.forEach(state -> constraintSeriesMapB56.put(state, constraintSeries));
-        } else if (constraintSeries.getBusinessType().equals("B57")) {
+        } else if (constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)) {
             states.forEach(state -> constraintSeriesMapB57.put(state, constraintSeries));
         } else {
             throw new FaraoException(String.format("Unhandled businessType %s", constraintSeries.getBusinessType()));
@@ -240,6 +121,97 @@ public final class CneFiller {
 
         // add to CNE
         constraintSeriesList.add(constraintSeries);
+    }
+
+    /*****************
+     HEADER
+     *****************/
+    private static void fillHeader(DateTime networkDate) {
+        cne.setMRID(generateRandomMRID());
+        cne.setRevisionNumber("1");
+        cne.setType("B06");
+        cne.setProcessProcessType("A43");
+        cne.setSenderMarketParticipantMRID(createPartyIDString("A01", "22XCORESO------S"));
+        cne.setSenderMarketParticipantMarketRoleType("A44");
+        cne.setReceiverMarketParticipantMRID(createPartyIDString("A01", "17XTSO-CS------W"));
+        cne.setReceiverMarketParticipantMarketRoleType("A36");
+        cne.setCreatedDateTime(createXMLGregorianCalendarNow());
+        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
+        cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
+    }
+
+    /*****************
+     TIME_SERIES and REASON
+     *****************/
+    private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
+        Reason reason = new Reason();
+        if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
+            reason.setCode("Z13");
+            reason.setText("Situation is secure");
+        } else if (status.equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
+            reason.setCode("Z03");
+            reason.setText("Situation is unsecure");
+        } else {
+            throw new FaraoException(String.format("Unexpected status %s.", status));
+        }
+        point.reason = Collections.singletonList(reason);
+    }
+
+    private static void addFailureReasonToPoint(Point point) {
+        Reason reason = new Reason();
+        reason.setCode("999");
+        reason.setText("Other failure");
+        point.reason = Collections.singletonList(reason);
+    }
+
+    private static void createTimeSeries(DateTime networkDate) {
+
+        try {
+            Point point = new Point();
+            point.setPosition(1);
+
+            SeriesPeriod period = new SeriesPeriod();
+            period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
+            period.setResolution(DatatypeFactory.newInstance().newDuration("PT60M"));
+            period.point = Collections.singletonList(point);
+
+            TimeSeries timeSeries = new TimeSeries();
+            timeSeries.setMRID(generateRandomMRID());
+            timeSeries.setBusinessType("B54");
+            timeSeries.setCurveType("A01");
+            timeSeries.period = Collections.singletonList(period);
+
+            cne.timeSeries = Collections.singletonList(timeSeries);
+        } catch (DatatypeConfigurationException e) {
+            throw new FaraoException("Failure in TimeSeries creation");
+        }
+    }
+
+    /*****************
+     CONTINGENCIES
+     *****************/
+    private static void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList, SortedSet<State> states) {
+        addConstraintToMapAndCne(createAConstraintSeriesWithContingency(B57_BUSINESS_TYPE, contingency), constraintSeriesList, states);
+        addConstraintToMapAndCne(createAConstraintSeriesWithContingency(B56_BUSINESS_TYPE, contingency), constraintSeriesList, states);
+    }
+
+    private static ConstraintSeries createAConstraintSeries(String businessType) {
+        ConstraintSeries constraintSeries = new ConstraintSeries();
+        constraintSeries.setMRID(generateRandomMRID());
+        constraintSeries.setBusinessType(businessType);
+
+        return constraintSeries;
+    }
+
+    private static ConstraintSeries createAConstraintSeriesWithContingency(String businessType, Contingency contingency) {
+        ConstraintSeries constraintSeries = createAConstraintSeries(businessType);
+
+        ContingencySeries contingencySeries = new ContingencySeries();
+        contingencySeries.setMRID(contingency.getId());
+        contingencySeries.setName(contingency.getName());
+
+        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
+        return constraintSeries;
     }
 
     /*****************
@@ -351,150 +323,92 @@ public final class CneFiller {
         return measurement;
     }
 
-    // Creation of ID with code scheme
-    private static ResourceIDString createResourceIDString(String codingScheme, String value) {
-        ResourceIDString resourceMRID = new ResourceIDString();
-        resourceMRID.setCodingScheme(codingScheme);
-        resourceMRID.setValue(value);
-        return resourceMRID;
-    }
 
     /*****************
-     CONTINGENCIES
+     REMEDIAL ACTIONS
      *****************/
-    private static void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList, SortedSet<State> states) {
-        addConstraintToMapAndCne(createAConstraintSeriesWithContingency("B57", contingency), constraintSeriesList, states);
-        addConstraintToMapAndCne(createAConstraintSeriesWithContingency("B56", contingency), constraintSeriesList, states);
+    private static void findAndAddRemedialActions(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
+
+        if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, false);
+        }
+        if (remedialAction.getExtension(RangeActionResultExtension.class) != null) {
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
+            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, true);
+        }
     }
 
-    private static ConstraintSeries createAConstraintSeries(String businessType) {
-        ConstraintSeries constraintSeries = new ConstraintSeries();
-        constraintSeries.setMRID(generateRandomMRID());
-        constraintSeries.setBusinessType(businessType);
-
-        return constraintSeries;
-    }
-
-    private static ConstraintSeries createAConstraintSeriesWithContingency(String businessType, Contingency contingency) {
-        ConstraintSeries constraintSeries = createAConstraintSeries(businessType);
-
-        ContingencySeries contingencySeries = new ContingencySeries();
-        contingencySeries.setMRID(contingency.getId());
-        contingencySeries.setName(contingency.getName());
-
-        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
-        return constraintSeries;
-    }
-
-    /*****************
-     TIME_SERIES and REASON
-     *****************/
-    private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
-        Reason reason = new Reason();
-        if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
-            reason.setCode("Z13");
-            reason.setText("Situation is secure");
-        } else if (status.equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
-            reason.setCode("Z03");
-            reason.setText("Situation is unsecure");
+    private static void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String preOptimVariantId, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
+        if (remedialAction instanceof NetworkAction) {
+            addActivatecNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
+        } else if (remedialAction instanceof RangeAction) {
+            addActivatedRangeAction(remedialAction, constraintSeriesList, preOptimVariantId, postOptimVariantId, createResource);
         } else {
-            throw new FaraoException(String.format("Unexpected status %s.", status));
-        }
-        point.reason = Collections.singletonList(reason);
-    }
-
-    private static void addFailureReasonToPoint(Point point) {
-        Reason reason = new Reason();
-        reason.setCode("999");
-        reason.setText("Other failure");
-        point.reason = Collections.singletonList(reason);
-    }
-
-    private static void createTimeSeries(DateTime networkDate) {
-
-        try {
-            Point point = new Point();
-            point.setPosition(1);
-
-            SeriesPeriod period = new SeriesPeriod();
-            period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
-            period.setResolution(DatatypeFactory.newInstance().newDuration("PT60M"));
-            period.point = Collections.singletonList(point);
-
-            TimeSeries timeSeries = new TimeSeries();
-            timeSeries.setMRID(generateRandomMRID());
-            timeSeries.setBusinessType("B54");
-            timeSeries.setCurveType("A01");
-            timeSeries.period = Collections.singletonList(period);
-
-            cne.timeSeries = Collections.singletonList(timeSeries);
-        } catch (DatatypeConfigurationException e) {
-            throw new FaraoException("Failure in TimeSeries creation");
+            throw new FaraoException(String.format("Remedial action %s of incorrect type", remedialAction.getId()));
         }
     }
 
-    /*****************
-     HEADER
-     *****************/
-    private static void fillHeader(DateTime networkDate) {
-        cne.setMRID(generateRandomMRID());
-        cne.setRevisionNumber("1");
-        cne.setType("B06");
-        cne.setProcessProcessType("A43");
-        cne.setSenderMarketParticipantMRID(createPartyIDString("A01", "22XCORESO------S"));
-        cne.setSenderMarketParticipantMarketRoleType("A44");
-        cne.setReceiverMarketParticipantMRID(createPartyIDString("A01", "17XTSO-CS------W"));
-        cne.setReceiverMarketParticipantMarketRoleType("A36");
-        cne.setCreatedDateTime(createXMLGregorianCalendarNow());
-        cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
-        cne.setDomainMRID(createAreaIDString("A01", "10YDOM-REGION-1V"));
+    private static void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, boolean createResource) {
+        RangeAction rangeAction = (RangeAction) remedialAction;
+        constraintSeriesList.forEach((state, constraintSeries) -> {
+            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+            RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
+            if (postOptimRangeActionResult.isActivated(state.getId()) &&
+                rangeActionResultExtension.getVariant(postOptimVariantId).getSetPoint(state.getId()) != rangeActionResultExtension.getVariant(preOptimVariantId).getSetPoint(state.getId())) {
+                if (constraintSeries.remedialActionSeries == null) {
+                    constraintSeries.remedialActionSeries = new ArrayList<>();
+                }
+                if (postOptimRangeActionResult instanceof PstRangeResult) {
+                    int setpoint = ((PstRangeResult) postOptimRangeActionResult).getTap(state.getId());
+                    String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
+                    RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
+                    if (createResource) {
+                        remedialActionSeries.registeredResource = Collections.singletonList(createPstRangeActionRegisteredResource(rangeAction, setpoint));
+                    }
+                    constraintSeries.remedialActionSeries.add(remedialActionSeries);
+                } else {
+                    throw new FaraoException(String.format("Range action is not PST range: %s not handled.", remedialAction.getId()));
+                }
+            }
+        });
     }
 
-    // Creation of time interval
-    private static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-
-        ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
-
-        timeInterval.setStart(dateFormat.format(networkDate.toDate()));
-        timeInterval.setEnd(dateFormat.format(networkDate.plusHours(1).toDate()));
-        return timeInterval;
+    private static void addActivatecNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
+        NetworkAction networkAction = (NetworkAction) remedialAction;
+        constraintSeriesList.forEach((state, constraintSeries) -> {
+            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
+                if (constraintSeries.remedialActionSeries == null) {
+                    constraintSeries.remedialActionSeries = new ArrayList<>();
+                }
+                constraintSeries.remedialActionSeries.add(createRemedialActionSeries(networkAction, networkAction.getId()));
+            }
+        });
     }
 
-    // Creation of current date
-    private static XMLGregorianCalendar createXMLGregorianCalendarNow() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-        try {
-            XMLGregorianCalendar xmlcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateFormat.format(new Date()));
-            xmlcal.setTimezone(0);
-
-            return xmlcal;
-        } catch (DatatypeConfigurationException e) {
-            throw new FaraoException();
+    private static RemedialActionRegisteredResource createPstRangeActionRegisteredResource(RangeAction rangeAction, int tap) {
+        RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
+        if (rangeAction.getNetworkElements().size() == 1) {
+            NetworkElement networkElement = rangeAction.getNetworkElements().stream().findFirst().orElseThrow(FaraoException::new);
+            remedialActionRegisteredResource.setMRID(createResourceIDString("A01", networkElement.getId()));
+            remedialActionRegisteredResource.setName(networkElement.getName());
+            remedialActionRegisteredResource.setPSRTypePsrType("A06"); // PST range
+            remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(tap));
+            remedialActionRegisteredResource.setResourceCapacityUnitSymbol("C62"); // without unit
+            remedialActionRegisteredResource.setMarketObjectStatusStatus("A26"); // absolute
+            return remedialActionRegisteredResource;
+        } else {
+            throw new FaraoException(String.format("Number of network elements is not 1 for range action %s", rangeAction.getId()));
         }
     }
 
-    // Creation of ID with code scheme
-    private static AreaIDString createAreaIDString(String codingScheme, String value) {
-        AreaIDString domainMRID = new AreaIDString();
-        domainMRID.setCodingScheme(codingScheme);
-        domainMRID.setValue(value);
-        return domainMRID;
-    }
+    private static RemedialActionSeries createRemedialActionSeries(RemedialAction<?> remedialAction, String id) {
+        RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
+        remedialActionSeries.setMRID(id);
+        remedialActionSeries.setName(remedialAction.getName());
+        // TODO: deal with automatic RA (A20) and curative RA (A19)
+        remedialActionSeries.setApplicationModeMarketObjectStatusStatus("A18"); // Preventive
 
-    // Creation of ID with code scheme
-    private static PartyIDString createPartyIDString(String codingScheme, String value) {
-        PartyIDString marketParticipantMRID = new PartyIDString();
-        marketParticipantMRID.setCodingScheme(codingScheme);
-        marketParticipantMRID.setValue(value);
-        return marketParticipantMRID;
-    }
-
-    // Generates a random code with 35 characters
-    private static String generateRandomMRID() {
-        Random random = new SecureRandom();
-        return String.format("%s-%s-%s-%s", Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()));
+        return remedialActionSeries;
     }
 }
