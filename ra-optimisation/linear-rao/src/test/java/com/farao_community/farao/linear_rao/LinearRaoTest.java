@@ -215,7 +215,7 @@ public class LinearRaoTest {
             public Object answer(InvocationOnMock invocation) {
                 return "OPTIMAL";
             }
-        }).when(linearOptimisationEngine).getSolverResultStatus();
+        }).when(linearOptimisationEngine).getSolverResultStatusString();
 
         // run Rao
         RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();

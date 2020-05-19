@@ -55,8 +55,8 @@ class LinearOptimisationEngine {
      */
     private List<ProblemFiller> fillerList;
 
-    static final String SOLVER_RESULT_STATUS_UNKNOWN = "Unknow";
-    private String solverResultStatus;
+    static final String SOLVER_RESULT_STATUS_UNKNOWN = "UNKNOWN";
+    private String solverResultStatusString;
 
     /**
      * Constructor
@@ -67,7 +67,7 @@ class LinearOptimisationEngine {
         // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
 
-        this.solverResultStatus = SOLVER_RESULT_STATUS_UNKNOWN;
+        this.solverResultStatusString = SOLVER_RESULT_STATUS_UNKNOWN;
     }
 
     /**
@@ -92,7 +92,7 @@ class LinearOptimisationEngine {
         }
 
         solveLinearProblem();
-        if (getSolverResultStatus().equals("OPTIMAL")) {
+        if (getSolverResultStatusString().equals("OPTIMAL")) {
             fillCracResults(linearRaoProblem, linearRaoData);
             linearRaoData.applyRangeActionResultsOnNetwork();
         } else {
@@ -123,9 +123,9 @@ class LinearOptimisationEngine {
     private void solveLinearProblem() {
         try {
             Enum solverResultStatus = linearRaoProblem.solve();
-            setSolverResultStatus(solverResultStatus.name());
-            if (!getSolverResultStatus().equals("OPTIMAL")) {
-                String errorMessage = String.format("Solving of the linear problem failed with MPSolver status %s", getSolverResultStatus());
+            setSolverResultStatusString(solverResultStatus.name());
+            if (!getSolverResultStatusString().equals("OPTIMAL")) {
+                String errorMessage = String.format("Solving of the linear problem failed with MPSolver status %s", getSolverResultStatusString());
                 LOGGER.warn(errorMessage);
                 //Do not throw an exception is solver solution not "OPTIMAL". Handle the status.
             }
@@ -170,11 +170,11 @@ class LinearOptimisationEngine {
         }
     }
 
-    public String getSolverResultStatus() {
-        return solverResultStatus;
+    public String getSolverResultStatusString() {
+        return solverResultStatusString;
     }
 
-    public void setSolverResultStatus(String solverResultStatus) {
-        this.solverResultStatus = solverResultStatus;
+    public void setSolverResultStatusString(String solverResultStatusString) {
+        this.solverResultStatusString = solverResultStatusString;
     }
 }
