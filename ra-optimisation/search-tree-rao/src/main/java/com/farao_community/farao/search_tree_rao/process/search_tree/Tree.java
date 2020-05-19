@@ -7,7 +7,11 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -58,7 +62,11 @@ public final class Tree {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
 
         Leaf rootLeaf = new Leaf();
-        rootLeaf.evaluate(network, crac, referenceNetworkVariant, parameters);
+        String initialNetworkVariant = network.getVariantManager().getWorkingVariantId();
+        String newNetworkVariant = RandomizedString.getRandomizedString(network.getVariantManager().getVariantIds());
+        network.getVariantManager().cloneVariant(initialNetworkVariant, newNetworkVariant);
+        rootLeaf.evaluate(network, crac, newNetworkVariant, parameters);
+        network.getVariantManager().setWorkingVariant(initialNetworkVariant);
         int depth = 0;
 
         if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
