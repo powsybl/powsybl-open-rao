@@ -119,7 +119,7 @@ class SystematicAnalysisEngine {
      */
     private double getMinMargin(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
 
-        if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_MEGAWATT) {
+        if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
             return getMinMarginInMegawatt(linearRaoData, systematicSensitivityAnalysisResult);
         } else {
             return getMinMarginInAmpere(linearRaoData, systematicSensitivityAnalysisResult);
