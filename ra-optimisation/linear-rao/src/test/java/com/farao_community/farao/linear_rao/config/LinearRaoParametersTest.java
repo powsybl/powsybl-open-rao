@@ -67,4 +67,16 @@ public class LinearRaoParametersTest {
         raoParameters.setPstPenaltyCost(0.5);
         assertEquals(0.5, raoParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void setObjectiveFunction() {
+        raoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE);
+        assertEquals(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE, raoParameters.getObjectiveFunction());
+    }
+
+    @Test
+    public void setFallbackOvercost() {
+        raoParameters.setFallbackOvercost(100.0);
+        assertEquals(100.0, raoParameters.getFallbackOvercost(), DOUBLE_TOLERANCE);
+    }
 }
