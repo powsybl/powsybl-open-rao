@@ -13,6 +13,8 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.stream.Stream;
+
 
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
@@ -117,6 +119,15 @@ class SystematicAnalysisEngine {
      */
     private double getMinMargin(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
 
+        if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_MEGAWATT) {
+            return getMinMarginInMegawatt(linearRaoData, systematicSensitivityAnalysisResult);
+        } else {
+            return getMinMarginInAmpere(linearRaoData, systematicSensitivityAnalysisResult);
+        }
+    }
+
+    private double getMinMarginInMegawatt(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+
         double minMargin = Double.POSITIVE_INFINITY;
         for (Cnec cnec : linearRaoData.getCrac().getCnecs()) {
             double flow = systematicSensitivityAnalysisResult.getReferenceFlow(cnec);
@@ -127,6 +138,43 @@ class SystematicAnalysisEngine {
             minMargin = Math.min(minMargin, margin);
         }
         return minMargin;
+    }
+
+    private double getMinMarginInAmpere(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+
+        Stream<Double> marginsInAmpere = linearRaoData.getCrac().getCnecs().stream().map(cnec ->
+            cnec.computeMargin(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), Unit.AMPERE)
+        );
+
+        if (marginsInAmpere.anyMatch(margin -> Double.isNaN(margin))) {
+
+            if (!fallbackMode) {
+                // in default mode, this means that there is an error in the sensitivity computation, or an
+                // incompatibility with the sensitivity computation mode (i.e. the sensitivity computation is
+                // made in DC mode and no intensity are computed).
+                throw new SensitivityComputationException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
+            } else {
+
+                // in fallback, intensities can be missing as the fallback configuration does not necessarily
+                // compute them (example : default in AC, fallback in DC). In that case a fallback computation
+                // of the intensity is made, based on the MEGAWATT values and the nominal voltage
+                marginsInAmpere = getMarginsInAmpereFromMegawattConversion(linearRaoData, systematicSensitivityAnalysisResult);
+            }
+        }
+
+        return marginsInAmpere.min(Double::compare).orElse(Double.NaN);
+    }
+
+    private Stream<Double> getMarginsInAmpereFromMegawattConversion(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        return linearRaoData.getCrac().getCnecs().stream().map(cnec -> {
+                double flowInMW = systematicSensitivityAnalysisResult.getReferenceFlow(cnec);
+                if (Double.isNaN(flowInMW)) {
+                    throw new SensitivityComputationException(String.format("No flow in MW found for cnec [%s] in the systematic sensitivity analysis results.", cnec.getId()));
+                }
+                double uNom = linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
+                return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);
+            }
+        );
     }
 
     private void updateCnecExtensions(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
