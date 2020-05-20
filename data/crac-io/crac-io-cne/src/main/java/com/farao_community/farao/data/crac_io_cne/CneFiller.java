@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -42,45 +44,45 @@ public final class CneFiller {
      GENERAL METHODS
      *****************/
     // Main method
-    public static void generate(Crac crac, Unit chosenExportUnit) {
-        if (crac.isSynchronized()) {
+    public static void generate(Crac crac, Network network, Unit chosenExportUnit) {
 
-            // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
-            instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
+        if (!crac.isSynchronized()) {
+            crac.synchronize(network);
+        }
 
-            fillHeader(crac.getNetworkDate());
-            addTimeSeriesToCne(crac.getNetworkDate());
-            Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
+        // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
+        instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
 
-            if (crac.getExtension(CracResultExtension.class) != null && crac.getExtension(ResultVariantManager.class).getVariants() != null) { // Computation ended
+        fillHeader(crac.getNetworkDate());
+        addTimeSeriesToCne(crac.getNetworkDate());
+        Point point = cne.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-                CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+        if (crac.getExtension(CracResultExtension.class) != null && crac.getExtension(ResultVariantManager.class).getVariants() != null) { // Computation ended
 
-                // define preOptimVariant and postOptimVariant
-                Set<String> variants = crac.getExtension(ResultVariantManager.class).getVariants();
-                if (variants.size() != 2) {
-                    throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
-                }
-                List<String> variantList = new ArrayList<>(variants);
+            CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
-                String preOptimVariantId;
-                String postOptimVariantId;
-                if (cracExtension.getVariant(variantList.get(0)).getCost() > cracExtension.getVariant(variantList.get(1)).getCost()) {
-                    preOptimVariantId = variantList.get(0);
-                    postOptimVariantId = variantList.get(1);
-                } else {
-                    preOptimVariantId = variantList.get(1);
-                    postOptimVariantId = variantList.get(0);
-                }
-
-                // fill CNE
-                createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit);
-                addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
-            } else { // Failure of computation
-                addFailureReasonToPoint(point);
+            // define preOptimVariant and postOptimVariant
+            Set<String> variants = crac.getExtension(ResultVariantManager.class).getVariants();
+            if (variants.size() != 2) {
+                throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
             }
-        } else {
-            throw new FaraoException("Crac should be synchronized!");
+            List<String> variantList = new ArrayList<>(variants);
+
+            String preOptimVariantId;
+            String postOptimVariantId;
+            if (cracExtension.getVariant(variantList.get(0)).getCost() > cracExtension.getVariant(variantList.get(1)).getCost()) {
+                preOptimVariantId = variantList.get(0);
+                postOptimVariantId = variantList.get(1);
+            } else {
+                preOptimVariantId = variantList.get(1);
+                postOptimVariantId = variantList.get(0);
+            }
+
+            // fill CNE
+            createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit, network);
+            addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
+        } else { // Failure of computation
+            addFailureReasonToPoint(point);
         }
     }
 
@@ -135,7 +137,7 @@ public final class CneFiller {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private static void createAllConstraintSeries(Point point, Crac crac, String preOptimVariantId, String postOptimVariantId, Unit chosenExportUnit) {
+    private static void createAllConstraintSeries(Point point, Crac crac, String preOptimVariantId, String postOptimVariantId, Unit chosenExportUnit, Network network) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
@@ -152,7 +154,7 @@ public final class CneFiller {
 
         /* Monitored Elements*/
         List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).collect(Collectors.toList());
-        crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit));
+        crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit, network));
 
         /* Remedial Actions*/
         crac.getNetworkActions().forEach(networkAction -> addRemedialActionsToConstraintSeries(networkAction, preOptimVariantId, postOptimVariantId));
@@ -190,10 +192,10 @@ public final class CneFiller {
      MONITORED ELEMENTS
      *****************/
     // Adds to the ConstraintSeries all elements relative to a cnec
-    private static void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
+    private static void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId, Unit chosenExportUnit, Network network) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId, chosenExportUnit);
+        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId, chosenExportUnit, network);
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -209,16 +211,28 @@ public final class CneFiller {
     }
 
     // Creates a MonitoredSeries from a given cnec
-    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
+    private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId, Unit chosenExportUnit, Network network) {
 
         // create measurements
         List<Analog> measurementsList = createMeasurements(cnec, postOptimVariantId, chosenExportUnit);
         // add measurements to monitoredRegisteredResource
         // TODO: origin and extremity from network?
-        MonitoredRegisteredResource monitoredRegisteredResource = newMonitoredRegisteredResource(cnec.getNetworkElement().getId(), cnec.getNetworkElement().getName(), "in", "out", measurementsList);
+        MonitoredRegisteredResource monitoredRegisteredResource = createMonitoredRegisteredResource(cnec.getNetworkElement(), measurementsList, network);
         // add monitoredRegisteredResource to monitoredSeries
         MonitoredSeries monitoredSeries = newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResource);
         monitoredSeriesList.add(monitoredSeries);
+    }
+
+    private static MonitoredRegisteredResource createMonitoredRegisteredResource(NetworkElement networkElement, List<Analog> measurementsList, Network network) {
+        return newMonitoredRegisteredResource(networkElement.getId(),
+            networkElement.getName(),
+            findNodeInNetwork(networkElement.getId(), network, Branch.Side.ONE),
+            findNodeInNetwork(networkElement.getId(), network, Branch.Side.TWO),
+            measurementsList);
+    }
+
+    private static String findNodeInNetwork(String id, Network network, Branch.Side side) {
+        return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
     }
 
     // Creates all Measurements (flow and thresholds)

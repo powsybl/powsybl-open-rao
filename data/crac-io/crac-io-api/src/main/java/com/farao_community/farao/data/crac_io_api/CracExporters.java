@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +45,11 @@ public final class CracExporters {
     public static void exportCrac(Crac crac, String format, OutputStream outputStream) {
         CracExporter exporter = findCracExporter(format, CRAC_EXPORTERS.get());
         exporter.exportCrac(crac, outputStream);
+    }
+
+    public static void exportCrac(Crac crac, Network network, String format, OutputStream outputStream) {
+        CracExporter exporter = findCracExporter(format, CRAC_EXPORTERS.get());
+        exporter.exportCrac(crac, network, outputStream);
     }
 
     static CracExporter findCracExporter(String name, List<CracExporter> cracExporters) {

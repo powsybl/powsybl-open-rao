@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -48,7 +49,12 @@ public class CneExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, OutputStream outputStream) {
-        CneFiller.generate(crac, Unit.MEGAWATT);
+        throw new FaraoException("Network is missing!");
+    }
+
+    @Override
+    public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
+        CneFiller.generate(crac, network, Unit.MEGAWATT);
         CriticalNetworkElementMarketDocument cne = CneFiller.getCne();
         StringWriter stringWriter = new StringWriter();
 

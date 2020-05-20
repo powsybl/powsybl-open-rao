@@ -32,7 +32,7 @@ public class CneExportTest {
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(crac, "CNE", outputStream);
+        CracExporters.exportCrac(crac, network, "CNE", outputStream);
 
         assertTrue(CneExport.validateCNESchema(outputStream.toString()));
     }
