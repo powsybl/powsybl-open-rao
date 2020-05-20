@@ -31,7 +31,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         buildMinimumMarginVariable(linearRaoProblem);
 
         // build constraints
-        buildMinimumMarginConstraints(linearRaoData, linearRaoProblem);
+        buildMinimumMarginConstraints(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // complete objective
         fillObjectiveWithMinMargin(linearRaoProblem);
@@ -58,12 +58,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
      *
-     * For each Cnec c, the two constraints are :
+     * For each Cnec c, the two constraints are (if the max margin is defined in MEGAWATT) :
      *
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
+     *
+     * For each Cnec c, the two constraints are (if the max margin is defined in AMPERE) :
+     *
+     * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
+     * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+    private void buildMinimumMarginConstraints(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
 
             MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
@@ -78,20 +83,27 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 throw new FaraoException("Minimum margin variable has not yet been created");
             }
 
+            double conversionCoefficient = 1;
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
             minFlow = cnec.getMinThreshold(MEGAWATT);
             maxFlow = cnec.getMaxThreshold(MEGAWATT);
 
+            if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE) {
+                conversionCoefficient = cnec.getNominalVoltage() * Math.sqrt(3) / 1000;
+            }
+
+            linearRaoData.getNetwork().getBranch(cnec.getId()).getTerminal1().getVoltageLevel().getNominalV();
+
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), -minFlow.get(), cnec, LinearRaoProblem.MarginExtension.BELOW_THRESHOLD);
-                minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
+                minimumMarginNegative.setCoefficient(minimumMarginVariable, conversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 MPConstraint minimumMarginPositive = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), maxFlow.get(), cnec, LinearRaoProblem.MarginExtension.ABOVE_THRESHOLD);
-                minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
+                minimumMarginPositive.setCoefficient(minimumMarginVariable, conversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });
