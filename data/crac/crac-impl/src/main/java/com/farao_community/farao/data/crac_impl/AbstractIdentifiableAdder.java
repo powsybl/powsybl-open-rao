@@ -4,7 +4,6 @@ import com.farao_community.farao.commons.FaraoException;
 
 public abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>> {
 
-    protected Object parent;
     protected String id;
     protected String name;
 

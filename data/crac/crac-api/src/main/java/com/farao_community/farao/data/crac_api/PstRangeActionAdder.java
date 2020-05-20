@@ -20,7 +20,14 @@ public interface PstRangeActionAdder extends NetworkElementParent {
     PstRangeActionAdder setId(String id);
 
     /**
-     * Set the unit
+     * Set the operator of the PST
+     * @param operator: the name of the operator
+     * @return the {@code PstRangeActionAdder} instance
+     */
+    PstRangeActionAdder setOperator(String operator);
+
+    /**
+     * Set the unit of the PST
      * @param unit: unit to use
      * @return the {@code PstRangeActionAdder} instance
      */
@@ -42,7 +49,7 @@ public interface PstRangeActionAdder extends NetworkElementParent {
 
 
     /**
-     * Add a network element to the PstRangeAction
+     * Set the network element of the PstRangeAction
      * @return a {@code NetworkElementAdder<PstRangeActionAdder>} instance to construct a network element
      */
     NetworkElementAdder<PstRangeActionAdder> newNetworkElement();

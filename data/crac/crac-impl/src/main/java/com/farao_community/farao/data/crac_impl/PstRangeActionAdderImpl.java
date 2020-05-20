@@ -12,10 +12,13 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.farao_community.farao.data.crac_api.UsageMethod.AVAILABLE;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -33,6 +36,13 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
         Objects.requireNonNull(parent);
         this.parent = parent;
         this.usageRules = new ArrayList<>();
+        this.usageRules.add(new FreeToUse(AVAILABLE, parent.getPreventiveState()));
+    }
+
+    @Override
+    public PstRangeActionAdder setOperator(String operator) {
+        this.operator = operator;
+        return this;
     }
 
     @Override
@@ -86,10 +96,19 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a PstRangeAction without a network element. Please use newNetworkElement.");
         }
-        // TO DO : use unit, minValue, maxValue
         List<Range> ranges = new ArrayList<>();
         ranges.add(new Range(this.minValue, this.maxValue, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
-        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, this.networkElement);
+
+        /*
+         * First we add the network element to the crac
+         * If it already exists, it will send us back the reference to the
+         * existing element, thus avoiding making a copy
+         * This is done here because it is too complicated to do in
+         * SimpleCrac.addRangeAction, which handles abstract RangeActions
+         */
+        NetworkElement newNetworkElement = parent.addNetworkElement(this.networkElement);
+
+        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement);
         this.parent.addRangeAction(pstWithRange);
 
         return parent;
