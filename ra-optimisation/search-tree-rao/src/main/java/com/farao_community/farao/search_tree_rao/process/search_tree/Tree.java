@@ -76,9 +76,9 @@ public final class Tree {
         }
 
         Leaf optimalLeaf = rootLeaf;
-        boolean hasImprovedEnough = true;
+        boolean hasImproved = true;
 
-        while (doNewIteration(searchTreeRaoParameters, hasImprovedEnough, optimalLeaf.getCost(crac), depth)) {
+        while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf.getCost(crac), depth)) {
             Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
             final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
             LOGGER.info(format("Research depth: %d, Leaves to evaluate: %d", depth, generatedLeaves.size()));
@@ -90,12 +90,24 @@ public final class Tree {
             evaluateLeaves(network, crac, referenceNetworkVariant, parameters, generatedLeaves);
             List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
+            hasImproved = false;
+            double oldOptimalCost = optimalLeaf.getCost(crac);
             logOptimalLeaf(optimalLeaf, crac);
-            double previousOptimalCost = optimalLeaf.getCost(crac);
-            optimalLeaf = findNextOptimalLeaf(optimalLeaf, successfulLeaves, crac);
-            hasImprovedEnough = improvedEnough(previousOptimalCost, optimalLeaf.getCost(crac), searchTreeRaoParameters);
+            LOGGER.info("Leaves results:");
+            for (Leaf currentLeaf: successfulLeaves) {
+                logLeafResults(currentLeaf, crac);
+                if (optimalLeaf.getCost(crac) > currentLeaf.getCost(crac)
+                    && improvedEnough(oldOptimalCost, currentLeaf.getCost(crac), searchTreeRaoParameters)) {
+                    hasImproved = true;
+                    optimalLeaf.deletePostOptimResultVariant(crac);
+                    optimalLeaf = currentLeaf;
+                } else {
+                    currentLeaf.deletePostOptimResultVariant(crac);
+                }
+                currentLeaf.deletePreOptimResultVariant(crac);
+            }
             logOptimalLeaf(optimalLeaf, crac);
-            if (!hasImprovedEnough) {
+            if (!hasImproved) {
                 LOGGER.info("No sufficient improvements at tree depth, optimization will stop");
             }
             depth += 1;
@@ -153,22 +165,6 @@ public final class Tree {
         } catch (ExecutionException e) {
             throw new FaraoException(e);
         }
-    }
-
-    private static Leaf findNextOptimalLeaf(Leaf optimalLeaf, List<Leaf> leaves, Crac crac) {
-        Leaf newOptimalLeaf = optimalLeaf;
-        LOGGER.info("Leaves results:");
-        for (Leaf currentLeaf: leaves) {
-            logLeafResults(currentLeaf, crac);
-            if (newOptimalLeaf.getCost(crac) > currentLeaf.getCost(crac)) {
-                newOptimalLeaf.deletePostOptimResultVariant(crac);
-                newOptimalLeaf = currentLeaf;
-            } else {
-                currentLeaf.deletePostOptimResultVariant(crac);
-            }
-            currentLeaf.deletePreOptimResultVariant(crac);
-        }
-        return newOptimalLeaf;
     }
 
     /**
