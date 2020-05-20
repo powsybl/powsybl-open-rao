@@ -45,6 +45,13 @@ public final class LinearRaoConfigurationUtil {
             return errors;
         }
 
+        /*
+         todo : check that the objective-function is compatible with the sensi mode. If the objective
+          function is "MAX_MARGIN_IN_AMPERE" and the sensi is in DC mode, throw an exception
+          (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
+          the AC/DC information of the sensi).
+         */
+
         return errors;
     }
 
