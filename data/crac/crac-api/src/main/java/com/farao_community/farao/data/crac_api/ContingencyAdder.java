@@ -33,7 +33,7 @@ public interface ContingencyAdder extends NetworkElementParent {
     NetworkElementAdder<ContingencyAdder> newNetworkElement();
 
     /**
-     * Add the new state to the Crac
+     * Add the new contingency to the Crac
      * @return the created {@code Contingency} instance
      */
     Contingency add();

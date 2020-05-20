@@ -7,8 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.ContingencyAdder;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.NetworkElementAdder;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -17,10 +19,8 @@ import java.util.Set;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ComplexContingencyAdder implements ContingencyAdder {
+public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ComplexContingencyAdder> implements ContingencyAdder {
     SimpleCrac parent;
-    private String id = null;
-    private String name = null;
     private Set<NetworkElement> networkElements;
 
     public ComplexContingencyAdder(SimpleCrac parent) {
@@ -30,31 +30,13 @@ public class ComplexContingencyAdder implements ContingencyAdder {
     }
 
     @Override
-    public ComplexContingencyAdder setId(String id) {
-        Objects.requireNonNull(id);
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public ComplexContingencyAdder setName(String name) {
-        Objects.requireNonNull(name);
-        this.name = name;
-        return this;
-    }
-
-    @Override
     public NetworkElementAdder newNetworkElement() {
         return new NetworkElementAdderImpl<ContingencyAdder>(this);
     }
 
     @Override
     public Contingency add() {
-        if (this.id == null) {
-            throw new FaraoException("Cannot add a contingency with no specified id. Please use setId.");
-        } else if (this.name == null) {
-            this.name = this.id;
-        }
+        checkId();
         ComplexContingency contingency = new ComplexContingency(this.id, this.name, this.networkElements);
         parent.addContingency(contingency);
         return contingency;

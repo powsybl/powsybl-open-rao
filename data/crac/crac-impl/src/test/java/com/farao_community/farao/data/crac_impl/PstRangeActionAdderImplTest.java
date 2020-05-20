@@ -10,54 +10,52 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PstRangeActionAdderImplTest {
     private SimpleCrac crac;
+    private Network network;
+    private String networkElementId;
+    private static final double DOUBLE_TOLERANCE = 1e-3;
 
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
+        network = NetworkImportsUtil.import12NodesNetwork();
+        networkElementId = "BBE2AA1  BBE3AA1  1";
     }
 
     @Test
     public void testAdd() {
         Crac crac1 = crac.newPstRangeAction()
                 .setId("id1")
-                .setUnit(Unit.DEGREE)
+                .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId("neId1").setName("neName1").add()
-                .add();
-        Crac crac2 = crac.newPstRangeAction()
-                .setId("id2")
-                .setUnit(Unit.DEGREE)
-                .setMinValue(5.0)
-                .setMaxValue(50.0)
-                .newNetworkElement().setId("neId2").add()
+                .newNetworkElement().setId(networkElementId).add()
                 .add();
         assertSame(crac, crac1);
-        assertSame(crac, crac2);
-        assertEquals(2, crac.getRangeActions().size());
-
-        // Verify 1st range action
-        assertEquals("neId1", crac.getRangeAction("id1").getNetworkElements().iterator().next().getId());
-        // TO DO : verify unit, minValue, maxValue
-
-        // Verify 1st range action
-        assertEquals("neId2", crac.getRangeAction("id2").getNetworkElements().iterator().next().getId());
-        // TO DO : verify unit, minValue, maxValue
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(networkElementId, crac.getRangeAction("id1").getNetworkElements().iterator().next().getId());
+        crac.getRangeAction("id1").synchronize(network);
+        assertEquals(0.0, crac.getRangeAction("id1").getMinValue(network), DOUBLE_TOLERANCE);
+        // TAP position 10 should be converted to 3.894 degrees
+        assertEquals(3.894, crac.getRangeAction("id1").getMaxValue(network), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
     public void testNoIdFail() {
         crac.newPstRangeAction()
-                .setUnit(Unit.DEGREE)
+                .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
                 .newNetworkElement().setId("neId").setName("neName").add()
@@ -75,10 +73,20 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test(expected = FaraoException.class)
+    public void testWrongUnitFail() {
+        crac.newPstRangeAction()
+                .setUnit(Unit.DEGREE)
+                .setMinValue(0.0)
+                .setMaxValue(10.0)
+                .newNetworkElement().setId("neId").setName("neName").add()
+                .add();
+    }
+
+    @Test(expected = FaraoException.class)
     public void testNoMinValueFail() {
         crac.newPstRangeAction()
                 .setId("id")
-                .setUnit(Unit.DEGREE)
+                .setUnit(Unit.TAP)
                 .setMaxValue(10.0)
                 .newNetworkElement().setId("neId").setName("neName").add()
                 .add();
@@ -88,7 +96,7 @@ public class PstRangeActionAdderImplTest {
     public void testNoMaxValueFail() {
         crac.newPstRangeAction()
                 .setId("id")
-                .setUnit(Unit.DEGREE)
+                .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .newNetworkElement().setId("neId").setName("neName").add()
                 .add();
@@ -98,7 +106,7 @@ public class PstRangeActionAdderImplTest {
     public void testNoNetworkElementFail() {
         crac.newPstRangeAction()
                 .setId("id")
-                .setUnit(Unit.DEGREE)
+                .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
                 .add();
@@ -114,25 +122,5 @@ public class PstRangeActionAdderImplTest {
     @Test(expected = NullPointerException.class)
     public void testNullParentFail() {
         PstRangeActionAdderImpl tmp = new PstRangeActionAdderImpl(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullIdFail() {
-        crac.newPstRangeAction().setId(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullUnitFail() {
-        crac.newPstRangeAction().setUnit(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullMinValueFail() {
-        crac.newPstRangeAction().setMinValue(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullMaxValueFail() {
-        crac.newPstRangeAction().setMaxValue(null);
     }
 }

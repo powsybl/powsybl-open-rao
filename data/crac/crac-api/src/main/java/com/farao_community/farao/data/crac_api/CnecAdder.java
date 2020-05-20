@@ -15,23 +15,30 @@ public interface CnecAdder extends NetworkElementParent {
     /**
      * Set the ID of the cnec
      * @param id: ID to set
-     * @return the {@code ContingencyAdder} instance
+     * @return the {@code CnecAdder} instance
      */
     CnecAdder setId(String id);
 
     /**
      * Set the name of the cnec
-     * @param name: name to give
-     * @return the {@code ContingencyAdder} instance
+     * @param name: name to set
+     * @return the {@code CnecAdder} instance
      */
     CnecAdder setName(String name);
 
     /**
-     * Set the state of the cnec
-     * @param state: state of the created cnec
-     * @return the {@code ContingencyAdder} instance
+     * Set the instant of the cnec's state
+     * @param instant: the instant to set
+     * @return the {@code CnecAdder} instance
      */
-    CnecAdder setState(State state);
+    CnecAdder setInstant(Instant instant);
+
+    /**
+     * Set the contingency of the cnec's state
+     * @param contingency: the contingency to set
+     * @return the {@code CnecAdder} instance
+     */
+    CnecAdder setContingency(Contingency contingency);
 
     /**
      * Add a network element to the cnec
@@ -46,7 +53,7 @@ public interface CnecAdder extends NetworkElementParent {
     ThresholdAdder newThreshold();
 
     /**
-     * Add the new state to the Crac
+     * Add the new Cnec to the Crac
      * @return the created {@code Cnec} instance
      */
     Cnec add();

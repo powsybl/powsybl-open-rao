@@ -61,14 +61,4 @@ public class InstantAdderTest {
     public void testNullParentFail() {
         InstantAdder tmp = new InstantAdderImpl(null);
     }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullIdFail() {
-        crac.newInstant().setId(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullSecondsFail() {
-        crac.newInstant().setSeconds(null);
-    }
 }

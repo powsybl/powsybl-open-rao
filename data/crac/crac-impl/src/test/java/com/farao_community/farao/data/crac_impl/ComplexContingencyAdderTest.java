@@ -93,14 +93,4 @@ public class ComplexContingencyAdderTest {
     public void testNullParentFail() {
         ComplexContingencyAdder tmp = new ComplexContingencyAdder(null);
     }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullIdFail() {
-        crac.newContingency().setId(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullNameFail() {
-        crac.newContingency().setName(null);
-    }
 }

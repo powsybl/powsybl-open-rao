@@ -54,14 +54,4 @@ public class NetworkElementAdderImplTest {
     public void testNullParentFail() {
         NetworkElementAdder tmp = new NetworkElementAdderImpl(null);
     }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullIdFail() {
-        crac.newNetworkElement().setId(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullNameFail() {
-        crac.newNetworkElement().setName(null);
-    }
 }

@@ -31,7 +31,6 @@ public class ThresholdAdderImpl implements ThresholdAdder {
 
     @Override
     public ThresholdAdder setUnit(Unit unit) {
-        Objects.requireNonNull(unit);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.unit = unit;
         return this;
@@ -39,21 +38,18 @@ public class ThresholdAdderImpl implements ThresholdAdder {
 
     @Override
     public ThresholdAdder setMaxValue(Double maxValue) {
-        Objects.requireNonNull(maxValue);
         this.maxValue = maxValue;
         return this;
     }
 
     @Override
     public ThresholdAdder setSide(Side side) {
-        Objects.requireNonNull(side);
         this.side = side;
         return this;
     }
 
     @Override
     public ThresholdAdder setDirection(Direction direction) {
-        Objects.requireNonNull(direction);
         this.direction = direction;
         return this;
     }

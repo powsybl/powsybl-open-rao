@@ -14,16 +14,16 @@ import com.farao_community.farao.data.crac_impl.threshold.ThresholdAdderImpl;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
-public class SimpleCnecAdder implements CnecAdder {
+public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> implements CnecAdder {
 
     private SimpleCrac parent;
-    private String id;
-    private String name;
-    private State state;
     private NetworkElement networkElement;
     private Set<AbstractThreshold> thresholds;
+    private Instant instant;
+    private Contingency contingency;
 
     public SimpleCnecAdder(SimpleCrac parent) {
         Objects.requireNonNull(parent);
@@ -36,23 +36,14 @@ public class SimpleCnecAdder implements CnecAdder {
     }
 
     @Override
-    public CnecAdder setId(String id) {
-        Objects.requireNonNull(id);
-        this.id = id;
+    public SimpleCnecAdder setInstant(Instant instant) {
+        this.instant = instant;
         return this;
     }
 
     @Override
-    public CnecAdder setName(String name) {
-        Objects.requireNonNull(name);
-        this.name = name;
-        return this;
-    }
-
-    @Override
-    public CnecAdder setState(State state) {
-        Objects.requireNonNull(state);
-        this.state = state;
+    public SimpleCnecAdder setContingency(Contingency contingency) {
+        this.contingency = contingency;
         return this;
     }
 
@@ -72,21 +63,17 @@ public class SimpleCnecAdder implements CnecAdder {
 
     @Override
     public Cnec add() {
-        if (this.id == null) {
-            throw new FaraoException("Cannot add a cnec without an id. Please use setId.");
-        }
-        if (this.state == null) {
-            throw new FaraoException("Cannot add a cnec without a state. Please use setState.");
-        }
+        checkId();
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a cnec without a network element. Please use newNetworkElement.");
         }
         if (this.thresholds.isEmpty()) {
             throw new FaraoException("Cannot add a cnec without a threshold. Please use newThreshold.");
         }
-        if (this.name == null) {
-            this.name = this.id;
+        if (this.instant == null) {
+            throw new FaraoException("Cannot add a cnec with no specified state instant. Please use setInstant.");
         }
+        SimpleState state = new SimpleState((this.contingency != null) ? Optional.of(this.contingency) : Optional.empty(), this.instant);
         SimpleCnec cnec = new SimpleCnec(this.id, this.name, networkElement, thresholds, state);
         parent.addCnec(cnec);
         return cnec;

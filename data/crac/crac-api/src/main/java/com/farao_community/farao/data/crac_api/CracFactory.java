@@ -24,15 +24,15 @@ public interface CracFactory {
      *
      * @param id:           ID to assign to the created Crac.
      * @param name:         name to assign to the created Crac.
-     * @return A {@code Crac} instance with given ID, name and source format.
+     * @return the created {@code Crac} instance.
      */
     Crac create(String id, String name);
 
     /**
-     * Create a {@code Crac} object. Name will be eual to id.
+     * Create a {@code Crac} object. Name will be equal to id.
      *
      * @param id:           ID to assign to the created Crac.
-     * @return A {@code Crac} instance with given ID, name equal to ID.
+     * @return the created {@code Crac} instance with given ID, name equal to ID.
      */
     Crac create(String id);
 
@@ -62,8 +62,7 @@ public interface CracFactory {
             }
             throw new FaraoException("Crac factory '" + factoryName + "' not found");
         } else {
-            throw new FaraoException("No CracFactoryService implementation found," +
-                    " or no default implementation set and multiple implementation found.");
+            throw new FaraoException("No CracFactoryService implementation found, or no default implementation set and multiple implementation found.");
         }
     }
 

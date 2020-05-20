@@ -38,7 +38,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     // Instants management
     /**
-     * Get a {@code Instant} adder, to add an instant
+     * Get a {@code Instant} adder, to add an instant to the Crac
      * @return a {@code InstantAdder} instance
      */
     InstantAdder newInstant();
@@ -49,7 +49,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     // Contingencies management
     /**
-     * Get a {@code Contingency} adder, to add a contingency
+     * Get a {@code Contingency} adder, to add a contingency to the Crac
      * @return a {@code ContingencyAdder} instance
      */
     ContingencyAdder newContingency();
@@ -67,12 +67,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
     void addContingency(Contingency contingency);
 
     // States management
-    /**
-     * Get a {@code State} adder, to add a state to the Crac
-     * @return a {@code StateAdder} instance
-     */
-    StateAdder newState();
-
     /**
      * Select the preventive state. This state must be unique. It's the only state that is
      * defined with no contingency.
@@ -216,7 +210,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     // Range actions management
     /**
-     * Get a PstRangeAction adder, to add a {@code PstWithRange}
+     * Get a PstRangeAction adder, to add a {@code PstRange}
      * @return a {@code PstRangeActionAdder} instance
      */
     PstRangeActionAdder newPstRangeAction();
@@ -276,7 +270,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     // Network elements management
     /**
-     * Get a {@code NetworkElement} adder, to add a network element
+     * Get a {@code NetworkElement} adder, to add a network element to the Crac
      * @return a {@code NetworkElementAdder} instance
      */
     NetworkElementAdder<Crac> newNetworkElement();

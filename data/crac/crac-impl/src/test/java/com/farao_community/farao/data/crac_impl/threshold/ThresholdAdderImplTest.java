@@ -20,23 +20,23 @@ import static org.junit.Assert.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ThresholdAdderTest {
+public class ThresholdAdderImplTest {
     private SimpleCrac crac;
-    private State state;
+    private Contingency contingency;
+    private Instant instant;
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
-        Contingency contingency = crac.newContingency().setId("conId").add();
-        Instant instant = crac.newInstant().setId("instId").setSeconds(10).add();
-        state = crac.newState().setContingency(contingency).setInstant(instant).add();
+        contingency = crac.newContingency().setId("conId").add();
+        instant = crac.newInstant().setId("instId").setSeconds(10).add();
     }
 
     @Test
     public void testAddThresholdInMW() {
         Cnec cnec = crac.newCnec()
-                .setId("test-cnec").setState(state)
+                .setId("test-cnec").setInstant(instant).setContingency(contingency)
                 .newNetworkElement().setId("neID").add()
                 .newThreshold()
                 .setUnit(Unit.MEGAWATT)
@@ -59,7 +59,7 @@ public class ThresholdAdderTest {
     public void testAddThresholdInA() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Cnec cnec = crac.newCnec()
-                .setId("test-cnec").setState(state)
+                .setId("test-cnec").setInstant(instant).setContingency(contingency)
                 .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
                 .newThreshold()
                 .setUnit(Unit.AMPERE)
@@ -79,7 +79,7 @@ public class ThresholdAdderTest {
         String lineId = "BBE1AA1  BBE2AA1  1";
         double lineLimit = network.getLine(lineId).getCurrentLimits1().getPermanentLimit();
         Cnec cnec = crac.newCnec()
-                .setId("test-cnec").setState(state)
+                .setId("test-cnec").setInstant(instant).setContingency(contingency)
                 .newNetworkElement().setId(lineId).add()
                 .newThreshold()
                 .setUnit(Unit.PERCENT)
@@ -102,26 +102,6 @@ public class ThresholdAdderTest {
     @Test(expected = NullPointerException.class)
     public void testNullParentFail() {
         ThresholdAdderImpl tmp = new ThresholdAdderImpl(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullUnitFail() {
-        crac.newCnec().newThreshold().setUnit(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullMaxValueFail() {
-        crac.newCnec().newThreshold().setMaxValue(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullSideFail() {
-        crac.newCnec().newThreshold().setSide(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullDirectionFail() {
-        crac.newCnec().newThreshold().setDirection(null);
     }
 
     @Test(expected = FaraoException.class)

@@ -250,11 +250,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .orElse(null);
     }
 
-    @Override
-    public SimpleStateAdder newState() {
-        return new SimpleStateAdder(this);
-    }
-
     public State addState(Contingency contingency, Instant instant) {
         State state;
         if (contingency != null) {
