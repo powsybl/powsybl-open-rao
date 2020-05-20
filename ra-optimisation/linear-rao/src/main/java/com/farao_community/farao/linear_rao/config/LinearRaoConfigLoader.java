@@ -36,6 +36,7 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
             parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", LinearRaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
             parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", LinearRaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD));
             parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", LinearRaoParameters.DEFAULT_PST_PENALTY_COST));
+            parameters.setFallbackOvercost(config.getDoubleProperty("sensitivity-fallback-overcost", LinearRaoParameters.DEFAULT_FALLBACK_OVERCOST));
         }
         return parameters;
     }

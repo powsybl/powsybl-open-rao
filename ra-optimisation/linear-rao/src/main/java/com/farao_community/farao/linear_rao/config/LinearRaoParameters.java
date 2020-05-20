@@ -30,6 +30,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
     static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
     static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    static final double DEFAULT_FALLBACK_OVERCOST = 0;
     static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MARGIN_IN_MEGAWATT;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
@@ -37,9 +38,10 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
     private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
-    private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
+    private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
+    private double fallbackOvercost = DEFAULT_FALLBACK_OVERCOST;
 
     @Override
     public String getName() {
@@ -104,7 +106,17 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
         return pstPenaltyCost;
     }
 
-    public void setPstPenaltyCost(double pstPenaltyCost) {
-        this.pstPenaltyCost = pstPenaltyCost;
+    public LinearRaoParameters setPstPenaltyCost(double pstPenaltyCost) {
+        this.pstPenaltyCost = max(0.0, pstPenaltyCost);
+        return this;
+    }
+
+    public double getFallbackOvercost() {
+        return fallbackOvercost;
+    }
+
+    public LinearRaoParameters setFallbackOvercost(double overcost) {
+        this.fallbackOvercost = max(0.0, overcost);
+        return this;
     }
 }
