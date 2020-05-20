@@ -4,7 +4,7 @@
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,
-      "objective-function" : "MAX_MARGIN_IN_AMPERE",
+      "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
       "security-analysis-without-rao" : true,
       "pst-sensitivity-threshold" : 1.0,
       "pst-penalty-cost" : 0.5,

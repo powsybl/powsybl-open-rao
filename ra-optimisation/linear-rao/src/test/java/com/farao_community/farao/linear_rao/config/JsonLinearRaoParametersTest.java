@@ -27,7 +27,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
-        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE);
+        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
         parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         parameters.getExtension(LinearRaoParameters.class).setPstPenaltyCost(0.5);
@@ -40,7 +40,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
-        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_MEGAWATT);
+        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
         parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();

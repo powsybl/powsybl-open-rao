@@ -70,8 +70,8 @@ public class LinearRaoParametersTest {
 
     @Test
     public void setObjectiveFunction() {
-        raoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE);
-        assertEquals(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE, raoParameters.getObjectiveFunction());
+        raoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        assertEquals(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, raoParameters.getObjectiveFunction());
     }
 
     @Test
