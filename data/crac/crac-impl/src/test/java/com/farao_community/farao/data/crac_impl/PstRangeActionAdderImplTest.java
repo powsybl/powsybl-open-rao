@@ -86,6 +86,7 @@ public class PstRangeActionAdderImplTest {
                 .setMaxValue(10.0)
                 .newNetworkElement().setId("neId").setName("neName").add()
                 .add();
+        assertEquals(1, crac.getRangeActions().size());
     }
 
     @Test(expected = FaraoException.class)
