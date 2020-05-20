@@ -29,6 +29,7 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
+        jsonGenerator.writeObjectField("objective-function", linearRaoParameters.getObjectiveFunction());
         jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
         jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
@@ -53,6 +54,9 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                 case "max-number-of-iterations":
                     jsonParser.nextToken();
                     linearRaoParameters.setMaxIterations(jsonParser.getIntValue());
+                    break;
+                case "objective-function":
+                    linearRaoParameters.setObjectiveFunction(stringToObjectiveFunction(jsonParser.nextTextValue()));
                     break;
                 case "security-analysis-without-rao":
                     jsonParser.nextToken();
@@ -98,5 +102,13 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
     @Override
     public Class<? super LinearRaoParameters> getExtensionClass() {
         return LinearRaoParameters.class;
+    }
+
+    private LinearRaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {
+        try {
+            return LinearRaoParameters.ObjectiveFunction.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown objective function value : %s", string));
+        }
     }
 }

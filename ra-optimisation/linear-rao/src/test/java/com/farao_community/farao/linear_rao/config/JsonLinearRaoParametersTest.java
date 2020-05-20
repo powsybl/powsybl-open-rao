@@ -27,6 +27,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
+        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
         parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         parameters.getExtension(LinearRaoParameters.class).setPstPenaltyCost(0.5);
@@ -38,6 +39,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
         parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
+        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_MEGAWATT);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
         parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
@@ -46,13 +48,24 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() throws IOException {
+    public void readUnknownField() {
         try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersError.json"));
+            JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersUnknownField.json"));
             fail();
         } catch (FaraoException e) {
             // should throw
             assertTrue(e.getMessage().contains("Unexpected field"));
+        }
+    }
+
+    @Test
+    public void readError() {
+        try {
+            JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersUnknownObjective.json"));
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+            assertTrue(e.getMessage().contains("Unknown objective"));
         }
     }
 }
