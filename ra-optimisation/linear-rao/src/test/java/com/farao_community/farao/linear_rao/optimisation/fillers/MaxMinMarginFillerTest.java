@@ -7,6 +7,7 @@
 package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
@@ -45,7 +46,50 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithRangeAction() {
+    public void fillWithMaxMinMarginInMegawatt() {
+        linearRaoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        fillProblemWithFiller();
+
+        MPVariable flowCnec1 = linearRaoProblem.getFlowVariable(cnec1);
+        MPVariable absoluteVariation = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+
+        // check minimum margin variable
+        MPVariable minimumMargin = linearRaoProblem.getMinimumMarginVariable();
+        assertNotNull(minimumMargin);
+
+        // check minimum margin constraints
+        MPConstraint cnec1AboveThreshold = linearRaoProblem.getMinimumMarginConstraint(cnec1, LinearRaoProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint cnec1BelowThreshold = linearRaoProblem.getMinimumMarginConstraint(cnec1, LinearRaoProblem.MarginExtension.BELOW_THRESHOLD);
+        assertNotNull(cnec1AboveThreshold);
+        assertNotNull(cnec1BelowThreshold);
+        assertEquals(-Double.POSITIVE_INFINITY, cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-Double.POSITIVE_INFINITY, cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+
+        // check objective
+        assertNotEquals(0, linearRaoProblem.getObjective().getCoefficient(absoluteVariation)); // penalty cost
+        assertEquals(-1, linearRaoProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
+        assertTrue(linearRaoProblem.getObjective().minimization());
+
+        // check the number of variables and constraints
+        // total number of variables 5 :
+        //      - 4 due to CoreFiller
+        //      - minimum margin variable
+        // total number of constraints 8 :
+        //      - 4 due to CoreFiller
+        //      - 2 per CNEC (min margin constraints)
+        assertEquals(5, linearRaoProblem.getSolver().numVariables());
+        assertEquals(8, linearRaoProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void fillWithMaxMinMarginInAmpere() {
+        linearRaoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         fillProblemWithFiller();
 
         MPVariable flowCnec1 = linearRaoProblem.getFlowVariable(cnec1);
@@ -67,18 +111,15 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
 
+        assertEquals(380.0 * Math.sqrt(3)/1000, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(380.0 * Math.sqrt(3)/1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+
         // check objective
         assertNotEquals(0, linearRaoProblem.getObjective().getCoefficient(absoluteVariation)); // penalty cost
         assertEquals(-1, linearRaoProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
         assertTrue(linearRaoProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        // total number of variables 5 :
-        //      - 4 due to CoreFiller
-        //      - minimum margin variable
-        // total number of constraints 8 :
-        //      - 4 due to CoreFiller
-        //      - 2 per CNEC (min margin constraints)
         assertEquals(5, linearRaoProblem.getSolver().numVariables());
         assertEquals(8, linearRaoProblem.getSolver().numConstraints());
     }
