@@ -90,10 +90,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
             maxFlow = cnec.getMaxThreshold(MEGAWATT);
 
             if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MARGIN_IN_AMPERE) {
-                conversionCoefficient = cnec.getNominalVoltage() * Math.sqrt(3) / 1000;
+                double nominalVoltage = linearRaoData.getNetwork().getBranch(cnec.getId()).getTerminal1().getVoltageLevel().getNominalV();
+                conversionCoefficient = nominalVoltage * Math.sqrt(3) / 1000;
             }
-
-            linearRaoData.getNetwork().getBranch(cnec.getId()).getTerminal1().getVoltageLevel().getNominalV();
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), -minFlow.get(), cnec, LinearRaoProblem.MarginExtension.BELOW_THRESHOLD);
