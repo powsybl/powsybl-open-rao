@@ -7,11 +7,13 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -22,18 +24,36 @@ import static org.junit.Assert.*;
  */
 public class CneExportTest {
 
+    @Before
+    public void setUp() {
+
+    }
+
     @Test
     public void testExport() {
 
         Crac crac = CracImporters.importCrac("OutputCrac.json", getClass().getResourceAsStream("/OutputCrac.json"));
-
         Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
-        crac.synchronize(network);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(crac, network, "CNE", outputStream);
 
         assertTrue(CneExport.validateCNESchema(outputStream.toString()));
+    }
+
+    @Test
+    public void testMissingNetwork() {
+
+        Crac crac = CracImporters.importCrac("OutputCrac.json", getClass().getResourceAsStream("/OutputCrac.json"));
+        Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
+        crac.synchronize(network);
+
+        // export Crac
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            CracExporters.exportCrac(crac, "CNE", outputStream);
+            fail();
+        } catch (FaraoException ignored) { }
     }
 }
