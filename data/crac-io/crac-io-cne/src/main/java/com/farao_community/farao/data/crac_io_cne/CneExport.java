@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -39,6 +40,8 @@ public class CneExport implements CracExporter {
     private static final String CNE_FORMAT = "CNE";
     private static final String XSD_LOCATION = "src/main/resources/xsd/";
     private static final String CNE_XSD_LOCATION = XSD_LOCATION + CNE_XSD_2_4;
+    private static final String LOCAL_EXTENSION_LOCATION = XSD_LOCATION + "urn-entsoe-eu-local-extension-types.xsd";
+    private static final String CODELISTS_LOCATION = XSD_LOCATION + "urn-entsoe-eu-wgedi-codelists.xsd";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneExport.class);
 
@@ -93,8 +96,14 @@ public class CneExport implements CracExporter {
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file");
-            Schema schema = factory.newSchema(new File(xsdPath));
+            //Schema schema = factory.newSchema(new File(xsdPath));
+
+            Source[] source = { new StreamSource(new File(xsdPath)),
+                new StreamSource(new File(CODELISTS_LOCATION)),
+                new StreamSource(new File(LOCAL_EXTENSION_LOCATION))};
+            Schema schema = factory.newSchema(source);
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
         } catch (IOException | SAXException e) {
