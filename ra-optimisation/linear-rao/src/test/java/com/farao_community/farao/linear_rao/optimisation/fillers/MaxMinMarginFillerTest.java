@@ -111,8 +111,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
 
-        assertEquals(380.0 * Math.sqrt(3)/1000, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
-        assertEquals(380.0 * Math.sqrt(3)/1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
         assertNotEquals(0, linearRaoProblem.getObjective().getCoefficient(absoluteVariation)); // penalty cost
