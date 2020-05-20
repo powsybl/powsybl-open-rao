@@ -13,15 +13,16 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 
 /**
+ * Fills the classes that constitute the CNE file structure
+ *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CneFiller {
@@ -90,9 +91,9 @@ public final class CneFiller {
 
         /* Contingencies */
         // PREVENTIVE STATE
-        addConstraintToMapAndCne(createAConstraintSeries(B57_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
+        addConstraintToMapAndCne(newConstraintSeries(B57_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
         if (getNumberOfPra(crac, preOptimVariantId, postOptimVariantId) != 0) {
-            addConstraintToMapAndCne(createAConstraintSeries(B56_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
+            addConstraintToMapAndCne(newConstraintSeries(B56_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
         }
 
         // AFTER CONTINGENCY
@@ -150,43 +151,26 @@ public final class CneFiller {
      *****************/
     // creates the Reason of a Point after the end of the rao
     private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
-        Reason reason = new Reason();
         if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
-            reason.setCode(SECURE_REASON_CODE);
-            reason.setText(SECURE_REASON_TEXT);
+            point.reason = Collections.singletonList(newReason(SECURE_REASON_CODE, SECURE_REASON_TEXT));
         } else if (status.equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
-            reason.setCode(UNSECURE_REASON_CODE);
-            reason.setText(UNSECURE_REASON_TEXT);
+            point.reason = Collections.singletonList(newReason(UNSECURE_REASON_CODE, UNSECURE_REASON_TEXT));
         } else {
             throw new FaraoException(String.format("Unexpected status %s.", status));
         }
-        point.reason = Collections.singletonList(reason);
     }
 
     // creates the Reason of a Point after a failure
     private static void addFailureReasonToPoint(Point point) {
-        Reason reason = new Reason();
-        reason.setCode(OTHER_FAILURE_REASON_CODE);
-        reason.setText(OTHER_FAILURE_REASON_TEXT);
-        point.reason = Collections.singletonList(reason);
+        point.reason = Collections.singletonList(newReason(OTHER_FAILURE_REASON_CODE, OTHER_FAILURE_REASON_TEXT));
     }
 
     // creates and adds the TimeSeries to the CNE
     private static void addTimeSeriesToCne(DateTime networkDate) {
         try {
-            Point point = new Point();
-            point.setPosition(1);
+            SeriesPeriod period = newPeriod(networkDate, SIXTY_MINUTES_DURATION, newPoint(1));
 
-            SeriesPeriod period = new SeriesPeriod();
-            period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
-            period.setResolution(DatatypeFactory.newInstance().newDuration(SIXTY_MINUTES_DURATION));
-            period.point = Collections.singletonList(point);
-
-            TimeSeries timeSeries = new TimeSeries();
-            timeSeries.setMRID(generateRandomMRID());
-            timeSeries.setBusinessType(B54_BUSINESS_TYPE);
-            timeSeries.setCurveType(A01_CURVE_TYPE);
-            timeSeries.period = Collections.singletonList(period);
+            TimeSeries timeSeries = newTimeSeries(B54_BUSINESS_TYPE, A01_CURVE_TYPE, period);
 
             cne.timeSeries = Collections.singletonList(timeSeries);
         } catch (DatatypeConfigurationException e) {
@@ -203,24 +187,11 @@ public final class CneFiller {
         addConstraintToMapAndCne(createAConstraintSeriesWithContingency(B56_BUSINESS_TYPE, contingency), constraintSeriesList, states);
     }
 
-    // Create an empty ConstraintSeries
-    private static ConstraintSeries createAConstraintSeries(String businessType) {
-        ConstraintSeries constraintSeries = new ConstraintSeries();
-        constraintSeries.setMRID(generateRandomMRID());
-        constraintSeries.setBusinessType(businessType);
-
-        return constraintSeries;
-    }
-
     // Create a ConstraintSeries containing a ContingencySeries
     private static ConstraintSeries createAConstraintSeriesWithContingency(String businessType, Contingency contingency) {
-        ConstraintSeries constraintSeries = createAConstraintSeries(businessType);
+        ConstraintSeries constraintSeries = newConstraintSeries(businessType);
 
-        ContingencySeries contingencySeries = new ContingencySeries();
-        contingencySeries.setMRID(contingency.getId());
-        contingencySeries.setName(contingency.getName());
-
-        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
+        constraintSeries.contingencySeries = Collections.singletonList(newContingencySeries(contingency.getId(), contingency.getName()));
         return constraintSeries;
     }
 
@@ -248,16 +219,10 @@ public final class CneFiller {
 
     // Creates a MonitoredSeries from a given cnec
     private static void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId, Unit chosenExportUnit) {
-        MonitoredSeries monitoredSeries = new MonitoredSeries();
-        monitoredSeries.setMRID(cnec.getId());
-        monitoredSeries.setName(cnec.getName());
+        MonitoredSeries monitoredSeries = newMonitoredSeries(cnec.getId(), cnec.getName());
 
-        MonitoredRegisteredResource monitoredRegisteredResource = new MonitoredRegisteredResource();
-        monitoredRegisteredResource.setMRID(createResourceIDString(A02_CODING_SCHEME, cnec.getNetworkElement().getId()));
-        monitoredRegisteredResource.setName(cnec.getNetworkElement().getName());
         // TODO: origin and extremity from network?
-        monitoredRegisteredResource.setInAggregateNodeMRID(createResourceIDString(A02_CODING_SCHEME, "in"));
-        monitoredRegisteredResource.setOutAggregateNodeMRID(createResourceIDString(A02_CODING_SCHEME, "out"));
+        MonitoredRegisteredResource monitoredRegisteredResource = newMonitoredRegisteredResource(cnec.getNetworkElement().getId(), cnec.getNetworkElement().getName(), "in", "out");
 
         List<Analog> measurementsList = new ArrayList<>();
         Unit finalUnit = chosenExportUnit;
@@ -285,16 +250,16 @@ public final class CneFiller {
         if (chosenExportUnit.equals(Unit.AMPERE)) {
             if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.MEGAWATT;
-                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
+                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
             } else { // normal case or case when nothing is defined
-                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
+                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
             }
         } else if (chosenExportUnit.equals(Unit.MEGAWATT)) {
             if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.AMPERE;
-                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
+                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
             } else { // normal case or case when nothing is defined
-                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
+                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
             }
         } else {
             throw new FaraoException(String.format("Unhandled unit %s", chosenExportUnit.toString()));
@@ -305,13 +270,13 @@ public final class CneFiller {
     // Creates Measurements from thresholds
     private static void handleThresholds(Cnec cnec, Unit unit, List<Analog> measurementsList) {
         if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(PATL_MEASUREMENT_TYPE, unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(PATL_MEASUREMENT_TYPE, unit, threshold)));
         } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(TATL_MEASUREMENT_TYPE, unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_MEASUREMENT_TYPE, unit, threshold)));
         }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(TATL_AFTER_AUTO_MEASUREMENT_TYPE, unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_AUTO_MEASUREMENT_TYPE, unit, threshold)));
         } else { // After CRA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(createMeasurement(TATL_AFTER_CRA_MEASUREMENT_TYPE, unit, threshold)));
+            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_CRA_MEASUREMENT_TYPE, unit, threshold)));
         }
     }
 
@@ -383,16 +348,9 @@ public final class CneFiller {
 
     // Creates a RegisteredResource from a PST range remedial action
     private static RemedialActionRegisteredResource createPstRangeActionRegisteredResource(RangeAction rangeAction, int tap) {
-        RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         if (rangeAction.getNetworkElements().size() == 1) {
             NetworkElement networkElement = rangeAction.getNetworkElements().stream().findFirst().orElseThrow(FaraoException::new);
-            remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, networkElement.getId()));
-            remedialActionRegisteredResource.setName(networkElement.getName());
-            remedialActionRegisteredResource.setPSRTypePsrType(PST_RANGE_PSR_TYPE);
-            remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(tap));
-            remedialActionRegisteredResource.setResourceCapacityUnitSymbol(WITHOUT_UNIT_SYMBOL);
-            remedialActionRegisteredResource.setMarketObjectStatusStatus(ABSOLUTE_MARKET_OBJECT_STATUS);
-            return remedialActionRegisteredResource;
+            return newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
         } else {
             throw new FaraoException(String.format("Number of network elements is not 1 for range action %s", rangeAction.getId()));
         }
@@ -400,12 +358,7 @@ public final class CneFiller {
 
     // Creates a RemedialActionSeries from a remedial action
     private static RemedialActionSeries createRemedialActionSeries(RemedialAction<?> remedialAction, String id) {
-        RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
-        remedialActionSeries.setMRID(id);
-        remedialActionSeries.setName(remedialAction.getName());
-        remedialActionSeries.setApplicationModeMarketObjectStatusStatus(PREVENTIVE_MARKET_OBJECT_STATUS);
+        return newRemedialActionSeries(id, remedialAction.getName(), PREVENTIVE_MARKET_OBJECT_STATUS);
         // deal with automatic RA (A20) and curative RA (A19) once developed
-
-        return remedialActionSeries;
     }
 }

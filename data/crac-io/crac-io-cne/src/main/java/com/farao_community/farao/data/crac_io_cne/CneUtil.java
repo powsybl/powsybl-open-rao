@@ -21,9 +21,9 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
-
 /**
+ * Auxiliary methods
+ *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CneUtil {
@@ -88,29 +88,6 @@ public final class CneUtil {
 
     public static String createRangeActionId(String id, double setpoint) {
         return String.format("%s@%s@", id, setpoint);
-    }
-
-    // Creates any measurement
-    public static Analog createMeasurement(String measurementType, Unit unit, double flow) {
-        Analog measurement = new Analog();
-        measurement.setMeasurementType(measurementType);
-
-        if (unit.equals(Unit.MEGAWATT)) {
-            measurement.setUnitSymbol(MAW_UNIT_SYMBOL);
-        } else if (unit.equals(Unit.AMPERE)) {
-            measurement.setUnitSymbol(AMP_UNIT_SYMBOL);
-        } else {
-            throw new FaraoException(String.format("Unhandled unit %s", unit.toString()));
-        }
-
-        if (flow < 0) {
-            measurement.setPositiveFlowIn(OPPOSITE_POSITIVE_FLOW_IN);
-        } else {
-            measurement.setPositiveFlowIn(DIRECT_POSITIVE_FLOW_IN);
-        }
-        measurement.setAnalogValuesValue(Math.round(Math.abs(flow)));
-
-        return measurement;
     }
 
     /**

@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 /**
+ * Constants used in the CNE file
+ *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CneConstants {
