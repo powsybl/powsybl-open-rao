@@ -15,6 +15,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.DIRECT_POSITIVE_FLOW_IN;
@@ -29,6 +30,9 @@ public final class CneClassCreator {
 
     private CneClassCreator() { }
 
+    /*****************
+     POINT
+     *****************/
     public static Point newPoint(int position) {
         Point point = new Point();
         point.setPosition(position);
@@ -36,6 +40,9 @@ public final class CneClassCreator {
         return point;
     }
 
+    /*****************
+     PERIOD
+     *****************/
     public static SeriesPeriod newPeriod(DateTime networkDate, String duration, Point point) throws DatatypeConfigurationException {
         SeriesPeriod period = new SeriesPeriod();
         period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
@@ -45,6 +52,9 @@ public final class CneClassCreator {
         return period;
     }
 
+    /*****************
+     TIME SERIES
+     *****************/
     public static TimeSeries newTimeSeries(String businessType, String curveType, SeriesPeriod period) {
         TimeSeries timeSeries = new TimeSeries();
         timeSeries.setMRID(generateRandomMRID());
@@ -55,6 +65,9 @@ public final class CneClassCreator {
         return timeSeries;
     }
 
+    /*****************
+     REASON
+     *****************/
     public static Reason newReason(String code, String text) {
         Reason reason = new Reason();
         reason.setCode(code);
@@ -63,6 +76,9 @@ public final class CneClassCreator {
         return reason;
     }
 
+    /*****************
+     CONSTRAINT SERIES
+     *****************/
     public static ConstraintSeries newConstraintSeries(String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(generateRandomMRID());
@@ -71,6 +87,16 @@ public final class CneClassCreator {
         return constraintSeries;
     }
 
+    public static ConstraintSeries newConstraintSeries(String businessType, ContingencySeries contingencySeries) {
+        ConstraintSeries constraintSeries = newConstraintSeries(businessType);
+        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
+
+        return constraintSeries;
+    }
+
+    /*****************
+     CONTINGENCY SERIES
+     *****************/
     public static ContingencySeries newContingencySeries(String id, String name) {
         ContingencySeries contingencySeries = new ContingencySeries();
         contingencySeries.setMRID(id);
@@ -79,6 +105,9 @@ public final class CneClassCreator {
         return contingencySeries;
     }
 
+    /*****************
+     MONITORED SERIES
+     *****************/
     public static MonitoredSeries newMonitoredSeries(String id, String name) {
         MonitoredSeries monitoredSeries = new MonitoredSeries();
         monitoredSeries.setMRID(id);
@@ -87,6 +116,16 @@ public final class CneClassCreator {
         return monitoredSeries;
     }
 
+    public static MonitoredSeries newMonitoredSeries(String id, String name, MonitoredRegisteredResource monitoredRegisteredResource) {
+        MonitoredSeries monitoredSeries = newMonitoredSeries(id, name);
+        monitoredSeries.registeredResource = Collections.singletonList(monitoredRegisteredResource);
+
+        return monitoredSeries;
+    }
+
+    /*****************
+     MONITORED REGISTERED RESOURCE
+     *****************/
     public static MonitoredRegisteredResource newMonitoredRegisteredResource(String id, String name, String inAggregateNodeMRID, String outAggregateNodeMRID) {
         MonitoredRegisteredResource monitoredRegisteredResource = new MonitoredRegisteredResource();
         monitoredRegisteredResource.setMRID(createResourceIDString(A02_CODING_SCHEME, id));
@@ -97,6 +136,16 @@ public final class CneClassCreator {
         return monitoredRegisteredResource;
     }
 
+    public static MonitoredRegisteredResource newMonitoredRegisteredResource(String id, String name, String inAggregateNodeMRID, String outAggregateNodeMRID, List<Analog> measurementsList) {
+        MonitoredRegisteredResource monitoredRegisteredResource = newMonitoredRegisteredResource(id, name, inAggregateNodeMRID, outAggregateNodeMRID);
+        monitoredRegisteredResource.measurements = measurementsList;
+
+        return monitoredRegisteredResource;
+    }
+
+    /*****************
+     MEASUREMENT
+     *****************/
     public static Analog newMeasurement(String measurementType, Unit unit, double flow) {
         Analog measurement = new Analog();
         measurement.setMeasurementType(measurementType);
@@ -119,6 +168,9 @@ public final class CneClassCreator {
         return measurement;
     }
 
+    /*****************
+     REMEDIAL ACTION SERIES
+     *****************/
     public static RemedialActionSeries newRemedialActionSeries(String id, String name, String marketObjectStatus) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(id);
@@ -128,6 +180,9 @@ public final class CneClassCreator {
         return remedialActionSeries;
     }
 
+    /*****************
+     REMEDIAL ACTION REGISTERED RESOURCE
+     *****************/
     public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(String id, String name, String psrType, double setpoint, String unitSymbol, String marketObjectStatus) {
         RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, id));
