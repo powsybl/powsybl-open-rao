@@ -25,9 +25,6 @@ import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
  */
 public class MaxMinMarginFiller implements ProblemFiller {
 
-    //TODO : load from config
-    private static final double PST_PENALTY_COST = 1; // in MW/degree
-
     @Override
     public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         // build variables
@@ -38,7 +35,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
         // complete objective
         fillObjectiveWithMinMargin(linearRaoProblem);
-        fillObjectiveWithRangeActionPenaltyCost(linearRaoData, linearRaoProblem);
+        fillObjectiveWithRangeActionPenaltyCost(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Override
@@ -122,7 +119,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      *
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
-    private void fillObjectiveWithRangeActionPenaltyCost(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
+    private void fillObjectiveWithRangeActionPenaltyCost(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         linearRaoData.getCrac().getRangeActions().forEach(rangeAction -> {
 
             MPVariable absoluteVariationVariable = linearRaoProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -132,7 +129,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
             }
 
             if (rangeAction instanceof PstRange) {
-                linearRaoProblem.getObjective().setCoefficient(absoluteVariationVariable, PST_PENALTY_COST);
+                linearRaoProblem.getObjective().setCoefficient(absoluteVariationVariable, linearRaoParameters.getPstPenaltyCost());
             }
         });
     }
