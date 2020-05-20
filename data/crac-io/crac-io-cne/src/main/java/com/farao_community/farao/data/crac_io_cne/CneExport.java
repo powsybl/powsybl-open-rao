@@ -36,7 +36,8 @@ import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 public class CneExport implements CracExporter {
 
     private static final String CNE_FORMAT = "CNE";
-    private static final String CNE_LOCATION = "src/main/resources/xsd/" + CNE_XSD_2_4;
+    private static final String XSD_LOCATION = "src/main/resources/xsd/";
+    private static final String CNE_XSD_LOCATION = XSD_LOCATION + CNE_XSD_2_4;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneExport.class);
 
@@ -78,7 +79,7 @@ public class CneExport implements CracExporter {
     }
 
     public static boolean validateCNESchema(String xmlContent) {
-        return validateXMLSchema(CNE_LOCATION, xmlContent);
+        return validateXMLSchema(CNE_XSD_LOCATION, xmlContent);
     }
 
     private static boolean validateXMLSchema(String xsdPath, String xmlContent) {
@@ -86,7 +87,7 @@ public class CneExport implements CracExporter {
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "all");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file");
             Schema schema = factory.newSchema(new File(xsdPath));
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
