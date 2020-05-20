@@ -22,8 +22,8 @@ import static java.lang.Math.max;
 public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     public enum ObjectiveFunction {
-        MAX_MARGIN_IN_MEGAWATT,
-        MAX_MARGIN_IN_AMPERE
+        MAX_MIN_MARGIN_IN_MEGAWATT,
+        MAX_MIN_MARGIN_IN_AMPERE
     }
 
     static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
@@ -31,7 +31,7 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
     static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
     static final double DEFAULT_PST_PENALTY_COST = 0.01;
     static final double DEFAULT_FALLBACK_OVERCOST = 0;
-    static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MARGIN_IN_MEGAWATT;
+    static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensiParameters = null;
