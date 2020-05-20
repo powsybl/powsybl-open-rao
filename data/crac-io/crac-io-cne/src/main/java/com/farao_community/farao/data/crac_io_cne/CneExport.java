@@ -96,7 +96,6 @@ public class CneExport implements CracExporter {
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            //Schema schema = factory.newSchema(new File(xsdPath));
 
             Source[] source = {new StreamSource(new File(xsdPath)),
                 new StreamSource(new File(CODELISTS_LOCATION)),
