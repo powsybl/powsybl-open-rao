@@ -21,29 +21,14 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.*;
 
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class JavaUtil {
+public final class CneUtil {
 
-    public static final String B56_BUSINESS_TYPE = "B56";
-    public static final String B57_BUSINESS_TYPE = "B57";
-
-    public static final String A01_CODING_SCHEME = "A01";
-    public static final String A02_CODING_SCHEME = "A02";
-
-    public static final String AMP_UNIT_SYMBOL = "AMP";
-    public static final String MAW_UNIT_SYMBOL = "MAW";
-
-    public static final String DIRECT_POSITIVE_FLOW_IN = "A01";
-    public static final String OPPOSITE_POSITIVE_FLOW_IN = "A02";
-
-    public static final String PATL_MEASUREMENT_TYPE = "A02";
-    public static final String TATL_MEASUREMENT_TYPE = "A07";
-    public static final String TATL_AFTER_AUTO_MEASUREMENT_TYPE = "A12";
-    public static final String TATL_AFTER_CRA_MEASUREMENT_TYPE = "A13";
-
-    private JavaUtil() { }
+    private CneUtil() { }
 
     // Creation of time interval
     public static ESMPDateTimeInterval createEsmpDateTimeInterval(DateTime networkDate) {

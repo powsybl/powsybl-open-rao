@@ -18,7 +18,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_io_cne.JavaUtil.*;
+import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -133,15 +134,15 @@ public final class CneFiller {
     private static void fillHeader(DateTime networkDate) {
         cne.setMRID(generateRandomMRID());
         cne.setRevisionNumber("1");
-        cne.setType("B06");
-        cne.setProcessProcessType("A43");
-        cne.setSenderMarketParticipantMRID(createPartyIDString("A01", "22XCORESO------S"));
-        cne.setSenderMarketParticipantMarketRoleType("A44");
-        cne.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, "17XTSO-CS------W"));
-        cne.setReceiverMarketParticipantMarketRoleType("A36");
+        cne.setType(CNE_TYPE);
+        cne.setProcessProcessType(CNE_PROCESS_TYPE);
+        cne.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, CNE_SENDER_MRID));
+        cne.setSenderMarketParticipantMarketRoleType(CNE_SENDER_MARKET_ROLE_TYPE);
+        cne.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, CNE_RECEIVER_MRID));
+        cne.setReceiverMarketParticipantMarketRoleType(CNE_RECEIVER_MARKET_ROLE_TYPE);
         cne.setCreatedDateTime(createXMLGregorianCalendarNow());
         cne.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
-        cne.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, "10YDOM-REGION-1V"));
+        cne.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, DOMAIN_MRID));
     }
 
     /*****************
@@ -151,11 +152,11 @@ public final class CneFiller {
     private static void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
         Reason reason = new Reason();
         if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
-            reason.setCode("Z13");
-            reason.setText("Situation is secure");
+            reason.setCode(SECURE_REASON_CODE);
+            reason.setText(SECURE_REASON_TEXT);
         } else if (status.equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
-            reason.setCode("Z03");
-            reason.setText("Situation is unsecure");
+            reason.setCode(UNSECURE_REASON_CODE);
+            reason.setText(UNSECURE_REASON_TEXT);
         } else {
             throw new FaraoException(String.format("Unexpected status %s.", status));
         }
@@ -165,8 +166,8 @@ public final class CneFiller {
     // creates the Reason of a Point after a failure
     private static void addFailureReasonToPoint(Point point) {
         Reason reason = new Reason();
-        reason.setCode("999");
-        reason.setText("Other failure");
+        reason.setCode(OTHER_FAILURE_REASON_CODE);
+        reason.setText(OTHER_FAILURE_REASON_TEXT);
         point.reason = Collections.singletonList(reason);
     }
 
@@ -178,13 +179,13 @@ public final class CneFiller {
 
             SeriesPeriod period = new SeriesPeriod();
             period.setTimeInterval(createEsmpDateTimeInterval(networkDate));
-            period.setResolution(DatatypeFactory.newInstance().newDuration("PT60M"));
+            period.setResolution(DatatypeFactory.newInstance().newDuration(SIXTY_MINUTES_DURATION));
             period.point = Collections.singletonList(point);
 
             TimeSeries timeSeries = new TimeSeries();
             timeSeries.setMRID(generateRandomMRID());
-            timeSeries.setBusinessType("B54");
-            timeSeries.setCurveType("A01");
+            timeSeries.setBusinessType(B54_BUSINESS_TYPE);
+            timeSeries.setCurveType(A01_CURVE_TYPE);
             timeSeries.period = Collections.singletonList(period);
 
             cne.timeSeries = Collections.singletonList(timeSeries);
@@ -284,16 +285,16 @@ public final class CneFiller {
         if (chosenExportUnit.equals(Unit.AMPERE)) {
             if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.MEGAWATT;
-                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInMW()));
+                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
             } else { // normal case or case when nothing is defined
-                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInA()));
+                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
             }
         } else if (chosenExportUnit.equals(Unit.MEGAWATT)) {
             if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.AMPERE;
-                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInA()));
+                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
             } else { // normal case or case when nothing is defined
-                measurementsList.add(createMeasurement("A01", chosenExportUnit, cnecResult.getFlowInMW()));
+                measurementsList.add(createMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
             }
         } else {
             throw new FaraoException(String.format("Unhandled unit %s", chosenExportUnit.toString()));
@@ -387,10 +388,10 @@ public final class CneFiller {
             NetworkElement networkElement = rangeAction.getNetworkElements().stream().findFirst().orElseThrow(FaraoException::new);
             remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, networkElement.getId()));
             remedialActionRegisteredResource.setName(networkElement.getName());
-            remedialActionRegisteredResource.setPSRTypePsrType("A06"); // PST range
+            remedialActionRegisteredResource.setPSRTypePsrType(PST_RANGE_PSR_TYPE);
             remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(tap));
-            remedialActionRegisteredResource.setResourceCapacityUnitSymbol("C62"); // without unit
-            remedialActionRegisteredResource.setMarketObjectStatusStatus("A26"); // absolute
+            remedialActionRegisteredResource.setResourceCapacityUnitSymbol(WITHOUT_UNIT_SYMBOL);
+            remedialActionRegisteredResource.setMarketObjectStatusStatus(ABSOLUTE_MARKET_OBJECT_STATUS);
             return remedialActionRegisteredResource;
         } else {
             throw new FaraoException(String.format("Number of network elements is not 1 for range action %s", rangeAction.getId()));
@@ -402,7 +403,7 @@ public final class CneFiller {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(id);
         remedialActionSeries.setName(remedialAction.getName());
-        remedialActionSeries.setApplicationModeMarketObjectStatusStatus("A18"); // Preventive
+        remedialActionSeries.setApplicationModeMarketObjectStatusStatus(PREVENTIVE_MARKET_OBJECT_STATUS);
         // deal with automatic RA (A20) and curative RA (A19) once developed
 
         return remedialActionSeries;

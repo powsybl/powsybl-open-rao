@@ -25,6 +25,8 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
 
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
@@ -32,9 +34,7 @@ import java.io.*;
 public class CneExport implements CracExporter {
 
     private static final String CNE_FORMAT = "CNE";
-    private static final String CNE_XSD_2_4 = "iec62325-451-n-cne_v2_4.xsd";
     private static final String CNE_LOCATION = "src/main/resources/xsd/" + CNE_XSD_2_4;
-    private static final String CNE_TAG = "CriticalNetworkElement_MarketDocument";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneExport.class);
 
