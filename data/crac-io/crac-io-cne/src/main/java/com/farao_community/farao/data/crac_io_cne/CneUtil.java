@@ -86,7 +86,7 @@ public final class CneUtil {
         return String.format("%s-%s-%s-%s", Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()));
     }
 
-    public static String createRangeActionId(String id, double setpoint) {
+    public static String createRangeActionId(String id, int setpoint) {
         return String.format("%s@%s@", id, setpoint);
     }
 

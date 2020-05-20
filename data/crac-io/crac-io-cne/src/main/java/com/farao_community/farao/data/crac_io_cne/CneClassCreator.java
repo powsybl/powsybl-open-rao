@@ -163,7 +163,7 @@ public final class CneClassCreator {
         } else {
             measurement.setPositiveFlowIn(DIRECT_POSITIVE_FLOW_IN);
         }
-        measurement.setAnalogValuesValue(Math.round(Math.abs(flow)));
+        measurement.setAnalogValuesValue((float) Math.round(Math.abs(flow)));
 
         return measurement;
     }
@@ -183,7 +183,7 @@ public final class CneClassCreator {
     /*****************
      REMEDIAL ACTION REGISTERED RESOURCE
      *****************/
-    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(String id, String name, String psrType, double setpoint, String unitSymbol, String marketObjectStatus) {
+    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(String id, String name, String psrType, int setpoint, String unitSymbol, String marketObjectStatus) {
         RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
         remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, id));
         remedialActionRegisteredResource.setName(name);

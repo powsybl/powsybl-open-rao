@@ -216,7 +216,6 @@ public final class CneFiller {
         // create measurements
         List<Analog> measurementsList = createMeasurements(cnec, postOptimVariantId, chosenExportUnit);
         // add measurements to monitoredRegisteredResource
-        // TODO: origin and extremity from network?
         MonitoredRegisteredResource monitoredRegisteredResource = createMonitoredRegisteredResource(cnec.getNetworkElement(), measurementsList, network);
         // add monitoredRegisteredResource to monitoredSeries
         MonitoredSeries monitoredSeries = newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResource);
