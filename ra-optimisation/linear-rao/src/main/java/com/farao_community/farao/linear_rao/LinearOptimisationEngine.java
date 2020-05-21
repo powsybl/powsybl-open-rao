@@ -95,8 +95,6 @@ class LinearOptimisationEngine {
         if (getSolverResultStatusString().equals("OPTIMAL")) {
             fillCracResults(linearRaoProblem, linearRaoData);
             linearRaoData.applyRangeActionResultsOnNetwork();
-        } else {
-            //todo handle INFEASIBLE linear rao problem, set cost to Double.INFINITY.
         }
     }
 
@@ -127,7 +125,7 @@ class LinearOptimisationEngine {
             if (!getSolverResultStatusString().equals("OPTIMAL")) {
                 String errorMessage = String.format("Solving of the linear problem failed with MPSolver status %s", getSolverResultStatusString());
                 LOGGER.warn(errorMessage);
-                //Do not throw an exception is solver solution not "OPTIMAL". Handle the status.
+                //Do not throw an exception is solver solution not "OPTIMAL". Handle the status in LinearRao.runLinearRao
             }
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";

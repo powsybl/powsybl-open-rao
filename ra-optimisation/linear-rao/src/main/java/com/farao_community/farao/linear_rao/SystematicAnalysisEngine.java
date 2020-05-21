@@ -5,10 +5,8 @@ import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
@@ -55,11 +53,11 @@ class SystematicAnalysisEngine {
     /**
      * Constructor
      */
-    SystematicAnalysisEngine(RaoParameters raoParameters, ComputationManager computationManager) {
-        this.linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
+    SystematicAnalysisEngine(LinearRaoParameters linearRaoParameters, ComputationManager computationManager) {
+        this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;
-        this.runLoopflow = raoParameters.isRaoWithLoopFlowLimitation();
+        this.runLoopflow = linearRaoParameters.getExtendable().isRaoWithLoopFlowLimitation();
         this.loopflowViolation = false;
     }
 

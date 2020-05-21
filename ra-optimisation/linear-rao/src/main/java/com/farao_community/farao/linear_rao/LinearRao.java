@@ -65,7 +65,7 @@ public class LinearRao implements RaoProvider {
             // initiate engines
             LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
             LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
-            SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters, computationManager);
+            SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
 
             // run RAO algorithm
             return runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters);
