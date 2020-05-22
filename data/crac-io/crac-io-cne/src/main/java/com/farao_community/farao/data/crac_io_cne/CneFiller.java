@@ -13,6 +13,8 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.*;
@@ -33,6 +35,8 @@ public final class CneFiller {
     private static List<Instant> instants;
     private static Map<State, ConstraintSeries> constraintSeriesMapB57 = new HashMap<>();
     private static Map<State, ConstraintSeries> constraintSeriesMapB56 = new HashMap<>();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CneFiller.class);
 
     private CneFiller() { }
 
@@ -61,26 +65,36 @@ public final class CneFiller {
 
             CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
-            // define preOptimVariant and postOptimVariant
-            Set<String> variants = crac.getExtension(ResultVariantManager.class).getVariants();
-            if (variants.size() != 2) {
-                throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
-            }
-            List<String> variantList = new ArrayList<>(variants);
-
             String preOptimVariantId;
             String postOptimVariantId;
-            if (cracExtension.getVariant(variantList.get(0)).getCost() > cracExtension.getVariant(variantList.get(1)).getCost()) {
-                preOptimVariantId = variantList.get(0);
-                postOptimVariantId = variantList.get(1);
-            } else {
-                preOptimVariantId = variantList.get(1);
-                postOptimVariantId = variantList.get(0);
-            }
 
-            // fill CNE
-            createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit, network);
-            addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
+            // define preOptimVariant and postOptimVariant
+            List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
+
+            if (!variants.isEmpty()) {
+
+                preOptimVariantId = variants.get(0);
+                postOptimVariantId = variants.get(0);
+
+                double minCost = cracExtension.getVariant(variants.get(0)).getCost();
+                double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
+                for (String variant : variants) {
+                    if (cracExtension.getVariant(variants.get(0)).getCost() < minCost) {
+                        minCost = cracExtension.getVariant(variant).getCost();
+                        postOptimVariantId = variant;
+                    } else if (cracExtension.getVariant(variants.get(0)).getCost() > maxCost) {
+                        maxCost = cracExtension.getVariant(variant).getCost();
+                        preOptimVariantId = variant;
+                    }
+                }
+
+                // fill CNE
+                createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit, network);
+                addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
+            } else {
+                addFailureReasonToPoint(point);
+                throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
+            }
         } else { // Failure of computation
             addFailureReasonToPoint(point);
         }
@@ -231,7 +245,12 @@ public final class CneFiller {
     }
 
     private static String findNodeInNetwork(String id, Network network, Branch.Side side) {
-        return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
+        try {
+            return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
+        } catch (NullPointerException e) {
+            LOGGER.warn(e.toString());
+            return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
+        }
     }
 
     // Creates all Measurements (flow and thresholds)
