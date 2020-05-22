@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.import_.Importers;
@@ -32,8 +33,21 @@ public class CneExportTest {
     @Test
     public void testExport() {
 
-        Crac crac = CracImporters.importCrac("OutputCrac.json", getClass().getResourceAsStream("/OutputCrac.json"));
+        Crac crac = CracImporters.importCrac("US2-3-crac1-standard.json", getClass().getResourceAsStream("/US2-3-crac1-standard.json"));
         Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
+
+        // export Crac
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        CracExporters.exportCrac(crac, network, "CNE", outputStream);
+
+        assertTrue(CneExport.validateCNESchema(outputStream.toString()));
+    }
+
+    @Test
+    public void testExport2() {
+
+        Crac crac = CracImporters.importCrac("US3-2-pst-direct.json", getClass().getResourceAsStream("/US3-2-pst-direct.json"));
+        Network network = NetworkImportsUtil.import12NodesNetwork();
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -45,7 +59,7 @@ public class CneExportTest {
     @Test
     public void testMissingNetwork() {
 
-        Crac crac = CracImporters.importCrac("OutputCrac.json", getClass().getResourceAsStream("/OutputCrac.json"));
+        Crac crac = CracImporters.importCrac("US2-3-crac1-standard.json", getClass().getResourceAsStream("/US2-3-crac1-standard.json"));
         Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
         crac.synchronize(network);
 
