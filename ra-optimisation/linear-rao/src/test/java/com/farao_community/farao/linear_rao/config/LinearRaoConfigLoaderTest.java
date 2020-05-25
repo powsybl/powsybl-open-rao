@@ -53,6 +53,8 @@ public class LinearRaoConfigLoaderTest {
         Mockito.when(linearRaoParametersModule.getBooleanProperty(eq("security-analysis-without-rao"), anyBoolean())).thenReturn(false);
         Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("pst-sensitivity-threshold"), anyDouble())).thenReturn(2.0);
         Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("pst-penalty-cost"), anyDouble())).thenReturn(0.5);
+        Mockito.when(linearRaoParametersModule.getEnumProperty(eq("objective-function"), eq(LinearRaoParameters.ObjectiveFunction.class), any())).thenReturn(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("sensitivity-fallback-overcost"), anyDouble())).thenReturn(100.0);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("linear-rao-parameters")).thenReturn(Optional.of(linearRaoParametersModule));
 
@@ -62,6 +64,8 @@ public class LinearRaoConfigLoaderTest {
         assertFalse(raoParameters.isSecurityAnalysisWithoutRao());
         assertEquals(2.0, raoParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.5, raoParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
+        assertEquals(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT, raoParameters.getObjectiveFunction());
+        assertEquals(100.0, raoParameters.getFallbackOvercost(), DOUBLE_TOLERANCE);
     }
 
     @Test
