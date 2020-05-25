@@ -31,7 +31,7 @@ import java.util.TreeSet;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable<Crac>, Synchronizable {
+public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElementParent<Crac> {
 
     DateTime getNetworkDate();
 
@@ -40,11 +40,22 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     Set<Instant> getInstants();
 
     // Instants management
+    /**
+     * Get a {@code Instant} adder, to add an instant to the Crac
+     * @return a {@code InstantAdder} instance
+     */
+    InstantAdder newInstant();
+
     Instant getInstant(String id);
 
     void addInstant(Instant instant);
 
     // Contingencies management
+    /**
+     * Get a {@code Contingency} adder, to add a contingency to the Crac
+     * @return a {@code ContingencyAdder} instance
+     */
+    ContingencyAdder newContingency();
 
     /**
      * Gather all the contingencies present in the Crac. It returns a set because contingencies
@@ -58,7 +69,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     void addContingency(Contingency contingency);
 
-    //States management
+    // States management
     /**
      * Select the preventive state. This state must be unique. It's the only state that is
      * defined with no contingency.
@@ -160,6 +171,12 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     // Cnecs management
 
     /**
+     * Get a {@code Cnec} adder, to add a cnec to the Crac
+     * @return a {@code CnecAdder} instance
+     */
+    CnecAdder newCnec();
+
+    /**
      * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
@@ -195,6 +212,12 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     void addCnec(Cnec cnec);
 
     // Range actions management
+    /**
+     * Get a PstRangeAction adder, to add a {@code PstRange}
+     * @return a {@code PstRangeActionAdder} instance
+     */
+    PstRangeActionAdder newPstRangeAction();
+
     /**
      * Gather all the range actions present in the Crac. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.

@@ -87,6 +87,10 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         this.networkDate = networkDate;
     }
 
+    public NetworkElementAdder newNetworkElement() {
+        return new NetworkElementAdderImpl<SimpleCrac>(this);
+    }
+
     @Override
     public final Set<NetworkElement> getNetworkElements() {
         return networkElements;
@@ -96,6 +100,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return addNetworkElement(networkElementId, networkElementId);
     }
 
+    @Override
     public NetworkElement addNetworkElement(NetworkElement networkElement) {
         return addNetworkElement(networkElement.getId(), networkElement.getName());
     }
@@ -123,6 +128,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     public final NetworkElement getNetworkElement(String id) {
         return networkElements.stream().filter(networkElement -> networkElement.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    @Override
+    public InstantAdder newInstant() {
+        return new InstantAdderImpl(this);
     }
 
     @Override
@@ -173,6 +183,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             .filter(contingency -> contingency.getId().equals(id))
             .findFirst()
             .orElse(null);
+    }
+
+    @Override
+    public ContingencyAdder newContingency() {
+        return new ComplexContingencyAdder(this);
     }
 
     public Contingency addContingency(String id, String... networkElementIds) {
@@ -320,6 +335,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public CnecAdder newCnec() {
+        return new SimpleCnecAdder(this);
+    }
+
+    @Override
     public Cnec getCnec(String id) {
         return cnecs.stream().filter(cnec -> cnec.getId().equals(id)).findFirst().orElse(null);
     }
@@ -372,6 +392,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             Cnec cnecInCrac = getCnec(cnec.getId());
             ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, cnec.getExtensions());
         }
+    }
+
+    @Override
+    public PstRangeActionAdder newPstRangeAction() {
+        return new PstRangeActionAdderImpl(this);
     }
 
     @Override
