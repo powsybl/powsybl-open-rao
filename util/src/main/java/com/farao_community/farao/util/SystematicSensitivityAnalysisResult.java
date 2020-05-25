@@ -7,8 +7,6 @@
 package com.farao_community.farao.util;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -20,8 +18,6 @@ import java.util.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityAnalysisResult {
-    private static final float CGTEBASE = 100f;
-
     private class StateResult {
         private final Map<String, Double> referenceFlows = new TreeMap<>();
         private final Map<String, Double> referenceIntensities = new TreeMap<>();
@@ -49,7 +45,7 @@ public class SystematicSensitivityAnalysisResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new TreeMap<>();
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults results, Network network, Crac crac) {
+    public SystematicSensitivityAnalysisResult(SensitivityComputationResults results) {
         if (results == null) {
             this.isSuccess = false;
             return;
@@ -57,29 +53,6 @@ public class SystematicSensitivityAnalysisResult {
         this.isSuccess = results.isOk();
         fillData(results);
         postTreatIntensities();
-        // TODO remove when sensi patch applied
-        fixIntensityValues(network, crac);
-    }
-
-    private void fixIntensityValues(Network network, Crac crac) {
-        fixIntensityValues(network, crac, nStateResult);
-        contingencyResults.values().forEach(result -> fixIntensityValues(network, crac, result));
-    }
-
-    private void fixIntensityValues(Network network, Crac crac, StateResult stateResult) {
-        stateResult.getReferenceIntensities().forEach((cnecId, value) -> {
-            Branch<?> branch = network.getBranch(crac.getCnec(cnecId).getNetworkElement().getId());
-            stateResult.getReferenceIntensities().put(cnecId, convertPuToA(value, branch));
-        });
-        stateResult.getIntensitySensitivities().forEach((cnecId, sensitivities) -> {
-            Branch<?> branch = network.getBranch(crac.getCnec(cnecId).getNetworkElement().getId());
-            sensitivities.forEach((actionId, sensi) -> sensitivities.put(actionId, convertPuToA(sensi, branch)));
-        });
-    }
-
-    private double convertPuToA(double intensityPu, Branch<?> referenceBranch) {
-        double vNom = referenceBranch.getTerminal1().getVoltageLevel().getNominalV();
-        return intensityPu * CGTEBASE / vNom;
     }
 
     private void postTreatIntensities() {
