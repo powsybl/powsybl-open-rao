@@ -17,6 +17,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> implements CnecAdder {
 
     private SimpleCrac parent;

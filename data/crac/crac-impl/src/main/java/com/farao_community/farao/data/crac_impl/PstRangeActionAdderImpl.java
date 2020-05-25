@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,12 +31,11 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     private Double maxValue;
     private NetworkElement networkElement;
     private String operator;
-    private List<UsageRule> usageRules;
+    private List<UsageRule> usageRules = new ArrayList<>();
 
     public PstRangeActionAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
-        this.usageRules = new ArrayList<>();
         this.usageRules.add(new FreeToUse(AVAILABLE, parent.getPreventiveState()));
     }
 
@@ -96,9 +96,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a PstRangeAction without a network element. Please use newNetworkElement.");
         }
-        List<Range> ranges = new ArrayList<>();
-        ranges.add(new Range(this.minValue, this.maxValue, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
-
+        List<Range> ranges = Collections.singletonList(new Range(this.minValue, this.maxValue, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
         /*
          * First we add the network element to the crac
          * If it already exists, it will send us back the reference to the

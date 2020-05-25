@@ -21,12 +21,11 @@ import java.util.Set;
  */
 public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ComplexContingencyAdder> implements ContingencyAdder {
     SimpleCrac parent;
-    private Set<NetworkElement> networkElements;
+    private Set<NetworkElement> networkElements = new HashSet<>();
 
     public ComplexContingencyAdder(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
-        this.networkElements = new HashSet<>();
     }
 
     @Override
