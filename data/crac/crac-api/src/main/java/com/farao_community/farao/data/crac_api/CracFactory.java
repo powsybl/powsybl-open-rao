@@ -62,7 +62,7 @@ public interface CracFactory {
             }
             throw new FaraoException("Crac factory '" + factoryName + "' not found");
         } else {
-            throw new FaraoException("No CracFactoryService implementation found, or no default implementation set and multiple implementation found.");
+            throw new FaraoException("No CracFactory implementation found, or no default implementation set and multiple implementation found.");
         }
     }
 

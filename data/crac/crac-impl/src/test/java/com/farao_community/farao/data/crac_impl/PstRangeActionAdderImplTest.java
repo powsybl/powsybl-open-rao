@@ -27,10 +27,10 @@ import static org.junit.Assert.assertSame;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PstRangeActionAdderImplTest {
+    private static final double DOUBLE_TOLERANCE = 1e-3;
     private SimpleCrac crac;
     private Network network;
     private String networkElementId;
-    private static final double DOUBLE_TOLERANCE = 1e-3;
 
     @Before
     public void setUp() {

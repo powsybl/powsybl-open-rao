@@ -20,11 +20,11 @@ import static org.junit.Assert.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SimpleCnecAdderTest {
+    private static final double DOUBLE_TOLERANCE = 1e-6;
     private SimpleCrac crac;
     private Contingency contingency1;
     private Instant instant1;
     private Instant instant2;
-    private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Before
     public void setUp() {

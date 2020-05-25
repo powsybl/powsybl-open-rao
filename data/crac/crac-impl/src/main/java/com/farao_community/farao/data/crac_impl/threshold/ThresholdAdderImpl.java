@@ -68,7 +68,7 @@ public class ThresholdAdderImpl implements ThresholdAdder {
         if (this.direction == null) {
             throw new FaraoException("Cannot add a threshold without a direction. Please use setDirection.");
         }
-        if (this.unit == Unit.PERCENT) {
+        if (this.unit == Unit.PERCENT_IMAX) {
             parent.addThreshold(new RelativeFlowThreshold(this.side, this.direction, this.maxValue));
         } else {
             parent.addThreshold(new AbsoluteFlowThreshold(this.unit, this.side, this.direction, this.maxValue));

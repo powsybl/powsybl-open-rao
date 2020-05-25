@@ -30,7 +30,7 @@ import java.util.TreeSet;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElementParent {
+public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElementParent<Crac> {
 
     Set<NetworkElement> getNetworkElements();
 
@@ -267,13 +267,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
      */
     NetworkAction getNetworkAction(String id);
-
-    // Network elements management
-    /**
-     * Get a {@code NetworkElement} adder, to add a network element to the Crac
-     * @return a {@code NetworkElementAdder} instance
-     */
-    NetworkElementAdder<Crac> newNetworkElement();
 
     // General methods
     void generateValidityReport(Network network);

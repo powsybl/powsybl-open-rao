@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_api;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface PstRangeActionAdder extends NetworkElementParent {
+public interface PstRangeActionAdder extends NetworkElementParent<PstRangeActionAdder> {
 
     /**
      * Set the id of the new PastRangeAction
@@ -47,15 +47,8 @@ public interface PstRangeActionAdder extends NetworkElementParent {
      */
     PstRangeActionAdder setMaxValue(Double maxValue);
 
-
     /**
-     * Set the network element of the PstRangeAction
-     * @return a {@code NetworkElementAdder<PstRangeActionAdder>} instance to construct a network element
-     */
-    NetworkElementAdder<PstRangeActionAdder> newNetworkElement();
-
-    /**
-     * Add the new instant to the Crac
+     * Add the new PST Range Action to the Crac
      * @return the {@code Crac} instance
      */
     Crac add();

@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_api;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface CnecAdder extends NetworkElementParent {
+public interface CnecAdder extends NetworkElementParent<CnecAdder> {
 
     /**
      * Set the ID of the cnec
@@ -39,12 +39,6 @@ public interface CnecAdder extends NetworkElementParent {
      * @return the {@code CnecAdder} instance
      */
     CnecAdder setContingency(Contingency contingency);
-
-    /**
-     * Add a network element to the cnec
-     * @return a {@code NetworkElementAdder<CnecAdder>} instance to construct a network element
-     */
-    NetworkElementAdder<CnecAdder> newNetworkElement();
 
     /**
      * Add a threshold to the created cnec

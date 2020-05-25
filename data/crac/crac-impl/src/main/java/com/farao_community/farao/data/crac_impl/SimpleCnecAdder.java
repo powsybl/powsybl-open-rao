@@ -21,14 +21,13 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
 
     private SimpleCrac parent;
     private NetworkElement networkElement;
-    private Set<AbstractThreshold> thresholds;
+    private Set<AbstractThreshold> thresholds = new HashSet<>();
     private Instant instant;
     private Contingency contingency;
 
     public SimpleCnecAdder(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
-        thresholds = new HashSet<>();
     }
 
     public void addThreshold(AbstractThreshold threshold) {

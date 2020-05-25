@@ -20,7 +20,7 @@ public enum Unit {
     DEGREE(PhysicalParameter.ANGLE),
     MEGAWATT(PhysicalParameter.FLOW),
     KILOVOLT(PhysicalParameter.VOLTAGE),
-    PERCENT(PhysicalParameter.FLOW),
+    PERCENT_IMAX(PhysicalParameter.FLOW),
     TAP(PhysicalParameter.ANGLE);
 
     private PhysicalParameter physicalParameter;

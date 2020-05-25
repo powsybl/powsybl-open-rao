@@ -21,10 +21,10 @@ import static org.junit.Assert.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ThresholdAdderImplTest {
+    private static final double DOUBLE_TOLERANCE = 1e-6;
     private SimpleCrac crac;
     private Contingency contingency;
     private Instant instant;
-    private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Before
     public void setUp() {
@@ -82,13 +82,13 @@ public class ThresholdAdderImplTest {
                 .setId("test-cnec").setInstant(instant).setContingency(contingency)
                 .newNetworkElement().setId(lineId).add()
                 .newThreshold()
-                .setUnit(Unit.PERCENT)
+                .setUnit(Unit.PERCENT_IMAX)
                 .setMaxValue(50.0)
                 .setSide(Side.LEFT)
                 .setDirection(Direction.DIRECT)
                 .add()
                 .newThreshold()
-                .setUnit(Unit.PERCENT)
+                .setUnit(Unit.PERCENT_IMAX)
                 .setMaxValue(80.0)
                 .setSide(Side.LEFT)
                 .setDirection(Direction.OPPOSITE)
