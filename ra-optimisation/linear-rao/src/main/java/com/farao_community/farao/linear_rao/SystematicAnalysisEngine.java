@@ -157,6 +157,7 @@ class SystematicAnalysisEngine {
 
         List<Double> marginsInAmpere = linearRaoData.getCrac().getCnecs().stream().map(cnec ->
             cnec.computeMargin(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), Unit.AMPERE)
+            // todo : check if the intensity are signed
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN)) {
