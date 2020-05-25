@@ -1,5 +1,4 @@
 {
   "version" : "1.0",
-  "rao-with-loop-flow-limitation" : false,
-  "loopflow-approximation" : false
+  "rao-with-loop-flow-limitation" : false
 }

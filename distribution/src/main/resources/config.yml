@@ -63,7 +63,6 @@ rao:
 
 rao-parameters:
     rao-with-loop-flow-limitation: false
-    loopflow-approximation: false
 
 linear-rao-parameters:
     max-number-of-iterations: 10

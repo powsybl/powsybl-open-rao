@@ -30,7 +30,6 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
 
         jsonGenerator.writeStringField("version", RaoParameters.VERSION);
         jsonGenerator.writeBooleanField("rao-with-loop-flow-limitation", parameters.isRaoWithLoopFlowLimitation());
-        jsonGenerator.writeBooleanField("loopflow-approximation", parameters.isLoopflowApproximation());
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();

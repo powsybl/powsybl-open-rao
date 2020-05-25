@@ -16,20 +16,16 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
+    private double loopFlowConstraint;
     private double inputLoopFlow; //input loop flow threshold from TSO for each cross zonal Cnec. absolute value in MW
-    private double loopFlowConstraint; // = max (Abs(inputLoopflow), Abs(initial loopflow))
-    private double loopflowShift; //ptdf * net position
-    private boolean hasLoopflowShift; //has previous calculated loopflow shift value
+    // todo change inputloopflow from double to Threshold if necessary for better unit and absolute/relative management?
+
+    public CnecLoopFlowExtension() {
+        this.inputLoopFlow = 0.0; // default value 0
+    }
 
     public CnecLoopFlowExtension(double inputLoopFlow) {
         this.inputLoopFlow = inputLoopFlow;
-        this.loopFlowConstraint = Double.NaN;
-        this.loopflowShift = Double.NaN;
-        this.hasLoopflowShift = false;
-    }
-
-    public CnecLoopFlowExtension() {
-        this(0.0);
     }
 
     /**
@@ -59,22 +55,5 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
     @Override
     public String getName() {
         return "CnecLoopFlowExtension";
-    }
-
-    public double getLoopflowShift() {
-        return loopflowShift;
-    }
-
-    public void setLoopflowShift(double loopflowShift) {
-        this.loopflowShift = loopflowShift;
-        setHasLoopflowShift(true);
-    }
-
-    public boolean hasLoopflowShift() {
-        return hasLoopflowShift;
-    }
-
-    public void setHasLoopflowShift(boolean hasLoopflowShift) {
-        this.hasLoopflowShift = hasLoopflowShift;
     }
 }

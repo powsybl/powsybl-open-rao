@@ -10,7 +10,6 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -71,9 +70,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setLoopflowApproximation(false);
-        linearRaoParameters.setExtendable(raoParameters);
         coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // fill max loop flow

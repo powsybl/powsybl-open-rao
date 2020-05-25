@@ -91,13 +91,9 @@ public class LoopFlowComputation {
 
     public Map<String, Double> calculateLoopFlows(Network network) {
         Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(network); //get reference flow
-        Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(network); //compute PTDF * NetPosition
-        return buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts); //compute loopflow
-    }
-
-    public Map<String, Double> calculateLoopFlowsApproximation(Network network) {
-        Map<Cnec, Double> frefResults = computeRefFlowOnCurrentNetwork(network); //get reference flow
-        Map<Cnec, Double> loopFlowShifts = buildLoopflowShiftsApproximation(crac);
+        Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
+        Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
+        Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
         return buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts); //compute loopflow
     }
 
@@ -182,13 +178,6 @@ public class LoopFlowComputation {
             loopFlowShift.put(cnec, sum);
         }
         return loopFlowShift;
-    }
-
-    public Map<Cnec, Double> buildLoopflowShiftsApproximation(Crac crac) {
-        Map<Cnec, Double> loopflowShifts = new HashMap<>();
-        crac.getCnecs(crac.getPreventiveState()).forEach(cnec ->
-                loopflowShifts.put(cnec, cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift()));
-        return loopflowShifts;
     }
 
     public Map<String, Double> buildLoopFlowsFromReferenceFlowAndLoopflowShifts(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
