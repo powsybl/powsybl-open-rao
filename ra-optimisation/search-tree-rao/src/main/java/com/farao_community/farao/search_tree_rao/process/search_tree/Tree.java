@@ -17,6 +17,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
+import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,10 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static java.lang.String.*;
@@ -47,6 +51,7 @@ public final class Tree {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Tree.class);
     private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
+    private static final Lock LOCK = new ReentrantLock();
 
     private Tree() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -87,28 +92,11 @@ public final class Tree {
                 break;
             }
 
-            evaluateLeaves(network, crac, newNetworkVariant, parameters, generatedLeaves);
-            List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
-
-            hasImproved = false;
-            double oldOptimalCost = optimalLeaf.getCost(crac);
-            logOptimalLeaf(optimalLeaf, crac);
-            LOGGER.info("Leaves results:");
-            for (Leaf currentLeaf: successfulLeaves) {
-                logLeafResults(currentLeaf, crac);
-                if (optimalLeaf.getCost(crac) > currentLeaf.getCost(crac)
-                    && improvedEnough(oldOptimalCost, currentLeaf.getCost(crac), searchTreeRaoParameters)) {
-                    hasImproved = true;
-                    optimalLeaf.deletePostOptimResultVariant(crac);
-                    optimalLeaf = currentLeaf;
-                } else {
-                    currentLeaf.deletePostOptimResultVariant(crac);
-                }
-                currentLeaf.deletePreOptimResultVariant(crac);
-            }
-            logOptimalLeaf(optimalLeaf, crac);
-            if (!hasImproved) {
-                LOGGER.info("No sufficient improvements at tree depth, optimization will stop");
+            Leaf bestLeaf = findBestLeaf(optimalLeaf, network, crac, newNetworkVariant, parameters, generatedLeaves);
+            hasImproved = improvedEnough(optimalLeaf.getCost(crac), bestLeaf.getCost(crac), searchTreeRaoParameters);
+            if (hasImproved) {
+                optimalLeaf.deletePostOptimResultVariant(crac);
+                optimalLeaf = bestLeaf;
             }
             depth += 1;
         }
@@ -146,22 +134,46 @@ public final class Tree {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
+    private static Leaf findBestLeaf(Leaf optimalLeaf, Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
         AtomicInteger remainingLeaves = new AtomicInteger(generatedLeaves.size());
+        AtomicDouble currentLowestCost = new AtomicDouble(optimalLeaf.getCost(crac));
+        List<Leaf> bestLeaves = new ArrayList<>();
+        bestLeaves.add(optimalLeaf);
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel())) {
             networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
                     leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
+                    if (leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS) {
+                        boolean variantIsKept = false;
+                        boolean isLockAcquired = LOCK.tryLock(1, TimeUnit.SECONDS);
+                        if (isLockAcquired) {
+                            try {
+                                if (leaf.getCost(crac) < currentLowestCost.get()) {
+                                    variantIsKept = true;
+                                    currentLowestCost.set(leaf.getCost(crac));
+                                    bestLeaves.add(leaf);
+                                }
+                            } finally {
+                                LOCK.unlock();
+                            }
+                        }
+                        if (!variantIsKept) {
+                            leaf.deletePostOptimResultVariant(crac);
+                        }
+                        leaf.deletePreOptimResultVariant(crac);
+                    }
                     networkPool.releaseUsedNetwork(networkClone);
                     LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             })).get();
+            return bestLeaves.get(bestLeaves.size() - 1);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return bestLeaves.get(bestLeaves.size() - 1);
         } catch (ExecutionException e) {
             throw new FaraoException(e);
         }
