@@ -34,7 +34,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
-        buildMaxLoopFlowConstraint(linearRaoData, linearRaoProblem);
+        buildMaxLoopFlowConstraint(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Override
@@ -48,9 +48,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
-    private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac()); //todo optimization => do not recalculate loopflowShifts, use the one in the CracResult
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork()); //todo: validate assumption that "loopflowShift" does not change "much"
+    private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
+        Map<Cnec, Double> loopFlowShifts;
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac());
+        if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) {
+            loopFlowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(linearRaoData.getCrac());
+        } else {
+            loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
+        }
 
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             double loopFlowShift = 0.0;
