@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
@@ -117,8 +118,12 @@ class SystematicAnalysisEngine {
     }
 
     private Map<String, Double> computeLoopflowAndCheckLoopflowConstraint(LinearRaoData linearRaoData) {
-        //todo: optim: if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
-        Map<String, Double> loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+        Map<String, Double> loopflows = new HashMap<>();
+        if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) { //re-compute ptdf
+            loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlowsApproximation(linearRaoData.getNetwork());
+        } else {
+            loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+        }
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             if (Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
                 setLoopflowViolation(true);
