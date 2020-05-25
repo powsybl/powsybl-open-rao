@@ -57,6 +57,7 @@ public class CneExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
+        // TODO: Future feature: parametrize the choice of the unit (not useful for now)
         CneFiller.generate(crac, network, Unit.MEGAWATT);
         CriticalNetworkElementMarketDocument cne = CneFiller.getCne();
         StringWriter stringWriter = new StringWriter();

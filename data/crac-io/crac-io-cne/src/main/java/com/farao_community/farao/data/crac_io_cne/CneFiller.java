@@ -65,6 +65,7 @@ public final class CneFiller {
 
             CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
+            // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
             String preOptimVariantId;
             String postOptimVariantId;
 
