@@ -197,9 +197,16 @@ public final class Tree {
 
     private static void logLeafResults(Leaf leaf, Crac crac) {
         LOGGER.info(generateLeafResults(leaf, crac));
+        LOGGER.debug(generateRangeActionResults(leaf, crac));
     }
 
     private static String generateLeafResults(Leaf leaf, Crac crac) {
+        return format("%s: minimum margin = %f",
+            leaf.isRoot() ? "root leaf" : leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
+            -leaf.getCost(crac));
+    }
+
+    private static String generateRangeActionResults(Leaf leaf, Crac crac) {
         String rangeActionResults = crac.getRangeActions()
             .stream()
             .map(rangeAction -> format("%s: %d",
@@ -208,9 +215,8 @@ public final class Tree {
                     .getVariant(leaf.getRaoResult().getPostOptimVariantId()))
                     .getTap(crac.getPreventiveState().getId())))
             .collect(Collectors.joining(", "));
-        return format("%s: minimum margin = %f (%s)",
+        return format("%s: range actions = %s",
             leaf.isRoot() ? "root leaf" : leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
-            -leaf.getCost(crac),
             rangeActionResults);
     }
 
