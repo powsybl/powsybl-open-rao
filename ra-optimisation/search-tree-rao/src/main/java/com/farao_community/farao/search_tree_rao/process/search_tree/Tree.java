@@ -87,7 +87,7 @@ public final class Tree {
                 break;
             }
 
-            evaluateLeaves(network, crac, newNetworkVariant, parameters, generatedLeaves);
+            evaluateLeaves(network, crac, referenceNetworkVariant, parameters, generatedLeaves);
             List<Leaf> successfulLeaves = generatedLeaves.stream().filter(leaf -> leaf.getStatus() == Leaf.Status.EVALUATION_SUCCESS).collect(Collectors.toList());
 
             hasImproved = false;
