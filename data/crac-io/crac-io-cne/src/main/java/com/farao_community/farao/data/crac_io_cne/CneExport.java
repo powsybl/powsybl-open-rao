@@ -58,8 +58,9 @@ public class CneExport implements CracExporter {
     @Override
     public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
         // TODO: Future feature: parametrize the choice of the unit (not useful for now)
-        CneFiller.generate(crac, network, Unit.MEGAWATT);
-        CriticalNetworkElementMarketDocument cne = CneFiller.getCne();
+        Cne cne = new Cne();
+        cne.generate(crac, network, Unit.MEGAWATT);
+        CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
 
         try {
@@ -71,7 +72,7 @@ public class CneExport implements CracExporter {
             jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, CNE_XSD_2_4);
 
             QName qName = new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, CNE_TAG);
-            JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName, CriticalNetworkElementMarketDocument.class, cne);
+            JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName, CriticalNetworkElementMarketDocument.class, marketDocument);
 
             jaxbMarshaller.marshal(root, stringWriter);
 
