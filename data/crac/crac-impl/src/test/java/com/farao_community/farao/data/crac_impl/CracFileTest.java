@@ -672,8 +672,9 @@ public class CracFileTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
 
-        simpleCrac.generateValidityReport(network);
+        List<String> validityReport = simpleCrac.generateValidityReport(network);
 
+        assertEquals(5, validityReport.size());
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
         assertEquals(0, simpleCrac.getRangeActions().size());

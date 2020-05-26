@@ -246,5 +246,5 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     NetworkAction getNetworkAction(String id);
 
     // General methods
-    void generateValidityReport(Network network);
+    List<String> generateValidityReport(Network network);
 }
