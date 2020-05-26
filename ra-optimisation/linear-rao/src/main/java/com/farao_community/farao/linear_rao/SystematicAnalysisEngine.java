@@ -155,10 +155,8 @@ class SystematicAnalysisEngine {
 
     private double getMinMarginInAmpere(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
 
-        List<Double> marginsInAmpere = linearRaoData.getCrac().getCnecs().stream().map(cnec -> {
-            double signedFlowInA = Math.signum(systematicSensitivityAnalysisResult.getReferenceFlow(cnec)) * systematicSensitivityAnalysisResult.getReferenceIntensity(cnec);
-            return cnec.computeMargin(signedFlowInA, Unit.AMPERE);
-            }
+        List<Double> marginsInAmpere = linearRaoData.getCrac().getCnecs().stream().map(cnec ->
+            cnec.computeMargin(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), Unit.AMPERE)
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN)) {
