@@ -29,9 +29,11 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
+        jsonGenerator.writeObjectField("objective-function", linearRaoParameters.getObjectiveFunction());
         jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
         jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
+        jsonGenerator.writeNumberField("sensitivity-fallback-overcost", linearRaoParameters.getFallbackOvercost());
 
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
@@ -54,6 +56,9 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                     jsonParser.nextToken();
                     linearRaoParameters.setMaxIterations(jsonParser.getIntValue());
                     break;
+                case "objective-function":
+                    linearRaoParameters.setObjectiveFunction(stringToObjectiveFunction(jsonParser.nextTextValue()));
+                    break;
                 case "security-analysis-without-rao":
                     jsonParser.nextToken();
                     linearRaoParameters.setSecurityAnalysisWithoutRao(jsonParser.getBooleanValue());
@@ -65,6 +70,10 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                 case "pst-penalty-cost":
                     jsonParser.nextToken();
                     linearRaoParameters.setPstPenaltyCost(jsonParser.getDoubleValue());
+                    break;
+                case "sensitivity-fallback-overcost":
+                    jsonParser.nextToken();
+                    linearRaoParameters.setFallbackOvercost(jsonParser.getDoubleValue());
                     break;
                 case "sensitivity-parameters":
                     jsonParser.nextToken();
@@ -98,5 +107,13 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
     @Override
     public Class<? super LinearRaoParameters> getExtensionClass() {
         return LinearRaoParameters.class;
+    }
+
+    private LinearRaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {
+        try {
+            return LinearRaoParameters.ObjectiveFunction.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown objective function value : %s", string));
+        }
     }
 }
