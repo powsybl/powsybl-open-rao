@@ -372,10 +372,10 @@ public class Cne {
     private void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
         RangeAction rangeAction = (RangeAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
-            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+            RangeActionResult preOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId);
             RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
-            if (postOptimRangeActionResult.isActivated(state.getId()) &&
-                rangeActionResultExtension.getVariant(postOptimVariantId).getSetPoint(state.getId()) != rangeActionResultExtension.getVariant(preOptimVariantId).getSetPoint(state.getId())) {
+            if (preOptimRangeActionResult != null && postOptimRangeActionResult != null
+                && CneUtil.isActivated(state.getId(), preOptimRangeActionResult, postOptimRangeActionResult)) {
                 if (constraintSeries.remedialActionSeries == null) {
                     constraintSeries.remedialActionSeries = new ArrayList<>();
                 }
@@ -398,7 +398,11 @@ public class Cne {
     private void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList) {
         NetworkAction networkAction = (NetworkAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
-            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
+            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(preOptimVariantId) != null
+                && networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId) != null
+                && CneUtil.isActivated(state.getId(),
+                networkAction.getExtension(NetworkActionResultExtension.class).getVariant(preOptimVariantId),
+                networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId))) {
                 if (constraintSeries.remedialActionSeries == null) {
                     constraintSeries.remedialActionSeries = new ArrayList<>();
                 }
