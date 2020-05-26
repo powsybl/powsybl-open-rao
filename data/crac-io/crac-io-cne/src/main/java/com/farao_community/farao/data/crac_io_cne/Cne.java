@@ -35,6 +35,8 @@ public class Cne {
     private List<Instant> instants;
     private Map<State, ConstraintSeries> constraintSeriesMapB57;
     private Map<State, ConstraintSeries> constraintSeriesMapB56;
+    private String preOptimVariantId;
+    private String postOptimVariantId;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Cne.class);
 
@@ -42,6 +44,8 @@ public class Cne {
         marketDocument = new CriticalNetworkElementMarketDocument();
         constraintSeriesMapB57 = new HashMap<>();
         constraintSeriesMapB56 = new HashMap<>();
+        preOptimVariantId = "";
+        postOptimVariantId = "";
     }
 
     public CriticalNetworkElementMarketDocument getMarketDocument() {
@@ -70,9 +74,6 @@ public class Cne {
             CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
             // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
-            String preOptimVariantId;
-            String postOptimVariantId;
-
             // define preOptimVariant and postOptimVariant
             List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
 
@@ -94,7 +95,7 @@ public class Cne {
                 }
 
                 // fill CNE
-                createAllConstraintSeries(point, crac, preOptimVariantId, postOptimVariantId, chosenExportUnit, network);
+                createAllConstraintSeries(point, crac, chosenExportUnit, network);
                 addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
             } else {
                 addFailureReasonToPoint(point);
@@ -156,7 +157,7 @@ public class Cne {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private void createAllConstraintSeries(Point point, Crac crac, String preOptimVariantId, String postOptimVariantId, Unit chosenExportUnit, Network network) {
+    private void createAllConstraintSeries(Point point, Crac crac, Unit chosenExportUnit, Network network) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
@@ -172,12 +173,12 @@ public class Cne {
             contingency -> createAllConstraintSeriesOfAContingency(contingency, constraintSeriesList, crac.getStates(contingency)));
 
         /* Monitored Elements*/
-        List<ConstraintSeries> constraintSeriesListB57 = constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).collect(Collectors.toList());
-        crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, postOptimVariantId, chosenExportUnit, network));
+        List<ConstraintSeries> constraintSeriesListB57 = new ArrayList<>(constraintSeriesMapB57.values());
+        crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, chosenExportUnit, network));
 
         /* Remedial Actions*/
-        crac.getNetworkActions().forEach(networkAction -> addRemedialActionsToConstraintSeries(networkAction, preOptimVariantId, postOptimVariantId));
-        crac.getRangeActions().forEach(rangeAction -> addRemedialActionsToConstraintSeries(rangeAction, preOptimVariantId, postOptimVariantId));
+        crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
+        crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
 
         point.constraintSeries = constraintSeriesList;
     }
@@ -211,10 +212,10 @@ public class Cne {
      MONITORED ELEMENTS
      *****************/
     // Adds to the ConstraintSeries all elements relative to a cnec
-    private void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, String postOptimVariantId, Unit chosenExportUnit, Network network) {
+    private void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, Unit chosenExportUnit, Network network) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, postOptimVariantId, chosenExportUnit, network);
+        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, chosenExportUnit, network);
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -230,10 +231,10 @@ public class Cne {
     }
 
     // Creates a MonitoredSeries from a given cnec
-    private void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, String postOptimVariantId, Unit chosenExportUnit, Network network) {
+    private void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, Unit chosenExportUnit, Network network) {
 
         // create measurements
-        List<Analog> measurementsList = createMeasurements(cnec, postOptimVariantId, chosenExportUnit);
+        List<Analog> measurementsList = createMeasurements(cnec, chosenExportUnit);
         // add measurements to monitoredRegisteredResource
         MonitoredRegisteredResource monitoredRegisteredResource = createMonitoredRegisteredResource(cnec.getNetworkElement(), measurementsList, network);
         // add monitoredRegisteredResource to monitoredSeries
@@ -259,7 +260,7 @@ public class Cne {
     }
 
     // Creates all Measurements (flow and thresholds)
-    private List<Analog> createMeasurements(Cnec cnec, String postOptimVariantId, Unit chosenExportUnit) {
+    private List<Analog> createMeasurements(Cnec cnec, Unit chosenExportUnit) {
         List<Analog> measurementsList = new ArrayList<>();
 
         Unit finalUnit = chosenExportUnit;
@@ -319,31 +320,20 @@ public class Cne {
      REMEDIAL ACTIONS
      *****************/
     // Adds to the ConstraintSeries all RemedialActionSeries needed
-    private void addRemedialActionsToConstraintSeries(RemedialAction remedialAction, String preOptimVariantId, String postOptimVariantId) {
+    private void addRemedialActionsToConstraintSeries(RemedialAction remedialAction) {
 
         if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, false);
+            addActivatedNetworkAction(remedialAction, constraintSeriesMapB56);
+            addActivatedNetworkAction(remedialAction, constraintSeriesMapB57);
         }
         if (remedialAction.getExtension(RangeActionResultExtension.class) != null) {
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB56, false);
-            addActivatedRemedialActionSeries(remedialAction, preOptimVariantId, postOptimVariantId, constraintSeriesMapB57, true);
-        }
-    }
-
-    // Adds to the ConstraintSeries a complete RemedialActionSeries created after any RemedialAction
-    private void addActivatedRemedialActionSeries(RemedialAction<?> remedialAction, String preOptimVariantId, String postOptimVariantId, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
-        if (remedialAction instanceof NetworkAction) {
-            addActivatedNetworkAction(remedialAction, constraintSeriesList, postOptimVariantId);
-        } else if (remedialAction instanceof RangeAction) {
-            addActivatedRangeAction(remedialAction, constraintSeriesList, preOptimVariantId, postOptimVariantId, createResource);
-        } else {
-            throw new FaraoException(String.format("Remedial action %s of incorrect type", remedialAction.getId()));
+            addActivatedRangeAction(remedialAction, constraintSeriesMapB56, false);
+            addActivatedRangeAction(remedialAction, constraintSeriesMapB57, true);
         }
     }
 
     // Adds to the ConstraintSeries a complete RemedialActionSeries created after a RangeAction
-    private void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, boolean createResource) {
+    private void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
         RangeAction rangeAction = (RangeAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
             RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
@@ -369,7 +359,7 @@ public class Cne {
     }
 
     // Adds to the ConstraintSeries a complete RemedialActionSeries created after a NetworkAction
-    private void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, String postOptimVariantId) {
+    private void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList) {
         NetworkAction networkAction = (NetworkAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
             if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).isActivated(state.getId())) {
