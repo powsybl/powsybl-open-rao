@@ -62,9 +62,6 @@ public class Cne {
             crac.synchronize(network);
         }
 
-        // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
-        instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
-
         fillHeader(crac.getNetworkDate());
         addTimeSeriesToCne(crac.getNetworkDate());
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
@@ -78,21 +75,7 @@ public class Cne {
             List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
 
             if (!variants.isEmpty()) {
-
-                preOptimVariantId = variants.get(0);
-                postOptimVariantId = variants.get(0);
-
-                double minCost = cracExtension.getVariant(variants.get(0)).getCost();
-                double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
-                for (String variant : variants) {
-                    if (cracExtension.getVariant(variants.get(0)).getCost() < minCost) {
-                        minCost = cracExtension.getVariant(variant).getCost();
-                        postOptimVariantId = variant;
-                    } else if (cracExtension.getVariant(variants.get(0)).getCost() > maxCost) {
-                        maxCost = cracExtension.getVariant(variant).getCost();
-                        preOptimVariantId = variant;
-                    }
-                }
+                initializeAttributes(crac, cracExtension, variants);
 
                 // fill CNE
                 createAllConstraintSeries(point, crac, chosenExportUnit, network);
@@ -103,6 +86,26 @@ public class Cne {
             }
         } else { // Failure of computation
             addFailureReasonToPoint(point);
+        }
+    }
+
+    private void initializeAttributes(Crac crac, CracResultExtension cracExtension, List<String> variants) {
+        // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
+        instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
+
+        preOptimVariantId = variants.get(0);
+        postOptimVariantId = variants.get(0);
+
+        double minCost = cracExtension.getVariant(variants.get(0)).getCost();
+        double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
+        for (String variant : variants) {
+            if (cracExtension.getVariant(variants.get(0)).getCost() < minCost) {
+                minCost = cracExtension.getVariant(variant).getCost();
+                postOptimVariantId = variant;
+            } else if (cracExtension.getVariant(variants.get(0)).getCost() > maxCost) {
+                maxCost = cracExtension.getVariant(variant).getCost();
+                preOptimVariantId = variant;
+            }
         }
     }
 
