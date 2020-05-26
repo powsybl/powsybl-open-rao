@@ -64,8 +64,8 @@ public class LinearRao implements RaoProvider {
                                              ComputationManager computationManager,
                                              RaoParameters raoParameters) {
         network.getVariantManager().setWorkingVariant(variantId);
-        RaoInput.synchronize(crac, network);
         RaoInput.cleanCrac(crac, network);
+        RaoInput.synchronize(crac, network);
         RaoData raoData = new RaoData(network, crac);
         try {
             // check config
