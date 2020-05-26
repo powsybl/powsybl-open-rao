@@ -275,57 +275,78 @@ public class Cne {
     private List<Analog> createMeasurements(Cnec cnec, Unit chosenExportUnit) {
         List<Analog> measurementsList = new ArrayList<>();
 
-        Unit finalUnit = chosenExportUnit;
-
-        // Flows
         if (cnec.getExtension(CnecResultExtension.class) != null) {
             CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
             CnecResult cnecResult = cnecResultExtension.getVariant(postOptimVariantId);
 
-            finalUnit = handleFlow(cnecResult, chosenExportUnit, measurementsList);
-        }
+            // Flows
+            Unit finalUnit = handleFlowOrThreshold(cnecResult, chosenExportUnit, measurementsList, FLOW_MEASUREMENT_TYPE);
 
-        // Thresholds
-        handleThresholds(cnec, finalUnit, measurementsList);
+            // Thresholds
+            handleFlowOrThreshold(cnecResult, finalUnit, measurementsList, instantToCodeConverter(cnec.getState().getInstant()));
+
+            if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
+                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(PATL_MEASUREMENT_TYPE, finalUnit, threshold)));
+            } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
+                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_MEASUREMENT_TYPE, finalUnit, threshold)));
+            }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
+                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_AUTO_MEASUREMENT_TYPE, finalUnit, threshold)));
+            } else { // After CRA
+                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_CRA_MEASUREMENT_TYPE, finalUnit, threshold)));
+            }
+        }
 
         return measurementsList;
     }
 
-    // TODO: is this done correctly?
-    // Creates a Measurement from flow
-    private Unit handleFlow(CnecResult cnecResult, Unit chosenExportUnit, List<Analog> measurementsList) {
+    private String instantToCodeConverter(Instant instant) {
+        if (instant.equals(instants.get(0))) { // Before contingency
+            return PATL_MEASUREMENT_TYPE;
+        } else if (instant.equals(instants.get(1))) { // After contingency, before any post-contingency RA
+            return TATL_MEASUREMENT_TYPE;
+        } else if (instant.equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
+            return TATL_AFTER_AUTO_MEASUREMENT_TYPE;
+        } else { // After CRA
+            return TATL_AFTER_CRA_MEASUREMENT_TYPE;
+        }
+    }
+
+    private Analog defMeasurementFromCnecResult(CnecResult cnecResult, String measurementType, Unit unit) {
+        if (measurementType.equals(FLOW_MEASUREMENT_TYPE)) {
+            if (unit.equals(Unit.AMPERE)) {
+                return newMeasurement(measurementType, unit, cnecResult.getFlowInA());
+            } else if (unit.equals(Unit.MEGAWATT)) {
+                return newMeasurement(measurementType, unit, cnecResult.getFlowInMW());
+            } else {
+                throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
+            }
+        } else {
+            if (unit.equals(Unit.AMPERE)) {
+                return newMeasurement(measurementType, unit, cnecResult.getMaxThresholdInA());
+            } else if (unit.equals(Unit.MEGAWATT)) {
+                return newMeasurement(measurementType, unit, cnecResult.getMaxThresholdInMW());
+            } else {
+                throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
+            }
+        }
+    }
+
+    // Creates a Measurement from flow or thresholds
+    private Unit handleFlowOrThreshold(CnecResult cnecResult, Unit chosenExportUnit, List<Analog> measurementsList, String measurementType) {
         Unit finalUnit = chosenExportUnit;
         if (chosenExportUnit.equals(Unit.AMPERE)) {
             if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.MEGAWATT;
-                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
-            } else { // normal case or case when nothing is defined
-                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
             }
         } else if (chosenExportUnit.equals(Unit.MEGAWATT)) {
             if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
                 finalUnit = Unit.AMPERE;
-                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInA()));
-            } else { // normal case or case when nothing is defined
-                measurementsList.add(newMeasurement(FLOW_MEASUREMENT_TYPE, chosenExportUnit, cnecResult.getFlowInMW()));
             }
         } else {
-            throw new FaraoException(String.format("Unhandled unit %s", chosenExportUnit.toString()));
+            throw new FaraoException(String.format(UNHANDLED_UNIT, chosenExportUnit.toString()));
         }
+        measurementsList.add(defMeasurementFromCnecResult(cnecResult, measurementType, finalUnit));
         return finalUnit;
-    }
-
-    // Creates Measurements from thresholds
-    private void handleThresholds(Cnec cnec, Unit unit, List<Analog> measurementsList) {
-        if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(PATL_MEASUREMENT_TYPE, unit, threshold)));
-        } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_MEASUREMENT_TYPE, unit, threshold)));
-        }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_AUTO_MEASUREMENT_TYPE, unit, threshold)));
-        } else { // After CRA
-            cnec.getMaxThreshold(unit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_CRA_MEASUREMENT_TYPE, unit, threshold)));
-        }
     }
 
     /*****************

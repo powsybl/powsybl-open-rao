@@ -14,6 +14,8 @@ package com.farao_community.farao.data.crac_io_cne;
  */
 public final class CneConstants {
 
+    public static final String UNHANDLED_UNIT = "Unhandled unit %s";
+
     /* General */
     public static final String CNE_XSD_2_4 = "iec62325-451-n-cne_v2_4.xsd";
     public static final String CNE_TAG = "CriticalNetworkElement_MarketDocument";
