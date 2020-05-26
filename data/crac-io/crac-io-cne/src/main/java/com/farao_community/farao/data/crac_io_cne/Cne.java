@@ -220,11 +220,24 @@ public class Cne {
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
             Contingency contingency = optionalContingency.get();
-            constraintSeriesList.stream().filter(
-                constraintSeries ->
-                    constraintSeries.getContingencySeries().stream().anyMatch(
+
+            List<MonitoredSeries> monitoredSeriesOfConstraintSeries =
+                constraintSeriesList.stream().filter(
+                    constraintSeries -> constraintSeries.getContingencySeries().stream().anyMatch(
                         contingencySeries -> contingencySeries.getMRID().equals(contingency.getId()))
-            ).findFirst().orElseThrow(FaraoException::new).monitoredSeries = monitoredSeriesList;
+            ).findFirst().orElseThrow(FaraoException::new).monitoredSeries;
+
+            if (monitoredSeriesOfConstraintSeries == null) {
+                constraintSeriesList.stream().filter(
+                    constraintSeries -> constraintSeries.getContingencySeries().stream().anyMatch(
+                        contingencySeries -> contingencySeries.getMRID().equals(contingency.getId()))
+                ).findFirst().orElseThrow(FaraoException::new).monitoredSeries = monitoredSeriesList;
+            } else {
+                constraintSeriesList.stream().filter(
+                    constraintSeries -> constraintSeries.getContingencySeries().stream().anyMatch(
+                        contingencySeries -> contingencySeries.getMRID().equals(contingency.getId()))
+                ).findFirst().orElseThrow(FaraoException::new).monitoredSeries.addAll(monitoredSeriesList);
+            }
         } else { // preventive
             constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getContingencySeries().isEmpty()).findFirst().orElseThrow(FaraoException::new).monitoredSeries = monitoredSeriesList;
         }
