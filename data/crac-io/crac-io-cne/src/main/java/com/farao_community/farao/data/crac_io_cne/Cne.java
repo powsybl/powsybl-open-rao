@@ -215,7 +215,7 @@ public class Cne {
     private void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, Unit chosenExportUnit, Network network) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        createMonitoredSeriesFromCnec(cnec, monitoredSeriesList, chosenExportUnit, network);
+        monitoredSeriesList.add(createMonitoredSeriesFromCnec(cnec, chosenExportUnit, network));
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -231,15 +231,14 @@ public class Cne {
     }
 
     // Creates a MonitoredSeries from a given cnec
-    private void createMonitoredSeriesFromCnec(Cnec cnec, List<MonitoredSeries> monitoredSeriesList, Unit chosenExportUnit, Network network) {
+    private MonitoredSeries createMonitoredSeriesFromCnec(Cnec cnec, Unit chosenExportUnit, Network network) {
 
         // create measurements
         List<Analog> measurementsList = createMeasurements(cnec, chosenExportUnit);
         // add measurements to monitoredRegisteredResource
         MonitoredRegisteredResource monitoredRegisteredResource = createMonitoredRegisteredResource(cnec.getNetworkElement(), measurementsList, network);
         // add monitoredRegisteredResource to monitoredSeries
-        MonitoredSeries monitoredSeries = newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResource);
-        monitoredSeriesList.add(monitoredSeries);
+        return newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResource);
     }
 
     private MonitoredRegisteredResource createMonitoredRegisteredResource(NetworkElement networkElement, List<Analog> measurementsList, Network network) {
