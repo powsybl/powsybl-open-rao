@@ -34,6 +34,7 @@ public class NetworkActionResult implements Result {
         stateIds.forEach(state -> activationMap.put(state, false));
     }
 
+    @Deprecated // this method doesn't work correctly, and should be deleted
     public boolean isActivated(String stateId) {
         return activationMap.getOrDefault(stateId, false);
     }

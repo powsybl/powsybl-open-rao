@@ -14,6 +14,7 @@ package com.farao_community.farao.data.crac_io_cne;
  */
 public final class CneConstants {
 
+    /* Messages */
     public static final String UNHANDLED_UNIT = "Unhandled unit %s";
 
     /* General */
