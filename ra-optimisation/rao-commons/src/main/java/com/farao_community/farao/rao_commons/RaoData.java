@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
@@ -27,7 +27,7 @@ import java.util.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LinearRaoData {
+public class RaoData {
 
     private static final String NO_WORKING_VARIANT = "No working variant is defined.";
     private static final String UNKNOWN_VARIANT = "Unknown variant %s";
@@ -46,7 +46,7 @@ public class LinearRaoData {
      * @param network: Network object.
      * @param crac: CRAC object.
      */
-    public LinearRaoData(Network network, Crac crac) {
+    public RaoData(Network network, Crac crac) {
         this.network = network;
         this.crac = crac;
         this.variantIds = new ArrayList<>();
@@ -219,7 +219,7 @@ public class LinearRaoData {
      * @return The data variant ID of the newly created variant.
      * @throws FaraoException if referenceVariantId is not an existing variant of the data.
      */
-    String cloneWorkingVariant() {
+    public String cloneWorkingVariant() {
         return createVariantFromWorkingVariant(VariantType.POST_OPTIM);
     }
 
@@ -232,7 +232,7 @@ public class LinearRaoData {
      *                      but it will keep the crac variant.
      * @throws FaraoException if variantId is not an existing data variant.
      */
-    void deleteVariant(String variantId, boolean keepCracResult) {
+    public void deleteVariant(String variantId, boolean keepCracResult) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
@@ -251,7 +251,7 @@ public class LinearRaoData {
      *
      * @param remainingCracResults IDs of the variants we want to keep the results in CRAC
      */
-    void clearWithKeepingCracResults(List<String> remainingCracResults) {
+    public void clearWithKeepingCracResults(List<String> remainingCracResults) {
         workingVariantId = null;
         String[] copiedIds = new String[variantIds.size()];
         variantIds.toArray(copiedIds);

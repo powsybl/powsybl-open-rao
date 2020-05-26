@@ -4,10 +4,10 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.optimisation.fillers;
+package com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
@@ -40,8 +40,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         // fill the problem : the core filler is required
-        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
-        maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        coreProblemFiller.fill(raoData, linearRaoProblem, fillerParameters);
+        maxMinMarginFiller.fill(raoData, linearRaoProblem, fillerParameters);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         try {
             // AbsoluteRangeActionVariables present, but no the FlowVariables
             linearRaoProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
-            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+            maxMinMarginFiller.fill(raoData, linearRaoProblem, fillerParameters);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -101,7 +101,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             // FlowVariables present , but not the absoluteRangeActionVariables present,
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec1);
             linearRaoProblem.addFlowVariable(0.0, 0.0, cnec2);
-            maxMinMarginFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+            maxMinMarginFiller.fill(raoData, linearRaoProblem, fillerParameters);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Range action variable"));

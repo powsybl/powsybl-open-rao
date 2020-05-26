@@ -1,18 +1,17 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.optimisation.fillers;
+package com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.linear_rao.LinearRaoData;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
-import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearRaoProblem;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -34,12 +33,12 @@ import java.util.*;
 public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
-    public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
-        buildMaxLoopFlowConstraint(linearRaoData, linearRaoProblem);
+    public void fill(RaoData raoData, LinearRaoProblem linearRaoProblem, FillerParameters fillerParameters) {
+        buildMaxLoopFlowConstraint(raoData, linearRaoProblem);
     }
 
     @Override
-    public void update(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
+    public void update(RaoData raoData, LinearRaoProblem linearRaoProblem, FillerParameters fillerParameters) {
         // do nothing
     }
 
@@ -49,11 +48,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
-    private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac(), linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class));
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
+    private void buildMaxLoopFlowConstraint(RaoData raoData, LinearRaoProblem linearRaoProblem) {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getCrac().getExtension(CracLoopFlowExtension.class));
+        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork());
 
-        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             if (loopFlowShifts.containsKey(cnec)) {

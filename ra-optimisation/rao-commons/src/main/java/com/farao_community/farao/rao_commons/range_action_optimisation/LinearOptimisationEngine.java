@@ -1,22 +1,20 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao;
+package com.farao_community.farao.rao_commons.range_action_optimisation;
 
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
-import com.farao_community.farao.linear_rao.optimisation.*;
-import com.farao_community.farao.linear_rao.optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.linear_rao.optimisation.fillers.CoreProblemFiller;
-import com.farao_community.farao.linear_rao.optimisation.fillers.MaxLoopFlowFiller;
-import com.farao_community.farao.linear_rao.optimisation.fillers.MaxMinMarginFiller;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearOptimisationException;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearRaoProblem;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
@@ -34,7 +32,7 @@ import static java.lang.String.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class LinearOptimisationEngine {
+public class LinearOptimisationEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearOptimisationEngine.class);
 
@@ -60,7 +58,7 @@ class LinearOptimisationEngine {
     /**
      * Constructor
      */
-    LinearOptimisationEngine(RaoParameters raoParameters) {
+    public LinearOptimisationEngine(RaoParameters raoParameters) {
         this.lpInitialised = false;
 
         // TODO : load the filler list from the config file and make sure they are ordered properly
@@ -72,30 +70,30 @@ class LinearOptimisationEngine {
      * optimisation problem of the LinearRao. It updates the LinearRaoData with optimisation result in the CRAC
      * and apply the new range action set points on the netork.
      *
-     * @param linearRaoData defines the data on which the creation of the optimisation problem
+     * @param raoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
      * @throws LinearOptimisationException if the method fails
      */
-    void run(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
+    public void run(RaoData raoData, FillerParameters fillerParameters) {
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearRaoProblem = createLinearRaoProblem();
-            buildProblem(linearRaoData, linearRaoParameters);
+            buildProblem(raoData, fillerParameters);
             lpInitialised = true;
         } else {
-            updateProblem(linearRaoData, linearRaoParameters);
+            updateProblem(raoData, fillerParameters);
         }
 
         solveLinearProblem();
-        fillCracResults(linearRaoProblem, linearRaoData);
-        linearRaoData.applyRangeActionResultsOnNetwork();
+        fillCracResults(linearRaoProblem, raoData);
+        raoData.applyRangeActionResultsOnNetwork();
     }
 
-    private void buildProblem(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
+    private void buildProblem(RaoData raoData, FillerParameters fillerParameters) {
         try {
-            fillerList.forEach(problemFiller -> problemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters));
+            fillerList.forEach(problemFiller -> problemFiller.fill(raoData, linearRaoProblem, fillerParameters));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -103,9 +101,9 @@ class LinearOptimisationEngine {
         }
     }
 
-    private void updateProblem(LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
+    private void updateProblem(RaoData raoData, FillerParameters fillerParameters) {
         try {
-            fillerList.forEach(problemFiller -> problemFiller.update(linearRaoData, linearRaoProblem, linearRaoParameters));
+            fillerList.forEach(problemFiller -> problemFiller.update(raoData, linearRaoProblem, fillerParameters));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -129,7 +127,7 @@ class LinearOptimisationEngine {
         }
     }
 
-    List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
+    public List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
         fillerList = new ArrayList<>();
         fillerList.add(new CoreProblemFiller());
         fillerList.add(new MaxMinMarginFiller());
@@ -139,25 +137,25 @@ class LinearOptimisationEngine {
         return fillerList;
     }
 
-    LinearRaoProblem createLinearRaoProblem() {
+    public LinearRaoProblem createLinearRaoProblem() {
         return new LinearRaoProblem();
     }
 
-    public static void fillCracResults(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData) {
-        String preventiveState = linearRaoData.getCrac().getPreventiveState().getId();
+    public static void fillCracResults(LinearRaoProblem linearRaoProblem, RaoData raoData) {
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
         LOGGER.debug(format("Expected minimum margin: %f", linearRaoProblem.getMinimumMarginVariable().solutionValue()));
-        for (RangeAction rangeAction: linearRaoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction: raoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                 double rangeActionVal = linearRaoProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
                 PstRange pstRange = (PstRange) rangeAction;
-                TwoWindingsTransformer transformer = linearRaoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+                TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
                 int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
                 double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(linearRaoData.getWorkingVariantId());
+                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                 pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
                 LOGGER.debug(format("Range action %s has been set to %d", pstRange.getName(), approximatedPostOptimTap));

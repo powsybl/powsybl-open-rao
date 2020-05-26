@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.optimisation.fillers;
+package com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -33,13 +33,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void fillProblemWithCoreFiller() {
         // arrange some additional data
-        linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
         // add a filter for PST sensis below 2.5
-        linearRaoParameters.setPstSensitivityThreshold(2.5);
+        fillerParameters.setPstSensitivityThreshold(2.5);
 
         // fill the problem
-        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        coreProblemFiller.fill(raoData, linearRaoProblem, fillerParameters);
     }
 
     @Test
@@ -48,9 +48,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         fillProblemWithCoreFiller();
 
         // some additional data
-        final double minAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
-        final double maxAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
-        final double currentAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
+        final double maxAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
@@ -115,7 +115,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void updateProblemWithCoreFiller() {
         // arrange some additional data
-        linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
+        raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
 
         when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT2);
         when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT2);
@@ -123,7 +123,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT2);
 
         // fill the problem
-        coreProblemFiller.update(linearRaoData, linearRaoProblem, linearRaoParameters);
+        coreProblemFiller.update(raoData, linearRaoProblem, fillerParameters);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateProblemWithCoreFiller();
 
         // some additional data
-        final double currentAlpha = linearRaoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         MPVariable setPointVariable = linearRaoProblem.getRangeActionSetPointVariable(rangeAction);
 

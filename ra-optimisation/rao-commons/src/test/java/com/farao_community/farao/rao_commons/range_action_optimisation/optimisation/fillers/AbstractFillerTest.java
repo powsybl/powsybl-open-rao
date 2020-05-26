@@ -1,19 +1,18 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.optimisation.fillers;
+package com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.linear_rao.LinearRaoData;
-import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
-import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
-import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.range_action_optimisation.mocks.MPSolverMock;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearRaoProblem;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
@@ -64,8 +63,8 @@ abstract class AbstractFillerTest {
     CoreProblemFiller coreProblemFiller;
     LinearRaoProblem linearRaoProblem;
     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
-    LinearRaoData linearRaoData;
-    LinearRaoParameters linearRaoParameters;
+    RaoData raoData;
+    FillerParameters fillerParameters;
     Crac crac;
     Network network;
 
@@ -76,7 +75,7 @@ abstract class AbstractFillerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        linearRaoData = new LinearRaoData(network, crac);
+        raoData = new RaoData(network, crac);
 
         // get cnec and rangeAction
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
@@ -94,9 +93,9 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
-        linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
 
         // parameters
-        linearRaoParameters = new LinearRaoParameters();
+        fillerParameters = new FillerParameters();
     }
 }

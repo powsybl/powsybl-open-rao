@@ -4,7 +4,7 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.linear_rao.optimisation.fillers;
+package com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers;
 
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
@@ -70,10 +70,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        coreProblemFiller.fill(raoData, linearRaoProblem, fillerParameters);
 
         // fill max loop flow
-        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        maxLoopFlowFiller.fill(raoData, linearRaoProblem, fillerParameters);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);

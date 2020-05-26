@@ -2,7 +2,8 @@ package com.farao_community.farao.linear_rao.optimisation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.linear_rao.mocks.MPSolverMock;
+import com.farao_community.farao.rao_commons.range_action_optimisation.mocks.MPSolverMock;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearRaoProblem;
 import com.google.ortools.linearsolver.MPSolver;
 import org.junit.Before;
 import org.junit.Test;

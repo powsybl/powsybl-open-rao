@@ -13,10 +13,16 @@ import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtens
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
-import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.SystematicAnalysisEngine;
+import com.farao_community.farao.rao_commons.range_action_optimisation.LinearOptimisationEngine;
+import com.farao_community.farao.rao_commons.range_action_optimisation.RangeActionOptimizer;
+import com.farao_community.farao.rao_commons.range_action_optimisation.RangeActionOptimizerParameters;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_commons.RaoInput;
+import com.farao_community.farao.rao_commons.range_action_optimisation.optimisation.fillers.FillerParameters;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
@@ -60,83 +66,65 @@ public class LinearRao implements RaoProvider {
         network.getVariantManager().setWorkingVariant(variantId);
         RaoInput.synchronize(crac, network);
         RaoInput.cleanCrac(crac, network);
-        LinearRaoData linearRaoData = new LinearRaoData(network, crac);
+        RaoData raoData = new RaoData(network, crac);
         try {
             // check config
-            linearRaoParametersQualityCheck(raoParameters, linearRaoData);
+            linearRaoParametersQualityCheck(raoParameters, raoData);
 
             // initiate engines
             LinearRaoParameters linearRaoParameters = LinearRaoConfigurationUtil.getLinearRaoParameters(raoParameters);
             LinearOptimisationEngine linearOptimisationEngine = new LinearOptimisationEngine(raoParameters);
-            SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
+            SystematicAnalysisEngine systematicAnalysisEngine;
+            if (linearRaoParameters.getFallbackSensiParameters() != null) {
+                systematicAnalysisEngine = new SystematicAnalysisEngine(
+                    linearRaoParameters.getSensitivityComputationParameters(),
+                    linearRaoParameters.getFallbackSensiParameters(),
+                    computationManager);
+            } else {
+                systematicAnalysisEngine = new SystematicAnalysisEngine(
+                    linearRaoParameters.getSensitivityComputationParameters(),
+                    computationManager);
+            }
 
             // run RAO algorithm
-            return runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters);
+            return runLinearRao(raoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters);
 
         } catch (FaraoException e) {
-            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(linearRaoData, e));
+            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
         }
     }
 
-    CompletableFuture<RaoResult> runLinearRao(LinearRaoData linearRaoData,
+    CompletableFuture<RaoResult> runLinearRao(RaoData raoData,
                                               SystematicAnalysisEngine systematicAnalysisEngine,
                                               LinearOptimisationEngine linearOptimisationEngine,
                                               LinearRaoParameters linearRaoParameters) {
-        linearRaoData.fillRangeActionResultsWithNetworkValues();
+        raoData.fillRangeActionResultsWithNetworkValues();
         LOGGER.info("Initial systematic analysis [start]");
-        systematicAnalysisEngine.run(linearRaoData);
-        LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -linearRaoData.getCracResult().getCost());
+        systematicAnalysisEngine.run(raoData);
+        LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
 
         // stop here if no optimisation should be done
-        if (skipOptim(linearRaoParameters, linearRaoData.getCrac())) {
-            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(linearRaoData, linearRaoData.getInitialVariantId(), systematicAnalysisEngine));
+        if (skipOptim(linearRaoParameters, raoData.getCrac())) {
+            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicAnalysisEngine));
         }
 
-        String bestVariantId = linearRaoData.getInitialVariantId();
-        String optimizedVariantId;
+        String bestVariantId = RangeActionOptimizer.optimize(
+            raoData,
+            raoData.getInitialVariantId(),
+            systematicAnalysisEngine,
+            linearOptimisationEngine,
+            new RangeActionOptimizerParameters(linearRaoParameters.getMaxIterations()),
+            new FillerParameters(linearRaoParameters.getPstPenaltyCost(), linearRaoParameters.getPstSensitivityThreshold())
+        );
 
-        for (int iteration = 1; iteration <= linearRaoParameters.getMaxIterations(); iteration++) {
-            optimizedVariantId = linearRaoData.cloneWorkingVariant();
-            linearRaoData.setWorkingVariant(optimizedVariantId);
-
-            // Look for a new RangeAction combination, optimized with the LinearOptimisationEngine
-            // Store found solutions in crac extension working variant
-            // Apply remedial actions on the network working variant
-            LOGGER.info("Iteration {} - linear optimization [start]", iteration);
-            linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
-            LOGGER.info("Iteration {} - linear optimization [end]", iteration);
-
-            // if the solution has not changed, stop the search
-            if (linearRaoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {
-                LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
-                break;
-            }
-            LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
-            // evaluate sensitivity coefficients and cost on the newly optimised situation
-            systematicAnalysisEngine.run(linearRaoData);
-            LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
-
-            if (linearRaoData.getCracResult(optimizedVariantId).getCost() < linearRaoData.getCracResult(bestVariantId).getCost()) { // if the solution has been improved, continue the search
-                LOGGER.warn("Iteration {} - Better solution found with a minimum margin of {} MW", iteration, -linearRaoData.getCracResult(optimizedVariantId).getCost());
-                if (!bestVariantId.equals(linearRaoData.getInitialVariantId())) {
-                    linearRaoData.deleteVariant(bestVariantId, false);
-                }
-                bestVariantId = optimizedVariantId;
-            } else { // unexpected behaviour, stop the search
-                LOGGER.warn("Iteration {} - Linear Optimization found a worse result than previous iteration: from {} MW to {} MW",
-                    iteration, -linearRaoData.getCracResult(bestVariantId).getCost(), -linearRaoData.getCracResult(optimizedVariantId).getCost());
-                break;
-            }
-        }
-
-        return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(linearRaoData, bestVariantId, systematicAnalysisEngine));
+        return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, bestVariantId, systematicAnalysisEngine));
     }
 
     /**
      * Quality check of the configuration
      */
-    private void linearRaoParametersQualityCheck(RaoParameters parameters, LinearRaoData linearRaoData) {
-        if (parameters.isRaoWithLoopFlowLimitation() && Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+    private void linearRaoParametersQualityCheck(RaoParameters parameters, RaoData raoData) {
+        if (parameters.isRaoWithLoopFlowLimitation() && Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
             throw new FaraoException("Loop flow parameters are inconsistent with CRAC loopflow extension");
         }
         List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
@@ -156,11 +144,11 @@ public class LinearRao implements RaoProvider {
     /**
      * Build the RaoResult in case of optimisation success
      */
-    private RaoResult buildSuccessfulRaoResultAndClearVariants(LinearRaoData linearRaoData, String postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
+    private RaoResult buildSuccessfulRaoResultAndClearVariants(RaoData raoData, String postOptimVariantId, SystematicAnalysisEngine systematicAnalysisEngine) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(linearRaoData.getInitialVariantId());
+        raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
         raoResult.setPostOptimVariantId(postOptimVariantId);
 
         // build extension
@@ -170,23 +158,23 @@ public class LinearRao implements RaoProvider {
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         // log
-        double minMargin = -linearRaoData.getCracResult(postOptimVariantId).getCost();
+        double minMargin = -raoData.getCracResult(postOptimVariantId).getCost();
         LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
 
-        linearRaoData.clearWithKeepingCracResults(Arrays.asList(linearRaoData.getInitialVariantId(), postOptimVariantId));
+        raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;
     }
 
     /**
      * Build the RaoResult in case of optimisation failure
      */
-    private RaoResult buildFailedRaoResultAndClearVariants(LinearRaoData linearRaoData, Exception e) {
+    private RaoResult buildFailedRaoResultAndClearVariants(RaoData raoData, Exception e) {
 
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
-        raoResult.setPreOptimVariantId(linearRaoData.getInitialVariantId());
-        raoResult.setPostOptimVariantId(linearRaoData.getWorkingVariantId());
+        raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
+        raoResult.setPostOptimVariantId(raoData.getWorkingVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -198,7 +186,7 @@ public class LinearRao implements RaoProvider {
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
-        linearRaoData.clearWithKeepingCracResults(Arrays.asList(linearRaoData.getInitialVariantId(), linearRaoData.getWorkingVariantId()));
+        raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), raoData.getWorkingVariantId()));
 
         return raoResult;
     }
