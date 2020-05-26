@@ -14,6 +14,8 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -22,6 +24,9 @@ import java.util.concurrent.CompletionException;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class SensitivityComputationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityComputationService.class);
+
     private static SensitivityComputationFactory sensitivityComputationFactory;
     private static ComputationManager computationManager;
 
@@ -44,9 +49,12 @@ public final class SensitivityComputationService {
             init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), computationManager);
         }
         SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
+        LOGGER.debug("Sensitivity computation [start]");
         CompletableFuture<SensitivityComputationResults> results = computation.run(factorsProvider, contingenciesProvider, workingStateId, sensitivityComputationParameters);
         try {
-            return results.join();
+            SensitivityComputationResults joinedResults = results.join();
+            LOGGER.debug("Sensitivity computation [end]");
+            return joinedResults;
         } catch (CompletionException e) {
             throw new FaraoException("Sensitivity computation failed");
         }

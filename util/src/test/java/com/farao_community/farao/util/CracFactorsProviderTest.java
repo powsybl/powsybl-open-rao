@@ -33,9 +33,9 @@ public class CracFactorsProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
-        assertEquals(12, factorList.size());
-        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
-        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
+        assertEquals(4, factorList.size());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
     }
 
     @Test
@@ -46,9 +46,9 @@ public class CracFactorsProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
-        assertEquals(12, factorList.size());
-        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
-        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
+        assertEquals(4, factorList.size());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
     }
 
     @Test
@@ -60,8 +60,8 @@ public class CracFactorsProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
-        assertEquals(12, factorList.size());
-        assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchFlowPerInjectionIncrease).count());
+        assertEquals(4, factorList.size());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerInjectionIncrease).count());
         //assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerInjectionIncrease).count());
     }
 }
