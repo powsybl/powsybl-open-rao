@@ -53,6 +53,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork()); //todo: validate assumption that "loopflowShift" does not change "much"
 
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+            if (Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                continue;
+            }
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             if (loopFlowShifts.containsKey(cnec)) {
