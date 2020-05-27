@@ -35,8 +35,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
     private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCrac.class);
-
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
     private Set<Contingency> contingencies;
