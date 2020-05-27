@@ -131,6 +131,7 @@ class SystematicAnalysisEngine {
     private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
         linearRaoData.getCracResult().setFunctionalCost(-getMinMargin(linearRaoData, systematicSensitivityAnalysisResult));
+        linearRaoData.getCracResult().setVirtualCost(fallbackMode ? linearRaoParameters.getFallbackOvercost() : 0);
         updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult);
     }
 
