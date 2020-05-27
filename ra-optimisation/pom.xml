@@ -20,8 +20,8 @@
         <module>linear-rao</module>
         <module>ra-optimisation-api</module>
         <module>rao-api</module>
-        <module>search-tree-rao</module>
         <module>rao-commons</module>
+        <module>search-tree-rao</module>
     </modules>
 
 </project>
