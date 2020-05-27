@@ -193,8 +193,8 @@ public class LinearRaoTest {
             public Object answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
                 LinearRaoData linearRaoData = (LinearRaoData) args[0];
-                linearRaoData.getCracResult().setCost(count == 1 ? 100.0 : 50.0);
-                crac.getExtension(CracResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setCost(count == 1 ? 100.0 : 50.0);
+                linearRaoData.getCracResult().setFunctionalCost(count == 1 ? 100.0 : 50.0);
+                crac.getExtension(CracResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setFunctionalCost(count == 1 ? 100.0 : 50.0);
                 count += 1;
                 return null;
             }
