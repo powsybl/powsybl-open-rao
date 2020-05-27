@@ -13,8 +13,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 
 import java.io.IOException;
 
@@ -27,22 +25,9 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
     @Override
     public void serialize(LinearRaoParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-
-        jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
         jsonGenerator.writeObjectField("objective-function", linearRaoParameters.getObjectiveFunction());
         jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
-        jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
-        jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
         jsonGenerator.writeNumberField("sensitivity-fallback-overcost", linearRaoParameters.getFallbackOvercost());
-
-        jsonGenerator.writeFieldName("sensitivity-parameters");
-        JsonSensitivityComputationParameters.serialize(linearRaoParameters.getSensitivityComputationParameters(), jsonGenerator, serializerProvider);
-
-        if (linearRaoParameters.getFallbackSensiParameters() != null) {
-            jsonGenerator.writeFieldName("fallback-sensitivity-parameters");
-            JsonSensitivityComputationParameters.serialize(linearRaoParameters.getFallbackSensiParameters(), jsonGenerator, serializerProvider);
-        }
-
         jsonGenerator.writeEndObject();
     }
 
@@ -52,10 +37,6 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "max-number-of-iterations":
-                    jsonParser.nextToken();
-                    linearRaoParameters.setMaxIterations(jsonParser.getIntValue());
-                    break;
                 case "objective-function":
                     linearRaoParameters.setObjectiveFunction(stringToObjectiveFunction(jsonParser.nextTextValue()));
                     break;
@@ -63,28 +44,9 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
                     jsonParser.nextToken();
                     linearRaoParameters.setSecurityAnalysisWithoutRao(jsonParser.getBooleanValue());
                     break;
-                case "pst-sensitivity-threshold":
-                    jsonParser.nextToken();
-                    linearRaoParameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
-                    break;
-                case "pst-penalty-cost":
-                    jsonParser.nextToken();
-                    linearRaoParameters.setPstPenaltyCost(jsonParser.getDoubleValue());
-                    break;
                 case "sensitivity-fallback-overcost":
                     jsonParser.nextToken();
                     linearRaoParameters.setFallbackOvercost(jsonParser.getDoubleValue());
-                    break;
-                case "sensitivity-parameters":
-                    jsonParser.nextToken();
-                    JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, linearRaoParameters.getSensitivityComputationParameters());
-                    break;
-                case "fallback-sensitivity-parameters":
-                    jsonParser.nextToken();
-                    if (linearRaoParameters.getFallbackSensiParameters() == null) {
-                        linearRaoParameters.setFallbackSensiParameters(new SensitivityComputationParameters());
-                    }
-                    JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, linearRaoParameters.getFallbackSensiParameters());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());

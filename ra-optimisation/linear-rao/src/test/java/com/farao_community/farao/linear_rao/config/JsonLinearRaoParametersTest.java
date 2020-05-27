@@ -26,11 +26,11 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
-        parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
+        //parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
         parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
-        parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
-        parameters.getExtension(LinearRaoParameters.class).setPstPenaltyCost(0.5);
+        //parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
+        //parameters.getExtension(LinearRaoParameters.class).setPstPenaltyCost(0.5);
         parameters.getExtension(LinearRaoParameters.class).setFallbackOvercost(100.0);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParameters.json");
     }
@@ -39,12 +39,12 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
     public void roundTripWithFallback() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
-        parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
+        //parameters.getExtension(LinearRaoParameters.class).setMaxIterations(20);
         parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
-        parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
+        //parameters.getExtension(LinearRaoParameters.class).setPstSensitivityThreshold(1.0);
         SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
-        parameters.getExtension(LinearRaoParameters.class).setFallbackSensiParameters(sensitivityComputationParameters);
+        //parameters.getExtension(LinearRaoParameters.class).setFallbackSensiParameters(sensitivityComputationParameters);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParametersWithFallback.json");
     }
 

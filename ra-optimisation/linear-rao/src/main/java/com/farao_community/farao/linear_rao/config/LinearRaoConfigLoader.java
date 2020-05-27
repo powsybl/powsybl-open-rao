@@ -11,7 +11,6 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Optional;
 
@@ -26,16 +25,11 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
     @Override
     public LinearRaoParameters load(PlatformConfig platformConfig) {
         LinearRaoParameters parameters = new LinearRaoParameters();
-        // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
-        parameters.setSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", LinearRaoParameters.DEFAULT_MAX_NUMBER_OF_ITERATIONS));
             parameters.setObjectiveFunction(config.getEnumProperty("objective-function", LinearRaoParameters.ObjectiveFunction.class, LinearRaoParameters.DEFAULT_OBJECTIVE_FUNCTION));
             parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", LinearRaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
-            parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", LinearRaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD));
-            parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", LinearRaoParameters.DEFAULT_PST_PENALTY_COST));
             parameters.setFallbackOvercost(config.getDoubleProperty("sensitivity-fallback-overcost", LinearRaoParameters.DEFAULT_FALLBACK_OVERCOST));
         }
         return parameters;

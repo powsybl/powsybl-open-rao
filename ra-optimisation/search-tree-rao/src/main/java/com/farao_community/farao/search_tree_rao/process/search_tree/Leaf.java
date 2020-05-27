@@ -12,10 +12,10 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -136,7 +136,7 @@ class Leaf {
      * This method takes a network variant which we switch too, since we may
      * not generate new variants while multithreading.
      */
-    void evaluate(Network network, Crac crac, String networkVariant, RaoParameters parameters) {
+    void evaluate(Network network, Crac crac, String networkVariant, RaoParameters raoParameters) {
         this.status = Status.EVALUATION_RUNNING;
 
         if (isRoot()) {
@@ -159,27 +159,13 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            RaoResult results = Rao.find(getRangeActionRaoName(parameters)).run(network, crac, networkVariant, parameters);
-            this.raoResult = results;
-            this.status = buildStatus(results);
-            if (this.status == Status.EVALUATION_SUCCESS) {
-                updateRaoResultWithNetworkActions(crac);
-            }
+            RaoData raoData = new RaoData(network, crac);
+            String bestVariantId = IteratingLinearOptimizer.optimize(raoData, raoParameters);
+            this.status = Status.EVALUATION_SUCCESS;
+            updateRaoResultWithNetworkActions(crac, bestVariantId);
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
-        }
-    }
-
-    private String getRangeActionRaoName(RaoParameters parameters) {
-        return SearchTreeConfigurationUtil.getSearchTreeParameters(parameters).getRangeActionRao();
-    }
-
-    private Status buildStatus(RaoResult results) {
-        if (results.isSuccessful()) {
-            return Status.EVALUATION_SUCCESS;
-        } else {
-            return Status.EVALUATION_ERROR;
         }
     }
 
@@ -208,11 +194,10 @@ class Leaf {
         return crac.getExtension(CracResultExtension.class).getVariant(raoResult.getPostOptimVariantId()).getCost();
     }
 
-    private void updateRaoResultWithNetworkActions(Crac crac) {
-        String variantId = raoResult.getPostOptimVariantId();
+    private void updateRaoResultWithNetworkActions(Crac crac, String bestVariantId) {
         String preventiveState = crac.getPreventiveState().getId();
         for (NetworkAction networkAction : networkActions) {
-            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
+            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(bestVariantId).activate(preventiveState);
         }
     }
 }
