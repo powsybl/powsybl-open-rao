@@ -82,7 +82,8 @@ public class LinearRao implements RaoProvider {
         linearRaoData.fillRangeActionResultsWithNetworkValues();
         LOGGER.info("Initial systematic analysis [start]");
         systematicAnalysisEngine.run(linearRaoData);
-        LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} {}", -linearRaoData.getCracResult().getCost(), linearRaoParameters.getObjectiveFunctionUnit());
+        LOGGER.info(String.format("Initial systematic analysis [end] - with initial min margin of %.2f %s (optimisation criterion : %.2f)",
+            -linearRaoData.getCracResult().getFunctionalCost(), linearRaoParameters.getObjectiveFunctionUnit(), linearRaoData.getCracResult().getCost()));
 
         // stop here if no optimisation should be done
         if (skipOptim(linearRaoParameters, linearRaoData.getCrac())) {
@@ -114,14 +115,18 @@ public class LinearRao implements RaoProvider {
             LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
 
             if (linearRaoData.getCracResult(optimizedVariantId).getCost() < linearRaoData.getCracResult(bestVariantId).getCost()) { // if the solution has been improved, continue the search
-                LOGGER.warn("Iteration {} - Better solution found with a minimum margin of {} {}", iteration, -linearRaoData.getCracResult(optimizedVariantId).getCost(), linearRaoParameters.getObjectiveFunctionUnit());
+
+                LOGGER.warn(String.format("Iteration %d - Better solution found with a minimum margin of %.2f %s (optimisation criterion : %.2f)",
+                    iteration, -linearRaoData.getCracResult(optimizedVariantId).getFunctionalCost(), linearRaoParameters.getObjectiveFunctionUnit(), linearRaoData.getCracResult(optimizedVariantId).getCost()));
+
                 if (!bestVariantId.equals(linearRaoData.getInitialVariantId())) {
                     linearRaoData.deleteVariant(bestVariantId, false);
                 }
+
                 bestVariantId = optimizedVariantId;
             } else { // unexpected behaviour, stop the search
-                LOGGER.warn("Iteration {} - Linear Optimization found a worse result than previous iteration: from {} {} to {} {}",
-                    iteration, -linearRaoData.getCracResult(bestVariantId).getCost(), linearRaoParameters.getObjectiveFunctionUnit(), -linearRaoData.getCracResult(optimizedVariantId).getCost(), linearRaoParameters.getObjectiveFunctionUnit());
+                LOGGER.warn(String.format("Iteration %d - Linear Optimization found a worse result than previous iteration, from %.2f to %.2f (optimisation criterion)",
+                    iteration, linearRaoData.getCracResult(bestVariantId).getCost(), linearRaoData.getCracResult(optimizedVariantId).getCost()));
                 break;
             }
         }
@@ -167,9 +172,10 @@ public class LinearRao implements RaoProvider {
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         // log
-        double minMargin = -linearRaoData.getCracResult(postOptimVariantId).getCost();
-        LOGGER.info("LinearRaoResult: minimum margin = {} {}, security status: {}", (int) minMargin, linearRaoParameters.getObjectiveFunctionUnit(), minMargin > 0 ?
-            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
+        double minMargin = -linearRaoData.getCracResult(postOptimVariantId).getFunctionalCost();
+        double objFunctionValue = linearRaoData.getCracResult(postOptimVariantId).getCost();
+        LOGGER.info(String.format("LinearRaoResult: minimum margin = %.2f %s, security status = %s, optimisation criterion = %.2f",
+            minMargin, linearRaoParameters.getObjectiveFunctionUnit(), linearRaoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(), objFunctionValue));
 
         linearRaoData.clearWithKeepingCracResults(Arrays.asList(linearRaoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;
