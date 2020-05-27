@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
@@ -32,20 +30,13 @@ import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 public class Cne {
 
     private CriticalNetworkElementMarketDocument marketDocument;
-    private List<Instant> instants;
-    private Map<State, ConstraintSeries> constraintSeriesMapB57;
-    private Map<State, ConstraintSeries> constraintSeriesMapB56;
-    private String preOptimVariantId;
-    private String postOptimVariantId;
+    private CneHelper cneHelper;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Cne.class);
 
     public Cne() {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        constraintSeriesMapB57 = new HashMap<>();
-        constraintSeriesMapB56 = new HashMap<>();
-        preOptimVariantId = "";
-        postOptimVariantId = "";
+        cneHelper = new CneHelper();
     }
 
     public CriticalNetworkElementMarketDocument getMarketDocument() {
@@ -56,7 +47,7 @@ public class Cne {
      GENERAL METHODS
      *****************/
     // Main method
-    public void generate(Crac crac, Network network, Unit chosenExportUnit) {
+    public void generate(Crac crac, Network network) {
 
         if (!crac.isSynchronized()) {
             crac.synchronize(network);
@@ -70,16 +61,15 @@ public class Cne {
 
             CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
 
-            // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
             // define preOptimVariant and postOptimVariant
             List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
 
             if (!variants.isEmpty()) {
-                initializeAttributes(crac, cracExtension, variants);
+                cneHelper.initializeAttributes(crac, cracExtension, variants);
 
                 // fill CNE
-                createAllConstraintSeries(point, crac, chosenExportUnit, network);
-                addSuccessReasonToPoint(point, cracExtension.getVariant(postOptimVariantId).getNetworkSecurityStatus());
+                createAllConstraintSeries(point, crac, network);
+                addSuccessReasonToPoint(point, cracExtension.getVariant(cneHelper.getPostOptimVariantId()).getNetworkSecurityStatus());
             } else {
                 addFailureReasonToPoint(point);
                 throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
@@ -89,25 +79,7 @@ public class Cne {
         }
     }
 
-    private void initializeAttributes(Crac crac, CracResultExtension cracExtension, List<String> variants) {
-        // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
-        instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
 
-        preOptimVariantId = variants.get(0);
-        postOptimVariantId = variants.get(0);
-
-        double minCost = cracExtension.getVariant(variants.get(0)).getCost();
-        double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
-        for (String variant : variants) {
-            if (cracExtension.getVariant(variants.get(0)).getCost() < minCost) {
-                minCost = cracExtension.getVariant(variant).getCost();
-                postOptimVariantId = variant;
-            } else if (cracExtension.getVariant(variants.get(0)).getCost() > maxCost) {
-                maxCost = cracExtension.getVariant(variant).getCost();
-                preOptimVariantId = variant;
-            }
-        }
-    }
 
     /*****************
      HEADER
@@ -124,7 +96,6 @@ public class Cne {
         marketDocument.setReceiverMarketParticipantMarketRoleType(CNE_RECEIVER_MARKET_ROLE_TYPE);
         marketDocument.setCreatedDateTime(createXMLGregorianCalendarNow());
         marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeInterval(networkDate));
-        marketDocument.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, DOMAIN_MRID));
     }
 
     /*****************
@@ -150,7 +121,7 @@ public class Cne {
     private void addTimeSeriesToCne(DateTime networkDate) {
         try {
             SeriesPeriod period = newPeriod(networkDate, SIXTY_MINUTES_DURATION, newPoint(1));
-            marketDocument.timeSeries = Collections.singletonList(newTimeSeries(B54_BUSINESS_TYPE, A01_CURVE_TYPE, period));
+            marketDocument.timeSeries = Collections.singletonList(newTimeSeries(B54_BUSINESS_TYPE_TS, A01_CURVE_TYPE, period));
         } catch (DatatypeConfigurationException e) {
             throw new FaraoException("Failure in TimeSeries creation");
         }
@@ -160,65 +131,41 @@ public class Cne {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private void createAllConstraintSeries(Point point, Crac crac, Unit chosenExportUnit, Network network) {
+    private void createAllConstraintSeries(Point point, Crac crac, Network network) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
         /* Contingencies */
         // PREVENTIVE STATE
-        addConstraintToMapAndCne(newConstraintSeries(B57_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
-        if (getNumberOfPra(crac, preOptimVariantId, postOptimVariantId) != 0) {
-            addConstraintToMapAndCne(newConstraintSeries(B56_BUSINESS_TYPE), constraintSeriesList, Collections.singleton(crac.getPreventiveState()));
-        }
+        cneHelper.addBasecaseConstraintsToMap();
 
         // AFTER CONTINGENCY
         crac.getContingencies().forEach(
-            contingency -> createAllConstraintSeriesOfAContingency(contingency, constraintSeriesList, crac.getStates(contingency)));
+            contingency -> cneHelper.addConstraintsToMap(contingency));
 
         /* Monitored Elements*/
-        List<ConstraintSeries> constraintSeriesListB57 = new ArrayList<>(constraintSeriesMapB57.values());
-        crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, chosenExportUnit, network));
+        //List<ConstraintSeries> constraintSeriesListB57 = new ArrayList<>(constraintSeriesMapB57.values(), OPTIMIZED_MARKET_STATUS);
+        //crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, network));
 
         /* Remedial Actions*/
-        crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
-        crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
+        //crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
+        //crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
 
+        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB54().values());
+        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB56().values());
+        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB57().values());
+        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB88().values());
         point.constraintSeries = constraintSeriesList;
-    }
-
-    // Helper: fills maps (B56/B57) containing the constraint series corresponding to a state
-    private void addConstraintToMapAndCne(ConstraintSeries constraintSeries, List<ConstraintSeries> constraintSeriesList, Set<State> states) {
-
-        // add to map
-        if (constraintSeries.getBusinessType().equals(B56_BUSINESS_TYPE)) {
-            states.forEach(state -> constraintSeriesMapB56.put(state, constraintSeries));
-        } else if (constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)) {
-            states.forEach(state -> constraintSeriesMapB57.put(state, constraintSeries));
-        } else {
-            throw new FaraoException(String.format("Unhandled businessType %s", constraintSeries.getBusinessType()));
-        }
-
-        // add to CNE
-        constraintSeriesList.add(constraintSeries);
-    }
-
-    /*****************
-     CONTINGENCIES
-     *****************/
-    // Create  one B56 and one B57 ConstraintSeries relative to a contingency
-    private void createAllConstraintSeriesOfAContingency(Contingency contingency, List<ConstraintSeries> constraintSeriesList, SortedSet<State> states) {
-        addConstraintToMapAndCne(newConstraintSeries(B57_BUSINESS_TYPE, newContingencySeries(contingency.getId(), contingency.getName())), constraintSeriesList, states);
-        addConstraintToMapAndCne(newConstraintSeries(B56_BUSINESS_TYPE, newContingencySeries(contingency.getId(), contingency.getName())), constraintSeriesList, states);
     }
 
     /*****************
      MONITORED ELEMENTS
      *****************/
     // Adds to the ConstraintSeries all elements relative to a cnec
-    private void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, Unit chosenExportUnit, Network network) {
+    /*private void addCnecToConstraintSeries(Cnec cnec, List<ConstraintSeries> constraintSeriesList, Network network) {
 
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        monitoredSeriesList.add(createMonitoredSeriesFromCnec(cnec, chosenExportUnit, network));
+        monitoredSeriesList.add(createMonitoredSeriesFromCnec(cnec, network));
 
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) { // after a contingency
@@ -247,10 +194,10 @@ public class Cne {
     }
 
     // Creates a MonitoredSeries from a given cnec
-    private MonitoredSeries createMonitoredSeriesFromCnec(Cnec cnec, Unit chosenExportUnit, Network network) {
+    private MonitoredSeries createMonitoredSeriesFromCnec(Cnec cnec, Network network) {
 
         // create measurements
-        List<Analog> measurementsList = createMeasurements(cnec, chosenExportUnit);
+        List<Analog> measurementsList = createMeasurements(cnec);
         // add measurements to monitoredRegisteredResource
         MonitoredRegisteredResource monitoredRegisteredResource = createMonitoredRegisteredResource(cnec.getNetworkElement(), measurementsList, network);
         // add monitoredRegisteredResource to monitoredSeries
@@ -265,98 +212,32 @@ public class Cne {
             measurementsList);
     }
 
-    private String findNodeInNetwork(String id, Network network, Branch.Side side) {
-        try {
-            return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
-        } catch (NullPointerException e) {
-            LOGGER.warn(e.toString());
-            return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
-        }
-    }
+
 
     // Creates all Measurements (flow and thresholds)
-    private List<Analog> createMeasurements(Cnec cnec, Unit chosenExportUnit) {
+    private List<Analog> createMeasurements(Cnec cnec) {
         List<Analog> measurementsList = new ArrayList<>();
 
         if (cnec.getExtension(CnecResultExtension.class) != null) {
             CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
-            CnecResult cnecResult = cnecResultExtension.getVariant(postOptimVariantId);
+            CnecResult cnecResult = cnecResultExtension.getVariant(cneHelper.getPostOptimVariantId());
 
             // Flows
-            Unit finalUnit = handleFlowOrThreshold(cnecResult, chosenExportUnit, measurementsList, FLOW_MEASUREMENT_TYPE);
 
             // Thresholds
-            handleFlowOrThreshold(cnecResult, finalUnit, measurementsList, instantToCodeConverter(cnec.getState().getInstant()));
-
-            if (cnec.getState().getInstant().equals(instants.get(0))) { // Before contingency
-                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(PATL_MEASUREMENT_TYPE, finalUnit, threshold)));
-            } else if (cnec.getState().getInstant().equals(instants.get(1))) { // After contingency, before any post-contingency RA
-                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_MEASUREMENT_TYPE, finalUnit, threshold)));
-            }  else if (cnec.getState().getInstant().equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_AUTO_MEASUREMENT_TYPE, finalUnit, threshold)));
-            } else { // After CRA
-                cnec.getMaxThreshold(finalUnit).ifPresent(threshold -> measurementsList.add(newMeasurement(TATL_AFTER_CRA_MEASUREMENT_TYPE, finalUnit, threshold)));
-            }
+            //handleThresholds(cnecResult, measurementsList, instantToCodeConverter(cnec.getState().getInstant()));
         }
 
         return measurementsList;
     }
 
-    private String instantToCodeConverter(Instant instant) {
-        if (instant.equals(instants.get(0))) { // Before contingency
-            return PATL_MEASUREMENT_TYPE;
-        } else if (instant.equals(instants.get(1))) { // After contingency, before any post-contingency RA
-            return TATL_MEASUREMENT_TYPE;
-        } else if (instant.equals(instants.get(2))) { // After contingency and automatic RA, before curative RA
-            return TATL_AFTER_AUTO_MEASUREMENT_TYPE;
-        } else { // After CRA
-            return TATL_AFTER_CRA_MEASUREMENT_TYPE;
-        }
-    }
 
-    private Analog defMeasurementFromCnecResult(CnecResult cnecResult, String measurementType, Unit unit) {
-        if (measurementType.equals(FLOW_MEASUREMENT_TYPE)) {
-            if (unit.equals(Unit.AMPERE)) {
-                return newMeasurement(measurementType, unit, cnecResult.getFlowInA());
-            } else if (unit.equals(Unit.MEGAWATT)) {
-                return newMeasurement(measurementType, unit, cnecResult.getFlowInMW());
-            } else {
-                throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
-            }
-        } else {
-            if (unit.equals(Unit.AMPERE)) {
-                return newMeasurement(measurementType, unit, cnecResult.getMaxThresholdInA());
-            } else if (unit.equals(Unit.MEGAWATT)) {
-                return newMeasurement(measurementType, unit, cnecResult.getMaxThresholdInMW());
-            } else {
-                throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
-            }
-        }
-    }
-
-    // Creates a Measurement from flow or thresholds
-    private Unit handleFlowOrThreshold(CnecResult cnecResult, Unit chosenExportUnit, List<Analog> measurementsList, String measurementType) {
-        Unit finalUnit = chosenExportUnit;
-        if (chosenExportUnit.equals(Unit.AMPERE)) {
-            if (Double.isNaN(cnecResult.getFlowInA()) && !Double.isNaN(cnecResult.getFlowInMW())) { // if the expected value is not defined, but another is defined
-                finalUnit = Unit.MEGAWATT;
-            }
-        } else if (chosenExportUnit.equals(Unit.MEGAWATT)) {
-            if (Double.isNaN(cnecResult.getFlowInMW()) && !Double.isNaN(cnecResult.getFlowInA())) { // if the expected value is not defined, but another is defined
-                finalUnit = Unit.AMPERE;
-            }
-        } else {
-            throw new FaraoException(String.format(UNHANDLED_UNIT, chosenExportUnit.toString()));
-        }
-        measurementsList.add(defMeasurementFromCnecResult(cnecResult, measurementType, finalUnit));
-        return finalUnit;
-    }
 
     /*****************
      REMEDIAL ACTIONS
      *****************/
     // Adds to the ConstraintSeries all RemedialActionSeries needed
-    private void addRemedialActionsToConstraintSeries(RemedialAction remedialAction) {
+    /*private void addRemedialActionsToConstraintSeries(RemedialAction remedialAction) {
 
         if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
             addActivatedNetworkAction(remedialAction, constraintSeriesMapB56);
@@ -372,8 +253,8 @@ public class Cne {
     private void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
         RangeAction rangeAction = (RangeAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
-            RangeActionResult preOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId);
-            RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(postOptimVariantId);
+            RangeActionResult preOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(cneHelper.getPreOptimVariantId());
+            RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(cneHelper.getPostOptimVariantId());
             if (preOptimRangeActionResult != null && postOptimRangeActionResult != null
                 && CneUtil.isActivated(state.getId(), preOptimRangeActionResult, postOptimRangeActionResult)) {
                 if (constraintSeries.remedialActionSeries == null) {
@@ -398,11 +279,11 @@ public class Cne {
     private void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList) {
         NetworkAction networkAction = (NetworkAction) remedialAction;
         constraintSeriesList.forEach((state, constraintSeries) -> {
-            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(preOptimVariantId) != null
-                && networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId) != null
+            if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPreOptimVariantId()) != null
+                && networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPostOptimVariantId()) != null
                 && CneUtil.isActivated(state.getId(),
-                networkAction.getExtension(NetworkActionResultExtension.class).getVariant(preOptimVariantId),
-                networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId))) {
+                networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPreOptimVariantId()),
+                networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPostOptimVariantId()))) {
                 if (constraintSeries.remedialActionSeries == null) {
                     constraintSeries.remedialActionSeries = new ArrayList<>();
                 }
@@ -426,4 +307,6 @@ public class Cne {
         return newRemedialActionSeries(id, remedialAction.getName(), PREVENTIVE_MARKET_OBJECT_STATUS);
         // deal with automatic RA (A20) and curative RA (A19) once developed
     }
+
+     */
 }

@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -140,5 +142,13 @@ public final class CneUtil {
 
     public static float limitFloatInterval(double value) {
         return (float) Math.min(Math.round(Math.abs(value)), 100000);
+    }
+
+    public static String findNodeInNetwork(String id, Network network, Branch.Side side) {
+        try {
+            return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
+        } catch (NullPointerException e) {
+            return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
+        }
     }
 }

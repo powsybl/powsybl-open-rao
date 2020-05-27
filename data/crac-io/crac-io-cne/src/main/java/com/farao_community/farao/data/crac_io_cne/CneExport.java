@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
@@ -37,11 +36,10 @@ import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 @AutoService(CracExporter.class)
 public class CneExport implements CracExporter {
 
-    private static final String CNE_FORMAT = "CNE";
     private static final String XSD_LOCATION = "src/main/resources/xsd/";
     private static final String CNE_XSD_LOCATION = XSD_LOCATION + CNE_XSD_2_4;
-    private static final String LOCAL_EXTENSION_LOCATION = XSD_LOCATION + "urn-entsoe-eu-local-extension-types.xsd";
-    private static final String CODELISTS_LOCATION = XSD_LOCATION + "urn-entsoe-eu-wgedi-codelists.xsd";
+    private static final String LOCAL_EXTENSION_LOCATION = XSD_LOCATION + LOCALTYPES_XSD;
+    private static final String CODELISTS_LOCATION = XSD_LOCATION + CODELISTS_XSD;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneExport.class);
 
@@ -57,9 +55,8 @@ public class CneExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
-        // TODO: Future feature: parametrize the choice of the unit (not useful for now)
         Cne cne = new Cne();
-        cne.generate(crac, network, Unit.MEGAWATT);
+        cne.generate(crac, network);
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
 

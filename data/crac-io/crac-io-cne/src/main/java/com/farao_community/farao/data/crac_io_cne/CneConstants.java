@@ -19,7 +19,10 @@ public final class CneConstants {
 
     /* General */
     public static final String CNE_XSD_2_4 = "iec62325-451-n-cne_v2_4.xsd";
+    public static final String LOCALTYPES_XSD = "urn-entsoe-eu-local-extension-types.xsd";
+    public static final String CODELISTS_XSD = "urn-entsoe-eu-wgedi-codelists.xsd";
     public static final String CNE_TAG = "CriticalNetworkElement_MarketDocument";
+    public static final String CNE_FORMAT = "CNE";
 
     // codingScheme
     public static final String A01_CODING_SCHEME = "A01";
@@ -29,21 +32,19 @@ public final class CneConstants {
     // type
     public static final String CNE_TYPE = "B06";
     // process.processType
-    public static final String CNE_PROCESS_TYPE = "A43";
+    public static final String CNE_PROCESS_TYPE = "A48";
     // sender_MarketParticipant.mRID
     public static final String CNE_SENDER_MRID = "22XCORESO------S";
     // sender_MarketParticipant.marketRole.type
-    public static final String CNE_SENDER_MARKET_ROLE_TYPE = "A44";
+    public static final String CNE_SENDER_MARKET_ROLE_TYPE = "A32";
     // receiver_MarketParticipant.mRID
     public static final String CNE_RECEIVER_MRID = "17XTSO-CS------W";
     // receiver_MarketParticipant.marketRole.type
     public static final String CNE_RECEIVER_MARKET_ROLE_TYPE = "A36";
-    //
-    public static final String DOMAIN_MRID = "10YDOM-REGION-1V";
 
     /* TimeSeries */
     // businessType
-    public static final String B54_BUSINESS_TYPE = "B54";
+    public static final String B54_BUSINESS_TYPE_TS = "B54";
     // curveType
     public static final String A01_CURVE_TYPE = "A01";
 
@@ -53,16 +54,18 @@ public final class CneConstants {
 
     /* Constraint_Series */
     // businessType
+    public static final String B54_BUSINESS_TYPE = "B54";
     public static final String B56_BUSINESS_TYPE = "B56";
     public static final String B57_BUSINESS_TYPE = "B57";
+    public static final String B88_BUSINESS_TYPE = "B88";
+    // optimization_MarketObjectStatus.status
+    public static final String OPTIMIZED_MARKET_STATUS = "A52";
 
     /* Measurements */
     // measurementType
     public static final String FLOW_MEASUREMENT_TYPE = "A01";
     public static final String PATL_MEASUREMENT_TYPE = "A02";
     public static final String TATL_MEASUREMENT_TYPE = "A07";
-    public static final String TATL_AFTER_AUTO_MEASUREMENT_TYPE = "A12";
-    public static final String TATL_AFTER_CRA_MEASUREMENT_TYPE = "A13";
     // unitSymbol
     public static final String AMP_UNIT_SYMBOL = "AMP";
     public static final String MAW_UNIT_SYMBOL = "MAW";
