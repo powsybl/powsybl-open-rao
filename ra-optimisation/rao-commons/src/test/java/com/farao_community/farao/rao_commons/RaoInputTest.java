@@ -42,14 +42,14 @@ public class RaoInputTest {
     }
 
     @Test
-    public void synchronizeOk() {
+    public void testSynchronizeOk() {
         Crac crac = CommonCracCreation.create();
         RaoInput.synchronize(crac, network);
         assertTrue(crac.isSynchronized());
     }
 
     @Test
-    public void synchronizeNotFailSecondTime() {
+    public void testSynchronizeNotFailSecondTime() {
         Crac crac = CommonCracCreation.create();
         RaoInput.synchronize(crac, network);
         try {
@@ -60,7 +60,7 @@ public class RaoInputTest {
     }
 
     @Test
-    public void generateValidityReport() {
+    public void testCleanCrac() {
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
         Contingency contingency = simpleCrac.addContingency("contingencyId", "FFR1AA1  FFR2AA1  1");
