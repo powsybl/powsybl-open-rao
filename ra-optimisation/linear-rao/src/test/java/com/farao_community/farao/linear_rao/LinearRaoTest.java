@@ -164,7 +164,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoSecurityAnalysisWithoutRao() {
-        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(simpleLinearOptimizer).run(any(), any());
+        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(simpleLinearOptimizer).optimize(any());
         raoParameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
 
         RaoResult results = linearRao.runLinearRao(raoData, systematicSensitivityComputation, raoParameters).join();
@@ -175,7 +175,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoSecurityAnalysisWithZeroIteration() {
-        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(simpleLinearOptimizer).run(any(), any());
+        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(simpleLinearOptimizer).optimize(any());
         raoParameters.getExtension(IteratingLinearOptimizerParameters.class).setMaxIterations(0);
 
         RaoResult results = linearRao.runLinearRao(raoData, systematicSensitivityComputation, raoParameters).join();

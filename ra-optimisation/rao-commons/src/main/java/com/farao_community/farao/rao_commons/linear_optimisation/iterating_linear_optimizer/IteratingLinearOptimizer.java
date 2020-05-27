@@ -11,11 +11,10 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputationParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
-import com.powsybl.computation.DefaultComputationManagerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -26,58 +25,39 @@ public final class IteratingLinearOptimizer {
 
     private IteratingLinearOptimizer() { }
 
-    public static String optimize(RaoData raoData,
-                                  RaoParameters raoParameters) {
-        return optimize(raoData, raoData.getInitialVariantId(), raoParameters);
+    public static String optimize(RaoData raoData, RaoParameters raoParameters) {
+        return optimize(raoData, new SystematicSensitivityComputation(raoParameters), raoParameters);
     }
 
-    public static String optimize(RaoData raoData,
-                                  String initialRaoDataVariantId,
-                                  RaoParameters raoParameters) {
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParameters.getExtension(SystematicSensitivityComputationParameters.class),
-            DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
-        return optimize(raoData, initialRaoDataVariantId, systematicSensitivityComputation, raoParameters);
-    }
-
-    public static String optimize(RaoData raoData,
-                                  SystematicSensitivityComputation systematicSensitivityComputation,
-                                  RaoParameters raoParameters) {
-        return optimize(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation, raoParameters);
-    }
-
-    public static String optimize(RaoData raoData,
-                                  String referenceVariantId,
-                                  SystematicSensitivityComputation systematicSensitivityComputation,
-                                  RaoParameters raoParameters) {
-        return optimize(raoData, referenceVariantId, systematicSensitivityComputation, new SimpleLinearOptimizer(raoParameters), raoParameters);
+    public static String optimize(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
+        IteratingLinearOptimizerParameters parameters;
+        if (!Objects.isNull(raoParameters.getExtension(IteratingLinearOptimizerParameters.class))) {
+            parameters = raoParameters.getExtension(IteratingLinearOptimizerParameters.class);
+        } else {
+            parameters = new IteratingLinearOptimizerParameters();
+        }
+        return optimize(raoData, systematicSensitivityComputation, new SimpleLinearOptimizer(raoParameters), parameters);
     }
 
     public static String optimize(RaoData raoData,
                                   SystematicSensitivityComputation systematicSensitivityComputation,
-                                  SimpleLinearOptimizer simpleLinearOptimizer,
-                                  RaoParameters raoParameters) {
-        return optimize(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation, simpleLinearOptimizer, raoParameters);
-    }
-
-    public static String optimize(RaoData raoData,
-                                  String referenceVariantId,
-                                  SystematicSensitivityComputation systematicSensitivityComputation,
-                                  SimpleLinearOptimizer simpleLinearOptimizer,
-                                  RaoParameters raoParameters) {
-        raoData.setWorkingVariant(referenceVariantId);
-        String bestVariantId = referenceVariantId;
+                                  SimpleLinearOptimizer simpleLinearOptimizer, IteratingLinearOptimizerParameters parameters) {
+        String bestVariantId = raoData.getWorkingVariantId();
         String optimizedVariantId;
 
-        for (int iteration = 1; iteration <= raoParameters.getExtension(IteratingLinearOptimizerParameters.class).getMaxIterations(); iteration++) {
+        for (int iteration = 1; iteration <= parameters.getMaxIterations(); iteration++) {
             optimizedVariantId = raoData.cloneWorkingVariant();
             raoData.setWorkingVariant(optimizedVariantId);
 
-            // Look for a new RangeAction combination, optimized with the LinearOptimisationEngine
-            // Store found solutions in crac extension working variant
-            // Apply remedial actions on the network working variant
+            /*
+            Three steps are gathered in the simpleLinearOptimizer
+             - Look for a new RangeAction combination, optimized with the simpleLinearOptimizer
+             - Store found solutions in crac extension working variant
+             - Apply remedial actions on the network working variant
+            It will throw an error if systematic sensitivity computation have not performed on the initial RaoData working variant
+             */
             LOGGER.info("Iteration {} - linear optimization [start]", iteration);
-            simpleLinearOptimizer.run(raoData, raoParameters.getExtension(LinearProblemParameters.class));
+            simpleLinearOptimizer.optimize(raoData);
             LOGGER.info("Iteration {} - linear optimization [end]", iteration);
 
             // if the solution has not changed, stop the search

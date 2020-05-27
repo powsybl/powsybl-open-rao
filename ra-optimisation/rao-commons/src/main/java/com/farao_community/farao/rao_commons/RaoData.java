@@ -123,6 +123,10 @@ public class RaoData {
         systematicSensitivityAnalysisResultMap.put(workingVariantId, systematicSensitivityAnalysisResult);
     }
 
+    public boolean hasSensitivityValues() {
+        return getSystematicSensitivityAnalysisResult() != null;
+    }
+
     public double getReferenceFlow(Cnec cnec) {
         return getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
     }

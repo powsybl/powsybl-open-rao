@@ -14,14 +14,13 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputationParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.rao_commons.RaoInput;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
@@ -62,21 +61,12 @@ public class LinearRao implements RaoProvider {
                                             String variantId,
                                             ComputationManager computationManager,
                                             RaoParameters raoParameters) {
-        network.getVariantManager().setWorkingVariant(variantId);
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
-        RaoData raoData = new RaoData(network, crac);
+        RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
+        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
+            raoParameters,
+            computationManager);
         try {
-            // check config
-            linearRaoParametersQualityCheck(raoParameters, raoData);
-
-            SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-                raoParameters.getExtension(SystematicSensitivityComputationParameters.class),
-                computationManager);
-
-            // run RAO algorithm
             return runLinearRao(raoData, systematicSensitivityComputation, raoParameters);
-
         } catch (FaraoException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
         }
@@ -85,6 +75,10 @@ public class LinearRao implements RaoProvider {
     CompletableFuture<RaoResult> runLinearRao(RaoData raoData,
                                               SystematicSensitivityComputation systematicSensitivityComputation,
                                               RaoParameters raoParameters) {
+        // check config
+        linearRaoParametersQualityCheck(raoParameters, raoData);
+
+        // run RAO algorithm
         raoData.fillRangeActionResultsWithNetworkValues();
         LOGGER.info("Initial systematic analysis [start]");
         systematicSensitivityComputation.run(raoData);

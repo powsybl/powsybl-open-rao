@@ -7,10 +7,13 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.rao_commons.ParametersException;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
@@ -23,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.String.*;
 
@@ -36,6 +40,8 @@ import static java.lang.String.*;
 public class SimpleLinearOptimizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleLinearOptimizer.class);
+
+    private RaoParameters raoParameters;
 
     /**
      * Linear optimisation problem, core object the LinearOptimisationEngine that
@@ -59,32 +65,76 @@ public class SimpleLinearOptimizer {
     /**
      * Constructor
      */
-    public SimpleLinearOptimizer(RaoParameters raoParameters) {
+    public SimpleLinearOptimizer() {
         this.lpInitialised = false;
-
+        this.raoParameters = new RaoParameters();
+        LinearProblemParameters linearProblemParameters = new LinearProblemParameters();
+        raoParameters.addExtension(LinearProblemParameters.class, linearProblemParameters);
         // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
     }
 
+    public SimpleLinearOptimizer(RaoParameters raoParameters) {
+        this.lpInitialised = false;
+        this.raoParameters = checkRaoParameters(raoParameters);
+        // TODO : load the filler list from the config file and make sure they are ordered properly
+        this.fillerList = createFillerList(raoParameters);
+    }
+
+    private static RaoParameters checkRaoParameters(RaoParameters raoParameters) {
+        if (raoParameters.getExtension(LinearProblemParameters.class) == null) {
+            String msg = "Simple linear optimizer cannot be created because LinearProblemParameters extension is missing";
+            LOGGER.error(msg);
+            throw new ParametersException(msg);
+        }
+        return raoParameters;
+    }
+
+    private void checkDataConsistencyWithParameters(RaoData raoData) {
+        if (raoParameters.isRaoWithLoopFlowLimitation()
+            && Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+            String msg = format(
+                "Simple linear optimizer cannot perform optimization with loop flows on CRAC %s because it does not have loop flow extension",
+                raoData.getCrac().getId());
+            LOGGER.error(msg);
+            throw new FaraoException(msg);
+        }
+    }
+
+    private static void checkSensitivityValues(RaoData raoData) {
+        if (!raoData.hasSensitivityValues()) {
+            String msg = format(
+                "Simple linear optimizer cannot perform optimization because no sensitivity computation has been performed on variant %s",
+                raoData.getWorkingVariantId());
+            LOGGER.error(msg);
+            throw new FaraoException(msg);
+        }
+    }
+
     /**
-     * The run method of the LinearOptimisationEngine creates and solves the core
-     * optimisation problem of the LinearRao. It updates the LinearRaoData with optimisation result in the CRAC
-     * and apply the new range action set points on the netork.
+     * The optimize method of the SimpleLinearOptimizer creates and solves a LinearProblem.
+     * It updates the working RaoData variant with optimisation results in the CRAC
+     * and apply the new range action set points on the network.
      *
      * @param raoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
      * @throws LinearOptimisationException if the method fails
+     * @throws FaraoException if sensitivity computation have not been performed on working raoData variant
+     * or if loop flow data are missing
      */
-    public void run(RaoData raoData, LinearProblemParameters linearProblemParameters) {
+    public void optimize(RaoData raoData) {
+        checkDataConsistencyWithParameters(raoData);
+        checkSensitivityValues(raoData);
+
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearProblem = createLinearRaoProblem();
-            buildProblem(raoData, linearProblemParameters);
+            buildProblem(raoData, raoParameters.getExtension(LinearProblemParameters.class));
             lpInitialised = true;
         } else {
-            updateProblem(raoData, linearProblemParameters);
+            updateProblem(raoData, raoParameters.getExtension(LinearProblemParameters.class));
         }
 
         solveLinearProblem();

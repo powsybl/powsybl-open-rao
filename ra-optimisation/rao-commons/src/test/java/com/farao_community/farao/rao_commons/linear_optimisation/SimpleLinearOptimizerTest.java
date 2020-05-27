@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -56,10 +55,7 @@ public class SimpleLinearOptimizerTest {
 
     @Before
     public void setUp() {
-        // RaoParameters
-        RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
-
-        simpleLinearOptimizer = Mockito.spy(new SimpleLinearOptimizer(raoParameters));
+        simpleLinearOptimizer = Mockito.spy(new SimpleLinearOptimizer());
 
         linearProblemMock = Mockito.mock(LinearProblem.class);
         Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
@@ -105,9 +101,9 @@ public class SimpleLinearOptimizerTest {
 
     @Test
     public void testOptimalAndUpdate() {
-        simpleLinearOptimizer.run(raoData, linearProblemParameters);
+        simpleLinearOptimizer.optimize(raoData);
         assertNotNull(raoData);
-        simpleLinearOptimizer.run(raoData, linearProblemParameters);
+        simpleLinearOptimizer.optimize(raoData);
         assertNotNull(raoData);
     }
 
@@ -115,7 +111,7 @@ public class SimpleLinearOptimizerTest {
     public void testNonOptimal() {
         Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
         try {
-            simpleLinearOptimizer.run(raoData, linearProblemParameters);
+            simpleLinearOptimizer.optimize(raoData);
         } catch (LinearOptimisationException e) {
             assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
@@ -125,7 +121,7 @@ public class SimpleLinearOptimizerTest {
     public void testFillerError() {
         Mockito.when(linearProblemMock.getObjective()).thenReturn(null);
         try {
-            simpleLinearOptimizer.run(raoData, linearProblemParameters);
+            simpleLinearOptimizer.optimize(raoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
@@ -134,10 +130,10 @@ public class SimpleLinearOptimizerTest {
 
     @Test
     public void testUpdateError() {
-        simpleLinearOptimizer.run(raoData, linearProblemParameters);
+        simpleLinearOptimizer.optimize(raoData);
         Mockito.when(linearProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
-            simpleLinearOptimizer.run(raoData, linearProblemParameters);
+            simpleLinearOptimizer.optimize(raoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());

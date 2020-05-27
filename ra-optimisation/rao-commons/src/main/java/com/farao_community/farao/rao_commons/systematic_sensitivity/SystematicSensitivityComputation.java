@@ -11,14 +11,18 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 
 /**
@@ -51,9 +55,46 @@ public class SystematicSensitivityComputation {
     private ComputationManager computationManager;
 
     /**
-     * Constructor
+     * Constructors
      */
+    public SystematicSensitivityComputation() {
+        this(new SystematicSensitivityComputationParameters(),
+            DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+    }
+
+    public SystematicSensitivityComputation(RaoParameters raoParameters) {
+        SystematicSensitivityComputationParameters parameters;
+        if (!Objects.isNull(raoParameters.getExtension(SystematicSensitivityComputationParameters.class))) {
+            parameters = raoParameters.getExtension(SystematicSensitivityComputationParameters.class);
+        } else {
+            parameters = new SystematicSensitivityComputationParameters();
+        }
+        init(parameters);
+    }
+
+    public SystematicSensitivityComputation(RaoParameters raoParameters, ComputationManager computationManager) {
+        SystematicSensitivityComputationParameters parameters;
+        if (!Objects.isNull(raoParameters.getExtension(SystematicSensitivityComputationParameters.class))) {
+            parameters = raoParameters.getExtension(SystematicSensitivityComputationParameters.class);
+        } else {
+            parameters = new SystematicSensitivityComputationParameters();
+        }
+        init(parameters, computationManager);
+    }
+
+    public SystematicSensitivityComputation(SystematicSensitivityComputationParameters computationParameters) {
+        init(computationParameters);
+    }
+
     public SystematicSensitivityComputation(SystematicSensitivityComputationParameters computationParameters, ComputationManager computationManager) {
+        init(computationParameters, computationManager);
+    }
+
+    private void init(SystematicSensitivityComputationParameters computationParameters) {
+        init(computationParameters, DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+    }
+
+    private void init(SystematicSensitivityComputationParameters computationParameters, ComputationManager computationManager) {
         this.computationParameters = computationParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;

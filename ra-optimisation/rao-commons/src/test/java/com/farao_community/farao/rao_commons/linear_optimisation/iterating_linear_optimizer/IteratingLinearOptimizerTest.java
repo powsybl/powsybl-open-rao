@@ -136,11 +136,15 @@ public class IteratingLinearOptimizerTest {
 
                 return raoData;
             }
-        }).when(simpleLinearOptimizer).run(any(), any());
+        }).when(simpleLinearOptimizer).optimize(any());
 
         systematicSensitivityComputation.run(raoData);
         // run an iterating optimization
-        String bestVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, simpleLinearOptimizer, raoParameters);
+        String bestVariantId = IteratingLinearOptimizer.optimize(
+            raoData,
+            systematicSensitivityComputation,
+            simpleLinearOptimizer,
+            raoParameters.getExtension(IteratingLinearOptimizerParameters.class));
 
         // check results
         assertNotNull(bestVariantId);
