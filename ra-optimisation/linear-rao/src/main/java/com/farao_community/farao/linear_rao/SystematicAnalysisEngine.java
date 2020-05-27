@@ -171,6 +171,7 @@ class SystematicAnalysisEngine {
                 // in fallback, intensities can be missing as the fallback configuration does not necessarily
                 // compute them (example : default in AC, fallback in DC). In that case a fallback computation
                 // of the intensity is made, based on the MEGAWATT values and the nominal voltage
+                LOGGER.warn("No intensities available in fallback mode, the margins are assessed by converting the flows from MW to A with the nominal voltage of each Cnec.");
                 marginsInAmpere = getMarginsInAmpereFromMegawattConversion(linearRaoData, systematicSensitivityAnalysisResult);
             }
         }
