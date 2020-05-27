@@ -117,7 +117,7 @@ class SystematicAnalysisEngine {
         }
 
         if (linearRaoData.getCrac().getCnecs().stream().
-            map(cnec -> cnec.computeMargin(systematicSensitivityAnalysisResult.getReferenceFlow(cnec), Unit.MEGAWATT)).
+            map(systematicSensitivityAnalysisResult::getReferenceFlow).
             anyMatch(f -> Double.isNaN(f))) {
             throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
         }
