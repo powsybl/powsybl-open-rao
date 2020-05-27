@@ -57,7 +57,7 @@ public final class CneClassCreator {
      *****************/
     public static TimeSeries newTimeSeries(String businessType, String curveType, SeriesPeriod period) {
         TimeSeries timeSeries = new TimeSeries();
-        timeSeries.setMRID(generateRandomMRID());
+        timeSeries.setMRID(cutString(generateRandomMRID(), 60));
         timeSeries.setBusinessType(businessType);
         timeSeries.setCurveType(curveType);
         timeSeries.period = Collections.singletonList(period);
@@ -71,7 +71,7 @@ public final class CneClassCreator {
     public static Reason newReason(String code, String text) {
         Reason reason = new Reason();
         reason.setCode(code);
-        reason.setText(text);
+        reason.setText(cutString(text, 512));
 
         return reason;
     }
@@ -81,7 +81,7 @@ public final class CneClassCreator {
      *****************/
     public static ConstraintSeries newConstraintSeries(String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
-        constraintSeries.setMRID(generateRandomMRID());
+        constraintSeries.setMRID(cutString(generateRandomMRID(), 60));
         constraintSeries.setBusinessType(businessType);
 
         return constraintSeries;
@@ -99,7 +99,7 @@ public final class CneClassCreator {
      *****************/
     public static ContingencySeries newContingencySeries(String id, String name) {
         ContingencySeries contingencySeries = new ContingencySeries();
-        contingencySeries.setMRID(id);
+        contingencySeries.setMRID(cutString(id, 60));
         contingencySeries.setName(name);
 
         return contingencySeries;
@@ -110,7 +110,7 @@ public final class CneClassCreator {
      *****************/
     public static MonitoredSeries newMonitoredSeries(String id, String name) {
         MonitoredSeries monitoredSeries = new MonitoredSeries();
-        monitoredSeries.setMRID(id);
+        monitoredSeries.setMRID(cutString(id, 60));
         monitoredSeries.setName(name);
 
         return monitoredSeries;
@@ -163,7 +163,7 @@ public final class CneClassCreator {
         } else {
             measurement.setPositiveFlowIn(DIRECT_POSITIVE_FLOW_IN);
         }
-        measurement.setAnalogValuesValue((float) Math.round(Math.abs(flow)));
+        measurement.setAnalogValuesValue(limitFloatInterval(flow));
 
         return measurement;
     }
@@ -173,7 +173,7 @@ public final class CneClassCreator {
      *****************/
     public static RemedialActionSeries newRemedialActionSeries(String id, String name, String marketObjectStatus) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
-        remedialActionSeries.setMRID(id);
+        remedialActionSeries.setMRID(cutString(id, 60));
         remedialActionSeries.setName(name);
         remedialActionSeries.setApplicationModeMarketObjectStatusStatus(marketObjectStatus);
 

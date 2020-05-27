@@ -59,7 +59,7 @@ public final class CneUtil {
     public static AreaIDString createAreaIDString(String codingScheme, String value) {
         AreaIDString domainMRID = new AreaIDString();
         domainMRID.setCodingScheme(codingScheme);
-        domainMRID.setValue(value);
+        domainMRID.setValue(cutString(value, 18));
         return domainMRID;
     }
 
@@ -67,7 +67,7 @@ public final class CneUtil {
     public static PartyIDString createPartyIDString(String codingScheme, String value) {
         PartyIDString marketParticipantMRID = new PartyIDString();
         marketParticipantMRID.setCodingScheme(codingScheme);
-        marketParticipantMRID.setValue(value);
+        marketParticipantMRID.setValue(cutString(value, 16));
         return marketParticipantMRID;
     }
 
@@ -75,7 +75,7 @@ public final class CneUtil {
     public static ResourceIDString createResourceIDString(String codingScheme, String value) {
         ResourceIDString resourceMRID = new ResourceIDString();
         resourceMRID.setCodingScheme(codingScheme);
-        resourceMRID.setValue(value);
+        resourceMRID.setValue(cutString(value, 60));
         return resourceMRID;
     }
 
@@ -132,5 +132,13 @@ public final class CneUtil {
 
     public static boolean isActivated(String stateId, NetworkActionResult preOptimNetworkActionResult, NetworkActionResult postOptimNetworkActionResult) {
         return postOptimNetworkActionResult.isActivated(stateId) != preOptimNetworkActionResult.isActivated(stateId);
+    }
+
+    public static String cutString(String string, int maxChar) {
+        return string.substring(0, Math.min(string.length(), maxChar));
+    }
+
+    public static float limitFloatInterval(double value) {
+        return (float) Math.min(Math.round(Math.abs(value)), 100000);
     }
 }
