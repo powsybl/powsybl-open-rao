@@ -6,6 +6,9 @@
       "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
       "security-analysis-without-rao" : true,
       "sensitivity-fallback-overcost" : 100.0
+    },
+    "IteratingLinearOptimizerParameters": {
+      "max-number-of-iterations": 10
     }
   }
 }

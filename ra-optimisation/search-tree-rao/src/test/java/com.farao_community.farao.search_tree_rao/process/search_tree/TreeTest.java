@@ -21,6 +21,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.*;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -71,6 +72,7 @@ public class TreeTest {
         assertEquals("leafPostOptim", result.getPostOptimVariantId());
     }
 
+    @Ignore
     @Test
     public void brokenRootSearchTest() throws ExecutionException, InterruptedException {
         Network network = Mockito.mock(Network.class);
@@ -81,6 +83,7 @@ public class TreeTest {
         assertEquals(RaoResult.Status.FAILURE, result.getStatus());
     }
 
+    @Ignore
     @Test
     public void searchTest() throws ExecutionException, InterruptedException {
         SimpleCrac crac = new SimpleCrac("id");

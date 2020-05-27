@@ -24,11 +24,6 @@ public class LinearProblemParameters extends AbstractExtension<RaoParameters> {
 
     public LinearProblemParameters() { }
 
-    public LinearProblemParameters(double pstPenaltyCost, double pstSensitivityThreshold) {
-        this.pstPenaltyCost = pstPenaltyCost;
-        this.pstSensitivityThreshold = pstSensitivityThreshold;
-    }
-
     @Override
     public String getName() {
         return "LinearProblemParameters";

@@ -17,7 +17,6 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +135,7 @@ class Leaf {
      * This method takes a network variant which we switch too, since we may
      * not generate new variants while multithreading.
      */
-    void evaluate(Network network, Crac crac, String networkVariant, RaoParameters raoParameters) {
+    void evaluate(RaoData raoData, String networkVariant, RaoParameters raoParameters) {
         this.status = Status.EVALUATION_RUNNING;
 
         if (isRoot()) {
@@ -149,8 +148,8 @@ class Leaf {
 
         // apply Network Actions
         try {
-            network.getVariantManager().setWorkingVariant(networkVariant);
-            networkActions.forEach(na -> na.apply(network));
+            raoData.getNetwork().getVariantManager().setWorkingVariant(networkVariant);
+            networkActions.forEach(na -> na.apply(raoData.getNetwork()));
         } catch (FaraoException | PowsyblException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
@@ -159,10 +158,9 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            RaoData raoData = new RaoData(network, crac);
             String bestVariantId = IteratingLinearOptimizer.optimize(raoData, raoParameters);
             this.status = Status.EVALUATION_SUCCESS;
-            updateRaoResultWithNetworkActions(crac, bestVariantId);
+            updateRaoResultWithNetworkActions(raoData.getCrac(), bestVariantId);
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;

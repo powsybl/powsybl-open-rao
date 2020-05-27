@@ -22,7 +22,7 @@ public class LinearRaoParametersTest {
     private LinearRaoParameters raoParameters;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         raoParameters = new LinearRaoParameters();
     }
 
@@ -30,20 +30,6 @@ public class LinearRaoParametersTest {
     public void getName() {
         assertEquals("LinearRaoParameters", raoParameters.getName());
     }
-
-    /*@Test
-    public void setSensitivityComputationParameters() {
-        SensitivityComputationParameters sensitivityComputationParameters = Mockito.mock(SensitivityComputationParameters.class);
-        raoParameters.setSensitivityComputationParameters(sensitivityComputationParameters);
-
-        assertSame(sensitivityComputationParameters, raoParameters.getSensitivityComputationParameters());
-    }*/
-
-    /*@Test
-    public void setMaxIterations() {
-        raoParameters.setMaxIterations(99);
-        assertEquals(99, raoParameters.getMaxIterations());
-    }*/
 
     @Test
     public void setSecurityAnalysisWithoutRao() {
@@ -53,18 +39,6 @@ public class LinearRaoParametersTest {
         raoParameters.setSecurityAnalysisWithoutRao(true);
         assertEquals(true, raoParameters.isSecurityAnalysisWithoutRao());
     }
-
-    /*@Test
-    public void setPstSensitivityThreshold() {
-        raoParameters.setPstSensitivityThreshold(5.0);
-        assertEquals(5.0, raoParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
-    }*/
-
-    /*@Test
-    public void setPstPenaltyCost() {
-        raoParameters.setPstPenaltyCost(0.5);
-        assertEquals(0.5, raoParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
-    }*/
 
     @Test
     public void setObjectiveFunction() {

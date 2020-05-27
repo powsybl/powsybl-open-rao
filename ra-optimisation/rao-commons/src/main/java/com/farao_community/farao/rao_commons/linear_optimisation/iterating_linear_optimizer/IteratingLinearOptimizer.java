@@ -50,7 +50,21 @@ public final class IteratingLinearOptimizer {
                                   String referenceVariantId,
                                   SystematicSensitivityComputation systematicSensitivityComputation,
                                   RaoParameters raoParameters) {
-        SimpleLinearOptimizer simpleLinearOptimizer = new SimpleLinearOptimizer(raoParameters);
+        return optimize(raoData, referenceVariantId, systematicSensitivityComputation, new SimpleLinearOptimizer(raoParameters), raoParameters);
+    }
+
+    public static String optimize(RaoData raoData,
+                                  SystematicSensitivityComputation systematicSensitivityComputation,
+                                  SimpleLinearOptimizer simpleLinearOptimizer,
+                                  RaoParameters raoParameters) {
+        return optimize(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation, simpleLinearOptimizer, raoParameters);
+    }
+
+    public static String optimize(RaoData raoData,
+                                  String referenceVariantId,
+                                  SystematicSensitivityComputation systematicSensitivityComputation,
+                                  SimpleLinearOptimizer simpleLinearOptimizer,
+                                  RaoParameters raoParameters) {
         raoData.setWorkingVariant(referenceVariantId);
         String bestVariantId = referenceVariantId;
         String optimizedVariantId;

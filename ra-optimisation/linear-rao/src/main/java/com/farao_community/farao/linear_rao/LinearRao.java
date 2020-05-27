@@ -69,8 +69,13 @@ public class LinearRao implements RaoProvider {
         try {
             // check config
             linearRaoParametersQualityCheck(raoParameters, raoData);
+
+            SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
+                raoParameters.getExtension(SystematicSensitivityComputationParameters.class),
+                computationManager);
+
             // run RAO algorithm
-            return runLinearRao(raoData, raoParameters, computationManager);
+            return runLinearRao(raoData, systematicSensitivityComputation, raoParameters);
 
         } catch (FaraoException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
@@ -78,12 +83,8 @@ public class LinearRao implements RaoProvider {
     }
 
     CompletableFuture<RaoResult> runLinearRao(RaoData raoData,
-                                              RaoParameters raoParameters,
-                                              ComputationManager computationManager) {
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParameters.getExtension(SystematicSensitivityComputationParameters.class),
-            computationManager);
-
+                                              SystematicSensitivityComputation systematicSensitivityComputation,
+                                              RaoParameters raoParameters) {
         raoData.fillRangeActionResultsWithNetworkValues();
         LOGGER.info("Initial systematic analysis [start]");
         systematicSensitivityComputation.run(raoData);

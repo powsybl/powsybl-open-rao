@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
@@ -65,7 +66,7 @@ public final class Tree {
         String initialNetworkVariant = network.getVariantManager().getWorkingVariantId();
         String newNetworkVariant = RandomizedString.getRandomizedString(network.getVariantManager().getVariantIds());
         network.getVariantManager().cloneVariant(initialNetworkVariant, newNetworkVariant);
-        rootLeaf.evaluate(network, crac, newNetworkVariant, parameters);
+        rootLeaf.evaluate(new RaoData(network, crac), newNetworkVariant, parameters);
         network.getVariantManager().setWorkingVariant(initialNetworkVariant);
         int depth = 0;
 
@@ -153,7 +154,7 @@ public final class Tree {
             networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
-                    leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
+                    leaf.evaluate(new RaoData(networkClone, crac), referenceNetworkVariant, parameters);
                     networkPool.releaseUsedNetwork(networkClone);
                     LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                 } catch (InterruptedException e) {

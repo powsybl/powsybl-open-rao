@@ -1,0 +1,10 @@
+{
+  "version" : "1.0",
+  "rao-with-loop-flow-limitation" : false,
+  "extensions" : {
+    "LinearProblemParameters" : {
+      "pst-penalty-cost" : 0.5,
+      "pst-sensitivity-threshold" : 1.0
+    }
+  }
+}

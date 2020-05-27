@@ -27,10 +27,6 @@ public class IteratingLinearOptimizerParameters extends AbstractExtension<RaoPar
 
     public IteratingLinearOptimizerParameters() { }
 
-    public IteratingLinearOptimizerParameters(int maxIterations) {
-        this.maxIterations = maxIterations;
-    }
-
     public int getMaxIterations() {
         return maxIterations;
     }
