@@ -186,9 +186,9 @@ public final class Tree {
     }
 
     static RaoResult buildOutput(Leaf rootLeaf, Leaf optimalLeaf) {
-        RaoResult raoResult = new RaoResult(optimalLeaf.getRaoResult().getStatus());
-        raoResult.setPreOptimVariantId(rootLeaf.getRaoResult().getPreOptimVariantId());
-        raoResult.setPostOptimVariantId(optimalLeaf.getRaoResult().getPostOptimVariantId());
+        RaoResult raoResult = new RaoResult(optimalLeaf.getLeafStatus());
+        raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
+        raoResult.setPostOptimVariantId(optimalLeaf.getPostOptimVariantId());
         return raoResult;
     }
 
@@ -213,7 +213,7 @@ public final class Tree {
             .map(rangeAction -> format("%s: %d",
                 rangeAction.getName(),
                 ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
-                    .getVariant(leaf.getRaoResult().getPostOptimVariantId()))
+                    .getVariant(leaf.getPostOptimVariantId()))
                     .getTap(crac.getPreventiveState().getId())))
             .collect(Collectors.joining(", "));
         return format("%s: range actions = %s",
@@ -223,7 +223,7 @@ public final class Tree {
 
     private static void logMostLimitingElements(Crac crac, Leaf optimalLeaf) {
         List<Cnec> sortedCnecs = new ArrayList<>(crac.getCnecs());
-        String postOptimVariantId = optimalLeaf.getRaoResult().getPostOptimVariantId();
+        String postOptimVariantId = optimalLeaf.getPostOptimVariantId();
         sortedCnecs.sort(Comparator.comparingDouble(cnec -> computeMarginInMW(cnec, postOptimVariantId)));
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {

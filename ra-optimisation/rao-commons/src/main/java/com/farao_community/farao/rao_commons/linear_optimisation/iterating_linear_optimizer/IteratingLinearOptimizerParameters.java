@@ -18,7 +18,7 @@ import static java.lang.Math.max;
 public class IteratingLinearOptimizerParameters extends AbstractExtension<RaoParameters> {
     static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
 
-    private int maxIterations;
+    private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
 
     @Override
     public String getName() {

@@ -45,6 +45,7 @@ public class TreeTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
+    @Ignore
     @Test
     public void buildOutputTest() {
 

@@ -16,6 +16,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +113,25 @@ class Leaf {
         return status;
     }
 
+    private String preOptimVariantId;
+    private String postOptimVariantId;
+
+    public String getPreOptimVariantId() {
+        return preOptimVariantId;
+    }
+
+    public String getPostOptimVariantId() {
+        return postOptimVariantId;
+    }
+
+    public RaoResult.Status getLeafStatus() {
+        if (!Objects.isNull(postOptimVariantId)) {
+            return RaoResult.Status.FAILURE;
+        } else {
+            return RaoResult.Status.SUCCESS;
+        }
+    }
+
     /**
      * Is this Leaf the initial one of the tree
      */
@@ -158,9 +178,13 @@ class Leaf {
 
         // Optimize the use of Range Actions
         try {
-            String bestVariantId = IteratingLinearOptimizer.optimize(raoData, raoParameters);
+            preOptimVariantId = raoData.getWorkingVariantId();
+            raoData.fillRangeActionResultsWithNetworkValues();
+            SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
+            systematicSensitivityComputation.run(raoData);
+            postOptimVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
             this.status = Status.EVALUATION_SUCCESS;
-            updateRaoResultWithNetworkActions(raoData.getCrac(), bestVariantId);
+            updateRaoResultWithNetworkActions(raoData.getCrac());
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
@@ -168,34 +192,38 @@ class Leaf {
     }
 
     void deletePostOptimResultVariant(Crac crac) {
-        if (isRoot() && raoResult.getPostOptimVariantId().equals(raoResult.getPreOptimVariantId())) {
+        Objects.requireNonNull(preOptimVariantId);
+        Objects.requireNonNull(postOptimVariantId);
+        if (isRoot() && postOptimVariantId.equals(preOptimVariantId)) {
             return;
         }
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager.getVariants().contains(raoResult.getPostOptimVariantId())) {
-            resultVariantManager.deleteVariant(raoResult.getPostOptimVariantId());
+        if (resultVariantManager.getVariants().contains(postOptimVariantId)) {
+            resultVariantManager.deleteVariant(postOptimVariantId);
         }
     }
 
     void deletePreOptimResultVariant(Crac crac) {
-        if (!isRoot() && raoResult.getPostOptimVariantId().equals(raoResult.getPreOptimVariantId())) {
+        Objects.requireNonNull(preOptimVariantId);
+        Objects.requireNonNull(postOptimVariantId);
+        if (!isRoot() && postOptimVariantId.equals(preOptimVariantId)) {
             return;
         }
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager.getVariants().contains(raoResult.getPreOptimVariantId())) {
-            resultVariantManager.deleteVariant(raoResult.getPreOptimVariantId());
+        if (resultVariantManager.getVariants().contains(preOptimVariantId)) {
+            resultVariantManager.deleteVariant(preOptimVariantId);
         }
     }
 
     public double getCost(Crac crac) {
-        Objects.requireNonNull(raoResult);
-        return crac.getExtension(CracResultExtension.class).getVariant(raoResult.getPostOptimVariantId()).getCost();
+        Objects.requireNonNull(postOptimVariantId);
+        return crac.getExtension(CracResultExtension.class).getVariant(postOptimVariantId).getCost();
     }
 
-    private void updateRaoResultWithNetworkActions(Crac crac, String bestVariantId) {
+    private void updateRaoResultWithNetworkActions(Crac crac) {
         String preventiveState = crac.getPreventiveState().getId();
         for (NetworkAction networkAction : networkActions) {
-            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(bestVariantId).activate(preventiveState);
+            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).activate(preventiveState);
         }
     }
 }
