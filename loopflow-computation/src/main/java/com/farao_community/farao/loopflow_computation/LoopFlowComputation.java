@@ -186,8 +186,12 @@ public class LoopFlowComputation {
 
     public Map<Cnec, Double> buildLoopflowShiftsApproximation(Crac crac) {
         Map<Cnec, Double> loopflowShifts = new HashMap<>();
-        crac.getCnecs(crac.getPreventiveState()).forEach(cnec ->
-                loopflowShifts.put(cnec, cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift()));
+        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
+                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                    loopflowShifts.put(cnec, cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift());
+                }
+            }
+        );
         return loopflowShifts;
     }
 
