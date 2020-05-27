@@ -125,7 +125,8 @@ class SystematicAnalysisEngine {
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
         }
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
-            if (Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
+                    && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
                 setLoopflowViolation(true);
                 LOGGER.warn("Loopflow constraint violation.");
                 break;
@@ -170,7 +171,7 @@ class SystematicAnalysisEngine {
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getReferenceFlow(cnec));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec));
             cnecResult.setThresholds(cnec);
-            if (loopflows.containsKey(cnec.getId())) {
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && loopflows.containsKey(cnec.getId())) {
                 cnecResult.setLoopflowInMW(loopflows.get(cnec.getId()));
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             }
