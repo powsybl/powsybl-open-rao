@@ -3,6 +3,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -130,8 +131,10 @@ class SystematicAnalysisEngine {
      */
     private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        linearRaoData.getCracResult().setFunctionalCost(-getMinMargin(linearRaoData, systematicSensitivityAnalysisResult));
+        double minMargin = getMinMargin(linearRaoData, systematicSensitivityAnalysisResult);
+        linearRaoData.getCracResult().setFunctionalCost(-minMargin);
         linearRaoData.getCracResult().setVirtualCost(fallbackMode ? linearRaoParameters.getFallbackOvercost() : 0);
+        linearRaoData.getCracResult().setNetworkSecurityStatus(minMargin < 0 ? CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
         updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult);
     }
 
