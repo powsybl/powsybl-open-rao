@@ -27,10 +27,10 @@ import static com.farao_community.farao.data.crac_io_cne.CneConstants.B88_BUSINE
  */
 public class CneHelper {
     private List<Instant> instants;
-    private Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB54;
-    private Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB56;
-    private Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB57;
-    private Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB88;
+    private Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB54;
+    private Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB56;
+    private Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB57;
+    private Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB88;
     private Map<Pair<NetworkElement, Optional<Contingency>>, List<Analog>> measurementListEachNetworkElement;
     private String preOptimVariantId;
     private String postOptimVariantId;
@@ -80,35 +80,35 @@ public class CneHelper {
         return postOptimVariantId;
     }
 
-    public Map<Optional<Contingency>, ConstraintSeries> getConstraintSeriesMapB54() {
+    public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB54() {
         return constraintSeriesMapB54;
     }
 
-    public void setConstraintSeriesMapB54(Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB54) {
+    public void setConstraintSeriesMapB54(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB54) {
         this.constraintSeriesMapB54 = constraintSeriesMapB54;
     }
 
-    public Map<Optional<Contingency>, ConstraintSeries> getConstraintSeriesMapB56() {
+    public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB56() {
         return constraintSeriesMapB56;
     }
 
-    public void setConstraintSeriesMapB56(Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB56) {
+    public void setConstraintSeriesMapB56(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB56) {
         this.constraintSeriesMapB56 = constraintSeriesMapB56;
     }
 
-    public Map<Optional<Contingency>, ConstraintSeries> getConstraintSeriesMapB57() {
+    public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB57() {
         return constraintSeriesMapB57;
     }
 
-    public void setConstraintSeriesMapB57(Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB57) {
+    public void setConstraintSeriesMapB57(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB57) {
         this.constraintSeriesMapB57 = constraintSeriesMapB57;
     }
 
-    public Map<Optional<Contingency>, ConstraintSeries> getConstraintSeriesMapB88() {
+    public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB88() {
         return constraintSeriesMapB88;
     }
 
-    public void setConstraintSeriesMapB88(Map<Optional<Contingency>, ConstraintSeries> constraintSeriesMapB88) {
+    public void setConstraintSeriesMapB88(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB88) {
         this.constraintSeriesMapB88 = constraintSeriesMapB88;
     }
 
@@ -175,19 +175,20 @@ public class CneHelper {
     }
 
     // Helper: fills maps (B56/B57) containing the constraint series corresponding to a state
-    public void addConstraintsToMap(Contingency contingency) {
+    public void addConstraintsToMap(State state) {
         // add to map
-        constraintSeriesMapB54.put(Optional.of(contingency), newConstraintSeries(B54_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
-        constraintSeriesMapB56.put(Optional.of(contingency), newConstraintSeries(B56_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
-        constraintSeriesMapB57.put(Optional.of(contingency), newConstraintSeries(B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
-        constraintSeriesMapB88.put(Optional.of(contingency), newConstraintSeries(B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
-    }
-
-    public void addBasecaseConstraintsToMap() {
-        // add to map
-        constraintSeriesMapB54.put(Optional.empty(), newConstraintSeries(B54_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
-        constraintSeriesMapB56.put(Optional.empty(), newConstraintSeries(B56_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
-        constraintSeriesMapB57.put(Optional.empty(), newConstraintSeries(B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
-        constraintSeriesMapB88.put(Optional.empty(), newConstraintSeries(B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
+        Optional<Contingency> optionalContingency = state.getContingency();
+        if (optionalContingency.isPresent()) {
+            Contingency contingency = optionalContingency.get();
+            constraintSeriesMapB54.put(Pair.create(Optional.of(contingency), state.getId()), newConstraintSeries(B54_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
+            constraintSeriesMapB56.put(Pair.create(Optional.of(contingency), state.getId()), newConstraintSeries(B56_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
+            constraintSeriesMapB57.put(Pair.create(Optional.of(contingency), state.getId()), newConstraintSeries(B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
+            constraintSeriesMapB88.put(Pair.create(Optional.of(contingency), state.getId()), newConstraintSeries(B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS, newContingencySeries(contingency.getId(), contingency.getName())));
+        } else {
+            constraintSeriesMapB54.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B54_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
+            constraintSeriesMapB56.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B56_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
+            constraintSeriesMapB57.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
+            constraintSeriesMapB88.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
+        }
     }
 }

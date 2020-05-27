@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.math3.util.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,26 +137,36 @@ public class Cne {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
         /* Contingencies */
-        // PREVENTIVE STATE
-        cneHelper.addBasecaseConstraintsToMap();
-
-        // AFTER CONTINGENCY
-        crac.getContingencies().forEach(
-            contingency -> cneHelper.addConstraintsToMap(contingency));
+        crac.getStates().forEach(state -> cneHelper.addConstraintsToMap(state));
 
         /* Monitored Elements*/
         //List<ConstraintSeries> constraintSeriesListB57 = new ArrayList<>(constraintSeriesMapB57.values(), OPTIMIZED_MARKET_STATUS);
         //crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, network));
 
         /* Remedial Actions*/
-        //crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
-        //crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
+        crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
+        crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
 
-        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB54().values());
-        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB56().values());
-        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB57().values());
-        constraintSeriesList.addAll(cneHelper.getConstraintSeriesMapB88().values());
+        // TODO: put together
+        constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB54()));
+        constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB56()));
+        constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB57()));
+        constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB88()));
         point.constraintSeries = constraintSeriesList;
+    }
+
+    private List<ConstraintSeries> sortConstraintSeries(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMap) {
+        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+        Set<Optional<Contingency>> contingencies = new HashSet<>();
+
+        constraintSeriesMap.forEach((pair, constraintSeries) -> {
+                if (!contingencies.contains(pair.getFirst())) {
+                    contingencies.add(pair.getFirst());
+                    constraintSeriesList.add(constraintSeries);
+                }
+            }
+        );
+        return constraintSeriesList;
     }
 
     /*****************
@@ -237,31 +248,33 @@ public class Cne {
      REMEDIAL ACTIONS
      *****************/
     // Adds to the ConstraintSeries all RemedialActionSeries needed
-    /*private void addRemedialActionsToConstraintSeries(RemedialAction remedialAction) {
+    private void addRemedialActionsToConstraintSeries(RemedialAction remedialAction) {
 
         if (remedialAction.getExtension(NetworkActionResultExtension.class) != null) {
-            addActivatedNetworkAction(remedialAction, constraintSeriesMapB56);
-            addActivatedNetworkAction(remedialAction, constraintSeriesMapB57);
+            addActivatedNetworkAction(remedialAction, cneHelper.getConstraintSeriesMapB54());
+            addActivatedNetworkAction(remedialAction, cneHelper.getConstraintSeriesMapB56());
+            addActivatedNetworkAction(remedialAction, cneHelper.getConstraintSeriesMapB57());
         }
         if (remedialAction.getExtension(RangeActionResultExtension.class) != null) {
-            addActivatedRangeAction(remedialAction, constraintSeriesMapB56, false);
-            addActivatedRangeAction(remedialAction, constraintSeriesMapB57, true);
+            addActivatedRangeAction(remedialAction, cneHelper.getConstraintSeriesMapB54(), false);
+            addActivatedRangeAction(remedialAction, cneHelper.getConstraintSeriesMapB56(), false);
+            addActivatedRangeAction(remedialAction, cneHelper.getConstraintSeriesMapB57(), true);
         }
     }
 
     // Adds to the ConstraintSeries a complete RemedialActionSeries created after a RangeAction
-    private void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList, boolean createResource) {
+    private void addActivatedRangeAction(RemedialAction<?> remedialAction, Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesList, boolean createResource) {
         RangeAction rangeAction = (RangeAction) remedialAction;
-        constraintSeriesList.forEach((state, constraintSeries) -> {
+        constraintSeriesList.forEach((pair, constraintSeries) -> {
             RangeActionResult preOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(cneHelper.getPreOptimVariantId());
             RangeActionResult postOptimRangeActionResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(cneHelper.getPostOptimVariantId());
             if (preOptimRangeActionResult != null && postOptimRangeActionResult != null
-                && CneUtil.isActivated(state.getId(), preOptimRangeActionResult, postOptimRangeActionResult)) {
+                && CneUtil.isActivated(pair.getSecond(), preOptimRangeActionResult, postOptimRangeActionResult)) {
                 if (constraintSeries.remedialActionSeries == null) {
                     constraintSeries.remedialActionSeries = new ArrayList<>();
                 }
                 if (postOptimRangeActionResult instanceof PstRangeResult) {
-                    int setpoint = ((PstRangeResult) postOptimRangeActionResult).getTap(state.getId());
+                    int setpoint = ((PstRangeResult) postOptimRangeActionResult).getTap(pair.getSecond());
                     String rangeActionId = createRangeActionId(rangeAction.getId(), setpoint);
                     RemedialActionSeries remedialActionSeries = createRemedialActionSeries(rangeAction, rangeActionId);
                     if (createResource) {
@@ -276,12 +289,12 @@ public class Cne {
     }
 
     // Adds to the ConstraintSeries a complete RemedialActionSeries created after a NetworkAction
-    private void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<State, ConstraintSeries> constraintSeriesList) {
+    private void addActivatedNetworkAction(RemedialAction<?> remedialAction, Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesList) {
         NetworkAction networkAction = (NetworkAction) remedialAction;
-        constraintSeriesList.forEach((state, constraintSeries) -> {
+        constraintSeriesList.forEach((pair, constraintSeries) -> {
             if (networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPreOptimVariantId()) != null
                 && networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPostOptimVariantId()) != null
-                && CneUtil.isActivated(state.getId(),
+                && CneUtil.isActivated(pair.getSecond(),
                 networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPreOptimVariantId()),
                 networkAction.getExtension(NetworkActionResultExtension.class).getVariant(cneHelper.getPostOptimVariantId()))) {
                 if (constraintSeries.remedialActionSeries == null) {
@@ -307,6 +320,4 @@ public class Cne {
         return newRemedialActionSeries(id, remedialAction.getName(), PREVENTIVE_MARKET_OBJECT_STATUS);
         // deal with automatic RA (A20) and curative RA (A19) once developed
     }
-
-     */
 }
