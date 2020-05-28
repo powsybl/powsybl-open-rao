@@ -674,11 +674,19 @@ public class CracFileTest {
 
         List<String> validityReport = simpleCrac.generateValidityReport(network);
 
-        assertEquals(5, validityReport.size());
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
         assertEquals(0, simpleCrac.getRangeActions().size());
         assertEquals(2, simpleCrac.getContingencies().size());
         assertEquals(2, simpleCrac.getStates().size());
+
+        assertEquals(5, validityReport.size());
+        int removedCount = 0;
+        for (String line: validityReport) {
+            if (line.contains("[REMOVED]")) {
+                removedCount++;
+            }
+        }
+        assertEquals(5, removedCount);
     }
 }

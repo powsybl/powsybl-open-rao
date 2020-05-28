@@ -443,7 +443,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         getCnecs().forEach(cnec -> {
             if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
                 absentFromNetworkCnecs.add(cnec);
-                report.add(String.format("Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
+                report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
             }
         });
         absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
@@ -452,7 +452,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);
-                    report.add(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
+                    report.add(String.format("[REMOVED] Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
                     return;
                 }
             });
@@ -464,7 +464,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             networkAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkNetworkActions.add(networkAction);
-                    report.add(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
+                    report.add(String.format("[REMOVED] Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
                     return;
                 }
             });
@@ -476,7 +476,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             contingency.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkContingencies.add(contingency);
-                    report.add(String.format("Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
+                    report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
                     return;
                 }
             });
