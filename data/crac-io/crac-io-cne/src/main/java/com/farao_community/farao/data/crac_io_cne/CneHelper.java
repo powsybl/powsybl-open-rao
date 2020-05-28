@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.B88_BUSINESS_TYPE;
+import static com.farao_community.farao.data.crac_io_cne.CneUtil.findNodeInNetwork;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -165,6 +167,30 @@ public class CneHelper {
         } else {
             measurementListEachNetworkElement.get(pair).addAll(measurementsList);
         }
+    }
+
+    public void addB88MonitoredSeriesToConstraintSeries(Cnec cnec) {
+        constraintSeriesMapB88.forEach((pair, constraintSeries) -> {
+            if (pair.getFirst().equals(cnec.getState().getContingency())) {
+                if (constraintSeries.monitoredSeries == null) {
+                    constraintSeries.monitoredSeries = new ArrayList<>();
+                }
+                MonitoredSeries monitoredSeries = createB88MonitoredSeries(cnec);
+                //monitoredSeries.registeredResource.get(0).measurements.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.AMPERE, cnec.get));
+                constraintSeries.monitoredSeries.add(monitoredSeries);
+            }
+        });
+    }
+
+    private MonitoredSeries createB88MonitoredSeries(Cnec cnec) {
+
+        Pair<NetworkElement, Optional<Contingency>> myPair = Pair.create(cnec.getNetworkElement(), cnec.getState().getContingency());
+        MonitoredRegisteredResource monitoredRegisteredResource = newMonitoredRegisteredResource(cnec.getNetworkElement().getId(),
+            cnec.getNetworkElement().getName(),
+            findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE),
+            findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO),
+            measurementListEachNetworkElement.get(myPair));
+        return newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResource);
     }
 
     // Helper: fills maps (B56/B57) containing the constraint series corresponding to a state

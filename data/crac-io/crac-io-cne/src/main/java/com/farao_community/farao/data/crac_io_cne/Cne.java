@@ -140,6 +140,8 @@ public class Cne {
         //List<ConstraintSeries> constraintSeriesListB57 = new ArrayList<>(constraintSeriesMapB57.values(), OPTIMIZED_MARKET_STATUS);
         //crac.getCnecs().forEach(cnec -> addCnecToConstraintSeries(cnec, constraintSeriesListB57, network));
 
+        crac.getCnecs().forEach(cnec -> cneHelper.addB88MonitoredSeriesToConstraintSeries(cnec));
+
         /* Remedial Actions*/
         crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
         crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
