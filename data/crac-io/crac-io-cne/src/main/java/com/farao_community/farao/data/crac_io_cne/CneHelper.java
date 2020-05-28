@@ -60,10 +60,10 @@ public class CneHelper {
         double minCost = cracExtension.getVariant(variants.get(0)).getCost();
         double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
         for (String variant : variants) {
-            if (cracExtension.getVariant(variants.get(0)).getCost() < minCost) {
+            if (cracExtension.getVariant(variant).getCost() < minCost) {
                 minCost = cracExtension.getVariant(variant).getCost();
                 postOptimVariantId = variant;
-            } else if (cracExtension.getVariant(variants.get(0)).getCost() > maxCost) {
+            } else if (cracExtension.getVariant(variant).getCost() > maxCost) {
                 maxCost = cracExtension.getVariant(variant).getCost();
                 preOptimVariantId = variant;
             }
