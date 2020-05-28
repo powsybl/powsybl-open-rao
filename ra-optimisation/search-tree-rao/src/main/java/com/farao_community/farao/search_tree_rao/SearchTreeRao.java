@@ -15,6 +15,7 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_commons.RaoInput;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
@@ -41,12 +42,14 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+        RaoInput.synchronize(crac, network);
+        RaoInput.cleanCrac(crac, network);
+
         // quality check
         List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(parameters);
         if (!configQualityCheck.isEmpty()) {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
-        crac.generateValidityReport(network);
 
         if (useLoopFlowExtension(parameters) && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
             computeInitialLoopflowAndUpdateCnecLoopflowConstraint(network, crac);
