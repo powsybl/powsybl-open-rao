@@ -47,10 +47,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.github.oliviercailloux</groupId>
             <artifactId>google-or-tools</artifactId>
         </dependency>
@@ -108,6 +104,11 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
