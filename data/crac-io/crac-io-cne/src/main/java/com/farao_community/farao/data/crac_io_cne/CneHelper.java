@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.powsybl.iidm.network.Network;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,8 @@ import static com.farao_community.farao.data.crac_io_cne.CneConstants.B88_BUSINE
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class CneHelper {
+    private Crac crac;
+    private Network network;
     private List<Instant> instants;
     private Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB54;
     private Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB56;
@@ -37,8 +40,10 @@ public class CneHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneHelper.class);
 
-    public CneHelper() {
+    public CneHelper(Crac crac, Network network) {
 
+        this.crac = crac;
+        this.network = network;
         instants = new ArrayList<>();
         preOptimVariantId = "";
         postOptimVariantId = "";
@@ -84,32 +89,20 @@ public class CneHelper {
         return constraintSeriesMapB54;
     }
 
-    public void setConstraintSeriesMapB54(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB54) {
-        this.constraintSeriesMapB54 = constraintSeriesMapB54;
+    public Crac getCrac() {
+        return crac;
     }
 
     public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB56() {
         return constraintSeriesMapB56;
     }
 
-    public void setConstraintSeriesMapB56(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB56) {
-        this.constraintSeriesMapB56 = constraintSeriesMapB56;
-    }
-
     public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB57() {
         return constraintSeriesMapB57;
     }
 
-    public void setConstraintSeriesMapB57(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB57) {
-        this.constraintSeriesMapB57 = constraintSeriesMapB57;
-    }
-
     public Map<Pair<Optional<Contingency>, String>, ConstraintSeries> getConstraintSeriesMapB88() {
         return constraintSeriesMapB88;
-    }
-
-    public void setConstraintSeriesMapB88(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMapB88) {
-        this.constraintSeriesMapB88 = constraintSeriesMapB88;
     }
 
     private String instantToCodeConverter(Instant instant) {
@@ -189,6 +182,12 @@ public class CneHelper {
             constraintSeriesMapB56.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B56_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
             constraintSeriesMapB57.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
             constraintSeriesMapB88.put(Pair.create(Optional.empty(), state.getId()), newConstraintSeries(B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS));
+        }
+    }
+
+    public void checkSynchronize() {
+        if (!crac.isSynchronized()) {
+            crac.synchronize(network);
         }
     }
 }

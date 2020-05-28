@@ -35,9 +35,9 @@ public class Cne {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Cne.class);
 
-    public Cne() {
+    public Cne(Crac crac, Network network) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper();
+        cneHelper = new CneHelper(crac, network);
     }
 
     public CriticalNetworkElementMarketDocument getMarketDocument() {
@@ -48,11 +48,10 @@ public class Cne {
      GENERAL METHODS
      *****************/
     // Main method
-    public void generate(Crac crac, Network network) {
+    public void generate() {
 
-        if (!crac.isSynchronized()) {
-            crac.synchronize(network);
-        }
+        cneHelper.checkSynchronize();
+        Crac crac = cneHelper.getCrac();
 
         fillHeader(crac.getNetworkDate());
         addTimeSeriesToCne(crac.getNetworkDate());
@@ -69,7 +68,7 @@ public class Cne {
                 cneHelper.initializeAttributes(crac, cracExtension, variants);
 
                 // fill CNE
-                createAllConstraintSeries(point, crac, network);
+                createAllConstraintSeries(point, crac);
                 addSuccessReasonToPoint(point, cracExtension.getVariant(cneHelper.getPostOptimVariantId()).getNetworkSecurityStatus());
             } else {
                 addFailureReasonToPoint(point);
@@ -79,8 +78,6 @@ public class Cne {
             addFailureReasonToPoint(point);
         }
     }
-
-
 
     /*****************
      HEADER
@@ -132,7 +129,7 @@ public class Cne {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private void createAllConstraintSeries(Point point, Crac crac, Network network) {
+    private void createAllConstraintSeries(Point point, Crac crac) {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
@@ -147,7 +144,6 @@ public class Cne {
         crac.getNetworkActions().forEach(this::addRemedialActionsToConstraintSeries);
         crac.getRangeActions().forEach(this::addRemedialActionsToConstraintSeries);
 
-        // TODO: put together
         constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB54()));
         constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB56()));
         constraintSeriesList.addAll(sortConstraintSeries(cneHelper.getConstraintSeriesMapB57()));
@@ -155,6 +151,7 @@ public class Cne {
         point.constraintSeries = constraintSeriesList;
     }
 
+    /* Remove some constraint series that are duplicated because they point on the same contingency but different states */
     private List<ConstraintSeries> sortConstraintSeries(Map<Pair<Optional<Contingency>, String>, ConstraintSeries> constraintSeriesMap) {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         Set<Optional<Contingency>> contingencies = new HashSet<>();
@@ -240,7 +237,8 @@ public class Cne {
         }
 
         return measurementsList;
-    }
+    }*/
+
 
 
 

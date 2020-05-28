@@ -55,8 +55,8 @@ public class CneExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
-        Cne cne = new Cne();
-        cne.generate(crac, network);
+        Cne cne = new Cne(crac, network);
+        cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
 
