@@ -48,6 +48,7 @@ public class SystematicAnalysisEngineTest {
     private LinearRaoData initialLinearRaoData;
     private SystematicSensitivityAnalysisResult systematicAnalysisResultOk;
     private SystematicSensitivityAnalysisResult systematicAnalysisResultFailed;
+    private LinearRaoParameters linearRaoParameters;
 
     @Before
     public void setUp() {
@@ -60,12 +61,16 @@ public class SystematicAnalysisEngineTest {
 
         initialLinearRaoData = new LinearRaoData(network, crac);
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+
+        linearRaoParameters = new LinearRaoParameters();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setRaoWithLoopFlowLimitation(false);
+        raoParameters.addExtension(LinearRaoParameters.class, linearRaoParameters);
     }
 
     @Test
     public void testRunDefaultConfigOkWithMinMarginInMegawatt() {
 
-        LinearRaoParameters linearRaoParameters = new LinearRaoParameters();
         linearRaoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
@@ -91,7 +96,6 @@ public class SystematicAnalysisEngineTest {
     @Test
     public void testRunDefaultConfigOkWithMinMarginInAmpere() {
 
-        LinearRaoParameters linearRaoParameters = new LinearRaoParameters();
         linearRaoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
@@ -220,5 +224,14 @@ public class SystematicAnalysisEngineTest {
         SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
         Mockito.when(result.isSuccess()).thenReturn(false);
         return result;
+    }
+
+    @Test
+    public void testLoopflowRelated() {
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
+        systematicAnalysisEngine.setLoopflowViolation(true);
+        assertTrue(systematicAnalysisEngine.isLoopflowViolation());
     }
 }

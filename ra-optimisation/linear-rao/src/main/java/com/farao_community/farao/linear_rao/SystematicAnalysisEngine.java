@@ -1,10 +1,13 @@
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
@@ -16,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
@@ -46,6 +52,9 @@ class SystematicAnalysisEngine {
      */
     private ComputationManager computationManager;
 
+    private boolean runLoopflow;
+    private boolean loopflowViolation;
+
     /**
      * Constructor
      */
@@ -53,6 +62,8 @@ class SystematicAnalysisEngine {
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;
+        this.runLoopflow = linearRaoParameters.getExtendable().isRaoWithLoopFlowLimitation();
+        this.loopflowViolation = false;
     }
 
     boolean isFallback() {
@@ -67,7 +78,13 @@ class SystematicAnalysisEngine {
      */
     void run(LinearRaoData linearRaoData) {
         SystematicSensitivityAnalysisResult sensiResults = runSensitivityAnalysis(linearRaoData);
-        setResults(linearRaoData, sensiResults);
+
+        Map<String, Double> loopflows = new HashMap<>();
+        if (this.runLoopflow) {
+            loopflows = computeLoopflowAndCheckLoopflowConstraint(linearRaoData);
+        }
+
+        setResults(linearRaoData, sensiResults, loopflows);
     }
 
     /**
@@ -122,20 +139,39 @@ class SystematicAnalysisEngine {
             anyMatch(f -> Double.isNaN(f))) {
             throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
         }
+    }
 
+    private Map<String, Double> computeLoopflowAndCheckLoopflowConstraint(LinearRaoData linearRaoData) {
+
+        //todo: optim: if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
+        Map<String, Double> loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+        setLoopflowViolation(false);
+
+        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
+                    && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
+                setLoopflowViolation(true);
+                LOGGER.info("Some loopflow constraints are not respected.");
+                break;
+            }
+        }
+        return loopflows;
     }
 
     /**
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Map<String, Double> loopflows) {
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
         double minMargin = getMinMargin(linearRaoData, systematicSensitivityAnalysisResult);
         linearRaoData.getCracResult().setFunctionalCost(-minMargin);
         linearRaoData.getCracResult().setVirtualCost(fallbackMode ? linearRaoParameters.getFallbackOvercost() : 0);
+        if (isLoopflowViolation()) {
+//            linearRaoData.getCracResult().setCost(Double.POSITIVE_INFINITY); //todo: set a high cost if loopflow constraint violation => use "virtual cost" in the future
+        }
         linearRaoData.getCracResult().setNetworkSecurityStatus(minMargin < 0 ? CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
-        updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult);
+        updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
     }
 
     /**
@@ -192,12 +228,24 @@ class SystematicAnalysisEngine {
         ).collect(Collectors.toList());
     }
 
-    private void updateCnecExtensions(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void updateCnecExtensions(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Map<String, Double> loopflows) {
         linearRaoData.getCrac().getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(linearRaoData.getWorkingVariantId());
             cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getReferenceFlow(cnec));
             cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec));
             cnecResult.setThresholds(cnec);
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && loopflows.containsKey(cnec.getId())) {
+                cnecResult.setLoopflowInMW(loopflows.get(cnec.getId()));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+            }
         });
+    }
+
+    boolean isLoopflowViolation() {
+        return loopflowViolation;
+    }
+
+    void setLoopflowViolation(boolean loopflowViolation) {
+        this.loopflowViolation = loopflowViolation;
     }
 }

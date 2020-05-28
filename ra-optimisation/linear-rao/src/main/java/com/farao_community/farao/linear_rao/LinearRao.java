@@ -16,6 +16,7 @@ import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.linear_rao.optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.rao_commons.RaoInput;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
@@ -57,6 +58,8 @@ public class LinearRao implements RaoProvider {
                                              ComputationManager computationManager,
                                              RaoParameters raoParameters) {
         network.getVariantManager().setWorkingVariant(variantId);
+        RaoInput.synchronize(crac, network);
+        RaoInput.cleanCrac(crac, network);
         LinearRaoData linearRaoData = new LinearRaoData(network, crac);
         try {
             // check config
@@ -103,6 +106,11 @@ public class LinearRao implements RaoProvider {
             LOGGER.info("Iteration {} - linear optimization [start]", iteration);
             linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
             LOGGER.info("Iteration {} - linear optimization [end]", iteration);
+
+            if (!linearOptimisationEngine.getSolverResultStatusString().equals("OPTIMAL")) {
+                LOGGER.info("Iteration {} - linear optimization is infeasible", iteration); //handle INFEASIBLE solver status
+                break;
+            }
 
             // if the solution has not changed, stop the search
             if (linearRaoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {
