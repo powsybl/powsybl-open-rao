@@ -138,8 +138,7 @@
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
           "functionalCost" : 10.0,
-          "virtualCost" : 5.0,
-          "cost" : 15.0
+          "virtualCost" : 5.0
         }
       }
     }

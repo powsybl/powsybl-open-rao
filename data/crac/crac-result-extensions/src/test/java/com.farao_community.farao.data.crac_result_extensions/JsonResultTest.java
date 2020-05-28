@@ -174,7 +174,6 @@ public class JsonResultTest {
         assertNotNull(exportedPstSetpointResultExtension);
         assertTrue(exportedPstSetpointResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
         assertFalse(exportedPstSetpointResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
-
     }
 
     @Test

@@ -10,10 +10,9 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Extension of {@link Crac} containing data related to an optimization:
@@ -32,15 +31,12 @@ import org.slf4j.LoggerFactory;
 @JsonTypeName("crac-result")
 public class CracResult implements Result {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracResult.class);
-
     public enum NetworkSecurityStatus {
         SECURED,
         UNSECURED
     }
 
     private NetworkSecurityStatus networkSecurityStatus;
-    private double cost;
     private double functionalCost;
     private double virtualCost;
 
@@ -52,8 +48,9 @@ public class CracResult implements Result {
         this.networkSecurityStatus = status;
     }
 
+    @JsonIgnore
     public double getCost() {
-        return cost;
+        return functionalCost + virtualCost;
     }
 
     public double getFunctionalCost() {
@@ -62,7 +59,6 @@ public class CracResult implements Result {
 
     public void setFunctionalCost(double functionalCost) {
         this.functionalCost = functionalCost;
-        this.cost = this.functionalCost + this.virtualCost;
     }
 
     public double getVirtualCost() {
@@ -71,7 +67,6 @@ public class CracResult implements Result {
 
     public void setVirtualCost(double virtualCost) {
         this.virtualCost = virtualCost;
-        this.cost = this.functionalCost + this.virtualCost;
     }
 
     @JsonCreator
@@ -81,17 +76,14 @@ public class CracResult implements Result {
         this.networkSecurityStatus = networkSecurityStatus;
         this.functionalCost = functionalCost;
         this.virtualCost = virtualCost;
-        this.cost = functionalCost + virtualCost;
     }
 
     public CracResult(double functionalCost) {
         this.functionalCost = functionalCost;
         this.virtualCost = 0;
-        this.cost = functionalCost;
     }
 
     public CracResult() {
-        this.cost = Double.NaN;
         this.functionalCost = Double.NaN;
         this.virtualCost = 0;
     }
