@@ -207,10 +207,15 @@ public class LinearRaoTest {
                 crac.getStates().forEach(st ->
                     crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setSetPoint(st.getId(), 1.0)
                 );
-
                 return linearRaoData;
             }
         }).when(linearOptimisationEngine).run(any(), any());
+
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                return "OPTIMAL";
+            }
+        }).when(linearOptimisationEngine).getSolverResultStatusString();
 
         // run Rao
         RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
@@ -231,5 +236,58 @@ public class LinearRaoTest {
         crac.getStates().forEach(st ->
             assertEquals(1.0,  crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(postOptimVariant).getSetPoint(st.getId()), DOUBLE_TOLERANCE)
         );
+    }
+
+    @Test
+    public void runLinearRaoTestWithoutOptimalSolverStatus() {
+
+        // mock sensitivity engine
+        // sensitivity computation returns a cost of 100 before optim, and 50 after optim
+        doAnswer(new Answer() {
+
+            private int count = 1;
+
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                LinearRaoData linearRaoData = (LinearRaoData) args[0];
+                linearRaoData.getCracResult().setCost(count == 1 ? 100.0 : 50.0);
+                crac.getExtension(CracResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setCost(count == 1 ? 100.0 : 50.0);
+                count += 1;
+                return null;
+            }
+        }).when(systematicAnalysisEngine).run(any());
+
+        // mock linear optimisation engine
+        // linear optimisation returns always the same value -> optimal solution is 1.0 for all RAs
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                crac.getStates().forEach(st ->
+                        crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(linearRaoData.getWorkingVariantId()).setSetPoint(st.getId(), 1.0)
+                );
+                return linearRaoData;
+            }
+        }).when(linearOptimisationEngine).run(any(), any());
+
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                return "INFEASIBLE";
+            }
+        }).when(linearOptimisationEngine).getSolverResultStatusString();
+
+        // run Rao
+        RaoResult results = linearRao.runLinearRao(linearRaoData, systematicAnalysisEngine, linearOptimisationEngine, linearRaoParameters).join();
+
+        // check results
+        assertNotNull(results);
+        assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
+        assertNotNull(results.getExtension(LinearRaoResult.class));
+        assertEquals(LinearRaoResult.SystematicSensitivityAnalysisStatus.DEFAULT, results.getExtension(LinearRaoResult.class).getSystematicSensitivityAnalysisStatus());
+        assertEquals(LinearRaoResult.LpStatus.RUN_OK, results.getExtension(LinearRaoResult.class).getLpStatus());
+
+        String preOptimVariant = results.getPreOptimVariantId();
+        String postOptimVariant = results.getPostOptimVariantId();
+
+        assertEquals(100.0, crac.getExtension(CracResultExtension.class).getVariant(preOptimVariant).getCost(), DOUBLE_TOLERANCE);
+        assertEquals(100.0, crac.getExtension(CracResultExtension.class).getVariant(postOptimVariant).getCost(), DOUBLE_TOLERANCE);
     }
 }
