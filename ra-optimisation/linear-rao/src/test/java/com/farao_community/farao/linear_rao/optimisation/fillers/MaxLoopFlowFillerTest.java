@@ -88,6 +88,27 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
     }
 
+    @Test
+    public void testFillLoopflow() {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        assertNotNull(loopFlowComputation);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setLoopflowApproximation(true);
+        linearRaoParameters.setExtendable(raoParameters);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+
+        // fill max loop flow
+        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+
+        // check flow constraint for cnec1
+        MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNotNull(loopFlowConstraint);
+        assertEquals(-100, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(100, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
+        MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1);
+        assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
+    }
+
     static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("FR", "FR", Collections.singletonMap("GENERATOR_FR_1", 1.f)));
