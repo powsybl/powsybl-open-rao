@@ -26,6 +26,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -118,12 +119,21 @@ public class RaoInputTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
 
-        RaoInput.cleanCrac(simpleCrac, network);
+        List<String> qualityReport = RaoInput.cleanCrac(simpleCrac, network);
 
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
         assertEquals(0, simpleCrac.getRangeActions().size());
         assertEquals(2, simpleCrac.getContingencies().size());
         assertEquals(2, simpleCrac.getStates().size());
+
+        assertEquals(5, qualityReport.size());
+        int removedCount = 0;
+        for (String line: qualityReport) {
+            if (line.contains("[REMOVED]")) {
+                removedCount++;
+            }
+        }
+        assertEquals(5, removedCount);
     }
 }
