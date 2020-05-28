@@ -43,4 +43,12 @@ public class CracLoopFlowExtension extends AbstractExtension<Crac> {
     public String getName() {
         return "CracLoopFlowExtension";
     }
+
+    public CracLoopFlowExtension() {
+    }
+
+    public CracLoopFlowExtension(GlskProvider glskProvider, List<Country> countries) {
+        this.glskProvider = glskProvider;
+        this.countriesForLoopFlow = countries;
+    }
 }
