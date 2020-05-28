@@ -23,6 +23,7 @@ public final class RaoUtil {
         RaoInput.cleanCrac(crac, network);
         RaoInput.synchronize(crac, network);
         RaoData raoData = new RaoData(network, crac);
+        raoData.fillRangeActionResultsWithNetworkValues();
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowComputation.run(raoData);

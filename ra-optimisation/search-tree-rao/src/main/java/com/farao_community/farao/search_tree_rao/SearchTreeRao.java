@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
-import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
@@ -43,8 +42,6 @@ public class SearchTreeRao implements RaoProvider {
         if (!configQualityCheck.isEmpty()) {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
-
-        RaoUtil.initRaoData(network, crac, variantId, raoParameters);
 
         // run optimisation
         RaoResult result = Tree.search(network, crac, variantId, raoParameters).join();

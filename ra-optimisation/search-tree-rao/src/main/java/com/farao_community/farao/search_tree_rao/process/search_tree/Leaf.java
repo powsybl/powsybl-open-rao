@@ -11,13 +11,12 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,7 @@ class Leaf {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
+    private RaoData raoData;
     /**
      * Parent Leaf or null for root Leaf
      */
@@ -74,6 +74,15 @@ class Leaf {
         this.status = Status.CREATED;
     }
 
+    Leaf(RaoData raoData) { //! constructor only for Root Leaf
+        this.parentLeaf = null;
+        this.raoData = raoData;
+        this.preOptimVariantId = raoData.getWorkingVariantId();
+        this.networkActions = new ArrayList<>(); //! root leaf has no network action
+        this.raoResult = null;
+        this.status = Status.CREATED;
+    }
+
     /**
      * Leaf constructor
      */
@@ -86,6 +95,10 @@ class Leaf {
 
         this.raoResult = null;
         this.status = Status.CREATED;
+    }
+
+    public RaoData getRaoData() {
+        return raoData;
     }
 
     /**
@@ -139,6 +152,15 @@ class Leaf {
         return parentLeaf == null;
     }
 
+    public String init(Network network, Crac crac) {
+        // apply Network Actions
+        networkActions.forEach(na -> na.apply(raoData.getNetwork()));
+        // It creates a new CRAC variant
+        this.raoData = new RaoData(network, crac);
+        preOptimVariantId = raoData.getWorkingVariantId();
+        return preOptimVariantId;
+    }
+
     /**
      * Extend the tree from the current Leaf with N new children Leaves
      * for the N Network Actions given in argument
@@ -155,63 +177,20 @@ class Leaf {
      * This method takes a network variant which we switch too, since we may
      * not generate new variants while multithreading.
      */
-    void evaluate(RaoData raoData, String networkVariant, RaoParameters raoParameters) {
-        this.status = Status.EVALUATION_RUNNING;
-
-        if (isRoot()) {
-            LOGGER.info("SearchTreeRao: evaluate root leaf");
-        } else {
-            String logInfo = "SearchTreeRao: evaluate network action(s)";
-            logInfo = logInfo.concat(networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
-            LOGGER.info(logInfo);
-        }
-
-        // apply Network Actions
+    String evaluate(RaoParameters raoParameters) {
+        // Compute sensis, flows and cost for preOptim variant
+        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
+        systematicSensitivityComputation.run(raoData);
+        // Try to optimize this variant
         try {
-            raoData.getNetwork().getVariantManager().setWorkingVariant(networkVariant);
-            networkActions.forEach(na -> na.apply(raoData.getNetwork()));
-        } catch (FaraoException | PowsyblException e) {
-            LOGGER.error(e.getMessage());
-            this.status = Status.EVALUATION_ERROR;
-            return;
-        }
-
-        // Optimize the use of Range Actions
-        try {
-            preOptimVariantId = raoData.getWorkingVariantId();
-            raoData.fillRangeActionResultsWithNetworkValues();
-            SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
-            systematicSensitivityComputation.run(raoData);
             postOptimVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
             this.status = Status.EVALUATION_SUCCESS;
             updateRaoResultWithNetworkActions(raoData.getCrac());
+            return postOptimVariantId;
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             this.status = Status.EVALUATION_ERROR;
-        }
-    }
-
-    void deletePostOptimResultVariant(Crac crac) {
-        Objects.requireNonNull(preOptimVariantId);
-        Objects.requireNonNull(postOptimVariantId);
-        if (isRoot() && postOptimVariantId.equals(preOptimVariantId)) {
-            return;
-        }
-        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager.getVariants().contains(postOptimVariantId)) {
-            resultVariantManager.deleteVariant(postOptimVariantId);
-        }
-    }
-
-    void deletePreOptimResultVariant(Crac crac) {
-        Objects.requireNonNull(preOptimVariantId);
-        Objects.requireNonNull(postOptimVariantId);
-        if (!isRoot() && postOptimVariantId.equals(preOptimVariantId)) {
-            return;
-        }
-        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager.getVariants().contains(preOptimVariantId)) {
-            resultVariantManager.deleteVariant(preOptimVariantId);
+            return preOptimVariantId;
         }
     }
 
