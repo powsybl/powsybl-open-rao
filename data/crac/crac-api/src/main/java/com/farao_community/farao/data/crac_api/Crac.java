@@ -267,7 +267,4 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
      */
     NetworkAction getNetworkAction(String id);
-
-    // General methods
-    void generateValidityReport(Network network);
 }
