@@ -101,7 +101,6 @@ public class LoopFlowComputationTest {
 
         LoopFlowComputation anotherComputation = new LoopFlowComputation(crac);
         assertNotNull(anotherComputation);
-
     }
 
     @Test
@@ -126,6 +125,11 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("BE-NL"), EPSILON);
+
+        crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
+        crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setHasLoopflowShift(true);
+        Map<Cnec, Double> loopflowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(crac);
+        assertEquals(1.0, loopflowShifts.get(crac.getCnec("FR-BE")), EPSILON);
     }
 
     @Test
