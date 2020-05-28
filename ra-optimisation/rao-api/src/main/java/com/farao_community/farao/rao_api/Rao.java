@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_commons.RaoInput;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
@@ -212,5 +213,9 @@ public final class Rao {
 
     public static RaoResult run(Network network, Crac crac) {
         return find().run(network, crac);
+    }
+
+    public static List<String> cleanCrac(Network network, Crac crac) {
+        return RaoInput.cleanCrac(crac, network);
     }
 }
