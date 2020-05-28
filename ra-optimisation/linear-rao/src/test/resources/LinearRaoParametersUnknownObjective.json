@@ -1,15 +1,13 @@
 {
   "version" : "1.0",
   "rao-with-loop-flow-limitation" : false,
-  "loopflow-approximation" : false,
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,
-      "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
+      "objective-function" : "UNKNOWN_OBJECTIVE",
       "security-analysis-without-rao" : true,
       "pst-sensitivity-threshold" : 1.0,
       "pst-penalty-cost" : 0.5,
-      "sensitivity-fallback-overcost" : 100.0,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {

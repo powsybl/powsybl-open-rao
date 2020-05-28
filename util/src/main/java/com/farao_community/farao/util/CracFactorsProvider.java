@@ -7,7 +7,6 @@
 package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -55,8 +54,10 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
             sensitivityVariables.add(defaultSensitivityVariable(network));
         }
 
-        List<SensitivityFunction> sensitivityFunctions = crac.getCnecs().stream()
-                .map(cnec -> cnecToSensitivityFunctions(network, cnec))
+        Set<NetworkElement> networkElements = new HashSet<>();
+        crac.getCnecs().forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
+        List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
+                .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
@@ -97,13 +98,12 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
         return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, Cnec cnec) {
-        String id = cnec.getId();
-        String name = cnec.getName();
-        String branchId = cnec.getNetworkElement().getId();
-        Identifiable<?> networkIdentifiable = network.getIdentifiable(branchId);
+    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
+        String id = networkElement.getId();
+        String name = networkElement.getName();
+        Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
         if (networkIdentifiable instanceof Branch) {
-            return Arrays.asList(new BranchFlow(id, name, branchId), new BranchIntensity(id, name, branchId));
+            return Arrays.asList(new BranchFlow(id, name, id), new BranchIntensity(id, name, id));
         } else {
             throw new FaraoException("Unable to create sensitivity function for " + id);
         }
