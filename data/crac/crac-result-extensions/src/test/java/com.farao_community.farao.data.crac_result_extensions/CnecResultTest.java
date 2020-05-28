@@ -45,4 +45,13 @@ public class CnecResultTest {
         assertEquals(Double.NaN, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(Double.NaN, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void testCnecResultSetGetLoopflow() {
+        CnecResult cnecResult = new CnecResult();
+        cnecResult.setLoopflowInMW(2.0);
+        assertEquals(2.0, cnecResult.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        cnecResult.setLoopflowThresholdInMW(2.0);
+        assertEquals(2.0, cnecResult.getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+    }
 }

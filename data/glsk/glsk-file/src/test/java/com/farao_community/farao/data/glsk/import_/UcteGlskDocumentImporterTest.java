@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.import_.actors.UcteGlskDocumentImporter;
 import com.google.common.math.DoubleMath;
 import org.junit.Test;
+import org.threeten.extra.Interval;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -92,6 +93,9 @@ public class UcteGlskDocumentImporterTest {
         //test countries list
         List<String> countries = ucteGlskDocument.getCountries();
         assertEquals(12, countries.size());
+
+        Interval documentGSKTimeInterval = ucteGlskDocument.getGSKTimeInterval(); // <GSKTimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
+        assertEquals("2016-07-28T22:00:00Z", documentGSKTimeInterval.getStart().toString());
     }
 
     @Test

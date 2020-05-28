@@ -34,6 +34,9 @@ public class CracLoopFlowExtensionTest {
         Assert.assertFalse(cracLoopFlowExtension.getCountriesForLoopFlow().isEmpty());
         Assert.assertNotNull(cracLoopFlowExtension.getGlskProvider());
         Assert.assertEquals("CracLoopFlowExtension", cracLoopFlowExtension.getName());
+
+        CracLoopFlowExtension cracLoopFlowExtensionBis = new CracLoopFlowExtension(glskProvider, countries);
+        Assert.assertEquals("CracLoopFlowExtension", cracLoopFlowExtensionBis.getName());
     }
 
     @Test

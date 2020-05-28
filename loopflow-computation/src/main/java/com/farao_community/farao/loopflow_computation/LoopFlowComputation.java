@@ -9,6 +9,8 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.glsk.import_.EICode;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
@@ -40,10 +42,51 @@ public class LoopFlowComputation {
     private GlskProvider glskProvider;
     private List<Country> countries;
 
+    /**
+     * @param crac a crac with or without CracLoopFlowExtension.
+     * @param cracLoopFlowExtension contains GlskProvider and List of countries, to add to crac if not already.
+     */
     public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
-        this.crac = crac;
         this.glskProvider = cracLoopFlowExtension.getGlskProvider();
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
+        this.crac = crac;
+        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
+            this.crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
+        }
+    }
+
+    /**
+     * @param crac a crac already contains CracLoopFlowExtension
+     */
+    public LoopFlowComputation(Crac crac) {
+        this(crac, crac.getExtension(CracLoopFlowExtension.class));
+    }
+
+    /**
+     * @param crac CracLoopFlowExtension is added to crac
+     * @param glskProvider use list of countires in GlskProvider
+     * @param network necessary to get list of countries from GlskProvider
+     */
+    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
+        this.glskProvider = glskProvider;
+        this.countries = new ArrayList<>();
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> this.countries.add(new EICode(key).getCountry()));
+
+        this.crac = crac;
+        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
+            this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
+        }
+    }
+
+    /**
+     * @param percentage of pmax value as Cnec input loopflow threshold
+     */
+    public void setCnecLoopFlowInputThresholdAsPercetangeOfPmax(double percentage) {
+        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
+            double pMax = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+            double loopflowInputLimit = percentage * Math.abs(pMax);
+            cnec.addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(loopflowInputLimit));
+        });
     }
 
     public Map<String, Double> calculateLoopFlows(Network network) {
@@ -51,7 +94,7 @@ public class LoopFlowComputation {
         Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
         Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
         Map<Cnec, Double> loopFlowShifts = buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
-        return buildLoopFlowsFromResult(frefResults, loopFlowShifts); //compute loopflow
+        return buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts); //compute loopflow
     }
 
     public Map<Cnec, Map<Country, Double>> computePtdfOnCurrentNetwork(Network network) {
@@ -137,7 +180,7 @@ public class LoopFlowComputation {
         return loopFlowShift;
     }
 
-    public Map<String, Double> buildLoopFlowsFromResult(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
+    public Map<String, Double> buildLoopFlowsFromReferenceFlowAndLoopflowShifts(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
         Map<String, Double> loopFlows = new HashMap<>();
         for (Map.Entry<Cnec, Double> entry : frefResults.entrySet()) {
             Cnec cnec = entry.getKey();

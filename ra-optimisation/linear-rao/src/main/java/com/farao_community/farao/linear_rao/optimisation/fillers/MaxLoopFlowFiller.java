@@ -9,7 +9,6 @@ package com.farao_community.farao.linear_rao.optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -50,10 +49,13 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
     private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem) {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac(), linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class));
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac()); //todo optimization => do not recalculate loopflowShifts, use the one in the CracResult
+        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork()); //todo: validate assumption that "loopflowShift" does not change "much"
 
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+            if (Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                continue;
+            }
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
             if (loopFlowShifts.containsKey(cnec)) {
