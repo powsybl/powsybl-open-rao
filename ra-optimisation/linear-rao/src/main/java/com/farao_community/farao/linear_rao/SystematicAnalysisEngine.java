@@ -119,10 +119,10 @@ class SystematicAnalysisEngine {
 
     private Map<String, Double> computeLoopflowAndCheckLoopflowConstraint(LinearRaoData linearRaoData) {
         Map<String, Double> loopflows;
-        if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) { //re-compute ptdf
+        if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) { //no re-compute ptdf
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlowsApproximation(linearRaoData.getNetwork());
         } else {
-            loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork());
+            loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork()); //re-compute ptdf
         }
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
