@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
 import com.google.ortools.linearsolver.MPConstraint;

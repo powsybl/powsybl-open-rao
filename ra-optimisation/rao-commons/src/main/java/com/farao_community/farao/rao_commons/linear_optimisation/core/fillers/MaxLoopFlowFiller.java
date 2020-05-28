@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;

@@ -18,7 +18,7 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;

@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputationParameters;
+import com.farao_community.farao.rao_commons.systematic_sensitivity.parameters.SystematicSensitivityComputationParameters;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;

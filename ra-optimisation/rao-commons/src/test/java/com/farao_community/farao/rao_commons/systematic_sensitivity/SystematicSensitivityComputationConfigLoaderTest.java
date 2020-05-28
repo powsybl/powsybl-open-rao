@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.rao_commons.systematic_sensitivity;
 
+import com.farao_community.farao.rao_commons.systematic_sensitivity.parameters.SystematicSensitivityComputationConfigLoader;
+import com.farao_community.farao.rao_commons.systematic_sensitivity.parameters.SystematicSensitivityComputationParameters;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Before;

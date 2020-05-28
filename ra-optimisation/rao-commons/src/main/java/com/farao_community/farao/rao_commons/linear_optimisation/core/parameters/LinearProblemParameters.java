@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.core;
+package com.farao_community.farao.rao_commons.linear_optimisation.core.parameters;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -16,8 +16,8 @@ import static java.lang.Math.max;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemParameters extends AbstractExtension<RaoParameters> {
-    static final double DEFAULT_PST_PENALTY_COST = 0.01;
-    static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
 
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;

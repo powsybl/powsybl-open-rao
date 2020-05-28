@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
+package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -16,7 +16,7 @@ import static java.lang.Math.max;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class IteratingLinearOptimizerParameters extends AbstractExtension<RaoParameters> {
-    static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
+    public static final int DEFAULT_MAX_NUMBER_OF_ITERATIONS = 10;
 
     private int maxIterations = DEFAULT_MAX_NUMBER_OF_ITERATIONS;
 
