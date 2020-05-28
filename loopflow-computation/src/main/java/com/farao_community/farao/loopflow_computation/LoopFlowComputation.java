@@ -188,7 +188,7 @@ public class LoopFlowComputation {
         Map<Cnec, Double> loopflowShifts = new HashMap<>();
         for (Cnec cnec : crac.getCnecs(crac.getPreventiveState())) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
-                    && cnec.getExtension((CnecLoopFlowExtension.class)).hasLoopflowShift()) {
+                    && cnec.getExtension(CnecLoopFlowExtension.class).hasLoopflowShift()) {
                 loopflowShifts.put(cnec, cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift());
             }
         }
