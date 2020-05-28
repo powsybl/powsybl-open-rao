@@ -105,7 +105,7 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
         if (networkIdentifiable instanceof Branch) {
 
             /*
-             todo : do not create the BranchIntensity here if the sensi is run in AC. Otherwise PowSyBl
+             todo : do not create the BranchIntensity here if the sensi is run in DC. Otherwise PowSyBl
               returns tons of ERROR logs in DC mode as it cannot handle those sensitivity functions in DC mode.
               (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
               the AC/DC information of the sensi).
