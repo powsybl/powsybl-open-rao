@@ -21,6 +21,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -130,6 +131,17 @@ public class LoopFlowComputationTest {
         crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setHasLoopflowShift(true);
         Map<Cnec, Double> loopflowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(crac);
         assertEquals(1.0, loopflowShifts.get(crac.getCnec("FR-BE")), EPSILON);
+        crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
+        crac.getCnec("FR-DE").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
+        crac.getCnec("DE-NL").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
+        crac.getCnec("BE-NL").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
+
+        network.getBranch("DE-NL").getTerminal(Branch.Side.ONE).setP(10.0);
+        network.getBranch("FR-BE").getTerminal(Branch.Side.ONE).setP(10.0);
+        network.getBranch("FR-DE").getTerminal(Branch.Side.ONE).setP(10.0);
+        network.getBranch("BE-NL").getTerminal(Branch.Side.ONE).setP(10.0);
+        Map<String, Double> loopflowApprox = loopFlowComputation.calculateLoopFlowsApproximation(network);
+        assertEquals(9.0, loopflowApprox.get("FR-BE"), EPSILON);
     }
 
     @Test
