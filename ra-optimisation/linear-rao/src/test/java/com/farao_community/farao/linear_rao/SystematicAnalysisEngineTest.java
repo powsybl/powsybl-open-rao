@@ -192,4 +192,14 @@ public class SystematicAnalysisEngineTest {
         Mockito.when(result.isSuccess()).thenReturn(false);
         return result;
     }
+
+    @Test
+    public void testLoopflowRelated() {
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        systematicAnalysisEngine.setLoopflowViolation(true);
+        assertTrue(systematicAnalysisEngine.isLoopflowViolation());
+    }
 }
