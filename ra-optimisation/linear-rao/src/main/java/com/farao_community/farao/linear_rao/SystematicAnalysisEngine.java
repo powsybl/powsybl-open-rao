@@ -118,7 +118,7 @@ class SystematicAnalysisEngine {
     }
 
     private Map<String, Double> computeLoopflowAndCheckLoopflowConstraint(LinearRaoData linearRaoData) {
-        Map<String, Double> loopflows = new HashMap<>();
+        Map<String, Double> loopflows;
         if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) { //re-compute ptdf
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlowsApproximation(linearRaoData.getNetwork());
         } else {

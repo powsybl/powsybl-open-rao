@@ -49,7 +49,7 @@ public class SearchTreeRao implements RaoProvider {
         crac.generateValidityReport(network);
 
         if (useLoopFlowExtension(parameters) && !Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
-            computeInitialLoopflowAndUpdateCnecLoopflowConstraint(network, crac, parameters);
+            computeInitialLoopflowAndUpdateCnecLoopflowConstraint(network, crac);
         }
 
         // run optimisation
@@ -57,7 +57,7 @@ public class SearchTreeRao implements RaoProvider {
         return CompletableFuture.completedFuture(result);
     }
 
-    public void computeInitialLoopflowAndUpdateCnecLoopflowConstraint(Network network, Crac crac, RaoParameters parameters) {
+    public void computeInitialLoopflowAndUpdateCnecLoopflowConstraint(Network network, Crac crac) {
         LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(crac);
         Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(network); //get reference flow
         Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(network); //compute PTDF * NetPosition
