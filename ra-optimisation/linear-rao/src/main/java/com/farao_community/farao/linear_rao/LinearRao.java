@@ -133,8 +133,9 @@ public class LinearRao implements RaoProvider {
 
                 bestVariantId = optimizedVariantId;
             } else { // unexpected behaviour, stop the search
-                LOGGER.warn(String.format("Iteration %d - Linear Optimization found a worse result than previous iteration, from %.2f to %.2f (optimisation criterion)",
-                    iteration, linearRaoData.getCracResult(bestVariantId).getCost(), linearRaoData.getCracResult(optimizedVariantId).getCost()));
+                LOGGER.warn(String.format("Iteration %d - Linear Optimization found a worse result than previous iteration, with a minimum margin from %.2f to %.2f %s (optimisation criterion : from %.2f to %.2f)",
+                    iteration, -linearRaoData.getCracResult(bestVariantId).getFunctionalCost(), -linearRaoData.getCracResult(optimizedVariantId).getFunctionalCost(), linearRaoParameters.getObjectiveFunctionUnit(),
+                    linearRaoData.getCracResult(bestVariantId).getCost(), linearRaoData.getCracResult(optimizedVariantId).getCost()));
                 break;
             }
         }
@@ -146,10 +147,7 @@ public class LinearRao implements RaoProvider {
      * Quality check of the configuration
      */
     private void linearRaoParametersQualityCheck(RaoParameters parameters, LinearRaoData linearRaoData) {
-        if (parameters.isRaoWithLoopFlowLimitation() && Objects.isNull(linearRaoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            throw new FaraoException("Loop flow parameters are inconsistent with CRAC loopflow extension");
-        }
-        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
+        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters, linearRaoData.getCrac());
         if (!configQualityCheck.isEmpty()) {
             throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
         }
