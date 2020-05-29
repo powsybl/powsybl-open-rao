@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.B88_BUSINESS_TYPE;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.findNodeInNetwork;
 
 /**
@@ -190,17 +189,17 @@ public class CneHelper {
                 if (constraintSeries.monitoredSeries == null) {
                     constraintSeries.monitoredSeries = new ArrayList<>();
                 }
-                MonitoredSeries monitoredSeries = createB88MonitoredSeries(cnec);
-                if (monitoredSeries.registeredResource.size() == 1) {
-                    Pair<String, String> pair = Pair.create(cnec.getNetworkElement().getId(), getContingencyId(contingencyStateid.getFirst()));
-                    if (!recordedCbco.contains(pair)) {
+                Pair<String, String> pair = Pair.create(cnec.getNetworkElement().getId(), getContingencyId(cnec.getState().getContingency()));
+                if (!recordedCbco.contains(pair)) {
+                    MonitoredSeries monitoredSeries = createB88MonitoredSeries(cnec);
+                    if (monitoredSeries.registeredResource.size() == 1) {
                         monitoredSeries.registeredResource.get(0).measurements.addAll(createFlow(cnec));
-                        recordedCbco.add(pair);
+                    }  else {
+                        throw new FaraoException(String.format("Wrong number of registered resources %s for monitored series %s.", monitoredSeries.registeredResource.size(), monitoredSeries.getMRID()));
                     }
-                } else {
-                    throw new FaraoException(String.format("Wrong number of registered resources %s for monitored series %s.", monitoredSeries.registeredResource.size(), monitoredSeries.getMRID()));
+                    recordedCbco.add(pair);
+                    constraintSeries.monitoredSeries.add(monitoredSeries);
                 }
-                constraintSeries.monitoredSeries.add(monitoredSeries);
             }
         });
     }
