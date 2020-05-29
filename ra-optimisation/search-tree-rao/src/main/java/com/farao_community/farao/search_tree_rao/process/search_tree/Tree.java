@@ -10,8 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -49,8 +49,8 @@ public final class Tree {
     private static final Logger LOGGER = LoggerFactory.getLogger(Tree.class);
     private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
 
-    private static String previousDepthBestVariantId;
-    private static String bestVariantId;
+    private static Leaf previousDepthOptimalLeaf;
+    private static Leaf optimalLeaf;
 
     private Tree() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -58,11 +58,14 @@ public final class Tree {
 
     public static CompletableFuture<RaoResult> search(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
-        Leaf rootLeaf = new Leaf(raoData);
+
         LOGGER.info("Evaluate root leaf");
-        bestVariantId = rootLeaf.evaluate(raoParameters);
-        previousDepthBestVariantId = bestVariantId;
-        if (rootLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
+        Leaf rootLeaf = new Leaf(raoData);
+        optimalLeaf = rootLeaf;
+        optimalLeaf.evaluate(raoParameters);
+        previousDepthOptimalLeaf = optimalLeaf;
+
+        if (optimalLeaf.getStatus() == Leaf.Status.EVALUATION_ERROR) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
@@ -70,28 +73,27 @@ public final class Tree {
 
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtensionByName("SearchTreeRaoParameters");
         int depth = 0;
-        Leaf optimalLeaf = rootLeaf;
         boolean hasImproved = true;
-        while (doNewIteration(searchTreeRaoParameters, hasImproved, raoData, depth)) {
-            //  Generate empty leaves
-            Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE);
-            final List<Leaf> generatedLeaves = optimalLeaf.bloom(availableNetworkActions);
-            if (generatedLeaves.isEmpty()) {
-                LOGGER.info(format("Research depth: %d, No new leaves to evaluate", depth));
-                break;
+        while (doNewIteration(searchTreeRaoParameters, hasImproved, optimalLeaf, depth)) {
+            LOGGER.info(format("Research depth: %d - [start]", depth));
+            updateOptimalLeafWithNextDepth(optimalLeaf, raoParameters);
+            optimalLeaf.getRaoData().setWorkingVariant(optimalLeaf.getBestVariantId());
+            optimalLeaf.getRaoData().applyRangeActionResultsOnNetwork();
+            if (previousDepthOptimalLeaf != optimalLeaf) {
+                hasImproved = true;
+                if (previousDepthOptimalLeaf != rootLeaf) {
+                    previousDepthOptimalLeaf.deletePostOptimVariant();
+                }
             } else {
-                LOGGER.info(format("Research depth: %d, Leaves to evaluate: %d", depth, generatedLeaves.size()));
+                hasImproved = false;
             }
-
-            evaluateLeaves(raoData, raoParameters, generatedLeaves);
-            raoData.setWorkingVariant(bestVariantId);
-            raoData.applyRangeActionResultsOnNetwork();
-            previousDepthBestVariantId = bestVariantId;
+            previousDepthOptimalLeaf = optimalLeaf;
+            logOptimalLeaf();
             depth += 1;
         }
 
         //TODO: refactor output format
-        logMostLimitingElements(crac, optimalLeaf);
+        logMostLimitingElements();
         return CompletableFuture.completedFuture(buildOutput(rootLeaf, optimalLeaf));
     }
 
@@ -99,7 +101,7 @@ public final class Tree {
      * Stop criterion check 1: maximum research depth reached
      * Stop criterion check 2: is positive or maximum margin reached?
      */
-    private static boolean doNewIteration(SearchTreeRaoParameters searchTreeRaoParameters, boolean hasImproved, RaoData raoData, int currentDepth) {
+    private static boolean doNewIteration(SearchTreeRaoParameters searchTreeRaoParameters, boolean hasImproved, Leaf leaf, int currentDepth) {
         // check if defined
         SearchTreeRaoParameters.StopCriterion stopCriterion = SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
         int maximumSearchDepth = Integer.MAX_VALUE;
@@ -111,7 +113,7 @@ public final class Tree {
         // stop criterion check
         if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
             return currentDepth < maximumSearchDepth // maximum research depth reached
-                &&  hasImproved && raoData.getCracResult(bestVariantId).getCost() > 0; // positive margin
+                &&  hasImproved && leaf.getBestCost() > 0; // positive margin
         } else if (stopCriterion.equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
             return currentDepth < maximumSearchDepth // maximum research depth reached
                 && hasImproved; // maximum margin
@@ -123,31 +125,28 @@ public final class Tree {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private static void evaluateLeaves(RaoData raoData, RaoParameters parameters, List<Leaf> generatedLeaves) {
+    private static void updateOptimalLeafWithNextDepth(Leaf parentLeaf, RaoParameters parameters) {
+        //  Generate empty leaves
+        final List<Leaf> generatedLeaves = optimalLeaf.bloom();
+        if (generatedLeaves.isEmpty()) {
+            LOGGER.info("No new leaves to evaluate");
+        } else {
+            LOGGER.info(format("Leaves to evaluate: %d", generatedLeaves.size()));
+        }
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
         AtomicInteger remainingLeaves = new AtomicInteger(generatedLeaves.size());
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(
-            raoData.getNetwork(),
-            raoData.getNetwork().getVariantManager().getWorkingVariantId(),
-            searchTreeRaoParameters.getLeavesInParallel())
-        ) {
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(parentLeaf.getRaoData().getNetwork(),
+            parentLeaf.getRaoData().getNetwork().getVariantManager().getWorkingVariantId(),
+            searchTreeRaoParameters.getLeavesInParallel())) {
             networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
-                    String localPreOptim = leaf.init(networkClone, raoData.getCrac());
-                    String logInfo = "SearchTreeRao: evaluate network action(s)";
-                    logInfo = logInfo.concat(leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
-                    LOGGER.info(logInfo);
-                    String localPostOptim = leaf.evaluate(parameters);
-                    if (!localPreOptim.equals(localPostOptim)) {
-                        // It means that postOptim is a better variant so we can delete preOptim
-                        raoData.deleteVariant(localPreOptim, false);
-                    }
-                    if (improvedEnough(raoData, localPostOptim, searchTreeRaoParameters)) {
-                        raoData.deleteVariant(bestVariantId, false);
-                        bestVariantId = localPreOptim;
+                    leaf.init(networkClone, parentLeaf.getRaoData().getCrac());
+                    leaf.evaluate(parameters);
+                    if (leaf.getStatus().equals(Leaf.Status.EVALUATION_ERROR)) {
+                        leaf.getRaoData().clear();
                     } else {
-                        raoData.deleteVariant(localPostOptim, false);
+                        updateBestLeaf(leaf, searchTreeRaoParameters);
                     }
                     networkPool.releaseUsedNetwork(networkClone);
                     LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
@@ -162,10 +161,24 @@ public final class Tree {
         }
     }
 
+    private static synchronized void updateBestLeaf(Leaf leaf, SearchTreeRaoParameters searchTreeRaoParameters) {
+        if (!leaf.getPreOptimVariantId().equals(leaf.getPostOptimVariantId())) { // It means that postOptim is a better variant than preOptim so we can delete it
+            leaf.deletePreOptimVariant();
+        }
+        if (improvedEnough(leaf, searchTreeRaoParameters)) {
+            if (optimalLeaf != previousDepthOptimalLeaf) {
+                optimalLeaf.deletePostOptimVariant();
+            }
+            optimalLeaf = leaf;
+        } else {
+            leaf.deletePostOptimVariant();
+        }
+    }
+
     /**
      * Stop criterion check: the remedial action has enough impact on the cost
      */
-    private static boolean improvedEnough(RaoData raoData, String variantId, SearchTreeRaoParameters searchTreeRaoParameters) {
+    private static boolean improvedEnough(Leaf leaf, SearchTreeRaoParameters searchTreeRaoParameters) {
         // check if defined
         double relativeImpact = 0;
         double absoluteImpact = 0;
@@ -174,9 +187,9 @@ public final class Tree {
             absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
         }
 
-        double currentDepthBestCost = raoData.getCracResult(bestVariantId).getCost();
-        double previousDepthCost = raoData.getCracResult(previousDepthBestVariantId).getCost();
-        double newCost = raoData.getCracResult(variantId).getCost();
+        double currentDepthBestCost = optimalLeaf.getBestCost();
+        double previousDepthCost = previousDepthOptimalLeaf.getBestCost();
+        double newCost = leaf.getBestCost();
         // stop criterion check
         return newCost < currentDepthBestCost
             && previousDepthCost - absoluteImpact > newCost // enough absolute impact
@@ -190,22 +203,42 @@ public final class Tree {
         return raoResult;
     }
 
-    private static void logOptimalLeaf(Leaf leaf, Crac crac) {
-        LOGGER.info(format("Optimal leaf - %s", generateLeafResults(leaf, crac)));
+    private static void logMostLimitingElements() {
+        List<Cnec> sortedCnecs = new ArrayList<>(optimalLeaf.getRaoData().getCrac().getCnecs());
+        sortedCnecs.sort(Comparator.comparingDouble(cnec -> computeMarginInMW(cnec, optimalLeaf.getBestVariantId())));
+
+        for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
+            Cnec cnec = sortedCnecs.get(i);
+            LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f",
+                i + 1,
+                cnec.getNetworkElement().getName(),
+                cnec.getState().getId(),
+                computeMarginInMW(cnec, optimalLeaf.getBestVariantId())));
+        }
     }
 
-    private static void logLeafResults(Leaf leaf, Crac crac) {
+    private static double computeMarginInMW(Cnec cnec, String variantId) {
+        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+        return Math.min(cnecResult.getMaxThresholdInMW() - cnecResult.getFlowInMW(),
+            cnecResult.getFlowInMW() - cnecResult.getMinThresholdInMW());
+    }
+
+    private static void logOptimalLeaf() {
+        LOGGER.info(format("Optimal leaf - %s", generateLeafResults(optimalLeaf)));
+    }
+
+    /*private static void logLeafResults(Leaf leaf, Crac crac) {
         LOGGER.info(generateLeafResults(leaf, crac));
         LOGGER.debug(generateRangeActionResults(leaf, crac));
-    }
+    }*/
 
-    private static String generateLeafResults(Leaf leaf, Crac crac) {
+    private static String generateLeafResults(Leaf leaf) {
         return format("%s: minimum margin = %f",
             leaf.isRoot() ? "root leaf" : leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
-            -leaf.getCost(crac));
+            -leaf.getBestCost());
     }
 
-    private static String generateRangeActionResults(Leaf leaf, Crac crac) {
+    /*private static String generateRangeActionResults(Leaf leaf, Crac crac) {
         String rangeActionResults = crac.getRangeActions()
             .stream()
             .map(rangeAction -> format("%s: %d",
@@ -217,26 +250,5 @@ public final class Tree {
         return format("%s: range actions = %s",
             leaf.isRoot() ? "root leaf" : leaf.getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")),
             rangeActionResults);
-    }
-
-    private static void logMostLimitingElements(Crac crac, Leaf optimalLeaf) {
-        List<Cnec> sortedCnecs = new ArrayList<>(crac.getCnecs());
-        String postOptimVariantId = optimalLeaf.getPostOptimVariantId();
-        sortedCnecs.sort(Comparator.comparingDouble(cnec -> computeMarginInMW(cnec, postOptimVariantId)));
-
-        for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
-            Cnec cnec = sortedCnecs.get(i);
-            LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f",
-                i + 1,
-                cnec.getNetworkElement().getName(),
-                cnec.getState().getId(),
-                computeMarginInMW(cnec, postOptimVariantId)));
-        }
-    }
-
-    private static double computeMarginInMW(Cnec cnec, String variantId) {
-        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
-        return Math.min(cnecResult.getMaxThresholdInMW() - cnecResult.getFlowInMW(),
-            cnecResult.getFlowInMW() - cnecResult.getMinThresholdInMW());
-    }
+    }*/
 }

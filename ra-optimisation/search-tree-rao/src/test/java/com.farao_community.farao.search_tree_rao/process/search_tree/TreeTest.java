@@ -59,11 +59,9 @@ public class TreeTest {
 
         // Mock root leaf
         Leaf rootLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(rootLeaf.getRaoResult()).thenReturn(rootRaoResult);
 
         // Mock optimal Leaf
         Leaf optimalLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(optimalLeaf.getRaoResult()).thenReturn(optimalRaoResult);
 
         // build output
         RaoResult result = Tree.buildOutput(rootLeaf, optimalLeaf);

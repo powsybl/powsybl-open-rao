@@ -268,7 +268,7 @@ public class RaoData {
     /**
      * This method clear all the data variants with their related variants in the different data objects.
      */
-    void clear() {
+    public void clear() {
         clearWithKeepingCracResults(Collections.emptyList());
     }
 }

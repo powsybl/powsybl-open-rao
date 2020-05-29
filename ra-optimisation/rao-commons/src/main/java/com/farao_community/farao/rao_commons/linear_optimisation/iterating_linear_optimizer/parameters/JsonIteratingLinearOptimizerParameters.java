@@ -9,7 +9,6 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters.IteratingLinearOptimizerParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
