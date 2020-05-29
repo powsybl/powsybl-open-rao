@@ -7,7 +7,9 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
@@ -77,6 +79,10 @@ public class CneHelper {
         }
 
         crac.getCnecs().forEach(this::fillThresholdsMap);
+    }
+
+    public List<Instant> getInstants() {
+        return instants;
     }
 
     public String getPreOptimVariantId() {
@@ -157,7 +163,16 @@ public class CneHelper {
                 if (exportMW) {
                     measurementsList.add(newMeasurement(instantToCodeConverter(cnec.getState().getInstant()), Unit.MEGAWATT, thresholdMW));
                 }
-                // TODO : add to this other codes (A03, Z01, Z02, Z03, Z04, Z05, Z06, Z07)
+                if (cnec instanceof SimpleCnec) {
+                    SimpleCnec simpleCnec = (SimpleCnec) cnec;
+                    if (!Double.isNaN(simpleCnec.getFrm())) {
+                        measurementsList.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, simpleCnec.getFrm()));
+                    }
+                }
+                if (!Double.isNaN(cnecResult.getLoopflowInMW()) && !Double.isNaN(cnecResult.getLoopflowThresholdInMW())) {
+                    measurementsList.add(newMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getLoopflowInMW()));
+                    measurementsList.add(newMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getLoopflowThresholdInMW()));
+                }
             }
         }
 
@@ -169,17 +184,50 @@ public class CneHelper {
         }
     }
 
-    public void addB88MonitoredSeriesToConstraintSeries(Cnec cnec) {
-        constraintSeriesMapB88.forEach((pair, constraintSeries) -> {
-            if (pair.getFirst().equals(cnec.getState().getContingency())) {
+    public void addB88MonitoredSeriesToConstraintSeries(Cnec cnec, Set<Pair<String, String>> recordedCbco) {
+        constraintSeriesMapB88.forEach((contingencyStateid, constraintSeries) -> {
+            if (contingencyStateid.getFirst().equals(cnec.getState().getContingency())) {
                 if (constraintSeries.monitoredSeries == null) {
                     constraintSeries.monitoredSeries = new ArrayList<>();
                 }
                 MonitoredSeries monitoredSeries = createB88MonitoredSeries(cnec);
-                //monitoredSeries.registeredResource.get(0).measurements.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.AMPERE, cnec.get));
+                if (monitoredSeries.registeredResource.size() == 1) {
+                    Pair<String, String> pair = Pair.create(cnec.getNetworkElement().getId(), getContingencyId(contingencyStateid.getFirst()));
+                    if (!recordedCbco.contains(pair)) {
+                        monitoredSeries.registeredResource.get(0).measurements.addAll(createFlow(cnec));
+                        recordedCbco.add(pair);
+                    }
+                } else {
+                    throw new FaraoException(String.format("Wrong number of registered resources %s for monitored series %s.", monitoredSeries.registeredResource.size(), monitoredSeries.getMRID()));
+                }
                 constraintSeries.monitoredSeries.add(monitoredSeries);
             }
         });
+    }
+
+    private String getContingencyId(Optional<Contingency> contingency) {
+        if (contingency.isPresent()) {
+            return contingency.get().getId();
+        } else {
+            return "BASECASE";
+        }
+    }
+
+    private List<Analog> createFlow(Cnec cnec) {
+        List<Analog> measurements = new ArrayList<>();
+        CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
+        if (cnecResultExtension != null) {
+            CnecResult cnecResult = cnecResultExtension.getVariant(preOptimVariantId);
+            if (cnecResult != null) {
+                if (!Double.isNaN(cnecResult.getFlowInA())) {
+                    measurements.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.AMPERE, cnecResult.getFlowInA()));
+                }
+                if (Double.isNaN(cnecResult.getFlowInMW())) {
+                    measurements.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getFlowInMW()));
+                }
+            }
+        }
+        return measurements;
     }
 
     private MonitoredSeries createB88MonitoredSeries(Cnec cnec) {

@@ -172,6 +172,12 @@ public final class CneClassCreator {
     /*****************
      REMEDIAL ACTION SERIES
      *****************/
+    public static PartyMarketParticipant newPartyMarketParticipant(String id) {
+        PartyMarketParticipant partyMarketParticipant = new PartyMarketParticipant();
+        partyMarketParticipant.mrid = createPartyIDString(A01_CODING_SCHEME, id); // TODO: check codingScheme
+        return partyMarketParticipant;
+    }
+
     public static RemedialActionSeries newRemedialActionSeries(String id, String name, String marketObjectStatus) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(cutString(id, 60));
