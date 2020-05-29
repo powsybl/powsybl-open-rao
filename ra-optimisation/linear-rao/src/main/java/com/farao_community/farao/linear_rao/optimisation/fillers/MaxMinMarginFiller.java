@@ -8,6 +8,7 @@
 package com.farao_community.farao.linear_rao.optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.linear_rao.LinearRaoData;
 import com.farao_community.farao.linear_rao.optimisation.LinearRaoProblem;
@@ -83,26 +84,21 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 throw new FaraoException("Minimum margin variable has not yet been created");
             }
 
-            double conversionCoefficient = 1;
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
             minFlow = cnec.getMinThreshold(MEGAWATT);
             maxFlow = cnec.getMaxThreshold(MEGAWATT);
-
-            if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE) {
-                double nominalVoltage = linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
-                conversionCoefficient = nominalVoltage * Math.sqrt(3) / 1000;
-            }
+            double unitConversionCoefficient = getUnitConversionCoefficient(cnec, linearRaoData, linearRaoParameters);
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), -minFlow.get(), cnec, LinearRaoProblem.MarginExtension.BELOW_THRESHOLD);
-                minimumMarginNegative.setCoefficient(minimumMarginVariable, conversionCoefficient);
+                minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 MPConstraint minimumMarginPositive = linearRaoProblem.addMinimumMarginConstraint(-linearRaoProblem.infinity(), maxFlow.get(), cnec, LinearRaoProblem.MarginExtension.ABOVE_THRESHOLD);
-                minimumMarginPositive.setCoefficient(minimumMarginVariable, conversionCoefficient);
+                minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });
@@ -143,6 +139,20 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 linearRaoProblem.getObjective().setCoefficient(absoluteVariationVariable, linearRaoParameters.getPstPenaltyCost());
             }
         });
+    }
+
+    /**
+     * Get unit conversion coefficient
+     * the flows are always defined in MW, so if the minimum margin is defined in ampere,
+     * and appropriate conversion coefficient should be used.
+     */
+    private double getUnitConversionCoefficient(Cnec cnec, LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
+        if (linearRaoParameters.getObjectiveFunction() == LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
+            return 1;
+        } else {
+            // Unom(cnec) * sqrt(3) / 1000
+            return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
+        }
     }
 }
 
