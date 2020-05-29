@@ -36,8 +36,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
     private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCrac.class);
-
     private Set<NetworkElement> networkElements;
     private Set<Instant> instants;
     private Set<Contingency> contingencies;
@@ -472,59 +470,5 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public boolean isSynchronized() {
         return isSynchronized;
-    }
-
-    @Override
-    public void generateValidityReport(Network network) {
-        ArrayList<Cnec> absentFromNetworkCnecs = new ArrayList<>();
-        getCnecs().forEach(cnec -> {
-            if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
-                absentFromNetworkCnecs.add(cnec);
-                LOGGER.warn(String.format("Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
-            }
-        });
-        absentFromNetworkCnecs.forEach(cnec -> cnecs.remove(cnec));
-        ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
-        for (RangeAction rangeAction: getRangeActions()) {
-            rangeAction.getNetworkElements().forEach(networkElement -> {
-                if (network.getIdentifiable(networkElement.getId()) == null) {
-                    absentFromNetworkRangeActions.add(rangeAction);
-                    LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", rangeAction.getId(), networkElement.getId()));
-                    return;
-                }
-            });
-        }
-        absentFromNetworkRangeActions.forEach(rangeAction -> rangeActions.remove(rangeAction));
-
-        ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
-        for (NetworkAction networkAction: getNetworkActions()) {
-            networkAction.getNetworkElements().forEach(networkElement -> {
-                if (network.getIdentifiable(networkElement.getId()) == null) {
-                    absentFromNetworkNetworkActions.add(networkAction);
-                    LOGGER.warn(String.format("Remedial Action %s with network element [%s] is not present in the network. It is removed from the Crac", networkAction.getId(), networkElement.getId()));
-                    return;
-                }
-            });
-        }
-        absentFromNetworkNetworkActions.forEach(networkAction -> networkActions.remove(networkAction));
-
-        ArrayList<Contingency> absentFromNetworkContingencies = new ArrayList<>();
-        for (Contingency contingency : getContingencies()) {
-            contingency.getNetworkElements().forEach(networkElement -> {
-                if (network.getIdentifiable(networkElement.getId()) == null) {
-                    absentFromNetworkContingencies.add(contingency);
-                    LOGGER.warn(String.format("Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
-                    return;
-                }
-            });
-        }
-
-        absentFromNetworkContingencies.forEach(contingency ->  {
-            getStatesFromContingency(contingency.getId()).forEach(state -> {
-                getCnecs(state).forEach(cnec -> this.cnecs.remove(cnec));
-                this.states.remove(state);
-            });
-            this.contingencies.remove(contingency);
-        });
     }
 }
