@@ -35,6 +35,7 @@ public class RangeActionResult implements Result {
         setPointPerStates.put(stateId, setPoint);
     }
 
+    @Deprecated // this method doesn't work correctly, and should be deleted - or add an activationMap (as in NetworkActionResult)
     public boolean isActivated(String stateId) {
         return !setPointPerStates.getOrDefault(stateId, Double.NaN).isNaN();
     }
