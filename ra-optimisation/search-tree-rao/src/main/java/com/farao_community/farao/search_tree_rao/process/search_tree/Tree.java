@@ -87,8 +87,7 @@ public final class Tree {
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
             if (hasImproved && previousDepthOptimalLeaf != rootLeaf) {
                 // Store range action optimization results in the network, next depth will start based on this network
-                optimalLeaf.getRaoData().setWorkingVariant(optimalLeaf.getBestVariantId());
-                optimalLeaf.getRaoData().applyRangeActionResultsOnNetwork();
+                optimalLeaf.applyRangeActionResultsOnNetwork();
                 previousDepthOptimalLeaf.clearVariants();
             }
             LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));

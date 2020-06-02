@@ -40,7 +40,7 @@ class Leaf {
     /**
      * Network Actions which will be tested (including the
      * network actions from the parent leaves as well as from
-     * this leaf), can be empty
+     * this leaf), can be empty for root leaf
      */
     private final Set<NetworkAction> networkActions;
 
@@ -67,10 +67,13 @@ class Leaf {
     private Status status;
 
     /**
-     * Root Leaf constructor
+     * Root Leaf constructors
+     *
+     * It is built directly from a RaoData on which a systematic sensitivity analysis could hav already been run or not.
      */
-    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) { //! constructor only for Root Leaf
-        this.networkActions = new HashSet<>(); //! root leaf has no network action
+    // This constructor is useful to mock SystematicSensitivityComputation in LeafTest
+    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+        this.networkActions = new HashSet<>(); // Root leaf has no network action
         this.raoParameters = raoParameters;
         this.systematicSensitivityComputation = systematicSensitivityComputation;
         this.raoData = raoData;
@@ -82,18 +85,18 @@ class Leaf {
         }
     }
 
-    Leaf(RaoData raoData, RaoParameters raoParameters) { //! constructor only for Root Leaf
+    Leaf(RaoData raoData, RaoParameters raoParameters) {
         this(raoData, raoParameters, new SystematicSensitivityComputation(raoParameters));
     }
 
     /**
      * Leaf constructor
      */
-    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters) {
         networkActions = new HashSet<>(parentLeaf.networkActions);
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
-        this.systematicSensitivityComputation = systematicSensitivityComputation;
+        this.systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
@@ -101,10 +104,6 @@ class Leaf {
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         status = Status.CREATED;
-    }
-
-    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters) {
-        this(parentLeaf, networkAction, network, raoParameters, new SystematicSensitivityComputation(raoParameters));
     }
 
     RaoData getRaoData() {
@@ -120,7 +119,7 @@ class Leaf {
     }
 
     String getBestVariantId() {
-        if (optimizedVariantId != null) {
+        if (status.equals(Status.OPTIMIZED)) {
             return optimizedVariantId;
         } else {
             return initialVariantId;
@@ -139,8 +138,12 @@ class Leaf {
         return networkActions.isEmpty();
     }
 
+    /**
+     * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
+     * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
+     */
     void evaluate() {
-        if (status.equals(Status.CREATED)) { // This computation has to be performed only if it's not already done
+        if (status.equals(Status.CREATED)) {
             try {
                 LOGGER.debug("Evaluating leaf...");
                 systematicSensitivityComputation.run(raoData);
@@ -153,15 +156,17 @@ class Leaf {
     }
 
     /**
-     * Evaluate the impact of Network Actions (from the current Leaf and
-     * its parents).
-     * This method takes a network variant which we switch too, since we may
-     * not generate new variants while multithreading.
+     * This method tries to optimize range actions on an already evaluated leaf since range action optimization
+     * requires computed sensitivity values. Therefore, the leaf is not optimized if leaf status is either ERROR
+     * or CREATED (because it means no sensitivity values have already been computed). Once it is performed the status
+     * is updated to OPTIMIZED. Besides, the optimization is not performed if no range actions are available
+     * in the CRAC to spare computation time but status will still be set to OPTIMIZED meaning no optimization has to
+     * be done on this leaf anymore. IteratingLinearOptimizer should never fail so the optimized variant ID in the end
+     * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
+     * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
     void optimize() {
-        // This computation has to be performed only if sensis have already been computed
         if (status.equals(Status.EVALUATED)) {
-            // Try to optimize preOptim variant in postOptim variant
             if (!raoData.getCrac().getRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
@@ -179,8 +184,10 @@ class Leaf {
     }
 
     /**
-     * Extend the tree from the current Leaf with N new children Leaves
-     * for the N Network Actions given in argument
+     * This method generates a set a of network actions that would be available after this leaf inside the tree. It
+     * means all the available network actions in the CRAC except the ones already used in this leaf.
+     *
+     * @return A set of available network actions after this leaf.
      */
     Set<NetworkAction> bloom() {
         return raoData.getCrac().getNetworkActions(raoData.getNetwork(), raoData.getCrac().getPreventiveState(), UsageMethod.AVAILABLE)
@@ -189,16 +196,41 @@ class Leaf {
             .collect(Collectors.toSet());
     }
 
+    /**
+     * This method deletes completely the initial variant if the optimized variant has better results. So it can be
+     * used only if the leaf is OPTIMIZED. This method should not be used on root leaf in the tree as long as it
+     * is necessary to keep this variant for algorithm results purpose.
+     */
     void cleanVariants() {
-        if (optimizedVariantId != null && !initialVariantId.equals(optimizedVariantId)) {
+        if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
             raoData.deleteVariant(initialVariantId, false);
         }
     }
 
+    /**
+     * This method deletes all the variants of the leaf rao data meaning at least the initial variant and most the
+     * initial variant and the optimized variant. It is a delegate method to avoid calling directly rao data as a leaf
+     * user.
+     */
     void clearVariants() {
         raoData.clear();
     }
 
+    /**
+     * This method applies on the rao data network the optimized positions of range actions. It is a delegate method
+     * to avoid calling directly rao data as a leaf user.
+     */
+    void applyRangeActionResultsOnNetwork() {
+        getRaoData().setWorkingVariant(getBestVariantId());
+        getRaoData().applyRangeActionResultsOnNetwork();
+    }
+
+    /**
+     * This method activates network actions related to this leaf in the CRAC results. This action has to be done
+     * every time a new variant is created inside this leaf to ensure results consistency.
+     *
+     * @param variantId: The ID of the variant to update.
+     */
     private void activateNetworkActionInCracResult(String variantId) {
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         for (NetworkAction networkAction : networkActions) {
