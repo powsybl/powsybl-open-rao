@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
@@ -57,33 +58,40 @@ public final class IteratingLinearOptimizer {
              - Apply remedial actions on the network working variant
             It will throw an error if systematic sensitivity computation have not performed on the initial RaoData working variant
              */
-            LOGGER.info("Iteration {} - linear optimization [start]", iteration);
-            simpleLinearOptimizer.optimize(raoData);
-            LOGGER.info("Iteration {} - linear optimization [end]", iteration);
+            try {
+                LOGGER.info("Iteration {} - linear optimization [start]", iteration);
+                simpleLinearOptimizer.optimize(raoData);
+                LOGGER.info("Iteration {} - linear optimization [end]", iteration);
 
-            // if the solution has not changed, stop the search
-            if (raoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {
-                LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
-                break;
-            }
-            LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
-            // evaluate sensitivity coefficients and cost on the newly optimised situation
-            systematicSensitivityComputation.run(raoData);
-            LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
-
-            if (raoData.getCracResult(optimizedVariantId).getCost() < raoData.getCracResult(bestVariantId).getCost()) { // if the solution has been improved, continue the search
-                LOGGER.warn("Iteration {} - Better solution found with a minimum margin of {} MW", iteration, -raoData.getCracResult(optimizedVariantId).getCost());
-                if (!bestVariantId.equals(raoData.getInitialVariantId())) {
-                    raoData.deleteVariant(bestVariantId, false);
+                // if the solution has not changed, stop the search
+                if (raoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {
+                    LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
+                    raoData.deleteVariant(optimizedVariantId, false);
+                    return bestVariantId;
                 }
-                bestVariantId = optimizedVariantId;
-            } else { // unexpected behaviour, stop the search
-                LOGGER.warn("Iteration {} - Linear Optimization found a worse result than previous iteration: from {} MW to {} MW",
-                    iteration, -raoData.getCracResult(bestVariantId).getCost(), -raoData.getCracResult(optimizedVariantId).getCost());
-                break;
+                LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
+                // evaluate sensitivity coefficients and cost on the newly optimised situation
+                systematicSensitivityComputation.run(raoData);
+                LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
+
+                if (raoData.getCracResult(optimizedVariantId).getCost() < raoData.getCracResult(bestVariantId).getCost()) { // if the solution has been improved, continue the search
+                    LOGGER.warn("Iteration {} - Better solution found with a minimum margin of {} MW", iteration, -raoData.getCracResult(optimizedVariantId).getCost());
+                    if (!bestVariantId.equals(raoData.getInitialVariantId())) {
+                        raoData.deleteVariant(bestVariantId, false);
+                    }
+                    bestVariantId = optimizedVariantId;
+                } else { // unexpected behaviour, stop the search
+                    LOGGER.warn("Iteration {} - Linear Optimization found a worse result than previous iteration: from {} MW to {} MW",
+                        iteration, -raoData.getCracResult(bestVariantId).getCost(), -raoData.getCracResult(optimizedVariantId).getCost());
+                    raoData.deleteVariant(optimizedVariantId, false);
+                    return bestVariantId;
+                }
+            } catch (FaraoException e) {
+                raoData.setWorkingVariant(bestVariantId);
+                raoData.deleteVariant(optimizedVariantId, false);
+                return bestVariantId;
             }
         }
-
         return bestVariantId;
     }
 }

@@ -64,7 +64,7 @@ public class TreeTest {
         Leaf optimalLeaf = Mockito.mock(Leaf.class);
 
         // build output
-        RaoResult result = Tree.buildOutput(rootLeaf, optimalLeaf);
+        RaoResult result = Tree.buildOutput();
 
         assertTrue(result.isSuccessful());
         assertEquals("rootPreOptim", result.getPreOptimVariantId());

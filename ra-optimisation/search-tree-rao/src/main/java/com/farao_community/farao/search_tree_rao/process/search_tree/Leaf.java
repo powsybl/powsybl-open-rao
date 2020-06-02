@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
@@ -31,12 +30,12 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class Leaf {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
-    private RaoData raoData;
-    private String preOptimVariantId;
-    private String postOptimVariantId;
+    private final RaoData raoData;
+    private final String initialVariantId;
+    private String optimizedVariantId;
+    private SystematicSensitivityComputation systematicSensitivityComputation;
 
     /**
      * Parent Leaf or null for root Leaf
@@ -50,105 +49,101 @@ class Leaf {
      */
     private final List<NetworkAction> networkActions;
 
+    enum Status {
+        CREATED("Created"),
+        ERROR("Error"),
+        EVALUATED("Evaluated"),
+        OPTIMIZED("Optimzed");
+
+        private String message;
+
+        Status(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
+
     /**
      * Status of the leaf's Network Action evaluation
      */
     private Status status;
 
-    enum Status {
-        CREATED,
-        EVALUATION_RUNNING,
-        EVALUATION_SUCCESS,
-        EVALUATION_ERROR
-    }
-
     /**
      * Root Leaf constructor
      */
-    Leaf() { //! constructor only for Root Leaf
-        this.parentLeaf = null;
-        this.networkActions = new ArrayList<>(); //! root leaf has no network action
-        this.status = Status.CREATED;
-    }
-
     Leaf(RaoData raoData) { //! constructor only for Root Leaf
         this.parentLeaf = null;
         this.networkActions = new ArrayList<>(); //! root leaf has no network action
         this.raoData = raoData;
-        raoData.fillRangeActionResultsWithNetworkValues();
-        preOptimVariantId = raoData.getWorkingVariantId();
-        this.status = Status.CREATED;
+        initialVariantId = raoData.getInitialVariantId();
+        initStatus();
     }
 
     /**
      * Leaf constructor
      */
-    private Leaf(Leaf parentLeaf, NetworkAction networkAction) {
+    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, Crac crac) {
         this.parentLeaf = parentLeaf;
-        List<NetworkAction> networkActionList = new ArrayList<>(parentLeaf.getNetworkActions());
+        List<NetworkAction> networkActionList = new ArrayList<>(parentLeaf.networkActions);
         networkActionList.add(networkAction);
         this.networkActions = networkActionList;
-        this.status = Status.CREATED;
+        // apply Network Actions on initial network
+        networkActions.forEach(na -> na.apply(network));
+        // It creates a new CRAC variant
+        raoData = new RaoData(network, crac);
+        initialVariantId = raoData.getInitialVariantId();
+        raoData.fillRangeActionResultsWithNetworkValues();
+        updateCracResultWithNetworkActions(initialVariantId);
+        initStatus();
     }
 
-    public RaoData getRaoData() {
+    private void initStatus() {
+        if (raoData.hasSensitivityValues()) {
+            status = Status.EVALUATED;
+        } else {
+            status = Status.CREATED;
+        }
+    }
+
+    RaoData getRaoData() {
         return raoData;
-    }
-
-    Leaf getParent() {
-        return parentLeaf;
-    }
-
-    List<NetworkAction> getNetworkActions() {
-        return networkActions;
     }
 
     Status getStatus() {
         return status;
     }
 
-    public String getPreOptimVariantId() {
-        return preOptimVariantId;
+    String getInitialVariantId() {
+        return initialVariantId;
     }
 
-    public String getPostOptimVariantId() {
-        return postOptimVariantId;
-    }
-
-    public RaoResult.Status getLeafStatus() {
-        if (!Objects.isNull(postOptimVariantId)) {
-            return RaoResult.Status.FAILURE;
+    String getBestVariantId() {
+        if (optimizedVariantId != null) {
+            return optimizedVariantId;
         } else {
-            return RaoResult.Status.SUCCESS;
+            return initialVariantId;
         }
     }
 
-    /**
-     * Is this Leaf the initial one of the tree
-     */
-    boolean isRoot() {
-        return parentLeaf == null;
+    double getBestCost() {
+        return raoData.getCracResult(getBestVariantId()).getCost();
     }
 
-    public void init(Network network, Crac crac) {
-        // apply Network Actions
-        networkActions.forEach(na -> na.apply(network));
-        // It creates a new CRAC variant
-        raoData = new RaoData(network, crac);
-        raoData.fillRangeActionResultsWithNetworkValues();
-        preOptimVariantId = raoData.getWorkingVariantId();
-    }
-
-    /**
-     * Extend the tree from the current Leaf with N new children Leaves
-     * for the N Network Actions given in argument
-     */
-    List<Leaf> bloom() {
-        Set<NetworkAction> availableNetworkActions = raoData.getCrac().getNetworkActions(
-            raoData.getNetwork(), raoData.getCrac().getPreventiveState(), UsageMethod.AVAILABLE);
-        return availableNetworkActions.stream().
-                filter(na -> !networkActions.contains(na)).
-                map(na -> new Leaf(this, na)).collect(Collectors.toList());
+    void evaluate(RaoParameters raoParameters) {
+        if (status.equals(Status.CREATED)) { // This computation has to be performed only if it's not already done
+            try {
+                LOGGER.debug("Evaluating leaf...");
+                systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
+                systematicSensitivityComputation.run(raoData);
+                status = Status.EVALUATED;
+            } catch (FaraoException e) {
+                LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
+                status = Status.ERROR;
+            }
+        }
     }
 
     /**
@@ -157,65 +152,60 @@ class Leaf {
      * This method takes a network variant which we switch too, since we may
      * not generate new variants while multithreading.
      */
-    void evaluate(RaoParameters raoParameters) {
-        Objects.requireNonNull(raoData);
-        status = Status.EVALUATION_RUNNING;
-        logNetworkActions();
-        try {
-            // Compute sensis, flows and cost for preOptim variant
-            SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
-            systematicSensitivityComputation.run(raoData);
-            LOGGER.info(String.format("Pre-optimisation cost: %.2f", getBestCost()));
+    void optimize(RaoParameters raoParameters) {
+        // This computation has to be performed only if sensis have already been computed
+        if (status.equals(Status.EVALUATED)) {
             // Try to optimize preOptim variant in postOptim variant
             if (!raoData.getCrac().getRangeActions().isEmpty()) {
-                LOGGER.info("Linear optimisation [start]");
-                postOptimVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
+                LOGGER.debug("Optimizing leaf...");
+                optimizedVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
+                updateCracResultWithNetworkActions(optimizedVariantId);
             } else {
-                LOGGER.info("No linear optimisation to be performed");
-                postOptimVariantId = preOptimVariantId;
+                LOGGER.info("No linear optimization to be performed because no range actions are available");
+                optimizedVariantId = initialVariantId;
             }
-            this.status = Status.EVALUATION_SUCCESS;
-            updateRaoResultWithNetworkActions(raoData.getCrac());
-        } catch (FaraoException e) {
-            LOGGER.error(e.getMessage());
-            this.status = Status.EVALUATION_ERROR;
+            status = Status.OPTIMIZED;
+        } else if (status.equals(Status.ERROR)) {
+            LOGGER.warn(String.format("Impossible to optimize leaf: %s%n because evaluation failed", toString()));
+        } else if (status.equals(Status.CREATED)) {
+            LOGGER.warn(String.format("Impossible to optimize leaf: %s%n because evaluation has not been performed", toString()));
         }
     }
 
-    public void deletePreOptimVariant() {
-        raoData.deleteVariant(preOptimVariantId, false);
+    /**
+     * Extend the tree from the current Leaf with N new children Leaves
+     * for the N Network Actions given in argument
+     */
+    Set<NetworkAction> bloom() {
+        return raoData.getCrac().getNetworkActions(raoData.getNetwork(), raoData.getCrac().getPreventiveState(), UsageMethod.AVAILABLE)
+            .stream()
+            .filter(na -> !networkActions.contains(na))
+            .collect(Collectors.toSet());
     }
 
-    public void deletePostOptimVariant() {
-        if (postOptimVariantId.equals(preOptimVariantId)) {
-            raoData.clear(); // Delete the variant even if it's the working variant
-        } else {
-            raoData.deleteVariant(postOptimVariantId, false);
+    void cleanVariants() {
+        if (optimizedVariantId != null && !initialVariantId.equals(optimizedVariantId)) {
+            raoData.deleteVariant(initialVariantId, false);
         }
     }
 
-    public String getBestVariantId() {
-        if (postOptimVariantId != null) {
-            return postOptimVariantId;
-        } else {
-            return preOptimVariantId;
-        }
+    void clearVariants() {
+        raoData.clear();
     }
 
-    public double getBestCost() {
-        return raoData.getCracResult(getBestVariantId()).getCost();
-    }
-
-    private void updateRaoResultWithNetworkActions(Crac crac) {
-        String preventiveState = crac.getPreventiveState().getId();
+    private void updateCracResultWithNetworkActions(String variantId) {
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
         for (NetworkAction networkAction : networkActions) {
-            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(postOptimVariantId).activate(preventiveState);
+            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
         }
     }
 
-    private void logNetworkActions() {
-        String logInfo = "Evaluating leaf - evaluate network action(s): ";
-        logInfo = logInfo.concat(getNetworkActions().stream().map(NetworkAction::getName).collect(Collectors.joining(", ")));
-        LOGGER.info(logInfo);
+    @Override
+    public String toString() {
+        String info = parentLeaf == null ? "Root leaf" :
+            "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+        info += String.format(", Cost: %.2f", getBestCost());
+        info += ", Status: " + status.getMessage();
+        return info;
     }
 }
