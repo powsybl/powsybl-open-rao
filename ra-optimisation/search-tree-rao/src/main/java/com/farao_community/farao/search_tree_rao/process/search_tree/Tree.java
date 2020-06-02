@@ -69,25 +69,24 @@ public final class Tree {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
-        } else if (stopCriterionChecked(rootLeaf.getBestCost())) {
+        } else if (stopCriterionChecked(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
         rootLeaf.optimize();
         LOGGER.info(rootLeaf.toString());
-        if (stopCriterionChecked(rootLeaf.getBestCost())) {
+        if (stopCriterionChecked(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
 
         int depth = 0;
         boolean hasImproved = true;
-        while (doNewIteration(hasImproved, depth)) {
+        while (depth < searchTreeRaoParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionChecked(optimalLeaf)) {
             LOGGER.info(format("Research depth: %d - [start]", depth));
             previousDepthOptimalLeaf = optimalLeaf;
-            updateOptimalLeafWithNextDepth();
+            updateOptimalLeafWithNextDepthLeaves();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
+            optimalLeaf.applyRangeActionResultsOnNetwork(); // Store range action optimization results in the network, because next depth will start based on this network
             if (hasImproved && previousDepthOptimalLeaf != rootLeaf) {
-                // Store range action optimization results in the network, next depth will start based on this network
-                optimalLeaf.applyRangeActionResultsOnNetwork();
                 previousDepthOptimalLeaf.clearVariants();
             }
             LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));
@@ -100,30 +99,9 @@ public final class Tree {
     }
 
     /**
-     * Stop criterion check 1: maximum research depth reached
-     * Stop criterion check 2: is positive or maximum margin reached?
-     */
-    private static boolean doNewIteration(boolean hasImproved, int currentDepth) {
-        return currentDepth < searchTreeRaoParameters.getMaximumSearchDepth()
-            && hasImproved
-            && !stopCriterionChecked(optimalLeaf.getBestCost());
-    }
-
-    private static boolean stopCriterionChecked(double cost) {
-        // stop criterion check
-        if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
-            return cost < 0;
-        } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
-            return false;
-        } else {
-            throw new FaraoException("Unexpected stop criterion: " + searchTreeRaoParameters.getStopCriterion());
-        }
-    }
-
-    /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private static void updateOptimalLeafWithNextDepth() {
+    private static void updateOptimalLeafWithNextDepthLeaves() {
         final Set<NetworkAction> networkActions = optimalLeaf.bloom();
         if (networkActions.isEmpty()) {
             LOGGER.info("No new leaves to evaluate");
@@ -137,7 +115,7 @@ public final class Tree {
             networkPool.submit(() -> networkActions.parallelStream().forEach(networkAction -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
-                    evaluateNextLeaf(networkAction, networkClone);
+                    optimizeNextLeaf(networkAction, networkClone);
                     networkPool.releaseUsedNetwork(networkClone);
                     LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                 } catch (InterruptedException e) {
@@ -151,22 +129,22 @@ public final class Tree {
         }
     }
 
-    private static void evaluateNextLeaf(NetworkAction networkAction, Network network) {
+    private static void optimizeNextLeaf(NetworkAction networkAction, Network network) {
         Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
         leaf.evaluate();
         LOGGER.debug(leaf.toString());
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
             leaf.clearVariants();
         } else {
-            if (!stopCriterionChecked(leaf.getBestCost()) || !improvedEnough(leaf)) {
+            if (!stopCriterionChecked(leaf) || !improvedEnough(leaf)) {
                 leaf.optimize();
                 LOGGER.info(leaf.toString());
             }
-            updateOptimalLeafAndClearVariants(leaf);
+            updateOptimalLeafAndCleanVariants(leaf);
         }
     }
 
-    private static synchronized void updateOptimalLeafAndClearVariants(Leaf leaf) {
+    private static synchronized void updateOptimalLeafAndCleanVariants(Leaf leaf) {
         leaf.cleanVariants(); // delete pre-optim variant if post-optim variant is better
         if (improvedEnough(leaf)) {
             if (optimalLeaf != previousDepthOptimalLeaf) {
@@ -179,7 +157,28 @@ public final class Tree {
     }
 
     /**
-     * Stop criterion check: the remedial action has enough impact on the cost
+     * This method evaluates stop criterion on the leaf.
+     *
+     * @param leaf: Leaf to evaluate.
+     * @return True if the stop criterion has been reached on this leaf.
+     */
+    private static boolean stopCriterionChecked(Leaf leaf) {
+        // stop criterion check
+        if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
+            return leaf.getBestCost() < 0;
+        } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
+            return false;
+        } else {
+            throw new FaraoException("Unexpected stop criterion: " + searchTreeRaoParameters.getStopCriterion());
+        }
+    }
+
+    /**
+     * This method compares the leaf best cost to the optimal leaf best cost taking into account the minimum impact
+     * thresholds (absolute and relative)
+     *
+     * @param leaf: Leaf that has to be compared with the optimal leaf.
+     * @return True if the leaf cost diminution is enough compared to optimal leaf.
      */
     private static boolean improvedEnough(Leaf leaf) {
         double relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
