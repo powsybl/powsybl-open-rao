@@ -130,9 +130,9 @@ public class IteratingLinearOptimizerTest {
                         break;
                 }
                 workingVariants.add(raoData.getWorkingVariantId());
-                crac.getStates().forEach(st ->
-                    crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(raoData.getWorkingVariantId()).setSetPoint(st.getId(), setPoint)
-                );
+                crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+                    .getVariant(raoData.getWorkingVariantId())
+                    .setSetPoint(crac.getPreventiveState().getId(), setPoint);
                 count += 1;
 
                 return raoData;
@@ -156,10 +156,12 @@ public class IteratingLinearOptimizerTest {
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(2)));
         assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
-        //assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(1)));
-        crac.getStates().forEach(st -> {
-            assertEquals(Double.NaN, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(preOptimVariant).getSetPoint(st.getId()), DOUBLE_TOLERANCE);
-            assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class).getVariant(bestVariantId).getSetPoint(st.getId()), DOUBLE_TOLERANCE);
-        });
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(bestVariantId)
+            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+
     }
 }

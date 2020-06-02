@@ -79,7 +79,6 @@ public class LinearRao implements RaoProvider {
         linearRaoParametersQualityCheck(raoParameters, raoData);
 
         // run RAO algorithm
-        raoData.fillRangeActionResultsWithNetworkValues();
         LOGGER.info("Initial systematic analysis [start]");
         systematicSensitivityComputation.run(raoData);
         LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());

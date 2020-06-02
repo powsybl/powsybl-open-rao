@@ -7,40 +7,55 @@
 
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({IteratingLinearOptimizer.class})
-@Ignore
 public class LeafTest {
+
+    private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
 
     private NetworkAction na1;
     private NetworkAction na2;
-    private NetworkAction na3;
 
     private Network network;
-    private Crac crac;
+    private SimpleCrac crac;
     private RaoData raoData;
+    private RaoData raoDataMock;
     private RaoParameters raoParameters;
+    private SystematicSensitivityComputation systematicSensitivityComputation;
 
     @Before
     public void setUp() {
@@ -48,22 +63,22 @@ public class LeafTest {
         // network
         network = NetworkImportsUtil.import12NodesNetwork();
 
-        // network action mocks
-        na1 = Mockito.mock(NetworkAction.class);
-        Mockito.when(na1.getId()).thenReturn("topological_RA");
-
-        na2 = Mockito.mock(NetworkAction.class);
-        Mockito.when(na2.getId()).thenReturn("PSTsetpoint_RA");
-
-        na3 = Mockito.mock(NetworkAction.class);
-        Mockito.when(na3.getId()).thenReturn("anotherNA_RA");
-
         // other mocks
         crac = CommonCracCreation.create();
+        na1 = new Topology("topology1", crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
+        na2 = new Topology("topology2", crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN);
+        crac.addNetworkAction(na1);
+        crac.addNetworkAction(na2);
 
         RaoInput.cleanCrac(crac, network);
         RaoInput.synchronize(crac, network);
         raoData = new RaoData(network, crac);
+
+        raoDataMock = Mockito.mock(RaoData.class);
+        Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
+        Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(true);
+
+        systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
 
         // rao parameters
         raoParameters = new RaoParameters();
@@ -72,116 +87,114 @@ public class LeafTest {
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
     }
 
-    /*@Ignore
     @Test
-    public void bloomTest() {
-        /*
-        creation of leaves with :
-
-        rootLeaf                    ROOT
-                                  /      \
-        firstGeneration         NA1      NA2
-                                 |      /   \
-        secondGeneration        NA3    NA1  NA3
-         */
-
-        /*// first generation
-        Set<NetworkAction> twoNetworkActions = new HashSet<>();
-        twoNetworkActions.add(na1);
-        twoNetworkActions.add(na2);
-
-        Leaf rootLeaf = new Leaf();
-        List<Leaf> firstGeneration = rootLeaf.bloom();
-
-        assertTrue(rootLeaf.isRoot());
-        assertEquals(2, firstGeneration.size());
-        assertFalse(firstGeneration.get(0).isRoot());
-
-        assertNull(rootLeaf.getParent());
+    public void testRootLeafDefinition() {
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
         assertTrue(rootLeaf.getNetworkActions().isEmpty());
+        assertTrue(rootLeaf.isRoot());
+        assertEquals(INITIAL_VARIANT_ID, rootLeaf.getInitialVariantId());
+    }
+
+    @Test
+    public void testRootLeafDefinitionWithSensitivityValues() {
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+    }
+
+    @Test
+    public void testRootLeafDefinitionWithoutSensitivityValues() {
+        Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(false);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
-
-        assertEquals(rootLeaf, firstGeneration.get(0).getParent());
-        assertEquals(1, firstGeneration.get(0).getNetworkActions().size());
-        assertEquals(1, firstGeneration.stream().filter(l -> l.getNetworkActions().get(0).getId().equals("topological_RA")).count());
-        assertEquals(1, firstGeneration.stream().filter(l -> l.getNetworkActions().get(0).getId().equals("PSTsetpoint_RA")).count());
-
-        assertTrue(rootLeaf.bloom().isEmpty());
-
-        // second generation - left
-        Set<NetworkAction> oneNetworkAction = new HashSet<>();
-        oneNetworkAction.add(na3);
-        List<Leaf> secondGenerationL = firstGeneration.get(0).bloom();
-
-        assertEquals(2, secondGenerationL.get(0).getNetworkActions().size());
-
-        // second generation - right
-        Set<NetworkAction> threeNetworkActions = new HashSet<>();
-        threeNetworkActions.add(na1);
-        threeNetworkActions.add(na2); // filtered because already present in the leaf legacy
-        threeNetworkActions.add(na3);
-        List<Leaf> secondGenerationR = firstGeneration.get(1).bloom();
-
-        assertEquals(2, secondGenerationR.size());
-        assertEquals(2, secondGenerationR.get(0).getNetworkActions().size());
-        assertTrue(secondGenerationR.get(0).getNetworkActions().containsAll(firstGeneration.get(1).getNetworkActions()));
     }
 
-    @Ignore
     @Test
-    public void evaluateOkTest() {
-        BDDMockito.given(IteratingLinearOptimizer.optimize(any(), any())).willReturn("successful");
-        crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
-
-        String initialVariant = network.getVariantManager().getWorkingVariantId();
-        Leaf rootLeaf = new Leaf();
-        rootLeaf.optimize(raoParameters);
-
-        assertEquals(1, network.getVariantManager().getVariantIds().size());
-        assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
-
-        List<Leaf> childrenLeaf = rootLeaf.bloom();
-        childrenLeaf.get(0).optimize(raoParameters);
-
-        assertEquals(1, network.getVariantManager().getVariantIds().size());
-        assertEquals(Leaf.Status.EVALUATION_SUCCESS, rootLeaf.getStatus());
+    public void testLeafDefinition() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
+        assertEquals(1, leaf.getNetworkActions().size());
+        assertTrue(leaf.getNetworkActions().contains(na1));
+        assertFalse(leaf.isRoot());
+        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
     }
 
-    @Ignore
     @Test
-    public void evaluateWithRaoExceptionTest() {
-        BDDMockito.given(IteratingLinearOptimizer.optimize(any(), any())).willThrow(new FaraoException("error with optim"));
-
-        Leaf rootLeaf = new Leaf();
-        rootLeaf.evaluate(network, crac);
-        rootLeaf.optimize(raoParameters);
-
-        assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
+    public void testMultipleLeafDefinition() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf leaf2 = new Leaf(leaf1, na2, network, raoParameters);
+        assertEquals(2, leaf2.getNetworkActions().size());
+        assertTrue(leaf2.getNetworkActions().contains(na1));
+        assertTrue(leaf2.getNetworkActions().contains(na2));
+        assertFalse(leaf2.isRoot());
     }
 
-    @Ignore
     @Test
-    public void evaluateWithRaoFailureTest() {
-        crac = new SimpleCrac(CRAC_NAME_RAO_RETURNS_FAILURE);
-        crac.addState(new SimpleState(Optional.empty(), new Instant("preventiveInstant", 0)));
-
-        String initialVariant = network.getVariantManager().getWorkingVariantId();
-
-        Leaf rootLeaf = new Leaf();
-        rootLeaf.optimize(raoParameters);
-
-        assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
+    public void testMultipleLeafDefinitionWithSameNetworkAction() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf leaf2 = new Leaf(leaf1, na1, network, raoParameters);
+        assertEquals(1, leaf2.getNetworkActions().size());
+        assertTrue(leaf2.getNetworkActions().contains(na1));
+        assertFalse(leaf2.isRoot());
     }
 
-    @Ignore
     @Test
-    public void evaluateWithUnknownVariantTest() {
-        Mockito.when(crac.getName()).thenReturn("CracOK");
-        String initialVariant = network.getVariantManager().getWorkingVariantId();
+    public void testBloom() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Set<NetworkAction> networkActions = rootLeaf.bloom();
+        assertEquals(2, networkActions.size());
+        assertTrue(networkActions.contains(na1));
+        assertTrue(networkActions.contains(na2));
+    }
 
-        Leaf rootLeaf = new Leaf();
-        rootLeaf.optimize(raoParameters);
+    @Test
+    public void testEvaluateOk() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
+        Mockito.doAnswer(invocationOnMock -> {
+            raoData.setSystematicSensitivityAnalysisResult(Mockito.mock(SystematicSensitivityAnalysisResult.class));
+            return null;
+        }).when(systematicSensitivityComputation).run(raoData);
+        rootLeaf.evaluate();
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
+    }
 
-        assertEquals(Leaf.Status.EVALUATION_ERROR, rootLeaf.getStatus());
-    }*/
+    @Test
+    public void testEvaluateError() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
+        Mockito.doThrow(new FaraoException()).when(systematicSensitivityComputation).run(raoData);
+        rootLeaf.evaluate();
+        assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
+        assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
+    }
+
+    @Test
+    public void testOptimizeWithoutEvaluation() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        rootLeaf.optimize();
+        assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
+    }
+
+    @Test
+    public void testOptimizeWithoutRangeActions() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
+        Mockito.doNothing().when(systematicSensitivityComputation).run(raoData);
+        rootLeaf.evaluate();
+        rootLeaf.optimize();
+        assertEquals(rootLeaf.getInitialVariantId(), rootLeaf.getBestVariantId());
+        assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
+    }
+
+    @Test
+    public void testOptimizeWithRangeActions() {
+        crac.addRangeAction(new PstWithRange("pst", new NetworkElement("test")));
+        BDDMockito.given(IteratingLinearOptimizer.optimize(any(), any(), any())).willReturn("successful");
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
+        Mockito.doNothing().when(systematicSensitivityComputation).run(raoData);
+        rootLeaf.evaluate();
+        rootLeaf.optimize();
+        assertEquals("successful", rootLeaf.getBestVariantId());
+        assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
+    }
 }

@@ -7,7 +7,6 @@
 package com.farao_community.farao.search_tree_rao.process.search_tree;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
@@ -35,19 +34,15 @@ class Leaf {
     private final RaoData raoData;
     private final String initialVariantId;
     private String optimizedVariantId;
-    private SystematicSensitivityComputation systematicSensitivityComputation;
-
-    /**
-     * Parent Leaf or null for root Leaf
-     */
-    private final Leaf parentLeaf;
+    private final RaoParameters raoParameters;
+    private final SystematicSensitivityComputation systematicSensitivityComputation;
 
     /**
      * Network Actions which will be tested (including the
      * network actions from the parent leaves as well as from
      * this leaf), can be empty
      */
-    private final List<NetworkAction> networkActions;
+    private final Set<NetworkAction> networkActions;
 
     enum Status {
         CREATED("Created"),
@@ -74,38 +69,42 @@ class Leaf {
     /**
      * Root Leaf constructor
      */
-    Leaf(RaoData raoData) { //! constructor only for Root Leaf
-        this.parentLeaf = null;
-        this.networkActions = new ArrayList<>(); //! root leaf has no network action
+    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) { //! constructor only for Root Leaf
+        this.networkActions = new HashSet<>(); //! root leaf has no network action
+        this.raoParameters = raoParameters;
+        this.systematicSensitivityComputation = systematicSensitivityComputation;
         this.raoData = raoData;
         initialVariantId = raoData.getInitialVariantId();
-        initStatus();
-    }
-
-    /**
-     * Leaf constructor
-     */
-    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, Crac crac) {
-        this.parentLeaf = parentLeaf;
-        List<NetworkAction> networkActionList = new ArrayList<>(parentLeaf.networkActions);
-        networkActionList.add(networkAction);
-        this.networkActions = networkActionList;
-        // apply Network Actions on initial network
-        networkActions.forEach(na -> na.apply(network));
-        // It creates a new CRAC variant
-        raoData = new RaoData(network, crac);
-        initialVariantId = raoData.getInitialVariantId();
-        raoData.fillRangeActionResultsWithNetworkValues();
-        updateCracResultWithNetworkActions(initialVariantId);
-        initStatus();
-    }
-
-    private void initStatus() {
         if (raoData.hasSensitivityValues()) {
             status = Status.EVALUATED;
         } else {
             status = Status.CREATED;
         }
+    }
+
+    Leaf(RaoData raoData, RaoParameters raoParameters) { //! constructor only for Root Leaf
+        this(raoData, raoParameters, new SystematicSensitivityComputation(raoParameters));
+    }
+
+    /**
+     * Leaf constructor
+     */
+    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+        networkActions = new HashSet<>(parentLeaf.networkActions);
+        networkActions.add(networkAction);
+        this.raoParameters = raoParameters;
+        this.systematicSensitivityComputation = systematicSensitivityComputation;
+        // apply Network Actions on initial network
+        networkActions.forEach(na -> na.apply(network));
+        // It creates a new CRAC variant
+        raoData = new RaoData(network, parentLeaf.getRaoData().getCrac());
+        initialVariantId = raoData.getInitialVariantId();
+        activateNetworkActionInCracResult(initialVariantId);
+        status = Status.CREATED;
+    }
+
+    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters) {
+        this(parentLeaf, networkAction, network, raoParameters, new SystematicSensitivityComputation(raoParameters));
     }
 
     RaoData getRaoData() {
@@ -132,11 +131,18 @@ class Leaf {
         return raoData.getCracResult(getBestVariantId()).getCost();
     }
 
-    void evaluate(RaoParameters raoParameters) {
+    Set<NetworkAction> getNetworkActions() {
+        return networkActions;
+    }
+
+    boolean isRoot() {
+        return networkActions.isEmpty();
+    }
+
+    void evaluate() {
         if (status.equals(Status.CREATED)) { // This computation has to be performed only if it's not already done
             try {
                 LOGGER.debug("Evaluating leaf...");
-                systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
                 systematicSensitivityComputation.run(raoData);
                 status = Status.EVALUATED;
             } catch (FaraoException e) {
@@ -152,14 +158,14 @@ class Leaf {
      * This method takes a network variant which we switch too, since we may
      * not generate new variants while multithreading.
      */
-    void optimize(RaoParameters raoParameters) {
+    void optimize() {
         // This computation has to be performed only if sensis have already been computed
         if (status.equals(Status.EVALUATED)) {
             // Try to optimize preOptim variant in postOptim variant
             if (!raoData.getCrac().getRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
-                updateCracResultWithNetworkActions(optimizedVariantId);
+                activateNetworkActionInCracResult(optimizedVariantId);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
                 optimizedVariantId = initialVariantId;
@@ -193,7 +199,7 @@ class Leaf {
         raoData.clear();
     }
 
-    private void updateCracResultWithNetworkActions(String variantId) {
+    private void activateNetworkActionInCracResult(String variantId) {
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         for (NetworkAction networkAction : networkActions) {
             networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
@@ -202,7 +208,7 @@ class Leaf {
 
     @Override
     public String toString() {
-        String info = parentLeaf == null ? "Root leaf" :
+        String info = isRoot() ? "Root leaf" :
             "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
         info += String.format(", Cost: %.2f", getBestCost());
         info += ", Status: " + status.getMessage();

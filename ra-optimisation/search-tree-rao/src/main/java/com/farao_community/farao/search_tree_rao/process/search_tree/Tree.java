@@ -45,7 +45,6 @@ public final class Tree {
     private static Leaf rootLeaf;
     private static Leaf previousDepthOptimalLeaf;
     private static Leaf optimalLeaf;
-    private static Crac crac;
     private static RaoParameters raoParameters;
     private static SearchTreeRaoParameters searchTreeRaoParameters;
 
@@ -54,10 +53,9 @@ public final class Tree {
     }
 
     private static void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
-        Tree.crac = crac;
         Tree.raoParameters = raoParameters;
         searchTreeRaoParameters = raoParameters.getExtensionByName("SearchTreeRaoParameters");
-        rootLeaf = new Leaf(RaoUtil.initRaoData(network, crac, variantId, raoParameters));
+        rootLeaf = new Leaf(RaoUtil.initRaoData(network, crac, variantId, raoParameters), raoParameters);
         optimalLeaf = rootLeaf;
     }
 
@@ -65,7 +63,7 @@ public final class Tree {
         init(network, crac, variantId, raoParameters);
 
         LOGGER.info("Evaluate root leaf");
-        rootLeaf.evaluate(raoParameters);
+        rootLeaf.evaluate();
         LOGGER.debug(rootLeaf.toString());
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
@@ -74,7 +72,7 @@ public final class Tree {
         } else if (stopCriterionChecked(rootLeaf.getBestCost())) {
             return CompletableFuture.completedFuture(buildOutput());
         }
-        rootLeaf.optimize(raoParameters);
+        rootLeaf.optimize();
         LOGGER.info(rootLeaf.toString());
         if (stopCriterionChecked(rootLeaf.getBestCost())) {
             return CompletableFuture.completedFuture(buildOutput());
@@ -155,14 +153,14 @@ public final class Tree {
     }
 
     private static void evaluateNextLeaf(NetworkAction networkAction, Network network) {
-        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, crac);
-        leaf.evaluate(raoParameters);
+        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
+        leaf.evaluate();
         LOGGER.debug(leaf.toString());
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
             leaf.clearVariants();
         } else {
             if (!stopCriterionChecked(leaf.getBestCost()) || !improvedEnough(leaf)) {
-                leaf.optimize(raoParameters);
+                leaf.optimize();
                 LOGGER.info(leaf.toString());
             }
             updateOptimalLeafAndClearVariants(leaf);

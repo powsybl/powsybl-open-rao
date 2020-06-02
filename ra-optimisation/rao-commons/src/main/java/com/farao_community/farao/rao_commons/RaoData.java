@@ -60,6 +60,7 @@ public class RaoData {
 
         String variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
         setWorkingVariant(variantId);
+        fillRangeActionResultsWithNetworkValues();
     }
 
     public List<String> getVariantIds() {
