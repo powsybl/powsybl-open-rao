@@ -34,8 +34,8 @@ public class RaoRunnerMock extends Rao.Runner {
         resultVariantManager.createVariant(preOpt);
         resultVariantManager.createVariant(postOpt);
 
-        crac.getExtension(CracResultExtension.class).getVariant(preOpt).setCost(10);
-        crac.getExtension(CracResultExtension.class).getVariant(postOpt).setCost(2);
+        crac.getExtension(CracResultExtension.class).getVariant(preOpt).setFunctionalCost(10);
+        crac.getExtension(CracResultExtension.class).getVariant(postOpt).setFunctionalCost(2);
 
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOpt);
