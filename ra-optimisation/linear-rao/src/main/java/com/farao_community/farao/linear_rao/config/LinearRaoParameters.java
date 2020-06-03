@@ -119,4 +119,12 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
         this.fallbackOvercost = max(0.0, overcost);
         return this;
     }
+
+    public String getObjectiveFunctionUnit() {
+        if (objectiveFunction == ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
+            return "MW";
+        } else {
+            return "A";
+        }
+    }
 }

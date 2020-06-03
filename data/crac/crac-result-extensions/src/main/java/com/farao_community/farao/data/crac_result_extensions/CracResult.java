@@ -10,24 +10,26 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Extension of {@link Crac} containing data related to an optimization:
  * <ul>
  *     <li>networkSecurityStatus: can be SECURED or UNSECURED</li>
- *     <li>cost: the value of the optimisation minimisation criterion.
- *     If it is negative, the networkSecurityStatus is SECURED</li>
+ *     <li>cost: the value of the optimisation minimisation criterion, decomposed into
+ *     two components </li>
+ *     <li>functionalCost: the meaningful part of the cost, for instance the minimum
+ *     margin on all Cnecs.</li>
+ *     <li>virtualCost: the virtual part of the cost, typically the costs related to
+ *     constraint violations. This cost makes no real sense on a functional viewpoint,
+ *     but is necessary for modelling purposes.</li>
  * </ul>
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 @JsonTypeName("crac-result")
 public class CracResult implements Result {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracResult.class);
 
     public enum NetworkSecurityStatus {
         SECURED,
@@ -35,43 +37,54 @@ public class CracResult implements Result {
     }
 
     private NetworkSecurityStatus networkSecurityStatus;
-    private double cost;
+    private double functionalCost;
+    private double virtualCost;
 
     public NetworkSecurityStatus getNetworkSecurityStatus() {
         return networkSecurityStatus;
     }
 
+    public void setNetworkSecurityStatus(NetworkSecurityStatus status) {
+        this.networkSecurityStatus = status;
+    }
+
+    @JsonIgnore
     public double getCost() {
-        return cost;
+        return functionalCost + virtualCost;
     }
 
-    public void setNetworkSecurityStatus() {
-        this.networkSecurityStatus = cost <= 0 ? NetworkSecurityStatus.SECURED : NetworkSecurityStatus.UNSECURED;
+    public double getFunctionalCost() {
+        return functionalCost;
     }
 
-    public void setCost(double cost) {
-        this.cost = cost;
-        setNetworkSecurityStatus();
+    public void setFunctionalCost(double functionalCost) {
+        this.functionalCost = functionalCost;
+    }
+
+    public double getVirtualCost() {
+        return virtualCost;
+    }
+
+    public void setVirtualCost(double virtualCost) {
+        this.virtualCost = virtualCost;
     }
 
     @JsonCreator
     public CracResult(@JsonProperty("networkSecurityStatus") NetworkSecurityStatus networkSecurityStatus,
-                      @JsonProperty("cost") double cost) {
+                      @JsonProperty("functionalCost") double functionalCost,
+                      @JsonProperty("virtualCost") double virtualCost) {
         this.networkSecurityStatus = networkSecurityStatus;
-        this.cost = cost;
-        setNetworkSecurityStatus();
-        if (!this.networkSecurityStatus.equals(networkSecurityStatus)) {
-            LOGGER.warn(String.format("Inconsistent values were given: correct network security status is %s", this.networkSecurityStatus));
-        }
+        this.functionalCost = functionalCost;
+        this.virtualCost = virtualCost;
     }
 
-    public CracResult(double cost) {
-        this.cost = cost;
-        setNetworkSecurityStatus();
+    public CracResult(double functionalCost) {
+        this.functionalCost = functionalCost;
+        this.virtualCost = 0;
     }
 
     public CracResult() {
-        this.cost = Double.NaN;
-        setNetworkSecurityStatus();
+        this.functionalCost = Double.NaN;
+        this.virtualCost = 0;
     }
 }
