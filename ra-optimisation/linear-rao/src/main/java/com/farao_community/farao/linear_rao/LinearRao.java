@@ -7,12 +7,8 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.linear_rao.config.LinearRaoConfigurationUtil;
-import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters.IteratingLinearOptimizerParameters;
@@ -56,32 +52,23 @@ public class LinearRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(Network network,
-                                            Crac crac,
-                                            String variantId,
-                                            ComputationManager computationManager,
-                                            RaoParameters raoParameters) {
+    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParameters,
-            computationManager);
-        try {
-            return runLinearRao(raoData, systematicSensitivityComputation, raoParameters);
-        } catch (FaraoException e) {
-            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
-        }
+        SystematicSensitivityComputation systematicSensitivityComputation =
+            new SystematicSensitivityComputation(raoParameters, computationManager);
+
+        return run(raoData, systematicSensitivityComputation, raoParameters);
     }
 
-    CompletableFuture<RaoResult> runLinearRao(RaoData raoData,
-                                              SystematicSensitivityComputation systematicSensitivityComputation,
-                                              RaoParameters raoParameters) {
-        // check config
-        linearRaoParametersQualityCheck(raoParameters, raoData);
-
-        // run RAO algorithm
-        LOGGER.info("Initial systematic analysis [start]");
-        systematicSensitivityComputation.run(raoData);
-        LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
+    // This method is useful for testing to be able to mock systematicSensitivityComputation
+    CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
+        try {
+            LOGGER.info("Initial systematic analysis [start]");
+            systematicSensitivityComputation.run(raoData);
+            LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
+        } catch (SensitivityComputationException e) {
+            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
+        }
 
         // stop here if no optimisation should be done
         if (skipOptim(raoParameters, raoData.getCrac())) {
@@ -91,19 +78,6 @@ public class LinearRao implements RaoProvider {
         String bestVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
 
         return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, bestVariantId, systematicSensitivityComputation));
-    }
-
-    /**
-     * Quality check of the configuration
-     */
-    private void linearRaoParametersQualityCheck(RaoParameters parameters, RaoData raoData) {
-        if (parameters.isRaoWithLoopFlowLimitation() && Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            throw new FaraoException("Loop flow parameters are inconsistent with CRAC loopflow extension");
-        }
-        List<String> configQualityCheck = LinearRaoConfigurationUtil.checkLinearRaoConfiguration(parameters);
-        if (!configQualityCheck.isEmpty()) {
-            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
-        }
     }
 
     /**
@@ -120,7 +94,6 @@ public class LinearRao implements RaoProvider {
      * Build the RaoResult in case of optimisation success
      */
     private RaoResult buildSuccessfulRaoResultAndClearVariants(RaoData raoData, String postOptimVariantId, SystematicSensitivityComputation systematicSensitivityComputation) {
-
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
@@ -145,7 +118,6 @@ public class LinearRao implements RaoProvider {
      * Build the RaoResult in case of optimisation failure
      */
     private RaoResult buildFailedRaoResultAndClearVariants(RaoData raoData, Exception e) {
-
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());

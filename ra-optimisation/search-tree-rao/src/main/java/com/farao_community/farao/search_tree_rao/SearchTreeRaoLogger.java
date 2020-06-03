@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.process.search_tree;
+package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -21,10 +21,10 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-final class TreeLogger {
+final class SearchTreeRaoLogger {
     private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
 
-    private TreeLogger() { }
+    private SearchTreeRaoLogger() { }
 
     static void logMostLimitingElementsResults(Leaf leaf, Crac crac) {
         List<Cnec> sortedCnecs = new ArrayList<>(crac.getCnecs());
@@ -32,7 +32,7 @@ final class TreeLogger {
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
             Cnec cnec = sortedCnecs.get(i);
-            Tree.LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f",
+            SearchTreeRao.LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %f",
                 i + 1,
                 cnec.getNetworkElement().getName(),
                 cnec.getState().getId(),

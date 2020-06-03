@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters.IteratingLinearOptimizerParameters;
@@ -100,17 +99,15 @@ public class LinearRaoTest {
     @Test
     public void runLinearRaoWithSensitivityComputationError() {
         Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(systematicSensitivityComputation).run(any());
-        try {
-            linearRao.runLinearRao(raoData, systematicSensitivityComputation, raoParameters).join();
-            fail();
-        } catch (SensitivityComputationException e) {
-            // should throw
-        }
+        RaoResult raoResult = linearRao.run(raoData, systematicSensitivityComputation, raoParameters).join();
+        assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());
+        assertEquals(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE,
+            raoResult.getExtension(LinearRaoResult.class).getSystematicSensitivityAnalysisStatus());
     }
 
     @Test
     public void runWithSensitivityComputationException() {
-        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(linearRao).runLinearRao(any(), any(), any());
+        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(linearRao).run(any(), any(), any());
         RaoResult results = linearRao.run(network, crac, variantId, computationManager, raoParameters).join();
 
         assertNotNull(results);
@@ -123,7 +120,7 @@ public class LinearRaoTest {
     public void runLinearRaoWithLinearOptimisationError() {
         BDDMockito.given(IteratingLinearOptimizer.optimize(any(), (SystematicSensitivityComputation) any(), any())).willThrow(new LinearOptimisationException("error with optim"));
         try {
-            linearRao.runLinearRao(raoData, systematicSensitivityComputation, raoParameters).join();
+            linearRao.run(raoData, systematicSensitivityComputation, raoParameters).join();
             fail();
         } catch (LinearOptimisationException e) {
             // should throw
@@ -132,7 +129,7 @@ public class LinearRaoTest {
 
     @Test
     public void runWithLinearOptimisationException() {
-        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearRao).runLinearRao(any(), any(), any());
+        Mockito.doThrow(new LinearOptimisationException("error with optim")).when(linearRao).run(any(), any(), any());
         RaoResult results = linearRao.run(network, crac, variantId, computationManager, raoParameters).join();
 
         assertNotNull(results);
@@ -143,7 +140,7 @@ public class LinearRaoTest {
 
     @Test
     public void runWithFaraoException() {
-        Mockito.doThrow(new FaraoException("farao exception")).when(linearRao).runLinearRao(any(), any(), any());
+        Mockito.doThrow(new FaraoException("farao exception")).when(linearRao).run(any(), any(), any());
         RaoResult results = linearRao.run(network, crac, variantId, computationManager, raoParameters).join();
 
         assertNotNull(results);
@@ -167,7 +164,7 @@ public class LinearRaoTest {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(simpleLinearOptimizer).optimize(any());
         raoParameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
 
-        RaoResult results = linearRao.runLinearRao(raoData, systematicSensitivityComputation, raoParameters).join();
+        RaoResult results = linearRao.run(raoData, systematicSensitivityComputation, raoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
@@ -178,7 +175,7 @@ public class LinearRaoTest {
         Mockito.doThrow(new LinearOptimisationException("error with optim")).when(simpleLinearOptimizer).optimize(any());
         raoParameters.getExtension(IteratingLinearOptimizerParameters.class).setMaxIterations(0);
 
-        RaoResult results = linearRao.runLinearRao(raoData, systematicSensitivityComputation, raoParameters).join();
+        RaoResult results = linearRao.run(raoData, systematicSensitivityComputation, raoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());

@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.farao_community.farao.util.LoadFlowService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -14,10 +13,7 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
@@ -27,8 +23,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Tree.class})
 public class SearchTreeRaoUnitTest {
 
     private SearchTreeRao searchTreeRao;

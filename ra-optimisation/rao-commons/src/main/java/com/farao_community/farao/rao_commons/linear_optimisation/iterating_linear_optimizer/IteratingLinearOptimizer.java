@@ -13,6 +13,7 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.util.SensitivityComputationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,9 @@ public final class IteratingLinearOptimizer {
                     raoData.deleteVariant(optimizedVariantId, false);
                     return bestVariantId;
                 }
-            } catch (FaraoException e) {
+            } catch (SensitivityComputationException e) {
+                LOGGER.error(String.format("Sensitivity computation failed at iteration %d on %s mode: %s",
+                    iteration, systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage()));
                 raoData.setWorkingVariant(bestVariantId);
                 raoData.deleteVariant(optimizedVariantId, false);
                 return bestVariantId;

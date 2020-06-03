@@ -5,9 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.linear_rao.json;
+package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.linear_rao.LinearRaoResult;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoResult;
 import com.powsybl.commons.AbstractConverterTest;
