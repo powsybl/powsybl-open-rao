@@ -136,8 +136,9 @@
       "resultsPerVariant" : {
         "variant1" : {
           "type" : "crac-result",
-          "cost" : 10,
-          "networkSecurityStatus" : "UNSECURED"
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 10.0,
+          "virtualCost" : 5.0
         }
       }
     }

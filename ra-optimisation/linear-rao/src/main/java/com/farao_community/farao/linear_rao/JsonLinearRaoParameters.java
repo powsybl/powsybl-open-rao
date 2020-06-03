@@ -25,9 +25,7 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
     @Override
     public void serialize(LinearRaoParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField("objective-function", linearRaoParameters.getObjectiveFunction());
         jsonGenerator.writeBooleanField("security-analysis-without-rao", linearRaoParameters.isSecurityAnalysisWithoutRao());
-        jsonGenerator.writeNumberField("sensitivity-fallback-overcost", linearRaoParameters.getFallbackOvercost());
         jsonGenerator.writeEndObject();
     }
 
@@ -37,16 +35,9 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "objective-function":
-                    linearRaoParameters.setObjectiveFunction(stringToObjectiveFunction(jsonParser.nextTextValue()));
-                    break;
                 case "security-analysis-without-rao":
                     jsonParser.nextToken();
                     linearRaoParameters.setSecurityAnalysisWithoutRao(jsonParser.getBooleanValue());
-                    break;
-                case "sensitivity-fallback-overcost":
-                    jsonParser.nextToken();
-                    linearRaoParameters.setFallbackOvercost(jsonParser.getDoubleValue());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -69,13 +60,5 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
     @Override
     public Class<? super LinearRaoParameters> getExtensionClass() {
         return LinearRaoParameters.class;
-    }
-
-    private LinearRaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {
-        try {
-            return LinearRaoParameters.ObjectiveFunction.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown objective function value : %s", string));
-        }
     }
 }

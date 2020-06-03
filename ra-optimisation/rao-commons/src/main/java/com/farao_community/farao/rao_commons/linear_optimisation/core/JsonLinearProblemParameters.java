@@ -28,6 +28,7 @@ public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
+        jsonGenerator.writeObjectField("objective-function", linearRaoParameters.getObjectiveFunction());
         jsonGenerator.writeEndObject();
     }
 
@@ -44,6 +45,9 @@ public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionS
                 case "pst-sensitivity-threshold":
                     jsonParser.nextToken();
                     parameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
+                    break;
+                case "objective-function":
+                    parameters.setObjectiveFunction(stringToObjectiveFunction(jsonParser.nextTextValue()));
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -66,5 +70,13 @@ public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionS
     @Override
     public Class<? super LinearProblemParameters> getExtensionClass() {
         return LinearProblemParameters.class;
+    }
+
+    private LinearProblemParameters.ObjectiveFunction stringToObjectiveFunction(String string) {
+        try {
+            return LinearProblemParameters.ObjectiveFunction.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown objective function value : %s", string));
+        }
     }
 }

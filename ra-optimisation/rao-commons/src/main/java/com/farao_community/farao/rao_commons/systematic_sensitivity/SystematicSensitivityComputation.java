@@ -7,10 +7,6 @@
 
 package com.farao_community.farao.rao_commons.systematic_sensitivity;
 
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Unit;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.util.SensitivityComputationException;
@@ -40,7 +36,7 @@ public class SystematicSensitivityComputation {
      * LinearRao configurations, containing the default and fallback configurations
      * of the sensitivity computation
      */
-    private SystematicSensitivityComputationParameters computationParameters;
+    private SystematicSensitivityComputationParameters parameters;
 
     /**
      * A boolean indicating whether or not the fallback mode of the sensitivity computation
@@ -57,27 +53,31 @@ public class SystematicSensitivityComputation {
      * Constructors
      */
     public SystematicSensitivityComputation(RaoParameters raoParameters, ComputationManager computationManager) {
-        SystematicSensitivityComputationParameters parameters;
+        SystematicSensitivityComputationParameters computationParameters;
         if (!Objects.isNull(raoParameters.getExtension(SystematicSensitivityComputationParameters.class))) {
-            parameters = raoParameters.getExtension(SystematicSensitivityComputationParameters.class);
+            computationParameters = raoParameters.getExtension(SystematicSensitivityComputationParameters.class);
         } else {
-            parameters = new SystematicSensitivityComputationParameters();
+            computationParameters = new SystematicSensitivityComputationParameters();
         }
-        init(parameters, computationManager);
-    }
-
-    public SystematicSensitivityComputation(SystematicSensitivityComputationParameters computationParameters, ComputationManager computationManager) {
         init(computationParameters, computationManager);
     }
 
+    public SystematicSensitivityComputation(SystematicSensitivityComputationParameters parameters, ComputationManager computationManager) {
+        init(parameters, computationManager);
+    }
+
     private void init(SystematicSensitivityComputationParameters computationParameters, ComputationManager computationManager) {
-        this.computationParameters = computationParameters;
+        this.parameters = computationParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;
     }
 
     public boolean isFallback() {
         return fallbackMode;
+    }
+
+    public SystematicSensitivityComputationParameters getParameters() {
+        return parameters;
     }
 
     /**
@@ -89,13 +89,13 @@ public class SystematicSensitivityComputation {
     public void run(RaoData raoData) {
 
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ?
-            computationParameters.getFallbackParameters()
-            : computationParameters.getDefaultParameters();
+            parameters.getFallbackParameters()
+            : parameters.getDefaultParameters();
 
         try {
             runWithConfig(raoData, sensitivityComputationParameters);
         } catch (SensitivityComputationException e) {
-            if (!fallbackMode && computationParameters.getFallbackParameters() != null) { // default mode fails, retry in fallback mode
+            if (!fallbackMode && parameters.getFallbackParameters() != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
                 run(raoData);
@@ -134,33 +134,5 @@ public class SystematicSensitivityComputation {
      */
     private void setResults(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
         raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-        raoData.getCracResult().setCost(-getMinMargin(raoData, systematicSensitivityAnalysisResult));
-        updateCnecExtensions(raoData, systematicSensitivityAnalysisResult);
-    }
-
-    /**
-     * Compute the objective function, the minimal margin.
-     */
-    private double getMinMargin(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-
-        double minMargin = Double.POSITIVE_INFINITY;
-        for (Cnec cnec : raoData.getCrac().getCnecs()) {
-            double flow = systematicSensitivityAnalysisResult.getReferenceFlow(cnec);
-            double margin = cnec.computeMargin(flow, Unit.MEGAWATT);
-            if (Double.isNaN(margin)) {
-                throw new SensitivityComputationException(String.format("Cnec %s is not present in the sensitivity analysis results. Bad behaviour.", cnec.getId()));
-            }
-            minMargin = Math.min(minMargin, margin);
-        }
-        return minMargin;
-    }
-
-    private void updateCnecExtensions(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        raoData.getCrac().getCnecs().forEach(cnec -> {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-            cnecResult.setFlowInMW(systematicSensitivityAnalysisResult.getReferenceFlow(cnec));
-            cnecResult.setFlowInA(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec));
-            cnecResult.setThresholds(cnec);
-        });
     }
 }

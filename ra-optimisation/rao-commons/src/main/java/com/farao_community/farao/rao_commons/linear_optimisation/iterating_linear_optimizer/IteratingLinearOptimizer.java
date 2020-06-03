@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
@@ -23,8 +24,8 @@ import java.util.Objects;
  */
 public class IteratingLinearOptimizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
-    private static final String UNEXPECTED_BEHAVIOR = "Iteration {} - Linear Optimization found a worse result than previous iteration: from {} MW to {} MW";
-    private static final String IMPROVEMENT = "Iteration {} - Better solution found with a minimum margin of {} MW";
+    private static final String UNEXPECTED_BEHAVIOR = "Iteration %d - Linear Optimization found a worse result than previous iteration, with a minimum margin from %.2f to %.2f %s (optimisation criterion : from %.2f to %.2f)";
+    private static final String IMPROVEMENT = "Iteration %d - Better solution found with a minimum margin of %.2f %s (optimisation criterion : %.2f)";
     private static final String SAME_RESULTS = "Iteration {} - same results as previous iterations, optimal solution found";
     private static final String SENSITIVITY_ERROR = "Sensitivity computation failed at iteration {} on {} mode: {}";
     private static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration {}: {}";
@@ -101,6 +102,7 @@ public class IteratingLinearOptimizer {
         try {
             LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
             systematicSensitivityComputation.run(raoData);
+            raoData.fillCracResultsWithSensis(simpleLinearOptimizer.getParameters().getObjectiveFunction(), systematicSensitivityComputation);
             LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
             return true;
         } catch (SensitivityComputationException e) {
@@ -111,13 +113,16 @@ public class IteratingLinearOptimizer {
 
     private boolean hasCostImproved(String optimizedVariantId, int iteration) {
         // If the cost has not improved iteration can stop
-        double bestVariantCost = raoData.getCracResult(bestVariantId).getCost();
-        double optimizedVariantCost = raoData.getCracResult(optimizedVariantId).getCost();
-        if (optimizedVariantCost < bestVariantCost) {
-            LOGGER.warn(IMPROVEMENT, iteration, -optimizedVariantCost);
+        CracResult bestVariantResult = raoData.getCracResult(bestVariantId);
+        CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
+        String unit = simpleLinearOptimizer.getParameters().getObjectiveFunction().getUnit();
+        if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
+            LOGGER.warn(String.format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(), unit,
+                optimizedVariantResult.getCost()));
             return true;
         } else { // unexpected behaviour, stop the search
-            LOGGER.warn(UNEXPECTED_BEHAVIOR, iteration, -bestVariantCost, -optimizedVariantCost);
+            LOGGER.warn(String.format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
+                -optimizedVariantResult.getFunctionalCost(),  unit, bestVariantResult.getCost(), optimizedVariantResult.getCost()));
             return false;
         }
     }

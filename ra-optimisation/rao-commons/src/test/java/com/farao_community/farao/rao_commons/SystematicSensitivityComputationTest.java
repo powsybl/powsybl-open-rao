@@ -167,15 +167,15 @@ public class SystematicSensitivityComputationTest {
         Mockito.when(result.isSuccess()).thenReturn(true);
         crac.getCnecs().forEach(cnec -> {
             if (cnec.getId().equals("cnec2basecase")) {
-                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(10.);
-                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(15.);
+                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(1400.);
+                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(2000.);
                 crac.getRangeActions().forEach(rangeAction -> {
                     Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(random.nextDouble());
                     Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(random.nextDouble());
                 });
             } else {
-                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(random.nextDouble());
-                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(random.nextDouble());
+                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(0.0);
+                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(0.0);
                 crac.getRangeActions().forEach(rangeAction -> {
                     Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(random.nextDouble());
                     Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(random.nextDouble());

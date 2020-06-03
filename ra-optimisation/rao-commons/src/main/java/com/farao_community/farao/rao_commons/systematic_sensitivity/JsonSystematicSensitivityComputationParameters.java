@@ -28,6 +28,7 @@ public class JsonSystematicSensitivityComputationParameters implements JsonRaoPa
     @Override
     public void serialize(SystematicSensitivityComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        jsonGenerator.writeNumberField("sensitivity-fallback-overcost", parameters.getFallbackOvercost());
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityComputationParameters.serialize(parameters.getDefaultParameters(), jsonGenerator, serializerProvider);
         if (parameters.getFallbackParameters() != null) {
@@ -43,6 +44,10 @@ public class JsonSystematicSensitivityComputationParameters implements JsonRaoPa
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
+                case "sensitivity-fallback-overcost":
+                    jsonParser.nextToken();
+                    parameters.setFallbackOvercost(jsonParser.getDoubleValue());
+                    break;
                 case "sensitivity-parameters":
                     jsonParser.nextToken();
                     JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, parameters.getDefaultParameters());

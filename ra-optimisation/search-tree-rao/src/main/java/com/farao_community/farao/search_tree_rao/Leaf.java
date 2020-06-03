@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.powsybl.computation.ComputationManager;
@@ -38,6 +39,7 @@ class Leaf {
     private final RaoParameters raoParameters;
     private final SystematicSensitivityComputation systematicSensitivityComputation;
     private final IteratingLinearOptimizer iteratingLinearOptimizer;
+    private final LinearProblemParameters.ObjectiveFunction objectiveFunction;
 
     /**
      * Network Actions which will be tested (including the
@@ -86,6 +88,11 @@ class Leaf {
         } else {
             status = Status.CREATED;
         }
+        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
+            objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
+        } else {
+            objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
+        }
     }
 
     Leaf(RaoData raoData, RaoParameters raoParameters, ComputationManager computationManager) {
@@ -112,6 +119,11 @@ class Leaf {
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         status = Status.CREATED;
+        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
+            objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
+        } else {
+            objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
+        }
     }
 
     RaoData getRaoData() {
@@ -155,6 +167,7 @@ class Leaf {
             try {
                 LOGGER.debug("Evaluating leaf...");
                 systematicSensitivityComputation.run(raoData);
+                raoData.fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
                 status = Status.EVALUATED;
             } catch (FaraoException e) {
                 LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));

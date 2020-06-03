@@ -139,7 +139,6 @@ public class LinearRaoTest {
         raoParameters.getExtension(IteratingLinearOptimizerParameters.class).setMaxIterations(0);
 
         RaoResult results = linearRao.run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters).join();
-
         assertNotNull(results);
         assertEquals(RaoResult.Status.SUCCESS, results.getStatus());
     }

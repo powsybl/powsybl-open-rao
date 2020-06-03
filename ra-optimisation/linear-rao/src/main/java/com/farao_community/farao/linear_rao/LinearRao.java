@@ -8,9 +8,9 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -40,6 +40,9 @@ public class LinearRao implements RaoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
+    private RaoParameters raoParameters;
+    private LinearProblemParameters.ObjectiveFunction objectiveFunction;
+
     @Override
     public String getName() {
         return "LinearRao";
@@ -53,6 +56,12 @@ public class LinearRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
+        this.raoParameters = raoParameters;
+        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
+            objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
+        } else {
+            objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
+        }
         SystematicSensitivityComputation systematicSensitivityComputation =
             new SystematicSensitivityComputation(raoParameters, computationManager);
         IteratingLinearOptimizer iteratingLinearOptimizer =
@@ -67,6 +76,7 @@ public class LinearRao implements RaoProvider {
         try {
             LOGGER.info("Initial systematic analysis [start]");
             systematicSensitivityComputation.run(raoData);
+            raoData.fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
             LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
         } catch (SensitivityComputationException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
@@ -107,9 +117,11 @@ public class LinearRao implements RaoProvider {
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         // log
-        double minMargin = -raoData.getCracResult(postOptimVariantId).getCost();
-        LOGGER.info("LinearRaoResult: minimum margin = {}, security status: {}", (int) minMargin, minMargin > 0 ?
-            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
+        double minMargin = -raoData.getCracResult(postOptimVariantId).getFunctionalCost();
+        double objFunctionValue = raoData.getCracResult(postOptimVariantId).getCost();
+        LOGGER.info(String.format("LinearRaoResult: minimum margin = %.2f %s, security status = %s, optimisation criterion = %.2f",
+            minMargin, objectiveFunction.getUnit(), raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
+            objFunctionValue));
 
         raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;

@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -18,6 +19,8 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Optional;
+
+import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -31,7 +34,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         buildMinimumMarginVariable(linearProblem);
 
         // build constraints
-        buildMinimumMarginConstraints(raoData, linearProblem);
+        buildMinimumMarginConstraints(raoData, linearProblem, linearProblemParameters);
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
@@ -58,12 +61,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
      *
-     * For each Cnec c, the two constraints are :
+     * For each Cnec c, the two constraints are (if the max margin is defined in MEGAWATT) :
      *
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
+     *
+     * For each Cnec c, the two constraints are (if the max margin is defined in AMPERE) :
+     *
+     * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
+     * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
+    private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
         raoData.getCrac().getCnecs().forEach(cnec -> {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
@@ -80,18 +88,19 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getMinThreshold(Unit.MEGAWATT);
-            maxFlow = cnec.getMaxThreshold(Unit.MEGAWATT);
+            minFlow = cnec.getMinThreshold(MEGAWATT);
+            maxFlow = cnec.getMaxThreshold(MEGAWATT);
+            double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData, linearProblemParameters);
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
+                minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
+                minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });
@@ -132,6 +141,20 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, linearProblemParameters.getPstPenaltyCost());
             }
         });
+    }
+
+    /**
+     * Get unit conversion coefficient
+     * the flows are always defined in MW, so if the minimum margin is defined in ampere,
+     * and appropriate conversion coefficient should be used.
+     */
+    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData, LinearProblemParameters linearProblemParameters) {
+        if (linearProblemParameters.getObjectiveFunction() == LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
+            return 1;
+        } else {
+            // Unom(cnec) * sqrt(3) / 1000
+            return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
+        }
     }
 }
 

@@ -101,8 +101,8 @@ public class IteratingLinearOptimizerTest {
                         cost = 0;
                         break;
                 }
-                raoData.getCracResult().setCost(cost);
-                crac.getExtension(CracResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCost(cost);
+                raoData.getCracResult().setFunctionalCost(cost);
+                crac.getExtension(CracResultExtension.class).getVariant(raoData.getWorkingVariantId()).setFunctionalCost(cost);
                 count += 1;
                 return null;
             }

@@ -7,15 +7,18 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A LinearRaoData is an object that gathers Network, Crac and SystematicSensitivityAnalysisResult data. It manages
@@ -28,7 +31,7 @@ import java.util.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class RaoData {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaoData.class);
     private static final String NO_WORKING_VARIANT = "No working variant is defined.";
     private static final String UNKNOWN_VARIANT = "Unknown variant %s";
 
@@ -271,5 +274,81 @@ public class RaoData {
      */
     public void clear() {
         clearWithKeepingCracResults(Collections.emptyList());
+    }
+
+    /**
+     * add results of the systematic analysis (flows and objective function value) in the
+     * Crac result variant of the situation.
+     */
+    public void fillCracResultsWithSensis(LinearProblemParameters.ObjectiveFunction objectiveFunction, SystematicSensitivityComputation systematicSensitivityComputation) {
+        double minMargin;
+        minMargin = getMinMargin(objectiveFunction);
+        getCracResult().setFunctionalCost(-minMargin);
+        getCracResult().setVirtualCost(systematicSensitivityComputation.isFallback() ?
+            systematicSensitivityComputation.getParameters().getFallbackOvercost() : 0);
+        getCracResult().setNetworkSecurityStatus(minMargin < 0 ?
+            CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
+        updateCnecExtensions();
+    }
+
+    /**
+     * Compute the objective function, the minimal margin.
+     */
+    private double getMinMargin(LinearProblemParameters.ObjectiveFunction objectiveFunction) {
+        if (objectiveFunction == LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
+            return getMinMarginInMegawatt();
+        } else {
+            return getMinMarginInAmpere();
+        }
+    }
+
+    private double getMinMarginInMegawatt() {
+        return getCrac().getCnecs().stream().
+            map(cnec -> cnec.computeMargin(getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), Unit.MEGAWATT)).
+            min(Double::compareTo).orElseThrow(NoSuchElementException::new);
+
+    }
+
+    private double getMinMarginInAmpere() {
+        List<Double> marginsInAmpere = getCrac().getCnecs().stream().map(cnec ->
+            cnec.computeMargin(getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
+        ).collect(Collectors.toList());
+
+        if (marginsInAmpere.contains(Double.NaN)) {
+            LOGGER.warn("No intensities available in fallback mode, the margins are assessed by converting the flows from MW to A with the nominal voltage of each Cnec.");
+            marginsInAmpere = getMarginsInAmpereFromMegawattConversion();
+            /*if (!fallbackMode) {
+                // in default mode, this means that there is an error in the sensitivity computation, or an
+                // incompatibility with the sensitivity computation mode (i.e. the sensitivity computation is
+                // made in DC mode and no intensity are computed).
+                throw new SensitivityComputationException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
+            } else {
+
+                // in fallback, intensities can be missing as the fallback configuration does not necessarily
+                // compute them (example : default in AC, fallback in DC). In that case a fallback computation
+                // of the intensity is made, based on the MEGAWATT values and the nominal voltage
+
+            }*/
+        }
+
+        return marginsInAmpere.stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
+    }
+
+    private List<Double> getMarginsInAmpereFromMegawattConversion() {
+        return getCrac().getCnecs().stream().map(cnec -> {
+                double flowInMW = getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
+                double uNom = getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
+                return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);
+            }
+        ).collect(Collectors.toList());
+    }
+
+    private void updateCnecExtensions() {
+        getCrac().getCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId());
+            cnecResult.setFlowInMW(getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec));
+            cnecResult.setFlowInA(getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec));
+            cnecResult.setThresholds(cnec);
+        });
     }
 }

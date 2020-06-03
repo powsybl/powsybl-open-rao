@@ -80,6 +80,10 @@ public class SimpleLinearOptimizer {
         this.fillerList = createFillerList(raoParameters);
     }
 
+    public LinearProblemParameters getParameters() {
+        return raoParameters.getExtension(LinearProblemParameters.class);
+    }
+
     private static RaoParameters checkRaoParameters(RaoParameters raoParameters) {
         if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
             raoParameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
@@ -189,9 +193,10 @@ public class SimpleLinearOptimizer {
         return new LinearProblem();
     }
 
-    public static void fillCracResults(LinearProblem linearProblem, RaoData raoData) {
+    static void fillCracResults(LinearProblem linearProblem, RaoData raoData) {
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
-        LOGGER.debug(format("Expected minimum margin: %f", linearProblem.getMinimumMarginVariable().solutionValue()));
+        LOGGER.debug(format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
+        LOGGER.debug(format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
         for (RangeAction rangeAction: raoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
@@ -206,7 +211,7 @@ public class SimpleLinearOptimizer {
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
                 pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
-                LOGGER.debug(format("Range action %s has been set to %d", pstRange.getName(), approximatedPostOptimTap));
+                LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
             }
         }
     }

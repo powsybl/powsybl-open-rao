@@ -16,18 +16,9 @@ import static java.lang.Math.max;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
-
-    public enum ObjectiveFunction {
-        MAX_MIN_MARGIN_IN_MEGAWATT,
-        MAX_MIN_MARGIN_IN_AMPERE
-    }
     static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
-    static final double DEFAULT_FALLBACK_OVERCOST = 0;
-    static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
 
     private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
-    private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
-    private double fallbackOvercost = DEFAULT_FALLBACK_OVERCOST;
 
     @Override
     public String getName() {
@@ -41,23 +32,5 @@ public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
 
     public boolean isSecurityAnalysisWithoutRao() {
         return securityAnalysisWithoutRao;
-    }
-
-    public ObjectiveFunction getObjectiveFunction() {
-        return objectiveFunction;
-    }
-
-    public LinearRaoParameters setObjectiveFunction(ObjectiveFunction objectiveFunction) {
-        this.objectiveFunction = objectiveFunction;
-        return this;
-    }
-
-    public double getFallbackOvercost() {
-        return fallbackOvercost;
-    }
-
-    public LinearRaoParameters setFallbackOvercost(double overcost) {
-        this.fallbackOvercost = max(0.0, overcost);
-        return this;
     }
 }

@@ -28,9 +28,7 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setObjectiveFunction(config.getEnumProperty("objective-function", LinearRaoParameters.ObjectiveFunction.class, LinearRaoParameters.DEFAULT_OBJECTIVE_FUNCTION));
             parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", LinearRaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
-            parameters.setFallbackOvercost(config.getDoubleProperty("sensitivity-fallback-overcost", LinearRaoParameters.DEFAULT_FALLBACK_OVERCOST));
         }
         return parameters;
     }
