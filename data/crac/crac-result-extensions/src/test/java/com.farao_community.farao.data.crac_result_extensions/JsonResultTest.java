@@ -75,8 +75,8 @@ public class JsonResultTest {
 
         // CracResult
         CracResultExtension cracResultExtension = simpleCrac.getExtension(CracResultExtension.class);
-        cracResultExtension.getVariant("variant1").setCost(10);
-        cracResultExtension.getVariant("variant1").setNetworkSecurityStatus();
+        cracResultExtension.getVariant("variant1").setFunctionalCost(10);
+        cracResultExtension.getVariant("variant1").setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
 
         // CnecResult
         CnecResultExtension cnecResultExtension = simpleCrac.getCnec("cnec2prev").getExtension(CnecResultExtension.class);
@@ -132,6 +132,8 @@ public class JsonResultTest {
         // assert that the CracResultExtension exists and contains the expected results
         assertNotNull(crac.getExtension(CracResultExtension.class));
         assertEquals(10.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(10.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(0.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, crac.getExtension(CracResultExtension.class).getVariant("variant1").getNetworkSecurityStatus());
 
         // assert that cnecs exist in the crac
@@ -172,7 +174,6 @@ public class JsonResultTest {
         assertNotNull(exportedPstSetpointResultExtension);
         assertTrue(exportedPstSetpointResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
         assertFalse(exportedPstSetpointResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
-
     }
 
     @Test
@@ -188,7 +189,9 @@ public class JsonResultTest {
         // CracResultExtension
         CracResultExtension extCrac = crac.getExtension(CracResultExtension.class);
         assertNotNull(extCrac);
-        assertEquals(10.0, extCrac.getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(15.0, extCrac.getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(10.0, extCrac.getVariant("variant1").getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(5.0, extCrac.getVariant("variant1").getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
 
         // CnecResultExtension
