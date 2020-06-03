@@ -3,7 +3,6 @@
   "rao-with-loop-flow-limitation" : false,
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "range-action-rao" : "myRangeActionRao",
       "stop-criterion" : "MAXIMUM_MARGIN",
       "maximum-search-depth" : 10,
       "relative-network-action-minimum-impact-threshold" : 0.1,

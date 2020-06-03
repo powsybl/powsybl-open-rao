@@ -6,18 +6,15 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
-import com.farao_community.farao.search_tree_rao.config.SearchTreeConfigurationUtil;
 import com.farao_community.farao.search_tree_rao.process.search_tree.Tree;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -37,14 +34,7 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        // quality check
-        List<String> configQualityCheck = SearchTreeConfigurationUtil.checkSearchTreeRaoConfiguration(raoParameters);
-        if (!configQualityCheck.isEmpty()) {
-            throw new FaraoException("There are some issues in RAO parameters:" + System.lineSeparator() + String.join(System.lineSeparator(), configQualityCheck));
-        }
-
-        // run optimisation
-        RaoResult result = Tree.search(network, crac, variantId, raoParameters).join();
+        RaoResult result = Tree.search(network, crac, variantId, raoParameters, computationManager).join();
         return CompletableFuture.completedFuture(result);
     }
 }

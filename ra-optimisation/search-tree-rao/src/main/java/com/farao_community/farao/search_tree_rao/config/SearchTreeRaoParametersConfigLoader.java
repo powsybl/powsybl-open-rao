@@ -28,7 +28,6 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setRangeActionRao(config.getStringProperty("range-action-rao", SearchTreeRaoParameters.DEFAULT_RANGE_ACTION_RAO));
             parameters.setStopCriterion(config.getEnumProperty("stop-criterion", SearchTreeRaoParameters.StopCriterion.class, SearchTreeRaoParameters.DEFAULT_STOP_CRITERION));
             parameters.setMaximumSearchDepth(config.getIntProperty("maximum-search-depth", SearchTreeRaoParameters.DEFAULT_MAXIMUM_SEARCH_DEPTH));
             parameters.setRelativeNetworkActionMinimumImpactThreshold(config.getDoubleProperty("relative-network-action-minimum-impact-threshold", SearchTreeRaoParameters.DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD));

@@ -27,10 +27,6 @@ public final class IteratingLinearOptimizer {
 
     private IteratingLinearOptimizer() { }
 
-    public static String optimize(RaoData raoData, RaoParameters raoParameters) {
-        return optimize(raoData, new SystematicSensitivityComputation(raoParameters), raoParameters);
-    }
-
     public static String optimize(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
         IteratingLinearOptimizerParameters parameters;
         if (!Objects.isNull(raoParameters.getExtension(IteratingLinearOptimizerParameters.class))) {

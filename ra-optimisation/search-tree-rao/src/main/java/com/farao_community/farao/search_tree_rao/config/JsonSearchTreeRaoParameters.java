@@ -25,7 +25,6 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     @Override
     public void serialize(SearchTreeRaoParameters searchTreeRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("range-action-rao", searchTreeRaoParameters.getRangeActionRao());
         jsonGenerator.writeObjectField("stop-criterion", searchTreeRaoParameters.getStopCriterion());
         jsonGenerator.writeNumberField("maximum-search-depth", searchTreeRaoParameters.getMaximumSearchDepth());
         jsonGenerator.writeNumberField("relative-network-action-minimum-impact-threshold", searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold());
@@ -40,9 +39,6 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "range-action-rao":
-                    parameters.setRangeActionRao(jsonParser.nextTextValue());
-                    break;
                 case "stop-criterion":
                     parameters.setStopCriterion(getStopCriterionFromString(jsonParser.nextTextValue()));
                     break;

@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,18 +86,18 @@ class Leaf {
         }
     }
 
-    Leaf(RaoData raoData, RaoParameters raoParameters) {
-        this(raoData, raoParameters, new SystematicSensitivityComputation(raoParameters));
+    Leaf(RaoData raoData, RaoParameters raoParameters, ComputationManager computationManager) {
+        this(raoData, raoParameters, new SystematicSensitivityComputation(raoParameters, computationManager));
     }
 
     /**
      * Leaf constructor
      */
-    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters) {
+    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters, ComputationManager computationManager) {
         networkActions = new HashSet<>(parentLeaf.networkActions);
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
-        this.systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
+        this.systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters, computationManager);
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant

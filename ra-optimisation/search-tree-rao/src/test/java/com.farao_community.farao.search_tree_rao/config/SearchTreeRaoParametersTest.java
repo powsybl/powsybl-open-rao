@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -33,16 +32,6 @@ public class SearchTreeRaoParametersTest {
     public void testExtensionRecognition() {
         assertTrue(parameters.getExtensionByName("SearchTreeRaoParameters") instanceof SearchTreeRaoParameters);
         assertNotNull(parameters.getExtension(SearchTreeRaoParameters.class));
-    }
-
-    @Test
-    public void testSettersAndGetters() {
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
-        // range-action-rao
-        searchTreeRaoParameters.setRangeActionRao("LinearRao");
-        assertNotNull(searchTreeRaoParameters.getRangeActionRao());
-        // name
-        assertEquals("SearchTreeRaoParameters", searchTreeRaoParameters.getName());
     }
 
     @Test

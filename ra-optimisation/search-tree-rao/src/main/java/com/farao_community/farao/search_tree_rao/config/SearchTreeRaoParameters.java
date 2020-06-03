@@ -20,13 +20,11 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         MAXIMUM_MARGIN
     }
 
-    static final String DEFAULT_RANGE_ACTION_RAO = "LinearRao";
     static final StopCriterion DEFAULT_STOP_CRITERION = StopCriterion.POSITIVE_MARGIN;
     static final int DEFAULT_MAXIMUM_SEARCH_DEPTH = Integer.MAX_VALUE;
     static final double DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD = 0;
     static final int DEFAULT_LEAVES_IN_PARALLEL = 1;
 
-    private String rangeActionRao = DEFAULT_RANGE_ACTION_RAO;
     private StopCriterion stopCriterion = DEFAULT_STOP_CRITERION;
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -36,14 +34,6 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     @Override
     public String getName() {
         return "SearchTreeRaoParameters";
-    }
-
-    public String getRangeActionRao() {
-        return rangeActionRao;
-    }
-
-    public void setRangeActionRao(String rangeActionRaoName) {
-        this.rangeActionRao = rangeActionRaoName;
     }
 
     public StopCriterion getStopCriterion() {

@@ -11,9 +11,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.config.SearchTreeRaoParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,20 +49,27 @@ public final class Tree {
     private static Leaf optimalLeaf;
     private static RaoParameters raoParameters;
     private static SearchTreeRaoParameters searchTreeRaoParameters;
+    private static ComputationManager computationManager;
 
     private Tree() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    private static void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
+    private static void init(Network network, Crac crac, String variantId, RaoParameters raoParameters, ComputationManager computationManager) {
         Tree.raoParameters = raoParameters;
-        searchTreeRaoParameters = raoParameters.getExtensionByName("SearchTreeRaoParameters");
-        rootLeaf = new Leaf(RaoUtil.initRaoData(network, crac, variantId, raoParameters), raoParameters);
+        Tree.computationManager = computationManager;
+        if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
+            searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
+        } else {
+            searchTreeRaoParameters = new SearchTreeRaoParameters();
+        }
+        RaoData rootRaoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
+        rootLeaf = new Leaf(rootRaoData, raoParameters, computationManager);
         optimalLeaf = rootLeaf;
     }
 
-    public static CompletableFuture<RaoResult> search(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
-        init(network, crac, variantId, raoParameters);
+    public static CompletableFuture<RaoResult> search(Network network, Crac crac, String variantId, RaoParameters raoParameters, ComputationManager computationManager) {
+        init(network, crac, variantId, raoParameters, computationManager);
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
@@ -69,18 +78,18 @@ public final class Tree {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
-        } else if (stopCriterionChecked(rootLeaf)) {
+        } else if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
         rootLeaf.optimize();
         LOGGER.info(rootLeaf.toString());
-        if (stopCriterionChecked(rootLeaf)) {
+        if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
 
         int depth = 0;
         boolean hasImproved = true;
-        while (depth < searchTreeRaoParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionChecked(optimalLeaf)) {
+        while (depth < searchTreeRaoParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
             LOGGER.info(format("Research depth: %d - [start]", depth));
             previousDepthOptimalLeaf = optimalLeaf;
             updateOptimalLeafWithNextDepthLeaves();
@@ -130,22 +139,22 @@ public final class Tree {
     }
 
     private static void optimizeNextLeaf(NetworkAction networkAction, Network network) {
-        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
+        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters, computationManager);
         leaf.evaluate();
         LOGGER.debug(leaf.toString());
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
             leaf.clearVariants();
         } else {
-            if (!stopCriterionChecked(leaf) || !improvedEnough(leaf)) {
+            if (!stopCriterionReached(leaf)) {
                 leaf.optimize();
                 LOGGER.info(leaf.toString());
             }
+            leaf.cleanVariants(); // delete pre-optim variant if post-optim variant is better
             updateOptimalLeafAndCleanVariants(leaf);
         }
     }
 
     private static synchronized void updateOptimalLeafAndCleanVariants(Leaf leaf) {
-        leaf.cleanVariants(); // delete pre-optim variant if post-optim variant is better
         if (improvedEnough(leaf)) {
             if (optimalLeaf != previousDepthOptimalLeaf) {
                 optimalLeaf.clearVariants();
@@ -162,8 +171,7 @@ public final class Tree {
      * @param leaf: Leaf to evaluate.
      * @return True if the stop criterion has been reached on this leaf.
      */
-    private static boolean stopCriterionChecked(Leaf leaf) {
-        // stop criterion check
+    private static boolean stopCriterionReached(Leaf leaf) {
         if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
             return leaf.getBestCost() < 0;
         } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
