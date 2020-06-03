@@ -7,6 +7,8 @@
 package com.farao_community.farao.linear_rao.config;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public final class LinearRaoConfigurationUtil {
      * @param raoParameters RAO parameters
      * @return a list of configuration issues
      */
-    public static List<String> checkLinearRaoConfiguration(RaoParameters raoParameters) {
+    public static List<String> checkLinearRaoConfiguration(RaoParameters raoParameters, Crac crac) {
         List<String> errors = new ArrayList<>();
 
         // Check that correct extension is provided
@@ -44,6 +46,18 @@ public final class LinearRaoConfigurationUtil {
             errors.add(e.getMessage());
             return errors;
         }
+
+        // loopflows extension vs. loopflow parameters
+        if (raoParameters.isRaoWithLoopFlowLimitation() && Objects.isNull(crac.getExtension(CracLoopFlowExtension.class))) {
+            errors.add("Loop flow parameters are inconsistent with CRAC loopflow extension");
+        }
+
+        /*
+         todo : check that the objective-function is compatible with the sensi mode. If the objective
+          function is "MAX_MARGIN_IN_AMPERE" and the sensi is in DC mode, throw an exception
+          (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
+          the AC/DC information of the sensi).
+         */
 
         return errors;
     }

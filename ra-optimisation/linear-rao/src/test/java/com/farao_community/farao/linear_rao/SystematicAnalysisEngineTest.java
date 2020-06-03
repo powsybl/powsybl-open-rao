@@ -48,6 +48,7 @@ public class SystematicAnalysisEngineTest {
     private LinearRaoData initialLinearRaoData;
     private SystematicSensitivityAnalysisResult systematicAnalysisResultOk;
     private SystematicSensitivityAnalysisResult systematicAnalysisResultFailed;
+    private LinearRaoParameters linearRaoParameters;
 
     @Before
     public void setUp() {
@@ -60,12 +61,17 @@ public class SystematicAnalysisEngineTest {
 
         initialLinearRaoData = new LinearRaoData(network, crac);
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+
+        linearRaoParameters = new LinearRaoParameters();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setRaoWithLoopFlowLimitation(false);
+        raoParameters.addExtension(LinearRaoParameters.class, linearRaoParameters);
     }
 
     @Test
-    public void testRunDefaultConfigOk() {
+    public void testRunDefaultConfigOkWithMinMarginInMegawatt() {
 
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
+        linearRaoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         // mock sensi service - run OK
@@ -73,16 +79,43 @@ public class SystematicAnalysisEngineTest {
             .thenReturn(systematicAnalysisResultOk);
 
         // run engine
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
         systematicAnalysisEngine.run(initialLinearRaoData);
 
         // assert results
         assertNotNull(initialLinearRaoData);
         assertFalse(systematicAnalysisEngine.isFallback());
         String resultVariant = initialLinearRaoData.getWorkingVariantId();
-        assertEquals(10.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        assertEquals(15.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        assertEquals(1400.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(2000.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
 
+        // cnec2basebase is the limiting cnec, with a threshold of 1500 A (= 1500 * 380 * sqrt(3) / 1000 MW)
+        assertEquals(-((1500 * 380 * Math.sqrt(3) / 1000) - 1400.0), initialLinearRaoData.getCracResult(resultVariant).getCost(), FLOW_TOLERANCE);
+    }
+
+    @Test
+    public void testRunDefaultConfigOkWithMinMarginInAmpere() {
+
+        linearRaoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
+
+        // mock sensi service - run OK
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(systematicAnalysisResultOk);
+
+        // run engine
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
+        systematicAnalysisEngine.run(initialLinearRaoData);
+
+        // assert results
+        assertNotNull(initialLinearRaoData);
+        assertFalse(systematicAnalysisEngine.isFallback());
+        String resultVariant = initialLinearRaoData.getWorkingVariantId();
+        assertEquals(1400.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(2000.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+
+        // cnec2basebase is the limiting cnec, with a threshold of 1500 A (= 1500 * 380 * sqrt(3) / 1000 MW)
+        assertEquals(-(1500.0 - 2000.0), initialLinearRaoData.getCracResult(resultVariant).getCost(), FLOW_TOLERANCE);
     }
 
     @Test
@@ -131,8 +164,8 @@ public class SystematicAnalysisEngineTest {
         // assert
         assertTrue(systematicAnalysisEngine.isFallback());
         String resultVariant = initialLinearRaoData.getWorkingVariantId();
-        assertEquals(10.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        assertEquals(15.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        assertEquals(1400.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        assertEquals(2000.0, initialLinearRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
     }
 
     @Test
@@ -169,15 +202,15 @@ public class SystematicAnalysisEngineTest {
         Mockito.when(result.isSuccess()).thenReturn(true);
         crac.getCnecs().forEach(cnec -> {
             if (cnec.getId().equals("cnec2basecase")) {
-                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(10.);
-                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(15.);
+                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(1400.);
+                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(2000.);
                 crac.getRangeActions().forEach(rangeAction -> {
                     Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(random.nextDouble());
                     Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(random.nextDouble());
                 });
             } else {
-                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(random.nextDouble());
-                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(random.nextDouble());
+                Mockito.when(result.getReferenceFlow(cnec)).thenReturn(0.0);
+                Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(0.0);
                 crac.getRangeActions().forEach(rangeAction -> {
                     Mockito.when(result.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(random.nextDouble());
                     Mockito.when(result.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(random.nextDouble());
@@ -195,10 +228,9 @@ public class SystematicAnalysisEngineTest {
 
     @Test
     public void testLoopflowRelated() {
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
         systematicAnalysisEngine.setLoopflowViolation(true);
         assertTrue(systematicAnalysisEngine.isLoopflowViolation());
     }

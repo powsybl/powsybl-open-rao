@@ -103,6 +103,14 @@ public class CracFactorsProvider implements SensitivityFactorsProvider {
         String name = networkElement.getName();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
         if (networkIdentifiable instanceof Branch) {
+
+            /*
+             todo : do not create the BranchIntensity here if the sensi is run in DC. Otherwise PowSyBl
+              returns tons of ERROR logs in DC mode as it cannot handle those sensitivity functions in DC mode.
+              (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
+              the AC/DC information of the sensi).
+             */
+
             return Arrays.asList(new BranchFlow(id, name, id), new BranchIntensity(id, name, id));
         } else {
             throw new FaraoException("Unable to create sensitivity function for " + id);

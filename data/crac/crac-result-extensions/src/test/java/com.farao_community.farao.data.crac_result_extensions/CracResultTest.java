@@ -17,32 +17,46 @@ import static org.junit.Assert.assertEquals;
  */
 public class CracResultTest {
 
-    private double epsilon = 0.0;
+    private double epsilon = 0.01;
 
     @Test
     public void securedCracResult() {
-        double cost = -5;
-        CracResult securedCracResult = new CracResult(cost);
+        CracResult securedCracResult = new CracResult(CracResult.NetworkSecurityStatus.SECURED, -5, 0);
+
         assertEquals(CracResult.NetworkSecurityStatus.SECURED, securedCracResult.getNetworkSecurityStatus());
-        assertEquals(cost, securedCracResult.getCost(), epsilon);
+        assertEquals(-5, securedCracResult.getCost(), epsilon);
+        assertEquals(-5, securedCracResult.getFunctionalCost(), epsilon);
+        assertEquals(0., securedCracResult.getVirtualCost(), epsilon);
+
     }
 
     @Test
     public void unsecuredCracResult() {
-        double cost = 5;
-        CracResult unsecuredCracResult = new CracResult(cost);
+        CracResult unsecuredCracResult = new CracResult(5);
+        unsecuredCracResult.setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
+
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, unsecuredCracResult.getNetworkSecurityStatus());
-        assertEquals(cost, unsecuredCracResult.getCost(), epsilon);
+        assertEquals(5, unsecuredCracResult.getCost(), epsilon);
+        assertEquals(5, unsecuredCracResult.getFunctionalCost(), epsilon);
+        assertEquals(0, unsecuredCracResult.getVirtualCost(), epsilon);
     }
 
     @Test
-    public void unknownCracResult() {
-        CracResult unknownCracResult = new CracResult();
-        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, unknownCracResult.getNetworkSecurityStatus());
-        assertEquals(Double.NaN, unknownCracResult.getCost(), epsilon);
-        double cost = -5;
-        unknownCracResult.setCost(cost);
-        assertEquals(CracResult.NetworkSecurityStatus.SECURED, unknownCracResult.getNetworkSecurityStatus());
-        assertEquals(cost, unknownCracResult.getCost(), epsilon);
+    public void securedCracResultWithPositiveCost() {
+        CracResult securedCracResult = new CracResult(CracResult.NetworkSecurityStatus.SECURED, -5, 10);
+
+        assertEquals(CracResult.NetworkSecurityStatus.SECURED, securedCracResult.getNetworkSecurityStatus());
+        assertEquals(5, securedCracResult.getCost(), epsilon);
+        assertEquals(-5, securedCracResult.getFunctionalCost(), epsilon);
+        assertEquals(10, securedCracResult.getVirtualCost(), epsilon);
+    }
+
+    @Test
+    public void updateCosts() {
+        CracResult cracResult = new CracResult();
+        cracResult.setFunctionalCost(5);
+        assertEquals(5, cracResult.getCost(), epsilon);
+        cracResult.setVirtualCost(15);
+        assertEquals(20, cracResult.getCost(), epsilon);
     }
 }
