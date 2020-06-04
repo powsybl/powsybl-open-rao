@@ -27,12 +27,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Set;
 
@@ -42,8 +37,6 @@ import static org.mockito.ArgumentMatchers.any;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({IteratingLinearOptimizer.class})
 public class LeafTest {
 
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
@@ -57,11 +50,11 @@ public class LeafTest {
     private RaoData raoDataMock;
     private RaoParameters raoParameters;
     private SystematicSensitivityComputation systematicSensitivityComputation;
+    private IteratingLinearOptimizer iteratingLinearOptimizer;
     private ComputationManager computationManager;
 
     @Before
     public void setUp() {
-        PowerMockito.mockStatic(IteratingLinearOptimizer.class);
         // network
         network = NetworkImportsUtil.import12NodesNetwork();
 
@@ -81,6 +74,7 @@ public class LeafTest {
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(true);
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
+        iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         computationManager = LocalComputationManager.getDefault();
 
         // rao parameters
@@ -191,8 +185,8 @@ public class LeafTest {
     @Test
     public void testOptimizeWithRangeActions() {
         crac.addRangeAction(new PstWithRange("pst", new NetworkElement("test")));
-        BDDMockito.given(IteratingLinearOptimizer.optimize(any(), any(), any())).willReturn("successful");
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
+        Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation, iteratingLinearOptimizer);
         Mockito.doNothing().when(systematicSensitivityComputation).run(raoData);
         rootLeaf.evaluate();
         rootLeaf.optimize();

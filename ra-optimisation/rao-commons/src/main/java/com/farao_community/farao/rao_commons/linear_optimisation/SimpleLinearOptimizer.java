@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.rao_commons.ParametersException;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
@@ -82,10 +81,8 @@ public class SimpleLinearOptimizer {
     }
 
     private static RaoParameters checkRaoParameters(RaoParameters raoParameters) {
-        if (raoParameters.getExtension(LinearProblemParameters.class) == null) {
-            String msg = "Simple linear optimizer cannot be created because LinearProblemParameters extension is missing";
-            LOGGER.error(msg);
-            throw new ParametersException(msg);
+        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
+            raoParameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
         }
         return raoParameters;
     }

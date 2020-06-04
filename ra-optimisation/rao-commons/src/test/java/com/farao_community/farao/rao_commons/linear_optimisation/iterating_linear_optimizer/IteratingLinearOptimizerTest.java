@@ -141,11 +141,10 @@ public class IteratingLinearOptimizerTest {
 
         systematicSensitivityComputation.run(raoData);
         // run an iterating optimization
-        String bestVariantId = IteratingLinearOptimizer.optimize(
-            raoData,
+        String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             simpleLinearOptimizer,
-            raoParameters.getExtension(IteratingLinearOptimizerParameters.class));
+            raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(raoData);
 
         // check results
         assertNotNull(bestVariantId);
@@ -154,7 +153,7 @@ public class IteratingLinearOptimizerTest {
 
         // In the end CRAC should contain results only for pre-optim variant and post-optim variant
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
-        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(2)));
+        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(1)));
         assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
         assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(preOptimVariant)

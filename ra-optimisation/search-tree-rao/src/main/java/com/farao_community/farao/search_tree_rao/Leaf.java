@@ -37,6 +37,7 @@ class Leaf {
     private String optimizedVariantId;
     private final RaoParameters raoParameters;
     private final SystematicSensitivityComputation systematicSensitivityComputation;
+    private final IteratingLinearOptimizer iteratingLinearOptimizer;
 
     /**
      * Network Actions which will be tested (including the
@@ -73,10 +74,11 @@ class Leaf {
      * It is built directly from a RaoData on which a systematic sensitivity analysis could hav already been run or not.
      */
     // This constructor is useful to mock SystematicSensitivityComputation in LeafTest
-    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation, IteratingLinearOptimizer iteratingLinearOptimizer) {
         this.networkActions = new HashSet<>(); // Root leaf has no network action
         this.raoParameters = raoParameters;
         this.systematicSensitivityComputation = systematicSensitivityComputation;
+        this.iteratingLinearOptimizer = iteratingLinearOptimizer;
         this.raoData = raoData;
         initialVariantId = raoData.getInitialVariantId();
         if (raoData.hasSensitivityValues()) {
@@ -90,6 +92,10 @@ class Leaf {
         this(raoData, raoParameters, new SystematicSensitivityComputation(raoParameters, computationManager));
     }
 
+    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+        this(raoData, raoParameters, systematicSensitivityComputation, new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters));
+    }
+
     /**
      * Leaf constructor
      */
@@ -98,6 +104,7 @@ class Leaf {
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
         this.systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters, computationManager);
+        this.iteratingLinearOptimizer = new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
@@ -170,7 +177,7 @@ class Leaf {
         if (status.equals(Status.EVALUATED)) {
             if (!raoData.getCrac().getRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
-                optimizedVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
+                optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
                 activateNetworkActionInCracResult(optimizedVariantId);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");

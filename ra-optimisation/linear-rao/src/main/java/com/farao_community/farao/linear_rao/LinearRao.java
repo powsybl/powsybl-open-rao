@@ -14,7 +14,6 @@ import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.NativeLibraryLoader;
@@ -56,12 +55,15 @@ public class LinearRao implements RaoProvider {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
         SystematicSensitivityComputation systematicSensitivityComputation =
             new SystematicSensitivityComputation(raoParameters, computationManager);
+        IteratingLinearOptimizer iteratingLinearOptimizer =
+            new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
 
-        return run(raoData, systematicSensitivityComputation, raoParameters);
+        return run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters);
     }
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation
-    CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
+    CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation,
+                                     IteratingLinearOptimizer iteratingLinearOptimizer, RaoParameters raoParameters) {
         try {
             LOGGER.info("Initial systematic analysis [start]");
             systematicSensitivityComputation.run(raoData);
@@ -75,7 +77,7 @@ public class LinearRao implements RaoProvider {
             return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation));
         }
 
-        String bestVariantId = IteratingLinearOptimizer.optimize(raoData, systematicSensitivityComputation, raoParameters);
+        String bestVariantId = iteratingLinearOptimizer.optimize(raoData);
 
         return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, bestVariantId, systematicSensitivityComputation));
     }
@@ -102,7 +104,6 @@ public class LinearRao implements RaoProvider {
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
         resultExtension.setSuccessfulSystematicSensitivityAnalysisStatus(systematicSensitivityComputation.isFallback());
-        resultExtension.setLpStatus(LinearRaoResult.LpStatus.RUN_OK);
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         // log
@@ -121,19 +122,15 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantId(raoData.getWorkingVariantId());
+        raoResult.setPostOptimVariantId(raoData.getInitialVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
-        if (e instanceof SensitivityComputationException) {
-            resultExtension.setSystematicSensitivityAnalysisStatus(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE);
-        } else if (e instanceof LinearOptimisationException) {
-            resultExtension.setLpStatus(LinearRaoResult.LpStatus.FAILURE);
-        }
+        resultExtension.setSystematicSensitivityAnalysisStatus(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE);
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
-        raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), raoData.getWorkingVariantId()));
+        raoData.clearWithKeepingCracResults(Collections.singletonList(raoData.getInitialVariantId()));
 
         return raoResult;
     }
