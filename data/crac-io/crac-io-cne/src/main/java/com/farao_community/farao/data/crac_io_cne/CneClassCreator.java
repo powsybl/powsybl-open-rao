@@ -167,10 +167,16 @@ public final class CneClassCreator {
         return partyMarketParticipant;
     }
 
-    public static RemedialActionSeries newRemedialActionSeries(String id, String name, String marketObjectStatus) {
+    public static RemedialActionSeries newRemedialActionSeries(String id, String name) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(cutString(id, 60));
         remedialActionSeries.setName(name);
+
+        return remedialActionSeries;
+    }
+
+    public static RemedialActionSeries newRemedialActionSeries(String id, String name, String marketObjectStatus) {
+        RemedialActionSeries remedialActionSeries = newRemedialActionSeries(id, name);
         remedialActionSeries.setApplicationModeMarketObjectStatusStatus(marketObjectStatus);
 
         return remedialActionSeries;
