@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.csv_exporter;
 
-import com.farao_community.farao.data.glsk.import_.EICode;
+import com.farao_community.farao.util.EICode;
 import org.slf4j.LoggerFactory;
 
 /**
