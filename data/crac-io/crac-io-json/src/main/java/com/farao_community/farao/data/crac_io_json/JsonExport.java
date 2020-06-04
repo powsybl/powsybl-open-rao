@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Network;
 
 import java.io.*;
 
@@ -50,5 +51,10 @@ public class JsonExport implements CracExporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
+        exportCrac(crac, outputStream);
     }
 }

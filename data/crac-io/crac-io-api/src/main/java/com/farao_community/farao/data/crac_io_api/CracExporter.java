@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.powsybl.iidm.network.Network;
+
 import java.io.OutputStream;
 
 /**
@@ -21,4 +23,6 @@ public interface CracExporter {
     String getFormat();
 
     void exportCrac(Crac crac, OutputStream outputStream);
+
+    void exportCrac(Crac crac, Network network, OutputStream outputStream);
 }

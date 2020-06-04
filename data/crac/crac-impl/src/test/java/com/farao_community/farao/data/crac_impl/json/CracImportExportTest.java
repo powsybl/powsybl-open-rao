@@ -22,6 +22,7 @@ import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.*;
@@ -111,6 +112,8 @@ public class CracImportExportTest {
             Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO)),
             Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
         ));
+
+        simpleCrac.setNetworkDate(new DateTime(2020, 5, 14, 11, 35));
 
         Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
         assertEquals(5, crac.getNetworkElements().size());
