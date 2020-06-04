@@ -30,13 +30,6 @@ public class CneExportTest {
         Crac crac = CracImporters.importCrac("US2-3-crac1-standard.json", getClass().getResourceAsStream("/US2-3-crac1-standard.json"));
         Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
 
-        // build object
-        Cne cne = new Cne(crac, network);
-        cne.generate();
-        CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
-
-        assertEquals("1", marketDocument.getRevisionNumber());
-
         // export CNE file
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(crac, network, "CNE", outputStream);
