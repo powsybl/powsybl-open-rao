@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
@@ -69,6 +70,7 @@ public class Cne {
                 cneHelper.initializeAttributes(crac, cracExtension, variants);
 
                 // fill CNE
+                createAllConstraintSeries(point, crac);
             }
         } else { // Failure of computation
             LOGGER.warn("Failure of computation");
@@ -103,5 +105,30 @@ public class Cne {
         } catch (DatatypeConfigurationException e) {
             throw new FaraoException("Failure in TimeSeries creation");
         }
+    }
+
+    /*****************
+     CONSTRAINT_SERIES
+     *****************/
+    // Creates and fills all ConstraintSeries
+    private void createAllConstraintSeries(Point point, Crac crac) {
+
+        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+
+        /* Contingencies */
+        // post contingency
+        crac.getContingencies().forEach(contingency -> {
+            if (!cneHelper.getConstraintSeriesMap().containsKey(contingency)) {
+                ConstraintSeries constraintSeries = newConstraintSeries(newContingencySeries(contingency.getId(), contingency.getName()));
+                cneHelper.addToConstraintSeriesMap(contingency, constraintSeries);
+            }
+        });
+        // basecase
+        cneHelper.addToConstraintSeriesMap(new ComplexContingency("BASECASE"), new ConstraintSeries());
+
+        /* Monitored Elements*/
+
+        /* Remedial Actions*/
+        point.constraintSeries = constraintSeriesList;
     }
 }

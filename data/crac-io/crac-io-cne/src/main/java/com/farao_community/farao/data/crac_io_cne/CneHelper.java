@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
@@ -14,9 +15,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.PATL_MEASUREMENT_TYPE;
@@ -32,6 +31,7 @@ public class CneHelper {
     private List<Instant> instants;
     private String preOptimVariantId;
     private String postOptimVariantId;
+    private Map<Contingency, ConstraintSeries> constraintSeriesMap;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneHelper.class);
 
@@ -42,6 +42,15 @@ public class CneHelper {
         instants = new ArrayList<>();
         preOptimVariantId = "";
         postOptimVariantId = "";
+        constraintSeriesMap = new HashMap<>();
+    }
+
+    public Map<Contingency, ConstraintSeries> getConstraintSeriesMap() {
+        return constraintSeriesMap;
+    }
+
+    public void addToConstraintSeriesMap(Contingency contingency, ConstraintSeries constraintSeries) {
+        constraintSeriesMap.put(contingency, constraintSeries);
     }
 
     public List<Instant> getInstants() {
