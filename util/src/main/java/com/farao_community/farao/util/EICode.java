@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *  Copyright (c) 2020, RTE (http://www.rte-france.com)
+ *  This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.glsk.import_;
+package com.farao_community.farao.util;
 
 import com.powsybl.iidm.network.Country;
 
@@ -27,10 +27,24 @@ public class EICode {
     private String codeString; //find in Market_Areas_v1.0.pdf
 
     /**
+     * country
+     */
+    private Country country;
+
+    /**
      * @param codeString default constructor
      */
     public EICode(String codeString) {
         this.codeString = codeString;
+        this.country = getCountry();
+    }
+
+    /**
+     * @param country default constructor
+     */
+    public EICode(Country country) {
+        this.country = country;
+        this.codeString = getCode();
     }
 
     /**
@@ -67,7 +81,38 @@ public class EICode {
             case "10YCS-CG-TSO---S" : return Country.ME;
             case "10YGR-HTSO-----Y" : return Country.GR;
             case "10YIT-GRTN-----B" : return Country.IT;
-            default: throw new IllegalArgumentException("Unknown EICode.");
+            default: throw new IllegalArgumentException(String.format("Unknown EICode: %s.", codeString));
+        }
+    }
+
+    public String getCode() {
+        switch (country) {
+            case BE : return "10YBE----------2";
+            case SK : return "10YSK-SEPS-----K";
+            case DE : return "10YCB-GERMANY--8";
+            case HU : return "10YHU-MAVIR----U";
+            case NL : return "10YNL----------L";
+            case AT : return "10YAT-APG------L";
+            case CZ : return "10YCZ-CEPS-----N";
+            case HR : return "10YHR-HEP------M";
+            case PL : return "10YPL-AREA-----S";
+            case RO : return "10YRO-TEL------P";
+            case SI : return "10YSI-ELES-----O";
+            case FR : return "10YFR-RTE------C";
+            case ES : return "10YES-REE------0";
+            case RS : return "10YCS-SERBIATSOV";
+            case CH : return "10YCH-SWISSGRIDZ";
+            case PT : return "10YPT-REN------W";
+            case BG : return "10YCA-BULGARIA-R";
+            case AL : return "10YAL-KESH-----5";
+            case TR : return "10YTR-TEIAS----W";
+            case UA : return "10Y1001C--00003F";
+            case MK : return "10YMK-MEPSO----8";
+            case BA : return "10YBA-JPCC-----D";
+            case ME : return "10YCS-CG-TSO---S";
+            case GR : return "10YGR-HTSO-----Y";
+            case IT : return "10YIT-GRTN-----B";
+            default: throw new IllegalArgumentException(String.format("Unknown Country %s.", country.toString()));
         }
     }
 
