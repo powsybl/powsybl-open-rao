@@ -44,4 +44,34 @@ public class EICodeTest {
         assertEquals(Country.GR, new EICode("10YGR-HTSO-----Y").getCountry());
         assertEquals(Country.IT, new EICode("10YIT-GRTN-----B").getCountry());
     }
+
+    @Test
+    public void testEicCodeFromCountry() {
+        assertEquals("10YAT-APG------L", new EICode(Country.AT).getCode());
+        assertEquals("10YBE----------2", new EICode(Country.BE).getCode());
+        assertEquals("10YCZ-CEPS-----N", new EICode(Country.CZ).getCode());
+        assertEquals("10YCB-GERMANY--8", new EICode(Country.DE).getCode());
+        assertEquals("10YFR-RTE------C", new EICode(Country.FR).getCode());
+        assertEquals("10YHR-HEP------M", new EICode(Country.HR).getCode());
+        assertEquals("10YHU-MAVIR----U", new EICode(Country.HU).getCode());
+        assertEquals("10YNL----------L", new EICode(Country.NL).getCode());
+        assertEquals("10YPL-AREA-----S", new EICode(Country.PL).getCode());
+        assertEquals("10YRO-TEL------P", new EICode(Country.RO).getCode());
+        assertEquals("10YSI-ELES-----O", new EICode(Country.SI).getCode());
+        assertEquals("10YSK-SEPS-----K", new EICode(Country.SK).getCode());
+        assertEquals("10YES-REE------0", new EICode(Country.ES).getCode());
+        assertEquals("10YCS-SERBIATSOV", new EICode(Country.RS).getCode());
+        assertEquals("10YCH-SWISSGRIDZ", new EICode(Country.CH).getCode());
+        assertEquals("10YPT-REN------W", new EICode(Country.PT).getCode());
+        assertEquals("10YCA-BULGARIA-R", new EICode(Country.BG).getCode());
+        assertEquals("10YAL-KESH-----5", new EICode(Country.AL).getCode());
+        assertEquals("10YTR-TEIAS----W", new EICode(Country.TR).getCode());
+        assertEquals("10Y1001C--00003F", new EICode(Country.UA).getCode());
+        assertEquals("10YMK-MEPSO----8", new EICode(Country.MK).getCode());
+        assertEquals("10YBA-JPCC-----D", new EICode(Country.BA).getCode());
+        assertEquals("10YCS-CG-TSO---S", new EICode(Country.ME).getCode());
+        assertEquals("10YGR-HTSO-----Y", new EICode(Country.GR).getCode());
+        assertEquals("10YIT-GRTN-----B", new EICode(Country.IT).getCode());
+    }
+
 }
