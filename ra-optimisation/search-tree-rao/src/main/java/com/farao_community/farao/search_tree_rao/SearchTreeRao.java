@@ -133,7 +133,7 @@ public class SearchTreeRao implements RaoProvider {
             LOGGER.info(format("Leaves to evaluate: %d", networkActions.size()));
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
-        Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from optimal previous depth network to keep previous optimization of range actions
+        Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
         LOGGER.debug(format("Evaluating %d leaves in parallel", searchTreeRaoParameters.getLeavesInParallel()));
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), searchTreeRaoParameters.getLeavesInParallel())) {
             networkPool.submit(() -> networkActions.parallelStream().forEach(networkAction -> {

@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.core;
 
-import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemConfigLoader;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import org.junit.Before;

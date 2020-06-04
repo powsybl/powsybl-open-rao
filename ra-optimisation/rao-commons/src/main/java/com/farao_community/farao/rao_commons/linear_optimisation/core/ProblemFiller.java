@@ -8,7 +8,6 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.core;
 
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}

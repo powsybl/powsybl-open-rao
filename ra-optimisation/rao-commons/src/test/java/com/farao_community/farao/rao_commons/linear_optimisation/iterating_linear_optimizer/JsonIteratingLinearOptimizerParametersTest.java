@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 

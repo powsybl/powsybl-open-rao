@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtens
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.parameters.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.*;

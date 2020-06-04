@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.parameters;
+package com.farao_community.farao.rao_commons.linear_optimisation.core;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
@@ -21,24 +21,29 @@ import java.io.IOException;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @AutoService(JsonRaoParameters.ExtensionSerializer.class)
-public class JsonIteratingLinearOptimizerParameters implements JsonRaoParameters.ExtensionSerializer<IteratingLinearOptimizerParameters> {
+public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionSerializer<LinearProblemParameters> {
 
     @Override
-    public void serialize(IteratingLinearOptimizerParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LinearProblemParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
+        jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
+        jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public IteratingLinearOptimizerParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        IteratingLinearOptimizerParameters parameters = new IteratingLinearOptimizerParameters();
+    public LinearProblemParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        LinearProblemParameters parameters = new LinearProblemParameters();
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "max-number-of-iterations":
+                case "pst-penalty-cost":
                     jsonParser.nextToken();
-                    parameters.setMaxIterations(jsonParser.getIntValue());
+                    parameters.setPstPenaltyCost(jsonParser.getDoubleValue());
+                    break;
+                case "pst-sensitivity-threshold":
+                    jsonParser.nextToken();
+                    parameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -50,7 +55,7 @@ public class JsonIteratingLinearOptimizerParameters implements JsonRaoParameters
 
     @Override
     public String getExtensionName() {
-        return "IteratingLinearOptimizerParameters";
+        return "LinearProblemParameters";
     }
 
     @Override
@@ -59,7 +64,7 @@ public class JsonIteratingLinearOptimizerParameters implements JsonRaoParameters
     }
 
     @Override
-    public Class<? super IteratingLinearOptimizerParameters> getExtensionClass() {
-        return IteratingLinearOptimizerParameters.class;
+    public Class<? super LinearProblemParameters> getExtensionClass() {
+        return LinearProblemParameters.class;
     }
 }

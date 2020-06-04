@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons.systematic_sensitivity;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.parameters.SystematicSensitivityComputationParameters;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Test;
