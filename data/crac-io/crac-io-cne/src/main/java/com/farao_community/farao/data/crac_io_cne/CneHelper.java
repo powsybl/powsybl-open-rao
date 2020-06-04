@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class CneHelper {
     private String preOptimVariantId;
     private String postOptimVariantId;
     private Map<Contingency, ConstraintSeries> constraintSeriesMap;
+    private Contingency basecase;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CneHelper.class);
 
@@ -43,6 +45,11 @@ public class CneHelper {
         preOptimVariantId = "";
         postOptimVariantId = "";
         constraintSeriesMap = new HashMap<>();
+        basecase = new ComplexContingency("BASECASE");
+    }
+
+    public Contingency getBasecase() {
+        return basecase;
     }
 
     public Map<Contingency, ConstraintSeries> getConstraintSeriesMap() {

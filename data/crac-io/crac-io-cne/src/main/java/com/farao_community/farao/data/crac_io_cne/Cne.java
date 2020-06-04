@@ -8,8 +8,9 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
@@ -21,6 +22,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
@@ -124,11 +126,41 @@ public class Cne {
             }
         });
         // basecase
-        cneHelper.addToConstraintSeriesMap(new ComplexContingency("BASECASE"), new ConstraintSeries());
+        cneHelper.addToConstraintSeriesMap(cneHelper.getBasecase(), new ConstraintSeries());
 
         /* Monitored Elements*/
+        crac.getCnecs().forEach(cnec -> {
+            // find the corresponding constraint series
+            Optional<Contingency> optionalContingency = cnec.getState().getContingency();
+            ConstraintSeries constraintSeries;
+            if (optionalContingency.isPresent()) {
+                constraintSeries = cneHelper.getConstraintSeriesMap().get(optionalContingency.get());
+            } else {
+                constraintSeries = cneHelper.getConstraintSeriesMap().get(cneHelper.getBasecase());
+            }
+
+            // initialize monitoredSeries if not done already
+            if (constraintSeries.monitoredSeries == null) {
+                constraintSeries.monitoredSeries = new ArrayList<>();
+            }
+
+            Optional<MonitoredSeries> optionalMonitoredSeries = constraintSeries.monitoredSeries.stream().filter(monitoredSeries -> monitoredSeriesContainsACnec(monitoredSeries, cnec)).findFirst();
+            if (optionalMonitoredSeries.isPresent()) {
+                if (optionalMonitoredSeries.get().getMRID().equals(cnec.getNetworkElement().getId())) {
+                    // TODO: complete the monitoredSeries
+                }
+            } else {
+                // TODO: create a monitoredSeries with new MonitoredResource
+                constraintSeries.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName()));
+            }
+        });
 
         /* Remedial Actions*/
+
         point.constraintSeries = constraintSeriesList;
+    }
+
+    private boolean monitoredSeriesContainsACnec(MonitoredSeries monitoredSeries, Cnec cnec) {
+        return monitoredSeries.getMRID().equals(cnec.getId());
     }
 }
