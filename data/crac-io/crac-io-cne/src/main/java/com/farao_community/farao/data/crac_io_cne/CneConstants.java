@@ -93,15 +93,5 @@ public final class CneConstants {
     // marketObjectStatus.status
     public static final String ABSOLUTE_MARKET_OBJECT_STATUS = "A26";
 
-    /* Reason */
-    // code
-    public static final String SECURE_REASON_CODE = "Z13";
-    public static final String UNSECURE_REASON_CODE = "Z03";
-    public static final String OTHER_FAILURE_REASON_CODE = "999";
-    // type
-    public static final String SECURE_REASON_TEXT = "Situation is secure";
-    public static final String UNSECURE_REASON_TEXT = "Situation is unsecure";
-    public static final String OTHER_FAILURE_REASON_TEXT = "Other failure";
-
     private CneConstants() { }
 }

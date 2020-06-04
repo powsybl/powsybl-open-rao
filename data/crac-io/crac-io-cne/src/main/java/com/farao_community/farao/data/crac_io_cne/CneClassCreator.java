@@ -66,17 +66,6 @@ public final class CneClassCreator {
     }
 
     /*****************
-     REASON
-     *****************/
-    public static Reason newReason(String code, String text) {
-        Reason reason = new Reason();
-        reason.setCode(code);
-        reason.setText(cutString(text, 512));
-
-        return reason;
-    }
-
-    /*****************
      CONSTRAINT SERIES
      *****************/
     public static ConstraintSeries newConstraintSeries(String businessType, String optimStatus) {

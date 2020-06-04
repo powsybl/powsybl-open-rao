@@ -69,13 +69,9 @@ public class Cne {
 
                 // fill CNE
                 createAllConstraintSeries(point, crac);
-                addSuccessReasonToPoint(point, cracExtension.getVariant(cneHelper.getPostOptimVariantId()).getNetworkSecurityStatus());
-            } else {
-                addFailureReasonToPoint(point);
-                throw new FaraoException(String.format("Number of variants is %s (different from 2).", variants.size()));
             }
         } else { // Failure of computation
-            addFailureReasonToPoint(point);
+            LOGGER.warn("Failure of computation");
         }
     }
 
@@ -99,22 +95,6 @@ public class Cne {
     /*****************
      TIME_SERIES and REASON
      *****************/
-    // creates the Reason of a Point after the end of the rao
-    private void addSuccessReasonToPoint(Point point, CracResult.NetworkSecurityStatus status) {
-        if (status.equals(CracResult.NetworkSecurityStatus.SECURED)) {
-            point.reason = Collections.singletonList(newReason(SECURE_REASON_CODE, SECURE_REASON_TEXT));
-        } else if (status.equals(CracResult.NetworkSecurityStatus.UNSECURED)) {
-            point.reason = Collections.singletonList(newReason(UNSECURE_REASON_CODE, UNSECURE_REASON_TEXT));
-        } else {
-            throw new FaraoException(String.format("Unexpected status %s.", status));
-        }
-    }
-
-    // creates the Reason of a Point after a failure
-    private void addFailureReasonToPoint(Point point) {
-        point.reason = Collections.singletonList(newReason(OTHER_FAILURE_REASON_CODE, OTHER_FAILURE_REASON_TEXT));
-    }
-
     // creates and adds the TimeSeries to the CNE
     private void addTimeSeriesToCne(DateTime networkDate) {
         try {
