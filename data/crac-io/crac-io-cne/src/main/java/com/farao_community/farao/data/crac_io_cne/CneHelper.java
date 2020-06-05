@@ -81,8 +81,9 @@ public class CneHelper {
         return crac;
     }
 
-    public void initializeAttributes(Crac crac, CracResultExtension cracExtension, Set<String> variantsSet) {
-        List<String> variants = new ArrayList<>(variantsSet);
+    public void initializeAttributes() {
+        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+        List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
 
         // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
         instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
