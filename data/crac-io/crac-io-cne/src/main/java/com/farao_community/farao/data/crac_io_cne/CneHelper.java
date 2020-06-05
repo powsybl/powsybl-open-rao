@@ -13,13 +13,9 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
