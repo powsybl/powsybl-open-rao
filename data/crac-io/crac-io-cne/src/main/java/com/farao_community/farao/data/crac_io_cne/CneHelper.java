@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.PATL_MEASUREMENT_TYPE;
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.TATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -50,6 +49,10 @@ public class CneHelper {
 
     public Contingency getBasecase() {
         return basecase;
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     public Map<Contingency, ConstraintSeries> getConstraintSeriesMap() {
@@ -97,7 +100,7 @@ public class CneHelper {
         }
     }
 
-    private String instantToCodeConverter(Instant instant) {
+    public String instantToCodeConverter(Instant instant) {
         if (instant.equals(instants.get(0))) { // Before contingency
             return PATL_MEASUREMENT_TYPE;
         } else { // After contingency, before any post-contingency RA
