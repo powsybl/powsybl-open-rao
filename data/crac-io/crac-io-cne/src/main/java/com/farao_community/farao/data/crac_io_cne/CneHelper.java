@@ -34,8 +34,6 @@ public class CneHelper {
     private Map<Contingency, ConstraintSeries> constraintSeriesMap;
     private Contingency basecase;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CneHelper.class);
-
     public CneHelper(Crac crac, Network network) {
 
         this.crac = crac;
@@ -97,14 +95,6 @@ public class CneHelper {
                 maxCost = cracExtension.getVariant(variant).getCost();
                 preOptimVariantId = variant;
             }
-        }
-    }
-
-    public String instantToCodeConverter(Instant instant) {
-        if (instant.equals(instants.get(0))) { // Before contingency
-            return PATL_MEASUREMENT_TYPE;
-        } else { // After contingency, before any post-contingency RA
-            return TATL_MEASUREMENT_TYPE;
         }
     }
 

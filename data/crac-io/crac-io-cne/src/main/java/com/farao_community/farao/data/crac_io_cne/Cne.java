@@ -69,7 +69,7 @@ public class Cne {
                 cneHelper.initializeAttributes(crac, cracExtension, variants);
 
                 // fill CNE
-                createAllConstraintSeries(point, crac);
+                createAllConstraintSeries(point);
             }
         } else { // Failure of computation
             LOGGER.warn("Failure of computation");
@@ -110,9 +110,8 @@ public class Cne {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private void createAllConstraintSeries(Point point, Crac crac) {
+    private void createAllConstraintSeries(Point point) {
 
-        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        point.constraintSeries = constraintSeriesList;
+        point.constraintSeries = new ArrayList<>();
     }
 }

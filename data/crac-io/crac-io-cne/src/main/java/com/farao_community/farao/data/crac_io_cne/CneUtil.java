@@ -8,9 +8,6 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_result_extensions.*;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -20,9 +17,6 @@ import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.*;
-
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
 
 /**
  * Auxiliary methods
@@ -60,27 +54,11 @@ public final class CneUtil {
     }
 
     // Creation of ID with code scheme
-    public static AreaIDString createAreaIDString(String codingScheme, String value) {
-        AreaIDString domainMRID = new AreaIDString();
-        domainMRID.setCodingScheme(codingScheme);
-        domainMRID.setValue(cutString(value, 18));
-        return domainMRID;
-    }
-
-    // Creation of ID with code scheme
     public static PartyIDString createPartyIDString(String codingScheme, String value) {
         PartyIDString marketParticipantMRID = new PartyIDString();
         marketParticipantMRID.setCodingScheme(codingScheme);
         marketParticipantMRID.setValue(cutString(value, 16));
         return marketParticipantMRID;
-    }
-
-    // Creation of ID with code scheme
-    public static ResourceIDString createResourceIDString(String codingScheme, String value) {
-        ResourceIDString resourceMRID = new ResourceIDString();
-        resourceMRID.setCodingScheme(codingScheme);
-        resourceMRID.setValue(cutString(value, 60));
-        return resourceMRID;
     }
 
     // Generates a random code with 35 characters
@@ -89,44 +67,7 @@ public final class CneUtil {
         return String.format("%s-%s-%s-%s", Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()), Integer.toHexString(random.nextInt()));
     }
 
-    public static String createRangeActionId(String id, int setpoint) {
-        return String.format("%s@%s@", id, setpoint);
-    }
-
-    public static boolean isActivated(String stateId, RangeActionResult preOptimRangeActionResult, RangeActionResult postOptimRangeActionResult) {
-        if (!Double.isNaN(preOptimRangeActionResult.getSetPoint(stateId)) && !Double.isNaN(postOptimRangeActionResult.getSetPoint(stateId))) {
-            return postOptimRangeActionResult.getSetPoint(stateId) != preOptimRangeActionResult.getSetPoint(stateId);
-        }
-        return false;
-    }
-
-    public static boolean isActivated(String stateId, NetworkActionResult preOptimNetworkActionResult, NetworkActionResult postOptimNetworkActionResult) {
-        return postOptimNetworkActionResult.isActivated(stateId) != preOptimNetworkActionResult.isActivated(stateId);
-    }
-
     public static String cutString(String string, int maxChar) {
         return string.substring(0, Math.min(string.length(), maxChar));
-    }
-
-    public static float limitFloatInterval(double value) {
-        return (float) Math.min(Math.round(Math.abs(value)), 100000);
-    }
-
-    public static String findNodeInNetwork(String id, Network network, Branch.Side side) {
-        try {
-            return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
-        } catch (NullPointerException e) {
-            return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
-        }
-    }
-
-    public static String computeAbsMarginMeasType(String measurementType) {
-        String absMarginMeasType = "";
-        if (measurementType.equals(PATL_MEASUREMENT_TYPE)) {
-            absMarginMeasType = ABS_MARG_PATL_MEASUREMENT_TYPE;
-        } else if (measurementType.equals(TATL_MEASUREMENT_TYPE)) {
-            absMarginMeasType = ABS_MARG_TATL_MEASUREMENT_TYPE;
-        }
-        return absMarginMeasType;
     }
 }
