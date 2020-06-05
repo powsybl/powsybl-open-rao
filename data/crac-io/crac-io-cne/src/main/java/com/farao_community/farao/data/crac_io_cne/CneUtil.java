@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -92,40 +91,6 @@ public final class CneUtil {
 
     public static String createRangeActionId(String id, int setpoint) {
         return String.format("%s@%s@", id, setpoint);
-    }
-
-    /**
-     * Returns the list of Preventive Remedial Actions activated
-     */
-    private static List<RemedialAction<?>> getListOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
-        List<RemedialAction<?>> pras = new ArrayList<>();
-        String preventiveState = crac.getPreventiveState().getId();
-        for (RangeAction rangeAction : crac.getRangeActions()) {
-            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
-            if (rangeActionResultExtension.getVariant(preOptimVariantId) != null
-                && rangeActionResultExtension.getVariant(postOptimVariantId) != null
-                && rangeActionResultExtension.getVariant(preOptimVariantId) instanceof PstRangeResult
-                && rangeActionResultExtension.getVariant(postOptimVariantId) instanceof PstRangeResult
-                && isActivated(preventiveState, rangeActionResultExtension.getVariant(preOptimVariantId), rangeActionResultExtension.getVariant(postOptimVariantId))) {
-                pras.add(rangeAction);
-            }
-        }
-        for (NetworkAction networkAction : crac.getNetworkActions()) {
-            NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
-            if (networkActionResultExtension.getVariant(preOptimVariantId) != null
-                && networkActionResultExtension.getVariant(postOptimVariantId) != null
-                && isActivated(preventiveState, networkActionResultExtension.getVariant(preOptimVariantId), networkActionResultExtension.getVariant(postOptimVariantId))) {
-                pras.add(networkAction);
-            }
-        }
-        return pras;
-    }
-
-    /**
-     * Returns the number of Preventive Remedial Actions activated
-     */
-    public static int getNumberOfPra(Crac crac, String preOptimVariantId, String postOptimVariantId) {
-        return getListOfPra(crac, preOptimVariantId, postOptimVariantId).size();
     }
 
     public static boolean isActivated(String stateId, RangeActionResult preOptimRangeActionResult, RangeActionResult postOptimRangeActionResult) {
