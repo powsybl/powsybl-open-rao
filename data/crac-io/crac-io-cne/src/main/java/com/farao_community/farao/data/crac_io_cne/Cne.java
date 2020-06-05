@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
@@ -55,7 +56,7 @@ public class Cne {
         cneHelper.initializeAttributes();
 
         // fill CNE
-        createAllConstraintSeries(point);
+        createAllConstraintSeries(point, cneHelper.getCrac());
     }
 
     /*****************
@@ -76,7 +77,7 @@ public class Cne {
     }
 
     /*****************
-     TIME_SERIES and REASON
+     TIME_SERIES
      *****************/
     // creates and adds the TimeSeries to the CNE
     private void addTimeSeriesToCne(DateTime networkDate) {
@@ -92,8 +93,47 @@ public class Cne {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private void createAllConstraintSeries(Point point) {
+    private void createAllConstraintSeries(Point point, Crac crac) {
 
-        point.constraintSeries = new ArrayList<>();
+        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+
+        /* Contingencies */
+        // post contingency
+        crac.getContingencies().forEach(contingency -> {
+            if (!cneHelper.getConstraintSeriesMap().containsKey(contingency)) {
+                ConstraintSeries constraintSeries = newConstraintSeries(newContingencySeries(contingency.getId(), contingency.getName()));
+                cneHelper.addToConstraintSeriesMap(contingency, constraintSeries);
+            }
+        });
+        // basecase
+        cneHelper.addToConstraintSeriesMap(cneHelper.getBasecase(), new ConstraintSeries());
+
+        /* Get the constraint series from the ConstraintSeriesMap */
+        // B54
+        cneHelper.getConstraintSeriesMap().forEach((contingency, constraintSeries) -> {
+            ConstraintSeries constraintSeriesB54 = duplicateConstraintSeries(constraintSeries);
+            ConstraintSeries constraintSeriesB56 = duplicateConstraintSeries(constraintSeries);
+            ConstraintSeries constraintSeriesB57 = duplicateConstraintSeries(constraintSeries);
+            ConstraintSeries constraintSeriesB88 = duplicateConstraintSeries(constraintSeries);
+
+            constraintSeriesB54.setMRID(generateRandomMRID());
+            constraintSeriesB54.setBusinessType(B54_BUSINESS_TYPE);
+            constraintSeriesList.add(constraintSeriesB54);
+
+            constraintSeriesB56.setMRID(generateRandomMRID());
+            constraintSeriesB56.setBusinessType(B56_BUSINESS_TYPE);
+            constraintSeriesList.add(constraintSeriesB56);
+
+            constraintSeriesB57.setMRID(generateRandomMRID());
+            constraintSeriesB57.setBusinessType(B57_BUSINESS_TYPE);
+            constraintSeriesList.add(constraintSeriesB57);
+
+            constraintSeriesB88.setMRID(generateRandomMRID());
+            constraintSeriesB88.setBusinessType(B88_BUSINESS_TYPE);
+            constraintSeriesList.add(constraintSeriesB88);
+        });
+
+        /* Add all constraint series to the CNE */
+        point.constraintSeries = constraintSeriesList;
     }
 }

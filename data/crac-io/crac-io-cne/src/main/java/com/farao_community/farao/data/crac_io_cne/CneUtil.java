@@ -70,4 +70,27 @@ public final class CneUtil {
     public static String cutString(String string, int maxChar) {
         return string.substring(0, Math.min(string.length(), maxChar));
     }
+
+    public static ConstraintSeries duplicateConstraintSeries(ConstraintSeries constraintSeries) {
+        ConstraintSeries newConstraintSeries = new ConstraintSeries();
+        if (constraintSeries.contingencySeries != null) {
+            newConstraintSeries.contingencySeries = duplicateContingencySeriesList(constraintSeries.contingencySeries);
+        }
+        return newConstraintSeries;
+    }
+
+    public static List<ContingencySeries> duplicateContingencySeriesList(List<ContingencySeries> contingencySeriesList) {
+        List<ContingencySeries> newContingencySeriesList = new ArrayList<>();
+        contingencySeriesList.forEach(contingencySeries -> newContingencySeriesList.add(duplicateContingencySeries(contingencySeries)));
+        return newContingencySeriesList;
+    }
+
+    public static ContingencySeries duplicateContingencySeries(ContingencySeries contingencySeries) {
+        ContingencySeries newContingencySeries = new ContingencySeries();
+        newContingencySeries.setMRID(contingencySeries.getMRID());
+        if (contingencySeries.getName() != null) {
+            newContingencySeries.setName(contingencySeries.getName());
+        }
+        return newContingencySeries;
+    }
 }

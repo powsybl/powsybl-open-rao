@@ -31,8 +31,9 @@ public class CneGenerationTest {
         Cne cne = new Cne(crac, network);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
+        Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        assertEquals("1", marketDocument.getRevisionNumber());
+        assertEquals(4, point.getConstraintSeries().size());
     }
 
     @Test
@@ -45,7 +46,8 @@ public class CneGenerationTest {
         Cne cne = new Cne(crac, network);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
+        Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        assertEquals("1", marketDocument.getRevisionNumber());
+        assertEquals(8, point.getConstraintSeries().size());
     }
 }
