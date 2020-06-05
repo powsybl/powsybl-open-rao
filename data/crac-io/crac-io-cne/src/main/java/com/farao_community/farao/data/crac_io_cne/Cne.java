@@ -10,6 +10,11 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -58,7 +63,7 @@ public class Cne {
         cneHelper.initializeAttributes();
 
         // fill CNE
-        createAllConstraintSeries(point, cneHelper.getCrac());
+        createAllConstraintSeries(point);
     }
 
     /*****************
@@ -95,7 +100,10 @@ public class Cne {
      CONSTRAINT_SERIES
      *****************/
     // Creates and fills all ConstraintSeries
-    private void createAllConstraintSeries(Point point, Crac crac) {
+    private void createAllConstraintSeries(Point point) {
+
+        Crac crac = cneHelper.getCrac();
+        Network network = cneHelper.getNetwork();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
@@ -115,6 +123,118 @@ public class Cne {
             }
 
             /* Add critical network element */
+            List<Analog> measurementsB54 = new ArrayList<>();
+            List<Analog> measurementsB57 = new ArrayList<>();
+            List<Analog> measurementsB88 = new ArrayList<>();
+
+            CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
+            if (cnecResultExtension != null) {
+
+                // B54 & B57
+                CnecResult cnecResultPost = cnecResultExtension.getVariant(cneHelper.getPostOptimVariantId());
+                if (cnecResultPost != null) {
+                    // Flow and threshold in A
+                    if (!Double.isNaN(cnecResultPost.getFlowInA()) && !Double.isNaN(cnecResultPost.getMaxThresholdInA())) {
+                        measurementsB54.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.AMPERE, cnecResultPost.getFlowInA()));
+                        measurementsB57.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.AMPERE, cnecResultPost.getFlowInA()));
+                        String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
+
+                        String absMarginMeasType = computeAbsMarginMeasType(measurementType);
+                        double value = cnecResultPost.getMaxThresholdInA() - cnecResultPost.getFlowInA();
+                        if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
+                            measurementsB54.add(newMeasurement(absMarginMeasType, Unit.AMPERE, value));
+                            measurementsB54.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, Unit.AMPERE, -value));
+                        } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
+                            measurementsB57.add(newMeasurement(absMarginMeasType, Unit.AMPERE, value));
+                            measurementsB57.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, Unit.AMPERE, -value));
+                        }
+                    }
+                    // Flow and threshold in MW
+                    if (!Double.isNaN(cnecResultPost.getFlowInMW()) && !Double.isNaN(cnecResultPost.getMaxThresholdInMW())) {
+                        measurementsB54.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPost.getFlowInMW()));
+                        measurementsB57.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPost.getFlowInMW()));
+                        String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
+
+                        String absMarginMeasType = computeAbsMarginMeasType(measurementType);
+                        double value = cnecResultPost.getMaxThresholdInMW() - cnecResultPost.getFlowInMW();
+                        if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
+                            measurementsB54.add(newMeasurement(absMarginMeasType, Unit.MEGAWATT, value));
+                            measurementsB54.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, Unit.MEGAWATT, -value));
+                        } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
+                            measurementsB57.add(newMeasurement(absMarginMeasType, Unit.MEGAWATT, value));
+                            measurementsB57.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, Unit.MEGAWATT, -value));
+                        }
+                    }
+                    // TODO: sumPTDF
+
+                    // loopflow
+                    if (!Double.isNaN(cnecResultPost.getLoopflowInMW()) && !Double.isNaN(cnecResultPost.getLoopflowThresholdInMW())) {
+                        measurementsB54.add(newMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPost.getLoopflowInMW()));
+                        measurementsB54.add(newMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPost.getLoopflowThresholdInMW()));
+                        measurementsB57.add(newMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPost.getLoopflowInMW()));
+                        measurementsB57.add(newMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPost.getLoopflowThresholdInMW()));
+                    }
+
+                    // B88
+                    CnecResult cnecResultPre = cnecResultExtension.getVariant(cneHelper.getPreOptimVariantId());
+                    if (cnecResultPre != null) {
+                        // Flow and threshold in A
+                        if (!Double.isNaN(cnecResultPre.getFlowInA()) && !Double.isNaN(cnecResultPre.getMaxThresholdInA())) {
+                            measurementsB88.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.AMPERE, cnecResultPre.getFlowInA()));
+                            String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
+                            measurementsB88.add(newMeasurement(measurementType, Unit.AMPERE, cnecResultPre.getMaxThresholdInA()));
+
+                            String absMarginMeasType = computeAbsMarginMeasType(measurementType);
+                            double value = cnecResultPre.getMaxThresholdInA() - cnecResultPre.getFlowInA();
+                            if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
+                                measurementsB88.add(newMeasurement(absMarginMeasType, Unit.AMPERE, value));
+                                measurementsB88.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, Unit.AMPERE, -value));
+                            } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
+                                measurementsB88.add(newMeasurement(absMarginMeasType, Unit.AMPERE, value));
+                                measurementsB88.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, Unit.AMPERE, -value));
+                            }
+                        }
+                        // Flow and threshold in MW
+                        if (!Double.isNaN(cnecResultPre.getFlowInMW()) && !Double.isNaN(cnecResultPre.getMaxThresholdInMW())) {
+                            measurementsB88.add(newMeasurement(FLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPre.getFlowInMW()));
+                            String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
+                            measurementsB88.add(newMeasurement(cneHelper.instantToCodeConverter(cnec.getState().getInstant()), Unit.MEGAWATT, cnecResultPost.getMaxThresholdInMW()));
+
+                            String absMarginMeasType = computeAbsMarginMeasType(measurementType);
+                            double value = cnecResultPre.getMaxThresholdInMW() - cnecResultPre.getFlowInMW();
+                            if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
+                                measurementsB88.add(newMeasurement(absMarginMeasType, Unit.MEGAWATT, value));
+                                measurementsB88.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, Unit.MEGAWATT, -value));
+                            } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
+                                measurementsB88.add(newMeasurement(absMarginMeasType, Unit.MEGAWATT, value));
+                                measurementsB88.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, Unit.MEGAWATT, -value));
+                            }
+                        }
+                        // FRM
+                        if (cnec instanceof SimpleCnec && Double.isNaN(((SimpleCnec) cnec).getFrm())) {
+                            measurementsB88.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, ((SimpleCnec) cnec).getFrm()));
+                        }
+
+                        // TODO: sumPTDF
+
+                        // loopflow
+                        if (!Double.isNaN(cnecResultPre.getLoopflowInMW()) && !Double.isNaN(cnecResultPre.getLoopflowThresholdInMW())) {
+                            measurementsB54.add(newMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPre.getLoopflowInMW()));
+                            measurementsB54.add(newMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResultPre.getLoopflowThresholdInMW()));
+                        }
+                    }
+
+                    MonitoredRegisteredResource monitoredRegisteredResourceB54 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB54);
+                    constraintSeriesB54.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB54));
+
+                    MonitoredRegisteredResource monitoredRegisteredResourceB57 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB57);
+                    constraintSeriesB57.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB57));
+
+                    MonitoredRegisteredResource monitoredRegisteredResourceB88 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB88);
+                    constraintSeriesB88.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB88));
+
+                }
+            }
 
             /* Add constraint series to the list */
             constraintSeriesList.add(constraintSeriesB54);
