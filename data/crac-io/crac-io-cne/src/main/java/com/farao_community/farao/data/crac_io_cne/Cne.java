@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
@@ -18,6 +19,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
@@ -97,39 +99,26 @@ public class Cne {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
-        /* Contingencies */
-        // post contingency
-        crac.getContingencies().forEach(contingency -> {
-            if (!cneHelper.getConstraintSeriesMap().containsKey(contingency)) {
-                ConstraintSeries constraintSeries = newConstraintSeries(newContingencySeries(contingency.getId(), contingency.getName()));
-                cneHelper.addToConstraintSeriesMap(contingency, constraintSeries);
+        crac.getCnecs().forEach(cnec -> {
+            // TODO: replace HU by the country of the cnec
+            ConstraintSeries constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, "HU", OPTIMIZED_MARKET_STATUS);
+            ConstraintSeries constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, "HU", OPTIMIZED_MARKET_STATUS);
+            ConstraintSeries constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, "HU", OPTIMIZED_MARKET_STATUS);
+
+            /* Add contingency if exists */
+            Optional<Contingency> optionalContingency = cnec.getState().getContingency();
+            if (optionalContingency.isPresent()) {
+                ContingencySeries contingencySeries = newContingencySeries(optionalContingency.get().getId(), optionalContingency.get().getName());
+                constraintSeriesB54.contingencySeries.add(contingencySeries);
+                constraintSeriesB57.contingencySeries.add(contingencySeries);
+                constraintSeriesB88.contingencySeries.add(contingencySeries);
             }
-        });
-        // basecase
-        cneHelper.addToConstraintSeriesMap(cneHelper.getBasecase(), new ConstraintSeries());
 
-        /* Get the constraint series from the ConstraintSeriesMap */
-        // B54
-        cneHelper.getConstraintSeriesMap().forEach((contingency, constraintSeries) -> {
-            ConstraintSeries constraintSeriesB54 = duplicateConstraintSeries(constraintSeries);
-            ConstraintSeries constraintSeriesB56 = duplicateConstraintSeries(constraintSeries);
-            ConstraintSeries constraintSeriesB57 = duplicateConstraintSeries(constraintSeries);
-            ConstraintSeries constraintSeriesB88 = duplicateConstraintSeries(constraintSeries);
+            /* Add critical network element */
 
-            constraintSeriesB54.setMRID(generateRandomMRID());
-            constraintSeriesB54.setBusinessType(B54_BUSINESS_TYPE);
+            /* Add constraint series to the list */
             constraintSeriesList.add(constraintSeriesB54);
-
-            constraintSeriesB56.setMRID(generateRandomMRID());
-            constraintSeriesB56.setBusinessType(B56_BUSINESS_TYPE);
-            constraintSeriesList.add(constraintSeriesB56);
-
-            constraintSeriesB57.setMRID(generateRandomMRID());
-            constraintSeriesB57.setBusinessType(B57_BUSINESS_TYPE);
             constraintSeriesList.add(constraintSeriesB57);
-
-            constraintSeriesB88.setMRID(generateRandomMRID());
-            constraintSeriesB88.setBusinessType(B88_BUSINESS_TYPE);
             constraintSeriesList.add(constraintSeriesB88);
         });
 

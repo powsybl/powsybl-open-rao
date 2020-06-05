@@ -33,7 +33,7 @@ public class CneGenerationTest {
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        assertEquals(4, point.getConstraintSeries().size());
+        assertEquals(3, point.getConstraintSeries().size());
     }
 
     @Test
@@ -48,6 +48,6 @@ public class CneGenerationTest {
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        assertEquals(8, point.getConstraintSeries().size());
+        assertEquals(6, point.getConstraintSeries().size());
     }
 }

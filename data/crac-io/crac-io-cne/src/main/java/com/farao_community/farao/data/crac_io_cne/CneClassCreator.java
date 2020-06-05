@@ -7,10 +7,13 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.util.EICode;
+import com.powsybl.iidm.network.Country;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
@@ -62,27 +65,39 @@ public final class CneClassCreator {
     /*****************
      CONSTRAINT SERIES
      *****************/
-    public static ConstraintSeries newConstraintSeries(String businessType, String optimStatus) {
-        ConstraintSeries constraintSeries = new ConstraintSeries();
+    public static ConstraintSeries fillConstraintSeries(ConstraintSeries constraintSeries, String businessType) {
         constraintSeries.setMRID(cutString(generateRandomMRID(), 60));
         constraintSeries.setBusinessType(businessType);
-        constraintSeries.setOptimizationMarketObjectStatusStatus(optimStatus);
-
         return constraintSeries;
     }
 
     public static ConstraintSeries fillConstraintSeries(ConstraintSeries constraintSeries, String businessType, String optimStatus) {
-        constraintSeries.setMRID(cutString(generateRandomMRID(), 60));
-        constraintSeries.setBusinessType(businessType);
+        fillConstraintSeries(constraintSeries, businessType);
         constraintSeries.setOptimizationMarketObjectStatusStatus(optimStatus);
         return constraintSeries;
     }
 
-    public static ConstraintSeries newConstraintSeries(ContingencySeries contingencySeries) {
+    public static ConstraintSeries newConstraintSeries(String id, String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
-        constraintSeries.contingencySeries = Collections.singletonList(contingencySeries);
+        constraintSeries.setMRID(cutString(id, 60));
+        constraintSeries.setBusinessType(businessType);
+        constraintSeries.contingencySeries = new ArrayList<>();
 
         return constraintSeries;
+    }
+
+    public static ConstraintSeries newConstraintSeries(String id, String businessType, String country, String optimStatus) {
+        ConstraintSeries constraintSeries = newConstraintSeries(id, businessType);
+        constraintSeries.partyMarketParticipant = Collections.singletonList(newPartyMarketParticipant(country));
+        constraintSeries.setOptimizationMarketObjectStatusStatus(optimStatus);
+
+        return constraintSeries;
+    }
+
+    public static PartyMarketParticipant newPartyMarketParticipant(String country) {
+        PartyMarketParticipant partyMarketParticipant = new PartyMarketParticipant();
+        partyMarketParticipant.setMRID(createPartyIDString("A01", new EICode(Country.valueOf(country)).getCode()));
+        return partyMarketParticipant;
     }
 
     /*****************
