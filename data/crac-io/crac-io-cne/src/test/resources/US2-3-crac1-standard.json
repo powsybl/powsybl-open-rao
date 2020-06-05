@@ -1,0 +1,211 @@
+{
+  "type" : "simple-crac",
+  "id" : "SecurityLimitUS23",
+  "name" : "SecurityLimitUS23",
+  "networkDate" : "2020-05-18T12:56:57Z",
+  "networkElements" : [ {
+    "type" : "NetworkElement",
+    "id" : "FFR3AA1  FFR2AA1  2",
+    "name" : "FFR3AA1  FFR2AA1  2"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "FFR3AA1  FFR2AA1  1",
+    "name" : "FFR3AA1  FFR2AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "FFR4AA1  FFR3AA1  1",
+    "name" : "FFR4AA1  FFR3AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "FFR1AA1  FFR2AA1  1",
+    "name" : "FFR1AA1  FFR2AA1  1"
+  } ],
+  "instants" : [ {
+    "type" : "Instant",
+    "id" : "N",
+    "seconds" : -1,
+    "name" : "N"
+  } ],
+  "contingencies" : [ ],
+  "states" : [ {
+    "type" : "simple-state",
+    "id" : "none-N",
+    "contingency" : null,
+    "instant" : "N"
+  } ],
+  "cnecs" : [ {
+    "type" : "simple-cnec",
+    "id" : "FFR1AA1  FFR2AA1  1 - N - preventive",
+    "name" : "Threshold12",
+    "networkElement" : "FFR1AA1  FFR2AA1  1",
+    "state" : "none-N",
+    "frm" : 0.0,
+    "thresholds" : [ {
+      "type" : "relative-flow-threshold",
+      "side" : "LEFT",
+      "direction" : "BOTH",
+      "percentageOfMax" : 95.0,
+      "unit" : "AMPERE"
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "cnec-result",
+            "flowInMW" : 2277.985595703125,
+            "flowInA" : 13185.580078125,
+            "minThresholdInMW" : -2303.627574066607,
+            "maxThresholdInMW" : 2303.627574066607,
+            "minThresholdInA" : -3325.0,
+            "maxThresholdInA" : 3325.0
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "cnec-result",
+            "flowInMW" : 2853.35498046875,
+            "flowInA" : 16540.271484375,
+            "minThresholdInMW" : -2303.627574066607,
+            "maxThresholdInMW" : 2303.627574066607,
+            "minThresholdInA" : -3325.0,
+            "maxThresholdInA" : 3325.0
+          }
+        }
+      }
+    }
+  } ],
+  "rangeActions" : [ {
+    "type" : "pst-with-range",
+    "id" : "SelectTapPST43",
+    "name" : "SelectTapPST43",
+    "operator" : "RTE",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "state" : "none-N"
+    } ],
+    "networkElements" : [ "FFR4AA1  FFR3AA1  1" ],
+    "ranges" : [ {
+      "min" : 1.0,
+      "max" : 33.0,
+      "rangeType" : "ABSOLUTE_FIXED",
+      "rangeDefinition" : "STARTS_AT_ONE"
+    } ],
+    "extensions" : {
+      "RangeActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "none-N" : -16
+            },
+            "setPointPerStates" : {
+              "none-N" : -6.22764253616333
+            }
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "none-N" : 0
+            },
+            "setPointPerStates" : {
+              "none-N" : 0.0
+            }
+          }
+        }
+      }
+    }
+  } ],
+  "networkActions" : [ {
+    "type" : "complex-network-action",
+    "id" : "OpenLine321",
+    "name" : "OpenLine321",
+    "operator" : "RTE",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "state" : "none-N"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "OpenLine321",
+      "name" : "OpenLine321",
+      "operator" : "RTE",
+      "usageRules" : [ ],
+      "networkElements" : [ "FFR3AA1  FFR2AA1  1" ],
+      "actionType" : "OPEN"
+    } ],
+    "extensions" : {
+      "NetworkActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false
+            }
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false
+            }
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "complex-network-action",
+    "id" : "CloseLine322",
+    "name" : "CloseLine322",
+    "operator" : "RTE",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "state" : "none-N"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "CloseLine322",
+      "name" : "CloseLine322",
+      "operator" : "RTE",
+      "usageRules" : [ ],
+      "networkElements" : [ "FFR3AA1  FFR2AA1  2" ],
+      "actionType" : "CLOSE"
+    } ],
+    "extensions" : {
+      "NetworkActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : true
+            }
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false
+            }
+          }
+        }
+      }
+    }
+  } ],
+  "extensions" : {
+    "ResultVariantManager" : {
+      "variantIds" : [ "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e", "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" ]
+    },
+    "CracResultExtension" : {
+      "resultsPerVariant" : {
+        "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "SECURED",
+          "cost" : -25.64197836348194
+        },
+        "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "cost" : 549.7274064021431
+        }
+      }
+    }
+  }
+}

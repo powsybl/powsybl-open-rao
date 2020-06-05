@@ -115,6 +115,7 @@
         <maven.jacoco.version>0.8.2</maven.jacoco.version>
         <maven.jar.version>3.1.0</maven.jar.version>
         <maven.javadoc.version>3.0.0</maven.javadoc.version>
+        <maven.jvnet.jaxb2-basics.version>1.11.1</maven.jvnet.jaxb2-basics.version>
         <maven.source.version>3.0.1</maven.source.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.version>2.19.0</mockito.version>
@@ -219,6 +220,22 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.jvnet.jaxb2.maven2</groupId>
+                    <artifactId>maven-jaxb2-plugin</artifactId>
+                    <version>0.14.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <schemaDirectory>src/main/resources/xsd</schemaDirectory>
+                        <bindingDirectory>src/main/resources/xjb</bindingDirectory>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
