@@ -9,8 +9,6 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -50,14 +48,11 @@ public class Cne {
     // Main method
     public void generate() {
 
-        Crac crac = cneHelper.getCrac();
-
-        fillHeader(crac.getNetworkDate());
-        addTimeSeriesToCne(crac.getNetworkDate());
+        DateTime networkDate = cneHelper.getCrac().getNetworkDate();
+        fillHeader(networkDate);
+        addTimeSeriesToCne(networkDate);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
-
-        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
-        cneHelper.initializeAttributes(crac, cracExtension, crac.getExtension(ResultVariantManager.class).getVariants());
+        cneHelper.initializeAttributes();
 
         // fill CNE
         createAllConstraintSeries(point);
