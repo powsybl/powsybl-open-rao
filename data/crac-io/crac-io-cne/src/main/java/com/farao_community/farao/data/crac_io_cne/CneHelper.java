@@ -7,11 +7,13 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -32,13 +34,19 @@ public class CneHelper {
 
     public CneHelper(Crac crac, Network network) {
 
-        this.crac = crac;
-        this.network = network;
         instants = new ArrayList<>();
         preOptimVariantId = "";
         postOptimVariantId = "";
         constraintSeriesMap = new HashMap<>();
         basecase = new ComplexContingency("BASECASE");
+
+        this.crac = crac;
+        this.network = network;
+        checkSynchronize();
+
+        if (crac.getExtension(CracResultExtension.class) == null || crac.getExtension(ResultVariantManager.class).getVariants() == null) { // Computation ended
+            throw new FaraoException("Computation failed: no output CNE document available.");
+        }
     }
 
     public Contingency getBasecase() {
@@ -73,7 +81,9 @@ public class CneHelper {
         return crac;
     }
 
-    public void initializeAttributes(Crac crac, CracResultExtension cracExtension, List<String> variants) {
+    public void initializeAttributes(Crac crac, CracResultExtension cracExtension, Set<String> variantsSet) {
+        List<String> variants = new ArrayList<>(variantsSet);
+
         // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
         instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
 

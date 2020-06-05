@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
@@ -51,29 +50,17 @@ public class Cne {
     // Main method
     public void generate() {
 
-        cneHelper.checkSynchronize();
         Crac crac = cneHelper.getCrac();
 
         fillHeader(crac.getNetworkDate());
         addTimeSeriesToCne(crac.getNetworkDate());
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        if (crac.getExtension(CracResultExtension.class) != null && crac.getExtension(ResultVariantManager.class).getVariants() != null) { // Computation ended
+        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+        cneHelper.initializeAttributes(crac, cracExtension, crac.getExtension(ResultVariantManager.class).getVariants());
 
-            CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
-
-            // define preOptimVariant and postOptimVariant
-            List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
-
-            if (!variants.isEmpty()) {
-                cneHelper.initializeAttributes(crac, cracExtension, variants);
-
-                // fill CNE
-                createAllConstraintSeries(point);
-            }
-        } else { // Failure of computation
-            LOGGER.warn("Failure of computation");
-        }
+        // fill CNE
+        createAllConstraintSeries(point);
     }
 
     /*****************
