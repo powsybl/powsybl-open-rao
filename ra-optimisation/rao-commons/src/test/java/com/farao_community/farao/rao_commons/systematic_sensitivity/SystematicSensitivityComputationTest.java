@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_commons.systematic_sensitivity;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -13,8 +13,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputationParameters;
+import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
@@ -80,13 +79,14 @@ public class SystematicSensitivityComputationTest {
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
             raoParameters.getExtension(SystematicSensitivityComputationParameters.class), computationManager);
         systematicSensitivityComputation.run(initialRaoData);
+        initialRaoData.updateCnecExtensions();
 
         // assert results
         assertNotNull(initialRaoData);
         assertFalse(systematicSensitivityComputation.isFallback());
         String resultVariant = initialRaoData.getWorkingVariantId();
-        Assert.assertEquals(10.0, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        Assert.assertEquals(15.0, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        Assert.assertEquals(1400, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        Assert.assertEquals(2000, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
     }
 
     @Test
@@ -127,12 +127,13 @@ public class SystematicSensitivityComputationTest {
 
         // run
         systematicSensitivityComputation.run(initialRaoData);
+        initialRaoData.updateCnecExtensions();
 
         // assert
         assertTrue(systematicSensitivityComputation.isFallback());
         String resultVariant = initialRaoData.getWorkingVariantId();
-        Assert.assertEquals(10.0, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        Assert.assertEquals(15.0, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        Assert.assertEquals(1400, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
+        Assert.assertEquals(2000, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
     }
 
     @Test

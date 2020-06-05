@@ -3,9 +3,7 @@
   "rao-with-loop-flow-limitation" : false,
   "extensions" : {
     "LinearRaoParameters" : {
-      "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
-      "security-analysis-without-rao" : true,
-      "sensitivity-fallback-overcost" : 100.0
+      "security-analysis-without-rao" : true
     }
   }
 }

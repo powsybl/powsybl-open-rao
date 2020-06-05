@@ -26,7 +26,9 @@ public class JsonSystematicSensitivityComputationParametersTest extends Abstract
     @Test
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
-        parameters.addExtension(SystematicSensitivityComputationParameters.class, new SystematicSensitivityComputationParameters());
+        SystematicSensitivityComputationParameters systematicSensitivityComputationParameters = new SystematicSensitivityComputationParameters();
+        systematicSensitivityComputationParameters.setFallbackOvercost(1.0);
+        parameters.addExtension(SystematicSensitivityComputationParameters.class, systematicSensitivityComputationParameters);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SystematicSensitivityComputationParameters.json");
     }
 

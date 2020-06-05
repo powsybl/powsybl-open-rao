@@ -10,8 +10,6 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
-import static java.lang.Math.max;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */

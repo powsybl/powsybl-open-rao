@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -343,7 +342,7 @@ public class RaoData {
         ).collect(Collectors.toList());
     }
 
-    private void updateCnecExtensions() {
+    public void updateCnecExtensions() {
         getCrac().getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId());
             cnecResult.setFlowInMW(getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec));

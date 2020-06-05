@@ -39,16 +39,4 @@ public class LinearRaoParametersTest {
         raoParameters.setSecurityAnalysisWithoutRao(true);
         assertEquals(true, raoParameters.isSecurityAnalysisWithoutRao());
     }
-
-    @Test
-    public void setObjectiveFunction() {
-        raoParameters.setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        assertEquals(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, raoParameters.getObjectiveFunction());
-    }
-
-    @Test
-    public void setFallbackOvercost() {
-        raoParameters.setFallbackOvercost(100.0);
-        assertEquals(100.0, raoParameters.getFallbackOvercost(), DOUBLE_TOLERANCE);
-    }
 }

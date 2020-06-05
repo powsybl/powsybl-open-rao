@@ -21,6 +21,7 @@ import java.util.Optional;
 @AutoService(RaoParameters.ConfigLoader.class)
 public class SystematicSensitivityComputationConfigLoader implements RaoParameters.ConfigLoader<SystematicSensitivityComputationParameters> {
     private static final String MODULE_NAME = "systematic-sensitivity-computation-parameters";
+
     @Override
     public SystematicSensitivityComputationParameters load(PlatformConfig platformConfig) {
         SystematicSensitivityComputationParameters parameters = new SystematicSensitivityComputationParameters();

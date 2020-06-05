@@ -28,6 +28,7 @@ public class JsonLinearProblemParametersTest extends AbstractConverterTest {
         parameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
         parameters.getExtension(LinearProblemParameters.class).setPstSensitivityThreshold(1.0);
         parameters.getExtension(LinearProblemParameters.class).setPstPenaltyCost(0.5);
+        parameters.getExtension(LinearProblemParameters.class).setObjectiveFunction(LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearProblemParameters.json");
     }
 
@@ -39,6 +40,17 @@ public class JsonLinearProblemParametersTest extends AbstractConverterTest {
         } catch (FaraoException e) {
             // should throw
             assertTrue(e.getMessage().contains("Unexpected field"));
+        }
+    }
+
+    @Test
+    public void readError() {
+        try {
+            JsonRaoParameters.read(getClass().getResourceAsStream("/LinearProblemParametersUnknownObjective.json"));
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+            assertTrue(e.getMessage().contains("Unknown objective"));
         }
     }
 }

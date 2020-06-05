@@ -23,8 +23,6 @@ import static org.mockito.ArgumentMatchers.*;
  */
 public class LinearRaoConfigLoaderTest {
 
-    private static final double DOUBLE_TOLERANCE = 0.1;
-
     private PlatformConfig platformConfig;
     private LinearRaoConfigLoader configLoader;
 
@@ -38,15 +36,12 @@ public class LinearRaoConfigLoaderTest {
     public void testLoad() {
         ModuleConfig linearRaoParametersModule = Mockito.mock(ModuleConfig.class);
         Mockito.when(linearRaoParametersModule.getBooleanProperty(eq("security-analysis-without-rao"), anyBoolean())).thenReturn(false);
-        Mockito.when(linearRaoParametersModule.getEnumProperty(eq("objective-function"), eq(LinearRaoParameters.ObjectiveFunction.class), any())).thenReturn(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         Mockito.when(linearRaoParametersModule.getDoubleProperty(eq("sensitivity-fallback-overcost"), anyDouble())).thenReturn(100.0);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("linear-rao-parameters")).thenReturn(Optional.of(linearRaoParametersModule));
 
         LinearRaoParameters raoParameters = configLoader.load(platformConfig);
         assertFalse(raoParameters.isSecurityAnalysisWithoutRao());
-        assertEquals(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT, raoParameters.getObjectiveFunction());
-        assertEquals(100.0, raoParameters.getFallbackOvercost(), DOUBLE_TOLERANCE);
     }
 
     @Test

@@ -3,6 +3,7 @@
   "rao-with-loop-flow-limitation" : false,
   "extensions" : {
     "SystematicSensitivityComputationParameters" : {
+      "sensitivity-fallback-overcost" : 1.0,
       "sensitivity-parameters" : {
         "version" : "1.0",
         "load-flow-parameters" : {

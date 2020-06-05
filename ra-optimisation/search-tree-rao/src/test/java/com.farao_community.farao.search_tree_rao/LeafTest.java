@@ -67,7 +67,8 @@ public class LeafTest {
 
         RaoInput.cleanCrac(crac, network);
         RaoInput.synchronize(crac, network);
-        raoData = new RaoData(network, crac);
+        raoData = Mockito.spy(new RaoData(network, crac));
+        Mockito.doNothing().when(raoData).fillCracResultsWithSensis(any(), any());
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);

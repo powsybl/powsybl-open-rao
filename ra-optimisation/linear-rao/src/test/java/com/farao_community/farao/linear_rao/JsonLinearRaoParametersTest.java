@@ -25,9 +25,7 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(LinearRaoParameters.class, new LinearRaoParameters());
-        parameters.getExtension(LinearRaoParameters.class).setObjectiveFunction(LinearRaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         parameters.getExtension(LinearRaoParameters.class).setSecurityAnalysisWithoutRao(true);
-        parameters.getExtension(LinearRaoParameters.class).setFallbackOvercost(100.0);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearRaoParameters.json");
     }
 
@@ -39,17 +37,6 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
         } catch (FaraoException e) {
             // should throw
             assertTrue(e.getMessage().contains("Unexpected field"));
-        }
-    }
-
-    @Test
-    public void readError() {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersUnknownObjective.json"));
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-            assertTrue(e.getMessage().contains("Unknown objective"));
         }
     }
 }

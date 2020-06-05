@@ -17,6 +17,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.powsybl.iidm.network.Network;
@@ -69,13 +70,21 @@ public class IteratingLinearOptimizerTest {
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/IteratingLinearOptimizerParameters.json"));
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
+
         simpleLinearOptimizer = Mockito.mock(SimpleLinearOptimizer.class);
+        LinearProblemParameters linearProblemParameters = Mockito.mock(LinearProblemParameters.class);
+        LinearProblemParameters.ObjectiveFunction objectiveFunction = Mockito.mock(LinearProblemParameters.ObjectiveFunction.class);
+        Mockito.when(simpleLinearOptimizer.getParameters()).thenReturn(linearProblemParameters);
+        Mockito.when(linearProblemParameters.getObjectiveFunction()).thenReturn(objectiveFunction);
     }
 
     @Test
     public void optimize() {
         List<String> workingVariants = new ArrayList<>();
         String preOptimVariant = raoData.getWorkingVariantId();
+
+        RaoData spiedRaoData = Mockito.spy(raoData);
+        Mockito.doNothing().when(spiedRaoData).fillCracResultsWithSensis(any(), any());
 
         // mock sensitivity engine
         // sensitivity computation returns a cost of 100 before optim, and 50 after optim
@@ -138,12 +147,12 @@ public class IteratingLinearOptimizerTest {
             }
         }).when(simpleLinearOptimizer).optimize(any());
 
-        systematicSensitivityComputation.run(raoData);
+        systematicSensitivityComputation.run(spiedRaoData);
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             simpleLinearOptimizer,
-            raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(raoData);
+            raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(spiedRaoData);
 
         // check results
         assertNotNull(bestVariantId);
