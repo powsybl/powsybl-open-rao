@@ -11,9 +11,9 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
-import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -46,7 +46,6 @@ public class LinearRaoTest {
     private ComputationManager computationManager;
     private RaoParameters raoParameters;
     private SystematicSensitivityComputation systematicSensitivityComputation;
-    private SimpleLinearOptimizer simpleLinearOptimizer;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
     private Network network;
     private Crac crac;
@@ -64,14 +63,15 @@ public class LinearRaoTest {
         crac.synchronize(network);
         variantId = network.getVariantManager().getWorkingVariantId();
         raoData = Mockito.spy(new RaoData(network, crac));
-        Mockito.doNothing().when(raoData).fillCracResultsWithSensis(any(), any());
+        RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
+        Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), any());
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersFull.json"));
         LinearRaoParameters linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
         linearRaoParameters.setSecurityAnalysisWithoutRao(false);
         computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
-        simpleLinearOptimizer = Mockito.mock(SimpleLinearOptimizer.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
     }
 

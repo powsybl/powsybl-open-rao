@@ -76,7 +76,7 @@ public class LinearRao implements RaoProvider {
         try {
             LOGGER.info("Initial systematic analysis [start]");
             systematicSensitivityComputation.run(raoData);
-            raoData.fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
+            raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
             LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
         } catch (SensitivityComputationException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));

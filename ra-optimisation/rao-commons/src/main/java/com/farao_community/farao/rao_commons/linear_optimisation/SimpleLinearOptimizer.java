@@ -140,7 +140,7 @@ public class SimpleLinearOptimizer {
 
         solveLinearProblem();
         fillCracResults(linearProblem, raoData);
-        raoData.applyRangeActionResultsOnNetwork();
+        raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
     }
 
     private void buildProblem(RaoData raoData, LinearProblemParameters linearProblemParameters) {

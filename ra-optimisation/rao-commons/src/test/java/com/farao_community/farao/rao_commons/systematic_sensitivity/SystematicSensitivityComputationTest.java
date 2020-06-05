@@ -79,7 +79,7 @@ public class SystematicSensitivityComputationTest {
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
             raoParameters.getExtension(SystematicSensitivityComputationParameters.class), computationManager);
         systematicSensitivityComputation.run(initialRaoData);
-        initialRaoData.updateCnecExtensions();
+        initialRaoData.getRaoDataManager().updateCnecExtensions();
 
         // assert results
         assertNotNull(initialRaoData);
@@ -127,7 +127,7 @@ public class SystematicSensitivityComputationTest {
 
         // run
         systematicSensitivityComputation.run(initialRaoData);
-        initialRaoData.updateCnecExtensions();
+        initialRaoData.getRaoDataManager().updateCnecExtensions();
 
         // assert
         assertTrue(systematicSensitivityComputation.isFallback());

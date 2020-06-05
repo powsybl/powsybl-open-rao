@@ -88,7 +88,7 @@ public class IteratingLinearOptimizer {
 
     private boolean hasRemedialActionsChanged(String optimizedVariantId, double iteration) {
         // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
-        if (raoData.sameRemedialActions(bestVariantId, optimizedVariantId)) {
+        if (raoData.getRaoDataManager().sameRemedialActions(bestVariantId, optimizedVariantId)) {
             LOGGER.info(SAME_RESULTS, iteration);
             return false;
         } else {
@@ -102,7 +102,7 @@ public class IteratingLinearOptimizer {
         try {
             LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
             systematicSensitivityComputation.run(raoData);
-            raoData.fillCracResultsWithSensis(simpleLinearOptimizer.getParameters().getObjectiveFunction(), systematicSensitivityComputation);
+            raoData.getRaoDataManager().fillCracResultsWithSensis(simpleLinearOptimizer.getParameters().getObjectiveFunction(), systematicSensitivityComputation);
             LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
             return true;
         } catch (SensitivityComputationException e) {

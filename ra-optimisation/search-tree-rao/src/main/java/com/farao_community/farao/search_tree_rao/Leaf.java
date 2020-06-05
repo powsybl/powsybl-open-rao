@@ -167,7 +167,7 @@ class Leaf {
             try {
                 LOGGER.debug("Evaluating leaf...");
                 systematicSensitivityComputation.run(raoData);
-                raoData.fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
+                raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
                 status = Status.EVALUATED;
             } catch (FaraoException e) {
                 LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
@@ -243,7 +243,7 @@ class Leaf {
      */
     void applyRangeActionResultsOnNetwork() {
         getRaoData().setWorkingVariant(getBestVariantId());
-        getRaoData().applyRangeActionResultsOnNetwork();
+        getRaoData().getRaoDataManager().applyRangeActionResultsOnNetwork();
     }
 
     /**

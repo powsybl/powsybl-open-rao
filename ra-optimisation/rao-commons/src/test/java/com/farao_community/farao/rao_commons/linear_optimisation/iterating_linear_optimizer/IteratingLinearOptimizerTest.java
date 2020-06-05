@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
@@ -84,7 +85,9 @@ public class IteratingLinearOptimizerTest {
         String preOptimVariant = raoData.getWorkingVariantId();
 
         RaoData spiedRaoData = Mockito.spy(raoData);
-        Mockito.doNothing().when(spiedRaoData).fillCracResultsWithSensis(any(), any());
+        RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
+        Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), any());
 
         // mock sensitivity engine
         // sensitivity computation returns a cost of 100 before optim, and 50 after optim

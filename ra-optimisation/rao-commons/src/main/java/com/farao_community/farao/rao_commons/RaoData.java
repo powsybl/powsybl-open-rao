@@ -9,15 +9,10 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A LinearRaoData is an object that gathers Network, Crac and SystematicSensitivityAnalysisResult data. It manages
@@ -30,8 +25,7 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class RaoData {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaoData.class);
-    private static final String NO_WORKING_VARIANT = "No working variant is defined.";
+    static final String NO_WORKING_VARIANT = "No working variant is defined.";
     private static final String UNKNOWN_VARIANT = "Unknown variant %s";
 
     private List<String> variantIds;
@@ -39,6 +33,7 @@ public class RaoData {
     private Network network;
     private Crac crac;
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
+    private RaoDataManager raoDataManager;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
@@ -62,7 +57,8 @@ public class RaoData {
 
         String variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
         setWorkingVariant(variantId);
-        fillRangeActionResultsWithNetworkValues();
+        raoDataManager = new RaoDataManager(this);
+        raoDataManager.fillRangeActionResultsWithNetworkValues();
     }
 
     public List<String> getVariantIds() {
@@ -138,60 +134,8 @@ public class RaoData {
         return getSystematicSensitivityAnalysisResult().getSensitivityOnFlow(rangeAction, cnec);
     }
 
-    /**
-     * This method works from the working variant. It is filling CRAC result extension of the working variant
-     * with values in network of the working variant.
-     */
-    public void fillRangeActionResultsWithNetworkValues() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        String preventiveState = getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : getCrac().getRangeActions()) {
-            double valueInNetwork = rangeAction.getCurrentValue(getNetwork());
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(workingVariantId);
-            rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
-            if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
-            }
-        }
-    }
-
-    /**
-     * This method works from the working variant. It is applying on the network working variant
-     * according to the values present in the CRAC result extension of the working variant.
-     */
-    public void applyRangeActionResultsOnNetwork() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        String preventiveState = getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : getCrac().getRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(getNetwork(), rangeActionResultMap.getVariant(workingVariantId).getSetPoint(preventiveState));
-        }
-    }
-
-    /**
-     * This method compares CRAC result extension of two different variants. It compares the set point values
-     * of all the range actions.
-     *
-     * @param variantId1: First variant to compare.
-     * @param variantId2: Second variant to compare.
-     * @return True if all the range actions are set at the same values and false otherwise.
-     */
-    public boolean sameRemedialActions(String variantId1, String variantId2) {
-        String preventiveState = getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : getCrac().getRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            double value1 = rangeActionResultMap.getVariant(variantId1).getSetPoint(preventiveState);
-            double value2 = rangeActionResultMap.getVariant(variantId2).getSetPoint(preventiveState);
-            if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
-                return false;
-            }
-        }
-        return true;
+    public RaoDataManager getRaoDataManager() {
+        return raoDataManager;
     }
 
     // VARIANTS MANAGEMENT METHODS
@@ -273,81 +217,5 @@ public class RaoData {
      */
     public void clear() {
         clearWithKeepingCracResults(Collections.emptyList());
-    }
-
-    /**
-     * add results of the systematic analysis (flows and objective function value) in the
-     * Crac result variant of the situation.
-     */
-    public void fillCracResultsWithSensis(LinearProblemParameters.ObjectiveFunction objectiveFunction, SystematicSensitivityComputation systematicSensitivityComputation) {
-        double minMargin;
-        minMargin = getMinMargin(objectiveFunction);
-        getCracResult().setFunctionalCost(-minMargin);
-        getCracResult().setVirtualCost(systematicSensitivityComputation.isFallback() ?
-            systematicSensitivityComputation.getParameters().getFallbackOvercost() : 0);
-        getCracResult().setNetworkSecurityStatus(minMargin < 0 ?
-            CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
-        updateCnecExtensions();
-    }
-
-    /**
-     * Compute the objective function, the minimal margin.
-     */
-    private double getMinMargin(LinearProblemParameters.ObjectiveFunction objectiveFunction) {
-        if (objectiveFunction == LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
-            return getMinMarginInMegawatt();
-        } else {
-            return getMinMarginInAmpere();
-        }
-    }
-
-    private double getMinMarginInMegawatt() {
-        return getCrac().getCnecs().stream().
-            map(cnec -> cnec.computeMargin(getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), Unit.MEGAWATT)).
-            min(Double::compareTo).orElseThrow(NoSuchElementException::new);
-
-    }
-
-    private double getMinMarginInAmpere() {
-        List<Double> marginsInAmpere = getCrac().getCnecs().stream().map(cnec ->
-            cnec.computeMargin(getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
-        ).collect(Collectors.toList());
-
-        if (marginsInAmpere.contains(Double.NaN)) {
-            LOGGER.warn("No intensities available in fallback mode, the margins are assessed by converting the flows from MW to A with the nominal voltage of each Cnec.");
-            marginsInAmpere = getMarginsInAmpereFromMegawattConversion();
-            /*if (!fallbackMode) {
-                // in default mode, this means that there is an error in the sensitivity computation, or an
-                // incompatibility with the sensitivity computation mode (i.e. the sensitivity computation is
-                // made in DC mode and no intensity are computed).
-                throw new SensitivityComputationException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
-            } else {
-
-                // in fallback, intensities can be missing as the fallback configuration does not necessarily
-                // compute them (example : default in AC, fallback in DC). In that case a fallback computation
-                // of the intensity is made, based on the MEGAWATT values and the nominal voltage
-
-            }*/
-        }
-
-        return marginsInAmpere.stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
-    }
-
-    private List<Double> getMarginsInAmpereFromMegawattConversion() {
-        return getCrac().getCnecs().stream().map(cnec -> {
-                double flowInMW = getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
-                double uNom = getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
-                return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);
-            }
-        ).collect(Collectors.toList());
-    }
-
-    public void updateCnecExtensions() {
-        getCrac().getCnecs().forEach(cnec -> {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId());
-            cnecResult.setFlowInMW(getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec));
-            cnecResult.setFlowInA(getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec));
-            cnecResult.setThresholds(cnec);
-        });
     }
 }
