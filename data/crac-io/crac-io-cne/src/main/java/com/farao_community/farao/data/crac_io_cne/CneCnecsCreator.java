@@ -118,7 +118,7 @@ public final class CneCnecsCreator {
     }
 
     private static void addFrm(Cnec cnec, List<Analog> measurements) {
-        if (cnec instanceof SimpleCnec && Double.isNaN(((SimpleCnec) cnec).getFrm())) {
+        if (cnec instanceof SimpleCnec && !Double.isNaN(((SimpleCnec) cnec).getFrm())) {
             measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, ((SimpleCnec) cnec).getFrm()));
         }
     }

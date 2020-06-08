@@ -57,7 +57,9 @@
             "minThresholdInMW" : -2303.627574066607,
             "maxThresholdInMW" : 2303.627574066607,
             "minThresholdInA" : -3325.0,
-            "maxThresholdInA" : 3325.0
+            "maxThresholdInA" : 3325.0,
+            "loopflowInMW" : -13.0,
+            "loopflowThresholdInMW" : 19.0
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "cnec-result",
