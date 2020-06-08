@@ -18,6 +18,7 @@ import javax.xml.datatype.DatatypeFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
@@ -100,17 +101,12 @@ public final class CneClassCreator {
         return constraintSeries;
     }
 
-    public static ConstraintSeries newConstraintSeries(String id, String businessType, Country country, String optimStatus) {
+    public static ConstraintSeries newConstraintSeries(String id, String businessType, Set<Country> countries, String optimStatus) {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
-        constraintSeries.partyMarketParticipant = Collections.singletonList(newPartyMarketParticipant(country));
+        if (!countries.isEmpty()) {
+            countries.forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
 
-        return constraintSeries;
-    }
-
-    public static ConstraintSeries newConstraintSeries(String id, String businessType, Country countryOr, Country countryEx, String optimStatus) {
-        ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
-        constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(countryOr));
-        constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(countryEx));
+        }
 
         return constraintSeries;
     }
