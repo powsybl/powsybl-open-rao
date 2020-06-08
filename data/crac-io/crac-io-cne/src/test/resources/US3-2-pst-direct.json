@@ -112,7 +112,7 @@
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "Contingency FR1 FR3-Défaut",
-    "frm" : 1.0,
+    "frm" : -1.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
       "unit" : "AMPERE",
