@@ -109,12 +109,6 @@ public final class CneCnecsCreator {
             throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
         }
 
-        String absMarginMeasType = computeAbsMarginMeasType(measurementType);
-        addAbsMargins(absMarginMeasType, flow, threshold, unit, measurementType, measurementsPatl, measurementsTatl, b88);
-    }
-
-    private static void addAbsMargins(String absMarginMeasType, double flow, double threshold, Unit unit, String measurementType, List<Analog> measurementsPatl, List<Analog> measurementsTatl, boolean b88) {
-
         if (!Double.isNaN(flow) && !Double.isNaN(threshold)) {
             measurementsPatl.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
             if (b88) {
@@ -122,15 +116,20 @@ public final class CneCnecsCreator {
             } else {
                 measurementsTatl.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
             }
+        }
 
-            double value = Math.abs(threshold) - Math.abs(flow);
-            if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
-                measurementsPatl.add(newMeasurement(absMarginMeasType, unit, value));
-                measurementsPatl.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, unit, -value));
-            } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
-                measurementsTatl.add(newMeasurement(absMarginMeasType, unit, value));
-                measurementsTatl.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, unit, -value));
-            }
+        String absMarginMeasType = computeAbsMarginMeasType(measurementType);
+        addAbsMargins(absMarginMeasType, flow, threshold, unit, measurementsPatl, measurementsTatl);
+    }
+
+    private static void addAbsMargins(String absMarginMeasType, double flow, double threshold, Unit unit, List<Analog> measurementsPatl, List<Analog> measurementsTatl) {
+        double value = Math.abs(threshold) - Math.abs(flow);
+        if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
+            measurementsPatl.add(newMeasurement(absMarginMeasType, unit, value));
+            measurementsPatl.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, unit, -value));
+        } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
+            measurementsTatl.add(newMeasurement(absMarginMeasType, unit, value));
+            measurementsTatl.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, unit, -value));
         }
     }
 
