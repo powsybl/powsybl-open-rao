@@ -8,6 +8,7 @@
     <xsd:simpleType name="LocalAnalogType">
         <xsd:restriction base="xsd:NMTOKEN">
             <xsd:enumeration value="A01" />
+            <xsd:enumeration value="Z01" />
             <xsd:enumeration value="Z02" />
             <xsd:enumeration value="Z03" />
             <xsd:enumeration value="Z04" />
