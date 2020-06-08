@@ -92,17 +92,32 @@ public final class CneClassCreator {
         return constraintSeries;
     }
 
-    public static ConstraintSeries newConstraintSeries(String id, String businessType, String country, String optimStatus) {
+    public static ConstraintSeries newConstraintSeries(String id, String businessType, String optimStatus) {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType);
-        constraintSeries.partyMarketParticipant = Collections.singletonList(newPartyMarketParticipant(country));
+        constraintSeries.partyMarketParticipant = new ArrayList<>();
         constraintSeries.setOptimizationMarketObjectStatusStatus(optimStatus);
 
         return constraintSeries;
     }
 
-    public static PartyMarketParticipant newPartyMarketParticipant(String country) {
+    public static ConstraintSeries newConstraintSeries(String id, String businessType, Country country, String optimStatus) {
+        ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
+        constraintSeries.partyMarketParticipant = Collections.singletonList(newPartyMarketParticipant(country));
+
+        return constraintSeries;
+    }
+
+    public static ConstraintSeries newConstraintSeries(String id, String businessType, Country countryOr, Country countryEx, String optimStatus) {
+        ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
+        constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(countryOr));
+        constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(countryEx));
+
+        return constraintSeries;
+    }
+
+    public static PartyMarketParticipant newPartyMarketParticipant(Country country) {
         PartyMarketParticipant partyMarketParticipant = new PartyMarketParticipant();
-        partyMarketParticipant.setMRID(createPartyIDString("A01", new EICode(Country.valueOf(country)).getCode()));
+        partyMarketParticipant.setMRID(createPartyIDString("A01", new EICode(country).getCode()));
         return partyMarketParticipant;
     }
 

@@ -16,6 +16,8 @@ import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -109,10 +111,36 @@ public class Cne {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
 
         crac.getCnecs().forEach(cnec -> {
-            // TODO: replace HU by the country of the cnec
-            ConstraintSeries constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, "HU", OPTIMIZED_MARKET_STATUS);
-            ConstraintSeries constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, "HU", OPTIMIZED_MARKET_STATUS);
-            ConstraintSeries constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, "HU", OPTIMIZED_MARKET_STATUS);
+            ConstraintSeries constraintSeriesB54;
+            ConstraintSeries constraintSeriesB57;
+            ConstraintSeries constraintSeriesB88;
+
+            Line cnecLine = network.getLine(cnec.getNetworkElement().getId());
+
+            // check if the cnec is cross zonal
+            if (cnecLine != null) {
+                Optional<Country> countryOr = cnecLine.getTerminal1().getVoltageLevel().getSubstation().getCountry();
+                Optional<Country> countryEx = cnecLine.getTerminal2().getVoltageLevel().getSubstation().getCountry();
+                if (countryOr.isPresent() && countryEx.isPresent()) {
+                    if (countryOr.equals(countryEx)) {
+                        constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, countryOr.get(), OPTIMIZED_MARKET_STATUS);
+                        constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, countryOr.get(), OPTIMIZED_MARKET_STATUS);
+                        constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, countryOr.get(), OPTIMIZED_MARKET_STATUS);
+                    } else {
+                        constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, countryOr.get(), countryEx.get(), OPTIMIZED_MARKET_STATUS);
+                        constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, countryOr.get(), countryEx.get(), OPTIMIZED_MARKET_STATUS);
+                        constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, countryOr.get(), countryEx.get(), OPTIMIZED_MARKET_STATUS);
+                    }
+                } else {
+                    constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS);
+                    constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS);
+                    constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS);
+                }
+            } else {
+                constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS);
+                constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS);
+                constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, OPTIMIZED_MARKET_STATUS);
+            }
 
             /* Add contingency if exists */
             Optional<Contingency> optionalContingency = cnec.getState().getContingency();
