@@ -17,6 +17,8 @@ public final class DeserializerNames {
     public static final String UNEXPECTED_FIELD = "Unexpected field: ";
 
     // field
+    public static final String NETWORK_DATE = "networkDate";
+
     public static final String NETWORK_ELEMENT = "networkElement";
     public static final String NETWORK_ELEMENTS = "networkElements";
 

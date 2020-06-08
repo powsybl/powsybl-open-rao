@@ -18,6 +18,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,6 +53,12 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
         // deserialize the following lines of the SimpleCrac
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
+
+                case NETWORK_DATE:
+                    DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                    DateTime time = format.parseDateTime(jsonParser.nextTextValue());
+                    simpleCrac.setNetworkDate(time);
+                    break;
 
                 case NETWORK_ELEMENTS:
                     jsonParser.nextToken();
