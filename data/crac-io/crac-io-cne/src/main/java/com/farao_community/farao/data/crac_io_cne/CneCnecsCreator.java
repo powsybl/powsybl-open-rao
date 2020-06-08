@@ -92,7 +92,7 @@ public final class CneCnecsCreator {
             threshold = cnecResult.getMaxThresholdInA();
         } else if (unit.equals(Unit.MEGAWATT)) {
             flow = cnecResult.getFlowInMW();
-            threshold = cnecResult.getLoopflowThresholdInMW();
+            threshold = cnecResult.getMaxThresholdInMW();
         } else {
             throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
         }
