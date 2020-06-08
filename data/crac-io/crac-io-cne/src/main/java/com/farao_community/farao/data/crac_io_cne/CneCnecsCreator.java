@@ -110,6 +110,11 @@ public final class CneCnecsCreator {
         }
 
         String absMarginMeasType = computeAbsMarginMeasType(measurementType);
+        addAbsMargins(absMarginMeasType, flow, threshold, unit, measurementType, measurementsPatl, measurementsTatl, b88);
+    }
+
+    private static void addAbsMargins(String absMarginMeasType, double flow, double threshold, Unit unit, String measurementType, List<Analog> measurementsPatl, List<Analog> measurementsTatl, boolean b88) {
+
         if (!Double.isNaN(flow) && !Double.isNaN(threshold)) {
             measurementsPatl.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
             if (b88) {
