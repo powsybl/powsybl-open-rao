@@ -20,8 +20,6 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
-
 /**
  * Auxiliary methods
  *
@@ -93,15 +91,5 @@ public final class CneUtil {
         } catch (NullPointerException e) {
             return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
         }
-    }
-
-    public static String computeAbsMarginMeasType(String measurementType) {
-        String absMarginMeasType = "";
-        if (measurementType.equals(PATL_MEASUREMENT_TYPE)) {
-            absMarginMeasType = ABS_MARG_PATL_MEASUREMENT_TYPE;
-        } else if (measurementType.equals(TATL_MEASUREMENT_TYPE)) {
-            absMarginMeasType = ABS_MARG_TATL_MEASUREMENT_TYPE;
-        }
-        return absMarginMeasType;
     }
 }

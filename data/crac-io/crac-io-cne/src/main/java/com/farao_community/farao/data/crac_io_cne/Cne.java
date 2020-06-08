@@ -8,12 +8,8 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Unit;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
@@ -138,8 +134,9 @@ public class Cne {
 
             CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
             if (cnecResultExtension != null) {
-                createB54B57Measurements(cnec, measurementsB54, measurementsB57);
-                createB88Measurements(cnec, measurementsB88);
+                String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
+                CneCnecsCreator.createB54B57Measurements(cnec, measurementType, cneHelper.getPostOptimVariantId(), measurementsB54, measurementsB57);
+                CneCnecsCreator.createB88Measurements(cnec, measurementType, cneHelper.getPreOptimVariantId(), measurementsB88);
 
                 MonitoredRegisteredResource monitoredRegisteredResourceB54 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB54);
                 constraintSeriesB54.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB54));
@@ -160,112 +157,5 @@ public class Cne {
 
         /* Add all constraint series to the CNE */
         point.constraintSeries = constraintSeriesList;
-    }
-
-    // B54 & B57
-    private void createB54B57Measurements(Cnec cnec, List<Analog> measurementsB54, List<Analog> measurementsB57) {
-
-        // The check of the existence of the CnecResultExtension was done in another method
-        CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
-        String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
-
-        CnecResult cnecResultPost = cnecResultExtension.getVariant(cneHelper.getPostOptimVariantId());
-        if (cnecResultPost != null) {
-            // Flow and threshold in A
-            addFlowThreshold(cnecResultPost, Unit.AMPERE, measurementType, measurementsB54, measurementsB57);
-            // Flow and threshold in MW
-            addFlowThreshold(cnecResultPost, Unit.MEGAWATT, measurementType, measurementsB54, measurementsB57);
-
-            // sumPTDF
-            addSumPtdf();
-
-            // loopflow
-            addLoopflow(cnecResultPost, measurementsB54);
-            addLoopflow(cnecResultPost, measurementsB57);
-        }
-    }
-
-    // B88
-    private void createB88Measurements(Cnec cnec, List<Analog> measurementsB88) {
-        // The check of the existence of the CnecResultExtension was done in another method
-        CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
-        String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
-
-        CnecResult cnecResultPre = cnecResultExtension.getVariant(cneHelper.getPreOptimVariantId());
-        if (cnecResultPre != null) {
-            // Flow and threshold in A
-            addFlowThreshold(cnecResultPre, Unit.AMPERE, measurementType, measurementsB88);
-            // Flow and threshold in MW
-            addFlowThreshold(cnecResultPre, Unit.MEGAWATT, measurementType, measurementsB88);
-            // FRM
-            addFrm(cnec, measurementsB88);
-
-            // sumPTDF
-            addSumPtdf();
-
-            // loopflow
-            addLoopflow(cnecResultPre, measurementsB88);
-        }
-    }
-
-    // Flow and threshold
-    private void addFlowThreshold(CnecResult cnecResult, Unit unit, String measurementType, List<Analog> measurements) {
-        addFlowThreshold(cnecResult, unit, measurementType, measurements, measurements, true);
-    }
-
-    private void addFlowThreshold(CnecResult cnecResult, Unit unit, String measurementType, List<Analog> measurementsPatl, List<Analog> measurementsTatl) {
-        addFlowThreshold(cnecResult, unit, measurementType, measurementsPatl, measurementsTatl, false);
-    }
-
-    private void addFlowThreshold(CnecResult cnecResult, Unit unit, String measurementType, List<Analog> measurementsPatl, List<Analog> measurementsTatl, boolean b88) {
-
-        double flow;
-        double threshold;
-        // cnecResult is not null, checked before
-        if (unit.equals(Unit.AMPERE)) {
-            flow = cnecResult.getFlowInA();
-            threshold = cnecResult.getMaxThresholdInA();
-        } else if (unit.equals(Unit.MEGAWATT)) {
-            flow = cnecResult.getFlowInMW();
-            threshold = cnecResult.getLoopflowThresholdInMW();
-        } else {
-            throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
-        }
-
-        String absMarginMeasType = computeAbsMarginMeasType(measurementType);
-        if (!Double.isNaN(flow) && !Double.isNaN(threshold)) {
-            measurementsPatl.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
-            if (b88) {
-                measurementsTatl.add(newMeasurement(measurementType, unit, threshold));
-            } else {
-                measurementsTatl.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
-            }
-
-            double value = threshold - flow;
-            if (absMarginMeasType.equals(ABS_MARG_PATL_MEASUREMENT_TYPE)) {
-                measurementsPatl.add(newMeasurement(absMarginMeasType, unit, value));
-                measurementsPatl.add(newMeasurement(OBJ_FUNC_PATL_MEASUREMENT_TYPE, unit, -value));
-            } else if (absMarginMeasType.equals(ABS_MARG_TATL_MEASUREMENT_TYPE)) {
-                measurementsTatl.add(newMeasurement(absMarginMeasType, unit, value));
-                measurementsTatl.add(newMeasurement(OBJ_FUNC_TATL_MEASUREMENT_TYPE, unit, -value));
-            }
-        }
-    }
-
-    private void addFrm(Cnec cnec, List<Analog> measurements) {
-        if (cnec instanceof SimpleCnec && Double.isNaN(((SimpleCnec) cnec).getFrm())) {
-            measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, ((SimpleCnec) cnec).getFrm()));
-        }
-    }
-
-    private void addSumPtdf() {
-        // TODO: develop this
-    }
-
-    private void addLoopflow(CnecResult cnecResult, List<Analog> measurements) {
-        if (!Double.isNaN(cnecResult.getLoopflowInMW()) && !Double.isNaN(cnecResult.getLoopflowThresholdInMW())) {
-            measurements.add(newMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getLoopflowInMW()));
-            measurements.add(newMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getLoopflowThresholdInMW()));
-        }
     }
 }

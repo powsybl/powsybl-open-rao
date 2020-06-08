@@ -70,18 +70,6 @@ public final class CneClassCreator {
     /*****************
      CONSTRAINT SERIES
      *****************/
-    public static ConstraintSeries fillConstraintSeries(ConstraintSeries constraintSeries, String businessType) {
-        constraintSeries.setMRID(cutString(generateRandomMRID(), 60));
-        constraintSeries.setBusinessType(businessType);
-        return constraintSeries;
-    }
-
-    public static ConstraintSeries fillConstraintSeries(ConstraintSeries constraintSeries, String businessType, String optimStatus) {
-        fillConstraintSeries(constraintSeries, businessType);
-        constraintSeries.setOptimizationMarketObjectStatusStatus(optimStatus);
-        return constraintSeries;
-    }
-
     public static ConstraintSeries newConstraintSeries(String id, String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(cutString(id, 60));

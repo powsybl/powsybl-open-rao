@@ -45,7 +45,7 @@
       "side" : "LEFT",
       "direction" : "BOTH",
       "percentageOfMax" : 95.0,
-      "unit" : "AMPERE"
+      "unit" : "MEGAWATT"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
