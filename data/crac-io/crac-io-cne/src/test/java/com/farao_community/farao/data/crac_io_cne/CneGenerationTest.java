@@ -68,7 +68,7 @@ public class CneGenerationTest {
             Optional<Analog> measurementA01 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(FLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
             if (measurementA01.isPresent()) {
                 assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementA01.get().getPositiveFlowIn());
-                assertEquals(13186, measurementA01.get().getAnalogValuesValue(), 0);
+                assertEquals(16540, measurementA01.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
@@ -83,40 +83,40 @@ public class CneGenerationTest {
             // Measurement A03
             Optional<Analog> measurementA03 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(OBJ_FUNC_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
             if (measurementA03.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementA03.get().getPositiveFlowIn());
-                assertEquals(26, measurementA03.get().getAnalogValuesValue(), 0);
+                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementA03.get().getPositiveFlowIn());
+                assertEquals(550, measurementA03.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
-            // Measurement Z02
-            Optional<Analog> measurementZ02 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(ABS_MARG_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
-            if (measurementZ02.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ02.get().getPositiveFlowIn());
-                assertEquals(9861, measurementZ02.get().getAnalogValuesValue(), 0);
+            // Measurement Z12
+            Optional<Analog> measurementZ12 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(ABS_MARG_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
+            if (measurementZ12.isPresent()) {
+                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ12.get().getPositiveFlowIn());
+                assertEquals(13215, measurementZ12.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
-            // Measurement Z03
-            Optional<Analog> measurementZ03 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(FRM_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ03.isPresent()) {
-                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementZ03.get().getPositiveFlowIn());
-                assertEquals(0, measurementZ03.get().getAnalogValuesValue(), 0);
+            // Measurement Z13
+            Optional<Analog> measurementZ13 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(FRM_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
+            if (measurementZ13.isPresent()) {
+                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementZ13.get().getPositiveFlowIn());
+                assertEquals(0, measurementZ13.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
-            // Measurement Z06
-            Optional<Analog> measurementZ06 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(LOOPFLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ06.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ06.get().getPositiveFlowIn());
-                assertEquals(13, measurementZ06.get().getAnalogValuesValue(), 0);
+            // Measurement Z16
+            Optional<Analog> measurementZ16 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(LOOPFLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
+            if (measurementZ16.isPresent()) {
+                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ16.get().getPositiveFlowIn());
+                assertEquals(13, measurementZ16.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
-            // Measurement Z07
-            Optional<Analog> measurementZ07 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(MAX_LOOPFLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ07.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ07.get().getPositiveFlowIn());
-                assertEquals(19, measurementZ07.get().getAnalogValuesValue(), 0);
+            // Measurement Z17
+            Optional<Analog> measurementZ17 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(MAX_LOOPFLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
+            if (measurementZ17.isPresent()) {
+                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ17.get().getPositiveFlowIn());
+                assertEquals(19, measurementZ17.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
@@ -184,19 +184,19 @@ public class CneGenerationTest {
             } else {
                 fail();
             }
-            // Measurement Z02
-            Optional<Analog> measurementZ02 = monitoredRegisteredResourceB88prev.getMeasurements().stream().filter(measurement -> measurement.getMeasurementType().equals(ABS_MARG_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
-            if (measurementZ02.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ02.get().getPositiveFlowIn());
-                assertEquals(667, measurementZ02.get().getAnalogValuesValue(), 0);
+            // Measurement Z12
+            Optional<Analog> measurementZ12 = monitoredRegisteredResourceB88prev.getMeasurements().stream().filter(measurement -> measurement.getMeasurementType().equals(ABS_MARG_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
+            if (measurementZ12.isPresent()) {
+                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ12.get().getPositiveFlowIn());
+                assertEquals(667, measurementZ12.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }
-            // Measurement Z03
-            Optional<Analog> measurementZ03 = monitoredRegisteredResourceB88prev.getMeasurements().stream().filter(measurement -> measurement.getMeasurementType().equals(OBJ_FUNC_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ03.isPresent()) {
-                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementZ03.get().getPositiveFlowIn());
-                assertEquals(461, measurementZ03.get().getAnalogValuesValue(), 0);
+            // Measurement Z13
+            Optional<Analog> measurementZ13 = monitoredRegisteredResourceB88prev.getMeasurements().stream().filter(measurement -> measurement.getMeasurementType().equals(OBJ_FUNC_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
+            if (measurementZ13.isPresent()) {
+                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementZ13.get().getPositiveFlowIn());
+                assertEquals(461, measurementZ13.get().getAnalogValuesValue(), 0);
             } else {
                 fail();
             }

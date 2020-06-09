@@ -67,13 +67,13 @@ public final class CneConstants {
     public static final String PATL_MEASUREMENT_TYPE = "A02";
     public static final String FRM_MEASUREMENT_TYPE = "A03";
     public static final String TATL_MEASUREMENT_TYPE = "A07";
-    public static final String SUM_PTDF_MEASUREMENT_TYPE = "Z01";
-    public static final String ABS_MARG_PATL_MEASUREMENT_TYPE = "Z02";
-    public static final String OBJ_FUNC_PATL_MEASUREMENT_TYPE = "Z03";
-    public static final String ABS_MARG_TATL_MEASUREMENT_TYPE = "Z04";
-    public static final String OBJ_FUNC_TATL_MEASUREMENT_TYPE = "Z05";
-    public static final String LOOPFLOW_MEASUREMENT_TYPE = "Z06";
-    public static final String MAX_LOOPFLOW_MEASUREMENT_TYPE = "Z07";
+    public static final String SUM_PTDF_MEASUREMENT_TYPE = "Z11";
+    public static final String ABS_MARG_PATL_MEASUREMENT_TYPE = "Z12";
+    public static final String OBJ_FUNC_PATL_MEASUREMENT_TYPE = "Z13";
+    public static final String ABS_MARG_TATL_MEASUREMENT_TYPE = "Z14";
+    public static final String OBJ_FUNC_TATL_MEASUREMENT_TYPE = "Z15";
+    public static final String LOOPFLOW_MEASUREMENT_TYPE = "Z16";
+    public static final String MAX_LOOPFLOW_MEASUREMENT_TYPE = "Z17";
     // unitSymbol
     public static final String AMP_UNIT_SYMBOL = "AMP";
     public static final String MAW_UNIT_SYMBOL = "MAW";
