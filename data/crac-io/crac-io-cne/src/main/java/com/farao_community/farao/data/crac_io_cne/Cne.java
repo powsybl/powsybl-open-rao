@@ -11,6 +11,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -153,6 +156,51 @@ public class Cne {
             constraintSeriesList.add(constraintSeriesB54);
             constraintSeriesList.add(constraintSeriesB57);
             constraintSeriesList.add(constraintSeriesB88);
+        });
+
+        crac.getRangeActions().forEach(rangeAction -> {
+            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+            if (rangeActionResultExtension != null) {
+                RangeActionResult preOptimRangeActionResult = rangeActionResultExtension.getVariant(cneHelper.getPreOptimVariantId());
+                RangeActionResult postOptimRangeActionResult = rangeActionResultExtension.getVariant(cneHelper.getPostOptimVariantId());
+
+                if (preOptimRangeActionResult != null && postOptimRangeActionResult != null
+                    && isActivated(crac.getPreventiveState().getId(), preOptimRangeActionResult, postOptimRangeActionResult)
+                    && !rangeAction.getNetworkElements().isEmpty()) {
+
+                    ConstraintSeries preOptimConstraintSeriesB56 = newConstraintSeries(cutString(rangeAction.getId() + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
+                    ConstraintSeries postOptimConstraintSeriesB56 = newConstraintSeries(cutString(rangeAction.getId() + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
+
+                    RemedialActionSeries preOptimRemedialActionSeries = newRemedialActionSeries(rangeAction.getId(), rangeAction.getName());
+                    RemedialActionSeries postOptimRemedialActionSeries = newRemedialActionSeries(rangeAction.getId(), rangeAction.getName(), PREVENTIVE_MARKET_OBJECT_STATUS);
+                    try {
+                        Country country = Country.valueOf(rangeAction.getOperator());
+                        preOptimRemedialActionSeries.partyMarketParticipant.add(newPartyMarketParticipant(country));
+                        postOptimRemedialActionSeries.partyMarketParticipant.add(newPartyMarketParticipant(country));
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.warn(String.format("Operator %s is not a country id.", rangeAction.getOperator()));
+                    }
+
+                    rangeAction.getNetworkElements().forEach(networkElement -> {
+                        if (preOptimRangeActionResult instanceof PstRangeResult) {
+                            int tap = ((PstRangeResult) preOptimRangeActionResult).getTap(crac.getPreventiveState().getId());
+                            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
+                            preOptimRemedialActionSeries.registeredResource.add(registeredResource);
+                        }
+                    });
+                    preOptimConstraintSeriesB56.remedialActionSeries.add(preOptimRemedialActionSeries);
+
+                    rangeAction.getNetworkElements().forEach(networkElement -> {
+                        int tap = ((PstRangeResult) postOptimRangeActionResult).getTap(crac.getPreventiveState().getId());
+                        RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
+                        postOptimRemedialActionSeries.registeredResource.add(registeredResource);
+                    });
+                    postOptimConstraintSeriesB56.remedialActionSeries.add(postOptimRemedialActionSeries);
+
+                    constraintSeriesList.add(preOptimConstraintSeriesB56);
+                    constraintSeriesList.add(postOptimConstraintSeriesB56);
+                }
+            }
         });
 
         /* Add all constraint series to the CNE */

@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
@@ -33,7 +32,6 @@ public class CneHelper {
     private String preOptimVariantId;
     private String postOptimVariantId;
     private Map<Contingency, ConstraintSeries> constraintSeriesMap;
-    private Contingency basecase;
 
     public CneHelper(Crac crac, Network network) {
 
@@ -41,7 +39,6 @@ public class CneHelper {
         preOptimVariantId = "";
         postOptimVariantId = "";
         constraintSeriesMap = new HashMap<>();
-        basecase = new ComplexContingency("BASECASE");
 
         this.crac = crac;
         this.network = network;
@@ -50,10 +47,6 @@ public class CneHelper {
         if (crac.getExtension(CracResultExtension.class) == null || crac.getExtension(ResultVariantManager.class).getVariants() == null) { // Computation ended
             throw new FaraoException("Computation failed: no output CNE document available.");
         }
-    }
-
-    public Contingency getBasecase() {
-        return basecase;
     }
 
     public Network getNetwork() {
@@ -98,7 +91,7 @@ public class CneHelper {
         double minCost = cracExtension.getVariant(variants.get(0)).getCost();
         double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
         for (String variant : variants) {
-            if (cracExtension.getVariant(variant).getCost() < minCost) {
+            if (cracExtension.getVariant(variant).getCost() <= minCost) {
                 minCost = cracExtension.getVariant(variant).getCost();
                 postOptimVariantId = variant;
             } else if (cracExtension.getVariant(variant).getCost() > maxCost) {

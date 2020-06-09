@@ -301,7 +301,7 @@
     "type" : "pst-with-range",
     "id" : "PST1",
     "name" : "PST1",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",

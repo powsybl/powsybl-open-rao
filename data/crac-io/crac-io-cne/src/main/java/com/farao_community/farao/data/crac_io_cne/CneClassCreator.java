@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +94,6 @@ public final class CneClassCreator {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
         if (!countries.isEmpty()) {
             countries.forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
-
         }
 
         return constraintSeries;
@@ -180,5 +180,40 @@ public final class CneClassCreator {
         measurement.setAnalogValuesValue(limitFloatInterval(flow));
 
         return measurement;
+    }
+
+
+    /*****************
+     REMEDIAL ACTION SERIES
+     *****************/
+    public static RemedialActionSeries newRemedialActionSeries(String id, String name) {
+        RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
+        remedialActionSeries.setMRID(cutString(id, 60));
+        remedialActionSeries.setName(name);
+        remedialActionSeries.partyMarketParticipant = new ArrayList<>();
+        remedialActionSeries.registeredResource = new ArrayList<>();
+
+        return remedialActionSeries;
+    }
+
+    public static RemedialActionSeries newRemedialActionSeries(String id, String name, String marketObjectStatus) {
+        RemedialActionSeries remedialActionSeries = newRemedialActionSeries(id, name);
+        remedialActionSeries.setApplicationModeMarketObjectStatusStatus(marketObjectStatus);
+
+        return remedialActionSeries;
+    }
+
+    /*****************
+     REMEDIAL ACTION REGISTERED RESOURCE
+     *****************/
+    public static RemedialActionRegisteredResource newRemedialActionRegisteredResource(String id, String name, String psrType, int setpoint, String unitSymbol, String marketObjectStatus) {
+        RemedialActionRegisteredResource remedialActionRegisteredResource = new RemedialActionRegisteredResource();
+        remedialActionRegisteredResource.setMRID(createResourceIDString(A01_CODING_SCHEME, id));
+        remedialActionRegisteredResource.setName(name);
+        remedialActionRegisteredResource.setPSRTypePsrType(psrType);
+        remedialActionRegisteredResource.setResourceCapacityDefaultCapacity(BigDecimal.valueOf(setpoint));
+        remedialActionRegisteredResource.setResourceCapacityUnitSymbol(unitSymbol);
+        remedialActionRegisteredResource.setMarketObjectStatusStatus(marketObjectStatus);
+        return remedialActionRegisteredResource;
     }
 }

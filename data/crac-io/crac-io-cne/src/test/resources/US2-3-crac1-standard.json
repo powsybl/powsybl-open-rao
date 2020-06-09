@@ -78,7 +78,7 @@
     "type" : "pst-with-range",
     "id" : "SelectTapPST43",
     "name" : "SelectTapPST43",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -120,7 +120,7 @@
     "type" : "complex-network-action",
     "id" : "OpenLine321",
     "name" : "OpenLine321",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -130,7 +130,7 @@
       "type" : "topology",
       "id" : "OpenLine321",
       "name" : "OpenLine321",
-      "operator" : "RTE",
+      "operator" : "FR",
       "usageRules" : [ ],
       "networkElements" : [ "FFR3AA1  FFR2AA1  1" ],
       "actionType" : "OPEN"
@@ -157,7 +157,7 @@
     "type" : "complex-network-action",
     "id" : "CloseLine322",
     "name" : "CloseLine322",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -167,7 +167,7 @@
       "type" : "topology",
       "id" : "CloseLine322",
       "name" : "CloseLine322",
-      "operator" : "RTE",
+      "operator" : "FR",
       "usageRules" : [ ],
       "networkElements" : [ "FFR3AA1  FFR2AA1  2" ],
       "actionType" : "CLOSE"
