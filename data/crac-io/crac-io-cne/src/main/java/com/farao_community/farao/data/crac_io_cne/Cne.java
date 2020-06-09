@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -23,6 +22,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
+import static com.farao_community.farao.data.crac_io_cne.CneCnecsCreator.createMonitoredRegisteredResource;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 
@@ -138,13 +138,13 @@ public class Cne {
                 CneCnecsCreator.createB54B57Measurements(cnec, measurementType, cneHelper.getPostOptimVariantId(), measurementsB54, measurementsB57);
                 CneCnecsCreator.createB88Measurements(cnec, measurementType, cneHelper.getPreOptimVariantId(), measurementsB88);
 
-                MonitoredRegisteredResource monitoredRegisteredResourceB54 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB54);
+                MonitoredRegisteredResource monitoredRegisteredResourceB54 = createMonitoredRegisteredResource(cnec, network, measurementsB54);
                 constraintSeriesB54.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB54));
 
-                MonitoredRegisteredResource monitoredRegisteredResourceB57 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB57);
+                MonitoredRegisteredResource monitoredRegisteredResourceB57 = createMonitoredRegisteredResource(cnec, network, measurementsB57);
                 constraintSeriesB57.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB57));
 
-                MonitoredRegisteredResource monitoredRegisteredResourceB88 = newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE), findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO), measurementsB88);
+                MonitoredRegisteredResource monitoredRegisteredResourceB88 = createMonitoredRegisteredResource(cnec, network, measurementsB88);
                 constraintSeriesB88.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB88));
 
             }

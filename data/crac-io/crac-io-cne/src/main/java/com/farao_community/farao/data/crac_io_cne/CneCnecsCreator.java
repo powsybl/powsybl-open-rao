@@ -13,12 +13,16 @@ import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.newMeasurement;
+import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.newMonitoredRegisteredResource;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.crac_io_cne.CneUtil.findNodeInNetwork;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series
@@ -159,5 +163,12 @@ public final class CneCnecsCreator {
             absMarginMeasType = ABS_MARG_TATL_MEASUREMENT_TYPE;
         }
         return absMarginMeasType;
+    }
+
+    public static MonitoredRegisteredResource createMonitoredRegisteredResource(Cnec cnec, Network network, List<Analog> measurements) {
+        String nodeOr = findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE);
+        String nodeEx = findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO);
+
+        return newMonitoredRegisteredResource(cnec.getId(), cnec.getName(), nodeOr, nodeEx, measurements);
     }
 }
