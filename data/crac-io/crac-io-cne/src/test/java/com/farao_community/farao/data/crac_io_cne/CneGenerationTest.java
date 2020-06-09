@@ -50,9 +50,9 @@ public class CneGenerationTest {
 
         if (constraintSeriesB54.isPresent() && constraintSeriesB57.isPresent() && constraintSeriesB88.isPresent()) {
             // Constraint series B54
-            assertEquals(6, constraintSeriesB54.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size()); // check
+            assertEquals(8, constraintSeriesB54.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
             // Constraint series B57
-            assertEquals(2, constraintSeriesB57.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size()); // check
+            assertEquals(4, constraintSeriesB57.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
             // Constraint series B88
             assertEquals("10YFR-RTE------C", constraintSeriesB88.get().getPartyMarketParticipant().get(0).getMRID().getValue());
             assertEquals(0, constraintSeriesB88.get().getContingencySeries().size());
