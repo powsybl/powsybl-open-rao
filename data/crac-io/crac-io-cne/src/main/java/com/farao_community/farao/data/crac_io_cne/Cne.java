@@ -107,7 +107,7 @@ public class Cne {
             /* Country of cnecs */
             Line cnecLine = network.getLine(cnec.getNetworkElement().getId());
             Set<Country> countries = new HashSet<>();
-            // check if the cnec is cross zonal
+
             if (cnecLine != null) {
                 cnecLine.getTerminal1().getVoltageLevel().getSubstation().getCountry().ifPresent(countries::add);
                 cnecLine.getTerminal2().getVoltageLevel().getSubstation().getCountry().ifPresent(countries::add);
@@ -147,6 +147,8 @@ public class Cne {
                 MonitoredRegisteredResource monitoredRegisteredResourceB88 = createMonitoredRegisteredResource(cnec, network, measurementsB88);
                 constraintSeriesB88.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB88));
 
+            } else {
+                LOGGER.warn(String.format("Results of CNEC %s are not exported.", cnec.getName()));
             }
 
             /* Add constraint series to the list */
