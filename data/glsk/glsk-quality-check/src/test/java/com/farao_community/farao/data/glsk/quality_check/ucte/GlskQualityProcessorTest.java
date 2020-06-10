@@ -59,6 +59,9 @@ public class GlskQualityProcessorTest {
         assertEquals("GLSK node is not found in CGM", qualityReport.getAllQualityLogs().get(0).getMessage());
         assertEquals("FFR2AA2 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
         assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
+        assertEquals(1, qualityReport.getQualityLogsByTso().size());
+        assertEquals(1, qualityReport.getQualityLogs("10YFR-RTE------C").size());
+
     }
 
     @Test

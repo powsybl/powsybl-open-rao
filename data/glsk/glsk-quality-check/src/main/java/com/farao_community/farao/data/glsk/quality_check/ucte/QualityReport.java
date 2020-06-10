@@ -19,10 +19,6 @@ public class QualityReport {
         return qualityLogsByTso;
     }
 
-    public void setQualityLogsByTso(Map<String, List<QualityLog>> qualityLogsByTso) {
-        this.qualityLogsByTso = qualityLogsByTso;
-    }
-
     public void info(String checkId, String nodeId, String type, String tso, String message) {
         log(checkId, nodeId, type, tso, SeverityEnum.INFORMATION, message);
     }
@@ -46,10 +42,6 @@ public class QualityReport {
 
     public List<QualityLog> getQualityLogs(String tso) {
         return qualityLogsByTso.getOrDefault(tso, new ArrayList<>());
-    }
-
-    public boolean hasQualityLogs(String tso) {
-        return qualityLogsByTso.containsKey(tso);
     }
 
 }
