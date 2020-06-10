@@ -14,13 +14,13 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -39,7 +39,7 @@ public class CneGenerationTest {
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        assertEquals(7, point.getConstraintSeries().size());
+        assertEquals(6, point.getConstraintSeries().size());
 
         Optional<ConstraintSeries> constraintSeriesB54 = point.getConstraintSeries().stream().filter(constraintSeries ->
             constraintSeries.getMRID().equals("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
@@ -47,11 +47,17 @@ public class CneGenerationTest {
             constraintSeries.getMRID().equals("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB88 = point.getConstraintSeries().stream().filter(constraintSeries ->
             constraintSeries.getMRID().equals("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
+        Optional<ConstraintSeries> constraintSeriesB56 = point.getConstraintSeries().stream().filter(constraintSeries ->
+            constraintSeries.getMRID().contains("SelectTapPST43") && constraintSeries.getBusinessType().equals(B56_BUSINESS_TYPE)).findFirst();
 
-        if (constraintSeriesB54.isPresent() && constraintSeriesB57.isPresent() && constraintSeriesB88.isPresent()) {
+        if (constraintSeriesB54.isPresent() && constraintSeriesB57.isPresent() && constraintSeriesB88.isPresent() && constraintSeriesB56.isPresent()) {
             // Constraint series B54
+            assertEquals(1, constraintSeriesB54.get().getMonitoredSeries().size());
+            assertEquals(2, constraintSeriesB54.get().getRemedialActionSeries().size());
             assertEquals(8, constraintSeriesB54.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
             // Constraint series B57
+            assertEquals(1, constraintSeriesB57.get().getMonitoredSeries().size());
+            assertEquals(2, constraintSeriesB57.get().getRemedialActionSeries().size());
             assertEquals(4, constraintSeriesB57.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
             // Constraint series B88
             assertEquals("10YFR-RTE------C", constraintSeriesB88.get().getPartyMarketParticipant().get(0).getMRID().getValue());
@@ -120,6 +126,22 @@ public class CneGenerationTest {
             } else {
                 fail();
             }
+            // Remedial action
+            Optional<RemedialActionSeries> remedialActionSeriesPST = constraintSeriesB54.get().getRemedialActionSeries().stream().filter(remedialActionSeries -> remedialActionSeries.getMRID().equals("SelectTapPST43@-16@")).findFirst();
+            if (remedialActionSeriesPST.isPresent()) {
+                assertTrue(remedialActionSeriesPST.get().getRegisteredResource().isEmpty());
+                assertEquals("SelectTapPST43", remedialActionSeriesPST.get().getName());
+                assertEquals(PREVENTIVE_MARKET_OBJECT_STATUS, remedialActionSeriesPST.get().getApplicationModeMarketObjectStatusStatus());
+            } else {
+                fail();
+            }
+            RemedialActionRegisteredResource remedialActionRegisteredResource = constraintSeriesB56.get().getRemedialActionSeries().get(0).getRegisteredResource().get(0);
+            assertEquals("FFR4AA1  FFR3AA1  1", remedialActionRegisteredResource.getMRID().getValue());
+            assertEquals("FFR4AA1  FFR3AA1  1", remedialActionRegisteredResource.getName());
+            assertEquals(PST_RANGE_PSR_TYPE, remedialActionRegisteredResource.getPSRTypePsrType());
+            assertEquals(ABSOLUTE_MARKET_OBJECT_STATUS, remedialActionRegisteredResource.getMarketObjectStatusStatus());
+            assertEquals(BigDecimal.valueOf(0), remedialActionRegisteredResource.getResourceCapacityDefaultCapacity());
+            assertEquals(WITHOUT_UNIT_SYMBOL, remedialActionRegisteredResource.getResourceCapacityUnitSymbol());
         } else {
             fail();
         }

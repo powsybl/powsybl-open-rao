@@ -49,8 +49,8 @@ public final class CneRemedialActionsCreator {
                 rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, preOptimRangeActionResult, preOptimConstraintSeriesB56.getRemedialActionSeries().get(0)));
                 rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, postOptimConstraintSeriesB56.getRemedialActionSeries().get(0)));
 
-                RemedialActionSeries shortPostOptimRemedialActionSeries = createShortRemedialActionSeries(postOptimConstraintSeriesB56.getRemedialActionSeries().get(0));
-                constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(shortPostOptimRemedialActionSeries));
+                // Add the remedial action series to B54 and B57
+                addRemedialActionsToOtherConstraintSeries(postOptimConstraintSeriesB56.getRemedialActionSeries().get(0), constraintSeriesList);
 
                 constraintSeriesList.add(preOptimConstraintSeriesB56);
                 constraintSeriesList.add(postOptimConstraintSeriesB56);
@@ -99,18 +99,18 @@ public final class CneRemedialActionsCreator {
                 && isActivated(preventiveStateId, preOptimNetworkActionResult, postOptimNetworkActionResult)
                 && !networkAction.getNetworkElements().isEmpty()) {
 
-                ConstraintSeries preOptimConstraintSeriesB56 = createB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), true);
                 ConstraintSeries postOptimConstraintSeriesB56 = createB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), false);
 
-                constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(postOptimConstraintSeriesB56.getRemedialActionSeries().get(0)));
+                // Add the remedial action series to B54 and B57
+                addRemedialActionsToOtherConstraintSeries(postOptimConstraintSeriesB56.getRemedialActionSeries().get(0), constraintSeriesList);
 
-                constraintSeriesList.add(preOptimConstraintSeriesB56);
                 constraintSeriesList.add(postOptimConstraintSeriesB56);
             }
         }
     }
 
-    private static RemedialActionSeries createShortRemedialActionSeries(RemedialActionSeries remedialActionSeries) {
-        return newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getBusinessType());
+    private static void addRemedialActionsToOtherConstraintSeries(RemedialActionSeries remedialActionSeries, List<ConstraintSeries> constraintSeriesList) {
+        RemedialActionSeries shortPostOptimRemedialActionSeries = newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getApplicationModeMarketObjectStatusStatus());
+        constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(shortPostOptimRemedialActionSeries));
     }
 }
