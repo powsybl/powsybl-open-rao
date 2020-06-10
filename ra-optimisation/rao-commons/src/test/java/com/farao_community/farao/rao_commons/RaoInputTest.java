@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
@@ -100,6 +101,7 @@ public class RaoInputTest {
             simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
             ActionType.CLOSE
         );
+        ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction("complexNextworkActionId", "RTE");
         PstWithRange pstWithRange = new PstWithRange(
             "pstRangeId",
             "pstRangeName",
@@ -111,10 +113,10 @@ public class RaoInputTest {
 
         simpleCrac.addNetworkAction(topology1);
         simpleCrac.addNetworkAction(topology2);
+        simpleCrac.addNetworkAction(complexNetworkAction);
         simpleCrac.addRangeAction(pstWithRange);
-
         assertEquals(4, simpleCrac.getCnecs().size());
-        assertEquals(2, simpleCrac.getNetworkActions().size());
+        assertEquals(3, simpleCrac.getNetworkActions().size());
         assertEquals(1, simpleCrac.getRangeActions().size());
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
@@ -127,13 +129,13 @@ public class RaoInputTest {
         assertEquals(2, simpleCrac.getContingencies().size());
         assertEquals(2, simpleCrac.getStates().size());
 
-        assertEquals(5, qualityReport.size());
+        assertEquals(6, qualityReport.size());
         int removedCount = 0;
         for (String line: qualityReport) {
             if (line.contains("[REMOVED]")) {
                 removedCount++;
             }
         }
-        assertEquals(5, removedCount);
+        assertEquals(6, removedCount);
     }
 }
