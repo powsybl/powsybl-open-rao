@@ -48,6 +48,11 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      */
     protected double voltageLevel;
 
+    /**
+     * Flow reliability margin of the Cnec associated to this threshold, in MEGAWATT
+     */
+    private double frmInMW;
+
     protected boolean isSynchronized;
 
     public AbstractFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction) {
@@ -72,7 +77,9 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         if (direction == Direction.DIRECT) {
             return Optional.empty();
         } else { // Direction.OPPOSITE and Direction.BOTH
-            return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
+            return Optional.of(
+                    convert(frmInMW, Unit.MEGAWATT, requestedUnit)
+                    - convert(getAbsoluteMax(), unit, requestedUnit));
         }
     }
 
@@ -81,7 +88,9 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         if (direction == Direction.OPPOSITE) {
             return Optional.empty();
         } else { // Direction.DIRECT and Direction.BOTH
-            return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
+            return Optional.of(
+                    convert(getAbsoluteMax(), unit, requestedUnit)
+                    - convert(frmInMW, Unit.MEGAWATT, requestedUnit));
         }
     }
 
@@ -126,6 +135,10 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     public void setSide(Side side) {
         this.side = side;
+    }
+
+    public void setMargin(double frmInMW) {
+        this.frmInMW = frmInMW;
     }
 
     /**
