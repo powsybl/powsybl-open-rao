@@ -8,8 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
@@ -24,6 +23,8 @@ import java.util.*;
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneCnecsCreator.createMonitoredRegisteredResource;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
+import static com.farao_community.farao.data.crac_io_cne.CneRemedialActionsCreator.createNetworkRemedialActionSeries;
+import static com.farao_community.farao.data.crac_io_cne.CneRemedialActionsCreator.createRangeRemedialActionSeries;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 
 /**
@@ -157,92 +158,10 @@ public class Cne {
             constraintSeriesList.add(constraintSeriesB88);
         });
 
-        crac.getRangeActions().forEach(rangeAction -> {
-            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
-            if (rangeActionResultExtension != null) {
-                RangeActionResult preOptimRangeActionResult = rangeActionResultExtension.getVariant(cneHelper.getPreOptimVariantId());
-                RangeActionResult postOptimRangeActionResult = rangeActionResultExtension.getVariant(cneHelper.getPostOptimVariantId());
-
-                if (preOptimRangeActionResult != null && postOptimRangeActionResult != null
-                    && isActivated(crac.getPreventiveState().getId(), preOptimRangeActionResult, postOptimRangeActionResult)
-                    && !rangeAction.getNetworkElements().isEmpty()) {
-
-                    ConstraintSeries preOptimConstraintSeriesB56 = newConstraintSeries(cutString(rangeAction.getId() + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
-                    ConstraintSeries postOptimConstraintSeriesB56 = newConstraintSeries(cutString(rangeAction.getId() + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
-
-                    RemedialActionSeries preOptimRemedialActionSeries = newRemedialActionSeries(rangeAction.getId(), rangeAction.getName());
-                    RemedialActionSeries postOptimRemedialActionSeries = newRemedialActionSeries(rangeAction.getId(), rangeAction.getName(), PREVENTIVE_MARKET_OBJECT_STATUS);
-                    try {
-                        Country country = Country.valueOf(rangeAction.getOperator());
-                        preOptimRemedialActionSeries.partyMarketParticipant.add(newPartyMarketParticipant(country));
-                        postOptimRemedialActionSeries.partyMarketParticipant.add(newPartyMarketParticipant(country));
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.warn(String.format("Operator %s is not a country id.", rangeAction.getOperator()));
-                    }
-
-                    rangeAction.getNetworkElements().forEach(networkElement -> {
-                        if (preOptimRangeActionResult instanceof PstRangeResult) {
-                            int tap = ((PstRangeResult) preOptimRangeActionResult).getTap(crac.getPreventiveState().getId());
-                            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
-                            preOptimRemedialActionSeries.registeredResource.add(registeredResource);
-                        }
-                    });
-                    preOptimConstraintSeriesB56.remedialActionSeries.add(preOptimRemedialActionSeries);
-
-                    rangeAction.getNetworkElements().forEach(networkElement -> {
-                        int tap = ((PstRangeResult) postOptimRangeActionResult).getTap(crac.getPreventiveState().getId());
-                        RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
-                        postOptimRemedialActionSeries.registeredResource.add(registeredResource);
-                        postOptimRemedialActionSeries.setMRID(postOptimRemedialActionSeries.getMRID() + "@" + tap + "@");
-                    });
-                    postOptimConstraintSeriesB56.remedialActionSeries.add(postOptimRemedialActionSeries);
-                    RemedialActionSeries shortPostOptimRemedialActionSeries = createShortRemedialActionSeries(postOptimRemedialActionSeries);
-                    constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(shortPostOptimRemedialActionSeries));
-
-                    constraintSeriesList.add(preOptimConstraintSeriesB56);
-                    constraintSeriesList.add(postOptimConstraintSeriesB56);
-                }
-            }
-        });
-
-        crac.getNetworkActions().forEach(networkAction -> {
-            NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
-            if (networkActionResultExtension != null) {
-                NetworkActionResult preOptimNetworkActionResult = networkActionResultExtension.getVariant(cneHelper.getPreOptimVariantId());
-                NetworkActionResult postOptimNetworkActionResult = networkActionResultExtension.getVariant(cneHelper.getPostOptimVariantId());
-
-                if (preOptimNetworkActionResult != null && postOptimNetworkActionResult != null
-                    && isActivated(crac.getPreventiveState().getId(), preOptimNetworkActionResult, postOptimNetworkActionResult)
-                    && !networkAction.getNetworkElements().isEmpty()) {
-
-                    ConstraintSeries preOptimConstraintSeriesB56 = newConstraintSeries(cutString(networkAction.getId() + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
-                    ConstraintSeries postOptimConstraintSeriesB56 = newConstraintSeries(cutString(networkAction.getId() + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
-
-                    RemedialActionSeries preOptimRemedialActionSeries = newRemedialActionSeries(networkAction.getId(), networkAction.getName());
-                    RemedialActionSeries postOptimRemedialActionSeries = newRemedialActionSeries(networkAction.getId(), networkAction.getName(), PREVENTIVE_MARKET_OBJECT_STATUS);
-                    try {
-                        Country country = Country.valueOf(networkAction.getOperator());
-                        preOptimRemedialActionSeries.partyMarketParticipant.add(newPartyMarketParticipant(country));
-                        postOptimRemedialActionSeries.partyMarketParticipant.add(newPartyMarketParticipant(country));
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.warn(String.format("Operator %s is not a country id.", networkAction.getOperator()));
-                    }
-
-                    preOptimConstraintSeriesB56.remedialActionSeries.add(preOptimRemedialActionSeries);
-                    postOptimConstraintSeriesB56.remedialActionSeries.add(postOptimRemedialActionSeries);
-                    constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(postOptimRemedialActionSeries));
-
-                    constraintSeriesList.add(preOptimConstraintSeriesB56);
-                    constraintSeriesList.add(postOptimConstraintSeriesB56);
-                }
-            }
-        });
+        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
+        crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
 
         /* Add all constraint series to the CNE */
         point.constraintSeries = constraintSeriesList;
-    }
-
-    private RemedialActionSeries createShortRemedialActionSeries(RemedialActionSeries remedialActionSeries) {
-        return newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getBusinessType());
     }
 }
