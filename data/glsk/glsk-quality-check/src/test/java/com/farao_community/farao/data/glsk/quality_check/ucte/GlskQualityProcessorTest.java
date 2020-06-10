@@ -46,7 +46,7 @@ public class GlskQualityProcessorTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
-        assertTrue(qualityReport.getQualityLogs().isEmpty());
+        assertTrue(qualityReport.getQualityLogsByTso().isEmpty());
     }
 
     @Test
@@ -55,10 +55,10 @@ public class GlskQualityProcessorTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
-        assertEquals(1, qualityReport.getQualityLogs().size());
-        assertEquals("GLSK node is not found in CGM", qualityReport.getQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA2 ", qualityReport.getQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
+        assertEquals(1, qualityReport.getAllQualityLogs().size());
+        assertEquals("GLSK node is not found in CGM", qualityReport.getAllQualityLogs().get(0).getMessage());
+        assertEquals("FFR2AA2 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
     }
 
     @Test
@@ -67,10 +67,10 @@ public class GlskQualityProcessorTest {
         Network network = Importers.loadNetwork("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
-        assertEquals(1, qualityReport.getQualityLogs().size());
-        assertEquals("GLSK node is present but has no running Generator or Load", qualityReport.getQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA1 ", qualityReport.getQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
+        assertEquals(1, qualityReport.getAllQualityLogs().size());
+        assertEquals("GLSK node is present but has no running Generator or Load", qualityReport.getAllQualityLogs().get(0).getMessage());
+        assertEquals("FFR2AA1 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
     }
 
     @Test
@@ -79,10 +79,10 @@ public class GlskQualityProcessorTest {
         Network network = Importers.loadNetwork("testCase_error_3.xiidm", getClass().getResourceAsStream("/testCase_error_3.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
-        assertEquals(1, qualityReport.getQualityLogs().size());
-        assertEquals("GLSK node is connected to an island", qualityReport.getQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA1 ", qualityReport.getQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
+        assertEquals(1, qualityReport.getQualityLogsByTso().size());
+        assertEquals("GLSK node is connected to an island", qualityReport.getAllQualityLogs().get(0).getMessage());
+        assertEquals("FFR2AA1 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
     }
 
     @Test
@@ -91,10 +91,10 @@ public class GlskQualityProcessorTest {
         Network network = Importers.loadNetwork("testCase_error_load_not_connected.xiidm", getClass().getResourceAsStream("/testCase_error_load_not_connected.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
-        assertEquals(1, qualityReport.getQualityLogs().size());
-        assertEquals("GLSK node is connected to an island", qualityReport.getQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA1 ", qualityReport.getQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getQualityLogs().get(0).getTso());
+        assertEquals(1, qualityReport.getQualityLogsByTso().size());
+        assertEquals("GLSK node is connected to an island", qualityReport.getAllQualityLogs().get(0).getMessage());
+        assertEquals("FFR2AA1 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
+        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
     }
 
 }
