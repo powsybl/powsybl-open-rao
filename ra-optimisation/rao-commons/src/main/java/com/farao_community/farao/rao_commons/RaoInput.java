@@ -36,6 +36,7 @@ public final class RaoInput {
     public static List<String> cleanCrac(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
 
+        // remove Cnec whose NetworkElement is absent from the network
         ArrayList<Cnec> absentFromNetworkCnecs = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> {
             if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
@@ -43,6 +44,8 @@ public final class RaoInput {
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
             }
         });
+
+        // remove RangeAction whose NetworkElement is absent from the network
         absentFromNetworkCnecs.forEach(cnec -> crac.getCnecs().remove(cnec));
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
         for (RangeAction rangeAction: crac.getRangeActions()) {
@@ -55,6 +58,7 @@ public final class RaoInput {
         }
         absentFromNetworkRangeActions.forEach(rangeAction -> crac.getRangeActions().remove(rangeAction));
 
+        // remove NetworkAction whose NetworkElement is absent from the network
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
         for (NetworkAction networkAction: crac.getNetworkActions()) {
             networkAction.getNetworkElements().forEach(networkElement -> {
@@ -66,6 +70,7 @@ public final class RaoInput {
         }
         absentFromNetworkNetworkActions.forEach(networkAction -> crac.getNetworkActions().remove(networkAction));
 
+        // remove Contingencies whose NetworkElement is absent from the network
         ArrayList<Contingency> absentFromNetworkContingencies = new ArrayList<>();
         for (Contingency contingency : crac.getContingencies()) {
             contingency.getNetworkElements().forEach(networkElement -> {
@@ -83,6 +88,14 @@ public final class RaoInput {
             });
             crac.getContingencies().remove(contingency);
         });
+
+        // remove Remedial Action with an empty list of NetworkElement
+        ArrayList<NetworkAction> noValidAction = new ArrayList<>();
+        crac.getNetworkActions().stream().filter(na -> na.getNetworkElements().isEmpty()).forEach(na -> {
+            report.add(String.format("[REMOVED] Remedial Action %s has no associated action. It is removed from the Crac", na.getId()));
+            noValidAction.add(na);
+        });
+        noValidAction.forEach(networkAction -> crac.getNetworkActions().remove(networkAction));
 
         report.forEach(LOGGER::warn);
 
