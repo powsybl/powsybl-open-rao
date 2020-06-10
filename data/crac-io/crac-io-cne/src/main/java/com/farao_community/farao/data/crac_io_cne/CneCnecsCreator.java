@@ -9,17 +9,22 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 
-import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.newMeasurement;
-import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.newMonitoredRegisteredResource;
+import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
+import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.newMonitoredSeries;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.findNodeInNetwork;
@@ -31,12 +36,74 @@ import static com.farao_community.farao.data.crac_io_cne.CneUtil.findNodeInNetwo
  */
 public final class CneCnecsCreator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CneCnecsCreator.class);
+
     private CneCnecsCreator() {
 
     }
 
+    static void createConstraintSeriesOfACnec(Cnec cnec, Network network, List<ConstraintSeries> constraintSeriesList, String measurementType, String preOptimVariantId, String postOptimVariantId) {
+
+        /* Country of cnecs */
+        Set<Country> countries = createCountries(network, cnec.getNetworkElement().getId());
+
+        /* Create Constraint series */
+        ConstraintSeries constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, countries, OPTIMIZED_MARKET_STATUS);
+        ConstraintSeries constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, countries, OPTIMIZED_MARKET_STATUS);
+        ConstraintSeries constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, countries, OPTIMIZED_MARKET_STATUS);
+
+        /* Add contingency if exists */
+        Optional<Contingency> optionalContingency = cnec.getState().getContingency();
+        if (optionalContingency.isPresent()) {
+            ContingencySeries contingencySeries = newContingencySeries(optionalContingency.get().getId(), optionalContingency.get().getName());
+            constraintSeriesB54.contingencySeries.add(contingencySeries);
+            constraintSeriesB57.contingencySeries.add(contingencySeries);
+            constraintSeriesB88.contingencySeries.add(contingencySeries);
+        }
+
+        /* Add critical network element */
+        List<Analog> measurementsB54 = new ArrayList<>();
+        List<Analog> measurementsB57 = new ArrayList<>();
+        List<Analog> measurementsB88 = new ArrayList<>();
+
+        CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
+        if (cnecResultExtension != null) {
+            CneCnecsCreator.createB54B57Measurements(cnec, measurementType, postOptimVariantId, measurementsB54, measurementsB57);
+            CneCnecsCreator.createB88Measurements(cnec, measurementType, preOptimVariantId, measurementsB88);
+
+            MonitoredRegisteredResource monitoredRegisteredResourceB54 = createMonitoredRegisteredResource(cnec, network, measurementsB54);
+            constraintSeriesB54.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB54));
+
+            MonitoredRegisteredResource monitoredRegisteredResourceB57 = createMonitoredRegisteredResource(cnec, network, measurementsB57);
+            constraintSeriesB57.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB57));
+
+            MonitoredRegisteredResource monitoredRegisteredResourceB88 = createMonitoredRegisteredResource(cnec, network, measurementsB88);
+            constraintSeriesB88.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB88));
+
+        } else {
+            LOGGER.warn(String.format("Results of CNEC %s are not exported.", cnec.getName()));
+        }
+
+        /* Add constraint series to the list */
+        constraintSeriesList.add(constraintSeriesB54);
+        constraintSeriesList.add(constraintSeriesB57);
+        constraintSeriesList.add(constraintSeriesB88);
+    }
+
+    private static Set<Country> createCountries(Network network, String networkElementId) {
+        Line cnecLine = network.getLine(networkElementId);
+        Set<Country> countries = new HashSet<>();
+
+        if (cnecLine != null) {
+            cnecLine.getTerminal1().getVoltageLevel().getSubstation().getCountry().ifPresent(countries::add);
+            cnecLine.getTerminal2().getVoltageLevel().getSubstation().getCountry().ifPresent(countries::add);
+        }
+
+        return countries;
+    }
+
     // B54 & B57
-    public static void createB54B57Measurements(Cnec cnec, String measurementType, String postOptimVariantId, List<Analog> measurementsB54, List<Analog> measurementsB57) {
+    private static void createB54B57Measurements(Cnec cnec, String measurementType, String postOptimVariantId, List<Analog> measurementsB54, List<Analog> measurementsB57) {
         // The check of the existence of the CnecResultExtension was done in another method
         CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
         assert cnecResultExtension != null;
@@ -58,7 +125,7 @@ public final class CneCnecsCreator {
     }
 
     // B88
-    public static void createB88Measurements(Cnec cnec, String measurementType, String preOptimVariantId, List<Analog> measurementsB88) {
+    private static void createB88Measurements(Cnec cnec, String measurementType, String preOptimVariantId, List<Analog> measurementsB88) {
         CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
         // The check of the existence of the CnecResultExtension was done in another method
         assert cnecResultExtension != null;
