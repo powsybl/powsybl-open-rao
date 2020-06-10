@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
@@ -24,9 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
-import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.newMonitoredSeries;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
-import static com.farao_community.farao.data.crac_io_cne.CneConstants.ABS_MARG_TATL_MEASUREMENT_TYPE;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.findNodeInNetwork;
 
 /**
@@ -164,14 +163,12 @@ public final class CneCnecsCreator {
         assert cnecResult != null;
         if (unit.equals(Unit.AMPERE)) {
             flow = cnecResult.getFlowInA();
-            threshold = getClosestThresholdInA(cnecResult);
         } else if (unit.equals(Unit.MEGAWATT)) {
             flow = cnecResult.getFlowInMW();
-            threshold = getClosestThresholdInMW(cnecResult);
         } else {
             throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
         }
-
+        threshold = getClosestThreshold(cnecResult, unit);
         if (!Double.isNaN(flow) && !Double.isNaN(threshold)) {
             measurementsPatl.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
             if (b88) {
@@ -185,18 +182,20 @@ public final class CneCnecsCreator {
         addAbsMargins(absMarginMeasType, flow, threshold, unit, measurementsPatl, measurementsTatl);
     }
 
-    private static double getClosestThresholdInA(CnecResult cnecResult) {
-        double flow = Double.NaN;
-        if (!Double.isNaN(cnecResult.getFlowInA())) {
-            flow = cnecResult.getFlowInA();
-            double maxThreshold = Double.POSITIVE_INFINITY;
-            double minThreshold = Double.POSITIVE_INFINITY;
-            if (!Double.isNaN(cnecResult.getMaxThresholdInA())) {
-                maxThreshold = cnecResult.getMaxThresholdInA();
-            }
-            if (!Double.isNaN(cnecResult.getMinThresholdInA())) {
-                minThreshold = cnecResult.getMinThresholdInA();
-            }
+    /**
+     * Select the threshold closest to the flow, that will be added in the measurement.
+     * This is useful when a cnec has both a Max and a Min threshold.
+     * @param cnecResult CnecResult associated to the cnec
+     * @param unit unit required in the measurement (can be AMPERE or MEGAWATT)
+     * @return the value of the Threshold in the requested unit
+     */
+    private static double getClosestThreshold(CnecResult cnecResult, Unit unit) {
+        double flow = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
+        if (!Double.isNaN(flow)) {
+            double maxThreshold = unit.equals(Unit.MEGAWATT) ? cnecResult.getMaxThresholdInMW() : cnecResult.getMaxThresholdInA();
+            maxThreshold = Double.isNaN(maxThreshold) ? Double.POSITIVE_INFINITY : maxThreshold;
+            double minThreshold = unit.equals(Unit.MEGAWATT) ? cnecResult.getMinThresholdInMW() : cnecResult.getMinThresholdInA();
+            minThreshold = Double.isNaN(minThreshold) ? Double.POSITIVE_INFINITY : minThreshold;
             if (Math.abs(maxThreshold - flow) < Math.abs(minThreshold - flow)) {
                 return maxThreshold;
             } else {
@@ -204,27 +203,7 @@ public final class CneCnecsCreator {
             }
         }
         return flow;
-    }
 
-    private static double getClosestThresholdInMW(CnecResult cnecResult) {
-        double flow = Double.NaN;
-        if (!Double.isNaN(cnecResult.getFlowInMW())) {
-            flow = cnecResult.getFlowInMW();
-            double maxThreshold = Double.POSITIVE_INFINITY;
-            double minThreshold = Double.POSITIVE_INFINITY;
-            if (!Double.isNaN(cnecResult.getMaxThresholdInMW())) {
-                maxThreshold = cnecResult.getMaxThresholdInMW();
-            }
-            if (!Double.isNaN(cnecResult.getMinThresholdInMW())) {
-                minThreshold = cnecResult.getMinThresholdInMW();
-            }
-            if (Math.abs(maxThreshold - flow) < Math.abs(minThreshold - flow)) {
-                return maxThreshold;
-            } else {
-                return minThreshold;
-            }
-        }
-        return flow;
     }
 
     private static void addAbsMargins(String absMarginMeasType, double flow, double threshold, Unit unit, List<Analog> measurementsPatl, List<Analog> measurementsTatl) {
