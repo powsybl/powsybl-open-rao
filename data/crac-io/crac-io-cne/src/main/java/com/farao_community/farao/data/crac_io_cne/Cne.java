@@ -193,8 +193,11 @@ public class Cne {
                         int tap = ((PstRangeResult) postOptimRangeActionResult).getTap(crac.getPreventiveState().getId());
                         RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
                         postOptimRemedialActionSeries.registeredResource.add(registeredResource);
+                        postOptimRemedialActionSeries.setMRID(postOptimRemedialActionSeries.getMRID() + "@" + tap + "@");
                     });
                     postOptimConstraintSeriesB56.remedialActionSeries.add(postOptimRemedialActionSeries);
+                    RemedialActionSeries shortPostOptimRemedialActionSeries = createShortRemedialActionSeries(postOptimRemedialActionSeries);
+                    constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(shortPostOptimRemedialActionSeries));
 
                     constraintSeriesList.add(preOptimConstraintSeriesB56);
                     constraintSeriesList.add(postOptimConstraintSeriesB56);
@@ -227,6 +230,7 @@ public class Cne {
 
                     preOptimConstraintSeriesB56.remedialActionSeries.add(preOptimRemedialActionSeries);
                     postOptimConstraintSeriesB56.remedialActionSeries.add(postOptimRemedialActionSeries);
+                    constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(postOptimRemedialActionSeries));
 
                     constraintSeriesList.add(preOptimConstraintSeriesB56);
                     constraintSeriesList.add(postOptimConstraintSeriesB56);
@@ -236,5 +240,9 @@ public class Cne {
 
         /* Add all constraint series to the CNE */
         point.constraintSeries = constraintSeriesList;
+    }
+
+    private RemedialActionSeries createShortRemedialActionSeries(RemedialActionSeries remedialActionSeries) {
+        return newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getBusinessType());
     }
 }
