@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,20 +35,33 @@ public final class CneRemedialActionsCreator {
 
     }
 
-    static void createRangeRemedialActionSeries(RangeAction rangeAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId) {
+    private static void createRemedialActionRegisteredResourceFromNetwork(TwoWindingsTransformer transformer, NetworkElement networkElement, RemedialActionSeries remedialActionSeries) {
+        if (transformer != null) {
+            int tap = transformer.getPhaseTapChanger().getTapPosition();
+            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
+            remedialActionSeries.registeredResource.add(registeredResource);
+            remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID(), tap));
+        }
+    }
+
+    static void createRangeRemedialActionSeries(RangeAction rangeAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, Network network) {
         RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
         if (rangeActionResultExtension != null) {
             RangeActionResult preOptimRangeActionResult = rangeActionResultExtension.getVariant(preOptimVariantId);
             RangeActionResult postOptimRangeActionResult = rangeActionResultExtension.getVariant(postOptimVariantId);
 
+            ConstraintSeries preOptimConstraintSeriesB56 = createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), true);
+            rangeAction.getNetworkElements().forEach(networkElement -> {
+                TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
+                createRemedialActionRegisteredResourceFromNetwork(transformer, networkElement, preOptimConstraintSeriesB56.getRemedialActionSeries().get(0));
+            });
+
             if (preOptimRangeActionResult != null && postOptimRangeActionResult != null
                 && isActivated(preventiveStateId, preOptimRangeActionResult, postOptimRangeActionResult)
                 && !rangeAction.getNetworkElements().isEmpty()) {
 
-                ConstraintSeries preOptimConstraintSeriesB56 = createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), true);
                 ConstraintSeries postOptimConstraintSeriesB56 = createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), false);
 
-                rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, preOptimRangeActionResult, preOptimConstraintSeriesB56.getRemedialActionSeries().get(0)));
                 rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, postOptimConstraintSeriesB56.getRemedialActionSeries().get(0)));
 
                 // Add the remedial action series to B54 and B57

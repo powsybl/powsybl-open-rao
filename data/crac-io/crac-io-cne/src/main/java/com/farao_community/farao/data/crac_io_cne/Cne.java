@@ -98,7 +98,7 @@ public class Cne {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, network, constraintSeriesList, cneHelper.instantToCodeConverter(cnec.getState().getInstant()), cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
 
-        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
+        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId(), cneHelper.getNetwork()));
         crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
 
         /* Add all constraint series to the CNE */
