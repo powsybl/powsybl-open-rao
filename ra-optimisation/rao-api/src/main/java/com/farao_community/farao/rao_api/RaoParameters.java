@@ -63,6 +63,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         platformConfig.getOptionalModuleConfig("rao-parameters")
             .ifPresent(config -> {
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
+                parameters.setLoopflowApproximation(config.getBooleanProperty("loopflow-approximation", DEFAULT_LOOPFLOW_APPROXIMATION));
             });
     }
 
@@ -74,8 +75,18 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     //loop flow parameter section
     static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+    static final boolean DEFAULT_LOOPFLOW_APPROXIMATION = false;
 
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
+
+    /**
+     *  loopflow approximation means using previous calculated ptdf and net position values to compute loopflow
+     *  ptdf is calculated by a sensitivity analysis, net position is derived from current network
+     *  if "loopflowApproximation" is set to "false", then each loopflow computation do a sensi for ptdf;
+     *  if "loopflowApproximation" is set to "true", loopflow computation tries to use previous saved ptdf and netposition.
+     *  note: Loopflow = reference flow - ptdf * net position
+     */
+    private boolean loopflowApproximation = DEFAULT_LOOPFLOW_APPROXIMATION;
 
     public void setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
         this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
@@ -83,6 +94,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public boolean isRaoWithLoopFlowLimitation() {
         return raoWithLoopFlowLimitation;
+    }
+
+    public boolean isLoopflowApproximation() {
+        return loopflowApproximation;
+    }
+
+    public void setLoopflowApproximation(boolean loopflowApproximation) {
+        this.loopflowApproximation = loopflowApproximation;
     }
     //end loop flow parameter section
 }

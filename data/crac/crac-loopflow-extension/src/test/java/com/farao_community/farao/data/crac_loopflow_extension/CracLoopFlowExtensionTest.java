@@ -47,5 +47,8 @@ public class CracLoopFlowExtensionTest {
         assertEquals(0.0, cnecLoopFlowExtension.getInputLoopFlow(), 0.1);
         CnecLoopFlowExtension cnecLoopFlowExtensionBeta = new CnecLoopFlowExtension(100.0);
         assertEquals(100, cnecLoopFlowExtensionBeta.getInputLoopFlow(), 0.1);
+        cnecLoopFlowExtension.setHasLoopflowShift(true);
+        cnecLoopFlowExtension.setLoopflowShift(1.0);
+        Assert.assertTrue(cnecLoopFlowExtension.hasLoopflowShift());
     }
 }

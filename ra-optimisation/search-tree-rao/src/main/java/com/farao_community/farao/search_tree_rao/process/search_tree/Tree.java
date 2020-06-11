@@ -63,6 +63,7 @@ public final class Tree {
 
         Leaf rootLeaf = new Leaf();
         String initialNetworkVariant = network.getVariantManager().getWorkingVariantId();
+
         String newNetworkVariant = RandomizedString.getRandomizedString(network.getVariantManager().getVariantIds());
         network.getVariantManager().cloneVariant(initialNetworkVariant, newNetworkVariant);
         rootLeaf.evaluate(network, crac, newNetworkVariant, parameters);
