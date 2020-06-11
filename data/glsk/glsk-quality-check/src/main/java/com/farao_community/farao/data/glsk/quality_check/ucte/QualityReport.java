@@ -13,7 +13,11 @@ import java.util.stream.Collectors;
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
 public class QualityReport {
-    private Map<String, List<QualityLog>> qualityLogs = new TreeMap<>();
+    private Map<String, List<QualityLog>> qualityLogsByTso = new TreeMap<>();
+
+    public Map<String, List<QualityLog>> getQualityLogsByTso() {
+        return qualityLogsByTso;
+    }
 
     public void info(String checkId, String nodeId, String type, String tso, String message) {
         log(checkId, nodeId, type, tso, SeverityEnum.INFORMATION, message);
@@ -28,20 +32,16 @@ public class QualityReport {
     }
 
     private void log(String checkId, String nodeId, String type, String tso, SeverityEnum severity, String message) {
-        qualityLogs.putIfAbsent(tso, new ArrayList<>());
-        qualityLogs.get(tso).add(new QualityLog(checkId, nodeId, type, tso, severity, message));
+        qualityLogsByTso.putIfAbsent(tso, new ArrayList<>());
+        qualityLogsByTso.get(tso).add(new QualityLog(checkId, nodeId, type, tso, severity, message));
     }
 
-    public List<QualityLog> getQualityLogs() {
-        return qualityLogs.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+    public List<QualityLog> getAllQualityLogs() {
+        return qualityLogsByTso.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     public List<QualityLog> getQualityLogs(String tso) {
-        return qualityLogs.getOrDefault(tso, new ArrayList<>());
-    }
-
-    public boolean hasQualityLogs(String tso) {
-        return qualityLogs.containsKey(tso);
+        return qualityLogsByTso.getOrDefault(tso, Collections.emptyList());
     }
 
 }
