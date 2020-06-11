@@ -73,7 +73,7 @@ public final class CneClassCreator {
      *****************/
     public static ConstraintSeries newConstraintSeries(String id, String businessType) {
         ConstraintSeries constraintSeries = new ConstraintSeries();
-        constraintSeries.setMRID(cutString(id, 60));
+        constraintSeries.setMRID(randomizeString(id, 60));
         constraintSeries.setBusinessType(businessType);
         constraintSeries.contingencySeries = new ArrayList<>();
         constraintSeries.monitoredSeries = new ArrayList<>();
@@ -110,7 +110,7 @@ public final class CneClassCreator {
      *****************/
     public static ContingencySeries newContingencySeries(String id, String name) {
         ContingencySeries contingencySeries = new ContingencySeries();
-        contingencySeries.setMRID(cutString(id, 60));
+        contingencySeries.setMRID(randomizeString(id, 60));
         contingencySeries.setName(name);
 
         return contingencySeries;
@@ -122,7 +122,7 @@ public final class CneClassCreator {
      *****************/
     public static MonitoredSeries newMonitoredSeries(String id, String name) {
         MonitoredSeries monitoredSeries = new MonitoredSeries();
-        monitoredSeries.setMRID(cutString(id, 60));
+        monitoredSeries.setMRID(randomizeString(id, 60));
         monitoredSeries.setName(name);
         monitoredSeries.registeredResource = new ArrayList<>();
 

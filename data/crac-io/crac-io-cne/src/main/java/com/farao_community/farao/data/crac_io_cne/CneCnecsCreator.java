@@ -79,7 +79,8 @@ public final class CneCnecsCreator {
             constraintSeriesB88.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB88));
 
         } else {
-            LOGGER.warn(String.format("Results of CNEC %s are not exported.", cnec.getName()));
+            String warningMsg = String.format("Results of CNEC %s are not exported.", cnec.getName());
+            LOGGER.warn(warningMsg);
         }
 
         /* Add constraint series to the list */
@@ -223,7 +224,10 @@ public final class CneCnecsCreator {
     }
 
     private static void addSumPtdf() {
-        // TODO: develop this
+        // TODO: develop this once relative margin is handled
+        // factor used to convert absolute margin to relative margin
+        // PTDF = sumPTDF = |z2zPTDFS|: zone-to-zone PTDF means the power distribution factor of a commercial exchange between two bidding zones
+
     }
 
     private static void addLoopflow(CnecResult cnecResult, List<Analog> measurements) {

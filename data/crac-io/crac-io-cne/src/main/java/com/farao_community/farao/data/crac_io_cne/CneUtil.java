@@ -83,6 +83,14 @@ public final class CneUtil {
         return string.substring(0, Math.min(string.length(), maxChar));
     }
 
+    public static String randomizeString(String string, int maxChar) {
+        int nbRandomChars = 5;
+        Random random = new SecureRandom();
+
+        String newString = cutString(string, maxChar - nbRandomChars - 1);
+        return newString + "_" + cutString(Integer.toHexString(random.nextInt()), nbRandomChars);
+    }
+
     public static float limitFloatInterval(double value) {
         return (float) Math.min(Math.round(Math.abs(value)), 100000);
     }
