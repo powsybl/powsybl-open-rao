@@ -67,6 +67,7 @@ public class RaoParametersTest {
         moduleConfig.setStringProperty("rao-with-loop-flow-limitation", Boolean.toString(false));
         moduleConfig.setStringProperty("loopflow-approximation", Boolean.toString(false));
         moduleConfig.setStringProperty("loopflow-constraint-adjustment-coefficient", Objects.toString(0.0));
+
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
