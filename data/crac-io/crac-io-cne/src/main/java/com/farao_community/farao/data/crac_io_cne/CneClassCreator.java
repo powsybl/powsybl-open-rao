@@ -188,7 +188,7 @@ public final class CneClassCreator {
      *****************/
     public static RemedialActionSeries newRemedialActionSeries(String id, String name) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
-        remedialActionSeries.setMRID(cutString(id, 60));
+        remedialActionSeries.setMRID(randomizeString(id, 60));
         remedialActionSeries.setName(name);
         remedialActionSeries.partyMarketParticipant = new ArrayList<>();
         remedialActionSeries.registeredResource = new ArrayList<>();

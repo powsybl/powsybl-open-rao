@@ -84,8 +84,12 @@ public final class CneRemedialActionsCreator {
             int tap = ((PstRangeResult) rangeActionResult).getTap(preventiveStateId);
             RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
             remedialActionSeries.registeredResource.add(registeredResource);
-            remedialActionSeries.setMRID(remedialActionSeries.getMRID() + "@" + tap + "@");
+            remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID(), tap));
         }
+    }
+
+    private static String createRangeActionId(String mRid, int tap) {
+        return cutString(mRid.substring(0, mRid.length() - 6), 55) + "@" + tap + "@";
     }
 
     static void createNetworkRemedialActionSeries(NetworkAction networkAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId) {

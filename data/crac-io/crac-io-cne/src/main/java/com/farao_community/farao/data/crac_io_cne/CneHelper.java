@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
@@ -31,14 +30,12 @@ public class CneHelper {
     private List<Instant> instants;
     private String preOptimVariantId;
     private String postOptimVariantId;
-    private Map<Contingency, ConstraintSeries> constraintSeriesMap;
 
     public CneHelper(Crac crac, Network network) {
 
         instants = new ArrayList<>();
         preOptimVariantId = "";
         postOptimVariantId = "";
-        constraintSeriesMap = new HashMap<>();
 
         this.crac = crac;
         this.network = network;
@@ -51,18 +48,6 @@ public class CneHelper {
 
     public Network getNetwork() {
         return network;
-    }
-
-    public Map<Contingency, ConstraintSeries> getConstraintSeriesMap() {
-        return constraintSeriesMap;
-    }
-
-    public void addToConstraintSeriesMap(Contingency contingency, ConstraintSeries constraintSeries) {
-        constraintSeriesMap.put(contingency, constraintSeries);
-    }
-
-    public List<Instant> getInstants() {
-        return instants;
     }
 
     public String getPreOptimVariantId() {

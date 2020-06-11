@@ -127,7 +127,7 @@ public class CneGenerationTest {
                 fail();
             }
             // Remedial action
-            Optional<RemedialActionSeries> remedialActionSeriesPST = constraintSeriesB54.get().getRemedialActionSeries().stream().filter(remedialActionSeries -> remedialActionSeries.getMRID().equals("SelectTapPST43@-16@")).findFirst();
+            Optional<RemedialActionSeries> remedialActionSeriesPST = constraintSeriesB54.get().getRemedialActionSeries().stream().filter(remedialActionSeries -> remedialActionSeries.getMRID().contains("SelectTapPST43@-16@")).findFirst();
             if (remedialActionSeriesPST.isPresent()) {
                 assertTrue(remedialActionSeriesPST.get().getRegisteredResource().isEmpty());
                 assertEquals("SelectTapPST43", remedialActionSeriesPST.get().getName());
