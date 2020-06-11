@@ -110,7 +110,7 @@ public final class CneRemedialActionsCreator {
         return cutString(mRid, 55) + "@" + tap + "@";
     }
 
-    static void createNetworkRemedialActionSeries(NetworkAction networkAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, ConstraintSeries preventiveB56) {
+    static void createNetworkRemedialActionSeries(NetworkAction networkAction, String preventiveStateId, String preOptimVariantId, String postOptimVariantId, ConstraintSeries preventiveB56) {
 
         NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
         if (networkActionResultExtension != null) {

@@ -41,6 +41,18 @@ public class CneGenerationTest {
 
         assertEquals(5, point.getConstraintSeries().size());
 
+        assertEquals(1, point.getConstraintSeries().stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).count());
+        assertEquals(1, point.getConstraintSeries().stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).count());
+        assertEquals(1, point.getConstraintSeries().stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).count());
+        List<ConstraintSeries> b56constraintSeriesList = point.getConstraintSeries().stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B56_BUSINESS_TYPE)).collect(Collectors.toList());
+        assertEquals(2, b56constraintSeriesList.size());
+        Optional<ConstraintSeries> preventiveB56 = b56constraintSeriesList.stream().filter(constraintSeries -> !constraintSeries.getMRID().contains("SelectTapPST43")).findFirst();
+        if (preventiveB56.isPresent()) {
+            assertEquals(2, preventiveB56.get().getRemedialActionSeries().size());
+        } else {
+            fail();
+        }
+
         Optional<ConstraintSeries> constraintSeriesB54 = point.getConstraintSeries().stream().filter(constraintSeries ->
             constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB57 = point.getConstraintSeries().stream().filter(constraintSeries ->
@@ -55,6 +67,7 @@ public class CneGenerationTest {
             assertEquals(1, constraintSeriesB54.get().getMonitoredSeries().size());
             assertEquals(2, constraintSeriesB54.get().getRemedialActionSeries().size());
             assertEquals(8, constraintSeriesB54.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
+            assertNotSame(constraintSeriesB54.get().getRemedialActionSeries().get(0).getMRID(), constraintSeriesB54.get().getRemedialActionSeries().get(1).getMRID());
             // Constraint series B57
             assertEquals(1, constraintSeriesB57.get().getMonitoredSeries().size());
             assertEquals(2, constraintSeriesB57.get().getRemedialActionSeries().size());
