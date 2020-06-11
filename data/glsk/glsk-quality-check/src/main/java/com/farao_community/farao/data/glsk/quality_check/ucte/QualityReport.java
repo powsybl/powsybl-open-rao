@@ -41,7 +41,7 @@ public class QualityReport {
     }
 
     public List<QualityLog> getQualityLogs(String tso) {
-        return qualityLogsByTso.getOrDefault(tso, new ArrayList<>());
+        return qualityLogsByTso.getOrDefault(tso, Collections.emptyList());
     }
 
 }
