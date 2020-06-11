@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_.actors;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.glsk.import_.EICode;
+import com.farao_community.farao.util.EICode;
 import com.farao_community.farao.data.glsk.import_.GlskPoint;
 import com.farao_community.farao.data.glsk.import_.GlskRegisteredResource;
 import com.farao_community.farao.data.glsk.import_.GlskShiftKey;

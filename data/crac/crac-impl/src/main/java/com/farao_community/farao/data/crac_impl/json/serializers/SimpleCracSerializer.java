@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.util.TimeZone;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -29,6 +32,11 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
     public void serialize(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField("id", value.getId());
         gen.writeStringField("name", value.getName());
+        if (value.getNetworkDate() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+            gen.writeStringField("networkDate", dateFormat.format(value.getNetworkDate().toDate()));
+        }
         gen.writeArrayFieldStart("networkElements");
         for (NetworkElement networkElement: value.getNetworkElements()) {
             gen.writeObject(networkElement);
