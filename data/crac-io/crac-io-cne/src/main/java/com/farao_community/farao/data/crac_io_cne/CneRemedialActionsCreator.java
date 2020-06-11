@@ -35,22 +35,13 @@ public final class CneRemedialActionsCreator {
 
     }
 
-    private static void createRemedialActionRegisteredResourceFromNetwork(TwoWindingsTransformer transformer, NetworkElement networkElement, RemedialActionSeries remedialActionSeries) {
-        if (transformer != null) {
-            int tap = transformer.getPhaseTapChanger().getTapPosition();
-            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
-            remedialActionSeries.registeredResource.add(registeredResource);
-            remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID(), tap));
-        }
-    }
-
-    static void createRangeRemedialActionSeries(RangeAction rangeAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, Network network) {
+    static void createRangeRemedialActionSeries(RangeAction rangeAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, Network network, ConstraintSeries preventiveB56) {
         RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
         if (rangeActionResultExtension != null) {
             RangeActionResult preOptimRangeActionResult = rangeActionResultExtension.getVariant(preOptimVariantId);
             RangeActionResult postOptimRangeActionResult = rangeActionResultExtension.getVariant(postOptimVariantId);
 
-            ConstraintSeries preOptimConstraintSeriesB56 = createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), true);
+            ConstraintSeries preOptimConstraintSeriesB56 = createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator());
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
                 createRemedialActionRegisteredResourceFromNetwork(transformer, networkElement, preOptimConstraintSeriesB56.getRemedialActionSeries().get(0));
@@ -60,21 +51,26 @@ public final class CneRemedialActionsCreator {
                 && isActivated(preventiveStateId, preOptimRangeActionResult, postOptimRangeActionResult)
                 && !rangeAction.getNetworkElements().isEmpty()) {
 
-                ConstraintSeries postOptimConstraintSeriesB56 = createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), false);
+                createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), preventiveB56);
 
-                rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, postOptimConstraintSeriesB56.getRemedialActionSeries().get(0)));
-
-                // Add the remedial action series to B54 and B57
-                addRemedialActionsToOtherConstraintSeries(postOptimConstraintSeriesB56.getRemedialActionSeries().get(0), constraintSeriesList);
+                rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, preventiveB56.getRemedialActionSeries().get(0)));
 
                 constraintSeriesList.add(preOptimConstraintSeriesB56);
-                constraintSeriesList.add(postOptimConstraintSeriesB56);
             }
         }
     }
 
-    private static ConstraintSeries createB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim) {
+    private static void createB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, ConstraintSeries preventiveB56) {
+        fillB56ConstraintSeries(remedialActionId, remedialActionName, operator, false, preventiveB56);
+    }
+
+    private static ConstraintSeries createB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator) {
         ConstraintSeries constraintSeries = newConstraintSeries(cutString(remedialActionId + "_" + generateRandomMRID(), 60), B56_BUSINESS_TYPE);
+        fillB56ConstraintSeries(remedialActionId, remedialActionName, operator, true, constraintSeries);
+        return constraintSeries;
+    }
+
+    private static void fillB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim, ConstraintSeries constraintSeries) {
         RemedialActionSeries remedialActionSeries;
         if (isPreOptim) {
             remedialActionSeries = newRemedialActionSeries(remedialActionId, remedialActionName);
@@ -90,8 +86,15 @@ public final class CneRemedialActionsCreator {
         }
 
         constraintSeries.remedialActionSeries.add(remedialActionSeries);
+    }
 
-        return constraintSeries;
+    private static void createRemedialActionRegisteredResourceFromNetwork(TwoWindingsTransformer transformer, NetworkElement networkElement, RemedialActionSeries remedialActionSeries) {
+        if (transformer != null) {
+            int tap = transformer.getPhaseTapChanger().getTapPosition();
+            RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(networkElement.getId(), networkElement.getName(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
+            remedialActionSeries.registeredResource.add(registeredResource);
+            remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID(), tap));
+        }
     }
 
     private static void createRemedialActionRegisteredResource(NetworkElement networkElement, String preventiveStateId, RangeActionResult rangeActionResult, RemedialActionSeries remedialActionSeries) {
@@ -104,10 +107,10 @@ public final class CneRemedialActionsCreator {
     }
 
     private static String createRangeActionId(String mRid, int tap) {
-        return cutString(mRid.substring(0, mRid.length() - 6), 55) + "@" + tap + "@";
+        return cutString(mRid, 55) + "@" + tap + "@";
     }
 
-    static void createNetworkRemedialActionSeries(NetworkAction networkAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId) {
+    static void createNetworkRemedialActionSeries(NetworkAction networkAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, ConstraintSeries preventiveB56) {
 
         NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
         if (networkActionResultExtension != null) {
@@ -118,18 +121,15 @@ public final class CneRemedialActionsCreator {
                 && isActivated(preventiveStateId, preOptimNetworkActionResult, postOptimNetworkActionResult)
                 && !networkAction.getNetworkElements().isEmpty()) {
 
-                ConstraintSeries postOptimConstraintSeriesB56 = createB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), false);
-
-                // Add the remedial action series to B54 and B57
-                addRemedialActionsToOtherConstraintSeries(postOptimConstraintSeriesB56.getRemedialActionSeries().get(0), constraintSeriesList);
-
-                constraintSeriesList.add(postOptimConstraintSeriesB56);
+                createB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), preventiveB56);
             }
         }
     }
 
-    private static void addRemedialActionsToOtherConstraintSeries(RemedialActionSeries remedialActionSeries, List<ConstraintSeries> constraintSeriesList) {
-        RemedialActionSeries shortPostOptimRemedialActionSeries = newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getApplicationModeMarketObjectStatusStatus());
-        constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(shortPostOptimRemedialActionSeries));
+    static void addRemedialActionsToOtherConstraintSeries(List<RemedialActionSeries> remedialActionSeriesList, List<ConstraintSeries> constraintSeriesList) {
+        remedialActionSeriesList.forEach(remedialActionSeries -> {
+            RemedialActionSeries shortPostOptimRemedialActionSeries = newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getApplicationModeMarketObjectStatusStatus());
+            constraintSeriesList.stream().filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).forEach(constraintSeries -> constraintSeries.remedialActionSeries.add(shortPostOptimRemedialActionSeries));
+        });
     }
 }

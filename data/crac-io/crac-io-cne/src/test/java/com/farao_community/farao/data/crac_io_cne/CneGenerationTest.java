@@ -39,7 +39,7 @@ public class CneGenerationTest {
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
-        assertEquals(6, point.getConstraintSeries().size());
+        assertEquals(5, point.getConstraintSeries().size());
 
         Optional<ConstraintSeries> constraintSeriesB54 = point.getConstraintSeries().stream().filter(constraintSeries ->
             constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
