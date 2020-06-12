@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -70,6 +71,30 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setLoopflowApproximation(false);
+        linearRaoParameters.setExtendable(raoParameters);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+
+        // fill max loop flow
+        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+
+        // check flow constraint for cnec1
+        MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNotNull(loopFlowConstraint);
+        assertEquals(-100, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(100, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
+        MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec1);
+        assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
+    }
+
+    @Test
+    public void testFillLoopflow() {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        assertNotNull(loopFlowComputation);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setLoopflowApproximation(true);
+        linearRaoParameters.setExtendable(raoParameters);
         coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
 
         // fill max loop flow

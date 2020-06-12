@@ -8,16 +8,17 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.PATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.TATL_MEASUREMENT_TYPE;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -29,16 +30,12 @@ public class CneHelper {
     private List<Instant> instants;
     private String preOptimVariantId;
     private String postOptimVariantId;
-    private Map<Contingency, ConstraintSeries> constraintSeriesMap;
-    private Contingency basecase;
 
     public CneHelper(Crac crac, Network network) {
 
         instants = new ArrayList<>();
         preOptimVariantId = "";
         postOptimVariantId = "";
-        constraintSeriesMap = new HashMap<>();
-        basecase = new ComplexContingency("BASECASE");
 
         this.crac = crac;
         this.network = network;
@@ -49,24 +46,8 @@ public class CneHelper {
         }
     }
 
-    public Contingency getBasecase() {
-        return basecase;
-    }
-
     public Network getNetwork() {
         return network;
-    }
-
-    public Map<Contingency, ConstraintSeries> getConstraintSeriesMap() {
-        return constraintSeriesMap;
-    }
-
-    public void addToConstraintSeriesMap(Contingency contingency, ConstraintSeries constraintSeries) {
-        constraintSeriesMap.put(contingency, constraintSeries);
-    }
-
-    public List<Instant> getInstants() {
-        return instants;
     }
 
     public String getPreOptimVariantId() {
@@ -95,13 +76,21 @@ public class CneHelper {
         double minCost = cracExtension.getVariant(variants.get(0)).getCost();
         double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
         for (String variant : variants) {
-            if (cracExtension.getVariant(variant).getCost() < minCost) {
+            if (cracExtension.getVariant(variant).getCost() <= minCost) {
                 minCost = cracExtension.getVariant(variant).getCost();
                 postOptimVariantId = variant;
             } else if (cracExtension.getVariant(variant).getCost() > maxCost) {
                 maxCost = cracExtension.getVariant(variant).getCost();
                 preOptimVariantId = variant;
             }
+        }
+    }
+
+    public String instantToCodeConverter(Instant instant) {
+        if (instant.equals(instants.get(0))) { // Before contingency
+            return PATL_MEASUREMENT_TYPE;
+        } else { // After contingency, before any post-contingency RA
+            return TATL_MEASUREMENT_TYPE;
         }
     }
 
