@@ -141,6 +141,11 @@ class SystematicAnalysisEngine {
         }
     }
 
+    /**
+     * check loopflow here with the initial constraint which does not contain loopflowConstraintAdjustmentCoefficient;
+     *  - if LinearRao has run already: MPConstraint for linear rao solver contains loopflowConstraintAdjustmentCoefficient, here is a double-check without loopflowConstraintAdjustmentCoefficient;
+     *  - if LinearRao is skipped, here is the only check for loopflow.
+     */
     private Map<String, Double> computeLoopflowAndCheckLoopflowConstraint(LinearRaoData linearRaoData) {
         Map<String, Double> loopflows;
         if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) { //no re-compute ptdf
@@ -149,9 +154,6 @@ class SystematicAnalysisEngine {
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork()); //re-compute ptdf
         }
 
-        // check loopflow here with the initial constraint which does not contain loopflowConstraintAdjustmentCoefficient;
-        // - if LinearRao has run already: MPConstraint for linear rao solver contains loopflowConstraintAdjustmentCoefficient, here is a double-check without loopflowConstraintAdjustmentCoefficient;
-        // - if LinearRao is skipped, here is the only check for loopflow.
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
                     && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
