@@ -34,7 +34,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
-        buildMaxLoopFlowConstraint(linearRaoData, linearRaoProblem, linearRaoParameters);
+        buildLoopFlowConstraintsAndUpdateObjectiveFunction(linearRaoData, linearRaoProblem, linearRaoParameters);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      *     NEGATIVE_INF <= flowVariable - loopflowBreachVariable <= MaxLoopFlow + LoopFlowShift
      *
      */
-    private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
+    private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         Map<Cnec, Double> loopFlowShifts;
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(linearRaoData.getCrac());
         if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isLoopflowApproximation()) {
@@ -122,22 +122,27 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                     throw new FaraoException(String.format("loopflow breach variable on %s can not be defined.", cnec.getId()));
                 }
 
+                // - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowBreachVariable <= POSITIVE_INF
                 MPConstraint positiveLoopflowBreachConstraint = linearRaoProblem.addPositiveLoopflowBreachConstraint(
                         -maxLoopFlowLimit + loopFlowShift,
                         linearRaoProblem.infinity(),
                         cnec
                 );
+                positiveLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
+                positiveLoopflowBreachConstraint.setCoefficient(loopflowBreachVariable, 1);
+
+                // NEGATIVE_INF <= flowVariable - loopflowBreachVariable <= MaxLoopFlow + LoopFlowShift
                 MPConstraint negativeLoopflowBreachConstraint = linearRaoProblem.addNegativeLoopflowBreachConstraint(
                         -linearRaoProblem.infinity(),
                         maxLoopFlowLimit + loopFlowShift,
                         cnec
                 );
-                positiveLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
-                positiveLoopflowBreachConstraint.setCoefficient(loopflowBreachVariable, 1);
                 negativeLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
                 negativeLoopflowBreachConstraint.setCoefficient(loopflowBreachVariable, -1);
+
+                //update objective function when non-zero-loopflowViolationCost
+                linearRaoProblem.getObjective().setCoefficient(loopflowBreachVariable, loopflowViolationCost);
             }
         } // end cnec loop
     }
-
 }
