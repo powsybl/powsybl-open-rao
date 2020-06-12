@@ -51,7 +51,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     /**
      * Flow reliability margin of the Cnec associated to this threshold, in MEGAWATT
      */
-    private double frmInMW;
+    protected double frmInMW;
 
     protected boolean isSynchronized;
 
@@ -204,7 +204,9 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             result = threshold.networkElement == null;
         }
         return result && unit.equals(threshold.unit)
-            && side.equals(threshold.side) && direction.equals(threshold.direction);
+            && side.equals(threshold.side)
+                && direction.equals(threshold.direction)
+                && frmInMW == (threshold.frmInMW);
     }
 
     @Override
@@ -212,6 +214,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         int result = unit.hashCode();
         result = 31 * result + side.hashCode();
         result = 31 * result + direction.hashCode();
+        result += frmInMW;
         return result;
     }
 }
