@@ -62,7 +62,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * or:
      *     - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowBreachVariable <= POSITIVE_INF
      *     NEGATIVE_INF <= flowVariable - loopflowBreachVariable <= MaxLoopFlow + LoopFlowShift
-     *
+     * and a "virtual cost" is added to objective function as "loopflowBreachVariable * Loopflow violation cost"
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         Map<Cnec, Double> loopFlowShifts;
