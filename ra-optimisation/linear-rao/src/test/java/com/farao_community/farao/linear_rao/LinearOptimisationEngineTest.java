@@ -33,8 +33,6 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Objects;
-
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
