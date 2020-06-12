@@ -112,7 +112,7 @@
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "Contingency FR1 FR3-Défaut",
-    "frm" : 0.0,
+    "frm" : -1.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
       "unit" : "AMPERE",
@@ -150,7 +150,7 @@
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "Contingency FR1 FR3-Curatif",
-    "frm" : 0.0,
+    "frm" : 2.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
       "unit" : "AMPERE",
@@ -188,7 +188,7 @@
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "none-N",
-    "frm" : 0.0,
+    "frm" : 3.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
       "unit" : "AMPERE",
@@ -226,7 +226,7 @@
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
     "state" : "Contingency FR1 FR3-Défaut",
-    "frm" : 0.0,
+    "frm" : 4.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
       "unit" : "AMPERE",
@@ -264,7 +264,7 @@
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
     "state" : "none-N",
-    "frm" : 0.0,
+    "frm" : 5.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
       "unit" : "AMPERE",
@@ -301,7 +301,7 @@
     "type" : "pst-with-range",
     "id" : "PST1",
     "name" : "PST1",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -355,12 +355,14 @@
         "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
-          "cost" : 460.5489344039861
+          "functionalCost" : 460.5489344039861,
+          "virtualCost" : 0.0
         },
         "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
-          "cost" : 287.1525720992986
+          "functionalCost" : 287.1525720992986,
+          "virtualCost" : 0.0
         }
       }
     }
