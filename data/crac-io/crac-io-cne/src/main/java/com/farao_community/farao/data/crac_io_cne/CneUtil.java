@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
@@ -99,5 +101,16 @@ public final class CneUtil {
         } catch (NullPointerException e) {
             return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
         }
+    }
+
+    public static boolean isActivated(String stateId, RangeActionResult preOptimRangeActionResult, RangeActionResult postOptimRangeActionResult) {
+        if (!Double.isNaN(preOptimRangeActionResult.getSetPoint(stateId)) && !Double.isNaN(postOptimRangeActionResult.getSetPoint(stateId))) {
+            return postOptimRangeActionResult.getSetPoint(stateId) != preOptimRangeActionResult.getSetPoint(stateId);
+        }
+        return false;
+    }
+
+    public static boolean isActivated(String stateId, NetworkActionResult preOptimNetworkActionResult, NetworkActionResult postOptimNetworkActionResult) {
+        return postOptimNetworkActionResult.isActivated(stateId) != preOptimNetworkActionResult.isActivated(stateId);
     }
 }

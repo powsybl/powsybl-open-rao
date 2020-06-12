@@ -18,6 +18,7 @@ import java.util.*;
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneCnecsCreator.createConstraintSeriesOfACnec;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
+import static com.farao_community.farao.data.crac_io_cne.CneRemedialActionsCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 
 /**
@@ -95,6 +96,13 @@ public class Cne {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, network, constraintSeriesList, cneHelper.instantToCodeConverter(cnec.getState().getInstant()), cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
+
+        ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
+        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId(), cneHelper.getNetwork(), preventiveB56));
+        crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, crac.getPreventiveState().getId(), cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId(), preventiveB56));
+        // Add the remedial action series to B54 and B57
+        addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), constraintSeriesList);
+        constraintSeriesList.add(preventiveB56);
 
         /* Add all constraint series to the CNE */
         point.constraintSeries = constraintSeriesList;
