@@ -114,7 +114,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 //NOTE: we treat "non-zero-loopflowViolationCost" routine here separately, no use to merge and pollute the "zero-" routine.
 
                 MPVariable loopflowBreachVariable = linearRaoProblem.addLoopflowBreachVariable(
-                        0.0,
+                        -linearRaoProblem.infinity(),
                         linearRaoProblem.infinity(),
                         cnec
                 );

@@ -62,7 +62,7 @@ class SystematicAnalysisEngine {
         this.linearRaoParameters = linearRaoParameters;
         this.computationManager = computationManager;
         this.fallbackMode = false;
-        this.runLoopflow = linearRaoParameters.getExtendable().isRaoWithLoopFlowLimitation();
+        this.runLoopflow = !Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isRaoWithLoopFlowLimitation();
         this.loopflowViolation = false;
     }
 
@@ -149,6 +149,9 @@ class SystematicAnalysisEngine {
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork()); //re-compute ptdf
         }
 
+        // check loopflow here with the initial constraint which does not contain loopflowConstraintAdjustmentCoefficient;
+        // - if LinearRao has run already: MPConstraint for linear rao solver contains loopflowConstraintAdjustmentCoefficient, here is a double-check without loopflowConstraintAdjustmentCoefficient;
+        // - if LinearRao is skipped, here is the only check for loopflow.
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
                     && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
@@ -166,13 +169,23 @@ class SystematicAnalysisEngine {
      */
     private void setResults(LinearRaoData linearRaoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Map<String, Double> loopflows) {
         linearRaoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        //set functional cost
         double minMargin = getMinMargin(linearRaoData, systematicSensitivityAnalysisResult);
         linearRaoData.getCracResult().setFunctionalCost(-minMargin);
-        linearRaoData.getCracResult().setVirtualCost(fallbackMode ? linearRaoParameters.getFallbackOvercost() : 0);
-        if (isLoopflowViolation()) {
-//            linearRaoData.getCracResult().setCost(Double.POSITIVE_INFINITY); //todo: set a high cost if loopflow constraint violation => use "virtual cost" in the future
-        }
+
+        //update virtual cost
+        double virtualCost = linearRaoData.getCracResult().getVirtualCost();
+        double fallbackModeVirtualCost = fallbackMode ? linearRaoParameters.getFallbackOvercost() : 0.0;
+        linearRaoData.getCracResult().setVirtualCost(virtualCost + fallbackModeVirtualCost);
+
         linearRaoData.getCracResult().setNetworkSecurityStatus(minMargin < 0 ? CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
+        if (isLoopflowViolation()) {
+            linearRaoData.getCracResult().setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED); //flag UNSECURED if loopflowViolation
+            if (linearRaoParameters.getExtendable().getLoopflowViolationCost() == 0.0) {
+                linearRaoData.getCracResult().setVirtualCost(Double.MAX_VALUE); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
+            }
+        }
+
         updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
     }
 
