@@ -168,12 +168,20 @@ public class LinearRaoProblem {
         return solver.makeConstraint(lb, ub, positiveLoopflowBreachConstraintId(cnec));
     }
 
+    public MPConstraint getPositiveLoopflowBreachConstraint(Cnec cnec) {
+        return solver.lookupConstraintOrNull(positiveLoopflowBreachConstraintId(cnec));
+    }
+
     private String positiveLoopflowBreachConstraintId(Cnec cnec) {
         return cnec.getId() + SEPARATOR + POSITIVE_LOOPFLOWBREACH + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addNegativeLoopflowBreachConstraint(double lb, double ub, Cnec cnec) {
         return solver.makeConstraint(lb, ub, negativeLoopflowBreachConstraintId(cnec));
+    }
+
+    public MPConstraint getNegativeLoopflowBreachConstraint(Cnec cnec) {
+        return solver.lookupConstraintOrNull(negativeLoopflowBreachConstraintId(cnec));
     }
 
     private String negativeLoopflowBreachConstraintId(Cnec cnec) {
