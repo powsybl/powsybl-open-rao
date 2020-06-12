@@ -92,7 +92,6 @@ public class Cne {
     private void createAllConstraintSeries(Point point) {
 
         Crac crac = cneHelper.getCrac();
-        Network network = cneHelper.getNetwork();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
