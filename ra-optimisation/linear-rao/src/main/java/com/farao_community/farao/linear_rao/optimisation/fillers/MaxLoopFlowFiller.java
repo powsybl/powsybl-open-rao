@@ -119,7 +119,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                         cnec
                 );
                 if (Objects.isNull(loopflowBreachVariable)) {
-                    throw new FaraoException(String.format("loopflow Breach variable on %s has not been defined yet.", cnec.getId()));
+                    throw new FaraoException(String.format("loopflow breach variable on %s can not be defined.", cnec.getId()));
                 }
 
                 MPConstraint positiveLoopflowBreachConstraint = linearRaoProblem.addPositiveLoopflowBreachConstraint(
