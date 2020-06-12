@@ -11,15 +11,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
+import static com.farao_community.farao.data.crac_io_cne.CneCnecsCreator.createConstraintSeriesOfACnec;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
+import static com.farao_community.farao.data.crac_io_cne.CneRemedialActionsCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 
 /**
@@ -30,8 +29,6 @@ import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 public class Cne {
     private CriticalNetworkElementMarketDocument marketDocument;
     private CneHelper cneHelper;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Cne.class);
 
     public Cne(Crac crac, Network network) {
         marketDocument = new CriticalNetworkElementMarketDocument();
@@ -76,7 +73,7 @@ public class Cne {
     }
 
     /*****************
-     TIME_SERIES and REASON
+     TIME_SERIES
      *****************/
     // creates and adds the TimeSeries to the CNE
     private void addTimeSeriesToCne(DateTime networkDate) {
@@ -94,6 +91,19 @@ public class Cne {
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
 
-        point.constraintSeries = new ArrayList<>();
+        Crac crac = cneHelper.getCrac();
+
+        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+        crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
+
+        ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
+        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, cneHelper, constraintSeriesList, preventiveB56));
+        crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, cneHelper, preventiveB56));
+        // Add the remedial action series to B54 and B57
+        addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), constraintSeriesList);
+        constraintSeriesList.add(preventiveB56);
+
+        /* Add all constraint series to the CNE */
+        point.constraintSeries = constraintSeriesList;
     }
 }

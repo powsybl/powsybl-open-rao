@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns:ecl="urn:entsoe.eu:wgedi:codelists" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:entsoe.eu:wgedi:codelists" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:include schemaLocation="urn-entsoe-eu-local-extension-types.xsd" />
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:entsoe.eu:wgedi:codelists" xmlns:ecl="urn:entsoe.eu:wgedi:codelists" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:include schemaLocation="urn-entsoe-eu-local-extension-types.xsd"/>
     <xsd:annotation>
         <xsd:documentation>
-            <Version>Current version 69</Version>
+            <Version>Current version 67</Version>
             <Titre>Complete compilation of ENTSO-E Code Lists used by ENTSO-E XML electronic documents and CIM XML electronic documents.</Titre>
             <Release>Current Release: 0</Release>
-            <ReleaseDate>2020-04-07</ReleaseDate>
+            <ReleaseDate>2019-12-05</ReleaseDate>
         </xsd:documentation>
     </xsd:annotation>
     <xsd:simpleType name="StandardAllocationModeTypeList">
@@ -82,7 +82,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>Flow</Title>
-                            <Definition>This is the computed flow for the monitored element in the constraint situation ("N situation", "N-1 situation" ...) after the capacity calculation. The flow is expressed in A, %, or MW.</Definition>
+                            <Definition>This is the computed flow for the monitored element in the constraint situation (&quot;N situation&quot;, &quot;N-1 situation&quot; ...) after the capacity calculation. The flow is expressed in A, %, or MW.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -1294,7 +1294,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>Use it Or Sell it (UIOSI) pricing</Title>
-                            <Definition>The time series provides information on the capacity resold in the "use it or sell it" process and its corresponding price.</Definition>
+                            <Definition>The time series provides information on the capacity resold in the &quot;use it or sell it&quot; process and its corresponding price.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -4372,7 +4372,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>Setpoint schedule</Title>
-                            <Definition>The code for the "power setpoint" mode of operation of the HVDC link.</Definition>
+                            <Definition>The code for the &quot;power setpoint&quot; mode of operation of the HVDC link.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -4382,7 +4382,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>Proportional external signal</Title>
-                            <Definition>The code for the "Proportional external signal" mode of operation of the HVDC link.</Definition>
+                            <Definition>The code for the &quot;Proportional external signal&quot; mode of operation of the HVDC link.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -4392,7 +4392,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>AC emulation</Title>
-                            <Definition>The code for the "AC emulation" mode of operation of the HVDC link.</Definition>
+                            <Definition>The code for the &quot;AC emulation&quot; mode of operation of the HVDC link.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -6363,7 +6363,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>SOMA process</Title>
-                            <Definition> System Operator meter alignment process.</Definition>
+                            <Definition>System Operator meter alignment process.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -6373,7 +6373,7 @@
                     <xsd:documentation>
                         <CodeDescription>
                             <Title>SOVM process</Title>
-                            <Definition> System Operator validated measurement process.</Definition>
+                            <Definition>System Operator validated measurement process.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -6744,16 +6744,6 @@
                         <CodeDescription>
                             <Title>Reserve option market</Title>
                             <Definition>Processes related to the Reserve option market to assure that there are enough available reserves for the manual FRR market.</Definition>
-                        </CodeDescription>
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:enumeration>
-            <xsd:enumeration value="A59">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <CodeDescription>
-                            <Title>Internal trade reporting</Title>
-                            <Definition>The process related to internal trade reporting.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -8140,26 +8130,6 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:enumeration>
-            <xsd:enumeration value="B51">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <CodeDescription>
-                            <Title>Outside price limits</Title>
-                            <Definition>The offered price is not within the valid limits.</Definition>
-                        </CodeDescription>
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:enumeration>
-            <xsd:enumeration value="B52">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <CodeDescription>
-                            <Title>Previous timeframe data</Title>
-                            <Definition>In case of processing issue, sent data are based on the previous timeframe.</Definition>
-                        </CodeDescription>
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="StandardRightsTypeList">
@@ -8712,16 +8682,6 @@
                         <CodeDescription>
                             <Title>Energy trader</Title>
                             <Definition>A party that is selling or buying energy.</Definition>
-                        </CodeDescription>
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:enumeration>
-            <xsd:enumeration value="A48">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <CodeDescription>
-                            <Title>LFC Operator</Title>
-                            <Definition>A party that is responsible for the Load Frequency Control of its LFC Area or LFC Block.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -9483,16 +9443,6 @@
                         <CodeDescription>
                             <Title>cubic hectometres</Title>
                             <Definition>A unit of volume equal to one million cubic metres.</Definition>
-                        </CodeDescription>
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:enumeration>
-            <xsd:enumeration value="HTZ">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        <CodeDescription>
-                            <Title>Hertz</Title>
-                            <Definition>HTZ unit as per UN/CEFACT recommendation 20.</Definition>
                         </CodeDescription>
                     </xsd:documentation>
                 </xsd:annotation>
@@ -10831,108 +10781,108 @@
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="AllocationModeTypeList">
-        <xsd:union memberTypes="ecl:StandardAllocationModeTypeList ecl:LocalAllocationModeType" />
+        <xsd:union memberTypes="ecl:StandardAllocationModeTypeList ecl:LocalAllocationModeType"/>
     </xsd:simpleType>
     <xsd:simpleType name="AnalogTypeList">
-        <xsd:union memberTypes="ecl:StandardAnalogTypeList ecl:LocalAnalogType" />
+        <xsd:union memberTypes="ecl:StandardAnalogTypeList ecl:LocalAnalogType"/>
     </xsd:simpleType>
     <xsd:simpleType name="AssetTypeList">
-        <xsd:union memberTypes="ecl:StandardAssetTypeList ecl:LocalAssetType" />
+        <xsd:union memberTypes="ecl:StandardAssetTypeList ecl:LocalAssetType"/>
     </xsd:simpleType>
     <xsd:simpleType name="AuctionTypeList">
-        <xsd:union memberTypes="ecl:StandardAuctionTypeList ecl:LocalAuctionType" />
+        <xsd:union memberTypes="ecl:StandardAuctionTypeList ecl:LocalAuctionType"/>
     </xsd:simpleType>
     <xsd:simpleType name="BusinessTypeList">
-        <xsd:union memberTypes="ecl:StandardBusinessTypeList ecl:LocalBusinessType" />
+        <xsd:union memberTypes="ecl:StandardBusinessTypeList ecl:LocalBusinessType"/>
     </xsd:simpleType>
     <xsd:simpleType name="CategoryTypeList">
-        <xsd:union memberTypes="ecl:StandardCategoryTypeList ecl:LocalCategoryType" />
+        <xsd:union memberTypes="ecl:StandardCategoryTypeList ecl:LocalCategoryType"/>
     </xsd:simpleType>
     <xsd:simpleType name="ClassificationTypeList">
-        <xsd:union memberTypes="ecl:StandardClassificationTypeList ecl:LocalClassificationType" />
+        <xsd:union memberTypes="ecl:StandardClassificationTypeList ecl:LocalClassificationType"/>
     </xsd:simpleType>
     <xsd:simpleType name="CodingSchemeTypeList">
-        <xsd:union memberTypes="ecl:StandardCodingSchemeTypeList ecl:LocalCodingSchemeType" />
+        <xsd:union memberTypes="ecl:StandardCodingSchemeTypeList ecl:LocalCodingSchemeType"/>
     </xsd:simpleType>
     <xsd:simpleType name="CoordinateSystemTypeList">
-        <xsd:union memberTypes="ecl:StandardCoordinateSystemTypeList ecl:LocalCoordinateSystemType" />
+        <xsd:union memberTypes="ecl:StandardCoordinateSystemTypeList ecl:LocalCoordinateSystemType"/>
     </xsd:simpleType>
     <xsd:simpleType name="ContractTypeList">
-        <xsd:union memberTypes="ecl:StandardContractTypeList ecl:LocalContractType" />
+        <xsd:union memberTypes="ecl:StandardContractTypeList ecl:LocalContractType"/>
     </xsd:simpleType>
     <xsd:simpleType name="CurrencyTypeList">
-        <xsd:union memberTypes="ecl:StandardCurrencyTypeList ecl:LocalCurrencyType" />
+        <xsd:union memberTypes="ecl:StandardCurrencyTypeList ecl:LocalCurrencyType"/>
     </xsd:simpleType>
     <xsd:simpleType name="CurveTypeList">
-        <xsd:union memberTypes="ecl:StandardCurveTypeList ecl:LocalCurveType" />
+        <xsd:union memberTypes="ecl:StandardCurveTypeList ecl:LocalCurveType"/>
     </xsd:simpleType>
     <xsd:simpleType name="DirectionTypeList">
-        <xsd:union memberTypes="ecl:StandardDirectionTypeList ecl:LocalDirectionType" />
+        <xsd:union memberTypes="ecl:StandardDirectionTypeList ecl:LocalDirectionType"/>
     </xsd:simpleType>
     <xsd:simpleType name="EicTypeList">
-        <xsd:union memberTypes="ecl:StandardEicTypeList ecl:LocalEicType" />
+        <xsd:union memberTypes="ecl:StandardEicTypeList ecl:LocalEicType"/>
     </xsd:simpleType>
     <xsd:simpleType name="EnergyProductTypeList">
-        <xsd:union memberTypes="ecl:StandardEnergyProductTypeList ecl:LocalEnergyProductType" />
+        <xsd:union memberTypes="ecl:StandardEnergyProductTypeList ecl:LocalEnergyProductType"/>
     </xsd:simpleType>
     <xsd:simpleType name="HVDCModeTypeList">
-        <xsd:union memberTypes="ecl:StandardHVDCModeTypeList ecl:LocalHVDCModeType" />
+        <xsd:union memberTypes="ecl:StandardHVDCModeTypeList ecl:LocalHVDCModeType"/>
     </xsd:simpleType>
     <xsd:simpleType name="IndicatorTypeList">
-        <xsd:union memberTypes="ecl:StandardIndicatorTypeList ecl:LocalIndicatorType" />
+        <xsd:union memberTypes="ecl:StandardIndicatorTypeList ecl:LocalIndicatorType"/>
     </xsd:simpleType>
     <xsd:simpleType name="MessageTypeList">
-        <xsd:union memberTypes="ecl:StandardMessageTypeList ecl:LocalMessageType" />
+        <xsd:union memberTypes="ecl:StandardMessageTypeList ecl:LocalMessageType"/>
     </xsd:simpleType>
     <xsd:simpleType name="MarketProductTypeList">
-        <xsd:union memberTypes="ecl:StandardMarketProductTypeList ecl:LocalMarketProductType" />
+        <xsd:union memberTypes="ecl:StandardMarketProductTypeList ecl:LocalMarketProductType"/>
     </xsd:simpleType>
     <xsd:simpleType name="ObjectAggregationTypeList">
-        <xsd:union memberTypes="ecl:StandardObjectAggregationTypeList ecl:LocalObjectAggregationType" />
+        <xsd:union memberTypes="ecl:StandardObjectAggregationTypeList ecl:LocalObjectAggregationType"/>
     </xsd:simpleType>
     <xsd:simpleType name="PaymentTermsTypeList">
-        <xsd:union memberTypes="ecl:StandardPaymentTermsTypeList ecl:LocalPaymentTermsType" />
+        <xsd:union memberTypes="ecl:StandardPaymentTermsTypeList ecl:LocalPaymentTermsType"/>
     </xsd:simpleType>
     <xsd:simpleType name="PriceCategoryTypeList">
-        <xsd:union memberTypes="ecl:StandardPriceCategoryTypeList ecl:LocalPriceCategoryType" />
+        <xsd:union memberTypes="ecl:StandardPriceCategoryTypeList ecl:LocalPriceCategoryType"/>
     </xsd:simpleType>
     <xsd:simpleType name="PriceDirectionTypeList">
-        <xsd:union memberTypes="ecl:StandardPriceDirectionTypeList ecl:LocalPriceDirectionType" />
+        <xsd:union memberTypes="ecl:StandardPriceDirectionTypeList ecl:LocalPriceDirectionType"/>
     </xsd:simpleType>
     <xsd:simpleType name="ProcessTypeList">
-        <xsd:union memberTypes="ecl:StandardProcessTypeList ecl:LocalProcessType" />
+        <xsd:union memberTypes="ecl:StandardProcessTypeList ecl:LocalProcessType"/>
     </xsd:simpleType>
     <xsd:simpleType name="QualityTypeList">
-        <xsd:union memberTypes="ecl:StandardQualityTypeList ecl:LocalQualityType" />
+        <xsd:union memberTypes="ecl:StandardQualityTypeList ecl:LocalQualityType"/>
     </xsd:simpleType>
     <xsd:simpleType name="ReasonCodeTypeList">
-        <xsd:union memberTypes="ecl:StandardReasonCodeTypeList ecl:LocalReasonCodeType" />
+        <xsd:union memberTypes="ecl:StandardReasonCodeTypeList ecl:LocalReasonCodeType"/>
     </xsd:simpleType>
     <xsd:simpleType name="RightsTypeList">
-        <xsd:union memberTypes="ecl:StandardRightsTypeList ecl:LocalRightsType" />
+        <xsd:union memberTypes="ecl:StandardRightsTypeList ecl:LocalRightsType"/>
     </xsd:simpleType>
     <xsd:simpleType name="RoleTypeList">
-        <xsd:union memberTypes="ecl:StandardRoleTypeList ecl:LocalRoleType" />
+        <xsd:union memberTypes="ecl:StandardRoleTypeList ecl:LocalRoleType"/>
     </xsd:simpleType>
     <xsd:simpleType name="StatusTypeList">
-        <xsd:union memberTypes="ecl:StandardStatusTypeList ecl:LocalStatusType" />
+        <xsd:union memberTypes="ecl:StandardStatusTypeList ecl:LocalStatusType"/>
     </xsd:simpleType>
     <xsd:simpleType name="TarifTypeTypeList">
-        <xsd:union memberTypes="ecl:StandardTarifTypeTypeList ecl:LocalTarifTypeType" />
+        <xsd:union memberTypes="ecl:StandardTarifTypeTypeList ecl:LocalTarifTypeType"/>
     </xsd:simpleType>
     <xsd:simpleType name="UnitMultiplier">
-        <xsd:union memberTypes="ecl:StandardUnitMultiplier ecl:LocalUnitMultiplier" />
+        <xsd:union memberTypes="ecl:StandardUnitMultiplier ecl:LocalUnitMultiplier"/>
     </xsd:simpleType>
     <xsd:simpleType name="UnitOfMeasureTypeList">
-        <xsd:union memberTypes="ecl:StandardUnitOfMeasureTypeList ecl:LocalUnitOfMeasureType" />
+        <xsd:union memberTypes="ecl:StandardUnitOfMeasureTypeList ecl:LocalUnitOfMeasureType"/>
     </xsd:simpleType>
     <xsd:simpleType name="UnitSymbol">
-        <xsd:union memberTypes="ecl:StandardUnitSymbol ecl:LocalUnitSymbol" />
+        <xsd:union memberTypes="ecl:StandardUnitSymbol ecl:LocalUnitSymbol"/>
     </xsd:simpleType>
     <xsd:simpleType name="DocumentTypeList">
-        <xsd:union memberTypes="ecl:StandardDocumentTypeList ecl:LocalDocumentType" />
+        <xsd:union memberTypes="ecl:StandardDocumentTypeList ecl:LocalDocumentType"/>
     </xsd:simpleType>
     <xsd:simpleType name="CodingSchemeType">
-        <xsd:union memberTypes="ecl:StandardCodingSchemeTypeList ecl:LocalCodingSchemeType" />
+        <xsd:union memberTypes="ecl:StandardCodingSchemeTypeList ecl:LocalCodingSchemeType"/>
     </xsd:simpleType>
 </xsd:schema>
