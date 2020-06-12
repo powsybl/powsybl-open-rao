@@ -45,7 +45,7 @@
       "side" : "LEFT",
       "direction" : "BOTH",
       "percentageOfMax" : 95.0,
-      "unit" : "AMPERE"
+      "unit" : "MEGAWATT"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -57,7 +57,9 @@
             "minThresholdInMW" : -2303.627574066607,
             "maxThresholdInMW" : 2303.627574066607,
             "minThresholdInA" : -3325.0,
-            "maxThresholdInA" : 3325.0
+            "maxThresholdInA" : 3325.0,
+            "loopflowInMW" : -5.0,
+            "loopflowThresholdInMW" : 19.0
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "cnec-result",
@@ -66,7 +68,9 @@
             "minThresholdInMW" : -2303.627574066607,
             "maxThresholdInMW" : 2303.627574066607,
             "minThresholdInA" : -3325.0,
-            "maxThresholdInA" : 3325.0
+            "maxThresholdInA" : 3325.0,
+            "loopflowInMW" : -13.0,
+            "loopflowThresholdInMW" : 19.0
           }
         }
       }
@@ -76,7 +80,7 @@
     "type" : "pst-with-range",
     "id" : "SelectTapPST43",
     "name" : "SelectTapPST43",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -118,7 +122,7 @@
     "type" : "complex-network-action",
     "id" : "OpenLine321",
     "name" : "OpenLine321",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -128,7 +132,7 @@
       "type" : "topology",
       "id" : "OpenLine321",
       "name" : "OpenLine321",
-      "operator" : "RTE",
+      "operator" : "FR",
       "usageRules" : [ ],
       "networkElements" : [ "FFR3AA1  FFR2AA1  1" ],
       "actionType" : "OPEN"
@@ -155,7 +159,7 @@
     "type" : "complex-network-action",
     "id" : "CloseLine322",
     "name" : "CloseLine322",
-    "operator" : "RTE",
+    "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
@@ -165,7 +169,7 @@
       "type" : "topology",
       "id" : "CloseLine322",
       "name" : "CloseLine322",
-      "operator" : "RTE",
+      "operator" : "FR",
       "usageRules" : [ ],
       "networkElements" : [ "FFR3AA1  FFR2AA1  2" ],
       "actionType" : "CLOSE"
@@ -198,12 +202,14 @@
         "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
           "type" : "crac-result",
           "networkSecurityStatus" : "SECURED",
-          "cost" : -25.64197836348194
+          "functionalCost" : -25.64197836348194,
+          "virtualCost" : 0.0
         },
         "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
-          "cost" : 549.7274064021431
+          "functionalCost" : 549.7274064021431,
+          "virtualCost" : 0.0
         }
       }
     }
