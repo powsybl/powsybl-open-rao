@@ -79,7 +79,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
     static final boolean DEFAULT_LOOPFLOW_APPROXIMATION = false;
     private static final double DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    private static final double DEFAULT_LOOPFLOW_VIOLATION_COST = 10.0;
+    private static final double DEFAULT_LOOPFLOW_VIOLATION_COST = 0.0;
 
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private double loopflowConstraintAdjustmentCoefficient = DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;

@@ -3,7 +3,7 @@
   "rao-with-loop-flow-limitation" : false,
   "loopflow-approximation" : false,
   "loopflow-constraint-adjustment-coefficient" : 0.0,
-  "loopflow-violation-cost" : 10.0,
+  "loopflow-violation-cost" : 0.0,
   "extensions" : {
     "LinearRaoParameters" : {
       "max-number-of-iterations" : 20,
