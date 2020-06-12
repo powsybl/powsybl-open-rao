@@ -156,6 +156,10 @@ public class LinearRaoProblem {
         return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec));
     }
 
+    public MPVariable addLoopflowBreachVariable(double lb, double ub, Cnec cnec) {
+        return solver.makeNumVar(lb, ub, loopflowBreachVariableId(cnec));
+    }
+
     public MPVariable getLoopflowBreachVariable(Cnec cnec) {
         return solver.lookupVariableOrNull(loopflowBreachVariableId(cnec));
     }

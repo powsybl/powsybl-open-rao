@@ -112,7 +112,16 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             } else {
                 //loopflow violation cost is not zero => 2 MP constraints, additional MPVariable loopflowBreachVariable
                 //NOTE: we treat "non-zero-loopflowViolationCost" routine here separately, no use to merge and pollute the "zero-" routine.
-                MPVariable loopflowBreachVariable = linearRaoProblem.getLoopflowBreachVariable(cnec);
+
+                MPVariable loopflowBreachVariable = linearRaoProblem.addLoopflowBreachVariable(
+                        -linearRaoProblem.infinity(),
+                        linearRaoProblem.infinity(),
+                        cnec
+                );
+                if (Objects.isNull(loopflowBreachVariable)) {
+                    throw new FaraoException(String.format("loopflow Breach variable on %s has not been defined yet.", cnec.getId()));
+                }
+
                 MPConstraint positiveLoopflowBreachConstraint = linearRaoProblem.addPositiveLoopflowBreachConstraint(
                         -maxLoopFlowLimit + loopFlowShift,
                         linearRaoProblem.infinity(),

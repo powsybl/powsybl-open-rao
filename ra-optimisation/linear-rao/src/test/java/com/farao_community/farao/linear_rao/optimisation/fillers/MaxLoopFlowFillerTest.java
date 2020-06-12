@@ -89,6 +89,25 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     @Test
+    public void testFillWithLoopflowBreach() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setLoopflowApproximation(false);
+        raoParameters.setLoopflowConstraintAdjustmentCoefficient(0.0);
+        raoParameters.setLoopflowViolationCost(10.0);
+        linearRaoParameters.setExtendable(raoParameters);
+        coreProblemFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        maxLoopFlowFiller.fill(linearRaoData, linearRaoProblem, linearRaoParameters);
+        MPConstraint loopFlowConstraint = linearRaoProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNull(loopFlowConstraint);
+        MPConstraint positiveLoopflowBreachConstraint = linearRaoProblem.getPositiveLoopflowBreachConstraint(cnec1);
+        MPConstraint negativeLoopflowBreachConstraint = linearRaoProblem.getNegativeLoopflowBreachConstraint(cnec1);
+        assertNotNull(positiveLoopflowBreachConstraint);
+        assertNotNull(negativeLoopflowBreachConstraint);
+        assertEquals(1, positiveLoopflowBreachConstraint.getCoefficient(linearRaoProblem.getLoopflowBreachVariable(cnec1)), 0.1);
+        assertEquals(-1, negativeLoopflowBreachConstraint.getCoefficient(linearRaoProblem.getLoopflowBreachVariable(cnec1)), 0.1);
+    }
+
+    @Test
     public void testFillLoopflow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
