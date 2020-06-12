@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -32,7 +33,10 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Objects;
+
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -62,10 +66,10 @@ public class LinearOptimisationEngineTest {
 
         linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
-        Mockito.when(linearRaoProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearRaoProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearRaoProblemMock.getFlowVariable(Mockito.any())).thenReturn(Mockito.mock(MPVariable.class));
+        Mockito.when(linearRaoProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), any(), any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.getFlowConstraint(any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.getFlowVariable(any())).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearRaoProblemMock.getMinimumMarginVariable()).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(Mockito.mock(MPObjective.class));
         Mockito.doReturn(linearRaoProblemMock).when(linearOptimisationEngine).createLinearRaoProblem();
@@ -134,7 +138,7 @@ public class LinearOptimisationEngineTest {
     @Test
     public void testUpdateError() {
         linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
-        Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
+        Mockito.when(linearRaoProblemMock.getFlowConstraint(any())).thenReturn(null);
         try {
             linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
             fail();
@@ -214,5 +218,27 @@ public class LinearOptimisationEngineTest {
         } catch (FaraoException e) {
             // should throw
         }
+    }
+
+    @Test
+    public void fillVirtualCostTest() {
+        setUpForFillCracResults();
+        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
+            cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
+            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        }
+
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.setLoopflowViolationCost(10.0);
+        linearRaoParameters.setExtendable(raoParameters);
+
+        MPVariable variableMock = Mockito.mock(MPVariable.class);
+        Mockito.when(variableMock.solutionValue()).thenReturn(2.0);
+        Mockito.when(linearRaoProblemMock.getLoopflowBreachVariable(any())).thenReturn(variableMock);
+
+        LinearOptimisationEngine.fillVirtualCostInCracResult(linearRaoProblemMock, linearRaoData, linearRaoParameters);
+        assertEquals(40.0, linearRaoData.getCracResult().getVirtualCost(), 0.1);
     }
 }
