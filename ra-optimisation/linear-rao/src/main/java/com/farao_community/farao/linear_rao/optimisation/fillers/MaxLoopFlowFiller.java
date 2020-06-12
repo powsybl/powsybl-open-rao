@@ -43,10 +43,26 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     /**
-     * Loopflow F_(0,all)_current = flowVariable - PTDF * NetPosition, where flowVariable is a MPVariable in linearRao
-     * then max loopflow MPConstraint is: - maxLoopFlow <= currentLoopFlow <= maxLoopFlow
-     * we define loopFlowShift = PTDF * NetPosition, then
-     * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
+     * currentLoopflow = flowVariable - PTDF * NetPosition, where flowVariable a MPVariable
+     * Constraint for loopflow in optimization is: - MaxLoopFlow <= currentLoopFlow <= MaxLoopFlow,
+     * where MaxLoopFlow is calculated as
+     *     max(Input TSO loopflow limit, Loopflow value computed from initial network)
+     *
+     * let LoopFlowShift = PTDF * NetPosition, then
+     *     - MaxLoopFlow + LoopFlowShift <= flowVariable <= MaxLoopFlow + LoopFlowShift
+     *
+     * Loopflow limit may be tuned by a "Loopflow adjustment coefficient":
+     *     MaxLoopFlow = Loopflow constraint - Loopflow adjustment coefficient
+     *
+     * An additional MPVariable "loopflowBreachVariable" may be added when "Loopflow violation cost" is not zero:
+     *     - (MaxLoopFlow + loopflowBreachVariable) <= currentLoopFlow <= MaxLoopFlow + loopflowBreachVariable
+     * equivalent to 2 constraints:
+     *     - MaxLoopFlow <= currentLoopFlow + loopflowBreachVariable
+     *     currentLoopFlow - loopflowBreachVariable <= MaxLoopFlow
+     * or:
+     *     - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowBreachVariable <= POSITIVE_INF
+     *     NEGATIVE_INF <= flowVariable - loopflowBreachVariable <= MaxLoopFlow + LoopFlowShift
+     *
      */
     private void buildMaxLoopFlowConstraint(LinearRaoData linearRaoData, LinearRaoProblem linearRaoProblem, LinearRaoParameters linearRaoParameters) {
         Map<Cnec, Double> loopFlowShifts;
@@ -57,29 +73,62 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(linearRaoData.getNetwork());
         }
 
+        //get additional config parameters
+        double loopflowConstraintAdjustmentCoefficient = 0.0;
+        double loopflowViolationCost = 0.0;
+        if (!Objects.isNull(linearRaoParameters.getExtendable())) {
+            loopflowConstraintAdjustmentCoefficient = linearRaoParameters.getExtendable().getLoopflowConstraintAdjustmentCoefficient();
+            loopflowViolationCost = linearRaoParameters.getExtendable().getLoopflowViolationCost();
+        }
+
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+            //security check
             if (Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 continue;
             }
-            double loopFlowShift = 0.0;
+
+            //get and update MapLoopflowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
-            double loopflowConstraintAdjustmentCoefficient = 0.0;
-            if (!Objects.isNull(linearRaoParameters.getExtendable())) {
-                loopflowConstraintAdjustmentCoefficient = linearRaoParameters.getExtendable().getLoopflowConstraintAdjustmentCoefficient();
-            }
             maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopflowConstraintAdjustmentCoefficient);
-            if (loopFlowShifts.containsKey(cnec)) {
-                loopFlowShift = loopFlowShifts.get(cnec);
-            }
-            MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(
-                    -maxLoopFlowLimit + loopFlowShift,
-                    maxLoopFlowLimit + loopFlowShift,
-                    cnec);
+
+            //get loopflow shift
+            double loopFlowShift = loopFlowShifts.getOrDefault(cnec, 0.0);
+
+            //get MPVariable: flowVariable
             MPVariable flowVariable = linearRaoProblem.getFlowVariable(cnec);
             if (Objects.isNull(flowVariable)) {
                 throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
             }
-            maxLoopflowConstraint.setCoefficient(flowVariable, 1);
-        }
+
+            if (loopflowViolationCost == 0.0) {
+                //no loopflow violation cost => 1 MP constraint
+                //NOTE: The "zero-loopflowViolationCost" routine is (should be) the normal routine,
+                //where infeasible / non-optimal solver status is handled in LinearRao.
+                MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(
+                        -maxLoopFlowLimit + loopFlowShift,
+                        maxLoopFlowLimit + loopFlowShift,
+                        cnec);
+                maxLoopflowConstraint.setCoefficient(flowVariable, 1);
+            } else {
+                //loopflow violation cost is not zero => 2 MP constraints, additional MPVariable loopflowBreachVariable
+                //NOTE: we treat "non-zero-loopflowViolationCost" routine here separately, no use to merge and pollute the "zero-" routine.
+                MPVariable loopflowBreachVariable = linearRaoProblem.getLoopflowBreachVariable(cnec);
+                MPConstraint positiveLoopflowBreachConstraint = linearRaoProblem.addPositiveLoopflowBreachConstraint(
+                        -maxLoopFlowLimit + loopFlowShift,
+                        linearRaoProblem.infinity(),
+                        cnec
+                );
+                MPConstraint negativeLoopflowBreachConstraint = linearRaoProblem.addNegativeLoopflowBreachConstraint(
+                        -linearRaoProblem.infinity(),
+                        maxLoopFlowLimit + loopFlowShift,
+                        cnec
+                );
+                positiveLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
+                positiveLoopflowBreachConstraint.setCoefficient(loopflowBreachVariable, 1);
+                negativeLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
+                negativeLoopflowBreachConstraint.setCoefficient(loopflowBreachVariable, -1);
+            }
+        } // end cnec loop
     }
+
 }

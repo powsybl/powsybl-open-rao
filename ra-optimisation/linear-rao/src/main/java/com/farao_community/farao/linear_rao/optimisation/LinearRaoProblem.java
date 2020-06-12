@@ -30,6 +30,9 @@ public class LinearRaoProblem {
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MAX_LOOPFLOW = "maxloopflow";
+    private static final String LOOPFLOWBREACH = "loopflowbreach";
+    private static final String POSITIVE_LOOPFLOWBREACH = "positiveloopflowbreach";
+    private static final String NEGATIVE_LOOPFLOWBREACH = "negativeloopflowbreach";
 
     public enum AbsExtension {
         POSITIVE,
@@ -151,6 +154,30 @@ public class LinearRaoProblem {
 
     public MPConstraint getMaxLoopFlowConstraint(Cnec cnec) {
         return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec));
+    }
+
+    public MPVariable getLoopflowBreachVariable(Cnec cnec) {
+        return solver.lookupVariableOrNull(loopflowBreachVariableId(cnec));
+    }
+
+    private String loopflowBreachVariableId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + LOOPFLOWBREACH + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public MPConstraint addPositiveLoopflowBreachConstraint(double lb, double ub, Cnec cnec) {
+        return solver.makeConstraint(lb, ub, positiveLoopflowBreachConstraintId(cnec));
+    }
+
+    private String positiveLoopflowBreachConstraintId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + POSITIVE_LOOPFLOWBREACH + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint addNegativeLoopflowBreachConstraint(double lb, double ub, Cnec cnec) {
+        return solver.makeConstraint(lb, ub, negativeLoopflowBreachConstraintId(cnec));
+    }
+
+    private String negativeLoopflowBreachConstraintId(Cnec cnec) {
+        return cnec.getId() + SEPARATOR + NEGATIVE_LOOPFLOWBREACH + SEPARATOR + CONSTRAINT_SUFFIX;
     }
     //End MaxLoopFlowFiller section
 
