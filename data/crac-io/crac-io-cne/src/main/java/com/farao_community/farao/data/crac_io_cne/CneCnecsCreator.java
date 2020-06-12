@@ -40,7 +40,12 @@ public final class CneCnecsCreator {
 
     }
 
-    static void createConstraintSeriesOfACnec(Cnec cnec, Network network, List<ConstraintSeries> constraintSeriesList, String measurementType, String preOptimVariantId, String postOptimVariantId) {
+    static void createConstraintSeriesOfACnec(Cnec cnec, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList) {
+
+        Network network = cneHelper.getNetwork();
+        String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
+        String preOptimVariantId = cneHelper.getPreOptimVariantId();
+        String postOptimVariantId = cneHelper.getPostOptimVariantId();
 
         /* Country of cnecs */
         Set<Country> countries = createCountries(network, cnec.getNetworkElement().getId());

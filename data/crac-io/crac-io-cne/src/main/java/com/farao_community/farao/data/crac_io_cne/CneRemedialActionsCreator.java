@@ -35,7 +35,12 @@ public final class CneRemedialActionsCreator {
 
     }
 
-    static void createRangeRemedialActionSeries(RangeAction rangeAction, String preventiveStateId, List<ConstraintSeries> constraintSeriesList, String preOptimVariantId, String postOptimVariantId, Network network, ConstraintSeries preventiveB56) {
+    static void createRangeRemedialActionSeries(RangeAction rangeAction, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList, ConstraintSeries preventiveB56) {
+
+        String preventiveStateId = cneHelper.getCrac().getPreventiveState().getId();
+        String preOptimVariantId = cneHelper.getPreOptimVariantId();
+        String postOptimVariantId = cneHelper.getPostOptimVariantId();
+        Network network = cneHelper.getNetwork();
         RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
         if (rangeActionResultExtension != null) {
             RangeActionResult preOptimRangeActionResult = rangeActionResultExtension.getVariant(preOptimVariantId);
@@ -110,7 +115,11 @@ public final class CneRemedialActionsCreator {
         return cutString(mRid, 55) + "@" + tap + "@";
     }
 
-    static void createNetworkRemedialActionSeries(NetworkAction networkAction, String preventiveStateId, String preOptimVariantId, String postOptimVariantId, ConstraintSeries preventiveB56) {
+    static void createNetworkRemedialActionSeries(NetworkAction networkAction, CneHelper cneHelper, ConstraintSeries preventiveB56) {
+
+        String preventiveStateId = cneHelper.getCrac().getPreventiveState().getId();
+        String preOptimVariantId = cneHelper.getPreOptimVariantId();
+        String postOptimVariantId = cneHelper.getPostOptimVariantId();
 
         NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
         if (networkActionResultExtension != null) {

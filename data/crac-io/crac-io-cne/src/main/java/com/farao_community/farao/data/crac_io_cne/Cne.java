@@ -95,11 +95,11 @@ public class Cne {
         Network network = cneHelper.getNetwork();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, network, constraintSeriesList, cneHelper.instantToCodeConverter(cnec.getState().getInstant()), cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId()));
+        crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
 
         ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
-        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, crac.getPreventiveState().getId(), constraintSeriesList, cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId(), cneHelper.getNetwork(), preventiveB56));
-        crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, crac.getPreventiveState().getId(), cneHelper.getPreOptimVariantId(), cneHelper.getPostOptimVariantId(), preventiveB56));
+        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, cneHelper, constraintSeriesList, preventiveB56));
+        crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, cneHelper, preventiveB56));
         // Add the remedial action series to B54 and B57
         addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), constraintSeriesList);
         constraintSeriesList.add(preventiveB56);
