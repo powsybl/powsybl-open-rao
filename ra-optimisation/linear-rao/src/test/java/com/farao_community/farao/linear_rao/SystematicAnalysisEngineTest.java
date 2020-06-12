@@ -229,9 +229,17 @@ public class SystematicAnalysisEngineTest {
     @Test
     public void testLoopflowRelated() {
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
-
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersWithFallback.json"));
+        SensitivityComputationParameters defaultConfig = raoParameters.getExtension(LinearRaoParameters.class).getSensitivityComputationParameters();
+        SensitivityComputationParameters fallbackConfig = raoParameters.getExtension(LinearRaoParameters.class).getFallbackSensiParameters();
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(defaultConfig)))
+                .thenReturn(systematicAnalysisResultFailed);
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), eq(fallbackConfig)))
+                .thenReturn(systematicAnalysisResultOk);
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
         systematicAnalysisEngine.setLoopflowViolation(true);
         assertTrue(systematicAnalysisEngine.isLoopflowViolation());
+        systematicAnalysisEngine.run(initialLinearRaoData);
+        assertEquals(Double.MAX_VALUE, initialLinearRaoData.getCracResult().getVirtualCost(), 1.0);
     }
 }
