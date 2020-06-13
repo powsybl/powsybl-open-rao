@@ -54,6 +54,7 @@ class SystematicAnalysisEngine {
 
     private boolean runLoopflow;
     private boolean loopflowViolation;
+    private static final double DEFAULT_LOOPFLOWVIOLATION_VIRTUALCOST = 1000000.0;
 
     /**
      * Constructor
@@ -154,13 +155,18 @@ class SystematicAnalysisEngine {
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork()); //re-compute ptdf
         }
 
+        setLoopflowViolation(false); //reset loopflow violation status
         for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
                     && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
+                LOGGER.debug("Loopflow violation on {}: loopflow = {}, limit = {}",
+                        cnec.getId(), loopflows.get(cnec.getId()),
+                        cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
                 setLoopflowViolation(true);
-                LOGGER.info("Some loopflow constraints are not respected.");
-                break;
             }
+        }
+        if (isLoopflowViolation()) {
+            LOGGER.info("Loopflow constraint violation");
         }
         return loopflows;
     }
@@ -184,7 +190,7 @@ class SystematicAnalysisEngine {
         if (isLoopflowViolation()) {
             linearRaoData.getCracResult().setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED); //flag UNSECURED if loopflowViolation
             if (linearRaoParameters.getExtendable().getLoopflowViolationCost() == 0.0) {
-                linearRaoData.getCracResult().setVirtualCost(Double.MAX_VALUE); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
+                linearRaoData.getCracResult().setVirtualCost(DEFAULT_LOOPFLOWVIOLATION_VIRTUALCOST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
             }
         }
 

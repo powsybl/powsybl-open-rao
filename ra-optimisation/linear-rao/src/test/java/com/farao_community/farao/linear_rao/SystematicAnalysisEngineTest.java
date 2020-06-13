@@ -240,6 +240,7 @@ public class SystematicAnalysisEngineTest {
         systematicAnalysisEngine.setLoopflowViolation(true);
         assertTrue(systematicAnalysisEngine.isLoopflowViolation());
         systematicAnalysisEngine.run(initialLinearRaoData);
-        assertEquals(Double.MAX_VALUE, initialLinearRaoData.getCracResult().getVirtualCost(), 1.0);
+
+        assertEquals(1000000.0, initialLinearRaoData.getCracResult().getVirtualCost(), 1.0);
     }
 }

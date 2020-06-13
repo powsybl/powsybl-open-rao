@@ -106,7 +106,7 @@ public class LinearRao implements RaoProvider {
             LOGGER.info("Iteration {} - linear optimization [end]", iteration);
 
             if (!linearOptimisationEngine.getSolverResultStatusString().equals("OPTIMAL")) {
-                LOGGER.info("Iteration {} - linear optimization is infeasible", iteration); //handle INFEASIBLE solver status
+                LOGGER.info("Iteration {} - linear optimization cannot find OPTIMAL solution", iteration); //handle solver status
                 break;
             }
 
