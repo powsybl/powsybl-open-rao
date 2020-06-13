@@ -102,8 +102,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             if (loopflowViolationCost == 0.0) {
                 //no loopflow violation cost => 1 MP constraint
-                //NOTE: The "zero-loopflowViolationCost" routine is (should be) the normal routine,
-                //where infeasible / non-optimal solver status is handled in LinearRao.
+                //NOTE: The "zero-loopflowViolationCost" routine handles infeasible / non-optimal solver status in LinearRao.
                 MPConstraint maxLoopflowConstraint = linearRaoProblem.addMaxLoopFlowConstraint(
                         -maxLoopFlowLimit + loopFlowShift,
                         maxLoopFlowLimit + loopFlowShift,
@@ -111,11 +110,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 maxLoopflowConstraint.setCoefficient(flowVariable, 1);
             } else {
                 //loopflow violation cost is not zero => 2 MP constraints, additional MPVariable loopflowBreachVariable
-                //NOTE: we treat "non-zero-loopflowViolationCost" routine here separately, no use to merge and pollute the "zero-" routine.
-
                 MPVariable loopflowBreachVariable = linearRaoProblem.addLoopflowBreachVariable(
-                        -maxLoopFlowLimit,
-                        maxLoopFlowLimit,
+                        0, //virtual cost is strict positive, so lb = 0 for target variable solution at lb
+                        linearRaoProblem.infinity(),
                         cnec
                 );
 

@@ -155,19 +155,22 @@ class SystematicAnalysisEngine {
             loopflows = new LoopFlowComputation(linearRaoData.getCrac()).calculateLoopFlows(linearRaoData.getNetwork()); //re-compute ptdf
         }
 
-        setLoopflowViolation(false); //reset loopflow violation status
-        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
-                    && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
-                LOGGER.debug("Loopflow violation on {}: loopflow = {}, limit = {}",
-                        cnec.getId(), loopflows.get(cnec.getId()),
-                        cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
-                setLoopflowViolation(true);
+        if (linearRaoParameters.getExtendable().getLoopflowViolationCost() == 0.0) { //only check loopflow if we do not use loopflow virtual cost, otherwise we use virtual cost value to check loopflow
+            setLoopflowViolation(false); //reset loopflow violation status
+            for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
+                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
+                        && Math.abs(loopflows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
+                    LOGGER.debug("Loopflow violation on {}: loopflow = {}, limit = {}",
+                            cnec.getId(), loopflows.get(cnec.getId()),
+                            cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+                    setLoopflowViolation(true);
+                }
+            }
+            if (isLoopflowViolation()) {
+                LOGGER.info("Loopflow constraint violation");
             }
         }
-        if (isLoopflowViolation()) {
-            LOGGER.info("Loopflow constraint violation");
-        }
+
         return loopflows;
     }
 
@@ -189,9 +192,7 @@ class SystematicAnalysisEngine {
         linearRaoData.getCracResult().setNetworkSecurityStatus(minMargin < 0 ? CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
         if (isLoopflowViolation()) {
             linearRaoData.getCracResult().setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED); //flag UNSECURED if loopflowViolation
-            if (linearRaoParameters.getExtendable().getLoopflowViolationCost() == 0.0) {
-                linearRaoData.getCracResult().setVirtualCost(DEFAULT_LOOPFLOWVIOLATION_VIRTUALCOST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
-            }
+            linearRaoData.getCracResult().setVirtualCost(DEFAULT_LOOPFLOWVIOLATION_VIRTUALCOST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
         }
 
         updateCnecExtensions(linearRaoData, systematicSensitivityAnalysisResult, loopflows);
