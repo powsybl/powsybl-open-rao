@@ -162,6 +162,7 @@ public class LinearRaoTest {
     @Test
     public void runWithNegativeLoopflowViolationCost() {
         raoParameters.setLoopflowViolationCost(-1.0);
+        raoParameters.setLoopflowConstraintAdjustmentCoefficient(-1.0);
         RaoResult results = linearRao.run(network, crac, variantId, computationManager, raoParameters).join();
         assertNotNull(results);
         assertEquals(RaoResult.Status.FAILURE, results.getStatus());
