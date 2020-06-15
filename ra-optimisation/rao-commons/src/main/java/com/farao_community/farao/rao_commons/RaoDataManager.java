@@ -97,7 +97,7 @@ public class RaoDataManager {
      */
     public void fillCracResultsWithSensis(LinearProblemParameters.ObjectiveFunction objectiveFunction, SystematicSensitivityComputation systematicSensitivityComputation) {
         double minMargin;
-        minMargin = getMinMargin(objectiveFunction);
+        minMargin = getMinMargin(objectiveFunction, systematicSensitivityComputation);
         raoData.getCracResult().setFunctionalCost(-minMargin);
         raoData.getCracResult().setVirtualCost(systematicSensitivityComputation.isFallback() ?
             systematicSensitivityComputation.getParameters().getFallbackOvercost() : 0);
@@ -109,11 +109,11 @@ public class RaoDataManager {
     /**
      * Compute the objective function, the minimal margin.
      */
-    private double getMinMargin(LinearProblemParameters.ObjectiveFunction objectiveFunction) {
+    private double getMinMargin(LinearProblemParameters.ObjectiveFunction objectiveFunction, SystematicSensitivityComputation systematicSensitivityComputation) {
         if (objectiveFunction == LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
             return getMinMarginInMegawatt();
         } else {
-            return getMinMarginInAmpere();
+            return getMinMarginInAmpere(systematicSensitivityComputation);
         }
     }
 
@@ -124,26 +124,27 @@ public class RaoDataManager {
 
     }
 
-    private double getMinMarginInAmpere() {
+    private double getMinMarginInAmpere(SystematicSensitivityComputation systematicSensitivityComputation) {
+
         List<Double> marginsInAmpere = raoData.getCrac().getCnecs().stream().map(cnec ->
             cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN)) {
-            LOGGER.warn("No intensities available in fallback mode, the margins are assessed by converting the flows from MW to A with the nominal voltage of each Cnec.");
-            marginsInAmpere = getMarginsInAmpereFromMegawattConversion();
-            /*if (!fallbackMode) {
+
+            if (!systematicSensitivityComputation.isFallback()) {
                 // in default mode, this means that there is an error in the sensitivity computation, or an
                 // incompatibility with the sensitivity computation mode (i.e. the sensitivity computation is
                 // made in DC mode and no intensity are computed).
-                throw new SensitivityComputationException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
+                throw new FaraoException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
             } else {
 
                 // in fallback, intensities can be missing as the fallback configuration does not necessarily
                 // compute them (example : default in AC, fallback in DC). In that case a fallback computation
                 // of the intensity is made, based on the MEGAWATT values and the nominal voltage
-
-            }*/
+                LOGGER.warn("No intensities available in fallback mode, the margins are assessed by converting the flows from MW to A with the nominal voltage of each Cnec.");
+                marginsInAmpere = getMarginsInAmpereFromMegawattConversion();
+            }
         }
 
         return marginsInAmpere.stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
