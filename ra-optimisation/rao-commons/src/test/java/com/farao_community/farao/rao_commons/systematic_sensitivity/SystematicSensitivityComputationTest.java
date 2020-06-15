@@ -72,12 +72,12 @@ public class SystematicSensitivityComputationTest {
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         // mock sensi service - run OK
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultOk);
 
         // run engine
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParameters.getExtension(SystematicSensitivityComputationParameters.class), computationManager);
+            raoParameters.getExtension(SystematicSensitivityComputationParameters.class));
         systematicSensitivityComputation.run(initialRaoData);
         initialRaoData.getRaoDataManager().updateCnecExtensions();
 
@@ -94,11 +94,11 @@ public class SystematicSensitivityComputationTest {
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultFailed);
 
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParameters.getExtension(SystematicSensitivityComputationParameters.class), computationManager);
+            raoParameters.getExtension(SystematicSensitivityComputationParameters.class));
 
         // run - expected failure
         try {
@@ -114,16 +114,16 @@ public class SystematicSensitivityComputationTest {
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
             raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class).getDefaultParameters())))
             .thenReturn(systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
             raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class).getFallbackParameters())))
             .thenReturn(systematicAnalysisResultOk);
 
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class), computationManager);
+            raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class));
 
         // run
         systematicSensitivityComputation.run(initialRaoData);
@@ -141,16 +141,16 @@ public class SystematicSensitivityComputationTest {
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
             raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class).getDefaultParameters())))
             .thenReturn(systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
+        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(
             raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class).getFallbackParameters())))
             .thenReturn(systematicAnalysisResultFailed);
 
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class), computationManager);
+            raoParametersWithFallback.getExtension(SystematicSensitivityComputationParameters.class));
 
         // run - expected failure
         try {

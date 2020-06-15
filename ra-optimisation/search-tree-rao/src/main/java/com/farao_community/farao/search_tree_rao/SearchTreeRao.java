@@ -47,7 +47,6 @@ import static java.lang.String.format;
 public class SearchTreeRao implements RaoProvider {
     static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRao.class);
 
-    private ComputationManager computationManager;
     private RaoParameters raoParameters;
     private SearchTreeRaoParameters searchTreeRaoParameters;
     private Leaf rootLeaf;
@@ -64,8 +63,7 @@ public class SearchTreeRao implements RaoProvider {
         return "1.0.0";
     }
 
-    private void init(Network network, Crac crac, String variantId, RaoParameters raoParameters, ComputationManager computationManager) {
-        this.computationManager = computationManager;
+    private void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
@@ -73,14 +71,14 @@ public class SearchTreeRao implements RaoProvider {
             searchTreeRaoParameters = new SearchTreeRaoParameters();
         }
         RaoData rootRaoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
-        rootLeaf = new Leaf(rootRaoData, raoParameters, computationManager);
+        rootLeaf = new Leaf(rootRaoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        init(network, crac, variantId, raoParameters, computationManager);
+        init(network, crac, variantId, raoParameters);
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
@@ -154,7 +152,7 @@ public class SearchTreeRao implements RaoProvider {
     }
 
     private void optimizeNextLeaf(NetworkAction networkAction, Network network) {
-        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters, computationManager);
+        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
         leaf.evaluate();
         LOGGER.debug(leaf.toString());
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {

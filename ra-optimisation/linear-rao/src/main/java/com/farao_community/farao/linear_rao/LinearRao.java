@@ -40,7 +40,6 @@ public class LinearRao implements RaoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
-    private RaoParameters raoParameters;
     private LinearProblemParameters.ObjectiveFunction objectiveFunction;
 
     @Override
@@ -56,14 +55,13 @@ public class LinearRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
-        this.raoParameters = raoParameters;
         if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
             objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
         } else {
             objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
         }
         SystematicSensitivityComputation systematicSensitivityComputation =
-            new SystematicSensitivityComputation(raoParameters, computationManager);
+            new SystematicSensitivityComputation(raoParameters);
         IteratingLinearOptimizer iteratingLinearOptimizer =
             new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
 

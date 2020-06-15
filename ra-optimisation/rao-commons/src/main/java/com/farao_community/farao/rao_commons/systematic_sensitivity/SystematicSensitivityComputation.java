@@ -12,7 +12,6 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,30 +44,24 @@ public class SystematicSensitivityComputation {
     private boolean fallbackMode;
 
     /**
-     * Computation Manager
-     */
-    private ComputationManager computationManager;
-
-    /**
      * Constructors
      */
-    public SystematicSensitivityComputation(RaoParameters raoParameters, ComputationManager computationManager) {
+    public SystematicSensitivityComputation(RaoParameters raoParameters) {
         SystematicSensitivityComputationParameters computationParameters;
         if (!Objects.isNull(raoParameters.getExtension(SystematicSensitivityComputationParameters.class))) {
             computationParameters = raoParameters.getExtension(SystematicSensitivityComputationParameters.class);
         } else {
             computationParameters = new SystematicSensitivityComputationParameters();
         }
-        init(computationParameters, computationManager);
+        init(computationParameters);
     }
 
-    public SystematicSensitivityComputation(SystematicSensitivityComputationParameters parameters, ComputationManager computationManager) {
-        init(parameters, computationManager);
+    public SystematicSensitivityComputation(SystematicSensitivityComputationParameters parameters) {
+        init(parameters);
     }
 
-    private void init(SystematicSensitivityComputationParameters computationParameters, ComputationManager computationManager) {
+    private void init(SystematicSensitivityComputationParameters computationParameters) {
         this.parameters = computationParameters;
-        this.computationManager = computationManager;
         this.fallbackMode = false;
     }
 
@@ -115,7 +108,7 @@ public class SystematicSensitivityComputation {
 
         try {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-                .runAnalysis(raoData.getNetwork(), raoData.getCrac(), computationManager, sensitivityComputationParameters);
+                .runAnalysis(raoData.getNetwork(), raoData.getCrac(), sensitivityComputationParameters);
 
             if (!systematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");

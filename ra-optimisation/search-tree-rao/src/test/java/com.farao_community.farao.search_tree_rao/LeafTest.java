@@ -89,7 +89,7 @@ public class LeafTest {
 
     @Test
     public void testRootLeafDefinition() {
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
         assertTrue(rootLeaf.getNetworkActions().isEmpty());
         assertTrue(rootLeaf.isRoot());
         assertEquals(INITIAL_VARIANT_ID, rootLeaf.getInitialVariantId());
@@ -97,21 +97,21 @@ public class LeafTest {
 
     @Test
     public void testRootLeafDefinitionWithSensitivityValues() {
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
     @Test
     public void testRootLeafDefinitionWithoutSensitivityValues() {
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(false);
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
     }
 
     @Test
     public void testLeafDefinition() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, computationManager);
-        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
@@ -120,9 +120,9 @@ public class LeafTest {
 
     @Test
     public void testMultipleLeafDefinition() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, computationManager);
-        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters, computationManager);
-        Leaf leaf2 = new Leaf(leaf1, na2, network, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf leaf2 = new Leaf(leaf1, na2, network, raoParameters);
         assertEquals(2, leaf2.getNetworkActions().size());
         assertTrue(leaf2.getNetworkActions().contains(na1));
         assertTrue(leaf2.getNetworkActions().contains(na2));
@@ -131,9 +131,9 @@ public class LeafTest {
 
     @Test
     public void testMultipleLeafDefinitionWithSameNetworkAction() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, computationManager);
-        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters, computationManager);
-        Leaf leaf2 = new Leaf(leaf1, na1, network, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf leaf2 = new Leaf(leaf1, na1, network, raoParameters);
         assertEquals(1, leaf2.getNetworkActions().size());
         assertTrue(leaf2.getNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
@@ -141,7 +141,7 @@ public class LeafTest {
 
     @Test
     public void testBloom() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
         Set<NetworkAction> networkActions = rootLeaf.bloom();
         assertEquals(2, networkActions.size());
         assertTrue(networkActions.contains(na1));
@@ -171,7 +171,7 @@ public class LeafTest {
 
     @Test
     public void testOptimizeWithoutEvaluation() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, computationManager);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
         rootLeaf.optimize();
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
     }
