@@ -2,6 +2,7 @@
   "version" : "1.0",
   "rao-with-loop-flow-limitation" : false,
   "loopflow-approximation" : false,
+  "loopflow-constraint-adjustment-coefficient" : 0.0,
   "extensions" : {
     "SearchTreeRaoParameters" : {
       "range-action-rao" : "myRangeActionRao",

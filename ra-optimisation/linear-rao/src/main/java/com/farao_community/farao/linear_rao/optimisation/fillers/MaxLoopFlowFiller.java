@@ -63,6 +63,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             }
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+            double loopflowConstraintAdjustmentCoefficient = 0.0;
+            if (!Objects.isNull(linearRaoParameters.getExtendable())) {
+                loopflowConstraintAdjustmentCoefficient = linearRaoParameters.getExtendable().getLoopflowConstraintAdjustmentCoefficient();
+            }
+            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopflowConstraintAdjustmentCoefficient);
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);
             }
