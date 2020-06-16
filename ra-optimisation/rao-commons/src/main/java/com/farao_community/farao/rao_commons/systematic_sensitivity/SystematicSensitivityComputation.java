@@ -80,7 +80,6 @@ public class SystematicSensitivityComputation {
      * Throw a SensitivityComputationException if the computation fails.
      */
     public void run(RaoData raoData) {
-
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ?
             parameters.getFallbackParameters()
             : parameters.getDefaultParameters();
@@ -114,10 +113,23 @@ public class SystematicSensitivityComputation {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
+            checkSensiResults(raoData, systematicSensitivityAnalysisResult);
             setResults(raoData, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
+        }
+    }
+
+    private void checkSensiResults(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        if (!systematicSensitivityAnalysisResult.isSuccess()) {
+            throw new SensitivityComputationException("Status of the sensitivity result indicates a failure.");
+        }
+
+        if (raoData.getCrac().getCnecs().stream()
+            .map(systematicSensitivityAnalysisResult::getReferenceFlow)
+            .anyMatch(f -> Double.isNaN(f))) {
+            throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
         }
     }
 

@@ -12,6 +12,7 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -62,8 +63,13 @@ public class LinearRao implements RaoProvider {
         }
         SystematicSensitivityComputation systematicSensitivityComputation =
             new SystematicSensitivityComputation(raoParameters);
-        IteratingLinearOptimizer iteratingLinearOptimizer =
-            new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
+
+        IteratingLinearOptimizer iteratingLinearOptimizer;
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            iteratingLinearOptimizer = new IteratingLinearOptimizerWithLoopFlows(systematicSensitivityComputation, raoParameters);
+        } else {
+            iteratingLinearOptimizer = new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
+        }
 
         return run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters);
     }

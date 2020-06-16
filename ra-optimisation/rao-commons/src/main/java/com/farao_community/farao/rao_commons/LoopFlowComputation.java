@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
@@ -30,16 +31,8 @@ public final class LoopFlowComputation {
 
     public static void run(RaoData raoData) {
         checkDataConsistency(raoData);
-
-        // compute maximum loop flow value F_(0,all)_MAX, and update it for each Cnec in Crac
-        CracLoopFlowExtension cracLoopFlowExtension = raoData.getCrac().getExtension(CracLoopFlowExtension.class);
-
-        //For the initial Network, compute the F_(0,all)_init
-        com.farao_community.farao.loopflow_computation.LoopFlowComputation initialLoopFlowComputation =
-            new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac(), cracLoopFlowExtension);
-        Map<String, Double> loopFlows = initialLoopFlowComputation.calculateLoopFlows(raoData.getNetwork());
+        Map<String, Double> loopFlows = calculateLoopFlows(raoData); // For the initial Network, compute the F_(0,all)_init
         updateCnecsLoopFlowConstraint(raoData.getCrac(), loopFlows); //todo: cnec loop flow extension need to be based on ResultVariantManger
-
     }
 
     static void updateCnecsLoopFlowConstraint(Crac crac, Map<String, Double> fZeroAll) {
@@ -49,11 +42,31 @@ public final class LoopFlowComputation {
             if (!Objects.isNull(cnecLoopFlowExtension)) {
                 //!!! note here we use the result of branch flow of preventive state for all cnec of all states
                 //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
-                double initialLoopFlow = fZeroAll.get(cnec.getNetworkElement().getId());
-                double loopFlowThreshold = cnecLoopFlowExtension.getInputLoopFlow();
+                double initialLoopFlow = Math.abs(fZeroAll.get(cnec.getId()));
+                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputLoopFlow());
                 cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
             }
         });
+    }
+
+    public static Map<String, Double> calculateLoopFlows(RaoData raoData) {
+        //todo: optim: if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
+        com.farao_community.farao.loopflow_computation.LoopFlowComputation initialLoopFlowComputation =
+            new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac());
+        return initialLoopFlowComputation.calculateLoopFlows(raoData.getNetwork()); //todo save loopflowShift and Ptdf value in CracReult, to be reused
+    }
+
+    public static boolean isLoopFlowsViolated(RaoData raoData, Map<String, Double> loopFlows) {
+        boolean violated = false;
+        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
+                && Math.abs(loopFlows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint())) {
+                violated = true;
+                LOGGER.info("Some loopflow constraints are not respected.");
+                break;
+            }
+        }
+        return violated;
     }
 
     private static void checkDataConsistency(RaoData raoData) {

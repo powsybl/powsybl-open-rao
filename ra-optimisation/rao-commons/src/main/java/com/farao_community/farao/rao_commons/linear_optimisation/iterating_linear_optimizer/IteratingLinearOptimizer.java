@@ -25,22 +25,23 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class IteratingLinearOptimizer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
-    private static final String UNEXPECTED_BEHAVIOR = "Iteration %d - Linear Optimization found a worse result than previous iteration, with a minimum margin from %.2f to %.2f %s (optimisation criterion : from %.2f to %.2f)";
-    private static final String IMPROVEMENT = "Iteration %d - Better solution found with a minimum margin of %.2f %s (optimisation criterion : %.2f)";
-    private static final String SAME_RESULTS = "Iteration %d - same results as previous iterations, optimal solution found";
-    private static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_START = "Iteration %d - systematic analysis [start]";
-    private static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_END = "Iteration %d - systematic analysis [end]";
-    private static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR = "Sensitivity computation failed at iteration %d on %s mode: %s";
-    private static final String LINEAR_OPTIMIZATION_START = "Iteration %d - linear optimization [start]";
-    private static final String LINEAR_OPTIMIZATION_END = "Iteration %d - linear optimization [end]";
-    private static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration %d: %s";
+    protected static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
+    protected static final String UNEXPECTED_BEHAVIOR = "Iteration %d - Linear Optimization found a worse result than previous iteration, with a minimum margin from %.2f to %.2f %s (optimisation criterion : from %.2f to %.2f)";
+    protected static final String IMPROVEMENT = "Iteration %d - Better solution found with a minimum margin of %.2f %s (optimisation criterion : %.2f)";
+    protected static final String SAME_RESULTS = "Iteration %d - same results as previous iterations, optimal solution found";
+    protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_START = "Iteration %d - systematic analysis [start]";
+    protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_END = "Iteration %d - systematic analysis [end]";
+    protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR = "Sensitivity computation failed at iteration %d on %s mode: %s";
+    protected static final String LINEAR_OPTIMIZATION_START = "Iteration %d - linear optimization [start]";
+    protected static final String LINEAR_OPTIMIZATION_END = "Iteration %d - linear optimization [end]";
+    protected static final String LINEAR_OPTIMIZATION_INFEASIBLE = "Iteration %d - linear optimization is infeasible";
+    protected static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration %d: %s";
 
-    private RaoData raoData;
-    private String bestVariantId;
-    private final SystematicSensitivityComputation systematicSensitivityComputation;
-    private final SimpleLinearOptimizer simpleLinearOptimizer;
-    private final IteratingLinearOptimizerParameters parameters;
+    protected RaoData raoData;
+    protected String bestVariantId;
+    protected final SystematicSensitivityComputation systematicSensitivityComputation;
+    protected final SimpleLinearOptimizer simpleLinearOptimizer;
+    protected final IteratingLinearOptimizerParameters parameters;
 
     public IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
                                     RaoParameters raoParameters) {
@@ -85,6 +86,10 @@ public class IteratingLinearOptimizer {
         try {
             LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
             simpleLinearOptimizer.optimize(raoData);
+            if (!simpleLinearOptimizer.getSolverResultStatusString().equals("OPTIMAL")) {
+                LOGGER.info(format(LINEAR_OPTIMIZATION_INFEASIBLE, iteration)); //handle INFEASIBLE solver status
+                return false;
+            }
             LOGGER.info(format(LINEAR_OPTIMIZATION_END, iteration));
             return true;
         } catch (LinearOptimisationException e) {
@@ -103,7 +108,7 @@ public class IteratingLinearOptimizer {
         }
     }
 
-    private boolean evaluateNewCost(String optimizedVariantId, int iteration) {
+    protected boolean evaluateNewCost(String optimizedVariantId, int iteration) {
         // If evaluating the new cost fails iteration can stop
         raoData.setWorkingVariant(optimizedVariantId);
         try {

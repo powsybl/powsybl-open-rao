@@ -55,6 +55,9 @@ public class SimpleLinearOptimizer {
      */
     private List<ProblemFiller> fillerList;
 
+    static final String SOLVER_RESULT_STATUS_UNKNOWN = "UNKNOWN";
+    private String solverResultStatusString = SOLVER_RESULT_STATUS_UNKNOWN;
+
     /**
      * These RAO parameters have to be kept to check consistency between parameters and data for loopflow computation
      * at optimization time.
@@ -68,6 +71,14 @@ public class SimpleLinearOptimizer {
 
     public LinearProblemParameters getParameters() {
         return raoParameters.getExtension(LinearProblemParameters.class);
+    }
+
+    public String getSolverResultStatusString() {
+        return solverResultStatusString;
+    }
+
+    public void setSolverResultStatusString(String solverResultStatusString) {
+        this.solverResultStatusString = solverResultStatusString;
     }
 
     // Used to mock LinearProblem in tests
@@ -102,8 +113,10 @@ public class SimpleLinearOptimizer {
         }
 
         solveProblem();
-        raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblem);
-        raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
+        if (getSolverResultStatusString().equals("OPTIMAL")) {
+            raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblem);
+            raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
+        }
     }
 
     private void buildProblem(RaoData raoData, LinearProblemParameters linearProblemParameters) {
@@ -129,11 +142,10 @@ public class SimpleLinearOptimizer {
     private void solveProblem() {
         try {
             Enum solverResultStatus = linearProblem.solve();
-            String solverResultStatusString = solverResultStatus.name();
-            if (!solverResultStatusString.equals("OPTIMAL")) {
-                String errorMessage = format("Solving of the linear problem failed failed with MPSolver status %s", solverResultStatusString);
-                LOGGER.error(errorMessage);
-                throw new LinearOptimisationException(errorMessage);
+            setSolverResultStatusString(solverResultStatus.name());
+            if (!getSolverResultStatusString().equals("OPTIMAL")) {
+                LOGGER.warn(format("Solving of the linear problem failed with MPSolver status %s", getSolverResultStatusString()));
+                //Do not throw an exception is solver solution not "OPTIMAL". Handle the status in LinearRao.runLinearRao
             }
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";

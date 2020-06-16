@@ -41,6 +41,10 @@ public class UcteGlskDocument {
      * List of Glsk point by country code
      */
     private Map<String, List<GlskPoint>> ucteGlskPointsByCountry; //map <CountryID, List<GlskPoint>>
+    /**
+     * document GSKTimeInterval
+     */
+    private Interval gSKTimeInterval; // GSKTimeInterval. ex: <GSKTimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
 
     public static UcteGlskDocument importGlsk(InputStream data) throws IOException, SAXException, ParserConfigurationException {
         return new UcteGlskDocument(data);
@@ -63,6 +67,10 @@ public class UcteGlskDocument {
 
         Document document = documentBuilder.parse(data);
         document.getDocumentElement().normalize();
+
+        if (document.getElementsByTagName("GSKTimeInterval").getLength() > 0) {
+            this.gSKTimeInterval = Interval.parse(((Element) document.getElementsByTagName("GSKTimeInterval").item(0)).getAttribute("v"));
+        }
 
         List<UcteGlskSeries> rawlistUcteGlskSeries = new ArrayList<>();
         ucteGlskSeriesByCountry = new HashMap<>();
@@ -173,5 +181,12 @@ public class UcteGlskDocument {
             glskPointInstant.put(key, glskPoint);
         });
         return glskPointInstant;
+    }
+
+    /**
+     * @return document time interval
+     */
+    public Interval getGSKTimeInterval() {
+        return gSKTimeInterval;
     }
 }

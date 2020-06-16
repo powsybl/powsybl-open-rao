@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -99,18 +100,25 @@ class Leaf {
     }
 
     Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
-        this(raoData, raoParameters, systematicSensitivityComputation, new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters));
+        this(raoData, raoParameters, systematicSensitivityComputation,
+            raoParameters.isRaoWithLoopFlowLimitation() ?
+                new IteratingLinearOptimizerWithLoopFlows(systematicSensitivityComputation, raoParameters)
+                : new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters));
     }
 
     /**
-     * Leaf constructor
+     * Leaf constructorthis.iteratingLinearOptimizer = iteratingLinearOptimizer;
      */
     Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters) {
         networkActions = new HashSet<>(parentLeaf.networkActions);
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
         this.systematicSensitivityComputation = new SystematicSensitivityComputation(parentLeaf.raoParameters);
-        this.iteratingLinearOptimizer = new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            iteratingLinearOptimizer = new IteratingLinearOptimizerWithLoopFlows(systematicSensitivityComputation, raoParameters);
+        } else {
+            iteratingLinearOptimizer = new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
+        }
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
