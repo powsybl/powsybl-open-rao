@@ -65,7 +65,7 @@ public class RaoParametersTest {
 
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
         moduleConfig.setStringProperty("rao-with-loop-flow-limitation", Boolean.toString(false));
-        moduleConfig.setStringProperty("loopflow-approximation", Boolean.toString(false));
+        moduleConfig.setStringProperty("loopflow-approximation", Boolean.toString(true));
         moduleConfig.setStringProperty("loopflow-constraint-adjustment-coefficient", Objects.toString(0.0));
         moduleConfig.setStringProperty("loopflow-violation-cost", Objects.toString(0.0));
 
