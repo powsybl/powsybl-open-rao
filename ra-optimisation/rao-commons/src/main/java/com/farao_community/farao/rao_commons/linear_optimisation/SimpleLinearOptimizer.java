@@ -8,22 +8,17 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.*;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,10 +32,9 @@ import static java.lang.String.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SimpleLinearOptimizer {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleLinearOptimizer.class);
-
-    private RaoParameters raoParameters;
+    private static final String PARAMETERS_NOT_CONSISTENT = "Simple linear optimizer cannot perform optimization with loop flows on CRAC %s because it does not have loop flow extension";
+    private static final String NO_SENSITIVITY_VALUES = "Simple linear optimizer cannot perform optimization because no sensitivity computation has been performed on variant %s";
 
     /**
      * Linear optimisation problem, core object the LinearOptimisationEngine that
@@ -52,7 +46,7 @@ public class SimpleLinearOptimizer {
      * Boolean indicating whether the linear problem has been already initialised
      * or not.
      */
-    private boolean lpInitialised;
+    private boolean lpInitialised = false;
 
     /**
      * List of problem fillers used by the engine. Each filler is responsible for
@@ -62,21 +56,13 @@ public class SimpleLinearOptimizer {
     private List<ProblemFiller> fillerList;
 
     /**
-     * Constructor
+     * These RAO parameters have to be kept to check consistency between parameters and data for loopflow computation
+     * at optimization time.
      */
-    public SimpleLinearOptimizer() {
-        this.lpInitialised = false;
-        this.raoParameters = new RaoParameters();
-        LinearProblemParameters linearProblemParameters = new LinearProblemParameters();
-        raoParameters.addExtension(LinearProblemParameters.class, linearProblemParameters);
-        // TODO : load the filler list from the config file and make sure they are ordered properly
-        this.fillerList = createFillerList(raoParameters);
-    }
+    private RaoParameters raoParameters;
 
     public SimpleLinearOptimizer(RaoParameters raoParameters) {
-        this.lpInitialised = false;
         this.raoParameters = checkRaoParameters(raoParameters);
-        // TODO : load the filler list from the config file and make sure they are ordered properly
         this.fillerList = createFillerList(raoParameters);
     }
 
@@ -84,32 +70,9 @@ public class SimpleLinearOptimizer {
         return raoParameters.getExtension(LinearProblemParameters.class);
     }
 
-    private static RaoParameters checkRaoParameters(RaoParameters raoParameters) {
-        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
-            raoParameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
-        }
-        return raoParameters;
-    }
-
-    private void checkDataConsistencyWithParameters(RaoData raoData) {
-        if (raoParameters.isRaoWithLoopFlowLimitation()
-            && Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            String msg = format(
-                "Simple linear optimizer cannot perform optimization with loop flows on CRAC %s because it does not have loop flow extension",
-                raoData.getCrac().getId());
-            LOGGER.error(msg);
-            throw new FaraoException(msg);
-        }
-    }
-
-    private static void checkSensitivityValues(RaoData raoData) {
-        if (!raoData.hasSensitivityValues()) {
-            String msg = format(
-                "Simple linear optimizer cannot perform optimization because no sensitivity computation has been performed on variant %s",
-                raoData.getWorkingVariantId());
-            LOGGER.error(msg);
-            throw new FaraoException(msg);
-        }
+    // Used to mock LinearProblem in tests
+    LinearProblem createLinearRaoProblem() {
+        return new LinearProblem();
     }
 
     /**
@@ -126,7 +89,7 @@ public class SimpleLinearOptimizer {
      * or if loop flow data are missing
      */
     public void optimize(RaoData raoData) {
-        checkDataConsistencyWithParameters(raoData);
+        checkDataConsistencyWithParameters(raoParameters, raoData);
         checkSensitivityValues(raoData);
 
         // prepare optimisation problem
@@ -138,8 +101,8 @@ public class SimpleLinearOptimizer {
             updateProblem(raoData, raoParameters.getExtension(LinearProblemParameters.class));
         }
 
-        solveLinearProblem();
-        fillCracResults(linearProblem, raoData);
+        solveProblem();
+        raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblem);
         raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
     }
 
@@ -163,7 +126,7 @@ public class SimpleLinearOptimizer {
         }
     }
 
-    private void solveLinearProblem() {
+    private void solveProblem() {
         try {
             Enum solverResultStatus = linearProblem.solve();
             String solverResultStatusString = solverResultStatus.name();
@@ -179,40 +142,36 @@ public class SimpleLinearOptimizer {
         }
     }
 
-    public List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
-        fillerList = new ArrayList<>();
-        fillerList.add(new CoreProblemFiller());
-        fillerList.add(new MaxMinMarginFiller());
+    private static RaoParameters checkRaoParameters(RaoParameters raoParameters) {
+        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
+            raoParameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
+        }
+        return raoParameters;
+    }
+
+    private static List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
+        // TODO : load the filler list from the config file and make sure they are ordered properly
+        List<ProblemFiller> fillerList = Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller());
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillerList.add(new MaxLoopFlowFiller());
         }
         return fillerList;
     }
 
-    public LinearProblem createLinearRaoProblem() {
-        return new LinearProblem();
+    private static void checkDataConsistencyWithParameters(RaoParameters raoParameters, RaoData raoData) {
+        if (raoParameters.isRaoWithLoopFlowLimitation()
+            && Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+            String msg = format(PARAMETERS_NOT_CONSISTENT, raoData.getCrac().getId());
+            LOGGER.error(msg);
+            throw new FaraoException(msg);
+        }
     }
 
-    static void fillCracResults(LinearProblem linearProblem, RaoData raoData) {
-        String preventiveState = raoData.getCrac().getPreventiveState().getId();
-        LOGGER.debug(format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
-        LOGGER.debug(format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
-        for (RangeAction rangeAction: raoData.getCrac().getRangeActions()) {
-            if (rangeAction instanceof PstRange) {
-                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
-                double rangeActionVal = linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
-                PstRange pstRange = (PstRange) rangeAction;
-                TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
-
-                int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
-                double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
-
-                RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-                pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
-                pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
-                LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
-            }
+    private static void checkSensitivityValues(RaoData raoData) {
+        if (!raoData.hasSensitivityValues()) {
+            String msg = format(NO_SENSITIVITY_VALUES, raoData.getWorkingVariantId());
+            LOGGER.error(msg);
+            throw new FaraoException(msg);
         }
     }
 }

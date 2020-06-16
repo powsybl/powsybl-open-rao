@@ -109,9 +109,8 @@ public class SearchTreeRao implements RaoProvider {
         while (depth < searchTreeRaoParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
             LOGGER.info(format("Research depth: %d - [start]", depth));
             previousDepthOptimalLeaf = optimalLeaf;
-            updateOptimalLeafWithNextDepthLeaves();
+            updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
-            optimalLeaf.applyRangeActionResultsOnNetwork(); // Store range action optimization results in the network, because next depth will start based on this network
             if (hasImproved && previousDepthOptimalLeaf != rootLeaf) {
                 previousDepthOptimalLeaf.clearVariants();
             }
@@ -123,7 +122,7 @@ public class SearchTreeRao implements RaoProvider {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthLeaves() {
+    private void updateOptimalLeafWithNextDepthBestLeaf() {
         final Set<NetworkAction> networkActions = optimalLeaf.bloom();
         if (networkActions.isEmpty()) {
             LOGGER.info("No new leaves to evaluate");

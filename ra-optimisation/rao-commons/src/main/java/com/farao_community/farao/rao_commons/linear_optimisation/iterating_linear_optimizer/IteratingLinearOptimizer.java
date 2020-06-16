@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -26,9 +28,13 @@ public class IteratingLinearOptimizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
     private static final String UNEXPECTED_BEHAVIOR = "Iteration %d - Linear Optimization found a worse result than previous iteration, with a minimum margin from %.2f to %.2f %s (optimisation criterion : from %.2f to %.2f)";
     private static final String IMPROVEMENT = "Iteration %d - Better solution found with a minimum margin of %.2f %s (optimisation criterion : %.2f)";
-    private static final String SAME_RESULTS = "Iteration {} - same results as previous iterations, optimal solution found";
-    private static final String SENSITIVITY_ERROR = "Sensitivity computation failed at iteration {} on {} mode: {}";
-    private static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration {}: {}";
+    private static final String SAME_RESULTS = "Iteration %d - same results as previous iterations, optimal solution found";
+    private static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_START = "Iteration %d - systematic analysis [start]";
+    private static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_END = "Iteration %d - systematic analysis [end]";
+    private static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR = "Sensitivity computation failed at iteration %d on %s mode: %s";
+    private static final String LINEAR_OPTIMIZATION_START = "Iteration %d - linear optimization [start]";
+    private static final String LINEAR_OPTIMIZATION_END = "Iteration %d - linear optimization [end]";
+    private static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration %d: %s";
 
     private RaoData raoData;
     private String bestVariantId;
@@ -47,6 +53,7 @@ public class IteratingLinearOptimizer {
         }
     }
 
+    // Used to mock SimpleLinearOptimizer and SystematicSensitivityComputation in tests
     IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
                              SimpleLinearOptimizer simpleLinearOptimizer,
                              IteratingLinearOptimizerParameters parameters) {
@@ -73,40 +80,40 @@ public class IteratingLinearOptimizer {
         return bestVariantId;
     }
 
-    private boolean optimize(double iteration) {
+    private boolean optimize(int iteration) {
         // If optimization fails iteration can stop
         try {
-            LOGGER.info("Iteration {} - linear optimization [start]", iteration);
+            LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
             simpleLinearOptimizer.optimize(raoData);
-            LOGGER.info("Iteration {} - linear optimization [end]", iteration);
+            LOGGER.info(format(LINEAR_OPTIMIZATION_END, iteration));
             return true;
         } catch (LinearOptimisationException e) {
-            LOGGER.error(LINEAR_OPTIMIZATION_ERROR, iteration, e.getMessage());
+            LOGGER.error(format(LINEAR_OPTIMIZATION_ERROR, iteration, e.getMessage()));
             return false;
         }
     }
 
-    private boolean hasRemedialActionsChanged(String optimizedVariantId, double iteration) {
+    private boolean hasRemedialActionsChanged(String optimizedVariantId, int iteration) {
         // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
         if (raoData.getRaoDataManager().sameRemedialActions(bestVariantId, optimizedVariantId)) {
-            LOGGER.info(SAME_RESULTS, iteration);
+            LOGGER.info(format(SAME_RESULTS, iteration));
             return false;
         } else {
             return true;
         }
     }
 
-    private boolean evaluateNewCost(String optimizedVariantId, double iteration) {
+    private boolean evaluateNewCost(String optimizedVariantId, int iteration) {
         // If evaluating the new cost fails iteration can stop
         raoData.setWorkingVariant(optimizedVariantId);
         try {
-            LOGGER.info("Iteration {} - systematic analysis [start]", iteration);
+            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
             systematicSensitivityComputation.run(raoData);
             raoData.getRaoDataManager().fillCracResultsWithSensis(simpleLinearOptimizer.getParameters().getObjectiveFunction(), systematicSensitivityComputation);
-            LOGGER.info("Iteration {} - systematic analysis [end]", iteration);
+            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
         } catch (SensitivityComputationException e) {
-            LOGGER.error(SENSITIVITY_ERROR, iteration, systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage());
+            LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration, systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage()));
             return false;
         }
     }
@@ -117,11 +124,11 @@ public class IteratingLinearOptimizer {
         CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
         String unit = simpleLinearOptimizer.getParameters().getObjectiveFunction().getUnit();
         if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
-            LOGGER.warn(String.format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(), unit,
+            LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(), unit,
                 optimizedVariantResult.getCost()));
             return true;
         } else { // unexpected behaviour, stop the search
-            LOGGER.warn(String.format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
+            LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
                 -optimizedVariantResult.getFunctionalCost(),  unit, bestVariantResult.getCost(), optimizedVariantResult.getCost()));
             return false;
         }

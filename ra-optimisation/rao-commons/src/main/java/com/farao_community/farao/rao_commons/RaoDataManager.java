@@ -12,8 +12,10 @@ import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Unit;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_commons.RaoData.NO_WORKING_VARIANT;
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -89,6 +92,29 @@ public class RaoDataManager {
             }
         }
         return true;
+    }
+
+    public void fillRangeActionResultsWithLinearProblem(LinearProblem linearProblem) {
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
+        LOGGER.debug(format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
+        LOGGER.debug(format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
+        for (RangeAction rangeAction: raoData.getCrac().getRangeActions()) {
+            if (rangeAction instanceof PstRange) {
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                double rangeActionVal = linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
+                PstRange pstRange = (PstRange) rangeAction;
+                TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+
+                int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
+                double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+
+                RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
+                pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
+                pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
+                LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
+            }
+        }
     }
 
     /**
