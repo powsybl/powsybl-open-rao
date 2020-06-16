@@ -56,17 +56,12 @@ public final class CneRemedialActionsCreator {
                 && isActivated(preventiveStateId, preOptimRangeActionResult, postOptimRangeActionResult)
                 && !rangeAction.getNetworkElements().isEmpty()) {
 
-                createB56ConstraintSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), preventiveB56);
-
-                rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, preventiveB56.getRemedialActionSeries().get(0)));
-
-                constraintSeriesList.add(preOptimConstraintSeriesB56);
+                RemedialActionSeries remedialActionSeries = fillB56RemedialActionSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), false);
+                rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, remedialActionSeries));
+                preventiveB56.remedialActionSeries.add(remedialActionSeries);
             }
+            constraintSeriesList.add(preOptimConstraintSeriesB56);
         }
-    }
-
-    private static void createB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, ConstraintSeries preventiveB56) {
-        fillB56ConstraintSeries(remedialActionId, remedialActionName, operator, false, preventiveB56);
     }
 
     private static ConstraintSeries createB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator) {
@@ -75,7 +70,7 @@ public final class CneRemedialActionsCreator {
         return constraintSeries;
     }
 
-    private static void fillB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim, ConstraintSeries constraintSeries) {
+    private static RemedialActionSeries fillB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim) {
         RemedialActionSeries remedialActionSeries;
         if (isPreOptim) {
             remedialActionSeries = newRemedialActionSeries(remedialActionId, remedialActionName);
@@ -90,6 +85,11 @@ public final class CneRemedialActionsCreator {
             LOGGER.warn(String.format("Operator %s is not a country id.", operator));
         }
 
+        return remedialActionSeries;
+    }
+
+    private static void fillB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim, ConstraintSeries constraintSeries) {
+        RemedialActionSeries remedialActionSeries = fillB56RemedialActionSeries(remedialActionId, remedialActionName, operator, isPreOptim);
         constraintSeries.remedialActionSeries.add(remedialActionSeries);
     }
 
@@ -130,7 +130,7 @@ public final class CneRemedialActionsCreator {
                 && isActivated(preventiveStateId, preOptimNetworkActionResult, postOptimNetworkActionResult)
                 && !networkAction.getNetworkElements().isEmpty()) {
 
-                createB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), preventiveB56);
+                fillB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), false, preventiveB56);
             }
         }
     }
