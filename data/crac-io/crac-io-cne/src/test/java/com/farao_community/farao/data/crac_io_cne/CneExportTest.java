@@ -30,7 +30,6 @@ public class CneExportTest {
         Crac crac = CracImporters.importCrac("US2-3-crac1-standard.json", getClass().getResourceAsStream("/US2-3-crac1-standard.json"));
         Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
 
-        // export CNE file
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(crac, network, "CNE", outputStream);
 
@@ -43,7 +42,6 @@ public class CneExportTest {
         Crac crac = CracImporters.importCrac("US3-2-pst-direct.json", getClass().getResourceAsStream("/US3-2-pst-direct.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CracExporters.exportCrac(crac, network, "CNE", outputStream);
 
