@@ -18,9 +18,10 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.*;
 
@@ -163,7 +164,7 @@ public class SimpleLinearOptimizer {
 
     private static List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
         // TODO : load the filler list from the config file and make sure they are ordered properly
-        List<ProblemFiller> fillerList = Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller());
+        List<ProblemFiller> fillerList = Stream.of(new CoreProblemFiller(), new MaxMinMarginFiller()).collect(Collectors.toList());
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillerList.add(new MaxLoopFlowFiller());
         }

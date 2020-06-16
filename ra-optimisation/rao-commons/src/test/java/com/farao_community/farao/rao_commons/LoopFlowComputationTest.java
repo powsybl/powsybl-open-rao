@@ -9,35 +9,14 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import org.junit.Test;
 import org.mockito.Mockito;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LoopFlowComputationTest {
-
-    @Test
-    public void testCalculateLoopFlowConstraintAndUpdateAllCnec() {
-        Crac crac = ExampleGenerator.crac();
-        Map<String, Double> fzeroallmap = new HashMap<>();
-        fzeroallmap.put("FR-BE", 0.0);
-        fzeroallmap.put("FR-DE", 0.0);
-        fzeroallmap.put("BE-NL", 0.0);
-        fzeroallmap.put("DE-NL", 0.0);
-        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
-        crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        LoopFlowComputation.updateCnecsLoopFlowConstraint(crac, fzeroallmap);
-        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
-            assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
-        });
-    }
 
     @Test(expected = FaraoException.class)
     public void testRunLoopFlowExtensionInCracNotAvailable() {
@@ -45,7 +24,7 @@ public class LoopFlowComputationTest {
         Crac crac = Mockito.mock(Crac.class);
         Mockito.when(crac.getExtension(CracLoopFlowExtension.class)).thenReturn(null);
         Mockito.when(raoData.getCrac()).thenReturn(crac);
-        LoopFlowComputation.run(raoData);
+        LoopFlowComputation.checkDataConsistency(raoData);
     }
 
 }

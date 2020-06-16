@@ -135,6 +135,20 @@ public class RaoDataManager {
         updateCnecExtensions();
     }
 
+    public void fillCracResultsWithInitialLoopFlows(Map<String, Double> loopFlows) {
+        // For each Cnec, get the maximum F_(0,all)_MAX = Math.max(F_(0,all)_init, loop flow threshold
+        raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()).forEach(cnec -> {
+            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+            if (!Objects.isNull(cnecLoopFlowExtension)) {
+                //!!! note here we use the result of branch flow of preventive state for all cnec of all states
+                //this could be ameliorated by re-calculating loopflow for each cnec in curative state: [network + cnec's contingencies + current applied remedial actions]
+                double initialLoopFlow = Math.abs(loopFlows.get(cnec.getId()));
+                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputLoopFlow());
+                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold)); //todo: cnec loop flow extension need to be based on ResultVariantManger
+            }
+        });
+    }
+
     public void fillCracResultsWithLoopFlows(Map<String, Double> loopFlows) {
         raoData.getCrac().getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
