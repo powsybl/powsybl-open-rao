@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -48,6 +49,7 @@ public class SimpleLinearOptimizerTest {
     private SimpleCrac crac;
     private PstRange rangeAction;
     private RaoData raoData;
+    private RaoDataManager raoDataManager;
     private MPVariable rangeActionSetPoint;
     private MPVariable rangeActionAbsoluteVariation;
     private MPConstraint absoluteRangeActionVariationConstraint;
@@ -74,6 +76,7 @@ public class SimpleLinearOptimizerTest {
 
         raoData = new RaoData(network, crac);
         raoData = Mockito.spy(raoData);
+        raoDataManager = raoData.getRaoDataManager();
 
         SystematicSensitivityAnalysisResult result = createSystematicAnalysisResult();
         raoData.setSystematicSensitivityAnalysisResult(result);
@@ -143,6 +146,7 @@ public class SimpleLinearOptimizerTest {
         crac.addRangeAction(rangeAction);
         crac.synchronize(network);
         raoData = new RaoData(network, crac);
+        raoDataManager = raoData.getRaoDataManager();
         Mockito.when(linearProblemMock.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
         Mockito.when(linearProblemMock.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
         Mockito.when(linearProblemMock.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE)).thenReturn(absoluteRangeActionVariationConstraint);
@@ -155,7 +159,7 @@ public class SimpleLinearOptimizerTest {
         Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.0);
         Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
 
-        raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblemMock);
+        raoDataManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
 
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
@@ -171,7 +175,7 @@ public class SimpleLinearOptimizerTest {
         Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 - 5.0);
         Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
 
-        raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblemMock);
+        raoDataManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
 
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
@@ -187,7 +191,7 @@ public class SimpleLinearOptimizerTest {
         Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 5.0);
         Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
 
-        raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblemMock);
+        raoDataManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
 
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
@@ -204,7 +208,7 @@ public class SimpleLinearOptimizerTest {
         Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(99.0);
 
         try {
-            raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblemMock);
+            raoDataManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
             fail();
         } catch (FaraoException e) {
             // should throw

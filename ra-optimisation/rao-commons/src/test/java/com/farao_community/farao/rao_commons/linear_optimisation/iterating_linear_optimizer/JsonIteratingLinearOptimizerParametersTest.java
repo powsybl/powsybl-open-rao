@@ -14,6 +14,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
@@ -32,9 +33,9 @@ public class JsonIteratingLinearOptimizerParametersTest extends AbstractConverte
     }
 
     @Test
-    public void readUnknownField() {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/IteratingLinearOptimizerParametersUnknownField.json"));
+    public void readUnknownField() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/IteratingLinearOptimizerParametersUnknownField.json")) {
+            JsonRaoParameters.read(is);
             fail();
         } catch (FaraoException e) {
             // should throw

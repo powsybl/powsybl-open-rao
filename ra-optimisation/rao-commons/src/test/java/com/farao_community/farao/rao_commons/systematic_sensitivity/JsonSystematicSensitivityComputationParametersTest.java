@@ -15,6 +15,7 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
@@ -42,9 +43,9 @@ public class JsonSystematicSensitivityComputationParametersTest extends Abstract
     }
 
     @Test
-    public void readUnknownField() {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/SystematicSensitivityComputationParametersUnknownField.json"));
+    public void readUnknownField() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/SystematicSensitivityComputationParametersUnknownField.json")) {
+            JsonRaoParameters.read(is);
             fail();
         } catch (FaraoException e) {
             // should throw

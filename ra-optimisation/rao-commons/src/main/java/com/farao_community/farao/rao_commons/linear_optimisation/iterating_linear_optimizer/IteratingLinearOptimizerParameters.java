@@ -35,7 +35,9 @@ public class IteratingLinearOptimizerParameters extends AbstractExtension<RaoPar
         return "IteratingLinearOptimizerParameters";
     }
 
-    public IteratingLinearOptimizerParameters() { }
+    public IteratingLinearOptimizerParameters() {
+        // Mandatory for deserialization
+    }
 
     public int getMaxIterations() {
         return maxIterations;

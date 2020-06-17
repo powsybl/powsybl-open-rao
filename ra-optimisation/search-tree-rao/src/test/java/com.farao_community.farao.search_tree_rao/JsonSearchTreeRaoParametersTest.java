@@ -13,6 +13,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
@@ -34,8 +35,8 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
 
     @Test
     public void readError() throws IOException {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersError.json"));
+        try (InputStream is = getClass().getResourceAsStream("/SearchTreeRaoParametersError.json")) {
+            JsonRaoParameters.read(is);
             fail();
         } catch (FaraoException e) {
             // should throw

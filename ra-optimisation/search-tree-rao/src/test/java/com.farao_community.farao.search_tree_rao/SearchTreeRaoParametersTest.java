@@ -33,10 +33,4 @@ public class SearchTreeRaoParametersTest {
         assertTrue(parameters.getExtensionByName("SearchTreeRaoParameters") instanceof SearchTreeRaoParameters);
         assertNotNull(parameters.getExtension(SearchTreeRaoParameters.class));
     }
-
-    @Test
-    public void testLoopFlowExtensionParameters() {
-        parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtension(SearchTreeRaoParameters.class);
-    }
 }

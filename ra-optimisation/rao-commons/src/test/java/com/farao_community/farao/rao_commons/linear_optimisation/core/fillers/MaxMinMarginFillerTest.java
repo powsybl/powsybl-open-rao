@@ -126,9 +126,9 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMissingFlowVariables() {
+        // AbsoluteRangeActionVariables present, but no the FlowVariables
+        linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
         try {
-            // AbsoluteRangeActionVariables present, but no the FlowVariables
-            linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
             maxMinMarginFiller.fill(raoData, linearProblem, linearProblemParameters);
             fail();
         } catch (FaraoException e) {
@@ -138,10 +138,10 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMissingRangeActionVariables() {
+        // FlowVariables present , but not the absoluteRangeActionVariables present,
+        linearProblem.addFlowVariable(0.0, 0.0, cnec1);
+        linearProblem.addFlowVariable(0.0, 0.0, cnec2);
         try {
-            // FlowVariables present , but not the absoluteRangeActionVariables present,
-            linearProblem.addFlowVariable(0.0, 0.0, cnec1);
-            linearProblem.addFlowVariable(0.0, 0.0, cnec2);
             maxMinMarginFiller.fill(raoData, linearProblem, linearProblemParameters);
             fail();
         } catch (FaraoException e) {

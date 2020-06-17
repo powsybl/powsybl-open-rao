@@ -13,6 +13,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
@@ -30,9 +31,9 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readUnknownField() {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParametersUnknownField.json"));
+    public void readUnknownField() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/LinearRaoParametersUnknownField.json")) {
+            JsonRaoParameters.read(is);
             fail();
         } catch (FaraoException e) {
             // should throw

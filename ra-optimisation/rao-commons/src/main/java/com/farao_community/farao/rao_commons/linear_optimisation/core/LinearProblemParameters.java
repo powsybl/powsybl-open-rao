@@ -42,7 +42,9 @@ public class LinearProblemParameters extends AbstractExtension<RaoParameters> {
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private double loopflowConstraintAdjustmentCoefficient = DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
-    public LinearProblemParameters() { }
+    public LinearProblemParameters() {
+        // Mandatory for deserialization
+    }
 
     @Override
     public String getName() {
