@@ -29,6 +29,7 @@ public class JsonLinearProblemParametersTest extends AbstractConverterTest {
         parameters.getExtension(LinearProblemParameters.class).setPstSensitivityThreshold(1.0);
         parameters.getExtension(LinearProblemParameters.class).setPstPenaltyCost(0.5);
         parameters.getExtension(LinearProblemParameters.class).setObjectiveFunction(LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        parameters.getExtension(LinearProblemParameters.class).setLoopflowConstraintAdjustmentCoefficient(1.0);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/LinearProblemParameters.json");
     }
 

@@ -35,10 +35,12 @@ public class LinearProblemParameters extends AbstractExtension<RaoParameters> {
     public static final double DEFAULT_PST_PENALTY_COST = 0.01;
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
     public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
+    public static final double DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
+    private double loopflowConstraintAdjustmentCoefficient = DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
     public LinearProblemParameters() { }
 
@@ -72,5 +74,13 @@ public class LinearProblemParameters extends AbstractExtension<RaoParameters> {
     public LinearProblemParameters setObjectiveFunction(ObjectiveFunction objectiveFunction) {
         this.objectiveFunction = objectiveFunction;
         return this;
+    }
+
+    public double getLoopflowConstraintAdjustmentCoefficient() {
+        return loopflowConstraintAdjustmentCoefficient;
+    }
+
+    public void setLoopflowConstraintAdjustmentCoefficient(double loopflowConstraintAdjustmentCoefficient) {
+        this.loopflowConstraintAdjustmentCoefficient = loopflowConstraintAdjustmentCoefficient;
     }
 }

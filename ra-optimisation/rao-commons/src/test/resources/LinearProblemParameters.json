@@ -5,7 +5,8 @@
     "LinearProblemParameters" : {
       "pst-penalty-cost" : 0.5,
       "pst-sensitivity-threshold" : 1.0,
-      "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE"
+      "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
+      "loopflow-constraint-adjustment-coefficient" : 1.0
     }
   }
 }

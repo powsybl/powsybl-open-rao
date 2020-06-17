@@ -31,6 +31,7 @@ public class LinearProblemConfigLoader implements RaoParameters.ConfigLoader<Lin
             parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", LinearProblemParameters.DEFAULT_PST_PENALTY_COST));
             parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", LinearProblemParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD));
             parameters.setObjectiveFunction(config.getEnumProperty("objective-function", LinearProblemParameters.ObjectiveFunction.class, LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION));
+            parameters.setLoopflowConstraintAdjustmentCoefficient(config.getDoubleProperty("loopflow-constraint-adjustment-coefficient", LinearProblemParameters.DEFAULT_LOOPFLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
         }
         return parameters;
     }

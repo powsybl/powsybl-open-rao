@@ -39,12 +39,14 @@ public class LinearProblemConfigLoaderTest {
         ModuleConfig linearProblemParametersModule = Mockito.mock(ModuleConfig.class);
         Mockito.when(linearProblemParametersModule.getDoubleProperty(eq("pst-penalty-cost"), anyDouble())).thenReturn(0.5);
         Mockito.when(linearProblemParametersModule.getDoubleProperty(eq("pst-sensitivity-threshold"), anyDouble())).thenReturn(2.0);
+        Mockito.when(linearProblemParametersModule.getDoubleProperty(eq("loopflow-constraint-adjustment-coefficient"), anyDouble())).thenReturn(1.0);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("linear-problem-parameters")).thenReturn(Optional.of(linearProblemParametersModule));
 
         LinearProblemParameters parameters = configLoader.load(platformConfig);
         assertEquals(2.0, parameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.5, parameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
+        assertEquals(1.0, parameters.getLoopflowConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
     }
 
     @Test

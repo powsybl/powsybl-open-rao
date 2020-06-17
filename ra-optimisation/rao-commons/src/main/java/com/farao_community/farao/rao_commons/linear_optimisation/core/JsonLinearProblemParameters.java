@@ -29,6 +29,7 @@ public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("pst-penalty-cost", parameters.getPstPenaltyCost());
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", parameters.getPstSensitivityThreshold());
         jsonGenerator.writeObjectField("objective-function", parameters.getObjectiveFunction());
+        jsonGenerator.writeNumberField("loopflow-constraint-adjustment-coefficient", parameters.getLoopflowConstraintAdjustmentCoefficient());
         jsonGenerator.writeEndObject();
     }
 
@@ -48,6 +49,10 @@ public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionS
                     break;
                 case "objective-function":
                     parameters.setObjectiveFunction(stringToObjectiveFunction(parser.nextTextValue()));
+                    break;
+                case "loopflow-constraint-adjustment-coefficient":
+                    parser.nextToken();
+                    parameters.setLoopflowConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + parser.getCurrentName());

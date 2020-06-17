@@ -43,13 +43,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this(true);
     }
 
+    // Used for tests
     void setLoopFlowApproximation(boolean loopFlowApproximation) {
         isLoopFlowApproximation = loopFlowApproximation;
     }
 
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
-        buildMaxLoopFlowConstraint(raoData, linearProblem);
+        buildMaxLoopFlowConstraint(raoData, linearProblem, linearProblemParameters);
     }
 
     @Override
@@ -63,7 +64,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
-    private void buildMaxLoopFlowConstraint(RaoData raoData, LinearProblem linearProblem) {
+    private void buildMaxLoopFlowConstraint(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
         Map<Cnec, Double> loopFlowShifts;
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
         if (isLoopFlowApproximation) {
@@ -78,6 +79,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             }
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+            double loopflowConstraintAdjustmentCoefficient = linearProblemParameters.getLoopflowConstraintAdjustmentCoefficient();
+            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopflowConstraintAdjustmentCoefficient);
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);
             }
