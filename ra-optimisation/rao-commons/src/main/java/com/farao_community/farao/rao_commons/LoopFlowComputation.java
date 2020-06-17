@@ -34,7 +34,8 @@ public final class LoopFlowComputation {
         Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(raoData.getNetwork()); // Get reference flow
         Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); // Compute PTDF * NetPosition
         Map<String, Double> loopFlows = initialLoopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts);
-        raoData.getRaoDataManager().fillCracResultsWithInitialLoopFlows(loopFlows, loopFlowShifts);
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(loopFlows, loopFlowShifts);
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows);
     }
 
     public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {

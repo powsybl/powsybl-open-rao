@@ -136,7 +136,7 @@ public class RaoDataManager {
         updateCnecExtensions();
     }
 
-    public void fillCracResultsWithInitialLoopFlows(Map<String, Double> loopFlows, Map<Cnec, Double> loopFlowShifts) {
+    public void fillCracResultsWithLoopFlowConstraints(Map<String, Double> loopFlows, Map<Cnec, Double> loopFlowShifts) {
         raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()).forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
             if (!Objects.isNull(cnecLoopFlowExtension)) {

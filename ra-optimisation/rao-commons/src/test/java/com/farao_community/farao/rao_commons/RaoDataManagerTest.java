@@ -41,7 +41,7 @@ public class RaoDataManagerTest {
         loopflowShifts.put(crac.getCnec("DE-NL"), 0.0);
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        raoData.getRaoDataManager().fillCracResultsWithInitialLoopFlows(fzeroallmap, loopflowShifts);
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(fzeroallmap, loopflowShifts);
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
         });
