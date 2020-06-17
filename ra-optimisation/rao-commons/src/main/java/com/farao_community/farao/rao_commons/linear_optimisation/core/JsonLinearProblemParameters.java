@@ -24,33 +24,33 @@ import java.io.IOException;
 public class JsonLinearProblemParameters implements JsonRaoParameters.ExtensionSerializer<LinearProblemParameters> {
 
     @Override
-    public void serialize(LinearProblemParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LinearProblemParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("pst-penalty-cost", linearRaoParameters.getPstPenaltyCost());
-        jsonGenerator.writeNumberField("pst-sensitivity-threshold", linearRaoParameters.getPstSensitivityThreshold());
-        jsonGenerator.writeObjectField("objective-function", linearRaoParameters.getObjectiveFunction());
+        jsonGenerator.writeNumberField("pst-penalty-cost", parameters.getPstPenaltyCost());
+        jsonGenerator.writeNumberField("pst-sensitivity-threshold", parameters.getPstSensitivityThreshold());
+        jsonGenerator.writeObjectField("objective-function", parameters.getObjectiveFunction());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public LinearProblemParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public LinearProblemParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         LinearProblemParameters parameters = new LinearProblemParameters();
 
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+        while (!parser.nextToken().isStructEnd()) {
+            switch (parser.getCurrentName()) {
                 case "pst-penalty-cost":
-                    jsonParser.nextToken();
-                    parameters.setPstPenaltyCost(jsonParser.getDoubleValue());
+                    parser.nextToken();
+                    parameters.setPstPenaltyCost(parser.getDoubleValue());
                     break;
                 case "pst-sensitivity-threshold":
-                    jsonParser.nextToken();
-                    parameters.setPstSensitivityThreshold(jsonParser.getDoubleValue());
+                    parser.nextToken();
+                    parameters.setPstSensitivityThreshold(parser.getDoubleValue());
                     break;
                 case "objective-function":
-                    parameters.setObjectiveFunction(stringToObjectiveFunction(jsonParser.nextTextValue()));
+                    parameters.setObjectiveFunction(stringToObjectiveFunction(parser.nextTextValue()));
                     break;
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

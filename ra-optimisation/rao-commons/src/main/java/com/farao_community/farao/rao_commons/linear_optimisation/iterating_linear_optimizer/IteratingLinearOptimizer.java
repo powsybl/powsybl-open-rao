@@ -12,12 +12,16 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.CoreProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.MaxMinMarginFiller;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -39,19 +43,19 @@ public class IteratingLinearOptimizer {
 
     protected RaoData raoData;
     protected String bestVariantId;
-    protected final SystematicSensitivityComputation systematicSensitivityComputation;
-    protected final SimpleLinearOptimizer simpleLinearOptimizer;
-    protected final IteratingLinearOptimizerParameters parameters;
+    protected SystematicSensitivityComputation systematicSensitivityComputation;
+    protected SimpleLinearOptimizer simpleLinearOptimizer;
+    protected IteratingLinearOptimizerParameters parameters;
+
+    protected IteratingLinearOptimizer() {
+
+    }
 
     public IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
                                     RaoParameters raoParameters) {
-        this.systematicSensitivityComputation = systematicSensitivityComputation;
-        this.simpleLinearOptimizer = new SimpleLinearOptimizer(raoParameters);
-        if (!Objects.isNull(raoParameters.getExtension(IteratingLinearOptimizerParameters.class))) {
-            parameters = raoParameters.getExtension(IteratingLinearOptimizerParameters.class);
-        } else {
-            parameters = new IteratingLinearOptimizerParameters();
-        }
+        init(systematicSensitivityComputation, raoParameters);
+        this.simpleLinearOptimizer = new SimpleLinearOptimizer(
+            Stream.of(new CoreProblemFiller(), new MaxMinMarginFiller()).collect(Collectors.toList()), raoParameters);
     }
 
     // Used to mock SimpleLinearOptimizer and SystematicSensitivityComputation in tests
@@ -61,6 +65,15 @@ public class IteratingLinearOptimizer {
         this.systematicSensitivityComputation = systematicSensitivityComputation;
         this.simpleLinearOptimizer = simpleLinearOptimizer;
         this.parameters = parameters;
+    }
+
+    protected void init(SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
+        this.systematicSensitivityComputation = systematicSensitivityComputation;
+        if (!Objects.isNull(raoParameters.getExtension(IteratingLinearOptimizerParameters.class))) {
+            parameters = raoParameters.getExtension(IteratingLinearOptimizerParameters.class);
+        } else {
+            parameters = new IteratingLinearOptimizerParameters();
+        }
     }
 
     public String optimize(RaoData raoData) {

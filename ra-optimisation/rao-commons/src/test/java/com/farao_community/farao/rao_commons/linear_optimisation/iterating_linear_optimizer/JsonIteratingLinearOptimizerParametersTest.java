@@ -27,6 +27,7 @@ public class JsonIteratingLinearOptimizerParametersTest extends AbstractConverte
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(IteratingLinearOptimizerParameters.class, new IteratingLinearOptimizerParameters());
         parameters.getExtension(IteratingLinearOptimizerParameters.class).setMaxIterations(20);
+        parameters.getExtension(IteratingLinearOptimizerParameters.class).setLoopflowApproximation(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/IteratingLinearOptimizerParameters.json");
     }
 

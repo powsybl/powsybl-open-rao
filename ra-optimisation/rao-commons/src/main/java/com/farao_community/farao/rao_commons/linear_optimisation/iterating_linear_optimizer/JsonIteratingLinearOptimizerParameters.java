@@ -24,24 +24,29 @@ import java.io.IOException;
 public class JsonIteratingLinearOptimizerParameters implements JsonRaoParameters.ExtensionSerializer<IteratingLinearOptimizerParameters> {
 
     @Override
-    public void serialize(IteratingLinearOptimizerParameters linearRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(IteratingLinearOptimizerParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("max-number-of-iterations", linearRaoParameters.getMaxIterations());
+        jsonGenerator.writeNumberField("max-number-of-iterations", parameters.getMaxIterations());
+        jsonGenerator.writeBooleanField("loopflow-approximation", parameters.isLoopflowApproximation());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public IteratingLinearOptimizerParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public IteratingLinearOptimizerParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         IteratingLinearOptimizerParameters parameters = new IteratingLinearOptimizerParameters();
 
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+        while (!parser.nextToken().isStructEnd()) {
+            switch (parser.getCurrentName()) {
                 case "max-number-of-iterations":
-                    jsonParser.nextToken();
-                    parameters.setMaxIterations(jsonParser.getIntValue());
+                    parser.nextToken();
+                    parameters.setMaxIterations(parser.getIntValue());
+                    break;
+                case "loopflow-approximation":
+                    parser.nextToken();
+                    parameters.setLoopflowApproximation(parser.getBooleanValue());
                     break;
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

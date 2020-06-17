@@ -9,10 +9,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -33,6 +33,20 @@ import java.util.*;
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
 
+    private boolean isLoopFlowApproximation;
+
+    public MaxLoopFlowFiller(boolean isLoopFlowApproximation) {
+        this.isLoopFlowApproximation = isLoopFlowApproximation;
+    }
+
+    MaxLoopFlowFiller() {
+        this(true);
+    }
+
+    void setLoopFlowApproximation(boolean loopFlowApproximation) {
+        isLoopFlowApproximation = loopFlowApproximation;
+    }
+
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
         buildMaxLoopFlowConstraint(raoData, linearProblem);
@@ -50,8 +64,13 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
     private void buildMaxLoopFlowConstraint(RaoData raoData, LinearProblem linearProblem) {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac()); //todo optimization => do not recalculate loopflowShifts, use the one in the CracResult
-        Map<Cnec, Double> loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); //todo: validate assumption that "loopflowShift" does not change "much"
+        Map<Cnec, Double> loopFlowShifts;
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        if (isLoopFlowApproximation) {
+            loopFlowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(raoData.getCrac());
+        } else {
+            loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork());
+        }
 
         for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
             if (Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {

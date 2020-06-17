@@ -11,8 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Map;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -28,8 +26,7 @@ public final class RaoUtil {
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowComputation.checkDataConsistency(raoData);
-            Map<String, Double> loopFlows = LoopFlowComputation.calculateLoopFlows(raoData);
-            raoData.getRaoDataManager().fillCracResultsWithInitialLoopFlows(loopFlows);
+            LoopFlowComputation.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData);
         }
 
         return raoData;

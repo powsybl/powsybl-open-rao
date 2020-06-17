@@ -38,19 +38,16 @@ import static org.junit.Assert.*;
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     private MaxLoopFlowFiller maxLoopFlowFiller;
-    private GlskProvider glskProvider;
     private CracLoopFlowExtension cracLoopFlowExtension;
-    private List<Country> countries;
-    private ComputationManager computationManager;
 
     @Before
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
-        glskProvider = glskProvider();
+        GlskProvider glskProvider = glskProvider();
         cracLoopFlowExtension = new CracLoopFlowExtension();
         cracLoopFlowExtension.setGlskProvider(glskProvider);
-        countries = new ArrayList<>();
+        List<Country> countries = new ArrayList<>();
         countries.add(Country.FR);
         countries.add(Country.BE);
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
@@ -61,7 +58,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
         maxLoopFlowFiller = new MaxLoopFlowFiller();
-        computationManager = LocalComputationManager.getDefault();
+        ComputationManager computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = sensitivityComputationFactory();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
     }
@@ -73,6 +70,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem, linearProblemParameters);
 
         // fill max loop flow
+        maxLoopFlowFiller.setLoopFlowApproximation(false);
         maxLoopFlowFiller.fill(raoData, linearProblem, linearProblemParameters);
 
         // check flow constraint for cnec1
@@ -84,7 +82,26 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
     }
 
-    static GlskProvider glskProvider() {
+    @Test
+    public void testFillLoopflow() {
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        assertNotNull(loopFlowComputation);
+        coreProblemFiller.fill(raoData, linearProblem, linearProblemParameters);
+
+        // fill max loop flow
+        maxLoopFlowFiller.setLoopFlowApproximation(true);
+        maxLoopFlowFiller.fill(raoData, linearProblem, linearProblemParameters);
+
+        // check flow constraint for cnec1
+        MPConstraint loopFlowConstraint = linearProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNotNull(loopFlowConstraint);
+        assertEquals(-100, loopFlowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(100, loopFlowConstraint.ub(), DOUBLE_TOLERANCE);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        assertEquals(1, loopFlowConstraint.getCoefficient(flowVariable), 0.1);
+    }
+
+    private static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("FR", "FR", Collections.singletonMap("GENERATOR_FR_1", 1.f)));
         glsks.put("BE", new LinearGlsk("BE", "BE", Collections.singletonMap("GENERATOR_BE_1.1", 1.f)));
@@ -101,7 +118,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         };
     }
 
-    static SensitivityComputationFactory sensitivityComputationFactory() {
+    private static SensitivityComputationFactory sensitivityComputationFactory() {
         return new SensitivityComputationFactoryMock();
     }
 

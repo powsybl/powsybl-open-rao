@@ -14,6 +14,9 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Optional;
 
+import static com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters.DEFAULT_LOOPFLOW_APPROXIMATION;
+import static com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters.DEFAULT_MAX_NUMBER_OF_ITERATIONS;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -27,9 +30,8 @@ public class IteratingLinearOptimizerConfigLoader implements RaoParameters.Confi
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setMaxIterations(config.getIntProperty(
-                "max-number-of-iterations",
-                IteratingLinearOptimizerParameters.DEFAULT_MAX_NUMBER_OF_ITERATIONS));
+            parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", DEFAULT_MAX_NUMBER_OF_ITERATIONS));
+            parameters.setLoopflowApproximation(config.getBooleanProperty("loopflow-approximation", DEFAULT_LOOPFLOW_APPROXIMATION));
         }
         return parameters;
     }

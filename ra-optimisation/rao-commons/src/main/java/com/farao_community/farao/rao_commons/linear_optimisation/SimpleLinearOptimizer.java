@@ -54,7 +54,7 @@ public class SimpleLinearOptimizer {
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem.
      */
-    private List<ProblemFiller> fillerList;
+    private List<ProblemFiller> fillers;
 
     static final String SOLVER_RESULT_STATUS_UNKNOWN = "UNKNOWN";
     private String solverResultStatusString = SOLVER_RESULT_STATUS_UNKNOWN;
@@ -65,9 +65,14 @@ public class SimpleLinearOptimizer {
      */
     private RaoParameters raoParameters;
 
-    public SimpleLinearOptimizer(RaoParameters raoParameters) {
+    public SimpleLinearOptimizer(List<ProblemFiller> fillers, RaoParameters raoParameters) {
         this.raoParameters = checkRaoParameters(raoParameters);
-        this.fillerList = createFillerList(raoParameters);
+        this.fillers = fillers;
+    }
+
+    SimpleLinearOptimizer(RaoParameters raoParameters) {
+        this.raoParameters = checkRaoParameters(raoParameters);
+        this.fillers = Stream.of(new CoreProblemFiller(), new MaxMinMarginFiller()).collect(Collectors.toList());
     }
 
     public LinearProblemParameters getParameters() {
@@ -122,7 +127,7 @@ public class SimpleLinearOptimizer {
 
     private void buildProblem(RaoData raoData, LinearProblemParameters linearProblemParameters) {
         try {
-            fillerList.forEach(problemFiller -> problemFiller.fill(raoData, linearProblem, linearProblemParameters));
+            fillers.forEach(problemFiller -> problemFiller.fill(raoData, linearProblem, linearProblemParameters));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -132,7 +137,7 @@ public class SimpleLinearOptimizer {
 
     private void updateProblem(RaoData raoData, LinearProblemParameters linearProblemParameters) {
         try {
-            fillerList.forEach(problemFiller -> problemFiller.update(raoData, linearProblem, linearProblemParameters));
+            fillers.forEach(problemFiller -> problemFiller.update(raoData, linearProblem, linearProblemParameters));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -160,15 +165,6 @@ public class SimpleLinearOptimizer {
             raoParameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
         }
         return raoParameters;
-    }
-
-    private static List<ProblemFiller> createFillerList(RaoParameters raoParameters) {
-        // TODO : load the filler list from the config file and make sure they are ordered properly
-        List<ProblemFiller> fillerList = Stream.of(new CoreProblemFiller(), new MaxMinMarginFiller()).collect(Collectors.toList());
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            fillerList.add(new MaxLoopFlowFiller());
-        }
-        return fillerList;
     }
 
     private static void checkDataConsistencyWithParameters(RaoParameters raoParameters, RaoData raoData) {

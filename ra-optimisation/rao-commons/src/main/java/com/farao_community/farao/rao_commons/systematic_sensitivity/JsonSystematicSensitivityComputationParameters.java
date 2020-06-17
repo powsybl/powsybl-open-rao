@@ -39,28 +39,28 @@ public class JsonSystematicSensitivityComputationParameters implements JsonRaoPa
     }
 
     @Override
-    public SystematicSensitivityComputationParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public SystematicSensitivityComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         SystematicSensitivityComputationParameters parameters = new SystematicSensitivityComputationParameters();
 
-        while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+        while (!parser.nextToken().isStructEnd()) {
+            switch (parser.getCurrentName()) {
                 case "sensitivity-fallback-overcost":
-                    jsonParser.nextToken();
-                    parameters.setFallbackOvercost(jsonParser.getDoubleValue());
+                    parser.nextToken();
+                    parameters.setFallbackOvercost(parser.getDoubleValue());
                     break;
                 case "sensitivity-parameters":
-                    jsonParser.nextToken();
-                    JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, parameters.getDefaultParameters());
+                    parser.nextToken();
+                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultParameters());
                     break;
                 case "fallback-sensitivity-parameters":
-                    jsonParser.nextToken();
+                    parser.nextToken();
                     if (parameters.getFallbackParameters() == null) {
                         parameters.setFallbackParameters(new SensitivityComputationParameters());
                     }
-                    JsonSensitivityComputationParameters.deserialize(jsonParser, deserializationContext, parameters.getFallbackParameters());
+                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getFallbackParameters());
                     break;
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

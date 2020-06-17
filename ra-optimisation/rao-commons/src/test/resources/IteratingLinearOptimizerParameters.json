@@ -3,7 +3,8 @@
   "rao-with-loop-flow-limitation" : false,
   "extensions" : {
     "IteratingLinearOptimizerParameters" : {
-      "max-number-of-iterations" : 20
+      "max-number-of-iterations" : 20,
+      "loopflow-approximation" : true
     }
   }
 }

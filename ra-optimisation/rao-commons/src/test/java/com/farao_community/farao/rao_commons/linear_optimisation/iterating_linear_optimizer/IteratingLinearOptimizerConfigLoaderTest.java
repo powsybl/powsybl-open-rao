@@ -36,11 +36,13 @@ public class IteratingLinearOptimizerConfigLoaderTest {
     public void testLoad() {
         ModuleConfig iteratingLinearOptimizerModule = Mockito.mock(ModuleConfig.class);
         Mockito.when(iteratingLinearOptimizerModule.getIntProperty(eq("max-number-of-iterations"), anyInt())).thenReturn(25);
+        Mockito.when(iteratingLinearOptimizerModule.getBooleanProperty(eq("loopflow-approximation"), anyBoolean())).thenReturn(true);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("iterating-linear-optimizer-parameters")).thenReturn(Optional.of(iteratingLinearOptimizerModule));
 
         IteratingLinearOptimizerParameters parameters = configLoader.load(platformConfig);
         assertEquals(25, parameters.getMaxIterations());
+        assertTrue(parameters.isLoopflowApproximation());
     }
 
     @Test

@@ -7,12 +7,12 @@
 
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,16 +26,22 @@ public class RaoDataManagerTest {
 
     @Test
     public void testCalculateLoopFlowConstraintAndUpdateAllCnec() {
+        Network network = ExampleGenerator.network();
         Crac crac = ExampleGenerator.crac();
-        RaoData raoData = new RaoData(Mockito.mock(Network.class), crac);
+        RaoData raoData = new RaoData(network, crac);
         Map<String, Double> fzeroallmap = new HashMap<>();
         fzeroallmap.put("FR-BE", 0.0);
         fzeroallmap.put("FR-DE", 0.0);
         fzeroallmap.put("BE-NL", 0.0);
         fzeroallmap.put("DE-NL", 0.0);
+        Map<Cnec, Double> loopflowShifts = new HashMap<>();
+        loopflowShifts.put(crac.getCnec("FR-BE"), 0.0);
+        loopflowShifts.put(crac.getCnec("FR-DE"), 0.0);
+        loopflowShifts.put(crac.getCnec("BE-NL"), 0.0);
+        loopflowShifts.put(crac.getCnec("DE-NL"), 0.0);
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        raoData.getRaoDataManager().fillCracResultsWithInitialLoopFlows(fzeroallmap);
+        raoData.getRaoDataManager().fillCracResultsWithInitialLoopFlows(fzeroallmap, loopflowShifts);
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
         });

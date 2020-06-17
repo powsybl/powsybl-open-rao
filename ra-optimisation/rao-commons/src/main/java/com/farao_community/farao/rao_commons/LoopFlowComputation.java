@@ -28,11 +28,25 @@ public final class LoopFlowComputation {
 
     private LoopFlowComputation() { }
 
-    public static Map<String, Double> calculateLoopFlows(RaoData raoData) {
-        //todo: optim: if CnecResult contains already ptdf or loopflows, then do not recompute the whole loopflows. if (this.runLoopflow && !linearRaoData.getCracResult().hasPtdfResults())
+    public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData) {
         com.farao_community.farao.loopflow_computation.LoopFlowComputation initialLoopFlowComputation =
             new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac());
-        return initialLoopFlowComputation.calculateLoopFlows(raoData.getNetwork()); //todo save loopflowShift and Ptdf value in CracReult, to be reused
+        Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(raoData.getNetwork()); // Get reference flow
+        Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); // Compute PTDF * NetPosition
+        Map<String, Double> loopFlows = initialLoopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts);
+        raoData.getRaoDataManager().fillCracResultsWithInitialLoopFlows(loopFlows, loopFlowShifts);
+    }
+
+    public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {
+        Map<String, Double> loopFlows;
+        com.farao_community.farao.loopflow_computation.LoopFlowComputation loopFlowComputation =
+            new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac());
+        if (isLoopFlowApproximation) { // No re-compute ptdf
+            loopFlows = loopFlowComputation.calculateLoopFlowsApproximation(raoData.getNetwork());
+        } else {
+            loopFlows = loopFlowComputation.calculateLoopFlows(raoData.getNetwork()); // Re-compute ptdf
+        }
+        return loopFlows;
     }
 
     public static boolean isLoopFlowsViolated(RaoData raoData, Map<String, Double> loopFlows) {
