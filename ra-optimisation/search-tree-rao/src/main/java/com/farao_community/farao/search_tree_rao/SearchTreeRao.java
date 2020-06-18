@@ -136,7 +136,7 @@ public class SearchTreeRao implements RaoProvider {
             networkPool.submit(() -> networkActions.parallelStream().forEach(networkAction -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
-                    optimizeNextLeaf(networkAction, networkClone);
+                    optimizeNextLeafAndUpdate(networkAction, networkClone);
                     networkPool.releaseUsedNetwork(networkClone);
                     LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                 } catch (InterruptedException e) {
@@ -150,7 +150,7 @@ public class SearchTreeRao implements RaoProvider {
         }
     }
 
-    private void optimizeNextLeaf(NetworkAction networkAction, Network network) {
+    private void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network) {
         Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
         leaf.evaluate();
         LOGGER.debug(leaf.toString());

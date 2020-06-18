@@ -9,6 +9,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
@@ -177,8 +179,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(RaoData raoData, LinearProblem linearProblem) {
+        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
+        String preventiveStateId = raoData.getCrac().getPreventiveState().getId();
         raoData.getCrac().getRangeActions().forEach(rangeAction -> {
-            double initialSetPoint = rangeAction.getCurrentValue(raoData.getNetwork());
+            double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(preventiveStateId);
             MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
             MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
 
