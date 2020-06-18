@@ -34,6 +34,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     private void fillProblemWithCoreFiller() {
         // arrange some additional data
         raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
 
         // add a filter for PST sensis below 2.5
         linearProblemParameters.setPstSensitivityThreshold(2.5);
