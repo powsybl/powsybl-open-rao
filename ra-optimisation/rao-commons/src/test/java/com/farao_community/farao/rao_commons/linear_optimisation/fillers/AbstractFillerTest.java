@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -80,6 +81,11 @@ abstract class AbstractFillerTest {
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
         cnec2 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
         rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
+
+        ResultVariantManager resultVariantManager = new ResultVariantManager();
+        crac.addExtension(ResultVariantManager.class, resultVariantManager);
+        resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
+        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
 
         // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();

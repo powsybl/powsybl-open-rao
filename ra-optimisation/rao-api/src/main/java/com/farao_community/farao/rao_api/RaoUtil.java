@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInput;
@@ -37,6 +38,7 @@ public final class RaoUtil {
         RaoInput.cleanCrac(crac, network);
         RaoInput.synchronize(crac, network);
         RaoData raoData = new RaoData(network, crac);
+        crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowComputation.checkDataConsistency(raoData);

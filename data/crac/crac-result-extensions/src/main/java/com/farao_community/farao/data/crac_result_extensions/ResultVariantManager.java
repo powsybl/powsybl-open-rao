@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
+    private String preOptimVariantId;
 
     /**
      * Default constructor
@@ -59,6 +60,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      */
     public Set<String> getVariants() {
         return variants;
+    }
+
+    public String getPreOptimVariantId() {
+        return preOptimVariantId;
+    }
+
+    public void setPreOptimVariantId(String preOptimVariantId) {
+        this.preOptimVariantId = preOptimVariantId;
     }
 
     /**
