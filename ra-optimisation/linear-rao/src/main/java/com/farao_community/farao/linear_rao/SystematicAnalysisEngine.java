@@ -192,7 +192,7 @@ class SystematicAnalysisEngine {
                 linearRaoData.getCracResult().setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED); //flag UNSECURED if loopflowViolation and no virtual cost
                 linearRaoData.getCracResult().setVirtualCost(DEFAULT_LOOPFLOWVIOLATION_VIRTUALCOST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
             } else {
-                LOGGER.info("Loopflow virtual cost is positive and loopflow constraint violation");
+                LOGGER.info("Loopflow violation cost is positive and loopflow constraint violation");
             }
         }
 
