@@ -123,10 +123,10 @@ public class LinearRaoProblemTest {
         assertNull(linearRaoProblem.getMaxLoopFlowConstraint(cnec));
         linearRaoProblem.addMaxLoopFlowConstraint(LB, UB, cnec);
         assertNotNull(linearRaoProblem.getMaxLoopFlowConstraint(cnec));
-        linearRaoProblem.addPositiveLoopflowBreachConstraint(LB, UB, cnec);
-        linearRaoProblem.addNegativeLoopflowBreachConstraint(LB, UB, cnec);
-        assertEquals(LB, linearRaoProblem.getPositiveLoopflowBreachConstraint(cnec).lb(), DOUBLE_TOLERANCE);
-        assertEquals(LB, linearRaoProblem.getNegativeLoopflowBreachConstraint(cnec).lb(), DOUBLE_TOLERANCE);
+        linearRaoProblem.addPositiveLoopflowViolationConstraint(LB, UB, cnec);
+        linearRaoProblem.addNegativeLoopflowViolationConstraint(LB, UB, cnec);
+        assertEquals(LB, linearRaoProblem.getPositiveLoopflowViolationConstraint(cnec).lb(), DOUBLE_TOLERANCE);
+        assertEquals(LB, linearRaoProblem.getNegativeLoopflowViolationConstraint(cnec).lb(), DOUBLE_TOLERANCE);
     }
 
     @Test

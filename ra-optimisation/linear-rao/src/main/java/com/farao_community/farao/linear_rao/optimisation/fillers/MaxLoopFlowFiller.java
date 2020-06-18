@@ -117,22 +117,22 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 );
 
                 // - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
-                MPConstraint positiveLoopflowBreachConstraint = linearRaoProblem.addPositiveLoopflowBreachConstraint(
+                MPConstraint positiveLoopflowViolationConstraint = linearRaoProblem.addPositiveLoopflowViolationConstraint(
                         -maxLoopFlowLimit + loopFlowShift,
                         linearRaoProblem.infinity(),
                         cnec
                 );
-                positiveLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
-                positiveLoopflowBreachConstraint.setCoefficient(loopflowViolationVariable, 1);
+                positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
+                positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
 
                 // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + LoopFlowShift
-                MPConstraint negativeLoopflowBreachConstraint = linearRaoProblem.addNegativeLoopflowBreachConstraint(
+                MPConstraint negativeLoopflowViolationConstraint = linearRaoProblem.addNegativeLoopflowViolationConstraint(
                         -linearRaoProblem.infinity(),
                         maxLoopFlowLimit + loopFlowShift,
                         cnec
                 );
-                negativeLoopflowBreachConstraint.setCoefficient(flowVariable, 1);
-                negativeLoopflowBreachConstraint.setCoefficient(loopflowViolationVariable, -1);
+                negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
+                negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
 
                 //update objective function when non-zero-loopflowViolationCost
                 linearRaoProblem.getObjective().setCoefficient(loopflowViolationVariable, loopflowViolationCost);
