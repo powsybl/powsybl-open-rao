@@ -103,8 +103,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         MPConstraint negativeLoopflowBreachConstraint = linearRaoProblem.getNegativeLoopflowBreachConstraint(cnec1);
         assertNotNull(positiveLoopflowBreachConstraint);
         assertNotNull(negativeLoopflowBreachConstraint);
-        assertEquals(1, positiveLoopflowBreachConstraint.getCoefficient(linearRaoProblem.getLoopflowBreachVariable(cnec1)), 0.1);
-        assertEquals(-1, negativeLoopflowBreachConstraint.getCoefficient(linearRaoProblem.getLoopflowBreachVariable(cnec1)), 0.1);
+        assertEquals(1, positiveLoopflowBreachConstraint.getCoefficient(linearRaoProblem.getLoopflowViolationVariable(cnec1)), 0.1);
+        assertEquals(-1, negativeLoopflowBreachConstraint.getCoefficient(linearRaoProblem.getLoopflowViolationVariable(cnec1)), 0.1);
     }
 
     @Test

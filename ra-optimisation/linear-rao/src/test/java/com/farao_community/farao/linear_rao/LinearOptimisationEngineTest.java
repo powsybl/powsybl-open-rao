@@ -234,7 +234,7 @@ public class LinearOptimisationEngineTest {
 
         MPVariable variableMock = Mockito.mock(MPVariable.class);
         Mockito.when(variableMock.solutionValue()).thenReturn(2.0);
-        Mockito.when(linearRaoProblemMock.getLoopflowBreachVariable(any())).thenReturn(variableMock);
+        Mockito.when(linearRaoProblemMock.getLoopflowViolationVariable(any())).thenReturn(variableMock);
 
         LinearOptimisationEngine.fillVirtualCostInCracResult(linearRaoProblemMock, linearRaoData, linearRaoParameters);
         assertEquals(40.0, linearRaoData.getCracResult().getVirtualCost(), 0.1);

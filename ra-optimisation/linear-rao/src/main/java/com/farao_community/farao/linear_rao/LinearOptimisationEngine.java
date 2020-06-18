@@ -184,7 +184,7 @@ class LinearOptimisationEngine {
                 && linearRaoParameters.getExtendable().getLoopflowViolationCost() > 0.0) {
             for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
                 if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                    virtualCost += linearRaoProblem.getLoopflowBreachVariable(cnec).solutionValue() * linearRaoParameters.getExtendable().getLoopflowViolationCost();
+                    virtualCost += linearRaoProblem.getLoopflowViolationVariable(cnec).solutionValue() * linearRaoParameters.getExtendable().getLoopflowViolationCost();
                 }
             }
         }
