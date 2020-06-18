@@ -46,6 +46,13 @@ public interface CnecAdder extends NetworkElementParent<CnecAdder> {
      */
     ThresholdAdder newThreshold();
 
+    /***
+     * Set the frm of the created cnec
+     * @param frm the value of the frm in Megawatts
+     * @return the {@code CnecAdder} instance
+     */
+    CnecAdder setFrm(double frm);
+
     /**
      * Add the new Cnec to the Crac
      * @return the created {@code Cnec} instance

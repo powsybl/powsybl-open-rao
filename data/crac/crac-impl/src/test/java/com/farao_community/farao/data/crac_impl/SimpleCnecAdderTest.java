@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -125,6 +125,22 @@ public class SimpleCnecAdderTest {
         assertEquals("neId2", cnec2.getNetworkElement().getName());
         assertEquals(500.0, cnec2.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
         assertEquals(Double.NEGATIVE_INFINITY, cnec2.getMinThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testFrmHandling() {
+        double maxValueInMw = 100.0;
+        double frmInMw = 5.0;
+        CnecAdder cnecAdder = crac.newCnec();
+        Cnec cnec = cnecAdder.setId("Cnec ID")
+                .setInstant(instant1)
+                .setContingency(contingency1)
+                .newNetworkElement().setId("Network Element ID").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(maxValueInMw).add()
+                .setFrm(frmInMw)
+                .add();
+        assertEquals(maxValueInMw - frmInMw, cnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new), 0.0);
+        assertEquals(frmInMw - maxValueInMw, cnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(FaraoException::new), 0.0);
     }
 
 }
