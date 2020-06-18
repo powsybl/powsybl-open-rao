@@ -99,7 +99,7 @@ public class VoltageThreshold extends AbstractThreshold {
     }
 
     @Override
-    public void setMargin(double margin) {
+    public void setMargin(double margin, Unit unit) {
         // do nothing for the moment
     }
 }

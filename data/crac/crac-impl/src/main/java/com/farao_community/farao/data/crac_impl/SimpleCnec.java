@@ -43,7 +43,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
         this.networkElement = networkElement;
         this.thresholds = new HashSet<>();
-        thresholds.forEach(threshold -> threshold.setMargin(frm));
+        thresholds.forEach(threshold -> threshold.setMargin(frm, Unit.MEGAWATT));
         thresholds.forEach(this::addThreshold);
         this.state = state;
         isSynchronized = false;

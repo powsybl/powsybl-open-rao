@@ -137,8 +137,12 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         this.side = side;
     }
 
-    public void setMargin(double frmInMW) {
-        this.frmInMW = frmInMW;
+    public void setMargin(double frmInMW, Unit unit) {
+        if (unit != Unit.MEGAWATT) {
+            throw new FaraoException("Unable to handle another margin than the FRM in Megawatts");
+        } else {
+            this.frmInMW = frmInMW;
+        }
     }
 
     /**
