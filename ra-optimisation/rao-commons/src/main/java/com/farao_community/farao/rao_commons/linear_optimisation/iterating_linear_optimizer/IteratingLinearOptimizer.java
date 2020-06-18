@@ -12,7 +12,7 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +46,16 @@ public class IteratingLinearOptimizer {
     public IteratingLinearOptimizer(List<ProblemFiller> fillers,
                                     SystematicSensitivityComputation systematicSensitivityComputation,
                                     IteratingLinearOptimizerParameters parameters) {
-        this.systematicSensitivityComputation = systematicSensitivityComputation;
-        this.linearOptimizer = new LinearOptimizer(fillers);
-        this.parameters = parameters;
+        this(systematicSensitivityComputation, new LinearOptimizer(fillers), parameters);
     }
 
-    // Used to mock SimpleLinearOptimizer and SystematicSensitivityComputation in tests
+    // Used to mock LinearOptimizer and SystematicSensitivityComputation in tests
     IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
-                             LinearOptimizer linearOptimizer) {
+                             LinearOptimizer linearOptimizer,
+                             IteratingLinearOptimizerParameters parameters) {
         this.systematicSensitivityComputation = systematicSensitivityComputation;
         this.linearOptimizer = linearOptimizer;
+        this.parameters = parameters;
     }
 
     public String optimize(RaoData raoData) {
@@ -108,9 +108,10 @@ public class IteratingLinearOptimizer {
         raoData.setWorkingVariant(optimizedVariantId);
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
+            raoData.setWorkingVariant(optimizedVariantId);
             systematicSensitivityComputation.run(raoData, parameters.getUnit());
             raoData.getRaoDataManager().fillCracResultsWithSensis(parameters.getUnit(),
-                systematicSensitivityComputation.isFallback() ? parameters.getFallBackOverCost() : 0);
+                systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0);
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
         } catch (SensitivityComputationException e) {

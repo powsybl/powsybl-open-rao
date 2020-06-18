@@ -7,18 +7,17 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -35,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doAnswer;
 
 /**
@@ -47,7 +46,7 @@ public class IteratingLinearOptimizerTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
 
-    private RaoParameters raoParameters;
+    private IteratingLinearOptimizerParameters parameters;
     private SystematicSensitivityComputation systematicSensitivityComputation;
     private LinearOptimizer linearOptimizer;
     private Crac crac;
@@ -67,15 +66,11 @@ public class IteratingLinearOptimizerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         raoData = new RaoData(network, crac);
-        raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/IteratingLinearOptimizerParameters.json"));
+        parameters = new IteratingLinearOptimizerParameters(Unit.MEGAWATT, 10, 0);
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
 
         linearOptimizer = Mockito.mock(LinearOptimizer.class);
-        LinearProblemParameters linearProblemParameters = Mockito.mock(LinearProblemParameters.class);
-        LinearProblemParameters.ObjectiveFunction objectiveFunction = Mockito.mock(LinearProblemParameters.ObjectiveFunction.class);
-        Mockito.when(linearOptimizer.getParameters()).thenReturn(linearProblemParameters);
-        Mockito.when(linearProblemParameters.getObjectiveFunction()).thenReturn(objectiveFunction);
     }
 
     @Test
@@ -86,7 +81,7 @@ public class IteratingLinearOptimizerTest {
         RaoData spiedRaoData = Mockito.spy(raoData);
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), any());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), anyDouble());
 
         // mock sensitivity engine
         // sensitivity computation returns a cost of 100 before optim, and 50 after optim
@@ -117,7 +112,7 @@ public class IteratingLinearOptimizerTest {
                 count += 1;
                 return null;
             }
-        }).when(systematicSensitivityComputation).run(any());
+        }).when(systematicSensitivityComputation).run(any(), any());
 
         // mock linear optimisation engine
         // linear optimisation returns always the same value -> optimal solution is 1.0 for all RAs
@@ -151,12 +146,12 @@ public class IteratingLinearOptimizerTest {
 
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
 
-        systematicSensitivityComputation.run(spiedRaoData);
+        systematicSensitivityComputation.run(spiedRaoData, Unit.MEGAWATT);
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             linearOptimizer,
-            raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(spiedRaoData);
+            parameters).optimize(spiedRaoData);
 
         // check results
         assertNotNull(bestVariantId);
@@ -184,7 +179,7 @@ public class IteratingLinearOptimizerTest {
         RaoData spiedRaoData = Mockito.spy(raoData);
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), any());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), anyDouble());
 
         // mock sensitivity engine
         // sensitivity computation returns a cost of 100 before optim, and 50 after optim
@@ -254,7 +249,7 @@ public class IteratingLinearOptimizerTest {
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             linearOptimizer,
-            raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(spiedRaoData);
+            parameters).optimize(spiedRaoData);
 
         // check results
         assertNotNull(bestVariantId);

@@ -30,6 +30,8 @@ import java.util.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
+    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = true;
+    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     private boolean isLoopFlowApproximation;
     private double loopFlowConstraintAdjustmentCoefficient;
@@ -39,10 +41,15 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
     }
 
-    // Used for tests
+    // Methods for tests
+    public MaxLoopFlowFiller() {
+        this(DEFAULT_LOOP_FLOW_APPROXIMATION, DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT);
+    }
+
     void setLoopFlowApproximation(boolean loopFlowApproximation) {
         isLoopFlowApproximation = loopFlowApproximation;
     }
+    // End of methods for tests
 
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem) {

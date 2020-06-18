@@ -1,13 +1,13 @@
 {
   "version" : "1.0",
-  "objective-function" : "MAX_MIN_MARGIN_IN_MEGAWATT",
-  "max-number-of-iterations" : 10,
-  "pst-penalty-cost" : 0.01,
-  "pst-sensitivity-threshold" : 0.0,
-  "sensitivity-fallback-overcost" : 0.0,
-  "rao-with-loop-flow-limitation" : false,
-  "loop-flow-approximation" : true,
-  "loop-flow-constraint-adjustment-coefficient" : 0.0,
+  "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
+  "max-number-of-iterations" : 30,
+  "pst-penalty-cost" : 10.0,
+  "pst-sensitivity-threshold" : 0.2,
+  "sensitivity-fallback-overcost" : 10.0,
+  "rao-with-loop-flow-limitation" : true,
+  "loop-flow-approximation" : false,
+  "loop-flow-constraint-adjustment-coefficient" : 0.5,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {

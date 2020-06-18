@@ -17,12 +17,12 @@ import static java.lang.Math.max;
 public class IteratingLinearOptimizerParameters {
     private Unit unit;
     private int maxIterations;
-    private double fallBackOverCost;
+    private double fallbackOverCost;
 
-    public IteratingLinearOptimizerParameters(Unit unit, int maxIterations, double fallBackOverCost) {
+    public IteratingLinearOptimizerParameters(Unit unit, int maxIterations, double fallbackOverCost) {
         this.unit = unit;
         this.maxIterations = maxIterations;
-        this.fallBackOverCost = fallBackOverCost;
+        this.fallbackOverCost = fallbackOverCost;
     }
 
     public Unit getUnit() {
@@ -41,11 +41,11 @@ public class IteratingLinearOptimizerParameters {
         this.maxIterations = max(0, maxIterations);
     }
 
-    public double getFallBackOverCost() {
-        return fallBackOverCost;
+    public double getFallbackOverCost() {
+        return fallbackOverCost;
     }
 
-    public void setFallBackOverCost(double fallBackOverCost) {
-        this.fallBackOverCost = fallBackOverCost;
+    public void setFallbackOverCost(double fallbackOverCost) {
+        this.fallbackOverCost = fallbackOverCost;
     }
 }

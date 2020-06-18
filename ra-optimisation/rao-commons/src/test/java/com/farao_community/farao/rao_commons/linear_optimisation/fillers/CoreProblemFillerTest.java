@@ -4,11 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -29,18 +28,15 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
+        coreProblemFiller = new CoreProblemFiller(2.5);
     }
 
     private void fillProblemWithCoreFiller() {
         // arrange some additional data
         raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
 
-        // add a filter for PST sensis below 2.5
-        linearProblemParameters.setPstSensitivityThreshold(2.5);
-
         // fill the problem
-        coreProblemFiller.fill(raoData, linearProblem, linearProblemParameters);
+        coreProblemFiller.fill(raoData, linearProblem);
     }
 
     @Test
@@ -124,7 +120,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT2);
 
         // fill the problem
-        coreProblemFiller.update(raoData, linearProblem, linearProblemParameters);
+        coreProblemFiller.update(raoData, linearProblem);
     }
 
     @Test

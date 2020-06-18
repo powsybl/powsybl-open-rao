@@ -1,17 +1,15 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -69,11 +67,11 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFill() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-        coreProblemFiller.fill(raoData, linearProblem, linearProblemParameters);
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // fill max loop flow
         maxLoopFlowFiller.setLoopFlowApproximation(false);
-        maxLoopFlowFiller.fill(raoData, linearProblem, linearProblemParameters);
+        maxLoopFlowFiller.fill(raoData, linearProblem);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearProblem.getMaxLoopFlowConstraint(cnec1);
@@ -88,11 +86,11 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFillLoopflow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
-        coreProblemFiller.fill(raoData, linearProblem, linearProblemParameters);
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // fill max loop flow
         maxLoopFlowFiller.setLoopFlowApproximation(true);
-        maxLoopFlowFiller.fill(raoData, linearProblem, linearProblemParameters);
+        maxLoopFlowFiller.fill(raoData, linearProblem);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraint = linearProblem.getMaxLoopFlowConstraint(cnec1);

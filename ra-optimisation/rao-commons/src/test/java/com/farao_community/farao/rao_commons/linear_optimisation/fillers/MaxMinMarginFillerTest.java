@@ -1,15 +1,14 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller;
 import com.google.ortools.linearsolver.MPConstraint;
 
 import com.google.ortools.linearsolver.MPVariable;
@@ -40,15 +39,15 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     private void fillProblemWithFiller() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
 
         // fill the problem : the core filler is required
-        coreProblemFiller.fill(raoData, linearProblem, linearProblemParameters);
-        maxMinMarginFiller.fill(raoData, linearProblem, linearProblemParameters);
+        coreProblemFiller.fill(raoData, linearProblem);
+        maxMinMarginFiller.fill(raoData, linearProblem);
     }
 
     @Test
     public void fillWithMaxMinMarginInMegawatt() {
-        linearProblemParameters.setObjectiveFunction(LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         fillProblemWithFiller();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
@@ -90,7 +89,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinMarginInAmpere() {
-        linearProblemParameters.setObjectiveFunction(LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        maxMinMarginFiller.setUnit(Unit.AMPERE);
         fillProblemWithFiller();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
@@ -130,7 +129,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
         try {
-            maxMinMarginFiller.fill(raoData, linearProblem, linearProblemParameters);
+            maxMinMarginFiller.fill(raoData, linearProblem);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -143,7 +142,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem.addFlowVariable(0.0, 0.0, cnec1);
         linearProblem.addFlowVariable(0.0, 0.0, cnec2);
         try {
-            maxMinMarginFiller.fill(raoData, linearProblem, linearProblemParameters);
+            maxMinMarginFiller.fill(raoData, linearProblem);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Range action variable"));

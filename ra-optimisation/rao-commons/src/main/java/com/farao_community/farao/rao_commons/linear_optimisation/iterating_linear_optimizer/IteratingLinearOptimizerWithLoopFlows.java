@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 import com.farao_community.farao.rao_commons.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 
 import java.util.List;
@@ -39,9 +39,9 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
         raoData.setWorkingVariant(optimizedVariantId);
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            systematicSensitivityComputation.run(raoData, unit);
-            raoData.getRaoDataManager().fillCracResultsWithSensis(unit,
-                systematicSensitivityComputation.isFallback() ? fallbackOverCost : 0);
+            systematicSensitivityComputation.run(raoData, parameters.getUnit());
+            raoData.getRaoDataManager().fillCracResultsWithSensis(parameters.getUnit(),
+                systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0);
             Map<String, Double> loopFlows = LoopFlowComputation.calculateLoopFlows(raoData, loopFlowApproximation);
             raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows);
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));

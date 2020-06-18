@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -65,13 +67,24 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
                     break;
-                case "loopflow-approximation":
+                case "loop-flow-approximation":
                     parser.nextToken();
                     parameters.setLoopFlowApproximation(parser.getBooleanValue());
                     break;
-                case "loopflow-constraint-adjustment-coefficient":
+                case "loop-flow-constraint-adjustment-coefficient":
                     parser.nextToken();
                     parameters.setLoopFlowConstraintAdjustmentCoefficient(parser.getDoubleValue());
+                    break;
+                case "sensitivity-parameters":
+                    parser.nextToken();
+                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());
+                    break;
+                case "fallback-sensitivity-parameters":
+                    parser.nextToken();
+                    if (parameters.getFallbackSensitivityComputationParameters() == null) {
+                        parameters.setFallbackSensitivityComputationParameters(new SensitivityComputationParameters());
+                    }
+                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityComputationParameters());
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -85,7 +98,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         JsonRaoParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
     }
-
 
     private RaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {
         try {

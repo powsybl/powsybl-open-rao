@@ -25,6 +25,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
 
     private Unit unit;
     private double pstPenaltyCost;
@@ -33,6 +34,16 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.unit = unit;
         this.pstPenaltyCost = pstPenaltyCost;
     }
+
+    // Methods for tests
+    public MaxMinMarginFiller() {
+        this(MEGAWATT, DEFAULT_PST_PENALTY_COST);
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    // End of methods for tests
 
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem) {

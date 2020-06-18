@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
@@ -55,7 +54,7 @@ public class LinearOptimizerTest {
 
     @Before
     public void setUp() {
-        linearOptimizer = Mockito.spy(new LinearOptimizer(new RaoParameters()));
+        linearOptimizer = Mockito.spy(new LinearOptimizer());
 
         linearProblemMock = Mockito.mock(LinearProblem.class);
         Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);

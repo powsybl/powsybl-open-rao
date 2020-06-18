@@ -19,11 +19,17 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
+    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
 
     private double pstSensitivityThreshold;
 
     public CoreProblemFiller(double pstSensitivityThreshold) {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
+    }
+
+    // Method for tests
+    public CoreProblemFiller() {
+        this(DEFAULT_PST_SENSITIVITY_THRESHOLD);
     }
 
     @Override

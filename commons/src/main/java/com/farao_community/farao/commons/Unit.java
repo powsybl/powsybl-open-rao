@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.commons;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Physical units
  *
@@ -34,6 +36,7 @@ public enum Unit {
     }
 
     @Override
+    @JsonValue
     public String toString() {
         return symbol;
     }

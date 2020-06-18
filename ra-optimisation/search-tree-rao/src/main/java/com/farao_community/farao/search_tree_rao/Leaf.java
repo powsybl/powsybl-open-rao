@@ -12,9 +12,9 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_api.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +89,8 @@ class Leaf {
     }
 
     Leaf(RaoData raoData, RaoParameters raoParameters) {
-        this(raoData, raoParameters, new SystematicSensitivityComputation(raoParameters));
+        this(raoData, raoParameters, new SystematicSensitivityComputation(
+            raoParameters.getDefaultSensitivityComputationParameters(), raoParameters.getFallbackSensitivityComputationParameters()));
     }
 
     Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
@@ -104,7 +105,8 @@ class Leaf {
         networkActions = new HashSet<>(parentLeaf.networkActions);
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
-        this.systematicSensitivityComputation = new SystematicSensitivityComputation(parentLeaf.raoParameters);
+        this.systematicSensitivityComputation = new SystematicSensitivityComputation(
+            parentLeaf.raoParameters.getDefaultSensitivityComputationParameters(), parentLeaf.raoParameters.getFallbackSensitivityComputationParameters());
         iteratingLinearOptimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
 
         // apply Network Actions on initial network

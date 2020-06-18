@@ -14,9 +14,14 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Objects;
 
+import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller.DEFAULT_PST_SENSITIVITY_THRESHOLD;
+import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.DEFAULT_LOOP_FLOW_APPROXIMATION;
+import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller.DEFAULT_PST_PENALTY_COST;
 import static java.lang.Math.max;
 
 /**
@@ -44,12 +49,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
     public static final int DEFAULT_MAX_ITERATIONS = 10;
-    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
-    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
-    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = false;
-    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -59,6 +60,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+    private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
+    private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -132,6 +135,24 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
+    public SensitivityComputationParameters getDefaultSensitivityComputationParameters() {
+        return defaultSensitivityComputationParameters;
+    }
+
+    public RaoParameters setDefaultSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
+        this.defaultSensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+        return this;
+    }
+
+    public SensitivityComputationParameters getFallbackSensitivityComputationParameters() {
+        return fallbackSensitivityComputationParameters;
+    }
+
+    public RaoParameters setFallbackSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
+        this.fallbackSensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+        return this;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -179,6 +200,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setLoopFlowApproximation(config.getBooleanProperty("loopflow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
                 parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loopflow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
             });
+
+        // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
+        parameters.setDefaultSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
     }
 
     private void readExtensions(PlatformConfig platformConfig) {

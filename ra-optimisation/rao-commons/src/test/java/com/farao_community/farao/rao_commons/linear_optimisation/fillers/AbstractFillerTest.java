@@ -4,14 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -65,7 +64,6 @@ abstract class AbstractFillerTest {
     LinearProblem linearProblem;
     SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
     RaoData raoData;
-    LinearProblemParameters linearProblemParameters;
     Crac crac;
     Network network;
 
@@ -95,8 +93,5 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
         raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
-
-        // parameters
-        linearProblemParameters = new LinearProblemParameters();
     }
 }

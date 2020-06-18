@@ -5,23 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.systematic_sensitivity;
+package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.Rao;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 /**
@@ -40,42 +33,34 @@ public class SystematicSensitivityComputation {
      * LinearRao configurations, containing the default and fallback configurations
      * of the sensitivity computation
      */
-    private SystematicSensitivityComputationParameters parameters;
+    private SensitivityComputationParameters defaultParameters;
+
+    private SensitivityComputationParameters fallbackParameters;
 
     /**
      * A boolean indicating whether or not the fallback mode of the sensitivity computation
      * engine is active.
      */
-    private boolean fallbackMode;
+    private boolean fallbackMode = false;
 
     /**
      * Constructors
      */
-    public SystematicSensitivityComputation(RaoParameters raoParameters) {
-        SystematicSensitivityComputationParameters computationParameters;
-        if (!Objects.isNull(raoParameters.getExtension(SystematicSensitivityComputationParameters.class))) {
-            computationParameters = raoParameters.getExtension(SystematicSensitivityComputationParameters.class);
-        } else {
-            computationParameters = new SystematicSensitivityComputationParameters();
-        }
-        init(computationParameters);
+    public SystematicSensitivityComputation(SensitivityComputationParameters defaultParameters) {
+        this.defaultParameters = defaultParameters;
     }
 
-    public SystematicSensitivityComputation(SystematicSensitivityComputationParameters parameters) {
-        init(parameters);
+    public SystematicSensitivityComputation(SensitivityComputationParameters defaultParameters, SensitivityComputationParameters fallbackParameters) {
+        this.defaultParameters = defaultParameters;
+        this.fallbackParameters = fallbackParameters;
     }
 
-    private void init(SystematicSensitivityComputationParameters computationParameters) {
-        this.parameters = computationParameters;
-        this.fallbackMode = false;
+    public SystematicSensitivityComputation() {
+        this.defaultParameters = new SensitivityComputationParameters();
     }
 
     public boolean isFallback() {
         return fallbackMode;
-    }
-
-    public SystematicSensitivityComputationParameters getParameters() {
-        return parameters;
     }
 
     /**
@@ -85,14 +70,12 @@ public class SystematicSensitivityComputation {
      * Throw a SensitivityComputationException if the computation fails.
      */
     public void run(RaoData raoData, Unit defaultUnit) {
-        SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ?
-            parameters.getFallbackParameters()
-            : parameters.getDefaultParameters();
+        SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ? fallbackParameters : defaultParameters;
 
         try {
             runWithConfig(raoData, sensitivityComputationParameters, defaultUnit);
         } catch (SensitivityComputationException e) {
-            if (!fallbackMode && parameters.getFallbackParameters() != null) { // default mode fails, retry in fallback mode
+            if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
                 run(raoData, defaultUnit);
@@ -142,7 +125,7 @@ public class SystematicSensitivityComputation {
         }
 
         if (raoData.getCrac().getCnecs().stream()
-            .map(cnec -> raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec))
+            .map(systematicSensitivityAnalysisResult::getReferenceIntensity)
             .anyMatch(f -> Double.isNaN(f)) && !isFallback() && defaultUnit.equals(Unit.AMPERE)) {
             // in default mode, this means that there is an error in the sensitivity computation, or an
             // incompatibility with the sensitivity computation mode (i.e. the sensitivity computation is

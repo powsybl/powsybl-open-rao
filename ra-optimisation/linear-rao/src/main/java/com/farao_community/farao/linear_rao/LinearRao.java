@@ -10,9 +10,8 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_api.RaoUtil;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -56,7 +55,8 @@ public class LinearRao implements RaoProvider {
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
+        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
+            raoParameters.getDefaultSensitivityComputationParameters(), raoParameters.getFallbackSensitivityComputationParameters());
 
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
 
@@ -93,7 +93,7 @@ public class LinearRao implements RaoProvider {
      */
     private boolean skipOptim(RaoParameters raoParameters, Crac crac) {
         return raoParameters.getExtension(LinearRaoParameters.class).isSecurityAnalysisWithoutRao()
-            || raoParameters.getExtension(IteratingLinearOptimizerParameters.class).getMaxIterations() == 0
+            || raoParameters.getMaxIterations() == 0
             || crac.getRangeActions().isEmpty();
     }
 

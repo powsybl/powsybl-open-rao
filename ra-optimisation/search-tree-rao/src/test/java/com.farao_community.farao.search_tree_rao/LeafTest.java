@@ -20,7 +20,7 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.RaoInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.computation.ComputationManager;
@@ -33,7 +33,7 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -71,7 +71,7 @@ public class LeafTest {
         raoData = Mockito.spy(new RaoData(network, crac));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), any());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), anyDouble());
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
@@ -154,7 +154,7 @@ public class LeafTest {
         Mockito.doAnswer(invocationOnMock -> {
             raoData.setSystematicSensitivityAnalysisResult(Mockito.mock(SystematicSensitivityAnalysisResult.class));
             return null;
-        }).when(systematicSensitivityComputation).run(raoData);
+        }).when(systematicSensitivityComputation).run(eq(raoData), any());
         rootLeaf.evaluate();
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
@@ -163,7 +163,7 @@ public class LeafTest {
     @Test
     public void testEvaluateError() {
         Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
-        Mockito.doThrow(new FaraoException()).when(systematicSensitivityComputation).run(raoData);
+        Mockito.doThrow(new FaraoException()).when(systematicSensitivityComputation).run(eq(raoData), any());
         rootLeaf.evaluate();
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
         assertFalse(rootLeaf.getRaoData().hasSensitivityValues());

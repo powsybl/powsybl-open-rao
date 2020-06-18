@@ -5,10 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.LoopFlowComputation;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoInput;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller;
@@ -17,7 +20,6 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFLowsParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
-import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;

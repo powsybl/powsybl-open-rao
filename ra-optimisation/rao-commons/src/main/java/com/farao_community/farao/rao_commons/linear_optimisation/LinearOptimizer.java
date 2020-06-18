@@ -9,10 +9,13 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.String.*;
@@ -51,6 +54,10 @@ public class LinearOptimizer {
 
     public LinearOptimizer(List<ProblemFiller> fillers) {
         this.fillers = fillers;
+    }
+
+    public LinearOptimizer() {
+        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller()));
     }
 
     public String getSolverResultStatusString() {

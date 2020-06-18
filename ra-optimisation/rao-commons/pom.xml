@@ -33,12 +33,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-loopflow-computation</artifactId>
+            <artifactId>farao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-rao-api</artifactId>
+            <artifactId>farao-loopflow-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
