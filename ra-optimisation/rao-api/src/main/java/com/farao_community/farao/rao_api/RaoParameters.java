@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.Unit;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
@@ -16,6 +17,8 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 
 import java.util.Objects;
 
+import static java.lang.Math.max;
+
 /**
  * Parameters for rao
  * Extensions may be added, for instance for implementation-specific parameters.
@@ -23,6 +26,111 @@ import java.util.Objects;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
+
+    public enum ObjectiveFunction {
+        MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
+        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE);
+
+        private Unit unit;
+
+        ObjectiveFunction(Unit unit) {
+            this.unit = unit;
+        }
+
+        public Unit getUnit() {
+            return unit;
+        }
+    }
+
+    public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
+    public static final int DEFAULT_MAX_ITERATIONS = 10;
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    public static final double DEFAULT_FALLBACK_OVER_COST = 0;
+    public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = false;
+    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+
+    private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
+    private int maxIterations = DEFAULT_MAX_ITERATIONS;
+    private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
+    private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
+    private double fallbackOverCost = DEFAULT_FALLBACK_OVER_COST;
+    private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
+    private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
+    private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
+    }
+
+    public RaoParameters setObjectiveFunction(ObjectiveFunction objectiveFunction) {
+        this.objectiveFunction = objectiveFunction;
+        return this;
+    }
+
+    public int getMaxIterations() {
+        return maxIterations;
+    }
+
+    public RaoParameters setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
+        return this;
+    }
+
+    public double getPstPenaltyCost() {
+        return pstPenaltyCost;
+    }
+
+    public RaoParameters setPstPenaltyCost(double pstPenaltyCost) {
+        this.pstPenaltyCost = max(0.0, pstPenaltyCost);
+        return this;
+    }
+
+    public double getPstSensitivityThreshold() {
+        return pstSensitivityThreshold;
+    }
+
+    public RaoParameters setPstSensitivityThreshold(double pstSensitivityThreshold) {
+        this.pstSensitivityThreshold = pstSensitivityThreshold;
+        return this;
+    }
+
+    public double getFallbackOverCost() {
+        return fallbackOverCost;
+    }
+
+    public RaoParameters setFallbackOverCost(double overCost) {
+        this.fallbackOverCost = max(0.0, overCost);
+        return this;
+    }
+
+    public boolean isRaoWithLoopFlowLimitation() {
+        return raoWithLoopFlowLimitation;
+    }
+
+    public RaoParameters setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
+        this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
+        return this;
+    }
+
+    public boolean isLoopFlowApproximation() {
+        return loopFlowApproximation;
+    }
+
+    public RaoParameters setLoopFlowApproximation(boolean loopFlowApproximation) {
+        this.loopFlowApproximation = loopFlowApproximation;
+        return this;
+    }
+
+    public double getLoopFlowConstraintAdjustmentCoefficient() {
+        return loopFlowConstraintAdjustmentCoefficient;
+    }
+
+    public RaoParameters setLoopFlowConstraintAdjustmentCoefficient(double loopFlowConstraintAdjustmentCoefficient) {
+        this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
+        return this;
+    }
 
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
@@ -62,7 +170,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
         platformConfig.getOptionalModuleConfig("rao-parameters")
             .ifPresent(config -> {
+                parameters.setObjectiveFunction(config.getEnumProperty("objective-function", ObjectiveFunction.class, DEFAULT_OBJECTIVE_FUNCTION));
+                parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", DEFAULT_MAX_ITERATIONS));
+                parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", DEFAULT_PST_PENALTY_COST));
+                parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
+                parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-overcost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
+                parameters.setLoopFlowApproximation(config.getBooleanProperty("loopflow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
+                parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loopflow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
             });
     }
 
@@ -71,18 +186,4 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
     }
-
-    //loop flow parameter section
-    static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
-
-    private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
-
-    public void setRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
-        this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
-    }
-
-    public boolean isRaoWithLoopFlowLimitation() {
-        return raoWithLoopFlowLimitation;
-    }
-    //end loop flow parameter section
 }

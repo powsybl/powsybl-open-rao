@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api;
-
-import com.farao_community.farao.commons.FaraoException;
+package com.farao_community.farao.commons;
 
 /**
  * Physical units
@@ -16,21 +14,28 @@ import com.farao_community.farao.commons.FaraoException;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public enum Unit {
-    AMPERE(PhysicalParameter.FLOW),
-    DEGREE(PhysicalParameter.ANGLE),
-    MEGAWATT(PhysicalParameter.FLOW),
-    KILOVOLT(PhysicalParameter.VOLTAGE),
-    PERCENT_IMAX(PhysicalParameter.FLOW),
-    TAP(PhysicalParameter.ANGLE);
+    AMPERE(PhysicalParameter.FLOW, "A"),
+    DEGREE(PhysicalParameter.ANGLE, "°"),
+    MEGAWATT(PhysicalParameter.FLOW, "MW"),
+    KILOVOLT(PhysicalParameter.VOLTAGE, "kV"),
+    PERCENT_IMAX(PhysicalParameter.FLOW, "%"),
+    TAP(PhysicalParameter.ANGLE, "");
 
     private PhysicalParameter physicalParameter;
+    private String symbol;
 
-    Unit(PhysicalParameter physicalParameter) {
+    Unit(PhysicalParameter physicalParameter, String symbol) {
         this.physicalParameter = physicalParameter;
+        this.symbol = symbol;
     }
 
     public PhysicalParameter getPhysicalParameter() {
         return physicalParameter;
+    }
+
+    @Override
+    public String toString() {
+        return symbol;
     }
 
     public void checkPhysicalParameter(PhysicalParameter requestedPhysicalParameter) {

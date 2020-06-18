@@ -27,7 +27,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * Test case is a 4 nodes network, with 4 countries.

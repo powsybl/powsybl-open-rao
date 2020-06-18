@@ -13,17 +13,13 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Objects;
 
-import static java.lang.Math.max;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class SystematicSensitivityComputationParameters extends AbstractExtension<RaoParameters> {
-    static final double DEFAULT_FALLBACK_OVERCOST = 0;
 
     private SensitivityComputationParameters defaultParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackParameters = null;
-    private double fallbackOvercost = DEFAULT_FALLBACK_OVERCOST;
 
     @Override
     public String getName() {
@@ -45,15 +41,6 @@ public class SystematicSensitivityComputationParameters extends AbstractExtensio
 
     public SystematicSensitivityComputationParameters setFallbackParameters(SensitivityComputationParameters sensiParameters) {
         this.fallbackParameters = Objects.requireNonNull(sensiParameters);
-        return this;
-    }
-
-    public double getFallbackOvercost() {
-        return fallbackOvercost;
-    }
-
-    public SystematicSensitivityComputationParameters setFallbackOvercost(double overcost) {
-        this.fallbackOvercost = max(0.0, overcost);
         return this;
     }
 }

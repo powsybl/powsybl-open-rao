@@ -12,9 +12,8 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ class Leaf {
     private final RaoParameters raoParameters;
     private final SystematicSensitivityComputation systematicSensitivityComputation;
     private final IteratingLinearOptimizer iteratingLinearOptimizer;
-    private final LinearProblemParameters.ObjectiveFunction objectiveFunction;
 
     /**
      * Network Actions which will be tested (including the
@@ -88,11 +86,6 @@ class Leaf {
         } else {
             status = Status.CREATED;
         }
-        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
-            objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
-        } else {
-            objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
-        }
     }
 
     Leaf(RaoData raoData, RaoParameters raoParameters) {
@@ -101,9 +94,7 @@ class Leaf {
 
     Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
         this(raoData, raoParameters, systematicSensitivityComputation,
-            raoParameters.isRaoWithLoopFlowLimitation() ?
-                new IteratingLinearOptimizerWithLoopFlows(systematicSensitivityComputation, raoParameters)
-                : new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters));
+            RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation));
     }
 
     /**
@@ -114,11 +105,8 @@ class Leaf {
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
         this.systematicSensitivityComputation = new SystematicSensitivityComputation(parentLeaf.raoParameters);
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            iteratingLinearOptimizer = new IteratingLinearOptimizerWithLoopFlows(systematicSensitivityComputation, raoParameters);
-        } else {
-            iteratingLinearOptimizer = new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
-        }
+        iteratingLinearOptimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
+
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
@@ -126,11 +114,6 @@ class Leaf {
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         status = Status.CREATED;
-        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
-            objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
-        } else {
-            objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
-        }
     }
 
     RaoData getRaoData() {
@@ -173,8 +156,10 @@ class Leaf {
         if (status.equals(Status.CREATED)) {
             try {
                 LOGGER.debug("Evaluating leaf...");
-                systematicSensitivityComputation.run(raoData);
-                raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
+                systematicSensitivityComputation.run(raoData, raoParameters.getObjectiveFunction().getUnit());
+                raoData.getRaoDataManager().fillCracResultsWithSensis(
+                    raoParameters.getObjectiveFunction().getUnit(),
+                    systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0);
                 status = Status.EVALUATED;
             } catch (FaraoException e) {
                 LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));

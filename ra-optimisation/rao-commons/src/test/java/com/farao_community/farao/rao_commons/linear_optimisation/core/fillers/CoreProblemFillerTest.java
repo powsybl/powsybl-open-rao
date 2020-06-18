@@ -7,7 +7,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;

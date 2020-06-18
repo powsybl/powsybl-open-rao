@@ -17,8 +17,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
-import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.powsybl.iidm.network.Network;
@@ -50,7 +49,7 @@ public class IteratingLinearOptimizerTest {
 
     private RaoParameters raoParameters;
     private SystematicSensitivityComputation systematicSensitivityComputation;
-    private SimpleLinearOptimizer simpleLinearOptimizer;
+    private LinearOptimizer linearOptimizer;
     private Crac crac;
     private RaoData raoData;
 
@@ -72,10 +71,10 @@ public class IteratingLinearOptimizerTest {
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
 
-        simpleLinearOptimizer = Mockito.mock(SimpleLinearOptimizer.class);
+        linearOptimizer = Mockito.mock(LinearOptimizer.class);
         LinearProblemParameters linearProblemParameters = Mockito.mock(LinearProblemParameters.class);
         LinearProblemParameters.ObjectiveFunction objectiveFunction = Mockito.mock(LinearProblemParameters.ObjectiveFunction.class);
-        Mockito.when(simpleLinearOptimizer.getParameters()).thenReturn(linearProblemParameters);
+        Mockito.when(linearOptimizer.getParameters()).thenReturn(linearProblemParameters);
         Mockito.when(linearProblemParameters.getObjectiveFunction()).thenReturn(objectiveFunction);
     }
 
@@ -148,15 +147,15 @@ public class IteratingLinearOptimizerTest {
 
                 return raoData;
             }
-        }).when(simpleLinearOptimizer).optimize(any());
+        }).when(linearOptimizer).optimize(any());
 
-        Mockito.when(simpleLinearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
+        Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
 
         systematicSensitivityComputation.run(spiedRaoData);
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
-            simpleLinearOptimizer,
+            linearOptimizer,
             raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(spiedRaoData);
 
         // check results
@@ -246,15 +245,15 @@ public class IteratingLinearOptimizerTest {
 
                 return raoData;
             }
-        }).when(simpleLinearOptimizer).optimize(any());
+        }).when(linearOptimizer).optimize(any());
 
-        Mockito.when(simpleLinearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
+        Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
 
         systematicSensitivityComputation.run(spiedRaoData);
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
-            simpleLinearOptimizer,
+            linearOptimizer,
             raoParameters.getExtension(IteratingLinearOptimizerParameters.class)).optimize(spiedRaoData);
 
         // check results

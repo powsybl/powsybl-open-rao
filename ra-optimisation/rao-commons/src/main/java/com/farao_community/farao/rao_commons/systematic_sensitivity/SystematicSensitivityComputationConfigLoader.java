@@ -25,12 +25,6 @@ public class SystematicSensitivityComputationConfigLoader implements RaoParamete
     @Override
     public SystematicSensitivityComputationParameters load(PlatformConfig platformConfig) {
         SystematicSensitivityComputationParameters parameters = new SystematicSensitivityComputationParameters();
-        Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
-        if (configOptional.isPresent()) {
-            ModuleConfig config = configOptional.get();
-            parameters.setFallbackOvercost(config.getDoubleProperty("sensitivity-fallback-overcost",
-                SystematicSensitivityComputationParameters.DEFAULT_FALLBACK_OVERCOST));
-        }
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
         parameters.setDefaultParameters(SensitivityComputationParameters.load(platformConfig));
         return parameters;

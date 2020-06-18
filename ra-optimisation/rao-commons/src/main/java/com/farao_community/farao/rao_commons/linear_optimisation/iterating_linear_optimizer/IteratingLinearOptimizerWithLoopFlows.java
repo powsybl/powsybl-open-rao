@@ -7,20 +7,14 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowComputation;
-import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.CoreProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.MaxLoopFlowFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.MaxMinMarginFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -28,17 +22,15 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimizer {
-    public IteratingLinearOptimizerWithLoopFlows(SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
-        super();
-        init(systematicSensitivityComputation, raoParameters);
-        List<ProblemFiller> fillers = Stream
-            .of(new CoreProblemFiller(), new MaxMinMarginFiller(), new MaxLoopFlowFiller(parameters.isLoopflowApproximation()))
-            .collect(Collectors.toList());
-        simpleLinearOptimizer = new SimpleLinearOptimizer(fillers, raoParameters);
-    }
 
-    IteratingLinearOptimizerWithLoopFlows(SystematicSensitivityComputation systematicSensitivityComputation, SimpleLinearOptimizer simpleLinearOptimizer, IteratingLinearOptimizerParameters parameters) {
-        super(systematicSensitivityComputation, simpleLinearOptimizer, parameters);
+    private boolean loopFlowApproximation;
+
+    public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
+                                                 SystematicSensitivityComputation systematicSensitivityComputation,
+                                                 IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
+        super(fillers, systematicSensitivityComputation, parameters);
+        loopFlowApproximation = parameters.isLoopflowApproximation();
+        linearOptimizer = new LinearOptimizer(fillers);
     }
 
     @Override
@@ -47,9 +39,10 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
         raoData.setWorkingVariant(optimizedVariantId);
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            systematicSensitivityComputation.run(raoData);
-            raoData.getRaoDataManager().fillCracResultsWithSensis(simpleLinearOptimizer.getParameters().getObjectiveFunction(), systematicSensitivityComputation);
-            Map<String, Double> loopFlows = LoopFlowComputation.calculateLoopFlows(raoData, parameters.isLoopflowApproximation());
+            systematicSensitivityComputation.run(raoData, unit);
+            raoData.getRaoDataManager().fillCracResultsWithSensis(unit,
+                systematicSensitivityComputation.isFallback() ? fallbackOverCost : 0);
+            Map<String, Double> loopFlows = LoopFlowComputation.calculateLoopFlows(raoData, loopFlowApproximation);
             raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows);
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;

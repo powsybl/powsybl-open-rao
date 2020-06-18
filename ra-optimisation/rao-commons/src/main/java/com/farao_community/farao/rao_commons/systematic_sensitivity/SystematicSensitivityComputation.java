@@ -7,6 +7,9 @@
 
 package com.farao_community.farao.rao_commons.systematic_sensitivity;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.Rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.util.SensitivityComputationException;
@@ -16,7 +19,9 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -79,18 +84,18 @@ public class SystematicSensitivityComputation {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    public void run(RaoData raoData) {
+    public void run(RaoData raoData, Unit defaultUnit) {
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ?
             parameters.getFallbackParameters()
             : parameters.getDefaultParameters();
 
         try {
-            runWithConfig(raoData, sensitivityComputationParameters);
+            runWithConfig(raoData, sensitivityComputationParameters, defaultUnit);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && parameters.getFallbackParameters() != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                run(raoData);
+                run(raoData, defaultUnit);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -99,11 +104,15 @@ public class SystematicSensitivityComputation {
         }
     }
 
+    public void run(RaoData raoData) {
+        run(raoData, Unit.AMPERE);
+    }
+
     /**
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private void runWithConfig(RaoData raoData, SensitivityComputationParameters sensitivityComputationParameters) {
+    private void runWithConfig(RaoData raoData, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
 
         try {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
@@ -113,7 +122,7 @@ public class SystematicSensitivityComputation {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            checkSensiResults(raoData, systematicSensitivityAnalysisResult);
+            checkSensiResults(raoData, systematicSensitivityAnalysisResult, defaultUnit);
             setResults(raoData, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
@@ -121,7 +130,7 @@ public class SystematicSensitivityComputation {
         }
     }
 
-    private void checkSensiResults(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void checkSensiResults(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
         if (!systematicSensitivityAnalysisResult.isSuccess()) {
             throw new SensitivityComputationException("Status of the sensitivity result indicates a failure.");
         }
@@ -130,6 +139,15 @@ public class SystematicSensitivityComputation {
             .map(systematicSensitivityAnalysisResult::getReferenceFlow)
             .anyMatch(f -> Double.isNaN(f))) {
             throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
+        }
+
+        if (raoData.getCrac().getCnecs().stream()
+            .map(cnec -> raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec))
+            .anyMatch(f -> Double.isNaN(f)) && !isFallback() && defaultUnit.equals(Unit.AMPERE)) {
+            // in default mode, this means that there is an error in the sensitivity computation, or an
+            // incompatibility with the sensitivity computation mode (i.e. the sensitivity computation is
+            // made in DC mode and no intensity are computed).
+            throw new FaraoException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
         }
     }
 

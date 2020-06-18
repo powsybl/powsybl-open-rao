@@ -7,12 +7,11 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -41,7 +40,7 @@ public class LinearRao implements RaoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearRao.class);
 
-    private LinearProblemParameters.ObjectiveFunction objectiveFunction;
+    private Unit unit;
 
     @Override
     public String getName() {
@@ -56,20 +55,10 @@ public class LinearRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
-        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
-            objectiveFunction = LinearProblemParameters.DEFAULT_OBJECTIVE_FUNCTION;
-        } else {
-            objectiveFunction = raoParameters.getExtension(LinearProblemParameters.class).getObjectiveFunction();
-        }
-        SystematicSensitivityComputation systematicSensitivityComputation =
-            new SystematicSensitivityComputation(raoParameters);
+        this.unit = raoParameters.getObjectiveFunction().getUnit();
+        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(raoParameters);
 
-        IteratingLinearOptimizer iteratingLinearOptimizer;
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            iteratingLinearOptimizer = new IteratingLinearOptimizerWithLoopFlows(systematicSensitivityComputation, raoParameters);
-        } else {
-            iteratingLinearOptimizer = new IteratingLinearOptimizer(systematicSensitivityComputation, raoParameters);
-        }
+        IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
 
         return run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters);
     }
@@ -79,8 +68,10 @@ public class LinearRao implements RaoProvider {
                                      IteratingLinearOptimizer iteratingLinearOptimizer, RaoParameters raoParameters) {
         try {
             LOGGER.info("Initial systematic analysis [start]");
-            systematicSensitivityComputation.run(raoData);
-            raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunction, systematicSensitivityComputation);
+            systematicSensitivityComputation.run(raoData, unit);
+            raoData.getRaoDataManager().fillCracResultsWithSensis(
+                unit,
+                systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0);
             LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
         } catch (SensitivityComputationException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
@@ -124,7 +115,7 @@ public class LinearRao implements RaoProvider {
         double minMargin = -raoData.getCracResult(postOptimVariantId).getFunctionalCost();
         double objFunctionValue = raoData.getCracResult(postOptimVariantId).getCost();
         LOGGER.info(String.format("LinearRaoResult: minimum margin = %.2f %s, security status = %s, optimisation criterion = %.2f",
-            minMargin, objectiveFunction.getUnit(), raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
+            minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
             objFunctionValue));
 
         raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));

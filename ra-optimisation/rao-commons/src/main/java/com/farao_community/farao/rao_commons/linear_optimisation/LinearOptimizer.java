@@ -8,20 +8,12 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.*;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.*;
 
@@ -32,9 +24,8 @@ import static java.lang.String.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SimpleLinearOptimizer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleLinearOptimizer.class);
-    private static final String PARAMETERS_NOT_CONSISTENT = "Simple linear optimizer cannot perform optimization with loop flows on CRAC %s because it does not have loop flow extension";
+public class LinearOptimizer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearOptimizer.class);
     private static final String NO_SENSITIVITY_VALUES = "Simple linear optimizer cannot perform optimization because no sensitivity computation has been performed on variant %s";
 
     /**
@@ -56,27 +47,10 @@ public class SimpleLinearOptimizer {
      */
     private List<ProblemFiller> fillers;
 
-    static final String SOLVER_RESULT_STATUS_UNKNOWN = "UNKNOWN";
-    private String solverResultStatusString = SOLVER_RESULT_STATUS_UNKNOWN;
+    private String solverResultStatusString = "UNKNOWN";
 
-    /**
-     * These RAO parameters have to be kept to check consistency between parameters and data for loopflow computation
-     * at optimization time.
-     */
-    private RaoParameters raoParameters;
-
-    public SimpleLinearOptimizer(List<ProblemFiller> fillers, RaoParameters raoParameters) {
-        this.raoParameters = checkRaoParameters(raoParameters);
+    public LinearOptimizer(List<ProblemFiller> fillers) {
         this.fillers = fillers;
-    }
-
-    SimpleLinearOptimizer(RaoParameters raoParameters) {
-        this.raoParameters = checkRaoParameters(raoParameters);
-        this.fillers = Stream.of(new CoreProblemFiller(), new MaxMinMarginFiller()).collect(Collectors.toList());
-    }
-
-    public LinearProblemParameters getParameters() {
-        return raoParameters.getExtension(LinearProblemParameters.class);
     }
 
     public String getSolverResultStatusString() {
@@ -93,7 +67,7 @@ public class SimpleLinearOptimizer {
     }
 
     /**
-     * The optimize method of the SimpleLinearOptimizer creates and solves a LinearProblem.
+     * The optimize method of the LinearOptimizer creates and solves a LinearProblem.
      * It updates the working RaoData variant with optimisation results in the CRAC
      * and apply the new range action set points on the network.
      *
@@ -103,19 +77,18 @@ public class SimpleLinearOptimizer {
      *
      * @throws LinearOptimisationException if the method fails
      * @throws FaraoException if sensitivity computation have not been performed on working raoData variant
-     * or if loop flow data are missing
+     * or if loop flow data are missing when loop flow filler is present
      */
     public void optimize(RaoData raoData) {
-        checkDataConsistencyWithParameters(raoParameters, raoData);
         checkSensitivityValues(raoData);
 
         // prepare optimisation problem
         if (!lpInitialised) {
             this.linearProblem = createLinearRaoProblem();
-            buildProblem(raoData, raoParameters.getExtension(LinearProblemParameters.class));
+            buildProblem(raoData);
             lpInitialised = true;
         } else {
-            updateProblem(raoData, raoParameters.getExtension(LinearProblemParameters.class));
+            updateProblem(raoData);
         }
 
         solveProblem();
@@ -125,9 +98,9 @@ public class SimpleLinearOptimizer {
         }
     }
 
-    private void buildProblem(RaoData raoData, LinearProblemParameters linearProblemParameters) {
+    private void buildProblem(RaoData raoData) {
         try {
-            fillers.forEach(problemFiller -> problemFiller.fill(raoData, linearProblem, linearProblemParameters));
+            fillers.forEach(problemFiller -> problemFiller.fill(raoData, linearProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -135,9 +108,9 @@ public class SimpleLinearOptimizer {
         }
     }
 
-    private void updateProblem(RaoData raoData, LinearProblemParameters linearProblemParameters) {
+    private void updateProblem(RaoData raoData) {
         try {
-            fillers.forEach(problemFiller -> problemFiller.update(raoData, linearProblem, linearProblemParameters));
+            fillers.forEach(problemFiller -> problemFiller.update(raoData, linearProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
@@ -157,22 +130,6 @@ public class SimpleLinearOptimizer {
             String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
             throw new LinearOptimisationException(errorMessage, e);
-        }
-    }
-
-    private static RaoParameters checkRaoParameters(RaoParameters raoParameters) {
-        if (Objects.isNull(raoParameters.getExtension(LinearProblemParameters.class))) {
-            raoParameters.addExtension(LinearProblemParameters.class, new LinearProblemParameters());
-        }
-        return raoParameters;
-    }
-
-    private static void checkDataConsistencyWithParameters(RaoParameters raoParameters, RaoData raoData) {
-        if (raoParameters.isRaoWithLoopFlowLimitation()
-            && Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
-            String msg = format(PARAMETERS_NOT_CONSISTENT, raoData.getCrac().getId());
-            LOGGER.error(msg);
-            throw new FaraoException(msg);
         }
     }
 

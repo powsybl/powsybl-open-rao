@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api;
+package com.farao_community.farao.commons;
 
 /**
  * Enum of physical parameters that can be monitored in the Critical

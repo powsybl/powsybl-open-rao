@@ -8,20 +8,16 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
-import com.farao_community.farao.rao_commons.linear_optimisation.SimpleLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.CoreProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.fillers.MaxMinMarginFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.systematic_sensitivity.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -44,36 +40,22 @@ public class IteratingLinearOptimizer {
     protected RaoData raoData;
     protected String bestVariantId;
     protected SystematicSensitivityComputation systematicSensitivityComputation;
-    protected SimpleLinearOptimizer simpleLinearOptimizer;
+    protected LinearOptimizer linearOptimizer;
     protected IteratingLinearOptimizerParameters parameters;
 
-    protected IteratingLinearOptimizer() {
-
-    }
-
-    public IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
-                                    RaoParameters raoParameters) {
-        init(systematicSensitivityComputation, raoParameters);
-        this.simpleLinearOptimizer = new SimpleLinearOptimizer(
-            Stream.of(new CoreProblemFiller(), new MaxMinMarginFiller()).collect(Collectors.toList()), raoParameters);
+    public IteratingLinearOptimizer(List<ProblemFiller> fillers,
+                                    SystematicSensitivityComputation systematicSensitivityComputation,
+                                    IteratingLinearOptimizerParameters parameters) {
+        this.systematicSensitivityComputation = systematicSensitivityComputation;
+        this.linearOptimizer = new LinearOptimizer(fillers);
+        this.parameters = parameters;
     }
 
     // Used to mock SimpleLinearOptimizer and SystematicSensitivityComputation in tests
     IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
-                             SimpleLinearOptimizer simpleLinearOptimizer,
-                             IteratingLinearOptimizerParameters parameters) {
+                             LinearOptimizer linearOptimizer) {
         this.systematicSensitivityComputation = systematicSensitivityComputation;
-        this.simpleLinearOptimizer = simpleLinearOptimizer;
-        this.parameters = parameters;
-    }
-
-    protected void init(SystematicSensitivityComputation systematicSensitivityComputation, RaoParameters raoParameters) {
-        this.systematicSensitivityComputation = systematicSensitivityComputation;
-        if (!Objects.isNull(raoParameters.getExtension(IteratingLinearOptimizerParameters.class))) {
-            parameters = raoParameters.getExtension(IteratingLinearOptimizerParameters.class);
-        } else {
-            parameters = new IteratingLinearOptimizerParameters();
-        }
+        this.linearOptimizer = linearOptimizer;
     }
 
     public String optimize(RaoData raoData) {
@@ -98,8 +80,8 @@ public class IteratingLinearOptimizer {
         // If optimization fails iteration can stop
         try {
             LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
-            simpleLinearOptimizer.optimize(raoData);
-            if (!simpleLinearOptimizer.getSolverResultStatusString().equals("OPTIMAL")) {
+            linearOptimizer.optimize(raoData);
+            if (!linearOptimizer.getSolverResultStatusString().equals("OPTIMAL")) {
                 LOGGER.info(format(LINEAR_OPTIMIZATION_INFEASIBLE, iteration)); //handle INFEASIBLE solver status
                 return false;
             }
@@ -126,8 +108,9 @@ public class IteratingLinearOptimizer {
         raoData.setWorkingVariant(optimizedVariantId);
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            systematicSensitivityComputation.run(raoData);
-            raoData.getRaoDataManager().fillCracResultsWithSensis(simpleLinearOptimizer.getParameters().getObjectiveFunction(), systematicSensitivityComputation);
+            systematicSensitivityComputation.run(raoData, parameters.getUnit());
+            raoData.getRaoDataManager().fillCracResultsWithSensis(parameters.getUnit(),
+                systematicSensitivityComputation.isFallback() ? parameters.getFallBackOverCost() : 0);
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
         } catch (SensitivityComputationException e) {
@@ -140,14 +123,12 @@ public class IteratingLinearOptimizer {
         // If the cost has not improved iteration can stop
         CracResult bestVariantResult = raoData.getCracResult(bestVariantId);
         CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
-        String unit = simpleLinearOptimizer.getParameters().getObjectiveFunction().getUnit();
         if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
-            LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(), unit,
-                optimizedVariantResult.getCost()));
+            LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(), parameters.getUnit(), optimizedVariantResult.getCost()));
             return true;
         } else { // unexpected behaviour, stop the search
             LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
-                -optimizedVariantResult.getFunctionalCost(),  unit, bestVariantResult.getCost(), optimizedVariantResult.getCost()));
+                -optimizedVariantResult.getFunctionalCost(),  parameters.getUnit(), bestVariantResult.getCost(), optimizedVariantResult.getCost()));
             return false;
         }
     }

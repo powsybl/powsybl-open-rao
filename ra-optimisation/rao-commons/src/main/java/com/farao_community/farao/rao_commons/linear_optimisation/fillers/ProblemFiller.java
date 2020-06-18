@@ -5,16 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.core;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public interface ProblemFiller {
 
-    void fill(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters);
+    void fill(RaoData raoData, LinearProblem linearProblem);
 
-    void update(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters);
+    void update(RaoData raoData, LinearProblem linearProblem);
 }

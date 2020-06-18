@@ -19,7 +19,6 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
@@ -40,10 +39,10 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LinearProblem.class)
-public class SimpleLinearOptimizerTest {
+public class LinearOptimizerTest {
     private static final double ANGLE_TAP_APPROX_TOLERANCE = 0.5;
 
-    private SimpleLinearOptimizer simpleLinearOptimizer;
+    private LinearOptimizer linearOptimizer;
     private LinearProblem linearProblemMock;
     private Network network;
     private SimpleCrac crac;
@@ -56,7 +55,7 @@ public class SimpleLinearOptimizerTest {
 
     @Before
     public void setUp() {
-        simpleLinearOptimizer = Mockito.spy(new SimpleLinearOptimizer(new RaoParameters()));
+        linearOptimizer = Mockito.spy(new LinearOptimizer(new RaoParameters()));
 
         linearProblemMock = Mockito.mock(LinearProblem.class);
         Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
@@ -66,7 +65,7 @@ public class SimpleLinearOptimizerTest {
         Mockito.when(linearProblemMock.getFlowVariable(Mockito.any())).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearProblemMock.getMinimumMarginVariable()).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearProblemMock.getObjective()).thenReturn(Mockito.mock(MPObjective.class));
-        Mockito.doReturn(linearProblemMock).when(simpleLinearOptimizer).createLinearRaoProblem();
+        Mockito.doReturn(linearProblemMock).when(linearOptimizer).createLinearRaoProblem();
 
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -102,9 +101,9 @@ public class SimpleLinearOptimizerTest {
 
     @Test
     public void testOptimalAndUpdate() {
-        simpleLinearOptimizer.optimize(raoData);
+        linearOptimizer.optimize(raoData);
         assertNotNull(raoData);
-        simpleLinearOptimizer.optimize(raoData);
+        linearOptimizer.optimize(raoData);
         assertNotNull(raoData);
     }
 
@@ -112,7 +111,7 @@ public class SimpleLinearOptimizerTest {
     public void testNonOptimal() {
         Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
         try {
-            simpleLinearOptimizer.optimize(raoData);
+            linearOptimizer.optimize(raoData);
         } catch (LinearOptimisationException e) {
             assertEquals("Solving of the linear problem failed failed with MPSolver status ABNORMAL", e.getCause().getMessage());
         }
@@ -122,7 +121,7 @@ public class SimpleLinearOptimizerTest {
     public void testFillerError() {
         Mockito.when(linearProblemMock.getObjective()).thenReturn(null);
         try {
-            simpleLinearOptimizer.optimize(raoData);
+            linearOptimizer.optimize(raoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when building the problem.", e.getMessage());
@@ -131,10 +130,10 @@ public class SimpleLinearOptimizerTest {
 
     @Test
     public void testUpdateError() {
-        simpleLinearOptimizer.optimize(raoData);
+        linearOptimizer.optimize(raoData);
         Mockito.when(linearProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
         try {
-            simpleLinearOptimizer.optimize(raoData);
+            linearOptimizer.optimize(raoData);
             fail();
         } catch (LinearOptimisationException e) {
             assertEquals("Linear optimisation failed when updating the problem.", e.getMessage());

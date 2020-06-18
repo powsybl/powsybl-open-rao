@@ -4,16 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -34,13 +32,11 @@ import java.util.*;
 public class MaxLoopFlowFiller implements ProblemFiller {
 
     private boolean isLoopFlowApproximation;
+    private double loopFlowConstraintAdjustmentCoefficient;
 
-    public MaxLoopFlowFiller(boolean isLoopFlowApproximation) {
+    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient) {
         this.isLoopFlowApproximation = isLoopFlowApproximation;
-    }
-
-    MaxLoopFlowFiller() {
-        this(true);
+        this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
     }
 
     // Used for tests
@@ -49,12 +45,12 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
-        buildMaxLoopFlowConstraint(raoData, linearProblem, linearProblemParameters);
+    public void fill(RaoData raoData, LinearProblem linearProblem) {
+        buildMaxLoopFlowConstraint(raoData, linearProblem);
     }
 
     @Override
-    public void update(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    public void update(RaoData raoData, LinearProblem linearProblem) {
         // do nothing
     }
 
@@ -64,7 +60,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * we define loopFlowShift = PTDF * NetPosition, then
      * -maxLoopFlow + loopFlowShift <= flowVariable <= maxLoopFlow + loopFlowShift,
      */
-    private void buildMaxLoopFlowConstraint(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    private void buildMaxLoopFlowConstraint(RaoData raoData, LinearProblem linearProblem) {
         Map<Cnec, Double> loopFlowShifts;
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
         if (isLoopFlowApproximation) {
@@ -79,12 +75,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             }
             double loopFlowShift = 0.0;
             double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
-            double loopflowConstraintAdjustmentCoefficient = linearProblemParameters.getLoopflowConstraintAdjustmentCoefficient();
-            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopflowConstraintAdjustmentCoefficient);
+            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
             if (loopFlowShifts.containsKey(cnec)) {
                 loopFlowShift = loopFlowShifts.get(cnec);
             }
-            MPConstraint maxLoopflowConstraint = linearProblem.addMaxLoopFlowConstraint(
+            MPConstraint maxLoopFlowConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -maxLoopFlowLimit + loopFlowShift,
                     maxLoopFlowLimit + loopFlowShift,
                     cnec);
@@ -92,7 +87,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             if (Objects.isNull(flowVariable)) {
                 throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
             }
-            maxLoopflowConstraint.setCoefficient(flowVariable, 1);
+            maxLoopFlowConstraint.setCoefficient(flowVariable, 1);
         }
     }
 }

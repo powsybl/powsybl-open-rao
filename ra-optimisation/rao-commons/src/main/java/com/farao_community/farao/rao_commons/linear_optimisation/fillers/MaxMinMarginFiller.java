@@ -5,21 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -27,21 +26,29 @@ import static com.farao_community.farao.data.crac_api.Unit.MEGAWATT;
  */
 public class MaxMinMarginFiller implements ProblemFiller {
 
+    private Unit unit;
+    private double pstPenaltyCost;
+
+    public MaxMinMarginFiller(Unit unit, double pstPenaltyCost) {
+        this.unit = unit;
+        this.pstPenaltyCost = pstPenaltyCost;
+    }
+
     @Override
-    public void fill(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    public void fill(RaoData raoData, LinearProblem linearProblem) {
         // build variables
         buildMinimumMarginVariable(linearProblem);
 
         // build constraints
-        buildMinimumMarginConstraints(raoData, linearProblem, linearProblemParameters);
+        buildMinimumMarginConstraints(raoData, linearProblem);
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
-        fillObjectiveWithRangeActionPenaltyCost(raoData, linearProblem, linearProblemParameters);
+        fillObjectiveWithRangeActionPenaltyCost(raoData, linearProblem);
     }
 
     @Override
-    public void update(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    public void update(RaoData raoData, LinearProblem linearProblem) {
         // Objective does not change, nothing to do
     }
 
@@ -70,7 +77,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
         raoData.getCrac().getCnecs().forEach(cnec -> {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
@@ -89,7 +96,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getMinThreshold(MEGAWATT);
             maxFlow = cnec.getMaxThreshold(MEGAWATT);
-            double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData, linearProblemParameters);
+            double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData);
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
@@ -127,7 +134,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      *
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
-    private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
         raoData.getCrac().getRangeActions().forEach(rangeAction -> {
 
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -137,7 +144,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
             }
 
             if (rangeAction instanceof PstRange) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, linearProblemParameters.getPstPenaltyCost());
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             }
         });
     }
@@ -147,8 +154,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the flows are always defined in MW, so if the minimum margin is defined in ampere,
      * and appropriate conversion coefficient should be used.
      */
-    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData, LinearProblemParameters linearProblemParameters) {
-        if (linearProblemParameters.getObjectiveFunction() == LinearProblemParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
+    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+        if (unit.equals(MEGAWATT)) {
             return 1;
         } else {
             // Unom(cnec) * sqrt(3) / 1000

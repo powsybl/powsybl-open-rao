@@ -5,14 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.core.fillers;
+package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblemParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.core.ProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -22,22 +20,28 @@ import com.google.ortools.linearsolver.MPVariable;
  */
 public class CoreProblemFiller implements ProblemFiller {
 
+    private double pstSensitivityThreshold;
+
+    public CoreProblemFiller(double pstSensitivityThreshold) {
+        this.pstSensitivityThreshold = pstSensitivityThreshold;
+    }
+
     @Override
-    public void fill(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    public void fill(RaoData raoData, LinearProblem linearProblem) {
         // add variables
         buildFlowVariables(raoData, linearProblem);
         buildRangeActionSetPointVariables(raoData, linearProblem);
         buildRangeActionAbsoluteVariationVariables(raoData, linearProblem);
 
         // add constraints
-        buildFlowConstraints(raoData, linearProblem, linearProblemParameters);
+        buildFlowConstraints(raoData, linearProblem);
         buildRangeActionConstraints(raoData, linearProblem);
     }
 
     @Override
-    public void update(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    public void update(RaoData raoData, LinearProblem linearProblem) {
         // update reference flow and sensitivities of flow constraints
-        updateFlowConstraints(raoData, linearProblem, linearProblemParameters);
+        updateFlowConstraints(raoData, linearProblem);
     }
 
     /**
@@ -92,7 +96,7 @@ public class CoreProblemFiller implements ProblemFiller {
      *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    private void buildFlowConstraints(RaoData raoData, LinearProblem linearProblem) {
         raoData.getCrac().getCnecs().forEach(cnec -> {
             // create constraint
             double referenceFlow = raoData.getReferenceFlow(cnec);
@@ -106,7 +110,7 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(raoData, linearProblem, cnec, linearProblemParameters);
+            addImpactOfRangeActionOnCnec(raoData, linearProblem, cnec);
         });
     }
 
@@ -115,7 +119,7 @@ public class CoreProblemFiller implements ProblemFiller {
      *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void updateFlowConstraints(RaoData raoData, LinearProblem linearProblem, LinearProblemParameters linearProblemParameters) {
+    private void updateFlowConstraints(RaoData raoData, LinearProblem linearProblem) {
         raoData.getCrac().getCnecs().forEach(cnec -> {
             double referenceFlow = raoData.getReferenceFlow(cnec);
             MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
@@ -128,11 +132,11 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(raoData, linearProblem, cnec, linearProblemParameters);
+            addImpactOfRangeActionOnCnec(raoData, linearProblem, cnec);
         });
     }
 
-    private void addImpactOfRangeActionOnCnec(RaoData raoData, LinearProblem linearProblem, Cnec cnec, LinearProblemParameters linearProblemParameters) {
+    private void addImpactOfRangeActionOnCnec(RaoData raoData, LinearProblem linearProblem, Cnec cnec) {
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
 
@@ -142,14 +146,14 @@ public class CoreProblemFiller implements ProblemFiller {
 
         raoData.getCrac().getRangeActions().forEach(rangeAction -> {
             if (rangeAction instanceof PstRange) {
-                addImpactOfPstOnCnec(raoData, linearProblem, rangeAction, cnec, flowConstraint, linearProblemParameters);
+                addImpactOfPstOnCnec(raoData, linearProblem, rangeAction, cnec, flowConstraint);
             } else {
                 throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
             }
         });
     }
 
-    private void addImpactOfPstOnCnec(RaoData raoData, LinearProblem linearProblem, RangeAction rangeAction, Cnec cnec, MPConstraint flowConstraint, LinearProblemParameters linearProblemParameters) {
+    private void addImpactOfPstOnCnec(RaoData raoData, LinearProblem linearProblem, RangeAction rangeAction, Cnec cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
@@ -157,7 +161,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
         double sensitivity = raoData.getSensitivity(cnec, rangeAction);
 
-        if (Math.abs(sensitivity) >= linearProblemParameters.getPstSensitivityThreshold()) {
+        if (Math.abs(sensitivity) >= pstSensitivityThreshold) {
             double currentSetPoint = rangeAction.getCurrentValue(raoData.getNetwork());
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
