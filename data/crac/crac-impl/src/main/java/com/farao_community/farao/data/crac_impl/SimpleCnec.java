@@ -43,6 +43,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
         this.networkElement = networkElement;
         this.thresholds = new HashSet<>();
+        thresholds.forEach(threshold -> threshold.setMargin(frm, Unit.MEGAWATT));
         thresholds.forEach(this::addThreshold);
         this.state = state;
         isSynchronized = false;
@@ -52,14 +53,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     public SimpleCnec(String id, String name,
                       NetworkElement networkElement,
                       Set<AbstractThreshold> thresholds, State state) {
-        super(id, name);
-
-        this.networkElement = networkElement;
-        this.thresholds = new HashSet<>();
-        thresholds.forEach(this::addThreshold);
-        this.state = state;
-        isSynchronized = false;
-        this.frm = 0;
+        this(id, name, networkElement, thresholds, state, 0.0);
     }
 
     public SimpleCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> thresholds, State state) {
