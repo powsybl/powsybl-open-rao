@@ -7,12 +7,10 @@
 
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_commons.LoopFlowComputation;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoInput;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller;
@@ -22,6 +20,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFLowsParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,12 +59,23 @@ public final class RaoUtil {
             IteratingLinearOptimizerWithLoopFLowsParameters iteratingLinearOptimizerParameters =
                 new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getObjectiveFunction().getUnit(),
                     raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation());
-            return new IteratingLinearOptimizerWithLoopFlows(
-                fillers, systematicSensitivityComputation, iteratingLinearOptimizerParameters);
+            return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityComputation,
+                createCostEvaluatorFromRaoParameters(raoParameters), iteratingLinearOptimizerParameters);
         } else {
             IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters = new IteratingLinearOptimizerParameters(
                 raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation, iteratingLinearOptimizerParameters);
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation,
+                createCostEvaluatorFromRaoParameters(raoParameters), iteratingLinearOptimizerParameters);
+        }
+    }
+
+    public static CostEvaluator createCostEvaluatorFromRaoParameters(RaoParameters raoParameters) {
+        if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)) {
+            return new MinMarginEvaluator(Unit.AMPERE);
+        } else if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
+            return new MinMarginEvaluator(Unit.MEGAWATT);
+        } else {
+            throw new NotImplementedException("Not implemented objective function");
         }
     }
 }

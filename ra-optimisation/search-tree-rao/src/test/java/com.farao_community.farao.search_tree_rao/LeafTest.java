@@ -16,19 +16,20 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoDataManager;
-import com.farao_community.farao.rao_commons.RaoInput;
+import com.farao_community.farao.rao_api.RaoUtil;
+import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Set;
 
@@ -38,6 +39,8 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({RaoUtil.class})
 public class LeafTest {
 
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
@@ -52,7 +55,6 @@ public class LeafTest {
     private RaoParameters raoParameters;
     private SystematicSensitivityComputation systematicSensitivityComputation;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
-    private ComputationManager computationManager;
 
     @Before
     public void setUp() {
@@ -71,7 +73,7 @@ public class LeafTest {
         raoData = Mockito.spy(new RaoData(network, crac));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
@@ -79,12 +81,20 @@ public class LeafTest {
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
-        computationManager = LocalComputationManager.getDefault();
 
         // rao parameters
         raoParameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+
+        mockRaoUtil();
+    }
+
+    private void mockRaoUtil() {
+        PowerMockito.mockStatic(RaoUtil.class);
+        CostEvaluator costEvaluator = Mockito.mock(CostEvaluator.class);
+        Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
+        BDDMockito.when(RaoUtil.createCostEvaluatorFromRaoParameters(raoParameters)).thenReturn(costEvaluator);
     }
 
     @Test
@@ -179,7 +189,7 @@ public class LeafTest {
     @Test
     public void testOptimizeWithoutRangeActions() {
         Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation);
-        Mockito.doNothing().when(systematicSensitivityComputation).run(raoData);
+        Mockito.doNothing().when(systematicSensitivityComputation).run(eq(raoData), any());
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals(rootLeaf.getInitialVariantId(), rootLeaf.getBestVariantId());
@@ -191,7 +201,7 @@ public class LeafTest {
         crac.addRangeAction(new PstWithRange("pst", new NetworkElement("test")));
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
         Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation, iteratingLinearOptimizer);
-        Mockito.doNothing().when(systematicSensitivityComputation).run(raoData);
+        Mockito.doNothing().when(systematicSensitivityComputation).run(eq(raoData), any());
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals("successful", rootLeaf.getBestVariantId());

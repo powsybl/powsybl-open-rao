@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.rao_commons.CostEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
@@ -40,20 +41,24 @@ public class IteratingLinearOptimizer {
     protected RaoData raoData;
     protected String bestVariantId;
     protected SystematicSensitivityComputation systematicSensitivityComputation;
+    protected CostEvaluator costEvaluator;
     protected LinearOptimizer linearOptimizer;
     protected IteratingLinearOptimizerParameters parameters;
 
     public IteratingLinearOptimizer(List<ProblemFiller> fillers,
                                     SystematicSensitivityComputation systematicSensitivityComputation,
+                                    CostEvaluator costEvaluator,
                                     IteratingLinearOptimizerParameters parameters) {
-        this(systematicSensitivityComputation, new LinearOptimizer(fillers), parameters);
+        this(systematicSensitivityComputation, costEvaluator, new LinearOptimizer(fillers), parameters);
     }
 
-    // Used to mock LinearOptimizer and SystematicSensitivityComputation in tests
+    // Method for tests
     IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
+                             CostEvaluator costEvaluator,
                              LinearOptimizer linearOptimizer,
                              IteratingLinearOptimizerParameters parameters) {
         this.systematicSensitivityComputation = systematicSensitivityComputation;
+        this.costEvaluator = costEvaluator;
         this.linearOptimizer = linearOptimizer;
         this.parameters = parameters;
     }
@@ -61,6 +66,9 @@ public class IteratingLinearOptimizer {
     public String optimize(RaoData raoData) {
         this.raoData = raoData;
         bestVariantId = raoData.getInitialVariantId();
+        if (!raoData.hasSensitivityValues()) {
+            runSensitivityAndUpdateResults();
+        }
         String optimizedVariantId;
         for (int iteration = 1; iteration <= parameters.getMaxIterations(); iteration++) {
             optimizedVariantId = raoData.cloneWorkingVariant();
@@ -108,14 +116,12 @@ public class IteratingLinearOptimizer {
         raoData.setWorkingVariant(optimizedVariantId);
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            raoData.setWorkingVariant(optimizedVariantId);
-            systematicSensitivityComputation.run(raoData, parameters.getUnit());
-            raoData.getRaoDataManager().fillCracResultsWithSensis(parameters.getUnit(),
-                systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0);
+            runSensitivityAndUpdateResults();
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
         } catch (SensitivityComputationException e) {
-            LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration, systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage()));
+            LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
+                systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage()));
             return false;
         }
     }
@@ -125,11 +131,13 @@ public class IteratingLinearOptimizer {
         CracResult bestVariantResult = raoData.getCracResult(bestVariantId);
         CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
         if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
-            LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(), parameters.getUnit(), optimizedVariantResult.getCost()));
+            LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(),
+                parameters.getUnit(), optimizedVariantResult.getCost()));
             return true;
         } else { // unexpected behaviour, stop the search
             LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
-                -optimizedVariantResult.getFunctionalCost(),  parameters.getUnit(), bestVariantResult.getCost(), optimizedVariantResult.getCost()));
+                -optimizedVariantResult.getFunctionalCost(),  parameters.getUnit(), bestVariantResult.getCost(),
+                optimizedVariantResult.getCost()));
             return false;
         }
     }
@@ -148,5 +156,11 @@ public class IteratingLinearOptimizer {
             raoData.deleteVariant(bestVariantId, false);
         }
         bestVariantId = optimizedVariantId;
+    }
+
+    protected void runSensitivityAndUpdateResults() {
+        systematicSensitivityComputation.run(raoData, parameters.getUnit());
+        raoData.getRaoDataManager().fillCracResultsWithSensis(costEvaluator.getCost(raoData),
+            systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0);
     }
 }

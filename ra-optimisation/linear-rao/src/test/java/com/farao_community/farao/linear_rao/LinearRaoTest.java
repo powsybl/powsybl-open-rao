@@ -10,6 +10,8 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.rao_api.RaoUtil;
+import com.farao_community.farao.rao_commons.CostEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -26,6 +28,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -40,7 +43,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({NativeLibraryLoader.class})
+@PrepareForTest({NativeLibraryLoader.class, RaoUtil.class})
 public class LinearRaoTest {
 
     private LinearRao linearRao;
@@ -66,7 +69,7 @@ public class LinearRaoTest {
         raoData = Mockito.spy(new RaoData(network, crac));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(any(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
         LinearRaoParameters linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
         linearRaoParameters.setSecurityAnalysisWithoutRao(false);
@@ -74,6 +77,7 @@ public class LinearRaoTest {
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
+        mockRaoUtil();
     }
 
     @Test
@@ -90,6 +94,14 @@ public class LinearRaoTest {
         PowerMockito.mockStatic(NativeLibraryLoader.class);
         PowerMockito.doNothing().when(NativeLibraryLoader.class);
         NativeLibraryLoader.loadNativeLibrary("jniortools");
+    }
+
+    private void mockRaoUtil() {
+        PowerMockito.mockStatic(RaoUtil.class);
+        CostEvaluator costEvaluator = Mockito.mock(CostEvaluator.class);
+        Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
+        BDDMockito.when(RaoUtil.createCostEvaluatorFromRaoParameters(raoParameters)).thenReturn(costEvaluator);
+        BDDMockito.when(RaoUtil.initRaoData(network, crac, variantId, raoParameters)).thenCallRealMethod();
     }
 
     @Test

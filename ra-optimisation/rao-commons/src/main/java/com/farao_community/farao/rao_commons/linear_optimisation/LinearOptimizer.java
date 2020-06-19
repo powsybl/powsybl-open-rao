@@ -21,19 +21,19 @@ import java.util.List;
 import static java.lang.String.*;
 
 /**
- * A computation engine dedicated to the construction and solving of the linear
- * optimisation problem of the LinearRao.
+ * An optimizer dedicated to the construction and solving of a linear problem.
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearOptimizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearOptimizer.class);
-    private static final String NO_SENSITIVITY_VALUES = "Simple linear optimizer cannot perform optimization because no sensitivity computation has been performed on variant %s";
+    private static final String NO_SENSITIVITY_VALUES = "Linear optimizer cannot perform optimization because no sensitivity computation has been performed on variant %s";
 
     /**
-     * Linear optimisation problem, core object the LinearOptimisationEngine that
-     * is solved each time the run method of this class is called.
+     * Linear optimisation problem, core object the LinearOptimizer that
+     * is solved each time the optimize method of this class is called.
      */
     private LinearProblem linearProblem;
 
@@ -44,7 +44,7 @@ public class LinearOptimizer {
     private boolean lpInitialised = false;
 
     /**
-     * List of problem fillers used by the engine. Each filler is responsible for
+     * List of problem fillers used by the optimizer. Each filler is responsible for
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem.
      */
@@ -56,9 +56,15 @@ public class LinearOptimizer {
         this.fillers = fillers;
     }
 
-    public LinearOptimizer() {
+    // Methods for tests
+    LinearOptimizer() {
         this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller()));
     }
+
+    LinearProblem createLinearRaoProblem() {
+        return new LinearProblem();
+    }
+    // End of methods for tests
 
     public String getSolverResultStatusString() {
         return solverResultStatusString;
@@ -68,21 +74,16 @@ public class LinearOptimizer {
         this.solverResultStatusString = solverResultStatusString;
     }
 
-    // Used to mock LinearProblem in tests
-    LinearProblem createLinearRaoProblem() {
-        return new LinearProblem();
-    }
-
     /**
-     * The optimize method of the LinearOptimizer creates and solves a LinearProblem.
-     * It updates the working RaoData variant with optimisation results in the CRAC
+     * The optimize method of the LinearOptimizer creates (or updates) and solves a LinearProblem.
+     * It fills the working RaoData variant with optimisation results in the CRAC (for range actions)
      * and apply the new range action set points on the network.
      *
      * @param raoData defines the data on which the creation of the optimisation problem
      *                    is based (i.e. a given Network situation with associated Crac
      *                    and sensitivities).
      *
-     * @throws LinearOptimisationException if the method fails
+     * @throws LinearOptimisationException if the optimization fails
      * @throws FaraoException if sensitivity computation have not been performed on working raoData variant
      * or if loop flow data are missing when loop flow filler is present
      */
@@ -91,7 +92,7 @@ public class LinearOptimizer {
 
         // prepare optimisation problem
         if (!lpInitialised) {
-            this.linearProblem = createLinearRaoProblem();
+            linearProblem = createLinearRaoProblem();
             buildProblem(raoData);
             lpInitialised = true;
         } else {

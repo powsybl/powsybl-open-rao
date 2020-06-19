@@ -160,7 +160,7 @@ class Leaf {
                 LOGGER.debug("Evaluating leaf...");
                 systematicSensitivityComputation.run(raoData, raoParameters.getObjectiveFunction().getUnit());
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
-                    raoParameters.getObjectiveFunction().getUnit(),
+                    RaoUtil.createCostEvaluatorFromRaoParameters(raoParameters).getCost(raoData),
                     systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0);
                 status = Status.EVALUATED;
             } catch (FaraoException e) {

@@ -8,7 +8,6 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -19,11 +18,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_commons.RaoData.NO_WORKING_VARIANT;
 import static java.lang.String.format;
@@ -120,15 +116,13 @@ public class RaoDataManager {
     }
 
     /**
-     * add results of the systematic analysis (flows and objective function value) in the
+     * Add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    public void fillCracResultsWithSensis(Unit unit, double overCost) {
-        double minMargin;
-        minMargin = getMinMargin(unit);
-        raoData.getCracResult().setFunctionalCost(-minMargin);
+    public void fillCracResultsWithSensis(double cost, double overCost) {
+        raoData.getCracResult().setFunctionalCost(-cost);
         raoData.getCracResult().setVirtualCost(overCost);
-        raoData.getCracResult().setNetworkSecurityStatus(minMargin < 0 ?
+        raoData.getCracResult().setNetworkSecurityStatus(cost < 0 ?
             CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
         updateCnecExtensions();
     }
@@ -157,50 +151,6 @@ public class RaoDataManager {
         if (LoopFlowComputation.isLoopFlowsViolated(raoData, loopFlows)) {
 //            linearRaoData.getCracResult().setCost(Double.POSITIVE_INFINITY); //todo: set a high cost if loopflow constraint violation => use "virtual cost" in the future
         }
-    }
-
-    /**
-     * Compute the objective function, the minimal margin.
-     */
-    private double getMinMargin(Unit unit) {
-        if (unit.equals(Unit.MEGAWATT)) {
-            return getMinMarginInMegawatt();
-        } else {
-            return getMinMarginInAmpere();
-        }
-    }
-
-    private double getMinMarginInMegawatt() {
-        return raoData.getCrac().getCnecs().stream().
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), Unit.MEGAWATT)).
-            min(Double::compareTo).orElseThrow(NoSuchElementException::new);
-
-    }
-
-    private double getMinMarginInAmpere() {
-
-        List<Double> marginsInAmpere = raoData.getCrac().getCnecs().stream().map(cnec ->
-            cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
-        ).collect(Collectors.toList());
-
-        if (marginsInAmpere.contains(Double.NaN)) { // It means that computation has been performed in DC mode
-            // in fallback, intensities can be missing as the fallback configuration does not necessarily
-            // compute them (example : default in AC, fallback in DC). In that case a fallback computation
-            // of the intensity is made, based on the MEGAWATT values and the nominal voltage
-            LOGGER.warn("No intensities available in fallback mode, the margins are assessed by converting the flows from MW to A with the nominal voltage of each Cnec.");
-            marginsInAmpere = getMarginsInAmpereFromMegawattConversion();
-        }
-
-        return marginsInAmpere.stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
-    }
-
-    private List<Double> getMarginsInAmpereFromMegawattConversion() {
-        return raoData.getCrac().getCnecs().stream().map(cnec -> {
-                double flowInMW = raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
-                double uNom = raoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
-                return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);
-            }
-        ).collect(Collectors.toList());
     }
 
     public void updateCnecExtensions() {

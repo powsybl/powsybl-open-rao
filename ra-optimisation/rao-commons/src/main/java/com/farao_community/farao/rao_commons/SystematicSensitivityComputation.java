@@ -64,8 +64,8 @@ public class SystematicSensitivityComputation {
     }
 
     /**
-     * Run the systematic sensitivity analysis on one Situation, and evaluate the value of the
-     * objective function on this Situation.
+     * Run the systematic sensitivity analysis on the given RaoData (so on its network), and associates the
+     * SystematicSensitivityAnalysisResult to the given RaoData variant.
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
@@ -87,7 +87,8 @@ public class SystematicSensitivityComputation {
         }
     }
 
-    public void run(RaoData raoData) {
+    // Method for tests
+    void run(RaoData raoData) {
         run(raoData, Unit.AMPERE);
     }
 
