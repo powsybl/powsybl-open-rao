@@ -63,9 +63,8 @@ public class CracImportExportTest {
         AbsoluteFlowThreshold absoluteFlowThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500.0);
         Set<AbstractThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(absoluteFlowThreshold);
-        simpleCrac.addCnec("cnec3prevId","cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw);
-        simpleCrac.addCnec("cnec4prevId","cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0);
-
+        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw);
+        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0);
 
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
