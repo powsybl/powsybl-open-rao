@@ -97,4 +97,9 @@ public class VoltageThreshold extends AbstractThreshold {
         result = 31 * result + (int) maxValue * 100;
         return result;
     }
+
+    @Override
+    public void setMargin(double margin, Unit unit) {
+        // do nothing for the moment
+    }
 }

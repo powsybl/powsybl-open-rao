@@ -41,9 +41,10 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         initPercentageOfMax(percentageOfMax);
     }
 
-    public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax) {
+    public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax, double frmInMw) {
         super(Unit.AMPERE, networkElement, side, direction);
         initPercentageOfMax(percentageOfMax);
+        this.frmInMW = frmInMw;
     }
 
     private void initPercentageOfMax(double percentageOfMax) {
@@ -82,7 +83,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public AbstractThreshold copy() {
-        RelativeFlowThreshold copiedRelativeFlowThreshold = new RelativeFlowThreshold(networkElement, side, direction, percentageOfMax);
+        RelativeFlowThreshold copiedRelativeFlowThreshold = new RelativeFlowThreshold(networkElement, side, direction, percentageOfMax, frmInMW);
         if (isSynchronized()) {
             copiedRelativeFlowThreshold.isSynchronized = isSynchronized;
             copiedRelativeFlowThreshold.voltageLevel = voltageLevel;
