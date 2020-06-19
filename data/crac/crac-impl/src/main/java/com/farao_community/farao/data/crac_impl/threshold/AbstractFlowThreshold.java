@@ -50,6 +50,11 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      */
     protected double voltageLevel;
 
+    /**
+     * Flow reliability margin of the Cnec associated to this threshold, in MEGAWATT
+     */
+    protected double frmInMW;
+
     protected boolean isSynchronized;
 
     public AbstractFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction) {
@@ -71,19 +76,35 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
+        // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
+        // TODO: remove this patch when appropriate development is done in our application (see technical debt)
+        double temporaryFrmInMW = 0;
         if (direction == Direction.DIRECT) {
             return Optional.empty();
         } else { // Direction.OPPOSITE and Direction.BOTH
-            return Optional.of(-convert(getAbsoluteMax(), unit, requestedUnit));
+            if (frmInMW > 0) {
+                temporaryFrmInMW = convert(frmInMW, Unit.MEGAWATT, requestedUnit);
+            }
+            return Optional.of(
+                    temporaryFrmInMW
+                    - convert(getAbsoluteMax(), unit, requestedUnit));
         }
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
+        // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
+        // TODO: remove this patch when appropriate development is done in our application (see technical debt)
+        double temporaryFrmInMW = 0;
         if (direction == Direction.OPPOSITE) {
             return Optional.empty();
         } else { // Direction.DIRECT and Direction.BOTH
-            return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit));
+            if (frmInMW > 0) {
+                temporaryFrmInMW = convert(frmInMW, Unit.MEGAWATT, requestedUnit);
+            }
+            return Optional.of(
+                    convert(getAbsoluteMax(), unit, requestedUnit)
+                    - temporaryFrmInMW);
         }
     }
 
@@ -128,6 +149,14 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     public void setSide(Side side) {
         this.side = side;
+    }
+
+    public void setMargin(double frmInMW, Unit unit) {
+        if (unit != Unit.MEGAWATT) {
+            throw new FaraoException("Unable to handle another margin than the FRM in Megawatts");
+        } else {
+            this.frmInMW = frmInMW;
+        }
     }
 
     /**
@@ -193,7 +222,9 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             result = threshold.networkElement == null;
         }
         return result && unit.equals(threshold.unit)
-            && side.equals(threshold.side) && direction.equals(threshold.direction);
+            && side.equals(threshold.side)
+                && direction.equals(threshold.direction)
+                && frmInMW == (threshold.frmInMW);
     }
 
     @Override
@@ -201,6 +232,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         int result = unit.hashCode();
         result = 31 * result + side.hashCode();
         result = 31 * result + direction.hashCode();
+        result += frmInMW;
         return result;
     }
 }

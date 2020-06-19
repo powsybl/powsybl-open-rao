@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.farao_community.farao.data.crac_impl.json.RoundTripUtil.roundTrip;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 
 /**
@@ -58,6 +59,13 @@ public class CracImportExportTest {
 
         simpleCrac.addCnec("cnec2prev", "neId2", thresholds, preventiveState.getId());
         simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
+
+        double positiveFrmMw = 20.0;
+        AbsoluteFlowThreshold absoluteFlowThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500.0);
+        Set<AbstractThreshold> thresholdSet = new HashSet<>();
+        thresholdSet.add(absoluteFlowThreshold);
+        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw);
+        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0);
 
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
@@ -120,8 +128,10 @@ public class CracImportExportTest {
         assertEquals(5, crac.getNetworkElements().size());
         assertEquals(2, crac.getInstants().size());
         assertEquals(2, crac.getContingencies().size());
-        assertEquals(3, crac.getCnecs().size());
+        assertEquals(5, crac.getCnecs().size());
         assertEquals(2, crac.getRangeActions().size());
         assertEquals(2, crac.getNetworkActions().size());
+        assertTrue(crac.getCnec("cnec4prevId").getMaxThreshold(Unit.MEGAWATT).get()
+                > crac.getCnec("cnec3prevId").getMaxThreshold(Unit.MEGAWATT).get());
     }
 }

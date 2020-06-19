@@ -106,4 +106,6 @@ public abstract class AbstractThreshold implements Synchronizable {
 
     @Override
     public abstract int hashCode();
+
+    public abstract void setMargin(double margin, Unit unit);
 }

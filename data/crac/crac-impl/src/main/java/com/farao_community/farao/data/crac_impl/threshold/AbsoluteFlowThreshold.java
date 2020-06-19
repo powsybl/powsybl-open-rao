@@ -35,9 +35,10 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
         setMaxValue(maxValue);
     }
 
-    public AbsoluteFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction, double maxValue) {
+    public AbsoluteFlowThreshold(Unit unit, NetworkElement networkElement, Side side, Direction direction, double maxValue, double frmInMw) {
         super(unit, networkElement, side, direction);
         setMaxValue(maxValue);
+        this.frmInMW = frmInMw;
     }
 
     private void setMaxValue(double maxValue) {
@@ -58,7 +59,7 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
 
     @Override
     public AbstractThreshold copy() {
-        AbsoluteFlowThreshold copiedAbsoluteFlowThreshold = new AbsoluteFlowThreshold(unit, networkElement, side, direction, maxValue);
+        AbsoluteFlowThreshold copiedAbsoluteFlowThreshold = new AbsoluteFlowThreshold(unit, networkElement, side, direction, maxValue, frmInMW);
         if (isSynchronized()) {
             copiedAbsoluteFlowThreshold.isSynchronized = isSynchronized;
             copiedAbsoluteFlowThreshold.voltageLevel = voltageLevel;
