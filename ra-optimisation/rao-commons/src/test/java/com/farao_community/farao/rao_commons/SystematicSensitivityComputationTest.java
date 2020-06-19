@@ -14,8 +14,6 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
@@ -88,8 +86,6 @@ public class SystematicSensitivityComputationTest {
 
     @Test
     public void testRunDefaultConfigFailsAndNoFallback() {
-        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
-
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultFailed);
@@ -107,8 +103,6 @@ public class SystematicSensitivityComputationTest {
 
     @Test
     public void testRunDefaultConfigFailsButFallbackOk() {
-        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
-
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenReturn(systematicAnalysisResultFailed);
@@ -132,8 +126,6 @@ public class SystematicSensitivityComputationTest {
 
     @Test
     public void testRunDefaultConfigAndFallbackFail() {
-        ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
-
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenReturn(systematicAnalysisResultFailed);

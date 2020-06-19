@@ -31,10 +31,6 @@ public class MinMarginEvaluator implements CostEvaluator {
         this.unit = unit;
     }
 
-    public MinMarginEvaluator() {
-        this(MEGAWATT);
-    }
-
     @Override
     public double getCost(RaoData raoData) {
         if (unit.equals(MEGAWATT)) {
