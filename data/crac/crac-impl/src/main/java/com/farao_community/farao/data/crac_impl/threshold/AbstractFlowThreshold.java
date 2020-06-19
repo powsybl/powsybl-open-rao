@@ -16,8 +16,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -34,8 +32,6 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold")
     })
 public abstract class AbstractFlowThreshold extends AbstractThreshold {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbsoluteFlowThreshold.class);
 
     /**
      * Side of the network element which is monitored
