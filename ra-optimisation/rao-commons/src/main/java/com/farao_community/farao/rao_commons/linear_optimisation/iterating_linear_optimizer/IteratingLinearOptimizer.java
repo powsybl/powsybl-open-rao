@@ -63,6 +63,14 @@ public class IteratingLinearOptimizer {
         this.parameters = parameters;
     }
 
+    public CostEvaluator getCostEvaluator() {
+        return costEvaluator;
+    }
+
+    public IteratingLinearOptimizerParameters getParameters() {
+        return parameters;
+    }
+
     public String optimize(RaoData raoData) {
         this.raoData = raoData;
         bestVariantId = raoData.getInitialVariantId();
