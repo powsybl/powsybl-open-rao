@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -216,27 +215,5 @@ public class LinearOptimisationEngineTest {
         } catch (FaraoException e) {
             // should throw
         }
-    }
-
-    @Test
-    public void fillVirtualCostTest() {
-        setUpForFillCracResults();
-        for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
-            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
-            cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
-            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        }
-
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoParameters.setLoopflowViolationCost(10.0);
-        linearRaoParameters.setExtendable(raoParameters);
-
-        MPVariable variableMock = Mockito.mock(MPVariable.class);
-        Mockito.when(variableMock.solutionValue()).thenReturn(2.0);
-        Mockito.when(linearRaoProblemMock.getLoopflowViolationVariable(any())).thenReturn(variableMock);
-
-        LinearOptimisationEngine.fillVirtualCostInCracResult(linearRaoProblemMock, linearRaoData, linearRaoParameters);
-        assertEquals(40.0, linearRaoData.getCracResult().getVirtualCost(), 0.1);
     }
 }

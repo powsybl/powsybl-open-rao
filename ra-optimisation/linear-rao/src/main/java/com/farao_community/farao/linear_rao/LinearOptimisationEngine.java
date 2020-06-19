@@ -7,10 +7,8 @@
 
 package com.farao_community.farao.linear_rao;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static java.lang.String.*;
 
@@ -99,7 +96,6 @@ class LinearOptimisationEngine {
         solveLinearProblem();
         if (getSolverResultStatusString().equals("OPTIMAL")) {
             fillCracResults(linearRaoProblem, linearRaoData);
-            fillVirtualCostInCracResult(linearRaoProblem, linearRaoData, linearRaoParameters);
             linearRaoData.applyRangeActionResultsOnNetwork();
         }
     }
@@ -175,22 +171,6 @@ class LinearOptimisationEngine {
                 LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
             }
         }
-    }
-
-    static void fillVirtualCostInCracResult(LinearRaoProblem linearRaoProblem, LinearRaoData linearRaoData, LinearRaoParameters linearRaoParameters) {
-        double virtualCost = 0.0;
-        //loopflow part of virtual cost
-        if (!Objects.isNull(linearRaoParameters.getExtendable()) && linearRaoParameters.getExtendable().isRaoWithLoopFlowLimitation()
-                && linearRaoParameters.getExtendable().getLoopflowViolationCost() > 0.0) {
-            for (Cnec cnec : linearRaoData.getCrac().getCnecs(linearRaoData.getCrac().getPreventiveState())) {
-                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                    virtualCost += linearRaoProblem.getLoopflowViolationVariable(cnec).solutionValue() * linearRaoParameters.getExtendable().getLoopflowViolationCost();
-                }
-            }
-        }
-        //other part of virtual cost:
-        // - fallbackMode part is updated outside linear optim engine
-        linearRaoData.getCracResult().setVirtualCost(virtualCost);
     }
 
     public String getSolverResultStatusString() {
