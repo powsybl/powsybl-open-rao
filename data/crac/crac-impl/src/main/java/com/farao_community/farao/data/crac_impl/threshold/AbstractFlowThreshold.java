@@ -16,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -32,6 +34,8 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold")
     })
 public abstract class AbstractFlowThreshold extends AbstractThreshold {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbsoluteFlowThreshold.class);
 
     /**
      * Side of the network element which is monitored
@@ -74,23 +78,35 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
+        // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
+        // TODO: remove this patch when appropriate development is done in our application (see technical debt)
+        double temporaryFrmInMW = 0;
         if (direction == Direction.DIRECT) {
             return Optional.empty();
         } else { // Direction.OPPOSITE and Direction.BOTH
+            if (frmInMW > 0) {
+                temporaryFrmInMW = convert(frmInMW, Unit.MEGAWATT, requestedUnit);
+            }
             return Optional.of(
-                    convert(frmInMW, Unit.MEGAWATT, requestedUnit)
+                    temporaryFrmInMW
                     - convert(getAbsoluteMax(), unit, requestedUnit));
         }
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
+        // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
+        // TODO: remove this patch when appropriate development is done in our application (see technical debt)
+        double temporaryFrmInMW = 0;
         if (direction == Direction.OPPOSITE) {
             return Optional.empty();
         } else { // Direction.DIRECT and Direction.BOTH
+            if (frmInMW > 0) {
+                temporaryFrmInMW = convert(frmInMW, Unit.MEGAWATT, requestedUnit);
+            }
             return Optional.of(
                     convert(getAbsoluteMax(), unit, requestedUnit)
-                    - convert(frmInMW, Unit.MEGAWATT, requestedUnit));
+                    - temporaryFrmInMW);
         }
     }
 
