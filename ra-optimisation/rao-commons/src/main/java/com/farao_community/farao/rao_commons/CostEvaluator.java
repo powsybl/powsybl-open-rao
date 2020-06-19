@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.Unit;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -20,4 +22,6 @@ public interface CostEvaluator {
      * @return Double value of the RaoData cost.
      */
     double getCost(RaoData raoData);
+
+    Unit getUnit();
 }

@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.commons.Unit;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -20,16 +19,14 @@ public class IteratingLinearOptimizerWithLoopFLowsParametersTest {
     @Test
     public void isLoopflowApproximation() {
         IteratingLinearOptimizerWithLoopFLowsParameters parameters =
-            new IteratingLinearOptimizerWithLoopFLowsParameters(Unit.AMPERE, 20,
-                12, false);
+            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, false);
         assertFalse(parameters.isLoopflowApproximation());
     }
 
     @Test
     public void setLoopFlowApproximation() {
         IteratingLinearOptimizerWithLoopFLowsParameters parameters =
-            new IteratingLinearOptimizerWithLoopFLowsParameters(Unit.AMPERE, 20,
-                12, false);
+            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, false);
         parameters.setLoopFlowApproximation(true);
         assertTrue(parameters.isLoopflowApproximation());
     }

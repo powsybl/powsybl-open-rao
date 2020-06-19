@@ -7,8 +7,6 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.commons.Unit;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -23,8 +21,8 @@ public class IteratingLinearOptimizerWithLoopFLowsParameters extends IteratingLi
      */
     private boolean loopFlowApproximation;
 
-    public IteratingLinearOptimizerWithLoopFLowsParameters(Unit unit, int maxIterations, double fallbackOverCost, boolean loopFlowApproximation) {
-        super(unit, maxIterations, fallbackOverCost);
+    public IteratingLinearOptimizerWithLoopFLowsParameters(int maxIterations, double fallbackOverCost, boolean loopFlowApproximation) {
+        super(maxIterations, fallbackOverCost);
         this.loopFlowApproximation = loopFlowApproximation;
     }
 

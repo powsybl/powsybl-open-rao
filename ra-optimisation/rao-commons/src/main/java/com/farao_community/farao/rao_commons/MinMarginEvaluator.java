@@ -31,6 +31,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         this.unit = unit;
     }
 
+    @Override
     public Unit getUnit() {
         return unit;
     }

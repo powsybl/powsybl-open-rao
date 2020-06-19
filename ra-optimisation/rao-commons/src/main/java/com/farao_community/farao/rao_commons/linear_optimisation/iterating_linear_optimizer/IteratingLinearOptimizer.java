@@ -140,11 +140,11 @@ public class IteratingLinearOptimizer {
         CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
         if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
             LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(),
-                parameters.getUnit(), optimizedVariantResult.getCost()));
+                costEvaluator.getUnit(), optimizedVariantResult.getCost()));
             return true;
         } else { // unexpected behaviour, stop the search
             LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
-                -optimizedVariantResult.getFunctionalCost(),  parameters.getUnit(), bestVariantResult.getCost(),
+                -optimizedVariantResult.getFunctionalCost(), costEvaluator.getUnit(), bestVariantResult.getCost(),
                 optimizedVariantResult.getCost()));
             return false;
         }
@@ -166,8 +166,8 @@ public class IteratingLinearOptimizer {
         bestVariantId = optimizedVariantId;
     }
 
-    protected void runSensitivityAndUpdateResults() {
-        systematicSensitivityComputation.run(raoData, parameters.getUnit());
+    void runSensitivityAndUpdateResults() {
+        systematicSensitivityComputation.run(raoData, costEvaluator.getUnit());
         raoData.getRaoDataManager().fillCracResultsWithSensis(costEvaluator.getCost(raoData),
             systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0);
     }

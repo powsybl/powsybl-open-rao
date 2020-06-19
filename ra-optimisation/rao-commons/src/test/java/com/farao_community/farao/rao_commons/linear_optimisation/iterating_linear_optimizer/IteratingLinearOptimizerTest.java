@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
@@ -66,7 +65,7 @@ public class IteratingLinearOptimizerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         raoData = new RaoData(network, crac);
-        parameters = new IteratingLinearOptimizerParameters(Unit.MEGAWATT, 10, 0);
+        parameters = new IteratingLinearOptimizerParameters(10, 0);
 
         workingVariants = new ArrayList<>();
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);

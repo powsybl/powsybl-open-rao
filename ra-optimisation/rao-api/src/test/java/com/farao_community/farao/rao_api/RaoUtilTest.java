@@ -33,8 +33,7 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
 
         assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(AMPERE, ((MinMarginEvaluator) optimizer.getCostEvaluator()).getUnit());
-        assertEquals(AMPERE, optimizer.getParameters().getUnit());
+        assertEquals(AMPERE, optimizer.getCostEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
@@ -48,8 +47,7 @@ public class RaoUtilTest {
 
         assertTrue(optimizer instanceof IteratingLinearOptimizerWithLoopFlows);
         assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(MEGAWATT, ((MinMarginEvaluator) optimizer.getCostEvaluator()).getUnit());
-        assertEquals(MEGAWATT, optimizer.getParameters().getUnit());
+        assertEquals(MEGAWATT, optimizer.getCostEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
@@ -59,6 +57,6 @@ public class RaoUtilTest {
         RaoParameters raoParameters = new RaoParameters();
         CostEvaluator costEvaluator = RaoUtil.createCostEvaluatorFromRaoParameters(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginEvaluator);
-        assertEquals(MEGAWATT, ((MinMarginEvaluator) costEvaluator).getUnit());
+        assertEquals(MEGAWATT, costEvaluator.getUnit());
     }
 }

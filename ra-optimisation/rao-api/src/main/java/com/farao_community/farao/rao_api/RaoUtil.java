@@ -57,13 +57,13 @@ public final class RaoUtil {
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillers.add(new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowConstraintAdjustmentCoefficient()));
             IteratingLinearOptimizerWithLoopFLowsParameters iteratingLinearOptimizerParameters =
-                new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getObjectiveFunction().getUnit(),
-                    raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation());
+                new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
+                    raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation());
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityComputation,
                 createCostEvaluatorFromRaoParameters(raoParameters), iteratingLinearOptimizerParameters);
         } else {
-            IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters = new IteratingLinearOptimizerParameters(
-                raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
+            IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters =
+                new IteratingLinearOptimizerParameters(raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
             return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation,
                 createCostEvaluatorFromRaoParameters(raoParameters), iteratingLinearOptimizerParameters);
         }

@@ -7,30 +7,18 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.commons.Unit;
-
 import static java.lang.Math.max;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class IteratingLinearOptimizerParameters {
-    private Unit unit;
     private int maxIterations;
     private double fallbackOverCost;
 
-    public IteratingLinearOptimizerParameters(Unit unit, int maxIterations, double fallbackOverCost) {
-        this.unit = unit;
+    public IteratingLinearOptimizerParameters(int maxIterations, double fallbackOverCost) {
         this.maxIterations = maxIterations;
         this.fallbackOverCost = fallbackOverCost;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
     }
 
     public int getMaxIterations() {
