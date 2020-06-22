@@ -195,10 +195,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", DEFAULT_MAX_ITERATIONS));
                 parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", DEFAULT_PST_PENALTY_COST));
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
-                parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-overcost", DEFAULT_FALLBACK_OVER_COST));
+                parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
-                parameters.setLoopFlowApproximation(config.getBooleanProperty("loopflow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
-                parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loopflow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                parameters.setLoopFlowApproximation(config.getBooleanProperty("loop-flow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
+                parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loop-flow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

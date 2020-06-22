@@ -4,7 +4,7 @@
   "max-number-of-iterations" : 10,
   "pst-penalty-cost" : 0.01,
   "pst-sensitivity-threshold" : 0.0,
-  "sensitivity-fallback-overcost" : 0.0,
+  "sensitivity-fallback-over-cost" : 0.0,
   "rao-with-loop-flow-limitation" : false,
   "loop-flow-approximation" : true,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
