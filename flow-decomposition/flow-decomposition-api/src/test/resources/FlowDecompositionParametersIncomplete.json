@@ -1,15 +1,15 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.1",
+    "version" : "1.2",
     "voltageInitMode" : "PREVIOUS_VALUES"
   },
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
-      "version" : "1.1",
+      "version" : "1.2",
       "noGeneratorReactiveLimits" : false,
-      "t2wtSplitShuntAdmittance" : false
+      "twtSplitShuntAdmittance" : false
     }
   }
 }
