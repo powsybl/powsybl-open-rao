@@ -56,7 +56,7 @@ public final class CneRemedialActionsCreator {
                 && isActivated(preventiveStateId, preOptimRangeActionResult, postOptimRangeActionResult)
                 && !rangeAction.getNetworkElements().isEmpty()) {
 
-                RemedialActionSeries remedialActionSeries = fillB56RemedialActionSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), false);
+                RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), false);
                 rangeAction.getNetworkElements().forEach(networkElement -> createRemedialActionRegisteredResource(networkElement, preventiveStateId, postOptimRangeActionResult, remedialActionSeries));
                 preventiveB56.remedialActionSeries.add(remedialActionSeries);
             }
@@ -70,7 +70,7 @@ public final class CneRemedialActionsCreator {
         return constraintSeries;
     }
 
-    private static RemedialActionSeries fillB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim) {
+    private static RemedialActionSeries createB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim) {
         RemedialActionSeries remedialActionSeries;
         if (isPreOptim) {
             remedialActionSeries = newRemedialActionSeries(remedialActionId, remedialActionName);
@@ -89,7 +89,7 @@ public final class CneRemedialActionsCreator {
     }
 
     private static void fillB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, boolean isPreOptim, ConstraintSeries constraintSeries) {
-        RemedialActionSeries remedialActionSeries = fillB56RemedialActionSeries(remedialActionId, remedialActionName, operator, isPreOptim);
+        RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(remedialActionId, remedialActionName, operator, isPreOptim);
         constraintSeries.remedialActionSeries.add(remedialActionSeries);
     }
 
