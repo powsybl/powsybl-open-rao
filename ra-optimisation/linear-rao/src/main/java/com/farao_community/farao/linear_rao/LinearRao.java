@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import static java.lang.String.format;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -78,7 +80,9 @@ public class LinearRao implements RaoProvider {
         }
 
         // stop here if no optimisation should be done
-        if (skipOptim(raoParameters, raoData.getCrac())) {
+        StringBuilder skipReason = new StringBuilder();
+        if (skipOptim(raoParameters, raoData.getCrac(), skipReason)) {
+            LOGGER.warn(format("Linear optimization is skipped. Cause: %s", skipReason));
             return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation));
         }
 
@@ -91,10 +95,19 @@ public class LinearRao implements RaoProvider {
      * Method returning a boolean indicating whether an optimisation should be done,
      * or whether the LinearRao should only perform a security analysis
      */
-    private boolean skipOptim(RaoParameters raoParameters, Crac crac) {
-        return raoParameters.getExtension(LinearRaoParameters.class).isSecurityAnalysisWithoutRao()
-            || raoParameters.getMaxIterations() == 0
-            || crac.getRangeActions().isEmpty();
+    private boolean skipOptim(RaoParameters raoParameters, Crac crac, StringBuilder skipReason) {
+        if (raoParameters.getExtension(LinearRaoParameters.class).isSecurityAnalysisWithoutRao()) {
+            skipReason.append("security analysis without RAO");
+            return true;
+        } else if (raoParameters.getMaxIterations() == 0) {
+            skipReason.append("max number of iterations is null");
+            return true;
+        } else if (crac.getRangeActions().isEmpty()) {
+            skipReason.append("no range actions available in the CRAC");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -114,7 +127,7 @@ public class LinearRao implements RaoProvider {
         // log
         double minMargin = -raoData.getCracResult(postOptimVariantId).getFunctionalCost();
         double objFunctionValue = raoData.getCracResult(postOptimVariantId).getCost();
-        LOGGER.info(String.format("LinearRaoResult: minimum margin = %.2f %s, security status = %s, optimisation criterion = %.2f",
+        LOGGER.info(format("LinearRaoResult: minimum margin = %.2f %s, security status = %s, optimisation criterion = %.2f",
             minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
             objFunctionValue));
 
