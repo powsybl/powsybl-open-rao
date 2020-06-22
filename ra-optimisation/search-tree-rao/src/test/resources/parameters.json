@@ -11,7 +11,7 @@
   "sensitivity-parameters": {
     "version": "1.0",
     "load-flow-parameters": {
-      "version": "1.0",
+      "version": "1.2",
       "voltageInitMode": "UNIFORM_VALUES",
       "transformerVoltageControlOn": false,
       "phaseShifterRegulationOn": false,
