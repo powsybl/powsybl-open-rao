@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -150,8 +150,9 @@ public final class Tree {
     private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
         AtomicInteger remainingLeaves = new AtomicInteger(generatedLeaves.size());
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel())) {
-            networkPool.submit(() -> generatedLeaves.parallelStream().forEach(leaf -> {
+        FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel());
+        generatedLeaves.forEach(leaf -> {
+            networkPool.submit(() -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork();
                     leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
@@ -160,11 +161,14 @@ public final class Tree {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            })).get();
+            });
+        });
+        networkPool.shutdown();
+        try {
+            networkPool.awaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            throw new FaraoException(e);
+            LOGGER.error("Computation took too long ! The computation pool is going to be shut down.");
+            networkPool.shutdownNow();
         }
     }
 
