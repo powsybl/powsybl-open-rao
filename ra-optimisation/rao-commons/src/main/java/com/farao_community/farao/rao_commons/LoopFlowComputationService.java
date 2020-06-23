@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,15 +23,14 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public final class LoopFlowComputation {
+public final class LoopFlowComputationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputationService.class);
 
-    private LoopFlowComputation() { }
+    private LoopFlowComputationService() { }
 
     public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData, double violationCost) {
-        com.farao_community.farao.loopflow_computation.LoopFlowComputation initialLoopFlowComputation =
-            new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac());
         Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(raoData.getNetwork()); // Get reference flow
         Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); // Compute PTDF * NetPosition
         Map<String, Double> loopFlows = initialLoopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts);
@@ -40,8 +40,7 @@ public final class LoopFlowComputation {
 
     public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {
         Map<String, Double> loopFlows;
-        com.farao_community.farao.loopflow_computation.LoopFlowComputation loopFlowComputation =
-            new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
         if (isLoopFlowApproximation) { // No re-compute ptdf
             loopFlows = loopFlowComputation.calculateLoopFlowsApproximation(raoData.getNetwork());
         } else {

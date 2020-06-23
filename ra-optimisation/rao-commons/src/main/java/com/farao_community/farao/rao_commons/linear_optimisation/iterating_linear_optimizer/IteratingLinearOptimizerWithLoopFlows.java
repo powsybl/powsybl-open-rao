@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.rao_commons.CostEvaluator;
-import com.farao_community.farao.rao_commons.LoopFlowComputation;
+import com.farao_community.farao.rao_commons.LoopFlowComputationService;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
@@ -44,7 +44,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
             runSensitivityAndUpdateResults();
-            Map<String, Double> loopFlows = LoopFlowComputation.calculateLoopFlows(raoData, loopFlowApproximation);
+            Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, loopFlowApproximation);
             raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, loopFlowViolationCost);
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;

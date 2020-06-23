@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LoopFlowComputationTest {
+public class LoopFlowComputationServiceTest {
 
     @Test(expected = FaraoException.class)
     public void testRunLoopFlowExtensionInCracNotAvailable() {
@@ -24,7 +24,7 @@ public class LoopFlowComputationTest {
         Crac crac = Mockito.mock(Crac.class);
         Mockito.when(crac.getExtension(CracLoopFlowExtension.class)).thenReturn(null);
         Mockito.when(raoData.getCrac()).thenReturn(crac);
-        LoopFlowComputation.checkDataConsistency(raoData);
+        LoopFlowComputationService.checkDataConsistency(raoData);
     }
 
 }

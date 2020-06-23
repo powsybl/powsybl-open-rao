@@ -40,8 +40,8 @@ public final class RaoUtil {
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            LoopFlowComputation.checkDataConsistency(raoData);
-            LoopFlowComputation.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters.getLoopFlowViolationCost());
+            LoopFlowComputationService.checkDataConsistency(raoData);
+            LoopFlowComputationService.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters.getLoopFlowViolationCost());
         }
 
         return raoData;
