@@ -72,8 +72,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
-        assertNotEquals(0, linearProblem.getObjective().getCoefficient(absoluteVariation)); // penalty cost
-        assertEquals(-1, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
+        assertNotEquals(0.0, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
@@ -115,8 +115,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
-        assertNotEquals(0, linearProblem.getObjective().getCoefficient(absoluteVariation)); // penalty cost
-        assertEquals(-1, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
+        assertNotEquals(0.0, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
