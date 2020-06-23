@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.linear_rao.config.LinearRaoParameters;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -29,6 +30,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -228,10 +231,19 @@ public class SystematicAnalysisEngineTest {
 
     @Test
     public void testLoopflowRelated() {
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
+        raoParameters.setLoopflowViolationCost(1.0);
         ComputationManager computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
-
-        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(linearRaoParameters, computationManager);
-        systematicAnalysisEngine.setLoopflowViolation(true);
-        assertTrue(systematicAnalysisEngine.isLoopflowViolation());
+        SystematicAnalysisEngine systematicAnalysisEngine = new SystematicAnalysisEngine(raoParameters.getExtension(LinearRaoParameters.class), computationManager);
+        CnecLoopFlowExtension cnec1LoopFlowExtension = new CnecLoopFlowExtension(0.0);
+        cnec1LoopFlowExtension.setLoopFlowConstraint(0.0);
+        initialLinearRaoData.getCrac().getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, cnec1LoopFlowExtension);
+        Map<String, Double> loopflows = new HashMap<>();
+        loopflows.put("cnec1basecase", 1.0);
+        systematicAnalysisEngine.checkLoopflowViolationAndSetLoopflowVirtualCost(initialLinearRaoData, loopflows);
+        assertEquals(1.0, initialLinearRaoData.getCracResult().getVirtualCost(), 0.1);
+        raoParameters.setLoopflowViolationCost(0.0);
+        systematicAnalysisEngine.checkLoopflowViolationAndSetLoopflowVirtualCost(initialLinearRaoData, loopflows);
+        assertEquals(1000000.0, initialLinearRaoData.getCracResult().getVirtualCost(), 0.1);
     }
 }

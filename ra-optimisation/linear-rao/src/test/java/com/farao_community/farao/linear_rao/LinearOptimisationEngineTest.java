@@ -33,6 +33,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -62,10 +63,10 @@ public class LinearOptimisationEngineTest {
 
         linearRaoProblemMock = Mockito.mock(LinearRaoProblem.class);
         Mockito.when(linearRaoProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
-        Mockito.when(linearRaoProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearRaoProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearRaoProblemMock.getFlowVariable(Mockito.any())).thenReturn(Mockito.mock(MPVariable.class));
+        Mockito.when(linearRaoProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), any(), any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.getFlowConstraint(any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearRaoProblemMock.getFlowVariable(any())).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearRaoProblemMock.getMinimumMarginVariable()).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearRaoProblemMock.getObjective()).thenReturn(Mockito.mock(MPObjective.class));
         Mockito.doReturn(linearRaoProblemMock).when(linearOptimisationEngine).createLinearRaoProblem();
@@ -134,7 +135,7 @@ public class LinearOptimisationEngineTest {
     @Test
     public void testUpdateError() {
         linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
-        Mockito.when(linearRaoProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
+        Mockito.when(linearRaoProblemMock.getFlowConstraint(any())).thenReturn(null);
         try {
             linearOptimisationEngine.run(linearRaoData, linearRaoParameters);
             fail();
