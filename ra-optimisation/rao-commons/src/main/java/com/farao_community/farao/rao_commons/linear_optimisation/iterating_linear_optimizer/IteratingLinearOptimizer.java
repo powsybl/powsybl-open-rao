@@ -35,7 +35,7 @@ public class IteratingLinearOptimizer {
     protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR = "Sensitivity computation failed at iteration %d on %s mode: %s";
     protected static final String LINEAR_OPTIMIZATION_START = "Iteration %d - linear optimization [start]";
     protected static final String LINEAR_OPTIMIZATION_END = "Iteration %d - linear optimization [end]";
-    protected static final String LINEAR_OPTIMIZATION_INFEASIBLE = "Iteration %d - linear optimization is infeasible";
+    protected static final String LINEAR_OPTIMIZATION_INFEASIBLE = "Iteration %d - linear optimization cannot find OPTIMAL solution";
     protected static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration %d: %s";
 
     protected RaoData raoData;

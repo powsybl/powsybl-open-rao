@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -199,7 +201,8 @@ public class LoopFlowComputation {
         Map<String, Double> loopFlows = new HashMap<>();
         for (Map.Entry<Cnec, Double> entry : frefResults.entrySet()) {
             Cnec cnec = entry.getKey();
-            loopFlows.put(cnec.getId(), entry.getValue() - loopFlowShifts.get(cnec));
+            double loopflowShift = requireNonNull(loopFlowShifts.get(cnec), () -> "No loopflowShifts value for " + cnec.getId());
+            loopFlows.put(cnec.getId(), entry.getValue() - loopflowShift);
         }
         return loopFlows;
     }

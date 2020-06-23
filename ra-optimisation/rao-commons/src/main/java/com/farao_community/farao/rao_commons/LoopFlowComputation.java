@@ -28,14 +28,14 @@ public final class LoopFlowComputation {
 
     private LoopFlowComputation() { }
 
-    public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData) {
+    public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData, double violationCost) {
         com.farao_community.farao.loopflow_computation.LoopFlowComputation initialLoopFlowComputation =
             new com.farao_community.farao.loopflow_computation.LoopFlowComputation(raoData.getCrac());
         Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(raoData.getNetwork()); // Get reference flow
         Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); // Compute PTDF * NetPosition
         Map<String, Double> loopFlows = initialLoopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts);
         raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(loopFlows, loopFlowShifts);
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows);
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, violationCost);
     }
 
     public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {

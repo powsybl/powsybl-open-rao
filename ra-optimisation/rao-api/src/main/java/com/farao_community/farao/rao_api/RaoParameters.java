@@ -19,8 +19,7 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import java.util.Objects;
 
 import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller.DEFAULT_PST_SENSITIVITY_THRESHOLD;
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.DEFAULT_LOOP_FLOW_APPROXIMATION;
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.*;
 import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller.DEFAULT_PST_PENALTY_COST;
 import static java.lang.Math.max;
 
@@ -60,6 +59,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+    private double loopFlowViolationCost = DEFAULT_LOOP_FLOW_VIOLATION_COST;
     private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
 
@@ -135,6 +135,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
+    public double getLoopFlowViolationCost() {
+        return loopFlowViolationCost;
+    }
+
+    public void setLoopFlowViolationCost(double loopflowViolationCost) {
+        this.loopFlowViolationCost = loopflowViolationCost;
+    }
+
     public SensitivityComputationParameters getDefaultSensitivityComputationParameters() {
         return defaultSensitivityComputationParameters;
     }
@@ -199,6 +207,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
                 parameters.setLoopFlowApproximation(config.getBooleanProperty("loop-flow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
                 parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loop-flow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                parameters.setLoopFlowViolationCost(config.getDoubleProperty("loop-flow-violation-cost", DEFAULT_LOOP_FLOW_VIOLATION_COST));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

@@ -21,9 +21,12 @@ public class IteratingLinearOptimizerWithLoopFLowsParameters extends IteratingLi
      */
     private boolean loopFlowApproximation;
 
-    public IteratingLinearOptimizerWithLoopFLowsParameters(int maxIterations, double fallbackOverCost, boolean loopFlowApproximation) {
+    private double loopFlowViolationCost;
+
+    public IteratingLinearOptimizerWithLoopFLowsParameters(int maxIterations, double fallbackOverCost, boolean loopFlowApproximation, double loopFlowViolationCost) {
         super(maxIterations, fallbackOverCost);
         this.loopFlowApproximation = loopFlowApproximation;
+        this.loopFlowViolationCost = loopFlowViolationCost;
     }
 
     public boolean isLoopflowApproximation() {
@@ -32,5 +35,13 @@ public class IteratingLinearOptimizerWithLoopFLowsParameters extends IteratingLi
 
     public void setLoopFlowApproximation(boolean loopFlowApproximation) {
         this.loopFlowApproximation = loopFlowApproximation;
+    }
+
+    public double getLoopFlowViolationCost() {
+        return loopFlowViolationCost;
+    }
+
+    public void setLoopFlowViolationCost(double loopFlowViolationCost) {
+        this.loopFlowViolationCost = loopFlowViolationCost;
     }
 }

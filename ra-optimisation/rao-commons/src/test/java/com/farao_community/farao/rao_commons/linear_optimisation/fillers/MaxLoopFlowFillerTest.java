@@ -71,6 +71,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
         // fill max loop flow
         maxLoopFlowFiller.setLoopFlowApproximation(false);
+        maxLoopFlowFiller.setLoopFlowViolationCost(0.0);
         maxLoopFlowFiller.fill(raoData, linearProblem);
 
         // check flow constraint for cnec1
@@ -83,6 +84,22 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     @Test
+    public void testFillWithLoopflowViolation() {
+        maxLoopFlowFiller.setLoopFlowApproximation(false);
+        maxLoopFlowFiller.setLoopFlowConstraintAdjustmentCoefficient(0.0);
+        coreProblemFiller.fill(raoData, linearProblem);
+        maxLoopFlowFiller.fill(raoData, linearProblem);
+        MPConstraint loopFlowConstraint = linearProblem.getMaxLoopFlowConstraint(cnec1);
+        assertNull(loopFlowConstraint);
+        MPConstraint positiveLoopflowViolationConstraint = linearProblem.getPositiveLoopflowViolationConstraint(cnec1);
+        MPConstraint negativeLoopflowViolationConstraint = linearProblem.getNegativeLoopflowViolationConstraint(cnec1);
+        assertNotNull(positiveLoopflowViolationConstraint);
+        assertNotNull(negativeLoopflowViolationConstraint);
+        assertEquals(1, positiveLoopflowViolationConstraint.getCoefficient(linearProblem.getLoopflowViolationVariable(cnec1)), 0.1);
+        assertEquals(-1, negativeLoopflowViolationConstraint.getCoefficient(linearProblem.getLoopflowViolationVariable(cnec1)), 0.1);
+    }
+
+    @Test
     public void testFillLoopflow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
         assertNotNull(loopFlowComputation);
@@ -90,6 +107,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
         // fill max loop flow
         maxLoopFlowFiller.setLoopFlowApproximation(true);
+        maxLoopFlowFiller.setLoopFlowViolationCost(0.0);
         maxLoopFlowFiller.fill(raoData, linearProblem);
 
         // check flow constraint for cnec1

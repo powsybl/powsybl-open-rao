@@ -95,7 +95,7 @@ class Leaf {
 
     Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
         this(raoData, raoParameters, systematicSensitivityComputation,
-            RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation));
+            RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation));
     }
 
     /**
@@ -107,7 +107,7 @@ class Leaf {
         this.raoParameters = raoParameters;
         this.systematicSensitivityComputation = new SystematicSensitivityComputation(
             parentLeaf.raoParameters.getDefaultSensitivityComputationParameters(), parentLeaf.raoParameters.getFallbackSensitivityComputationParameters());
-        iteratingLinearOptimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
+        iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
@@ -160,7 +160,7 @@ class Leaf {
                 LOGGER.debug("Evaluating leaf...");
                 systematicSensitivityComputation.run(raoData, raoParameters.getObjectiveFunction().getUnit());
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
-                    RaoUtil.createCostEvaluatorFromRaoParameters(raoParameters).getCost(raoData),
+                    RaoUtil.createCostEvaluator(raoParameters).getCost(raoData),
                     systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0);
                 status = Status.EVALUATED;
             } catch (FaraoException e) {

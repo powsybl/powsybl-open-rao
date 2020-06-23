@@ -41,13 +41,13 @@ public final class RaoUtil {
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowComputation.checkDataConsistency(raoData);
-            LoopFlowComputation.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData);
+            LoopFlowComputation.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters.getLoopFlowViolationCost());
         }
 
         return raoData;
     }
 
-    public static IteratingLinearOptimizer createLinearOptimizerFromRaoParameters(RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
         if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
@@ -55,21 +55,30 @@ public final class RaoUtil {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            fillers.add(new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowConstraintAdjustmentCoefficient()));
-            IteratingLinearOptimizerWithLoopFLowsParameters iteratingLinearOptimizerParameters =
-                new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-                    raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation());
+            fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityComputation,
-                createCostEvaluatorFromRaoParameters(raoParameters), iteratingLinearOptimizerParameters);
+                createCostEvaluator(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters =
-                new IteratingLinearOptimizerParameters(raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
             return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation,
-                createCostEvaluatorFromRaoParameters(raoParameters), iteratingLinearOptimizerParameters);
+                createCostEvaluator(raoParameters), createIteratingParameters(raoParameters));
         }
     }
 
-    public static CostEvaluator createCostEvaluatorFromRaoParameters(RaoParameters raoParameters) {
+    private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
+        return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
+            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost());
+    }
+
+    private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
+        return new IteratingLinearOptimizerParameters(raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
+    }
+
+    private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
+        return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
+            raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
+    }
+
+    public static CostEvaluator createCostEvaluator(RaoParameters raoParameters) {
         if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)) {
             return new MinMarginEvaluator(Unit.AMPERE);
         } else if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {

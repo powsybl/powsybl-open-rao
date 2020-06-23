@@ -25,6 +25,7 @@ import static java.lang.String.format;
 public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimizer {
 
     private boolean loopFlowApproximation;
+    private double loopFlowViolationCost;
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
                                                  SystematicSensitivityComputation systematicSensitivityComputation,
@@ -32,6 +33,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
         super(fillers, systematicSensitivityComputation, costEvaluator, parameters);
         loopFlowApproximation = parameters.isLoopflowApproximation();
+        loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);
     }
 
@@ -43,7 +45,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
             runSensitivityAndUpdateResults();
             Map<String, Double> loopFlows = LoopFlowComputation.calculateLoopFlows(raoData, loopFlowApproximation);
-            raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows);
+            raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, loopFlowViolationCost);
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
         } catch (SensitivityComputationException e) {

@@ -75,6 +75,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setLoopFlowConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
+                case "loop-flow-violation-cost":
+                    parser.nextToken();
+                    parameters.setLoopFlowViolationCost(parser.getDoubleValue());
+                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());

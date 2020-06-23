@@ -63,8 +63,9 @@ rao:
 
 rao-parameters:
     rao-with-loop-flow-limitation: false
-    loopflow-approximation: false
-    loopflow-constraint-adjustment-coefficient: 0.0
+    loop-flow-approximation: true
+    loop-flow-constraint-adjustment-coefficient: 0.0
+    loop-flow-violation-cost: 0.0
     max-number-of-iterations: 10
 
 linear-rao-parameters:

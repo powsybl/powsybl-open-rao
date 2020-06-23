@@ -30,7 +30,7 @@ public class RaoUtilTest {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         SystematicSensitivityComputation systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
-        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
+        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
         assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
         assertEquals(AMPERE, optimizer.getCostEvaluator().getUnit());
@@ -43,7 +43,7 @@ public class RaoUtilTest {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setRaoWithLoopFlowLimitation(true);
         SystematicSensitivityComputation systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
-        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizerFromRaoParameters(raoParameters, systematicSensitivityComputation);
+        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
         assertTrue(optimizer instanceof IteratingLinearOptimizerWithLoopFlows);
         assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
@@ -55,7 +55,7 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParameters() {
         RaoParameters raoParameters = new RaoParameters();
-        CostEvaluator costEvaluator = RaoUtil.createCostEvaluatorFromRaoParameters(raoParameters);
+        CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginEvaluator);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
     }

@@ -130,6 +130,10 @@ public class LinearProblemTest {
         assertNull(linearProblem.getMaxLoopFlowConstraint(cnec));
         linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec);
         assertNotNull(linearProblem.getMaxLoopFlowConstraint(cnec));
+        linearProblem.addPositiveLoopflowViolationConstraint(LB, UB, cnec);
+        linearProblem.addNegativeLoopflowViolationConstraint(LB, UB, cnec);
+        assertEquals(LB, linearProblem.getPositiveLoopflowViolationConstraint(cnec).lb(), DOUBLE_TOLERANCE);
+        assertEquals(LB, linearProblem.getNegativeLoopflowViolationConstraint(cnec).lb(), DOUBLE_TOLERANCE);
     }
 
     @Test
