@@ -172,12 +172,12 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public boolean isOptimized() {
-        return true;
+        return optimized;
     }
 
     @Override
     public boolean isMonitored() {
-        return false;
+        return monitored;
     }
 
     @Override
@@ -203,6 +203,10 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     public Cnec copy(NetworkElement networkElement, State state, double frm) {
         return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm);
+    }
+
+    public Cnec copy(NetworkElement networkElement, State state, double frm, boolean optimized, boolean monitored) {
+        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm, optimized, monitored);
     }
 
     @Override
