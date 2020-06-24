@@ -24,50 +24,52 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.TimeZone;
 
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
     @Override
     public void serialize(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStringField("id", value.getId());
-        gen.writeStringField("name", value.getName());
+        gen.writeStringField(ID, value.getId());
+        gen.writeStringField(NAME, value.getName());
         if (value.getNetworkDate() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
-            gen.writeStringField("networkDate", dateFormat.format(value.getNetworkDate().toDate()));
+            gen.writeStringField(NETWORK_DATE, dateFormat.format(value.getNetworkDate().toDate()));
         }
-        gen.writeArrayFieldStart("networkElements");
+        gen.writeArrayFieldStart(NETWORK_ELEMENTS);
         for (NetworkElement networkElement: value.getNetworkElements()) {
             gen.writeObject(networkElement);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart("instants");
+        gen.writeArrayFieldStart(INSTANTS);
         for (Instant instant : value.getInstants()) {
             gen.writeObject(instant);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart("contingencies");
+        gen.writeArrayFieldStart(CONTINGENCIES);
         for (Contingency contingency : value.getContingencies()) {
             gen.writeObject(contingency);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart("states");
+        gen.writeArrayFieldStart(STATES);
         for (State state : value.getStates()) {
             gen.writeObject(state);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart("cnecs");
+        gen.writeArrayFieldStart(CNECS);
         for (Cnec cnec : value.getCnecs()) {
             gen.writeObject(cnec);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart("rangeActions");
+        gen.writeArrayFieldStart(RANGE_ACTIONS);
         for (RangeAction rangeAction: value.getRangeActions()) {
             gen.writeObject(rangeAction);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart("networkActions");
+        gen.writeArrayFieldStart(NETWORK_ACTIONS);
         for (NetworkAction networkAction : value.getNetworkActions()) {
             gen.writeObject(networkAction);
         }

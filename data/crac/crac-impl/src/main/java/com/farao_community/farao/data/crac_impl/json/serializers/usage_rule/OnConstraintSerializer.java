@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.usage_rule;
 
+import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -21,6 +22,6 @@ public class OnConstraintSerializer extends UsageRuleSerializer<OnConstraint> {
     @Override
     public void serialize(OnConstraint usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serialize(usageRule, jsonGenerator, serializerProvider);
-        jsonGenerator.writeStringField("cnec", usageRule.getCnec().getId());
+        jsonGenerator.writeStringField(JsonSerializationNames.CNEC, usageRule.getCnec().getId());
     }
 }

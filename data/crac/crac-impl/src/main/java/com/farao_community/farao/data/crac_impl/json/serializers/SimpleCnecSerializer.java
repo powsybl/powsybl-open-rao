@@ -20,6 +20,8 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -27,15 +29,15 @@ public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
 
     @Override
     public void serialize(SimpleCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStringField("id", cnec.getId());
-        jsonGenerator.writeStringField("name", cnec.getName());
-        jsonGenerator.writeStringField("networkElement", cnec.getNetworkElement().getId());
-        jsonGenerator.writeObjectField("state", cnec.getState().getId());
-        jsonGenerator.writeObjectField("frm", cnec.getFrm());
-        jsonGenerator.writeObjectField("optimized", cnec.isOptimized());
-        jsonGenerator.writeObjectField("monitored", cnec.isMonitored());
+        jsonGenerator.writeStringField(ID, cnec.getId());
+        jsonGenerator.writeStringField(NAME, cnec.getName());
+        jsonGenerator.writeStringField(NETWORK_ELEMENT, cnec.getNetworkElement().getId());
+        jsonGenerator.writeObjectField(STATE, cnec.getState().getId());
+        jsonGenerator.writeObjectField(FRM, cnec.getFrm());
+        jsonGenerator.writeObjectField(OPTIMIZED, cnec.isOptimized());
+        jsonGenerator.writeObjectField(MONITORED, cnec.isMonitored());
 
-        jsonGenerator.writeFieldName("thresholds");
+        jsonGenerator.writeFieldName(THRESHOLDS);
         jsonGenerator.writeStartArray();
         for (AbstractThreshold threshold: cnec.getThresholds()) {
             jsonGenerator.writeObject(threshold);
