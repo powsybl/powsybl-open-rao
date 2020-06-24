@@ -164,7 +164,7 @@ public class RaoDataManager {
         raoData.getCracResult().addVirtualCost(loopFlowTotalViolationCost);
 
         if (loopFlowViolated && violationCost == 0.0) {
-            raoData.getCracResult().setVirtualCost(MaxLoopFlowFiller.DEFAULT_LOOP_FLOW_VIOLATION_COST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
+            raoData.getCracResult().setVirtualCost(MaxLoopFlowFiller.MAX_LOOP_FLOW_VIOLATION_COST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
             raoData.getCracResult().setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
         }
     }

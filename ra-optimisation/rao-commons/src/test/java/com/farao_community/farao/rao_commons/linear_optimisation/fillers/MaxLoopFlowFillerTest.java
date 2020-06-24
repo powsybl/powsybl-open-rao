@@ -71,7 +71,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
         // fill max loop flow
         maxLoopFlowFiller.setLoopFlowApproximation(false);
-        maxLoopFlowFiller.setLoopFlowViolationCost(0.0);
         maxLoopFlowFiller.fill(raoData, linearProblem);
 
         // check flow constraint for cnec1
@@ -87,6 +86,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void testFillWithLoopflowViolation() {
         maxLoopFlowFiller.setLoopFlowApproximation(false);
         maxLoopFlowFiller.setLoopFlowConstraintAdjustmentCoefficient(0.0);
+        maxLoopFlowFiller.setLoopFlowViolationCost(MaxLoopFlowFiller.MAX_LOOP_FLOW_VIOLATION_COST);
         coreProblemFiller.fill(raoData, linearProblem);
         maxLoopFlowFiller.fill(raoData, linearProblem);
         MPConstraint loopFlowConstraint = linearProblem.getMaxLoopFlowConstraint(cnec1);
@@ -107,7 +107,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
         // fill max loop flow
         maxLoopFlowFiller.setLoopFlowApproximation(true);
-        maxLoopFlowFiller.setLoopFlowViolationCost(0.0);
         maxLoopFlowFiller.fill(raoData, linearProblem);
 
         // check flow constraint for cnec1

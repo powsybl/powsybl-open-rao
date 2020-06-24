@@ -8,7 +8,7 @@
   "rao-with-loop-flow-limitation" : true,
   "loop-flow-approximation" : false,
   "loop-flow-constraint-adjustment-coefficient" : 0.5,
-  "loop-flow-violation-cost" : 1000000.0,
+  "loop-flow-violation-cost" : 0.0,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
