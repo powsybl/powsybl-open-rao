@@ -1,0 +1,9 @@
+{
+  "version" : "1.0",
+  "rao-with-loop-flow-limitation" : false,
+  "extensions" : {
+    "LinearProblemParameters" : {
+      "objective-function" : "UNKNOWN"
+    }
+  }
+}

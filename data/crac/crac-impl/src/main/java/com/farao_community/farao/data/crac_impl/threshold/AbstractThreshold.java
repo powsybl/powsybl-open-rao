@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.PhysicalParameter;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

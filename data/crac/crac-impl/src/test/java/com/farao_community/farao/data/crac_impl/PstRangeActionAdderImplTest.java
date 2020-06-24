@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;

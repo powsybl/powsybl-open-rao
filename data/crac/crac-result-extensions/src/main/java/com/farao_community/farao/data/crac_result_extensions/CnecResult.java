@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.commons.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;

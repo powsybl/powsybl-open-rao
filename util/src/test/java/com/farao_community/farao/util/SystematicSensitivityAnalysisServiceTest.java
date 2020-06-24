@@ -60,19 +60,19 @@ public class SystematicSensitivityAnalysisServiceTest {
 
     @Test
     public void testSensiSArunSensitivitySA() {
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, sensitivityComputationParameters);
         assertNotNull(result);
     }
 
     @Test
     public void testSensiSArunSensitivitySAFailure() {
         crac.addRangeAction(new PstWithRange("myPst", new NetworkElement(network.getTwoWindingsTransformers().iterator().next().getId())));
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, sensitivityComputationParameters);
         assertNotNull(result);
 
         SensitivityComputationFactory sensitivityComputationFactory = new SensitivityComputationFactoryBrokenMock();
         SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        SystematicSensitivityAnalysisService.runAnalysis(network, crac, computationManager, sensitivityComputationParameters);
+        SystematicSensitivityAnalysisService.runAnalysis(network, crac, sensitivityComputationParameters);
     }
 
     public class SensitivityComputationFactoryBrokenMock implements SensitivityComputationFactory {

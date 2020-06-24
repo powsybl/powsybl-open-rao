@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Unit;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import org.joda.time.DateTime;

@@ -77,7 +77,7 @@
     "frm" : 0.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
-      "unit" : "AMPERE",
+      "unit" : "A",
       "side" : "LEFT",
       "direction" : "DIRECT",
       "maxValue" : 1500.0
@@ -115,7 +115,7 @@
     "frm" : -1.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
-      "unit" : "AMPERE",
+      "unit" : "A",
       "side" : "LEFT",
       "direction" : "BOTH",
       "maxValue" : 1500.0
@@ -153,7 +153,7 @@
     "frm" : 2.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
-      "unit" : "AMPERE",
+      "unit" : "A",
       "side" : "LEFT",
       "direction" : "BOTH",
       "maxValue" : 1500.0
@@ -191,7 +191,7 @@
     "frm" : 3.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
-      "unit" : "AMPERE",
+      "unit" : "A",
       "side" : "LEFT",
       "direction" : "BOTH",
       "maxValue" : 1500.0
@@ -229,7 +229,7 @@
     "frm" : 4.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
-      "unit" : "AMPERE",
+      "unit" : "A",
       "side" : "LEFT",
       "direction" : "DIRECT",
       "maxValue" : 1500.0
@@ -267,7 +267,7 @@
     "frm" : 5.0,
     "thresholds" : [ {
       "type" : "absolute-flow-threshold",
-      "unit" : "AMPERE",
+      "unit" : "A",
       "side" : "LEFT",
       "direction" : "DIRECT",
       "maxValue" : 1500.0

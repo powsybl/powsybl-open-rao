@@ -65,7 +65,7 @@
       "networkElement": "BBE2AA1  FFR3AA1  1",
       "thresholds": [ {
         "type": "absolute-flow-threshold",
-        "unit": "MEGAWATT",
+        "unit": "MW",
         "side": "LEFT",
         "direction": "BOTH",
         "maxValue": 750
@@ -79,7 +79,7 @@
       "networkElement": "BBE2AA1  FFR3AA1  1",
       "thresholds": [ {
         "type": "absolute-flow-threshold",
-        "unit": "MEGAWATT",
+        "unit": "MW",
         "side": "LEFT",
         "direction": "BOTH",
         "maxValue": 750

@@ -15,24 +15,12 @@ import static org.junit.Assert.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class LinearRaoResultTest {
-    @Test
-    public void testLpStatus() {
-        LinearRaoResult linearRaoResult = new LinearRaoResult();
-
-        linearRaoResult.setLpStatus(LinearRaoResult.LpStatus.FAILURE);
-        assertEquals(LinearRaoResult.LpStatus.FAILURE, linearRaoResult.getLpStatus());
-
-        linearRaoResult.setLpStatus(LinearRaoResult.LpStatus.RUN_OK);
-        assertEquals(LinearRaoResult.LpStatus.RUN_OK, linearRaoResult.getLpStatus());
-    }
 
     @Test
     public void testErrorMessage() {
         LinearRaoResult linearRaoResult = new LinearRaoResult();
 
-        linearRaoResult.setLpStatus(LinearRaoResult.LpStatus.FAILURE);
-
-        linearRaoResult.setErrorMessage("LP failed.");
-        assertEquals("LP failed.", linearRaoResult.getErrorMessage());
+        linearRaoResult.setErrorMessage("Sensitivity computation failed");
+        assertEquals("Sensitivity computation failed", linearRaoResult.getErrorMessage());
     }
 }

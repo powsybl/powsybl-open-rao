@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl.json;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
