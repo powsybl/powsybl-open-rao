@@ -52,6 +52,16 @@ public final class LinearRaoConfigurationUtil {
             errors.add("Loop flow parameters are inconsistent with CRAC loopflow extension");
         }
 
+        // loopflow violation cost should not be negative
+        if (raoParameters.getLoopflowViolationCost() < 0.0) {
+            errors.add("Loopflow violation cost should not be negative");
+        }
+
+        // loopflow violation cost should not be negative
+        if (raoParameters.getLoopflowConstraintAdjustmentCoefficient() < 0.0) {
+            errors.add("Loopflow constraint adjustment coefficient should not be negative");
+        }
+
         /*
          todo : check that the objective-function is compatible with the sensi mode. If the objective
           function is "MAX_MARGIN_IN_AMPERE" and the sensi is in DC mode, throw an exception
