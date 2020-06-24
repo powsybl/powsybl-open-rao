@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -24,8 +26,8 @@ public class UsageRuleSerializer<I extends UsageRule> extends JsonSerializer<I> 
 
     @Override
     public void serialize(I usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeObjectField("usageMethod", usageRule.getUsageMethod());
-        jsonGenerator.writeStringField("state", usageRule.getState().getId());
+        jsonGenerator.writeObjectField(USAGE_METHOD, usageRule.getUsageMethod());
+        jsonGenerator.writeStringField(STATE, usageRule.getState().getId());
     }
 
     @Override

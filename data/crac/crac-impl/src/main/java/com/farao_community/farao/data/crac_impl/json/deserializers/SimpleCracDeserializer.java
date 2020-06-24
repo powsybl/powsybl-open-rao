@@ -25,7 +25,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames.*;
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
