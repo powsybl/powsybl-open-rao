@@ -28,6 +28,8 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
     private Instant instant;
     private Contingency contingency;
     private double frm;
+    private boolean optimized;
+    private boolean monitored;
 
     public SimpleCnecAdder(SimpleCrac parent) {
         Objects.requireNonNull(parent);
@@ -71,6 +73,18 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
     }
 
     @Override
+    public CnecAdder setOptimized(boolean optimized) {
+        this.optimized = optimized;
+        return this;
+    }
+
+    @Override
+    public CnecAdder setMonitored(boolean monitored) {
+        this.monitored = monitored;
+        return this;
+    }
+
+    @Override
     public Cnec add() {
         checkId();
         if (this.networkElement == null) {
@@ -83,7 +97,7 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
             throw new FaraoException("Cannot add a cnec with no specified state instant. Please use setInstant.");
         }
         SimpleState state = new SimpleState((this.contingency != null) ? Optional.of(this.contingency) : Optional.empty(), this.instant);
-        SimpleCnec cnec = new SimpleCnec(this.id, this.name, networkElement, thresholds, state, frm);
+        SimpleCnec cnec = new SimpleCnec(this.id, this.name, networkElement, thresholds, state, frm, optimized, monitored);
         parent.addCnec(cnec);
         return cnec;
     }
