@@ -19,15 +19,17 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public class SimpleStateSerializer extends JsonSerializer<SimpleState> {
     @Override
     public void serialize(SimpleState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStringField("id", value.getId());
-        gen.writeStringField("contingency", value.getContingency().map(Identifiable::getId).orElse(null));
-        gen.writeStringField("instant", value.getInstant().getId());
+        gen.writeStringField(ID, value.getId());
+        gen.writeStringField(CONTINGENCY, value.getContingency().map(Identifiable::getId).orElse(null));
+        gen.writeStringField(INSTANT, value.getInstant().getId());
     }
 
     @Override
