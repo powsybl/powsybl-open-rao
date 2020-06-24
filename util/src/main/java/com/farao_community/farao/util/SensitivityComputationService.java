@@ -65,7 +65,7 @@ public final class SensitivityComputationService {
                                                                SensitivityFactorsProvider factorsProvider,
                                                                ContingenciesProvider contingenciesProvider,
                                                                SensitivityComputationParameters sensitivityComputationParameters) {
-        return runSensitivity(network, workingStateId, factorsProvider, contingenciesProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager());
+        return runSensitivity(network, workingStateId, factorsProvider, contingenciesProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
     }
 
     public static SensitivityComputationResults runSensitivity(Network network,

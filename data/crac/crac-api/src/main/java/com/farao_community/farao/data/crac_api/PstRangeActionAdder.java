@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.Unit;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */

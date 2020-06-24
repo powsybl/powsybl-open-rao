@@ -8,11 +8,11 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.commons.Unit;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.farao_community.farao.data.crac_api.Unit.KILOVOLT;
+import static com.farao_community.farao.commons.Unit.KILOVOLT;
 import static org.junit.Assert.*;
 
 /**

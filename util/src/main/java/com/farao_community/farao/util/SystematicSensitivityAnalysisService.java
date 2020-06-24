@@ -8,14 +8,11 @@ package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -29,9 +26,8 @@ public final class SystematicSensitivityAnalysisService {
 
     public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
                                                                   Crac crac,
-                                                                  ComputationManager computationManager,
                                                                   SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityComputationResults allStatesSensi = runSensitivityComputation(network, crac, computationManager, sensitivityComputationParameters);
+        SensitivityComputationResults allStatesSensi = runSensitivityComputation(network, crac, sensitivityComputationParameters);
 
         LOGGER.debug("Filling systematic analysis results [start]");
         SystematicSensitivityAnalysisResult results = new SystematicSensitivityAnalysisResult(allStatesSensi);
@@ -42,12 +38,11 @@ public final class SystematicSensitivityAnalysisService {
     private static SensitivityComputationResults runSensitivityComputation(
             Network network,
             Crac crac,
-            ComputationManager computationManager,
             SensitivityComputationParameters sensitivityComputationParameters) {
         SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac);
         ContingenciesProvider contingenciesProvider = new CracContingenciesProvider(crac);
         try {
-            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, contingenciesProvider, sensitivityComputationParameters, computationManager);
+            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, contingenciesProvider, sensitivityComputationParameters);
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             return null;

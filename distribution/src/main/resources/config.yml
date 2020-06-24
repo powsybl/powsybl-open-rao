@@ -63,16 +63,15 @@ rao:
 
 rao-parameters:
     rao-with-loop-flow-limitation: false
-    loopflow-approximation: true
-    loopflow-constraint-adjustment-coefficient: 0.0
-    loopflow-violation-cost: 0.0
+    loop-flow-approximation: true
+    loop-flow-constraint-adjustment-coefficient: 0.0
+    loop-flow-violation-cost: 0.0
+    max-number-of-iterations: 10
 
 linear-rao-parameters:
-    max-number-of-iterations: 10
     security-analysis-without-rao: false
 
 search-tree-rao-parameters:
-    range-action-rao : LinearRao
     stop-criterion : POSITIVE_MARGIN
     maximum-search-depth : 20
     relative-network-action-minimum-impact-threshold : 0

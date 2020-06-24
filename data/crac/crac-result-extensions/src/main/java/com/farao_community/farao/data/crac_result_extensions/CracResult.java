@@ -69,6 +69,10 @@ public class CracResult implements Result {
         this.virtualCost = virtualCost;
     }
 
+    public void addVirtualCost(double virtualCost) {
+        this.virtualCost += virtualCost;
+    }
+
     @JsonCreator
     public CracResult(@JsonProperty("networkSecurityStatus") NetworkSecurityStatus networkSecurityStatus,
                       @JsonProperty("functionalCost") double functionalCost,

@@ -1,0 +1,20 @@
+{
+  "version" : "1.0",
+  "rao-with-loop-flow-limitation" : false,
+  "extensions" : {
+    "SystematicSensitivityComputationParameters" : {
+      "unknown": "0.0",
+      "sensitivity-parameters" : {
+        "version" : "1.0",
+        "load-flow-parameters" : {
+          "version" : "1.2",
+          "voltageInitMode" : "UNIFORM_VALUES",
+          "transformerVoltageControlOn" : false,
+          "phaseShifterRegulationOn" : false,
+          "noGeneratorReactiveLimits" : false,
+          "twtSplitShuntAdmittance" : false
+        }
+      }
+    }
+  }
+}

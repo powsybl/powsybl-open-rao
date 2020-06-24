@@ -27,9 +27,23 @@ import static org.junit.Assert.assertTrue;
 public class JsonRaoParametersTest extends AbstractConverterTest {
 
     @Test
-    public void roundTrip() throws IOException {
+    public void roundTripDefault() throws IOException {
         RaoParameters parameters = new RaoParameters();
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters.json");
+    }
+
+    @Test
+    public void roundTripSet() throws IOException {
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        parameters.setMaxIterations(30);
+        parameters.setPstPenaltyCost(10);
+        parameters.setPstSensitivityThreshold(0.2);
+        parameters.setFallbackOverCost(10);
+        parameters.setRaoWithLoopFlowLimitation(true);
+        parameters.setLoopFlowApproximation(false);
+        parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 
     @Test

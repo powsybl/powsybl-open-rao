@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 
 import java.io.IOException;
 
@@ -25,16 +26,24 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
 
     @Override
     public void serialize(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-
         jsonGenerator.writeStartObject();
-
         jsonGenerator.writeStringField("version", RaoParameters.VERSION);
+        jsonGenerator.writeObjectField("objective-function", parameters.getObjectiveFunction());
+        jsonGenerator.writeNumberField("max-number-of-iterations", parameters.getMaxIterations());
+        jsonGenerator.writeNumberField("pst-penalty-cost", parameters.getPstPenaltyCost());
+        jsonGenerator.writeNumberField("pst-sensitivity-threshold", parameters.getPstSensitivityThreshold());
+        jsonGenerator.writeNumberField("sensitivity-fallback-over-cost", parameters.getFallbackOverCost());
         jsonGenerator.writeBooleanField("rao-with-loop-flow-limitation", parameters.isRaoWithLoopFlowLimitation());
-        jsonGenerator.writeBooleanField("loopflow-approximation", parameters.isLoopflowApproximation());
-        jsonGenerator.writeNumberField("loopflow-constraint-adjustment-coefficient", parameters.getLoopflowConstraintAdjustmentCoefficient());
-        jsonGenerator.writeNumberField("loopflow-violation-cost", parameters.getLoopflowViolationCost());
+        jsonGenerator.writeBooleanField("loop-flow-approximation", parameters.isLoopFlowApproximation());
+        jsonGenerator.writeNumberField("loop-flow-constraint-adjustment-coefficient", parameters.getLoopFlowConstraintAdjustmentCoefficient());
+        jsonGenerator.writeNumberField("loop-flow-violation-cost", parameters.getLoopFlowViolationCost());
+        jsonGenerator.writeFieldName("sensitivity-parameters");
+        JsonSensitivityComputationParameters.serialize(parameters.getDefaultSensitivityComputationParameters(), jsonGenerator, serializerProvider);
+        if (parameters.getFallbackSensitivityComputationParameters() != null) {
+            jsonGenerator.writeFieldName("fallback-sensitivity-parameters");
+            JsonSensitivityComputationParameters.serialize(parameters.getFallbackSensitivityComputationParameters(), jsonGenerator, serializerProvider);
+        }
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
-
         jsonGenerator.writeEndObject();
     }
 }

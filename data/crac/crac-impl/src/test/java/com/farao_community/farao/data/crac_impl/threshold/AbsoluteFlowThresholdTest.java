@@ -9,9 +9,9 @@
 package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
-import com.farao_community.farao.data.crac_api.Unit;
 import org.junit.Before;
 import org.junit.Test;
 

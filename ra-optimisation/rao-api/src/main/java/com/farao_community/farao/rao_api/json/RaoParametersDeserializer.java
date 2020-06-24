@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api.json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -13,6 +14,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -41,21 +44,51 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "version":
                     parser.nextToken();
                     break;
+                case "objective-function":
+                    parameters.setObjectiveFunction(stringToObjectiveFunction(parser.nextTextValue()));
+                    break;
+                case "max-number-of-iterations":
+                    parser.nextToken();
+                    parameters.setMaxIterations(parser.getIntValue());
+                    break;
+                case "pst-penalty-cost":
+                    parser.nextToken();
+                    parameters.setPstPenaltyCost(parser.getDoubleValue());
+                    break;
+                case "pst-sensitivity-threshold":
+                    parser.nextToken();
+                    parameters.setPstSensitivityThreshold(parser.getDoubleValue());
+                    break;
+                case "sensitivity-fallback-over-cost":
+                    parser.nextToken();
+                    parameters.setFallbackOverCost(parser.getDoubleValue());
+                    break;
                 case "rao-with-loop-flow-limitation":
                     parser.nextToken();
                     parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
                     break;
-                case "loopflow-approximation":
+                case "loop-flow-approximation":
                     parser.nextToken();
-                    parameters.setLoopflowApproximation(parser.getBooleanValue());
+                    parameters.setLoopFlowApproximation(parser.getBooleanValue());
                     break;
-                case "loopflow-constraint-adjustment-coefficient":
+                case "loop-flow-constraint-adjustment-coefficient":
                     parser.nextToken();
-                    parameters.setLoopflowConstraintAdjustmentCoefficient(parser.getDoubleValue());
+                    parameters.setLoopFlowConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
-                case "loopflow-violation-cost":
+                case "loop-flow-violation-cost":
                     parser.nextToken();
-                    parameters.setLoopflowViolationCost(parser.getDoubleValue());
+                    parameters.setLoopFlowViolationCost(parser.getDoubleValue());
+                    break;
+                case "sensitivity-parameters":
+                    parser.nextToken();
+                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());
+                    break;
+                case "fallback-sensitivity-parameters":
+                    parser.nextToken();
+                    if (parameters.getFallbackSensitivityComputationParameters() == null) {
+                        parameters.setFallbackSensitivityComputationParameters(new SensitivityComputationParameters());
+                    }
+                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityComputationParameters());
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -70,4 +103,11 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         return parameters;
     }
 
+    private RaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {
+        try {
+            return RaoParameters.ObjectiveFunction.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown objective function value : %s", string));
+        }
+    }
 }
