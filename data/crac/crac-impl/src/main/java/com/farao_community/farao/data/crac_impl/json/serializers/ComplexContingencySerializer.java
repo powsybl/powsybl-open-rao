@@ -19,15 +19,17 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class ComplexContingencySerializer extends JsonSerializer<ComplexContingency> {
     @Override
     public void serialize(ComplexContingency value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStringField("id", value.getId());
-        gen.writeStringField("name", value.getName());
-        gen.writeArrayFieldStart("networkElements");
+        gen.writeStringField(ID, value.getId());
+        gen.writeStringField(NAME, value.getName());
+        gen.writeArrayFieldStart(NETWORK_ELEMENTS);
         for (NetworkElement networkElement: value.getNetworkElements()) {
             gen.writeObject(networkElement.getId());
         }

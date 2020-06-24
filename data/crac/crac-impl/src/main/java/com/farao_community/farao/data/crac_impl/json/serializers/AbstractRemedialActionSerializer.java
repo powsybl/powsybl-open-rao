@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -26,7 +28,7 @@ public abstract class AbstractRemedialActionSerializer<I extends RemedialAction<
     @Override
     public void serialize(E remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         serializeCommon(remedialAction, jsonGenerator);
-        jsonGenerator.writeFieldName("networkElements");
+        jsonGenerator.writeFieldName(NETWORK_ELEMENTS);
         jsonGenerator.writeStartArray();
         for (NetworkElement networkElement: remedialAction.getNetworkElements()) {
             jsonGenerator.writeString(networkElement.getId());
@@ -43,10 +45,10 @@ public abstract class AbstractRemedialActionSerializer<I extends RemedialAction<
     }
 
     protected void serializeCommon(E remedialAction, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("id", remedialAction.getId());
-        jsonGenerator.writeStringField("name", remedialAction.getName());
-        jsonGenerator.writeStringField("operator", remedialAction.getOperator());
-        jsonGenerator.writeFieldName("usageRules");
+        jsonGenerator.writeStringField(ID, remedialAction.getId());
+        jsonGenerator.writeStringField(NAME, remedialAction.getName());
+        jsonGenerator.writeStringField(OPERATOR, remedialAction.getOperator());
+        jsonGenerator.writeFieldName(USAGE_RULES);
         jsonGenerator.writeStartArray();
         for (UsageRule usageRule: remedialAction.getUsageRules()) {
             jsonGenerator.writeObject(usageRule);

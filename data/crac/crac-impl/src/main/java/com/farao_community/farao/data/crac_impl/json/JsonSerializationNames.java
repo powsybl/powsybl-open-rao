@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *  Copyright (c) 2020, RTE (http://www.rte-france.com)
+ *  This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.json.deserializers;
+package com.farao_community.farao.data.crac_impl.json;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class DeserializerNames {
+public final class JsonSerializationNames {
 
-    private DeserializerNames() { }
+    private JsonSerializationNames() { }
 
     public static final String UNEXPECTED_FIELD = "Unexpected field: ";
 

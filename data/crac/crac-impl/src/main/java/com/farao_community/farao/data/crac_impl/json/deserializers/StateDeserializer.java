@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_impl.json.deserializers.DeserializerNames.*;
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
