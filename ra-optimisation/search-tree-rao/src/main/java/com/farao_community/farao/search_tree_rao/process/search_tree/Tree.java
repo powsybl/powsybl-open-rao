@@ -150,25 +150,24 @@ public final class Tree {
     private static void evaluateLeaves(Network network, Crac crac, String referenceNetworkVariant, RaoParameters parameters, List<Leaf> generatedLeaves) {
         SearchTreeRaoParameters searchTreeRaoParameters = parameters.getExtensionByName("SearchTreeRaoParameters");
         AtomicInteger remainingLeaves = new AtomicInteger(generatedLeaves.size());
-        FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel());
-        generatedLeaves.forEach(leaf -> {
-            networkPool.submit(() -> {
-                try {
-                    Network networkClone = networkPool.getAvailableNetwork();
-                    leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
-                    networkPool.releaseUsedNetwork(networkClone);
-                    LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, referenceNetworkVariant, searchTreeRaoParameters.getLeavesInParallel())) {
+            generatedLeaves.forEach(leaf -> {
+                networkPool.submit(() -> {
+                    try {
+                        Network networkClone = networkPool.getAvailableNetwork();
+                        leaf.evaluate(networkClone, crac, referenceNetworkVariant, parameters);
+                        networkPool.releaseUsedNetwork(networkClone);
+                        LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                });
             });
-        });
-        networkPool.shutdown();
-        try {
+            networkPool.shutdown();
             networkPool.awaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
-            LOGGER.error("Computation took too long ! The computation pool is going to be shut down.");
-            networkPool.shutdownNow();
+            LOGGER.error("A computation thread was interrupted");
+            Thread.currentThread().interrupt();
         }
     }
 

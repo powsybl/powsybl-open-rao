@@ -14,7 +14,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.farao_community.farao.flow_decomposition.FlowDecompositionParameters;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -57,13 +56,9 @@ public class JsonFlowDecompositionParametersTest extends AbstractConverterTest {
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
     }
 
-    @Test
-    public void readError() throws IOException {
-        try {
-            JsonFlowDecompositionParameters.read(getClass().getResourceAsStream("/FlowDecompositionParametersWithExtension.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
+    @Test(expected = AssertionError.class)
+    public void readError() {
+        JsonFlowDecompositionParameters.read(getClass().getResourceAsStream("/FlowDecompositionParametersWithExtension.json"));
     }
 
     static class DummyExtension extends AbstractExtension<FlowDecompositionParameters> {
