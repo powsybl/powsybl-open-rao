@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
@@ -133,20 +133,22 @@ public class SearchTreeRao implements RaoProvider {
         Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
         LOGGER.debug(format("Evaluating %d leaves in parallel", searchTreeRaoParameters.getLeavesInParallel()));
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), searchTreeRaoParameters.getLeavesInParallel())) {
-            networkPool.submit(() -> networkActions.parallelStream().forEach(networkAction -> {
-                try {
-                    Network networkClone = networkPool.getAvailableNetwork();
-                    optimizeNextLeafAndUpdate(networkAction, networkClone);
-                    networkPool.releaseUsedNetwork(networkClone);
-                    LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            })).get();
+            networkActions.forEach(networkAction ->
+                    networkPool.submit(() -> {
+                        try {
+                            Network networkClone = networkPool.getAvailableNetwork();
+                            optimizeNextLeafAndUpdate(networkAction, networkClone);
+                            networkPool.releaseUsedNetwork(networkClone);
+                            LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }));
+            networkPool.shutdown();
+            networkPool.awaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
+            LOGGER.error("A computation thread was interrupted");
             Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            throw new FaraoException(e);
         }
     }
 
@@ -209,8 +211,8 @@ public class SearchTreeRao implements RaoProvider {
         double newCost = leaf.getBestCost();
 
         return newCost < currentBestCost
-            && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
-            && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
+                && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
+                && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
     private RaoResult buildOutput() {
