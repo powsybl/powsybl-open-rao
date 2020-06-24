@@ -32,6 +32,8 @@ public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
         jsonGenerator.writeStringField("networkElement", cnec.getNetworkElement().getId());
         jsonGenerator.writeObjectField("state", cnec.getState().getId());
         jsonGenerator.writeObjectField("frm", cnec.getFrm());
+        jsonGenerator.writeObjectField("optimized", cnec.isOptimized());
+        jsonGenerator.writeObjectField("monitored", cnec.isMonitored());
 
         jsonGenerator.writeFieldName("thresholds");
         jsonGenerator.writeStartArray();

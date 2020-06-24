@@ -99,4 +99,18 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      */
     double getP(Network network);
 
+    /**
+     * Returns if the margin of the branch should be "maximized" (optimized), in case it is the most limiting one.
+     *
+     * @return True if the branch is optimized.
+     */
+    boolean isOptimized();
+
+    /**
+     * Returns if the margin of the branch should stay positive (or above its initial value).
+     *
+     * @return True if the branch is monitored.
+     */
+    boolean isMonitored();
+
 }

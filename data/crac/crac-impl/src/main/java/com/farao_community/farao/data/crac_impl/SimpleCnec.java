@@ -35,12 +35,15 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private State state;
     private boolean isSynchronized;
     private double frm;
+    private boolean optimized;
+    private boolean monitored;
 
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
                       @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
-                      @JsonProperty("frm") double frm) {
+                      @JsonProperty("frm") double frm, @JsonProperty("optimized") boolean optimized,
+                      @JsonProperty("monitored") boolean monitored) {
         super(id, name);
 
         this.networkElement = networkElement;
@@ -50,6 +53,15 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         this.state = state;
         isSynchronized = false;
         this.frm = frm;
+        this.optimized = optimized;
+        this.monitored = monitored;
+    }
+
+    public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
+                      @JsonProperty("networkElement") NetworkElement networkElement,
+                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
+                      @JsonProperty("frm") double frm) {
+        this(id, name, networkElement, thresholds, state, frm, true, false);
     }
 
     public SimpleCnec(String id, String name,
@@ -161,6 +173,16 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     @Override
+    public boolean isOptimized() {
+        return optimized;
+    }
+
+    @Override
+    public boolean isMonitored() {
+        return monitored;
+    }
+
+    @Override
     public void synchronize(Network network) {
         thresholds.forEach(threshold -> threshold.synchronize(network));
         isSynchronized = true;
@@ -183,6 +205,10 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     public Cnec copy(NetworkElement networkElement, State state, double frm) {
         return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm);
+    }
+
+    public Cnec copy(NetworkElement networkElement, State state, double frm, boolean optimized, boolean monitored) {
+        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm, optimized, monitored);
     }
 
     @Override
@@ -213,5 +239,13 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     public void setFrm(double frm) {
         this.frm = frm;
+    }
+
+    public void setOptimized(boolean optimized) {
+        this.optimized = optimized;
+    }
+
+    public void setMonitored(boolean monitored) {
+        this.monitored = monitored;
     }
 }

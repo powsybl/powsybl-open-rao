@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import static com.farao_community.farao.data.crac_impl.json.RoundTripUtil.roundTrip;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -64,8 +65,8 @@ public class CracImportExportTest {
         AbsoluteFlowThreshold absoluteFlowThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500.0);
         Set<AbstractThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(absoluteFlowThreshold);
-        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw);
-        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0);
+        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw, false, true);
+        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0, true, true);
 
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
@@ -133,5 +134,7 @@ public class CracImportExportTest {
         assertEquals(2, crac.getNetworkActions().size());
         assertTrue(crac.getCnec("cnec4prevId").getMaxThreshold(Unit.MEGAWATT).get()
                 > crac.getCnec("cnec3prevId").getMaxThreshold(Unit.MEGAWATT).get());
+        assertFalse(crac.getCnec("cnec3prevId").isOptimized());
+        assertTrue(crac.getCnec("cnec4prevId").isMonitored());
     }
 }

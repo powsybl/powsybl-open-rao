@@ -53,6 +53,20 @@ public interface CnecAdder extends NetworkElementParent<CnecAdder> {
      */
     CnecAdder setFrm(double frm);
 
+    /***
+     * Set at true if the branch is optimized
+     * @param optimized: is the branch optimized?
+     * @return the {@code CnecAdder} instance
+     */
+    CnecAdder setOptimized(boolean optimized);
+
+    /***
+     * Set at true if the branch is monitored
+     * @param monitored: is the branch optimized?
+     * @return the {@code CnecAdder} instance
+     */
+    CnecAdder setMonitored(boolean monitored);
+
     /**
      * Add the new Cnec to the Crac
      * @return the created {@code Cnec} instance
