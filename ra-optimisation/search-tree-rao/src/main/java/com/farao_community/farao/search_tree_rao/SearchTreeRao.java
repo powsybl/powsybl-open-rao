@@ -9,6 +9,8 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -26,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -92,6 +95,13 @@ public class SearchTreeRao implements RaoProvider {
         }
         rootLeaf.optimize();
         LOGGER.info(rootLeaf.toString());
+        String rangeActionMsg = optimalLeaf.getRaoData().getCrac().getRangeActions().stream()
+            .map(rangeAction -> format("%s: %d", rangeAction.getName(),
+                ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
+                    .getVariant(optimalLeaf.getRaoData().getWorkingVariantId()))
+                    .getTap(optimalLeaf.getRaoData().getCrac().getPreventiveState().getId())))
+            .collect(Collectors.joining(", "));
+        LOGGER.info(format("Range action(s): %s", rangeActionMsg));
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
@@ -115,6 +125,13 @@ public class SearchTreeRao implements RaoProvider {
                 previousDepthOptimalLeaf.clearVariants();
             }
             LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));
+            String rangeActionMsg = optimalLeaf.getRaoData().getCrac().getRangeActions().stream()
+                .map(rangeAction -> format("%s: %d", rangeAction.getName(),
+                    ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
+                        .getVariant(optimalLeaf.getRaoData().getWorkingVariantId()))
+                        .getTap(optimalLeaf.getRaoData().getCrac().getPreventiveState().getId())))
+                .collect(Collectors.joining(", "));
+            LOGGER.info(format("Optimal leaf - Range action(s): %s", rangeActionMsg));
             depth += 1;
         }
     }

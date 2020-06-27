@@ -75,9 +75,9 @@ public class CneExport implements CracExporter {
 
             String result = stringWriter.toString().replace("xsi:" + CNE_TAG, CNE_TAG);
 
-            if (!validateCNESchema(result)) {
+            /*if (!validateCNESchema(result)) {
                 LOGGER.warn("CNE output doesn't fit the xsd.");
-            }
+            }*/
 
             outputStream.write(result.getBytes());
 
