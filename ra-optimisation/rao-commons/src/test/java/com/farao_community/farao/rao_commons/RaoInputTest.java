@@ -139,4 +139,35 @@ public class RaoInputTest {
         }
         assertEquals(6, removedCount);
     }
+
+    @Test
+    public void testRemoveUnmonitoredCnecs() {
+        CracFactory factory = CracFactory.find("SimpleCracFactory");
+        Crac crac = factory.create("test-crac");
+        Instant inst = crac.newInstant().setId("inst1").setSeconds(10).add();
+        crac.newCnec().setId("BBE1AA1  BBE2AA1  1").setOptimized(true).setMonitored(true)
+                .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
+                .setInstant(inst)
+                .add();
+        crac.newCnec().setId("BBE1AA1  BBE3AA1  1").setOptimized(true).setMonitored(false)
+                .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
+                .setInstant(inst)
+                .add();
+        crac.newCnec().setId("FFR1AA1  FFR2AA1  1").setOptimized(false).setMonitored(true)
+                .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
+                .setInstant(inst)
+                .add();
+        crac.newCnec().setId("FFR1AA1  FFR3AA1  1").setOptimized(false).setMonitored(false)
+                .newNetworkElement().setId("FFR1AA1  FFR3AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
+                .setInstant(inst)
+                .add();
+        List<String> qualityReport = RaoInput.cleanCrac(crac, network);
+        assertEquals(1, qualityReport.size());
+        assertEquals(3, crac.getCnecs().size());
+        assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
+    }
 }
