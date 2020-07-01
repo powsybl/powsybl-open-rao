@@ -42,6 +42,11 @@
             <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${powsybl.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-ucte-util</artifactId>
+            <version>${powsybl.core.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

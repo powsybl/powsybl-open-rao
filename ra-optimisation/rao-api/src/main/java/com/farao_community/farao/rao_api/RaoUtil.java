@@ -22,6 +22,8 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
+import com.powsybl.ucte.util.UcteAliasesCreation;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ public final class RaoUtil {
 
     public static RaoData initRaoData(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
         network.getVariantManager().setWorkingVariant(variantId);
+        UcteAliasesCreation.createAliases(network);
         RaoInput.cleanCrac(crac, network);
         RaoInput.synchronize(crac, network);
         RaoData raoData = new RaoData(network, crac);
