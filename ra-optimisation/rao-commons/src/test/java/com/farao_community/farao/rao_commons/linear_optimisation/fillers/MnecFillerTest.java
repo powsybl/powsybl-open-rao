@@ -27,7 +27,6 @@ public class MnecFillerTest extends AbstractFillerTest {
     private double mnec2MaxFlow = 0; // TO DO
     private double mnec2MinFlow = 0; // TO DO
 
-
     @Before
     public void setUp() {
         init();
