@@ -70,7 +70,8 @@
         "direction": "BOTH",
         "maxValue": 750
       } ],
-      "state": "N-1 NL1-NL3-Défaut"
+      "state": "N-1 NL1-NL3-Défaut",
+      "optimized": true
     },
     {
       "type": "simple-cnec",
@@ -84,7 +85,8 @@
         "direction": "BOTH",
         "maxValue": 750
       } ],
-      "state": "none-N"
+      "state": "none-N",
+      "optimized": true
     }
   ],
   "rangeActions": [

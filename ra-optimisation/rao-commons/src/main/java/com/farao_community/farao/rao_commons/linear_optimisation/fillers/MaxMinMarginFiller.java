@@ -89,7 +89,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
     private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().forEach(cnec -> {
+        raoData.getCrac().getCnecs().stream().filter(cnec -> cnec.isOptimized()).forEach(cnec -> {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
