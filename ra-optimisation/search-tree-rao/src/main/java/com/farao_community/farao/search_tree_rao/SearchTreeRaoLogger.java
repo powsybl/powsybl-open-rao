@@ -12,10 +12,13 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -26,6 +29,25 @@ final class SearchTreeRaoLogger {
     private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
 
     private SearchTreeRaoLogger() { }
+
+    static void logRangeActions(Leaf leaf) {
+        logRangeActions(leaf, "");
+    }
+
+    static void logRangeActions(Leaf leaf, String prefix) {
+        StringBuilder rangeActionMsg = new StringBuilder();
+        if (prefix != null) {
+            rangeActionMsg.append(prefix).append(" - ");
+        }
+        rangeActionMsg.append("Range action(s): ");
+        rangeActionMsg.append(leaf.getRaoData().getCrac().getRangeActions().stream()
+            .map(rangeAction -> format("%s: %d", rangeAction.getName(),
+                ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
+                    .getVariant(leaf.getRaoData().getWorkingVariantId()))
+                    .getTap(leaf.getRaoData().getCrac().getPreventiveState().getId())))
+            .collect(Collectors.joining(", ")));
+        SearchTreeRao.LOGGER.info(rangeActionMsg.toString());
+    }
 
     static void logMostLimitingElementsResults(Leaf leaf, Crac crac, Unit unit) {
         List<Cnec> sortedCnecs = new ArrayList<>(crac.getCnecs());
