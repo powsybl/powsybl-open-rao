@@ -109,7 +109,7 @@ public class SearchTreeRao implements RaoProvider {
         iterateOnTree();
 
         //TODO: refactor output format
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, crac);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, crac, raoParameters.getObjectiveFunction().getUnit());
         return CompletableFuture.completedFuture(buildOutput());
     }
 
