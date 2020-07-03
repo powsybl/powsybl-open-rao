@@ -6,7 +6,8 @@
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
     "noGeneratorReactiveLimits" : false,
-    "twtSplitShuntAdmittance" : false
+    "twtSplitShuntAdmittance" : false,
+    "simulShunt" : false
   },
   "sensitivity-parameters" : {
     "version" : "1.0",
@@ -16,7 +17,8 @@
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
       "noGeneratorReactiveLimits" : false,
-      "twtSplitShuntAdmittance" : false
+      "twtSplitShuntAdmittance" : false,
+      "simulShunt" : false
     }
   },
   "extensions" : {
