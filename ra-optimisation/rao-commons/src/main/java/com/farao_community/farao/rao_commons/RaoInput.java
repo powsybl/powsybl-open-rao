@@ -44,9 +44,19 @@ public final class RaoInput {
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
             }
         });
+        absentFromNetworkCnecs.forEach(cnec -> crac.getCnecs().remove(cnec));
+
+        // remove Cnecs that are neither optimized nor monitored
+        ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
+        crac.getCnecs().forEach(cnec -> {
+            if (!cnec.isOptimized() && !cnec.isMonitored()) {
+                unmonitoredCnecs.add(cnec);
+                report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
+            }
+        });
+        unmonitoredCnecs.forEach(cnec -> crac.getCnecs().remove(cnec));
 
         // remove RangeAction whose NetworkElement is absent from the network
-        absentFromNetworkCnecs.forEach(cnec -> crac.getCnecs().remove(cnec));
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
         for (RangeAction rangeAction: crac.getRangeActions()) {
             rangeAction.getNetworkElements().forEach(networkElement -> {
