@@ -31,7 +31,7 @@ final class SearchTreeRaoLogger {
     private SearchTreeRaoLogger() { }
 
     static void logRangeActions(Leaf leaf) {
-        logRangeActions(leaf, "");
+        logRangeActions(leaf, null);
     }
 
     static void logRangeActions(Leaf leaf, String prefix) {
