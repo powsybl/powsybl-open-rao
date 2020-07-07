@@ -162,8 +162,8 @@ class Leaf {
                 systematicSensitivityComputation.run(raoData, raoParameters.getObjectiveFunction().getUnit());
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
                     RaoUtil.createCostEvaluator(raoParameters).getCost(raoData),
-                    systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0,
-                    raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+                        (systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0)
+                        + RaoUtil.createVirtualCostEvaluator(raoParameters).getCost(raoData));
                 if (raoParameters.isRaoWithLoopFlowLimitation()) {
                     Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, raoParameters.isLoopFlowApproximation());
                     raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, raoParameters.getLoopFlowViolationCost());

@@ -15,14 +15,10 @@ import static java.lang.Math.max;
 public class IteratingLinearOptimizerParameters {
     private int maxIterations;
     private double fallbackOverCost;
-    private double mnecAcceptableMarginDiminution;
-    private double mnecViolationCost;
 
-    public IteratingLinearOptimizerParameters(int maxIterations, double fallbackOverCost, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
+    public IteratingLinearOptimizerParameters(int maxIterations, double fallbackOverCost) {
         this.maxIterations = maxIterations;
         this.fallbackOverCost = fallbackOverCost;
-        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-        this.mnecViolationCost = mnecViolationCost;
     }
 
     public int getMaxIterations() {
@@ -39,21 +35,5 @@ public class IteratingLinearOptimizerParameters {
 
     public void setFallbackOverCost(double fallbackOverCost) {
         this.fallbackOverCost = fallbackOverCost;
-    }
-
-    public double getMnecAcceptableMarginDiminution() {
-        return mnecAcceptableMarginDiminution;
-    }
-
-    public void setMnecAcceptableMarginDiminution(double mnecAcceptableMarginDiminution) {
-        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-    }
-
-    public double getMnecViolationCost() {
-        return mnecViolationCost;
-    }
-
-    public void setMnecViolationCost(double mnecViolationCost) {
-        this.mnecViolationCost = mnecViolationCost;
     }
 }

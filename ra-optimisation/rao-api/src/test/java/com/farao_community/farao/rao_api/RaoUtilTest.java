@@ -32,8 +32,8 @@ public class RaoUtilTest {
         SystematicSensitivityComputation systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
-        assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(AMPERE, optimizer.getCostEvaluator().getUnit());
+        assertTrue(optimizer.getFunctionalCostEvaluator() instanceof MinMarginEvaluator);
+        assertEquals(AMPERE, optimizer.getFunctionalCostEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
@@ -46,8 +46,8 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
         assertTrue(optimizer instanceof IteratingLinearOptimizerWithLoopFlows);
-        assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(MEGAWATT, optimizer.getCostEvaluator().getUnit());
+        assertTrue(optimizer.getFunctionalCostEvaluator() instanceof MinMarginEvaluator);
+        assertEquals(MEGAWATT, optimizer.getFunctionalCostEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }

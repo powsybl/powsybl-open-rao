@@ -14,13 +14,11 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
@@ -29,7 +27,6 @@ import static org.junit.Assert.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class})
 public class MnecFillerTest extends AbstractFillerTest {
 
     private MnecFiller mnecFiller;
@@ -136,7 +133,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         fillProblemWithFiller();
         crac.getCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
             MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
-            assertEquals(linearProblem.getObjective().getCoefficient(mnecViolationVariable), 10.0, DOUBLE_TOLERANCE);
+            assertEquals(10.0, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         });
     }
 

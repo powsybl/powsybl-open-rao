@@ -47,6 +47,7 @@ public class IteratingLinearOptimizerTest {
     private SystematicSensitivityComputation systematicSensitivityComputation;
     private LinearOptimizer linearOptimizer;
     private CostEvaluator costEvaluator;
+    private CostEvaluator virtualCostEvaluator;
     private Crac crac;
     private RaoData raoData;
     private List<String> workingVariants;
@@ -65,7 +66,7 @@ public class IteratingLinearOptimizerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         raoData = new RaoData(network, crac);
-        parameters = new IteratingLinearOptimizerParameters(10, 0, 50, 10);
+        parameters = new IteratingLinearOptimizerParameters(10, 0);
 
         workingVariants = new ArrayList<>();
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
@@ -133,6 +134,9 @@ public class IteratingLinearOptimizerTest {
 
         costEvaluator = Mockito.mock(CostEvaluator.class);
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
+
+        virtualCostEvaluator = Mockito.mock(CostEvaluator.class);
+        Mockito.when(virtualCostEvaluator.getCost(raoData)).thenReturn(0.);
     }
 
     @Test
@@ -142,13 +146,14 @@ public class IteratingLinearOptimizerTest {
         RaoData spiedRaoData = Mockito.spy(raoData);
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
 
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             costEvaluator,
+            virtualCostEvaluator,
             linearOptimizer,
             parameters).optimize(spiedRaoData);
 
@@ -177,13 +182,14 @@ public class IteratingLinearOptimizerTest {
         RaoData spiedRaoData = Mockito.spy(raoData);
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
 
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             costEvaluator,
+            virtualCostEvaluator,
             linearOptimizer,
             parameters).optimize(spiedRaoData);
 

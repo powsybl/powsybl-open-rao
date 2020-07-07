@@ -88,9 +88,9 @@ public class MnecFiller implements ProblemFiller {
     }
 
     public void fillObjectiveWithMnecPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec -> {
-            linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost);
-        });
+        raoData.getCrac().getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
+            linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost)
+        );
     }
 
     @Override

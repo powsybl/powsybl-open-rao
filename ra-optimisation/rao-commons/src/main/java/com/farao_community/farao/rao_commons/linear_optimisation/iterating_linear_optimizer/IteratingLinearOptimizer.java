@@ -41,30 +41,34 @@ public class IteratingLinearOptimizer {
     protected RaoData raoData;
     protected String bestVariantId;
     protected SystematicSensitivityComputation systematicSensitivityComputation;
-    protected CostEvaluator costEvaluator;
+    protected CostEvaluator functionalCostEvaluator;
+    protected CostEvaluator virtualCostEvaluator;
     protected LinearOptimizer linearOptimizer;
     protected IteratingLinearOptimizerParameters parameters;
 
     public IteratingLinearOptimizer(List<ProblemFiller> fillers,
                                     SystematicSensitivityComputation systematicSensitivityComputation,
-                                    CostEvaluator costEvaluator,
+                                    CostEvaluator functionalCostEvaluator,
+                                    CostEvaluator virtualCostEvaluator,
                                     IteratingLinearOptimizerParameters parameters) {
-        this(systematicSensitivityComputation, costEvaluator, new LinearOptimizer(fillers), parameters);
+        this(systematicSensitivityComputation, functionalCostEvaluator, virtualCostEvaluator, new LinearOptimizer(fillers), parameters);
     }
 
     // Method for tests
     IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
-                             CostEvaluator costEvaluator,
+                             CostEvaluator functionalCostEvaluator,
+                             CostEvaluator virtualCostEvaluator,
                              LinearOptimizer linearOptimizer,
                              IteratingLinearOptimizerParameters parameters) {
         this.systematicSensitivityComputation = systematicSensitivityComputation;
-        this.costEvaluator = costEvaluator;
+        this.functionalCostEvaluator = functionalCostEvaluator;
+        this.virtualCostEvaluator = virtualCostEvaluator;
         this.linearOptimizer = linearOptimizer;
         this.parameters = parameters;
     }
 
-    public CostEvaluator getCostEvaluator() {
-        return costEvaluator;
+    public CostEvaluator getFunctionalCostEvaluator() {
+        return functionalCostEvaluator;
     }
 
     public IteratingLinearOptimizerParameters getParameters() {
@@ -140,11 +144,11 @@ public class IteratingLinearOptimizer {
         CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
         if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
             LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(),
-                costEvaluator.getUnit(), optimizedVariantResult.getCost()));
+                functionalCostEvaluator.getUnit(), optimizedVariantResult.getCost()));
             return true;
         } else { // unexpected behaviour, stop the search
             LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
-                -optimizedVariantResult.getFunctionalCost(), costEvaluator.getUnit(), bestVariantResult.getCost(),
+                -optimizedVariantResult.getFunctionalCost(), functionalCostEvaluator.getUnit(), bestVariantResult.getCost(),
                 optimizedVariantResult.getCost()));
             return false;
         }
@@ -167,9 +171,9 @@ public class IteratingLinearOptimizer {
     }
 
     void runSensitivityAndUpdateResults() {
-        systematicSensitivityComputation.run(raoData, costEvaluator.getUnit());
-        raoData.getRaoDataManager().fillCracResultsWithSensis(costEvaluator.getCost(raoData),
-            systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0,
-                parameters.getMnecAcceptableMarginDiminution(), parameters.getMnecViolationCost());
+        systematicSensitivityComputation.run(raoData, functionalCostEvaluator.getUnit());
+        raoData.getRaoDataManager().fillCracResultsWithSensis(functionalCostEvaluator.getCost(raoData),
+                (systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0)
+                + virtualCostEvaluator.getCost(raoData));
     }
 }

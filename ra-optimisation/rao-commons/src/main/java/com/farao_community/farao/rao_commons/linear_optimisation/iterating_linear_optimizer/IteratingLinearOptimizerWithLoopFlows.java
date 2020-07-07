@@ -29,9 +29,10 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
                                                  SystematicSensitivityComputation systematicSensitivityComputation,
-                                                 CostEvaluator costEvaluator,
+                                                 CostEvaluator functionalCostEvaluator,
+                                                 CostEvaluator virtualCostEvaluator,
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
-        super(fillers, systematicSensitivityComputation, costEvaluator, parameters);
+        super(fillers, systematicSensitivityComputation, functionalCostEvaluator, virtualCostEvaluator, parameters);
         loopFlowApproximation = parameters.isLoopflowApproximation();
         loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);
