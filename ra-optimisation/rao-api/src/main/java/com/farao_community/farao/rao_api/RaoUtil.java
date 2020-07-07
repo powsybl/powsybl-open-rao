@@ -11,10 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFLowsParameters;
@@ -53,6 +50,7 @@ public final class RaoUtil {
         if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
             || raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
+            fillers.add(new MnecFiller(raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillers.add(createMaxLoopFlowFiller(raoParameters));
@@ -70,12 +68,14 @@ public final class RaoUtil {
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
-        return new IteratingLinearOptimizerParameters(raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
+        return new IteratingLinearOptimizerParameters(raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost(),
+                raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
     }
 
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-            raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
+            raoParameters.getFallbackOverCost(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(),
+            raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
     }
 
     public static CostEvaluator createCostEvaluator(RaoParameters raoParameters) {

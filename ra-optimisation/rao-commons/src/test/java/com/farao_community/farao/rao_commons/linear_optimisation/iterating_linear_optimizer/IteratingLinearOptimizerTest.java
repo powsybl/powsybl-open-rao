@@ -65,7 +65,7 @@ public class IteratingLinearOptimizerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         raoData = new RaoData(network, crac);
-        parameters = new IteratingLinearOptimizerParameters(10, 0);
+        parameters = new IteratingLinearOptimizerParameters(10, 0, 50, 10);
 
         workingVariants = new ArrayList<>();
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
@@ -142,7 +142,7 @@ public class IteratingLinearOptimizerTest {
         RaoData spiedRaoData = Mockito.spy(raoData);
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble(), anyDouble(), anyDouble());
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
 
         // run an iterating optimization
@@ -177,7 +177,7 @@ public class IteratingLinearOptimizerTest {
         RaoData spiedRaoData = Mockito.spy(raoData);
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(spiedRaoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble(), anyDouble(), anyDouble());
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
 
         // run an iterating optimization

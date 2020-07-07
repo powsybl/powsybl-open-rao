@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -120,12 +121,26 @@ public class RaoDataManager {
      * Add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    public void fillCracResultsWithSensis(double cost, double overCost) {
+    public void fillCracResultsWithSensis(double cost, double overCost, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
         raoData.getCracResult().setFunctionalCost(-cost);
-        raoData.getCracResult().addVirtualCost(overCost);
+        raoData.getCracResult().addVirtualCost(overCost + mnecViolationCost * computeMnecViolation(mnecAcceptableMarginDiminution));
         raoData.getCracResult().setNetworkSecurityStatus(cost < 0 ?
             CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
         updateCnecExtensions();
+    }
+
+    private double computeMnecViolation(double mnecAcceptableMarginDiminution) {
+        double totalMnecMarginViolation = 0;
+        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
+        for (Cnec cnec : raoData.getCrac().getCnecs()) {
+            if (cnec.isMonitored()) {
+                double initialFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW();
+                double initialMargin = cnec.computeMargin(initialFlow, Unit.MEGAWATT);
+                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), Unit.MEGAWATT);
+                totalMnecMarginViolation += Math.max(0, newMargin - Math.max(0, initialMargin - mnecAcceptableMarginDiminution));
+            }
+        }
+        return totalMnecMarginViolation;
     }
 
     public void fillCracResultsWithLoopFlowConstraints(Map<String, Double> loopFlows, Map<Cnec, Double> loopFlowShifts) {

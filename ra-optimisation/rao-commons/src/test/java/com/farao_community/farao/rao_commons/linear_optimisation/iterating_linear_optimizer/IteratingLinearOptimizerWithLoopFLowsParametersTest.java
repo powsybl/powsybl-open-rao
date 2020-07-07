@@ -19,7 +19,7 @@ public class IteratingLinearOptimizerWithLoopFLowsParametersTest {
     @Test
     public void isLoopflowApproximation() {
         IteratingLinearOptimizerWithLoopFLowsParameters parameters =
-            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, false, 1.0);
+            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, 50, 10, false, 1.0);
         assertFalse(parameters.isLoopflowApproximation());
         assertEquals(1.0, parameters.getLoopFlowViolationCost(), 0.1);
     }
@@ -27,7 +27,7 @@ public class IteratingLinearOptimizerWithLoopFLowsParametersTest {
     @Test
     public void setLoopFlowApproximation() {
         IteratingLinearOptimizerWithLoopFLowsParameters parameters =
-            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, false, 1.0);
+            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, 50, 10, false, 1.0);
         parameters.setLoopFlowApproximation(true);
         parameters.setLoopFlowViolationCost(10.0);
         assertTrue(parameters.isLoopflowApproximation());

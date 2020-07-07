@@ -169,6 +169,7 @@ public class IteratingLinearOptimizer {
     void runSensitivityAndUpdateResults() {
         systematicSensitivityComputation.run(raoData, costEvaluator.getUnit());
         raoData.getRaoDataManager().fillCracResultsWithSensis(costEvaluator.getCost(raoData),
-            systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0);
+            systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0,
+                parameters.getMnecAcceptableMarginDiminution(), parameters.getMnecViolationCost());
     }
 }

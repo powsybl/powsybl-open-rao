@@ -71,4 +71,9 @@ public class RaoDataManagerTest {
         raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopflows, 0.0);
         assertEquals(1000000.0, raoData.getCracResult().getVirtualCost(), 0.1);
     }
+
+    @Test
+    public void testAddMnecPenaltyCost() {
+        // TO DO
+    }
 }
