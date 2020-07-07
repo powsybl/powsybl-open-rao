@@ -50,7 +50,8 @@ final class SearchTreeRaoLogger {
                     .append(format("%s: %d", rangeActionName, rangeActionTap))
                     .append(" , ");
         }
-        SearchTreeRao.LOGGER.info(rangeActionMsg.toString());
+        String rangeActionsLog = rangeActionMsg.toString();
+        SearchTreeRao.LOGGER.info(rangeActionsLog);
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Crac crac, Unit unit) {
@@ -63,12 +64,12 @@ final class SearchTreeRaoLogger {
             String cnecStateId = cnec.getState().getId();
             leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
             double margin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit);
-            SearchTreeRao.LOGGER.info(format("Limiting element #%d: element %s at state %s with a margin of %.2f %s",
+            SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a margin of %.2f {}",
                 i + 1,
                 cnecNetworkElementName,
                 cnecStateId,
                 margin,
-                unit));
+                unit);
         }
     }
 
