@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -63,8 +64,8 @@ final class SearchTreeRaoLogger {
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
-            double margin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit);
-            SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a margin of %.2f {}",
+            String margin = new DecimalFormat("#0.00").format(computeCnecMargin(cnec, leaf.getBestVariantId(), unit));
+            SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a margin of {} {}",
                 i + 1,
                 cnecNetworkElementName,
                 cnecStateId,
