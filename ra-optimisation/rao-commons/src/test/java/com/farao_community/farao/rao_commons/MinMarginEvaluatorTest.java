@@ -9,6 +9,8 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Direction;
+import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
@@ -29,11 +31,12 @@ public class MinMarginEvaluatorTest {
     private Crac crac;
     private RaoData raoData;
     private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+    Network network;
 
     @Before
     public void setUp() {
         crac = CommonCracCreation.create();
-        Network network = NetworkImportsUtil.import12NodesNetwork();
+        network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         raoData = new RaoData(network, crac);
 
@@ -77,5 +80,29 @@ public class MinMarginEvaluatorTest {
             .thenReturn(10.);
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
         assertEquals(1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testIgnoreMnecs() {
+        crac.newCnec().setId("mnec1basecase")
+                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
+                .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(300.).setUnit(Unit.MEGAWATT).add()
+                .setOptimized(false).setMonitored(true)
+                .setInstant(crac.getInstant("initial"))
+                .add();
+
+        crac.desynchronize();
+        RaoInput.synchronize(crac, network);
+
+        Mockito.when(systematicSensitivityAnalysisResult.getReferenceFlow(crac.getCnec("mnec1basecase")))
+                .thenReturn(200.);
+        Mockito.when(systematicSensitivityAnalysisResult.getReferenceIntensity(crac.getCnec("mnec1basecase")))
+                .thenReturn(60.);
+
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT);
+        assertEquals(787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+
+        minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
+        assertEquals(1196, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 }
