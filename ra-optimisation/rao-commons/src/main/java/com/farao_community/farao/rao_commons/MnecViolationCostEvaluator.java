@@ -51,8 +51,15 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             if (cnec.isMonitored()) {
                 double initialFlow = (unit == MEGAWATT) ? cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW()
                         : cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInA();
+                if (Double.isNaN(initialFlow)) {
+                    // Sensitivity results are not available, skip cnec
+                    // (happens on search tree rao rootleaf evaluation)
+                    continue;
+                }
                 double initialMargin = cnec.computeMargin(initialFlow, unit);
-                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), unit);
+                double newFlow = (unit == MEGAWATT) ? raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec) :
+                        raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec);
+                double newMargin = cnec.computeMargin(newFlow, unit);
                 double convertedAcceptableMarginDiminution = mnecAcceptableMarginDiminution / getUnitConversionCoefficient(cnec, raoData);
                 totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - convertedAcceptableMarginDiminution) - newMargin);
             }

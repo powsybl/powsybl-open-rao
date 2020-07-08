@@ -69,10 +69,11 @@ public class MnecViolationCostEvaluatorTest {
     private void testCost(double initFlow, double newFlow, MnecViolationCostEvaluator evaluator, double expectedCost) {
         if (unit == Unit.MEGAWATT) {
             mnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInMW(initFlow);
+            Mockito.when(sensiResult.getReferenceFlow(mnec)).thenReturn(newFlow);
         } else {
             mnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInA(initFlow);
+            Mockito.when(sensiResult.getReferenceIntensity(mnec)).thenReturn(newFlow);
         }
-        Mockito.when(sensiResult.getReferenceFlow(mnec)).thenReturn(newFlow);
         assertEquals(expectedCost, evaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
