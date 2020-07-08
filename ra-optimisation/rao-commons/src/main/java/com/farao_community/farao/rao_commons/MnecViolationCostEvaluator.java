@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import org.apache.commons.lang3.NotImplementedException;
 
+import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
@@ -24,41 +25,57 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     private Unit unit;
     private double mnecAcceptableMarginDiminution;
-    private double mnecViolationCostPerMW;
+    private double mnecViolationCost;
 
-    public MnecViolationCostEvaluator(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCostPerMW) {
-        if (unit != MEGAWATT) {
-            throw new NotImplementedException("MNEC violation cost is only implemented in MW unit");
+    public MnecViolationCostEvaluator(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
+        if ((unit != MEGAWATT) && (unit != AMPERE)) {
+            throw new NotImplementedException("MNEC violation cost is only implemented in MW and AMPERE units");
         }
         this.unit = unit;
         this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-        this.mnecViolationCostPerMW = mnecViolationCostPerMW;
+        this.mnecViolationCost = mnecViolationCost;
     }
 
     @Override
     public double getCost(RaoData raoData) {
-        return getViolationCostInMegawatt(raoData);
+        return getViolationCost(raoData);
     }
 
-    private double getViolationCostInMegawatt(RaoData raoData) {
-        if (Math.abs(mnecViolationCostPerMW) < 1e-10) {
+    private double getViolationCost(RaoData raoData) {
+        if (Math.abs(mnecViolationCost) < 1e-10) {
             return 0;
         }
         double totalMnecMarginViolation = 0;
         String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
         for (Cnec cnec : raoData.getCrac().getCnecs()) {
             if (cnec.isMonitored()) {
-                double initialFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW();
-                double initialMargin = cnec.computeMargin(initialFlow, Unit.MEGAWATT);
-                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), Unit.MEGAWATT);
-                totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminution) - newMargin);
+                double initialFlow = (unit == MEGAWATT) ? cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW()
+                        : cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInA();
+                double initialMargin = cnec.computeMargin(initialFlow, unit);
+                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), unit);
+                double convertedAcceptableMarginDiminution = mnecAcceptableMarginDiminution / getUnitConversionCoefficient(cnec, raoData);
+                totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - convertedAcceptableMarginDiminution) - newMargin);
             }
         }
-        return mnecViolationCostPerMW * totalMnecMarginViolation;
+        return mnecViolationCost * totalMnecMarginViolation;
     }
 
     @Override
     public Unit getUnit() {
         return this.unit;
+    }
+
+    /**
+     * Get unit conversion coefficient between A and MW
+     * The acceptable margin diminution parameter is defined in MW, so if the minimum margin is defined in ampere,
+     * appropriate conversion coefficient should be used.
+     */
+    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+        if (unit.equals(MEGAWATT)) {
+            return 1;
+        } else {
+            // Unom(cnec) * sqrt(3) / 1000
+            return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
+        }
     }
 }

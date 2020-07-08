@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.rao_commons.CostEvaluator;
 import com.farao_community.farao.rao_commons.MinMarginEvaluator;
+import com.farao_community.farao.rao_commons.MnecViolationCostEvaluator;
 import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
@@ -58,5 +59,18 @@ public class RaoUtilTest {
         CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginEvaluator);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void createVirtualCostEvaluatorFromRaoParameters() {
+        RaoParameters raoParameters = new RaoParameters();
+        CostEvaluator costEvaluator = RaoUtil.createVirtualCostEvaluator(raoParameters);
+        assertTrue(costEvaluator instanceof MnecViolationCostEvaluator);
+        assertEquals(MEGAWATT, costEvaluator.getUnit());
+
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        costEvaluator = RaoUtil.createVirtualCostEvaluator(raoParameters);
+        assertTrue(costEvaluator instanceof MnecViolationCostEvaluator);
+        assertEquals(AMPERE, costEvaluator.getUnit());
     }
 }

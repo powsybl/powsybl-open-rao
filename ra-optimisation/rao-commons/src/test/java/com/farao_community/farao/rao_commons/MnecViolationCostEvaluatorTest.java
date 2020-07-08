@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,23 +32,24 @@ public class MnecViolationCostEvaluatorTest {
     RaoData raoData = new RaoData(network, crac);
     Cnec mnec;
     double mnecThreshold = 1000.;
+    Unit unit;
     SystematicSensitivityAnalysisResult sensiResult;
     MnecViolationCostEvaluator evaluator1;
     MnecViolationCostEvaluator evaluator2;
     private static final String TEST_VARIANT = "test-variant";
 
-    @Before
-    public void setUp() {
+    private void setUp(Unit unit) {
         network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
         raoData = new RaoData(network, crac);
+        this.unit = unit;
 
-        evaluator1 = new MnecViolationCostEvaluator(Unit.MEGAWATT, 50, 10);
-        evaluator2 = new MnecViolationCostEvaluator(Unit.MEGAWATT, 20, 2);
+        evaluator1 = new MnecViolationCostEvaluator(unit, 50, 10);
+        evaluator2 = new MnecViolationCostEvaluator(unit, 20, 2);
 
         crac.newCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FR-BE").add()
-                .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(mnecThreshold).setUnit(Unit.MEGAWATT).add()
+                .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(mnecThreshold).setUnit(unit).add()
                 .setOptimized(false).setMonitored(true)
                 .setInstant(crac.getInstant("initial-instant"))
                 .add();
@@ -67,7 +67,11 @@ public class MnecViolationCostEvaluatorTest {
     }
 
     private void testCost(double initFlow, double newFlow, MnecViolationCostEvaluator evaluator, double expectedCost) {
-        mnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInMW(initFlow);
+        if (unit == Unit.MEGAWATT) {
+            mnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInMW(initFlow);
+        } else {
+            mnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInA(initFlow);
+        }
         Mockito.when(sensiResult.getReferenceFlow(mnec)).thenReturn(newFlow);
         assertEquals(expectedCost, evaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
@@ -84,7 +88,8 @@ public class MnecViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testVirtualCostComputation() {
+    public void testVirtualCostComputationInMW() {
+        setUp(Unit.MEGAWATT);
         testCost(-100, 0, 0, 0);
         testCost(-100, -50, 0, 0);
         testCost(-100, -150, 0, 60);
@@ -99,9 +104,26 @@ public class MnecViolationCostEvaluatorTest {
         testCost(200, -10, 100, 20);
     }
 
+    @Test
+    public void testVirtualCostComputationInA() {
+        setUp(Unit.AMPERE);
+        testCost(-100, 0, 0, 0);
+        testCost(-100, -50, 0, 0);
+        testCost(-100, -150, 0, 42.3);
+        testCost(-100, -200, 278.3, 142.3);
+        testCost(-100, -250, 778.3, 242.3);
+        testCost(30, 0, 0, 0);
+        testCost(30, -20, 0, 40);
+        testCost(30, -50, 78.3, 100);
+        testCost(200, 200, 0, 0);
+        testCost(200, 100, 0, 0);
+        testCost(200, 0, 0, 0);
+        testCost(200, -10, 100, 20);
+    }
+
     @Test(expected = NotImplementedException.class)
     public void testCrash() {
-        MnecViolationCostEvaluator evaluator = new MnecViolationCostEvaluator(Unit.AMPERE, 0, 0);
+        new MnecViolationCostEvaluator(Unit.KILOVOLT, 0, 0);
     }
 
 }

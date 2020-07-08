@@ -87,7 +87,9 @@ public final class RaoUtil {
     }
 
     public static CostEvaluator createVirtualCostEvaluator(RaoParameters raoParameters) {
-        if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
+        if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)) {
+            return new MnecViolationCostEvaluator(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+        } else if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
             return new MnecViolationCostEvaluator(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         } else {
             throw new NotImplementedException("Not implemented virtual objective function");

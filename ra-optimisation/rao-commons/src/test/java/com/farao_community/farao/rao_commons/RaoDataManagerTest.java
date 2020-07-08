@@ -14,8 +14,6 @@ import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtens
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
