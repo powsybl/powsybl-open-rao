@@ -24,7 +24,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluator implements CostEvaluator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MinMarginEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MnecViolationCostEvaluator.class);
 
     private Unit unit;
     private double mnecAcceptableMarginDiminution;
