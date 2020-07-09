@@ -5,11 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api;
+package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.rao_commons.CostEvaluator;
-import com.farao_community.farao.rao_commons.MinMarginEvaluator;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import org.junit.Test;
