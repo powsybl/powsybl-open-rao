@@ -263,6 +263,8 @@ class Leaf {
         String info = isRoot() ? "Root leaf" :
             "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
         info += String.format(", Cost: %.2f", getBestCost());
+        info += String.format(" (Functional: %.2f", raoData.getCracResult().getFunctionalCost());
+        info += String.format(", Virtual: %.2f)", raoData.getCracResult().getVirtualCost());
         info += ", Status: " + status.getMessage();
         return info;
     }
