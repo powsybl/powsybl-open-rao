@@ -149,13 +149,21 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        return Optional.of(thresholds.stream().map(threshold -> threshold.getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY)).max(Double::compare).orElse(Double.NEGATIVE_INFINITY));
+        if (thresholds.stream().anyMatch(t -> t.getMinThreshold(requestedUnit).isPresent())) {
+            return Optional.of(thresholds.stream().map(threshold -> threshold.getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY)).max(Double::compare).orElse(Double.NEGATIVE_INFINITY));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        return Optional.of(thresholds.stream().map(threshold -> threshold.getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY)).min(Double::compare).orElse(Double.POSITIVE_INFINITY));
+        if (thresholds.stream().anyMatch(t -> t.getMaxThreshold(requestedUnit).isPresent())) {
+            return Optional.of(thresholds.stream().map(threshold -> threshold.getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY)).min(Double::compare).orElse(Double.POSITIVE_INFINITY));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
