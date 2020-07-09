@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -22,6 +24,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluator implements CostEvaluator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MinMarginEvaluator.class);
 
     private Unit unit;
     private double mnecAcceptableMarginDiminution;
@@ -38,14 +41,11 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double getCost(RaoData raoData) {
-        return getViolationCost(raoData);
-    }
-
-    private double getViolationCost(RaoData raoData) {
         if (Math.abs(mnecViolationCost) < 1e-10) {
             return 0;
         }
         double totalMnecMarginViolation = 0;
+        boolean mnecsSkipped = false;
         String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
         for (Cnec cnec : raoData.getCrac().getCnecs()) {
             if (cnec.isMonitored()) {
@@ -54,6 +54,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
                 if (Double.isNaN(initialFlow)) {
                     // Sensitivity results are not available, skip cnec
                     // (happens on search tree rao rootleaf evaluation)
+                    mnecsSkipped = true;
                     continue;
                 }
                 double initialMargin = cnec.computeMargin(initialFlow, unit);
@@ -63,6 +64,9 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
                 double convertedAcceptableMarginDiminution = mnecAcceptableMarginDiminution / getUnitConversionCoefficient(cnec, raoData);
                 totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - convertedAcceptableMarginDiminution) - newMargin);
             }
+        }
+        if (mnecsSkipped) {
+            LOGGER.warn("Some MNECs were skipped during violation cost evaluation because their sensitivity results were not available.");
         }
         return mnecViolationCost * totalMnecMarginViolation;
     }

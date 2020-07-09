@@ -54,7 +54,7 @@ public class MnecFiller implements ProblemFiller {
                 if (Objects.isNull(mnec.getExtension(CnecResultExtension.class))) {
                     return;
                 }
-                double flow = mnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW();
+                double mnecInitialFlow = mnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW();
 
                 MPVariable flowVariable = linearProblem.getFlowVariable(mnec);
 
@@ -70,7 +70,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> maxFlow = mnec.getMaxThreshold(MEGAWATT);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(), flow + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
+                    double ub = Math.max(maxFlow.get(), mnecInitialFlow + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
@@ -78,7 +78,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> minFlow = mnec.getMinThreshold(MEGAWATT);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), flow - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
+                    double lb = Math.min(minFlow.get(), mnecInitialFlow - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);

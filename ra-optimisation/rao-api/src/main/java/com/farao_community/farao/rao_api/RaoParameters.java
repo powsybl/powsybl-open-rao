@@ -50,9 +50,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final int DEFAULT_MAX_ITERATIONS = 10;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
-    static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
-    static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
+    private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
+    private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
