@@ -183,6 +183,13 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     @Override
+    public Set<Threshold> getRawThresholds() {
+        Set<Threshold> rawThresholds = new HashSet<>();
+        rawThresholds.addAll(thresholds);
+        return rawThresholds;
+    }
+
+    @Override
     public void synchronize(Network network) {
         thresholds.forEach(threshold -> threshold.synchronize(network));
         isSynchronized = true;
