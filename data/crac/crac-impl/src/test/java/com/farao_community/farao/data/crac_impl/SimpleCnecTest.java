@@ -10,6 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.Direction;
+import com.farao_community.farao.data.crac_api.threshold.Side;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;

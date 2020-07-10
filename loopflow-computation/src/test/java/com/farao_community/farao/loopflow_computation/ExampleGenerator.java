@@ -7,6 +7,8 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.Direction;
+import com.farao_community.farao.data.crac_api.threshold.Side;
 import com.farao_community.farao.data.crac_file.Contingency;
 import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;

@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_api.Direction.OPPOSITE;
-import static com.farao_community.farao.data.crac_api.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.threshold.Direction.OPPOSITE;
+import static com.farao_community.farao.data.crac_api.threshold.Side.LEFT;
 import static org.junit.Assert.*;
 
 /**

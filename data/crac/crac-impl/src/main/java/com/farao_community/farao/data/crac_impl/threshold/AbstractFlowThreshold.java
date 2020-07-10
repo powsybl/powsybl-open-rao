@@ -11,6 +11,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.Direction;
+import com.farao_community.farao.data.crac_api.threshold.FlowThreshold;
+import com.farao_community.farao.data.crac_api.threshold.Side;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +36,7 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absolute-flow-threshold"),
         @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold")
     })
-public abstract class AbstractFlowThreshold extends AbstractThreshold {
+public abstract class AbstractFlowThreshold extends AbstractThreshold implements FlowThreshold {
 
     /**
      * Side of the network element which is monitored
@@ -135,6 +138,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         return isSynchronized;
     }
 
+    @Override
     public Direction getDirection() {
         return direction;
     }
@@ -143,6 +147,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         this.direction = direction;
     }
 
+    @Override
     public Side getSide() {
         return side;
     }

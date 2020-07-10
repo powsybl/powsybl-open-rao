@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.Direction;
+import com.farao_community.farao.data.crac_api.threshold.Side;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;

@@ -9,8 +9,11 @@ package com.farao_community.farao.data.crac_impl.threshold;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.Direction;
+import com.farao_community.farao.data.crac_api.threshold.Side;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
@@ -110,5 +113,11 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         int result = super.hashCode();
         result = 31 * result + (int) percentageOfMax;
         return result;
+    }
+
+    @Override
+    @JsonIgnore
+    public double getMaxValue() {
+        return getPercentageOfMax();
     }
 }
