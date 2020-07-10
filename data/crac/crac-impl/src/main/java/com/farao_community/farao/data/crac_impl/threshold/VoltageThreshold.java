@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import static com.farao_community.farao.commons.Unit.KILOVOLT;
 
@@ -41,16 +42,16 @@ public class VoltageThreshold extends AbstractThreshold {
         return PhysicalParameter.VOLTAGE;
     }
 
-    public double getMinValue() {
-        return minValue;
+    public OptionalDouble getMinValue() {
+        return OptionalDouble.of(minValue);
     }
 
     public void setMinValue(double minValue) {
         this.minValue = minValue;
     }
 
-    public double getMaxValue() {
-        return maxValue;
+    public OptionalDouble getMaxValue() {
+        return OptionalDouble.of(maxValue);
     }
 
     public void setMaxValue(double maxValue) {

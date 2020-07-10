@@ -11,11 +11,14 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
+
+import java.util.OptionalDouble;
 
 /**
  * Limits of a flow through a branch. Given as a percentage of the branch limit
@@ -110,5 +113,23 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         int result = super.hashCode();
         result = 31 * result + (int) percentageOfMax;
         return result;
+    }
+
+    @Override
+    @JsonIgnore
+    public OptionalDouble getMinValue() {
+        if (getDirection().equals(Direction.BOTH) || getDirection().equals(Direction.OPPOSITE)) {
+            return OptionalDouble.of(-percentageOfMax);
+        }
+        return OptionalDouble.empty();
+    }
+
+    @Override
+    @JsonIgnore
+    public OptionalDouble getMaxValue() {
+        if (getDirection().equals(Direction.BOTH) || getDirection().equals(Direction.DIRECT)) {
+            return OptionalDouble.of(percentageOfMax);
+        }
+        return OptionalDouble.empty();
     }
 }
