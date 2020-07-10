@@ -92,10 +92,9 @@ public class LeafTest {
 
     private void mockRaoUtil() {
         PowerMockito.mockStatic(RaoUtil.class);
-        CostEvaluator costEvaluator = Mockito.mock(CostEvaluator.class);
+        ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-        BDDMockito.when(RaoUtil.createCostEvaluator(raoParameters)).thenReturn(costEvaluator);
-        BDDMockito.when(RaoUtil.createVirtualCostEvaluator(raoParameters)).thenReturn(costEvaluator);
+        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenReturn(costEvaluator);
     }
 
     @Test

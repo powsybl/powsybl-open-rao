@@ -46,7 +46,7 @@ public class IteratingLinearOptimizerTest {
     private IteratingLinearOptimizerParameters parameters;
     private SystematicSensitivityComputation systematicSensitivityComputation;
     private LinearOptimizer linearOptimizer;
-    private CostEvaluator costEvaluator;
+    private ObjectiveFunctionEvaluator costEvaluator;
     private CostEvaluator virtualCostEvaluator;
     private Crac crac;
     private RaoData raoData;
@@ -132,11 +132,9 @@ public class IteratingLinearOptimizerTest {
             }
         }).when(linearOptimizer).optimize(any());
 
-        costEvaluator = Mockito.mock(CostEvaluator.class);
-        Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-
-        virtualCostEvaluator = Mockito.mock(CostEvaluator.class);
-        Mockito.when(virtualCostEvaluator.getCost(raoData)).thenReturn(0.);
+        costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
+        Mockito.when(costEvaluator.getFunctionalCost(raoData)).thenReturn(0.);
+        Mockito.when(costEvaluator.getVirtualCost(raoData)).thenReturn(0.);
     }
 
     @Test
@@ -153,7 +151,6 @@ public class IteratingLinearOptimizerTest {
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             costEvaluator,
-            virtualCostEvaluator,
             linearOptimizer,
             parameters).optimize(spiedRaoData);
 
@@ -189,7 +186,6 @@ public class IteratingLinearOptimizerTest {
         String bestVariantId = new IteratingLinearOptimizer(
             systematicSensitivityComputation,
             costEvaluator,
-            virtualCostEvaluator,
             linearOptimizer,
             parameters).optimize(spiedRaoData);
 

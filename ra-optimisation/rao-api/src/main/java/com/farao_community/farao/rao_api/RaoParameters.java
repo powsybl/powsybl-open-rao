@@ -63,9 +63,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double loopFlowViolationCost = DEFAULT_LOOP_FLOW_VIOLATION_COST;
-    private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION;
-    private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST;
-    private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+    private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
+    private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
+    private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
     private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
 

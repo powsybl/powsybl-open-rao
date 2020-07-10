@@ -72,7 +72,7 @@ public class LinearRao implements RaoProvider {
             LOGGER.info("Initial systematic analysis [start]");
             systematicSensitivityComputation.run(raoData, unit);
             raoData.getRaoDataManager().fillCracResultsWithSensis(
-                RaoUtil.createCostEvaluator(raoParameters).getCost(raoData),
+                RaoUtil.createObjectiveFunction(raoParameters).getFunctionalCost(raoData),
                 systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0);
             LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
         } catch (SensitivityComputationException e) {

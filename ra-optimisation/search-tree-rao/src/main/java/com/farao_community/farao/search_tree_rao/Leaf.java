@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowComputationService;
+import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_api.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -160,10 +161,11 @@ class Leaf {
             try {
                 LOGGER.debug("Evaluating leaf...");
                 systematicSensitivityComputation.run(raoData, raoParameters.getObjectiveFunction().getUnit());
+                ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
-                    RaoUtil.createCostEvaluator(raoParameters).getCost(raoData),
+                        objectiveFunctionEvaluator.getFunctionalCost(raoData),
                         (systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0)
-                        + RaoUtil.createVirtualCostEvaluator(raoParameters).getCost(raoData));
+                        + objectiveFunctionEvaluator.getVirtualCost(raoData));
                 if (raoParameters.isRaoWithLoopFlowLimitation()) {
                     Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, raoParameters.isLoopFlowApproximation());
                     raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, raoParameters.getLoopFlowViolationCost());

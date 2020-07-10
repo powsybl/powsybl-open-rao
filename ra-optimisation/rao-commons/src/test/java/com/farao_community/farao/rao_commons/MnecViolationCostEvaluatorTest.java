@@ -26,10 +26,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class MnecViolationCostEvaluatorTest {
     static final double DOUBLE_TOLERANCE = 0.1;
-
-    Network network = ExampleGenerator.network();
     Crac crac = ExampleGenerator.crac();
-    RaoData raoData = new RaoData(network, crac);
+    RaoData raoData;
     Cnec mnec;
     double mnecThreshold = 1000.;
     Unit unit;
@@ -39,7 +37,7 @@ public class MnecViolationCostEvaluatorTest {
     private static final String TEST_VARIANT = "test-variant";
 
     private void setUp(Unit unit) {
-        network = ExampleGenerator.network();
+        Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
         raoData = new RaoData(network, crac);
         this.unit = unit;

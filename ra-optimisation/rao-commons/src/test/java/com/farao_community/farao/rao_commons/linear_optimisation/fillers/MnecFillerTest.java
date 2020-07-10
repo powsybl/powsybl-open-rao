@@ -41,7 +41,6 @@ public class MnecFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
-        mnecFiller = new MnecFiller(50, 10, 3.5);
 
         crac.newCnec().setId("MNEC1 - N - preventive")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
@@ -70,15 +69,16 @@ public class MnecFillerTest extends AbstractFillerTest {
         mnec2.getExtension(CnecResultExtension.class).getVariant(testVariant).setFlowInMW(-200.);
     }
 
-    private void fillProblemWithFiller() {
+    private void fillProblemWithFiller(Unit unit) {
         // fill the problem : the core filler is required
+        mnecFiller = new MnecFiller(unit, 50, 10, 3.5);
         coreProblemFiller.fill(raoData, linearProblem);
         mnecFiller.fill(raoData, linearProblem);
     }
 
     @Test
     public void testAddMnecViolationVariables() {
-        fillProblemWithFiller();
+        fillProblemWithFiller(Unit.MEGAWATT);
         crac.getCnecs().forEach(cnec -> {
             MPVariable variable = linearProblem.getMnecViolationVariable(cnec);
             if (cnec.isMonitored()) {
@@ -93,7 +93,7 @@ public class MnecFillerTest extends AbstractFillerTest {
 
     @Test
     public void testAddMnecMinFlowConstraints() {
-        fillProblemWithFiller();
+        fillProblemWithFiller(Unit.MEGAWATT);
 
         crac.getCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> {
             assertNull(linearProblem.getMnecFlowConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD));
@@ -129,11 +129,20 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecPenaltyCost() {
-        fillProblemWithFiller();
+    public void testAddMnecPenaltyCostMW() {
+        fillProblemWithFiller(Unit.MEGAWATT);
         crac.getCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
             MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
             assertEquals(10.0, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
+        });
+    }
+
+    @Test
+    public void testAddMnecPenaltyCostA() {
+        fillProblemWithFiller(Unit.AMPERE);
+        crac.getCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
+            MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
+            assertEquals(10.0 / 0.658, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         });
     }
 

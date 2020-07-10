@@ -50,15 +50,14 @@ public final class RaoUtil {
         if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
             || raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
-            fillers.add(new MnecFiller(raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
+            fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityComputation,
-                createCostEvaluator(raoParameters), createVirtualCostEvaluator(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
+                createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation, createCostEvaluator(raoParameters),
-                    createVirtualCostEvaluator(raoParameters), createIteratingParameters(raoParameters));
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
         }
     }
 
@@ -76,23 +75,13 @@ public final class RaoUtil {
             raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
     }
 
-    public static CostEvaluator createCostEvaluator(RaoParameters raoParameters) {
+    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
         if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)) {
-            return new MinMarginEvaluator(Unit.AMPERE);
+            return new MinMarginObjectiveFunction(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         } else if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            return new MinMarginEvaluator(Unit.MEGAWATT);
+            return new MinMarginObjectiveFunction(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         } else {
             throw new NotImplementedException("Not implemented objective function");
-        }
-    }
-
-    public static CostEvaluator createVirtualCostEvaluator(RaoParameters raoParameters) {
-        if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)) {
-            return new MnecViolationCostEvaluator(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
-        } else if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            return new MnecViolationCostEvaluator(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
-        } else {
-            throw new NotImplementedException("Not implemented virtual objective function");
         }
     }
 }

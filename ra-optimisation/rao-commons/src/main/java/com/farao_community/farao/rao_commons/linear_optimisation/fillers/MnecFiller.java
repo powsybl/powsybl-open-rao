@@ -7,6 +7,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
@@ -24,11 +25,13 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecFiller implements ProblemFiller {
+    private Unit unit;
     private double mnecAcceptableMarginDiminution;
     private double mnecViolationCost;
     private double mnecConstraintAdjustmentCoefficient;
 
-    public MnecFiller(double mnecAcceptableMarginDiminution, double mnecViolationCost, double mnecConstraintAdjustmentCoefficient) {
+    public MnecFiller(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost, double mnecConstraintAdjustmentCoefficient) {
+        this.unit = unit;
         this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
         this.mnecViolationCost = mnecViolationCost;
         this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
@@ -89,12 +92,26 @@ public class MnecFiller implements ProblemFiller {
 
     public void fillObjectiveWithMnecPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
         raoData.getCrac().getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
-            linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost)
+            linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost / getUnitConversionCoefficient(mnec, raoData))
         );
     }
 
     @Override
     public void update(RaoData raoData, LinearProblem linearProblem) {
         // nothing to do
+    }
+
+    /**
+     * Get unit conversion coefficient between A and MW
+     * The acceptable margin diminution parameter is defined in MW, so if the minimum margin is defined in ampere,
+     * appropriate conversion coefficient should be used.
+     */
+    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+        if (unit.equals(MEGAWATT)) {
+            return 1;
+        } else {
+            // Unom(cnec) * sqrt(3) / 1000
+            return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
+        }
     }
 }

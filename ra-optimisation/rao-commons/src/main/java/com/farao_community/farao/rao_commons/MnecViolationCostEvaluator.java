@@ -66,7 +66,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             }
         }
         if (mnecsSkipped) {
-            LOGGER.warn("Some MNECs were skipped during violation cost evaluation because their sensitivity results were not available.");
+            LOGGER.warn("Some MNECs were skipped during violation cost evaluation, because their initial flow results were not available.");
         }
         return mnecViolationCost * totalMnecMarginViolation;
     }
