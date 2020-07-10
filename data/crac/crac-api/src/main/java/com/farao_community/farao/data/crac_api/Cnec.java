@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Interface for Critical Network Element &amp; Contingencies
@@ -114,5 +113,4 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      */
     boolean isMonitored();
 
-    Set<Threshold> getRawThresholds();
 }
