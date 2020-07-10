@@ -195,6 +195,8 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             return value * ratio;
         } else if (originUnit.equals(Unit.MEGAWATT) && requestedUnit.equals(Unit.AMPERE)) {
             return value / ratio;
+        } else if (originUnit.equals(Unit.PERCENT_IMAX)) {
+            return convert(getAbsoluteMax(), Unit.AMPERE, requestedUnit);
         } else {
             throw new FaraoException(String.format("Conversion from %s to %s not handled", originUnit.toString(), requestedUnit.toString()));
         }

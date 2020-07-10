@@ -30,6 +30,10 @@ import java.util.OptionalDouble;
  */
 @JsonTypeName("relative-flow-threshold")
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
+
+    /**
+     * Maximum current value of the NetworkElement associated to this Threshold, in AMPERE
+     */
     private double branchLimit;
 
     /**
@@ -41,12 +45,12 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     public RelativeFlowThreshold(@JsonProperty("side") Side side,
                                  @JsonProperty("direction") Direction direction,
                                  @JsonProperty("percentageOfMax") double percentageOfMax) {
-        super(Unit.AMPERE, side, direction);
+        super(Unit.PERCENT_IMAX, side, direction);
         initPercentageOfMax(percentageOfMax);
     }
 
     public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax, double frmInMw) {
-        super(Unit.AMPERE, networkElement, side, direction);
+        super(Unit.PERCENT_IMAX, networkElement, side, direction);
         initPercentageOfMax(percentageOfMax);
         this.frmInMW = frmInMw;
     }
