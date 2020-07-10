@@ -92,6 +92,7 @@ public class SearchTreeRao implements RaoProvider {
         }
         rootLeaf.optimize();
         LOGGER.info(rootLeaf.toString());
+        SearchTreeRaoLogger.logRangeActions(optimalLeaf);
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
@@ -99,7 +100,7 @@ public class SearchTreeRao implements RaoProvider {
         iterateOnTree();
 
         //TODO: refactor output format
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, crac);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, crac, raoParameters.getObjectiveFunction().getUnit());
         return CompletableFuture.completedFuture(buildOutput());
     }
 
@@ -115,6 +116,7 @@ public class SearchTreeRao implements RaoProvider {
                 previousDepthOptimalLeaf.clearVariants();
             }
             LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));
+            SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
             depth += 1;
         }
     }
