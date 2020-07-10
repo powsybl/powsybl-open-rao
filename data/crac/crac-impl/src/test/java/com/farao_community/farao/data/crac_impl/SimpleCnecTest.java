@@ -9,12 +9,14 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.threshold.Direction;
 import com.farao_community.farao.data.crac_api.threshold.Side;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
@@ -183,7 +185,7 @@ public class SimpleCnecTest {
         AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
         AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<Threshold> thresholds = new HashSet<>();
         thresholds.add(directThreshold);
         thresholds.add(oppositeThreshold);
 
@@ -201,7 +203,7 @@ public class SimpleCnecTest {
         AbsoluteFlowThreshold directThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 490);
         AbsoluteFlowThreshold oppositeThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 210);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<Threshold> thresholds = new HashSet<>();
         thresholds.add(directThreshold1);
         thresholds.add(oppositeThreshold1);
         thresholds.add(directThreshold2);

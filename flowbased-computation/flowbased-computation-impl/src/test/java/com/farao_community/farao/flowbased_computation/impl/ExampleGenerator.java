@@ -9,14 +9,14 @@ package com.farao_community.farao.flowbased_computation.impl;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.Direction;
 import com.farao_community.farao.data.crac_api.threshold.Side;
-import com.farao_community.farao.data.crac_file.*;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_file.Contingency;
+import com.farao_community.farao.data.crac_file.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -538,7 +538,7 @@ final class ExampleGenerator {
         State postContingencyState = new SimpleState(Optional.of(contingency), new Instant("PostContingency-instant", 1));
         crac.addState(postContingencyState);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<Threshold> thresholds = new HashSet<>();
         thresholds.add(absoluteFlowThresholdMW);
         //pre state cnec
         Cnec cnecPreFrBe = new SimpleCnec("FR-BE", "FR-BE", networkElementFrBe, thresholds, preState);

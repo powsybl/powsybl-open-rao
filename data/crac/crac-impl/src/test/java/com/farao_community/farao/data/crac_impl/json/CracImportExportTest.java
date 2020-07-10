@@ -10,7 +10,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.Direction;
 import com.farao_community.farao.data.crac_api.threshold.Side;
-import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
@@ -20,7 +21,6 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
@@ -56,7 +56,7 @@ public class CracImportExportTest {
 
         Cnec preventiveCnec1 = simpleCrac.addCnec("cnec1prev", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<Threshold> thresholds = new HashSet<>();
         thresholds.add(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30));
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800));
 
@@ -65,7 +65,7 @@ public class CracImportExportTest {
 
         double positiveFrmMw = 20.0;
         AbsoluteFlowThreshold absoluteFlowThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500.0);
-        Set<AbstractThreshold> thresholdSet = new HashSet<>();
+        Set<Threshold> thresholdSet = new HashSet<>();
         thresholdSet.add(absoluteFlowThreshold);
         simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw, false, true);
         simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0, true, true);

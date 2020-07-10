@@ -11,11 +11,14 @@ package com.farao_community.farao.data.crac_api.threshold;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Synchronizable;
+
+import java.util.Optional;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public interface Threshold {
+public interface Threshold extends Synchronizable {
 
     NetworkElement getNetworkElement();
 
@@ -27,4 +30,11 @@ public interface Threshold {
 
     double getMaxValue();
 
+    Optional<Double> getMinThreshold(Unit requestedUnit);
+
+    Optional<Double> getMaxThreshold(Unit requestedUnit);
+
+    Threshold copy();
+
+    void setMargin(double margin, Unit unit);
 }

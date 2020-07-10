@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.ThresholdAdderImpl;
 
@@ -24,7 +25,7 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
 
     private SimpleCrac parent;
     private NetworkElement networkElement;
-    private Set<AbstractThreshold> thresholds = new HashSet<>();
+    private Set<Threshold> thresholds = new HashSet<>();
     private Instant instant;
     private Contingency contingency;
     private double frm;

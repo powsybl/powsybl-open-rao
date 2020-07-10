@@ -10,8 +10,11 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -31,7 +34,7 @@ import java.util.Set;
 @JsonIdentityReference(alwaysAsId = true)
 public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
-    private Set<AbstractThreshold> thresholds;
+    private Set<Threshold> thresholds;
     private State state;
     private boolean isSynchronized;
     private double frm;
@@ -41,7 +44,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     @JsonCreator
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
+                      @JsonProperty("thresholds") Set<Threshold> thresholds, @JsonProperty("state") State state,
                       @JsonProperty("frm") double frm, @JsonProperty("optimized") boolean optimized,
                       @JsonProperty("monitored") boolean monitored) {
         super(id, name);
@@ -59,18 +62,18 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
+                      @JsonProperty("thresholds") Set<Threshold> thresholds, @JsonProperty("state") State state,
                       @JsonProperty("frm") double frm) {
         this(id, name, networkElement, thresholds, state, frm, true, false);
     }
 
     public SimpleCnec(String id, String name,
                       NetworkElement networkElement,
-                      Set<AbstractThreshold> thresholds, State state) {
+                      Set<Threshold> thresholds, State state) {
         this(id, name, networkElement, thresholds, state, 0.0);
     }
 
-    public SimpleCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> thresholds, State state) {
+    public SimpleCnec(String id, NetworkElement networkElement, Set<Threshold> thresholds, State state) {
         this(id, id, networkElement, thresholds, state);
     }
 
@@ -87,16 +90,16 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         this.networkElement = networkElement;
     }
 
-    public Set<AbstractThreshold> getThresholds() {
+    public Set<Threshold> getThresholds() {
         return thresholds;
     }
 
-    public void setThresholds(Set<AbstractThreshold> thresholds) {
+    public void setThresholds(Set<Threshold> thresholds) {
         this.thresholds = thresholds;
     }
 
-    public void addThreshold(AbstractThreshold threshold) {
-        AbstractThreshold thresholdCopy = threshold.copy();
+    public void addThreshold(Threshold threshold) {
+        Threshold thresholdCopy = threshold.copy();
         thresholdCopy.setNetworkElement(networkElement);
         this.thresholds.add(thresholdCopy);
     }
@@ -190,7 +193,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public void desynchronize() {
-        thresholds.forEach(AbstractThreshold::desynchronize);
+        thresholds.forEach(Threshold::desynchronize);
         isSynchronized = false;
     }
 

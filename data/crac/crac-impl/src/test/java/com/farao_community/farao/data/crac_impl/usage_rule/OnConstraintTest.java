@@ -7,12 +7,15 @@
 
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.Direction;
 import com.farao_community.farao.data.crac_api.threshold.Side;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import org.junit.Test;
 
@@ -76,7 +79,7 @@ public class OnConstraintTest {
             new Instant("initial-instant", 0)
         );
 
-        Set<AbstractThreshold> relativeFlowThreshold = Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 80));
+        Set<Threshold> relativeFlowThreshold = Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 80));
 
         OnConstraint rule1 = new OnConstraint(
             UsageMethod.AVAILABLE,

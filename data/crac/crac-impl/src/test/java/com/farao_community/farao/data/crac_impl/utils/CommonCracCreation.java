@@ -8,19 +8,24 @@
 package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.threshold.Direction;
 import com.farao_community.farao.data.crac_api.threshold.Side;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -59,8 +64,8 @@ public final class CommonCracCreation {
         AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.BOTH, 1500);
         RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 30);
 
-        Set<AbstractThreshold> thresholdsAbsFlow = Collections.singleton(thresholdAbsFlow);
-        Set<AbstractThreshold> thresholdsRelativeFlow = Collections.singleton(thresholdRelativeFlow);
+        Set<Threshold> thresholdsAbsFlow = Collections.singleton(thresholdAbsFlow);
+        Set<Threshold> thresholdsRelativeFlow = Collections.singleton(thresholdRelativeFlow);
         // CNECs
         SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdsAbsFlow, stateBasecase);
         SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency1);

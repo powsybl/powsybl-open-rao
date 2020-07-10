@@ -9,11 +9,13 @@ package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Interface for Critical Network Element &amp; Contingencies
@@ -112,5 +114,7 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      * @return True if the branch is monitored.
      */
     boolean isMonitored();
+
+    Set<Threshold> getThresholds();
 
 }
