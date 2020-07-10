@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -209,5 +210,37 @@ public class SimpleCnecTest {
 
         assertEquals(490, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
         assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
+    }
+
+    @Test
+    public void unboundedCnecInOppositeDirection() {
+        State state = Mockito.mock(State.class);
+        AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
+        AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 200);
+
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(directThreshold);
+        thresholds.add(oppositeThreshold);
+
+        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+
+        assertEquals(200, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertFalse(cnec.getMinThreshold(Unit.MEGAWATT).isPresent());
+    }
+
+    @Test
+    public void unboundedCnecInDirectDirection() {
+        State state = Mockito.mock(State.class);
+        AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 500);
+        AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
+
+        Set<AbstractThreshold> thresholds = new HashSet<>();
+        thresholds.add(directThreshold);
+        thresholds.add(oppositeThreshold);
+
+        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+
+        assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertFalse(cnec.getMaxThreshold(Unit.MEGAWATT).isPresent());
     }
 }

@@ -125,7 +125,7 @@ public class SimpleCnecAdderTest {
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("neId2", cnec2.getNetworkElement().getName());
         assertEquals(500.0, cnec2.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
-        assertEquals(Double.NEGATIVE_INFINITY, cnec2.getMinThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
+        assertFalse(cnec2.getMinThreshold(Unit.MEGAWATT).isPresent());
     }
 
     @Test
