@@ -113,4 +113,10 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      */
     boolean isMonitored();
 
+    /**
+     * get FRM value in MW
+     *
+     * @return FRM value
+     */
+    double getFrm();
 }
