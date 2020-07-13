@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Cnec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,14 +47,14 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
-        return raoData.getCrac().getCnecs().stream().
+        return raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).
             map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), MEGAWATT)).
             min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
-        List<Double> marginsInAmpere = raoData.getCrac().getCnecs().stream().map(cnec ->
-            cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
+        List<Double> marginsInAmpere = raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN)) { // It means that computation has been performed in DC mode
@@ -68,7 +69,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private List<Double> getMarginsInAmpereFromMegawattConversion(RaoData raoData) {
-        return raoData.getCrac().getCnecs().stream().map(cnec -> {
+        return raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).map(cnec -> {
                 double flowInMW = raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
                 double uNom = raoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
                 return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);

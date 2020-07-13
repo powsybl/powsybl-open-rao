@@ -84,6 +84,21 @@ public class RaoParametersTest {
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
+    @Test
+    public void checkMnecConfig() {
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("mnec-acceptable-margin-diminution", Objects.toString(100.0));
+        moduleConfig.setStringProperty("mnec-violation-cost", Objects.toString(5.0));
+        moduleConfig.setStringProperty("mnec-constraint-adjustment-coefficient", Objects.toString(0.1));
+
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(100, parameters.getMnecAcceptableMarginDiminution(), 1e-6);
+        assertEquals(5, parameters.getMnecViolationCost(), 1e-6);
+        assertEquals(0.1, parameters.getMnecConstraintAdjustmentCoefficient(), 1e-6);
+    }
+
     private static class DummyExtension extends AbstractExtension<RaoParameters> {
 
         @Override
