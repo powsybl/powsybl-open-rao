@@ -9,7 +9,9 @@ package com.farao_community.farao.data.crac_impl.threshold;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Direction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Side;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -51,7 +53,6 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
         this.maxValue = maxValue;
     }
 
-    @Override
     @JsonIgnore
     public OptionalDouble getMinValue() {
         if (getDirection().equals(Direction.BOTH) || getDirection().equals(Direction.OPPOSITE)) {
@@ -60,6 +61,7 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
         return OptionalDouble.empty();
     }
 
+    @JsonIgnore
     public OptionalDouble getMaxValue() {
         if (getDirection().equals(Direction.BOTH) || getDirection().equals(Direction.DIRECT)) {
             return OptionalDouble.of(maxValue);
@@ -68,6 +70,7 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
+    @JsonProperty("maxValue")
     protected double getAbsoluteMax() {
         return maxValue;
     }
