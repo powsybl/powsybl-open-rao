@@ -182,7 +182,7 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * The conversion formula is the following one :
      * Flow(MW) = Flow(A) * sqrt(3) * Unom (kV) / 1000
      */
-    private double convert(double value, Unit originUnit, Unit requestedUnit) {
+    protected double convert(double value, Unit originUnit, Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(PhysicalParameter.FLOW);
         if (originUnit.equals(requestedUnit)) {
             return value;

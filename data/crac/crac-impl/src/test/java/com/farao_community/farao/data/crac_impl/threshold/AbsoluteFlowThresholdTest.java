@@ -15,8 +15,7 @@ import com.farao_community.farao.data.crac_api.Side;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -33,6 +32,36 @@ public class AbsoluteFlowThresholdTest {
                 Direction.BOTH,
                 1000.0
         );
+    }
+
+    @Test
+    public void getMinMaxValuesDirectionBoth() {
+        assertTrue(absoluteFlowThreshold.getMaxValue().isPresent());
+        assertEquals(1000.0, absoluteFlowThreshold.getMaxValue().getAsDouble(), 0.1);
+        assertTrue(absoluteFlowThreshold.getMinValue().isPresent());
+        assertEquals(-1000.0, absoluteFlowThreshold.getMinValue().getAsDouble(), 0.1);
+    }
+
+    @Test
+    public void getMinMaxValuesDirectionDirect() {
+        AbsoluteFlowThreshold absoluteFlowThresholdDirect = new AbsoluteFlowThreshold(
+                Unit.AMPERE,
+                Side.LEFT,
+                Direction.DIRECT,
+                1000.0
+        );
+        assertFalse(absoluteFlowThresholdDirect.getMinValue().isPresent());
+    }
+
+    @Test
+    public void getMinMaxValuesDirectionOpposite() {
+        AbsoluteFlowThreshold absoluteFlowThresholdDirect = new AbsoluteFlowThreshold(
+                Unit.AMPERE,
+                Side.LEFT,
+                Direction.OPPOSITE,
+                1000.0
+        );
+        assertFalse(absoluteFlowThresholdDirect.getMaxValue().isPresent());
     }
 
     @Test

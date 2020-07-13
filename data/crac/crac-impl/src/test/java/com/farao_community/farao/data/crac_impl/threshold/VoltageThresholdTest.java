@@ -30,6 +30,14 @@ public class VoltageThresholdTest {
     }
 
     @Test
+    public void getMinMaxValue() {
+        assertTrue(voltageThreshold.getMaxValue().isPresent());
+        assertEquals(425.0, voltageThreshold.getMaxValue().getAsDouble(), 0.1);
+        assertTrue(voltageThreshold.getMinValue().isPresent());
+        assertEquals(380.0, voltageThreshold.getMinValue().getAsDouble(), 0.1);
+    }
+
+    @Test
     public void getMinMaxThreshold() {
         // for now, method always returns empty
         assertFalse(voltageThreshold.getMinThreshold(KILOVOLT).isPresent());

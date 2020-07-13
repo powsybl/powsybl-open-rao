@@ -88,9 +88,9 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     public Set<Threshold> getThresholds() {
-        Set<Threshold> thresholds = new HashSet<>();
-        thresholds.addAll(this.thresholds);
-        return thresholds;
+        Set<Threshold> getThresholds = new HashSet<>();
+        getThresholds.addAll(this.thresholds);
+        return getThresholds;
     }
 
     public void setThresholds(Set<AbstractThreshold> thresholds) {
