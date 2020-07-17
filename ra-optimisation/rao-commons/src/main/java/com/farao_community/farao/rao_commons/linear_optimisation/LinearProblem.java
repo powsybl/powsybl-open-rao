@@ -33,6 +33,8 @@ public class LinearProblem {
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String POSITIVE_LOOPFLOWVIOLATION = "positiveloopflowviolation";
     private static final String NEGATIVE_LOOPFLOWVIOLATION = "negativeloopflowviolation";
+    private static final String MNEC_VIOLATION = "mnecviolation";
+    private static final String MNEC_FLOW = "mnecflow";
 
     public enum AbsExtension {
         POSITIVE,
@@ -192,6 +194,30 @@ public class LinearProblem {
         return cnec.getId() + SEPARATOR + NEGATIVE_LOOPFLOWVIOLATION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
     //End MaxLoopFlowFiller section
+
+    private String mnecViolationVariableId(Cnec mnec) {
+        return mnec.getId() + SEPARATOR + MNEC_VIOLATION + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public MPVariable addMnecViolationVariable(double lb, double ub, Cnec mnec) {
+        return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec));
+    }
+
+    public MPVariable getMnecViolationVariable(Cnec mnec) {
+        return solver.lookupVariableOrNull(mnecViolationVariableId(mnec));
+    }
+
+    private String mnecFlowConstraintId(Cnec mnec, MarginExtension belowOrAboveThreshold) {
+        return mnec.getId() + SEPARATOR + MNEC_FLOW + belowOrAboveThreshold.toString().toLowerCase()  + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint addMnecFlowConstraint(double lb, double ub, Cnec mnec, MarginExtension belowOrAboveThreshold) {
+        return solver.makeConstraint(lb, ub, mnecFlowConstraintId(mnec, belowOrAboveThreshold));
+    }
+
+    public MPConstraint getMnecFlowConstraint(Cnec mnec, MarginExtension belowOrAboveThreshold) {
+        return solver.lookupConstraintOrNull(mnecFlowConstraintId(mnec, belowOrAboveThreshold));
+    }
 
     public double infinity() {
         return MPSolver.infinity();

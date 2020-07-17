@@ -79,6 +79,18 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setLoopFlowViolationCost(parser.getDoubleValue());
                     break;
+                case "mnec-acceptable-margin-diminution":
+                    parser.nextToken();
+                    parameters.setMnecAcceptableMarginDiminution(parser.getDoubleValue());
+                    break;
+                case "mnec-violation-cost":
+                    parser.nextToken();
+                    parameters.setMnecViolationCost(parser.getDoubleValue());
+                    break;
+                case "mnec-constraint-adjustment-coefficient":
+                    parser.nextToken();
+                    parameters.setMnecConstraintAdjustmentCoefficient(parser.getDoubleValue());
+                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());

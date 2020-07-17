@@ -32,8 +32,8 @@ public class RaoUtilTest {
         SystematicSensitivityComputation systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
-        assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(AMPERE, optimizer.getCostEvaluator().getUnit());
+        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
@@ -46,8 +46,8 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
         assertTrue(optimizer instanceof IteratingLinearOptimizerWithLoopFlows);
-        assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(MEGAWATT, optimizer.getCostEvaluator().getUnit());
+        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertEquals(MEGAWATT, optimizer.getObjectiveFunctionEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
@@ -55,8 +55,8 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParametersMegawatt() {
         RaoParameters raoParameters = new RaoParameters();
-        CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
-        assertTrue(costEvaluator instanceof MinMarginEvaluator);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
     }
 
@@ -64,8 +64,8 @@ public class RaoUtilTest {
     public void createCostEvaluatorFromRaoParametersAmps() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
-        assertTrue(costEvaluator instanceof MinMarginEvaluator);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(AMPERE, costEvaluator.getUnit());
     }
 

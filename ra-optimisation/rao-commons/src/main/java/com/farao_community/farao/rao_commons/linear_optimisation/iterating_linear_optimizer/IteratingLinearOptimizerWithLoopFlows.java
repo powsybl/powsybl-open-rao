@@ -7,11 +7,11 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.rao_commons.CostEvaluator;
 import com.farao_community.farao.rao_commons.LoopFlowComputationService;
+import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.util.SensitivityComputationException;
 
 import java.util.List;
@@ -29,9 +29,9 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
                                                  SystematicSensitivityComputation systematicSensitivityComputation,
-                                                 CostEvaluator costEvaluator,
+                                                 ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
-        super(fillers, systematicSensitivityComputation, costEvaluator, parameters);
+        super(fillers, systematicSensitivityComputation, objectiveFunctionEvaluator, parameters);
         loopFlowApproximation = parameters.isLoopflowApproximation();
         loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);

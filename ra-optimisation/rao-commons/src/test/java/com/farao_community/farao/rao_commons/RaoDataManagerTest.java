@@ -18,12 +18,15 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class RaoDataManagerTest {
+
+    static final double DOUBLE_TOLERANCE = 0.1;
+
     private Crac crac;
     private RaoData raoData;
 
@@ -55,7 +58,7 @@ public class RaoDataManagerTest {
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
         raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(fzeroallmap, loopflowShifts);
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
-            assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), 1E-1);
+            assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), DOUBLE_TOLERANCE);
         });
     }
 
@@ -67,8 +70,8 @@ public class RaoDataManagerTest {
         Map<String, Double> loopflows = new HashMap<>();
         loopflows.put("FR-BE", 1.0);
         raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopflows, 1.0);
-        assertEquals(1.0, raoData.getCracResult().getVirtualCost(), 0.1);
+        assertEquals(1.0, raoData.getCracResult().getVirtualCost(), DOUBLE_TOLERANCE);
         raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopflows, 0.0);
-        assertEquals(1000000.0, raoData.getCracResult().getVirtualCost(), 0.1);
+        assertEquals(1000000.0, raoData.getCracResult().getVirtualCost(), DOUBLE_TOLERANCE);
     }
 }

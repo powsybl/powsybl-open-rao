@@ -10,12 +10,8 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.CostEvaluator;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoDataManager;
+import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -98,9 +94,9 @@ public class LinearRaoTest {
 
     private void mockRaoUtil() {
         PowerMockito.mockStatic(RaoUtil.class);
-        CostEvaluator costEvaluator = Mockito.mock(CostEvaluator.class);
+        ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-        BDDMockito.when(RaoUtil.createCostEvaluator(raoParameters)).thenReturn(costEvaluator);
+        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenReturn(costEvaluator);
         BDDMockito.when(RaoUtil.initRaoData(network, crac, variantId, raoParameters)).thenCallRealMethod();
     }
 
