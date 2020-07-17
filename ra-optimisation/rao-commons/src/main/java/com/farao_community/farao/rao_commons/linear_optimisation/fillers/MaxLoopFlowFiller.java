@@ -17,6 +17,8 @@ import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.*;
 
+import static com.farao_community.farao.rao_api.RaoParameters.*;
+
 /**
  * Filler of loopflow constraint in linear rao problem.
  * - Current loopflow will only be checked for preventive state cnec.
@@ -30,9 +32,6 @@ import java.util.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
-    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = true;
-    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
     public static final double MAX_LOOP_FLOW_VIOLATION_COST = 1000000.0;
 
     private boolean isLoopFlowApproximation;

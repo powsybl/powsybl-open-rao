@@ -5,11 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api;
+package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -51,10 +53,31 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void createCostEvaluatorFromRaoParameters() {
+    public void createCostEvaluatorFromRaoParametersMegawatt() {
         RaoParameters raoParameters = new RaoParameters();
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void createCostEvaluatorFromRaoParametersAmps() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
+        assertEquals(AMPERE, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void testThatRaoDataCreationSynchronizesCrac() {
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoParameters parameters = new RaoParameters();
+        RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, parameters);
+        assertEquals(network, raoData.getNetwork());
+        assertEquals(crac, raoData.getCrac());
+        assertTrue(crac.isSynchronized());
     }
 }

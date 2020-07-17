@@ -28,7 +28,7 @@ public class LinearRaoConfigLoader implements RaoParameters.ConfigLoader<LinearR
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", LinearRaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
+            parameters.setSecurityAnalysisWithoutRao(config.getBooleanProperty("security-analysis-without-rao", RaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO));
         }
         return parameters;
     }

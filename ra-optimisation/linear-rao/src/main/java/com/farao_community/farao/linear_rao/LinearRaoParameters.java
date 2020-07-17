@@ -10,12 +10,12 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
+import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearRaoParameters extends AbstractExtension<RaoParameters> {
-    static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
-
     private boolean securityAnalysisWithoutRao = DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO;
 
     @Override
