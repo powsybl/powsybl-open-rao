@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -65,5 +67,17 @@ public class RaoUtilTest {
         CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginEvaluator);
         assertEquals(AMPERE, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void testThatRaoDataCreationSynchronizesCrac() {
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoParameters parameters = new RaoParameters();
+        RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, parameters);
+        assertEquals(network, raoData.getNetwork());
+        assertEquals(crac, raoData.getCrac());
+        assertTrue(crac.isSynchronized());
     }
 }
