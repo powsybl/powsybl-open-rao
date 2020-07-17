@@ -25,6 +25,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -50,8 +52,8 @@ public final class RaoUtil {
     public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
-        if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
-            || raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
+        if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
+            || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
@@ -79,12 +81,13 @@ public final class RaoUtil {
     }
 
     public static CostEvaluator createCostEvaluator(RaoParameters raoParameters) {
-        if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)) {
-            return new MinMarginEvaluator(Unit.AMPERE);
-        } else if (raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            return new MinMarginEvaluator(Unit.MEGAWATT);
-        } else {
-            throw new NotImplementedException("Not implemented objective function");
+        switch (raoParameters.getObjectiveFunction()) {
+            case MAX_MIN_MARGIN_IN_AMPERE:
+                return new MinMarginEvaluator(Unit.AMPERE);
+            case MAX_MIN_MARGIN_IN_MEGAWATT:
+                return new MinMarginEvaluator(Unit.MEGAWATT);
+            default:
+                throw new NotImplementedException("Not implemented objective function");
         }
     }
 }

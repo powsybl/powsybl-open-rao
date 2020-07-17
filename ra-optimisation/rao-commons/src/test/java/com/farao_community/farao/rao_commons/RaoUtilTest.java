@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -51,10 +52,19 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void createCostEvaluatorFromRaoParameters() {
+    public void createCostEvaluatorFromRaoParametersMegawatt() {
         RaoParameters raoParameters = new RaoParameters();
         CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginEvaluator);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void createCostEvaluatorFromRaoParametersAmps() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
+        assertTrue(costEvaluator instanceof MinMarginEvaluator);
+        assertEquals(AMPERE, costEvaluator.getUnit());
     }
 }
