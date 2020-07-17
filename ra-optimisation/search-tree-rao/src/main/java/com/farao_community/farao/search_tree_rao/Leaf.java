@@ -224,10 +224,24 @@ class Leaf {
      * used only if the leaf is OPTIMIZED. This method should not be used on root leaf in the tree as long as it
      * is necessary to keep this variant for algorithm results purpose.
      */
-    void cleanVariants() {
+    void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
             raoData.deleteVariant(initialVariantId, false);
         }
+    }
+
+    /**
+     * This method deletes all the variants of the leaf rao data, except the initial variant. It is useful as when the
+     * tree's optimal leaf is not the root leaf we don't want to see in the CracResult any other variant than the initial
+     * one (from the root leaf) and the best variant (from the optimal leaf).
+     * Thus this method should be called only on the root leaf.
+     */
+    void clearAllVariantsExceptInitialOne() {
+        HashSet<String> variantIds = new HashSet<>();
+        variantIds.addAll(raoData.getVariantIds());
+        variantIds.remove(initialVariantId);
+        raoData.setWorkingVariant(initialVariantId);
+        variantIds.forEach(variantId -> raoData.deleteVariant(variantId, false));
     }
 
     /**
@@ -235,7 +249,7 @@ class Leaf {
      * initial variant and the optimized variant. It is a delegate method to avoid calling directly rao data as a leaf
      * user.
      */
-    void clearVariants() {
+    void clearAllVariants() {
         raoData.clear();
     }
 

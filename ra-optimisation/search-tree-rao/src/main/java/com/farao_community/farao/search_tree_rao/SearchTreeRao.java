@@ -113,7 +113,9 @@ public class SearchTreeRao implements RaoProvider {
             updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
             if (hasImproved && previousDepthOptimalLeaf != rootLeaf) {
-                previousDepthOptimalLeaf.clearVariants();
+                previousDepthOptimalLeaf.clearAllVariants();
+            } else if (hasImproved) {
+                previousDepthOptimalLeaf.clearAllVariantsExceptInitialOne();
             }
             LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));
             SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
@@ -159,13 +161,13 @@ public class SearchTreeRao implements RaoProvider {
         leaf.evaluate();
         LOGGER.debug(leaf.toString());
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
-            leaf.clearVariants();
+            leaf.clearAllVariants();
         } else {
             if (!stopCriterionReached(leaf)) {
                 leaf.optimize();
                 LOGGER.info(leaf.toString());
             }
-            leaf.cleanVariants(); // delete pre-optim variant if post-optim variant is better
+            leaf.clearAllVariantsExceptOptimizedOne();
             updateOptimalLeafAndCleanVariants(leaf);
         }
     }
@@ -173,11 +175,11 @@ public class SearchTreeRao implements RaoProvider {
     private synchronized void updateOptimalLeafAndCleanVariants(Leaf leaf) {
         if (improvedEnough(leaf)) {
             if (optimalLeaf != previousDepthOptimalLeaf) {
-                optimalLeaf.clearVariants();
+                optimalLeaf.clearAllVariants();
             }
             optimalLeaf = leaf;
         } else {
-            leaf.clearVariants();
+            leaf.clearAllVariants();
         }
     }
 
