@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
