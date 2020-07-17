@@ -16,13 +16,13 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
+import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
-
     private double pstSensitivityThreshold;
 
     public CoreProblemFiller(double pstSensitivityThreshold) {

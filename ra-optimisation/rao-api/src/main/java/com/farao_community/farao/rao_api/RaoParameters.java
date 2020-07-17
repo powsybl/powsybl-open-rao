@@ -18,9 +18,6 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller.DEFAULT_PST_SENSITIVITY_THRESHOLD;
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.*;
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller.DEFAULT_PST_PENALTY_COST;
 import static java.lang.Math.max;
 
 /**
@@ -50,6 +47,12 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final int DEFAULT_MAX_ITERATIONS = 10;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+    public static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
+    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = true;
+    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
     private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
     private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
     private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;

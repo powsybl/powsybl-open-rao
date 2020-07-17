@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_api.RaoUtil;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
