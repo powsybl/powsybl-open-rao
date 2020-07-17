@@ -221,6 +221,9 @@ public class SearchTreeRao implements RaoProvider {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
+        if (raoResult.isSuccessful()) {
+            raoResult.setOptimizedNetwork(optimalLeaf.getRaoData().getNetwork()); //? TODO does the network in optimialLeaf contain all network actions ?
+        }
         return raoResult;
     }
 }
