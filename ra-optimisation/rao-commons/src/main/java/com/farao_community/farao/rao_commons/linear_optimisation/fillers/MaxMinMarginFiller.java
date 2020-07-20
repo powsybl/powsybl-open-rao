@@ -19,13 +19,13 @@ import com.google.ortools.linearsolver.MPVariable;
 import java.util.Optional;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
 
     private Unit unit;
     private double pstPenaltyCost;
@@ -89,7 +89,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
     private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().forEach(cnec -> {
+        raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 

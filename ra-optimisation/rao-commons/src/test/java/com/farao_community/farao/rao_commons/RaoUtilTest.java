@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api;
+package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.rao_commons.CostEvaluator;
-import com.farao_community.farao.rao_commons.MinMarginEvaluator;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -32,8 +32,8 @@ public class RaoUtilTest {
         SystematicSensitivityComputation systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
-        assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(AMPERE, optimizer.getCostEvaluator().getUnit());
+        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
@@ -46,17 +46,38 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
 
         assertTrue(optimizer instanceof IteratingLinearOptimizerWithLoopFlows);
-        assertTrue(optimizer.getCostEvaluator() instanceof MinMarginEvaluator);
-        assertEquals(MEGAWATT, optimizer.getCostEvaluator().getUnit());
+        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertEquals(MEGAWATT, optimizer.getObjectiveFunctionEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
     }
 
     @Test
-    public void createCostEvaluatorFromRaoParameters() {
+    public void createCostEvaluatorFromRaoParametersMegawatt() {
         RaoParameters raoParameters = new RaoParameters();
-        CostEvaluator costEvaluator = RaoUtil.createCostEvaluator(raoParameters);
-        assertTrue(costEvaluator instanceof MinMarginEvaluator);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void createCostEvaluatorFromRaoParametersAmps() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
+        assertEquals(AMPERE, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void testThatRaoDataCreationSynchronizesCrac() {
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoParameters parameters = new RaoParameters();
+        RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, parameters);
+        assertEquals(network, raoData.getNetwork());
+        assertEquals(crac, raoData.getCrac());
+        assertTrue(crac.isSynchronized());
     }
 }

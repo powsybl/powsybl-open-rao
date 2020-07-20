@@ -18,9 +18,6 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller.DEFAULT_PST_SENSITIVITY_THRESHOLD;
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller.*;
-import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller.DEFAULT_PST_PENALTY_COST;
 import static java.lang.Math.max;
 
 /**
@@ -50,6 +47,15 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final int DEFAULT_MAX_ITERATIONS = 10;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+    public static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
+    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = true;
+    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
+    private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
+    private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -60,6 +66,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double loopFlowViolationCost = DEFAULT_LOOP_FLOW_VIOLATION_COST;
+    private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
+    private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
+    private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
     private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
 
@@ -161,6 +170,30 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
+    public double getMnecAcceptableMarginDiminution() {
+        return mnecAcceptableMarginDiminution;
+    }
+
+    public void setMnecAcceptableMarginDiminution(double mnecAcceptableMarginDiminution) {
+        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
+    }
+
+    public double getMnecConstraintAdjustmentCoefficient() {
+        return mnecConstraintAdjustmentCoefficient;
+    }
+
+    public void setMnecConstraintAdjustmentCoefficient(double mnecConstraintAdjustmentCoefficient) {
+        this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
+    }
+
+    public double getMnecViolationCost() {
+        return mnecViolationCost;
+    }
+
+    public void setMnecViolationCost(double mnecViolationCost) {
+        this.mnecViolationCost = mnecViolationCost;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -208,6 +241,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setLoopFlowApproximation(config.getBooleanProperty("loop-flow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
                 parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loop-flow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 parameters.setLoopFlowViolationCost(config.getDoubleProperty("loop-flow-violation-cost", DEFAULT_LOOP_FLOW_VIOLATION_COST));
+                parameters.setMnecAcceptableMarginDiminution(config.getDoubleProperty("mnec-acceptable-margin-diminution", DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION));
+                parameters.setMnecViolationCost(config.getDoubleProperty("mnec-violation-cost", DEFAULT_MNEC_VIOLATION_COST));
+                parameters.setMnecConstraintAdjustmentCoefficient(config.getDoubleProperty("mnec-constraint-adjustment-coefficient", DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

@@ -120,7 +120,7 @@
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.version>2.19.0</mockito.version>
         <powermock.version>2.0.2</powermock.version>
-        <powsybl.balances-adjustment.version>1.1.0</powsybl.balances-adjustment.version>
+        <powsybl.balances-adjustment.version>1.2.0</powsybl.balances-adjustment.version>
         <powsybl.core.version>3.5.0-SNAPSHOT</powsybl.core.version>
         <powsybl.hades2.version>2.12.0-SNAPSHOT</powsybl.hades2.version>
         <slf4j.version>1.7.22</slf4j.version>
@@ -220,7 +220,8 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
+                </plugin>        <powsybl.core.version>3.4.0</powsybl.core.version>
+
                 <plugin>
                     <groupId>org.jvnet.jaxb2.maven2</groupId>
                     <artifactId>maven-jaxb2-plugin</artifactId>
