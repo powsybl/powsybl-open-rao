@@ -220,7 +220,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>        <powsybl.core.version>3.4.0</powsybl.core.version>
+                </plugin>
 
                 <plugin>
                     <groupId>org.jvnet.jaxb2.maven2</groupId>
