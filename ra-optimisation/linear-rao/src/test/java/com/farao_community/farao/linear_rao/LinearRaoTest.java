@@ -110,15 +110,10 @@ public class LinearRaoTest {
             raoResult.getExtension(LinearRaoResult.class).getSystematicSensitivityAnalysisStatus());
     }
 
-    @Test
+    @Test(expected = LinearOptimisationException.class)
     public void runLinearRaoWithLinearOptimisationError() {
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenThrow(new LinearOptimisationException("error with optim"));
-        try {
-            linearRao.run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters).join();
-            fail();
-        } catch (LinearOptimisationException e) {
-            // should throw
-        }
+        linearRao.run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters).join();
     }
 
     @Test
