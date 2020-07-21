@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class, RaoUtil.class, SearchTreeRaoLogger.class, SystematicSensitivityComputation.class, Leaf.class, SearchTreeRao.class})
-public class SearchTreeRaoTest {
+public class SearchTreeRaoUnitTest {
 
     private SearchTreeRao searchTreeRao;
     private ComputationManager computationManager;
