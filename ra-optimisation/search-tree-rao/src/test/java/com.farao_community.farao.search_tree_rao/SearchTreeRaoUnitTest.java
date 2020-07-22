@@ -61,7 +61,7 @@ public class SearchTreeRaoUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        searchTreeRao = Mockito.spy(SearchTreeRao.class);
+        searchTreeRao = new SearchTreeRao();
 
         computationManager = LocalComputationManager.getDefault();
 
