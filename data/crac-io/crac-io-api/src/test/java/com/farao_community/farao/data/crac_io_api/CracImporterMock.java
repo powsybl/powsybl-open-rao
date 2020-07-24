@@ -9,8 +9,10 @@ package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.google.auto.service.AutoService;
+import org.joda.time.DateTime;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -19,7 +21,7 @@ import java.io.InputStream;
 public class CracImporterMock implements CracImporter {
 
     @Override
-    public Crac importCrac(InputStream inputStream) {
+    public Crac importCrac(InputStream inputStream, Optional<DateTime> timeStampFilter) {
         return null;
     }
 
