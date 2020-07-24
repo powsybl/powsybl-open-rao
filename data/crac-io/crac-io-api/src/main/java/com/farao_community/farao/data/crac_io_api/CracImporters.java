@@ -11,10 +11,12 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import org.joda.time.DateTime;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -29,8 +31,12 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(Path cracPath) {
+        return importCrac(cracPath, Optional.empty());
+    }
+
+    public static Crac importCrac(Path cracPath, Optional<DateTime> timeStampFilter) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(cracPath.getFileName().toString(), is);
+            return importCrac(cracPath.getFileName().toString(), is, timeStampFilter);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
         } catch (IOException e) {
@@ -46,6 +52,10 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(String fileName, InputStream inputStream) {
+        return importCrac(fileName, inputStream, Optional.empty());
+    }
+
+    public static Crac importCrac(String fileName, InputStream inputStream, Optional<DateTime> timeStampFilter) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -53,7 +63,7 @@ public final class CracImporters {
             if (importer == null) {
                 throw new FaraoException("No importer found for this file");
             }
-            return importer.importCrac(new ByteArrayInputStream(bytes));
+            return importer.importCrac(new ByteArrayInputStream(bytes), timeStampFilter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
