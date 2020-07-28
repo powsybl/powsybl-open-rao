@@ -77,11 +77,7 @@ public final class Topology extends AbstractElementaryNetworkAction {
             }
         } else if (element instanceof Switch) {
             Switch aSwitch = (Switch) element;
-            if (actionType == ActionType.OPEN) {
-                aSwitch.setOpen(true);
-            } else {
-                aSwitch.setOpen(false);
-            }
+            aSwitch.setOpen(actionType == ActionType.OPEN);
         } else {
             throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }
