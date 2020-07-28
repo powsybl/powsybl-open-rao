@@ -144,6 +144,7 @@ public class SearchTreeRao implements RaoProvider {
                             networkPool.releaseUsedNetwork(networkClone);
                             LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
                         } catch (InterruptedException | NotImplementedException e) {
+                            LOGGER.error(format("Cannot apply remedial action %s", networkAction.getId()));
                             Thread.currentThread().interrupt();
                         }
                     }));
