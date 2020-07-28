@@ -83,7 +83,7 @@ public final class Topology extends AbstractElementaryNetworkAction {
                 aSwitch.setOpen(false);
             }
         } else {
-            throw new NotImplementedException("Topological actions are only on branches for now");
+            throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }
     }
 
