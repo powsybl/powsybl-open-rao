@@ -15,8 +15,8 @@ import org.joda.time.DateTime;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -31,21 +31,10 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(Path cracPath) {
-        try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(cracPath.getFileName().toString(), is);
-        } catch (FileNotFoundException e) {
-            throw new FaraoException("File not found.");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return importCrac(cracPath, Optional.empty());
     }
 
-    public static Crac importCrac(Path cracPath, Instant instant) {
-        org.joda.time.Instant jodaInstant = new org.joda.time.Instant(instant.toEpochMilli());
-        return importCrac(cracPath, jodaInstant.toDateTime());
-    }
-
-    public static Crac importCrac(Path cracPath, DateTime timeStampFilter) {
+    public static Crac importCrac(Path cracPath, Optional<DateTime> timeStampFilter) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
             return importCrac(cracPath.getFileName().toString(), is, timeStampFilter);
         } catch (FileNotFoundException e) {
@@ -55,38 +44,43 @@ public final class CracImporters {
         }
     }
 
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
+    }
+
     public static Crac importCrac(String fileName, InputStream inputStream) {
-        byte[] bytes = getBytesFromInputStream(inputStream);
-        CracImporter importer = findImporter(fileName, bytes);
-        return importer.importCrac(new ByteArrayInputStream(bytes));
+        return importCrac(fileName, inputStream, Optional.empty());
     }
 
-    public static Crac importCrac(String fileName, InputStream inputStream, Instant instant) {
-        org.joda.time.Instant jodaInstant = new org.joda.time.Instant(instant.toEpochMilli());
-        return importCrac(fileName, inputStream, jodaInstant.toDateTime());
-    }
-
-    public static Crac importCrac(String fileName, InputStream inputStream, DateTime timeStampFilter) {
-        byte[] bytes = getBytesFromInputStream(inputStream);
-        CracImporter importer = findImporter(fileName, bytes);
-        return importer.importCrac(new ByteArrayInputStream(bytes), timeStampFilter);
-    }
-
-    private static CracImporter findImporter(String fileName, byte[] bytes) {
-        for (CracImporter importer : CRAC_IMPORTERS.get()) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            if (importer.exists(fileName, bais)) {
-                return importer;
-            }
-        }
-        throw new FaraoException("No importer found for this file");
-    }
-
-    private static byte[] getBytesFromInputStream(InputStream inputStream) {
+    public static Crac importCrac(String fileName, InputStream inputStream, Optional<DateTime> timeStampFilter) {
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            org.apache.commons.io.IOUtils.copy(inputStream, baos);
-            return baos.toByteArray();
+            byte[] bytes = getBytesFromInputStream(inputStream);
+
+            CracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
+            if (importer == null) {
+                throw new FaraoException("No importer found for this file");
+            }
+            return importer.importCrac(new ByteArrayInputStream(bytes), timeStampFilter);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static CracImporter findImporter(String fileName, InputStream inputStream) {
+        try {
+            byte[] bytes = getBytesFromInputStream(inputStream);
+
+            for (CracImporter importer : CRAC_IMPORTERS.get()) {
+                ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                if (importer.exists(fileName, bais)) {
+                    return importer;
+                }
+            }
+            return null;
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
