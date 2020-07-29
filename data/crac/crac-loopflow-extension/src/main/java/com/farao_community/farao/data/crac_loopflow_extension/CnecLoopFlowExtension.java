@@ -33,7 +33,7 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
      */
 
     // ATTRIBUTES USED BY THE RAO to temporarily store some data about the loop-flows
-    private double loopFlowConstraintInMW; // loop-flow upper bound, usually = max (Abs(inputThreshold), Abs(initial loopflow))
+    private double loopFlowConstraintInMW; // loop-flow upper bound, usually = max (Abs(inputThreshold), Abs(initial loopflow)) - frm
     private double loopflowShift; // sum (ptdf * net position)
     private boolean hasLoopflowShift; //has previous calculated loopflow shift value
 
