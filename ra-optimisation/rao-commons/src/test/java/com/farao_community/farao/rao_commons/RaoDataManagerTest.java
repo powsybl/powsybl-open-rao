@@ -39,7 +39,7 @@ public class RaoDataManagerTest {
 
     @Test
     public void testCalculateLoopFlowConstraintAndUpdateAllCnec() {
-        //CnecLoopFlowExtension
+        //CnecLoopFlowExtensionTest
         crac.getCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0);
             cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);

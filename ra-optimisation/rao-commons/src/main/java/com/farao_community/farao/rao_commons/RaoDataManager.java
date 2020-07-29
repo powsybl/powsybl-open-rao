@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -15,6 +16,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,13 +130,15 @@ public class RaoDataManager {
         updateCnecExtensions();
     }
 
-    public void fillCracResultsWithLoopFlowConstraints(Map<String, Double> loopFlows, Map<Cnec, Double> loopFlowShifts) {
+    public void fillCracResultsWithLoopFlowConstraints(Map<String, Double> loopFlows, Map<Cnec, Double> loopFlowShifts, Network network) {
         raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()).forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+
             if (!Objects.isNull(cnecLoopFlowExtension)) {
+                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
                 double initialLoopFlow = Math.abs(loopFlows.get(cnec.getId()));
-                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputLoopFlow());
-                cnecLoopFlowExtension.setLoopFlowConstraint(Math.max(initialLoopFlow, loopFlowThreshold));
+
+                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
                 cnecLoopFlowExtension.setLoopflowShift(loopFlowShifts.get(cnec));
             }
         });
@@ -145,7 +149,7 @@ public class RaoDataManager {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && loopFlows.containsKey(cnec.getId())) {
                 cnecResult.setLoopflowInMW(loopFlows.get(cnec.getId()));
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint());
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
             }
         });
 
@@ -154,7 +158,7 @@ public class RaoDataManager {
         for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 double loopFlow = loopFlows.get(cnec.getId());
-                double constraint = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint();
+                double constraint = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
                 if (Math.abs(loopFlow) > Math.abs(constraint)) {
                     loopFlowTotalViolationCost += violationCost * (Math.abs(loopFlow) - Math.abs(constraint));
                     loopFlowViolated = true;
