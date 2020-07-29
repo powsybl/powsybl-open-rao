@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
@@ -15,6 +16,7 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.util.FaraoNetworkPool;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.powsybl.computation.ComputationManager;
@@ -22,6 +24,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResultImpl;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,31 +61,15 @@ public class SearchTreeRaoUnitTest {
     @Before
     public void setUp() throws Exception {
         searchTreeRao = new SearchTreeRao();
-
         computationManager = LocalComputationManager.getDefault();
-
-        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
-        when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-        LoadFlowService.init(loadFlowRunner, computationManager);
-
-        mockNativeLibraryLoader();
-
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CracImporters.importCrac("small-crac-with-network-actions.json", getClass().getResourceAsStream("/small-crac-with-network-actions.json"));
         crac.synchronize(network);
         variantId = network.getVariantManager().getWorkingVariantId();
         raoData = Mockito.spy(new RaoData(network, crac));
-        RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
-        Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParameters.json"));
-
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
-        PowerMockito.whenNew(SystematicSensitivityComputation.class).withAnyArguments().thenReturn(systematicSensitivityComputation);
-        Mockito.doNothing().when(systematicSensitivityComputation).run(any(), any());
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
-
-        mockRaoUtil();
     }
 
     private void mockNativeLibraryLoader() {
@@ -111,7 +98,22 @@ public class SearchTreeRaoUnitTest {
 
     @Test
     public void testRao() throws Exception {
+
+        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+        when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+        LoadFlowService.init(loadFlowRunner, computationManager);
+
+        mockNativeLibraryLoader();
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
+
+        RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
+        Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+
+        PowerMockito.whenNew(SystematicSensitivityComputation.class).withAnyArguments().thenReturn(systematicSensitivityComputation);
+        Mockito.doNothing().when(systematicSensitivityComputation).run(any(), any());
+
+        mockRaoUtil();
 
         CracResult cracResult = Mockito.mock(CracResult.class);
         Mockito.doReturn(cracResult).when(raoData).getCracResult();
@@ -128,5 +130,14 @@ public class SearchTreeRaoUnitTest {
         RaoResult result = searchTreeRao.run(network, crac, variantId, computationManager, raoParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
+    }
+
+    @Test(expected = NotImplementedException.class)
+    public void optimizeNextLeafAndUpdate() throws Exception {
+        NetworkAction networkAction = Mockito.mock(NetworkAction.class);
+        FaraoNetworkPool faraoNetworkPool = Mockito.mock(FaraoNetworkPool.class);
+        searchTreeRao.init(network, crac, variantId, raoParameters);
+        Mockito.doThrow(new NotImplementedException("")).when(networkAction).apply(network);
+        searchTreeRao.optimizeNextLeafAndUpdate(networkAction, network, faraoNetworkPool);
     }
 }
