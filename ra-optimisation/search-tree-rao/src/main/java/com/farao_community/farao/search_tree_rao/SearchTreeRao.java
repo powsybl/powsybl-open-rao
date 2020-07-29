@@ -64,7 +64,7 @@ public class SearchTreeRao implements RaoProvider {
         return "1.0.0";
     }
 
-    private void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
+    void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
@@ -156,7 +156,7 @@ public class SearchTreeRao implements RaoProvider {
         }
     }
 
-    private void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
+    void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
         try {
             leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
