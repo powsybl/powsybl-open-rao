@@ -241,6 +241,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return result;
     }
 
+    @Override
     public double getFrm() {
         return frm;
     }
