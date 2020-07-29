@@ -17,7 +17,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
 
 import java.io.*;
-import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
@@ -34,13 +33,10 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 @AutoService(CracImporter.class)
 public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
 
     @Override
-    public Crac importCrac(InputStream inputStream, Optional<DateTime> timeStampFilter) {
-        if (timeStampFilter.isPresent()) {
-            LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
-        }
+    public Crac importCrac(InputStream inputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.registerModule(new Jdk8Module());
@@ -51,6 +47,12 @@ public class JsonImport implements CracImporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public Crac importCrac(InputStream inputStream, DateTime timeStampFilter) {
+        LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
+        return importCrac(inputStream);
     }
 
     @Override

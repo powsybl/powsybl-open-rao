@@ -12,7 +12,6 @@ import com.google.auto.service.AutoService;
 import org.joda.time.DateTime;
 
 import java.io.InputStream;
-import java.util.Optional;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -21,7 +20,12 @@ import java.util.Optional;
 public class CracImporterMock implements CracImporter {
 
     @Override
-    public Crac importCrac(InputStream inputStream, Optional<DateTime> timeStampFilter) {
+    public Crac importCrac(InputStream inputStream) {
+        return null;
+    }
+
+    @Override
+    public Crac importCrac(InputStream inputStream, DateTime timeStampFilter) {
         return null;
     }
 
