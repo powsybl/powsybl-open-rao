@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -34,9 +35,11 @@ public class CnecLoopFlowExtensionTest {
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        cnec = CommonCracCreation.create().getCnecs().iterator().next();
+        Crac crac = CommonCracCreation.create();
+        crac.synchronize(network);
+        cnec = crac.getCnec("cnec2basecase");
 
-        iMax = 5000.0;
+        iMax = 1500.0;
         nominalV = 380.0;
     }
 
@@ -66,12 +69,12 @@ public class CnecLoopFlowExtensionTest {
 
     @Test
     public void convertFromA() {
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(2000, Unit.AMPERE);
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(750, Unit.AMPERE);
         cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        assertEquals(2000 * 100 / iMax, cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
-        assertEquals(2000, cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE, network), DOUBLE_TOLERANCE);
-        assertEquals(2000 * nominalV * sqrt(3) / 1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network), DOUBLE_TOLERANCE);
+        assertEquals(750 * 100 / iMax, cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
+        assertEquals(750, cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE, network), DOUBLE_TOLERANCE);
+        assertEquals(750 * nominalV * sqrt(3) / 1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network), DOUBLE_TOLERANCE);
     }
 
     @Test
