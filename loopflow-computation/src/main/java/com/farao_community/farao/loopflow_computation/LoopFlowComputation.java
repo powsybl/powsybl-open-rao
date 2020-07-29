@@ -199,10 +199,10 @@ public class LoopFlowComputation {
 
     public Map<String, Double> buildLoopFlowsFromReferenceFlowAndLoopflowShifts(Map<Cnec, Double> frefResults, Map<Cnec, Double> loopFlowShifts) {
         Map<String, Double> loopFlows = new HashMap<>();
-        for (Map.Entry<Cnec, Double> entry : frefResults.entrySet()) {
+        for (Map.Entry<Cnec, Double> entry : loopFlowShifts.entrySet()) {
             Cnec cnec = entry.getKey();
-            double loopflowShift = requireNonNull(loopFlowShifts.get(cnec), () -> "No loopflowShifts value for " + cnec.getId());
-            loopFlows.put(cnec.getId(), entry.getValue() - loopflowShift);
+            double fref = requireNonNull(frefResults.get(cnec), () -> "No reference flow value for " + cnec.getId());
+            loopFlows.put(cnec.getId(), fref - entry.getValue());
         }
         return loopFlows;
     }
