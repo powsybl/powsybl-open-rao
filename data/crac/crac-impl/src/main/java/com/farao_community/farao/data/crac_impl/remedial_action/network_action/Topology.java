@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
@@ -74,8 +75,11 @@ public final class Topology extends AbstractElementaryNetworkAction {
                 branch.getTerminal1().connect();
                 branch.getTerminal2().connect();
             }
+        } else if (element instanceof Switch) {
+            Switch aSwitch = (Switch) element;
+            aSwitch.setOpen(actionType == ActionType.OPEN);
         } else {
-            throw new NotImplementedException("Topological actions are only on branches for now");
+            throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }
     }
 

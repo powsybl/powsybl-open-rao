@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,6 +104,19 @@ public class TopologyTest extends AbstractRemedialActionTest {
     public void equals() {
         assertEquals(topologyClose, topologyClose);
         assertNotEquals(topologyClose, topologyOpen);
+    }
+
+    @Test
+    public void switchTopology() {
+        Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
+        String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
+        NetworkElement networkElement = new NetworkElement(switchNetworkElementId);
+        Topology openSwitchTopology = new Topology("id", networkElement, ActionType.OPEN);
+        openSwitchTopology.apply(network);
+        assertTrue(((Switch) network.getIdentifiable(switchNetworkElementId)).isOpen());
+        Topology closeSwitchTopology = new Topology("id", networkElement, ActionType.CLOSE);
+        closeSwitchTopology.apply(network);
+        assertFalse(((Switch) network.getIdentifiable(switchNetworkElementId)).isOpen());
     }
 
 }
