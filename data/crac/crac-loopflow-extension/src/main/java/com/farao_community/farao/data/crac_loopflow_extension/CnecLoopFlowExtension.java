@@ -50,6 +50,14 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         this.hasLoopflowShift = false;
     }
 
+    public double getInputThreshold() {
+        return inputThreshold;
+    }
+
+    public Unit getInputThresholdUnit() {
+        return inputThresholdUnit;
+    }
+
     /**
      * return loop flow constraint used in linear optimization
      */
@@ -153,6 +161,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
     private double getCnecThresholdInA() {
         return Math.min(getExtendable().getMaxThreshold(Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
-            - getExtendable().getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY));
+            -getExtendable().getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY));
     }
 }

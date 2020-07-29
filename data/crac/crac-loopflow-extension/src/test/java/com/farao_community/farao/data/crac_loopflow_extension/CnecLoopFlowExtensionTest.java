@@ -49,7 +49,8 @@ public class CnecLoopFlowExtensionTest {
 
         cnecLoopFlowExtension.setLoopFlowConstraintInMW(200);
         Assert.assertEquals(200, cnecLoopFlowExtension.getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
-        Assert.assertEquals(100, cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, null), DOUBLE_TOLERANCE);
+        Assert.assertEquals(100, cnecLoopFlowExtension.getInputThreshold(), DOUBLE_TOLERANCE);
+        Assert.assertEquals(Unit.PERCENT_IMAX, cnecLoopFlowExtension.getInputThresholdUnit());
 
         cnecLoopFlowExtension.setHasLoopflowShift(true);
         cnecLoopFlowExtension.setLoopflowShift(1);
