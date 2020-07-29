@@ -45,6 +45,13 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
     }
 
     /**
+     * return loop flow constraint used in linear optimization
+     */
+    public double getLoopFlowConstraintInMW() {
+        return loopFlowConstraintInMW;
+    }
+
+    /**
      * set loop flow constraint used during optimization.
      * The value is equal to MAX value of initial loop flow calculated from network and
      * loop flow threshold which is a input parameter from TSO
@@ -52,13 +59,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
      */
     public void setLoopFlowConstraintInMW(double loopFlowConstraint) {
         this.loopFlowConstraintInMW = loopFlowConstraint;
-    }
-
-    /**
-     * return loop flow constraint used in linear optimization
-     */
-    public double getLoopFlowConstraintInMW() {
-        return loopFlowConstraintInMW;
     }
 
     public double getLoopflowShift() {
@@ -116,6 +116,11 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
     }
 
+    @Override
+    public String getName() {
+        return "CnecLoopFlowExtension";
+    }
+
     private double convertMWToA(Network network, double valueInMW) {
         return valueInMW * 1000 / (getNominalVoltage(network) * Math.sqrt(3));
     }
@@ -146,10 +151,5 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
             throw new FaraoException(String.format("Cnec with id %s was not found in the network", this.getExtendable().getId()));
         }
         return branch.getCurrentLimits1().getPermanentLimit();
-    }
-
-    @Override
-    public String getName() {
-        return "CnecLoopFlowExtension";
     }
 }

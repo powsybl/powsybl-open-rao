@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
@@ -63,6 +64,8 @@ public class LoopFlowComputationTest {
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
         network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
+        setCnecLoopFlowInputThresholdAsPercetangeOfMaxThreshold(0.5);
+
         glskProvider = ExampleGenerator.glskProvider();
         computationManager = LocalComputationManager.getDefault();
         SensitivityComputationFactory sensitivityComputationFactory = ExampleGenerator.sensitivityComputationFactory();
@@ -113,8 +116,10 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(countriesFromGlsk.size(), countries.size());
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
-        loopFlowComputation.setCnecLoopFlowInputThresholdAsPercetangeOfPmax(0.5);
-        assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputLoopFlow(), EPSILON);
+        //loopFlowComputation.setCnecLoopFlowInputThresholdAsPercetangeOfPmax(0.5);
+
+        assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, network), EPSILON);
+
         ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get(Country.valueOf("FR")), EPSILON);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get(Country.valueOf("FR")), EPSILON);
@@ -160,5 +165,13 @@ public class LoopFlowComputationTest {
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network);
         assertNotNull(loopFlowComputation);
+    }
+
+    private void setCnecLoopFlowInputThresholdAsPercetangeOfMaxThreshold(double percentage) {
+        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
+            double pMax = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+            double loopflowInputLimit = percentage * Math.abs(pMax);
+            cnec.addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(loopflowInputLimit, Unit.MEGAWATT));
+        });
     }
 }

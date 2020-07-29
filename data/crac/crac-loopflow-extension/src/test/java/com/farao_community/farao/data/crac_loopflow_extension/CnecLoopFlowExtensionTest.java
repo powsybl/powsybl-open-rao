@@ -28,7 +28,7 @@ public class CnecLoopFlowExtensionTest {
 
     private Network network;
     private Cnec cnec;
-    private double Imax;
+    private double iMax;
     private double nominalV;
 
     @Before
@@ -36,7 +36,7 @@ public class CnecLoopFlowExtensionTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         cnec = CommonCracCreation.create().getCnecs().iterator().next();
 
-        Imax = 5000.0;
+        iMax = 5000.0;
         nominalV = 380.0;
     }
 
@@ -60,8 +60,8 @@ public class CnecLoopFlowExtensionTest {
         cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
         assertEquals(50, cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
-        assertEquals(0.5 * Imax, cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE, network), DOUBLE_TOLERANCE);
-        assertEquals(0.5 * Imax * nominalV * sqrt(3) / 1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network), DOUBLE_TOLERANCE);
+        assertEquals(0.5 * iMax, cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE, network), DOUBLE_TOLERANCE);
+        assertEquals(0.5 * iMax * nominalV * sqrt(3) / 1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class CnecLoopFlowExtensionTest {
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(2000, Unit.AMPERE);
         cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        assertEquals(2000 * 100 / Imax, cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
+        assertEquals(2000 * 100 / iMax, cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
         assertEquals(2000, cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE, network), DOUBLE_TOLERANCE);
         assertEquals(2000 * nominalV * sqrt(3) / 1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network), DOUBLE_TOLERANCE);
     }
@@ -79,7 +79,7 @@ public class CnecLoopFlowExtensionTest {
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(1000, Unit.MEGAWATT);
         cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
-        assertEquals(1000 * 1000 * 100 / (nominalV * sqrt(3) * Imax), cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
+        assertEquals(1000 * 1000 * 100 / (nominalV * sqrt(3) * iMax), cnecLoopFlowExtension.getInputThreshold(Unit.PERCENT_IMAX, network), DOUBLE_TOLERANCE);
         assertEquals(1000 * 1000 / (nominalV * sqrt(3)), cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE, network), DOUBLE_TOLERANCE);
         assertEquals(1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network), DOUBLE_TOLERANCE);
     }
