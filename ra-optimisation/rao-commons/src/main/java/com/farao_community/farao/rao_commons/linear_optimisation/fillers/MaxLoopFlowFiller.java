@@ -110,7 +110,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             }
 
             //get and update MapLoopflowLimit with loopflowConstraintAdjustmentCoefficient
-            double maxLoopFlowLimit = Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+            double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
+            if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
+                continue;
+            }
+
             maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
 
             //get loopflow shift

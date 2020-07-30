@@ -35,8 +35,8 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
 
     @Override
     public CnecLoopFlowExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        double inputThreshold = 100.0;
-        Unit unit = Unit.PERCENT_IMAX;
+        double inputThreshold = Double.NaN;
+        Unit unit = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
@@ -49,6 +49,9 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
+        }
+        if (Double.isNaN(inputThreshold)|| unit == null) {
+            throw new FaraoException("The CnecLoopFlowExtension should include both the 'inputThreshold' and the 'inputThresholdUnit' fields");
         }
 
         return new CnecLoopFlowExtension(inputThreshold, unit);

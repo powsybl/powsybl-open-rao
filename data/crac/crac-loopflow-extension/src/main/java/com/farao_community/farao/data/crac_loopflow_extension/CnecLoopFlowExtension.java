@@ -22,15 +22,16 @@ import com.powsybl.iidm.network.Network;
  */
 public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
-    // INPUTS
-    private double inputThreshold;
-    private Unit inputThresholdUnit;
     /*
+    INPUTS
      - if the unit is PERCENT_IMAX, the input flow threshold should be between 0 and 100
      - in the loop-flow threshold, PERCENT_IMAX is considered as a percentage of the Cnec
        threshold (retrieved from the Crac, without considering the frm), and NOT as a percentage
         of the branch current limit (retrieved from the Network)
      */
+    private double inputThreshold;
+    private Unit inputThresholdUnit;
+
 
     // ATTRIBUTES USED BY THE RAO to temporarily store some data about the loop-flows
     private double loopFlowConstraintInMW; // loop-flow upper bound, usually = max (Abs(inputThreshold), Abs(initial loopflow)) - frm
