@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -19,14 +20,24 @@ import java.nio.file.Paths;
  */
 public class CracExportersImportersTest {
 
+    String cracFile = "/empty.txt";
+
     @Test
     public void testExport() {
         Crac crac = Mockito.mock(Crac.class);
-        CracExporters.exportCrac(crac, Mockito.anyString(), Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
+        CracExporters.exportCrac(crac, "", Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
     }
 
     @Test
     public void testImport() {
-        CracImporters.importCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
+        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
+        Assert.assertNotNull(crac);
+    }
+
+    @Test
+    public void testImportWithInstant() {
+        java.time.Instant instant = java.time.Instant.ofEpochMilli(0);
+        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()), instant);
+        Assert.assertNotNull(crac);
     }
 }

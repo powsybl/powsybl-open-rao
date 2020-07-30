@@ -9,16 +9,21 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.farao_community.farao.data.crac_impl.json.deserializers.SimpleCracDeserializer;
+import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
-
-import java.io.*;
-
 import org.apache.commons.io.FilenameUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Optional;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -30,9 +35,13 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 @AutoService(CracImporter.class)
 public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
 
     @Override
-    public Crac importCrac(InputStream inputStream) {
+    public Crac importCrac(InputStream inputStream, Optional<DateTime> timeStampFilter) {
+        if (timeStampFilter.isPresent()) {
+            LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
+        }
         try {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.registerModule(new Jdk8Module());

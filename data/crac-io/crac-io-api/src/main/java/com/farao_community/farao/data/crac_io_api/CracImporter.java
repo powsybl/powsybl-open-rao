@@ -8,7 +8,10 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import org.joda.time.DateTime;
+
 import java.io.InputStream;
+import java.util.Optional;
 
 /**
  * Interface for CRAC object import
@@ -18,7 +21,7 @@ import java.io.InputStream;
 
 public interface CracImporter {
 
-    Crac importCrac(InputStream inputStream);
+    Crac importCrac(InputStream inputStream, Optional<DateTime> timeStampFilter);
 
     boolean exists(String fileName, InputStream inputStream);
 }
