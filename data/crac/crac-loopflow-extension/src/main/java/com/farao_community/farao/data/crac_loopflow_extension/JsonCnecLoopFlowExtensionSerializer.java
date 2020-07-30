@@ -50,7 +50,7 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
-        if (Double.isNaN(inputThreshold)|| unit == null) {
+        if (Double.isNaN(inputThreshold) || unit == null) {
             throw new FaraoException("The CnecLoopFlowExtension should include both the 'inputThreshold' and the 'inputThresholdUnit' fields");
         }
 
