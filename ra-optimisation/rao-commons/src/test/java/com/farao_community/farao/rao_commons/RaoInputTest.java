@@ -130,14 +130,14 @@ public class RaoInputTest {
         assertEquals(2, simpleCrac.getContingencies().size());
         assertEquals(2, simpleCrac.getStates().size());
 
-        assertEquals(6, qualityReport.size());
+        assertEquals(7, qualityReport.size());
         int removedCount = 0;
-        for (String line: qualityReport) {
+        for (String line : qualityReport) {
             if (line.contains("[REMOVED]")) {
                 removedCount++;
             }
         }
-        assertEquals(6, removedCount);
+        assertEquals(7, removedCount);
     }
 
     @Test

@@ -93,7 +93,10 @@ public final class RaoInput {
 
         absentFromNetworkContingencies.forEach(contingency ->  {
             crac.getStatesFromContingency(contingency.getId()).forEach(state -> {
-                crac.getCnecs(state).forEach(cnec -> crac.getCnecs().remove(cnec));
+                crac.getCnecs(state).forEach(cnec -> {
+                    crac.getCnecs().remove(cnec);
+                    report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
+                });
                 crac.getStates().remove(state);
             });
             crac.getContingencies().remove(contingency);
