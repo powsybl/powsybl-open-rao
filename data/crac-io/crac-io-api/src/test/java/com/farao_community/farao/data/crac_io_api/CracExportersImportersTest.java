@@ -29,4 +29,10 @@ public class CracExportersImportersTest {
     public void testImport() {
         CracImporters.importCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
     }
+
+    @Test
+    public void testImportWithInstant() {
+        java.time.Instant instant = java.time.Instant.ofEpochMilli(0);
+        CracImporters.importCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()), instant);
+    }
 }
