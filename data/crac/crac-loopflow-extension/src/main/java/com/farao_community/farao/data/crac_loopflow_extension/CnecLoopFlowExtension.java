@@ -28,8 +28,8 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
     /*
      - if the unit is PERCENT_IMAX, the input flow threshold should be between 0 and 100
      - in the loop-flow threshold, PERCENT_IMAX is considered as a percentage of the Cnec
-       threshold (retrieved from the Crac), and NOT as a percentage of the branch current
-       limit (retrieved from the Network)
+       threshold (retrieved from the Crac, without considering the frm), and NOT as a percentage
+        of the branch current limit (retrieved from the Network)
      */
 
     // ATTRIBUTES USED BY THE RAO to temporarily store some data about the loop-flows
@@ -103,15 +103,15 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         }
 
         if (inputThresholdUnit == Unit.PERCENT_IMAX && requestedUnit == Unit.AMPERE) {
-            return convertPercentImaxToA(inputThreshold);
+            return convertPercentImaxToA(network, inputThreshold);
         }
 
         if (inputThresholdUnit == Unit.PERCENT_IMAX && requestedUnit == Unit.MEGAWATT) {
-            return convertAToMW(network, convertPercentImaxToA(inputThreshold));
+            return convertAToMW(network, convertPercentImaxToA(network, inputThreshold));
         }
 
         if (inputThresholdUnit == Unit.AMPERE && requestedUnit == Unit.PERCENT_IMAX) {
-            return convertAToPercentImax(inputThreshold);
+            return convertAToPercentImax(network, inputThreshold);
         }
 
         if (inputThresholdUnit == Unit.AMPERE && requestedUnit == Unit.MEGAWATT) {
@@ -123,7 +123,7 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         }
 
         if (inputThresholdUnit == Unit.MEGAWATT && requestedUnit == Unit.PERCENT_IMAX) {
-            return convertAToPercentImax(convertMWToA(network, inputThreshold));
+            return convertAToPercentImax(network, convertMWToA(network, inputThreshold));
         }
 
         throw new FaraoException(String.format("Cannot convert %s into %s", inputThresholdUnit, requestedUnit));
@@ -143,12 +143,12 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         return valueInA * getNominalVoltage(network) * Math.sqrt(3) / 1000;
     }
 
-    private double convertAToPercentImax(double valueInA) {
-        return valueInA * 100 / getCnecThresholdInA();
+    private double convertAToPercentImax(Network network, double valueInA) {
+        return valueInA * 100 / getCnecThresholdInA(network);
     }
 
-    private double convertPercentImaxToA(double valueInPercent) {
-        return valueInPercent * getCnecThresholdInA() / 100;
+    private double convertPercentImaxToA(Network network, double valueInPercent) {
+        return valueInPercent * getCnecThresholdInA(network) / 100;
     }
 
     private double getNominalVoltage(Network network) {
@@ -159,8 +159,8 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         return branch.getTerminal1().getVoltageLevel().getNominalV();
     }
 
-    private double getCnecThresholdInA() {
+    private double getCnecThresholdInA(Network network) {
         return Math.min(getExtendable().getMaxThreshold(Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
-            -getExtendable().getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY));
+            -getExtendable().getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)) + convertMWToA(network, this.getExtendable().getFrm());
     }
 }
