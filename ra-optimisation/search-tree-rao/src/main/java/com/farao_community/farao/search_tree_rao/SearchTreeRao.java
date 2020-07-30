@@ -18,6 +18,7 @@ import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class SearchTreeRao implements RaoProvider {
         return "1.0.0";
     }
 
-    private void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
+    void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
@@ -139,10 +140,11 @@ public class SearchTreeRao implements RaoProvider {
                     networkPool.submit(() -> {
                         try {
                             Network networkClone = networkPool.getAvailableNetwork();
-                            optimizeNextLeafAndUpdate(networkAction, networkClone);
+                            optimizeNextLeafAndUpdate(networkAction, networkClone, networkPool);
                             networkPool.releaseUsedNetwork(networkClone);
                             LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException | NotImplementedException e) {
+                            LOGGER.error(format("Cannot apply remedial action %s", networkAction.getId()));
                             Thread.currentThread().interrupt();
                         }
                     }));
@@ -154,8 +156,14 @@ public class SearchTreeRao implements RaoProvider {
         }
     }
 
-    private void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network) {
-        Leaf leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
+    void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
+        Leaf leaf;
+        try {
+            leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
+        } catch (NotImplementedException e) {
+            networkPool.releaseUsedNetwork(network);
+            throw e;
+        }
         leaf.evaluate();
         LOGGER.debug(leaf.toString());
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
