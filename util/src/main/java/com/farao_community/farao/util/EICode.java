@@ -69,8 +69,8 @@ public class EICode {
 //            case "10YDE-RWENET---I" : return Country.DE;//c ControlArea
 //            case "10YDE-VE-------2" : return Country.DE;//d ControlArea
             case "10YES-REE------0" : return Country.ES;
-            case "10YCB-SWITZERL-D" :
             case "10YCS-SERBIATSOV" : return Country.RS;
+            case "10YCB-SWITZERL-D" :
             case "10YCH-SWISSGRIDZ" : return Country.CH;
             case "10YPT-REN------W" : return Country.PT;
             case "10YCA-BULGARIA-R" :
