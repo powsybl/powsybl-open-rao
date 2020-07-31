@@ -16,6 +16,7 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.*;
 
@@ -103,11 +104,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork());
         }
 
-        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
-            //security check
-            if (Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                continue;
-            }
+        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()).stream()
+                .filter(cnec -> cnec.getExtension(CnecLoopFlowExtension.class) != null)
+                .collect(Collectors.toList())) {
 
             //get and update MapLoopflowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
