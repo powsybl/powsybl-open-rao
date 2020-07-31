@@ -71,7 +71,8 @@ public class EICode {
             case "10YES-REE------0" : return Country.ES;
             case "10YCS-SERBIATSOV" : return Country.RS;
             case "10YCB-SWITZERL-D" :
-            case "10YCH-SWISSGRIDZ" : return Country.CH;
+            case "10YCH-SWISSGRIDZ" :
+                return Country.CH;
             case "10YPT-REN------W" : return Country.PT;
             case "10YCA-BULGARIA-R" :
             case "10YCB-BULGARIA-F" :
@@ -80,13 +81,15 @@ public class EICode {
             case "10YCB-ALBANIA--1" :
                 return Country.AL;
             case "10YCB-TURKEY---V" :
-            case "10YTR-TEIAS----W" : return Country.TR;
+            case "10YTR-TEIAS----W" :
+                return Country.TR;
             case "10Y1001C--00003F" : return Country.UA;
             case "10YMK-MEPSO----8" : return Country.MK;
             case "10YBA-JPCC-----D" : return Country.BA;
             case "10YCS-CG-TSO---S" : return Country.ME;
             case "10YCB-GREECE---2" :
-            case "10YGR-HTSO-----Y" : return Country.GR;
+            case "10YGR-HTSO-----Y" :
+                return Country.GR;
             case "10YIT-GRTN-----B" : return Country.IT;
             case "10YDK-1--------W" : return Country.DK;
             default: throw new IllegalArgumentException(String.format("Unknown EICode: %s.", codeString));
