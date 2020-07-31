@@ -32,7 +32,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
     private double inputThreshold;
     private Unit inputThresholdUnit;
 
-
     // ATTRIBUTES USED BY THE RAO to temporarily store some data about the loop-flows
     private double loopFlowConstraintInMW; // loop-flow upper bound, usually = max (Abs(inputThreshold), Abs(initial loopflow)) - frm
     private double loopflowShift; // sum (ptdf * net position)
@@ -40,7 +39,7 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
     public CnecLoopFlowExtension(double inputThreshold, Unit inputThresholdUnit) {
         if (inputThresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
-            throw new FaraoException("Loop thresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
+            throw new FaraoException("Loopflow thresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
         }
 
         this.inputThreshold = inputThreshold;
@@ -96,7 +95,7 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
     public double getInputThreshold(Unit requestedUnit, Network network) {
 
         if (requestedUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
-            throw new FaraoException("Loop thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
+            throw new FaraoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
         }
 
         if (requestedUnit == inputThresholdUnit) {

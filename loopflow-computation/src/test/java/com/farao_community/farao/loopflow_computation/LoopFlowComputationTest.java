@@ -64,7 +64,7 @@ public class LoopFlowComputationTest {
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
         network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        setCnecLoopFlowInputThresholdAsPercetangeOfMaxThreshold(0.5);
+        setCnecLoopFlowInputThresholdAsPercentageOfMaxThreshold(0.5);
 
         glskProvider = ExampleGenerator.glskProvider();
         computationManager = LocalComputationManager.getDefault();
@@ -116,7 +116,6 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(countriesFromGlsk.size(), countries.size());
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
-        //loopFlowComputation.setCnecLoopFlowInputThresholdAsPercetangeOfPmax(0.5);
 
         assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, network), EPSILON);
 
@@ -167,7 +166,7 @@ public class LoopFlowComputationTest {
         assertNotNull(loopFlowComputation);
     }
 
-    private void setCnecLoopFlowInputThresholdAsPercetangeOfMaxThreshold(double percentage) {
+    private void setCnecLoopFlowInputThresholdAsPercentageOfMaxThreshold(double percentage) {
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             double pMax = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
             double loopflowInputLimit = percentage * Math.abs(pMax);
