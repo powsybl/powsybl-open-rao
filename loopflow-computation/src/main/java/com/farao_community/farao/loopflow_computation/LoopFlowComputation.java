@@ -9,7 +9,6 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.util.EICode;
@@ -78,17 +77,6 @@ public class LoopFlowComputation {
         if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
             this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
         }
-    }
-
-    /**
-     * @param percentage of pmax value as Cnec input loopflow threshold
-     */
-    public void setCnecLoopFlowInputThresholdAsPercetangeOfPmax(double percentage) {
-        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
-            double pMax = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-            double loopflowInputLimit = percentage * Math.abs(pMax);
-            cnec.addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(loopflowInputLimit));
-        });
     }
 
     public Map<String, Double> calculateLoopFlows(Network network) {

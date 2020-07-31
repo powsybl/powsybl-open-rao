@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
@@ -53,8 +54,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cracLoopFlowExtension.setCountriesForLoopFlow(countries);
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
 
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
-        cnecLoopFlowExtension.setLoopFlowConstraint(100.0);
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(0.0, Unit.PERCENT_IMAX);
+        cnecLoopFlowExtension.setLoopFlowConstraintInMW(100.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
 
         maxLoopFlowFiller = new MaxLoopFlowFiller();

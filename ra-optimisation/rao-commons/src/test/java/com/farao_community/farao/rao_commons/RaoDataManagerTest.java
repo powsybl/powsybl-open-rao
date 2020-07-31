@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class RaoDataManagerTest {
 
-    static final double DOUBLE_TOLERANCE = 0.1;
+    private static final double DOUBLE_TOLERANCE = 0.1;
 
     private Crac crac;
     private RaoData raoData;
@@ -39,9 +40,9 @@ public class RaoDataManagerTest {
 
     @Test
     public void testCalculateLoopFlowConstraintAndUpdateAllCnec() {
-        //CnecLoopFlowExtension
+        //CnecLoopFlowExtensionTest
         crac.getCnecs().forEach(cnec -> {
-            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0);
+            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
             cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
         });
         Map<String, Double> fzeroallmap = new HashMap<>();
@@ -56,16 +57,16 @@ public class RaoDataManagerTest {
         loopflowShifts.put(crac.getCnec("DE-NL"), 0.0);
         CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
         crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(fzeroallmap, loopflowShifts);
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(fzeroallmap, loopflowShifts, raoData.getNetwork());
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
-            assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraint(), DOUBLE_TOLERANCE);
+            assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
         });
     }
 
     @Test
     public void testLoopflowRelated() {
-        CnecLoopFlowExtension cnec1LoopFlowExtension = new CnecLoopFlowExtension(0.0);
-        cnec1LoopFlowExtension.setLoopFlowConstraint(0.0);
+        CnecLoopFlowExtension cnec1LoopFlowExtension = new CnecLoopFlowExtension(0.0, Unit.PERCENT_IMAX);
+        cnec1LoopFlowExtension.setLoopFlowConstraintInMW(0.0);
         crac.getCnec("FR-BE").addExtension(CnecLoopFlowExtension.class, cnec1LoopFlowExtension);
         Map<String, Double> loopflows = new HashMap<>();
         loopflows.put("FR-BE", 1.0);
