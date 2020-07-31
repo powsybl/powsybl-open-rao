@@ -90,7 +90,9 @@ public class EICode {
             case "10YCB-GREECE---2" :
             case "10YGR-HTSO-----Y" :
                 return Country.GR;
-            case "10YIT-GRTN-----B" : return Country.IT;
+            case "10YCB-ITALY----1" :
+            case "10YIT-GRTN-----B" :
+                return Country.IT;
             case "10YDK-1--------W" : return Country.DK;
             default: throw new IllegalArgumentException(String.format("Unknown EICode: %s.", codeString));
         }
