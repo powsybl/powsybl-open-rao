@@ -152,7 +152,7 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
     }
 
     private double getNominalVoltage(Network network) {
-        Branch branch = network.getBranch(this.getExtendable().getNetworkElement().getId());
+        Branch<?> branch = network.getBranch(this.getExtendable().getNetworkElement().getId());
         if (branch == null) {
             throw new FaraoException(String.format("Cnec with id %s was not found in the network", this.getExtendable().getId()));
         }
