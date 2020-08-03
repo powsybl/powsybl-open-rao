@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.ucte.network.UcteElementId;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -47,17 +48,21 @@ public final class RaoUcteAliasesCreation {
     }
 
     private static void addElementNameAliases(Identifiable<?> identifiable, UcteElementId ucteElementId, String elementNameProperty, Set<String> duplicatedAliases) {
-        String node1 = ucteElementId.getNodeCode1().toString().trim();
-        String node2 = ucteElementId.getNodeCode2().toString().trim();
-        safeAddAlias(identifiable, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE,
-            node1.substring(0, node1.length() - 1),
-            node2.substring(0, node2.length() - 1),
-            String.valueOf(ucteElementId.getOrderCode())));
-        if (elementNameProperty != null && !elementNameProperty.isEmpty() && !elementNameProperty.equals(NOT_PRESENT_ELEMENT_NAME)) {
-            safeAddAlias(identifiable, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE,
-                node1.substring(0, node1.length() - 1),
-                node2.substring(0, node2.length() - 1),
-                elementNameProperty));
+        /*
+        For each node last element is chopped. It represents bus bar number, so it is not taken into account
+        for identification.
+         */
+        String fromNodeId = StringUtils.chop(ucteElementId.getNodeCode1().toString());
+        String toNodeId = StringUtils.chop(ucteElementId.getNodeCode2().toString());
+        String orderCode = String.valueOf(ucteElementId.getOrderCode());
+        String aliasWithOrderCode = String.format(ALIAS_TRIPLET_TEMPLATE, fromNodeId, toNodeId, orderCode);
+        safeAddAlias(identifiable, duplicatedAliases, aliasWithOrderCode);
+
+        if (elementNameProperty != null
+            && !elementNameProperty.isEmpty()
+            && !elementNameProperty.equals(NOT_PRESENT_ELEMENT_NAME)) {
+            String aliasWithElementName = String.format(ALIAS_TRIPLET_TEMPLATE, fromNodeId, toNodeId, elementNameProperty);
+            safeAddAlias(identifiable, duplicatedAliases, aliasWithElementName);
         }
     }
 
