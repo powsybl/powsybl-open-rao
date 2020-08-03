@@ -207,4 +207,16 @@ public class LeafTest {
         assertEquals("successful", rootLeaf.getBestVariantId());
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
+
+    @Test
+    public void testClearAllVariantsExceptInitialOne() {
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation, iteratingLinearOptimizer);
+        String initialVariantId = rootLeaf.getInitialVariantId();
+        rootLeaf.getRaoData().cloneWorkingVariant();
+        rootLeaf.getRaoData().cloneWorkingVariant();
+        rootLeaf.getRaoData().cloneWorkingVariant();
+        rootLeaf.clearAllVariantsExceptInitialOne();
+        assertEquals(1, rootLeaf.getRaoData().getVariantIds().size());
+        assertEquals(initialVariantId, rootLeaf.getRaoData().getVariantIds().get(0));
+    }
 }
