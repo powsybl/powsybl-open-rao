@@ -15,12 +15,11 @@ import org.mockito.Mockito;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class CracLoopFlowExtensionTest {
+
     @Test
     public void testCracLoopFlowExtension() {
         GlskProvider glskProvider = Mockito.mock(GlskProvider.class);
@@ -37,18 +36,5 @@ public class CracLoopFlowExtensionTest {
 
         CracLoopFlowExtension cracLoopFlowExtensionBis = new CracLoopFlowExtension(glskProvider, countries);
         Assert.assertEquals("CracLoopFlowExtension", cracLoopFlowExtensionBis.getName());
-    }
-
-    @Test
-    public void testCnecLoopFlowExtension() {
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension();
-        cnecLoopFlowExtension.setLoopFlowConstraint(100);
-        assertEquals(100, cnecLoopFlowExtension.getLoopFlowConstraint(), 0.1);
-        assertEquals(0.0, cnecLoopFlowExtension.getInputLoopFlow(), 0.1);
-        CnecLoopFlowExtension cnecLoopFlowExtensionBeta = new CnecLoopFlowExtension(100.0);
-        assertEquals(100, cnecLoopFlowExtensionBeta.getInputLoopFlow(), 0.1);
-        cnecLoopFlowExtension.setHasLoopflowShift(true);
-        cnecLoopFlowExtension.setLoopflowShift(1.0);
-        Assert.assertTrue(cnecLoopFlowExtension.hasLoopflowShift());
     }
 }
