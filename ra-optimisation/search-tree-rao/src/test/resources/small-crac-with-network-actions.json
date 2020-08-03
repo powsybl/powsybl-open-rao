@@ -1,0 +1,168 @@
+{
+  "type": "simple-crac",
+  "id": "LS_unsecure",
+  "name": "LS_unsecure",
+  "networkElements": [
+    {
+      "type": "NetworkElement",
+      "id": "BBE2AA1  FFR3AA1  1",
+      "name": "BBE2AA1  FFR3AA1  1"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "NNL1AA1  NNL2AA1  1",
+      "name": "NNL1AA1  NNL2AA1  1"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "BBE2AA1  BBE3AA1  1",
+      "name": "BBE2AA1  BBE3AA1  1"
+    }
+  ],
+  "instants": [
+    {
+      "type": "Instant",
+      "id": "N",
+      "seconds": -1,
+      "name": "N"
+    },
+    {
+      "type": "Instant",
+      "id": "Défaut",
+      "seconds": 60,
+      "name": "Défaut"
+    }
+  ],
+  "contingencies": [
+    {
+      "type": "complex-contingency",
+      "id": "N-1 NL1-NL3",
+      "name": "N-1 NL1-NL3",
+      "networkElements": [
+        "NNL1AA1  NNL2AA1  1"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "type": "simple-state",
+      "id": "none-N",
+      "contingency": null,
+      "instant": "N"
+    },
+    {
+      "type": "simple-state",
+      "id": "N-1 NL1-NL3-Défaut",
+      "contingency": "N-1 NL1-NL3",
+      "instant": "Défaut"
+    }
+  ],
+  "cnecs": [
+    {
+      "type": "simple-cnec",
+      "id": "Tieline BE FR - Defaut - N-1 NL1-NL3",
+      "name": "Tieline BE FR",
+      "networkElement": "BBE2AA1  FFR3AA1  1",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "BOTH",
+        "maxValue": 750
+      } ],
+      "state": "N-1 NL1-NL3-Défaut"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "Tieline BE FR - N - preventive",
+      "name": "Tieline BE FR",
+      "networkElement": "BBE2AA1  FFR3AA1  1",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "BOTH",
+        "maxValue": 750
+      } ],
+      "state": "none-N"
+    }
+  ],
+  "rangeActions": [
+    {
+      "type": "pst-with-range",
+      "id": "PRA_PST_BE",
+      "name": "PRA_PST_BE",
+      "operator": "BE",
+      "usageRules": [
+        {
+          "type": "free-to-use",
+          "usageMethod": "AVAILABLE",
+          "state": "none-N"
+        }
+      ],
+      "ranges": [
+        {
+          "min": 1,
+          "max": 33,
+          "rangeType": "ABSOLUTE_FIXED",
+          "rangeDefinition": "STARTS_AT_ONE"
+        }
+      ],
+      "networkElements": ["BBE2AA1  BBE3AA1  1"]
+    }
+  ],
+  "networkActions": [
+    {
+      "type": "complex-network-action",
+      "id": "Open line NL1-NL2",
+      "name": "Open line NL1-NL2",
+      "operator": "Elia",
+      "usageRules": [
+        {
+          "type": "free-to-use",
+          "usageMethod": "AVAILABLE",
+          "state": "none-N"
+        }
+      ],
+      "elementaryNetworkActions": [
+        {
+          "type": "topology",
+          "id": "Open line NL1-NL2",
+          "name": "Open line NL1-NL2",
+          "operator": "Elia",
+          "usageRules": [],
+          "networkElements": [
+            "NNL1AA1  NNL2AA1  1"
+          ],
+          "actionType": "OPEN"
+        }
+      ]
+    },
+    {
+      "type": "complex-network-action",
+      "id": "Open line BE2-FR3",
+      "name": "Open line BE2-FR3",
+      "operator": "Elia",
+      "usageRules": [
+        {
+          "type": "free-to-use",
+          "usageMethod": "AVAILABLE",
+          "state": "none-N"
+        }
+      ],
+      "elementaryNetworkActions": [
+        {
+          "type": "topology",
+          "id": "Open line BE2-FR3",
+          "name": "Open line BE2-FR3",
+          "operator": "Elia",
+          "usageRules": [],
+          "networkElements": [
+            "BBE2AA1  FFR3AA1  1"
+          ],
+          "actionType": "OPEN"
+        }
+      ]
+    }
+  ]
+}
