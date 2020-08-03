@@ -113,10 +113,12 @@ public class SearchTreeRao implements RaoProvider {
             previousDepthOptimalLeaf = optimalLeaf;
             updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
-            if (hasImproved && previousDepthOptimalLeaf != rootLeaf) {
-                previousDepthOptimalLeaf.clearAllVariants();
-            } else if (hasImproved) {
-                previousDepthOptimalLeaf.clearAllVariantsExceptInitialOne();
+            if (hasImproved) {
+                if (previousDepthOptimalLeaf == rootLeaf) {
+                    previousDepthOptimalLeaf.clearAllVariantsExceptInitialOne(); // to keep the results without optim
+                } else {
+                    previousDepthOptimalLeaf.clearAllVariants();
+                }
             }
             LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));
             SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
