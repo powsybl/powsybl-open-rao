@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -103,6 +104,10 @@ public class LoopFlowComputation {
     private List<SensitivityFactor> generateSensitivityFactorsProvider(Network network, Set<Cnec> cnecs, GlskProvider glskProvider) {
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
+
+        // filter countries and keep only the ones required for loop-flow computation
+        mapCountryLinearGlsk.keySet().retainAll(countries.stream().map(Objects::toString).collect(Collectors.toList()));
+
         cnecs.forEach(cnec -> mapCountryLinearGlsk.values().stream()
                 .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId()), linearGlsk))
                 .forEach(factors::add));
