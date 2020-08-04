@@ -52,7 +52,7 @@ class Leaf {
         CREATED("Created"),
         ERROR("Error"),
         EVALUATED("Evaluated"),
-        OPTIMIZED("Optimzed");
+        OPTIMIZED("Optimized");
 
         private String message;
 
