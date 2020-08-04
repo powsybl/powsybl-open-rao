@@ -24,7 +24,7 @@ import static com.powsybl.ucte.network.UcteElementId.parseUcteElementId;
  */
 public final class RaoUcteAliasesCreation {
 
-    private static final String ALIAS_TRIPLET_TEMPLATE = "%1$-8s %2$-8s %3$s";
+    private static final String ALIAS_TRIPLET_TEMPLATE = "%1$-7s* %2$-7s* %3$s";
     private static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
     private static final String NOT_PRESENT_ELEMENT_NAME = "N/A";
 
