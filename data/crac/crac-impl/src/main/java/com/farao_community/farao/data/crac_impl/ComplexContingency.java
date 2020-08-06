@@ -15,13 +15,10 @@ import com.farao_community.farao.data.crac_impl.json.serializers.ComplexContinge
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.contingency.*;
+import com.powsybl.iidm.network.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Business object for a contingency in the CRAC file.
@@ -59,15 +56,23 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
+        com.powsybl.contingency.Contingency contingency = new com.powsybl.contingency.Contingency(getId(), new ArrayList<>());
         getNetworkElements().forEach(contingencyElement -> {
             Identifiable element = network.getIdentifiable(contingencyElement.getId());
             if (element instanceof Branch) {
-                BranchContingency contingency = new BranchContingency(contingencyElement.getId());
-                contingency.toTask().modify(network, computationManager);
+                contingency.addElement(new BranchContingency(contingencyElement.getId()));
+            } else if (element instanceof Generator) {
+                contingency.addElement(new GeneratorContingency(contingencyElement.getId()));
+            } else if (element instanceof HvdcLine) {
+                contingency.addElement(new HvdcLineContingency(contingencyElement.getId()));
+            } else if (element instanceof BusbarSection) {
+                contingency.addElement(new BusbarSectionContingency(contingencyElement.getId()));
             } else {
                 throw new FaraoException("Unable to apply contingency element " + contingencyElement.getId());
             }
         });
+        com.powsybl.contingency.Contingency.checkValidity(Collections.singletonList(contingency), network);
+        contingency.toTask().modify(network, computationManager);
     }
 
     /**
