@@ -214,7 +214,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     }
 
     /**
-     * @param platformConfig PlatformConfig where the RaoParameters should be taken
+     * @param platformConfig PlatformConfig where the RaoParameters should be read from
      * @return RaoParameters from the provided platform config
      */
     public static RaoParameters load(PlatformConfig platformConfig) {

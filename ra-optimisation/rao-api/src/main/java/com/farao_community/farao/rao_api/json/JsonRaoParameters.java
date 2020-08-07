@@ -60,7 +60,7 @@ public final class JsonRaoParameters {
     }
 
     /**
-     * @param jsonFile Path where to take the RaoParameters
+     * @param jsonFile Path where the RaoParameters should be read from
      * @return parameters from a JSON file (will NOT rely on platform config).
      */
     public static RaoParameters read(Path jsonFile) {
