@@ -207,14 +207,15 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "rao-parameters"));
 
     /**
-     * Load parameters from platform default config.
+     * @return RaoParameters from platform default config.
      */
     public static RaoParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
 
     /**
-     * Load parameters from a provided platform config.
+     * @param platformConfig PlatformConfig where the RaoParameters should be taken
+     * @return RaoParameters from the provided platform config
      */
     public static RaoParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
