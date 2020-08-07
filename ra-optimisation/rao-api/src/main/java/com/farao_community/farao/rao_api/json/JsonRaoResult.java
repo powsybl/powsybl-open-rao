@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * A class to import and export Rao Results in a Json format
  *
- * @author Philippe Edwards <philippe.edwards at rte-france.com>
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class JsonRaoResult {
 
@@ -53,14 +53,15 @@ public final class JsonRaoResult {
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "rao-result"));
 
     /**
-     * Gets the known extension serializers.
+     * @return the known extension serializers.
      */
     public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
         return SUPPLIER.get();
     }
 
     /**
-     * Reads result from a JSON file (will NOT rely on platform config).
+     * @param jsonFile Path where the RaoResult is read
+     * @return RaoResult from a JSON file (will NOT rely on platform config).
      */
     public static RaoResult read(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
@@ -73,7 +74,8 @@ public final class JsonRaoResult {
     }
 
     /**
-     * Reads result from a JSON file (will NOT rely on platform config).
+     * @param jsonStream InputStream where the RaoResult is read
+     * @return RaoResult from a JSON file (will NOT rely on platform config).
      */
     public static RaoResult read(InputStream jsonStream) {
         try {
@@ -85,7 +87,8 @@ public final class JsonRaoResult {
     }
 
     /**
-     * Writes result as JSON to a file.
+     * @param result RaoResult that is written into the jsonFile
+     * @param jsonFile Path where the RaoResult is written
      */
     public static void write(RaoResult result, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
@@ -98,7 +101,8 @@ public final class JsonRaoResult {
     }
 
     /**
-     * Writes result as JSON to an output stream.
+     * @param result RaoResult that is written into the OutputStream
+     * @param outputStream OutputStream where the RaoResult is written
      */
     public static void write(RaoResult result, OutputStream outputStream) {
         try {
@@ -111,24 +115,37 @@ public final class JsonRaoResult {
     }
 
     /**
-     * Low level deserialization method, to be used for instance for reading rao computation parameters nested in another object.
+     * Low level deserialization method, to be used for instance for updating rao results nested in another object.
+     * @param parser JsonParser containing the RaoResult data
+     * @param context DeserializationContext used for the deserialization
+     * @param raoResult RaoResult that will contain the data initially in the JsonParser
+     * @return RaoResult object updated while deserialization
+     * @throws IOException when an unknown field is found
      */
-    public static RaoResult deserialize(JsonParser parser, DeserializationContext context, RaoResult parameters) throws IOException {
-        return new RaoResultDeserializer().deserialize(parser, context, parameters);
+    public static RaoResult deserialize(JsonParser parser, DeserializationContext context, RaoResult raoResult) throws IOException {
+        return new RaoResultDeserializer().deserialize(parser, context, raoResult);
     }
 
     /**
-     * Low level deserialization method, to be used for instance for updating rao computation parameters nested in another object.
+     * Low level deserialization method, to be used for instance for updating rao results nested in another object.
+     * @param parser JsonParser containing the RaoResult data
+     * @param context DeserializationContext used for the deserialization
+     * @return RaoResult object updated while deserialization
+     * @throws IOException when an unknown field is found
      */
     public static RaoResult deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new RaoResultDeserializer().deserialize(parser, context);
     }
 
     /**
-     * Low level serialization method, to be used for instance for writing rao computation parameters nested in another object.
+     * Low level serialization method, to be used for instance for writing rao results nested in another object.
+     * @param raoResult RaoResult containing what needs to be serialized
+     * @param jsonGenerator JsonGenerator used for the serialization
+     * @param serializerProvider SerializerProvider used for the serialization
+     * @throws IOException if the serialization fails
      */
-    public static void serialize(RaoResult parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        new RaoResultSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    public static void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        new RaoResultSerializer().serialize(raoResult, jsonGenerator, serializerProvider);
     }
 
     private static ObjectMapper createObjectMapper() {
