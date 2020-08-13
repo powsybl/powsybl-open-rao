@@ -9,13 +9,8 @@ package com.farao_community.farao.util;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.contingency.*;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +37,14 @@ public class CracContingenciesProvider implements ContingenciesProvider {
     private ContingencyElement convertCracContingencyElementToPowsybl(NetworkElement cracContingencyElement, Network network) {
         String elementId = cracContingencyElement.getId();
         Identifiable networkIdentifiable = network.getIdentifiable(elementId);
-        if (networkIdentifiable instanceof Branch<?>) {
+        if (networkIdentifiable instanceof Branch) {
             return new BranchContingency(elementId);
+        } else if (networkIdentifiable instanceof Generator) {
+            return new GeneratorContingency(elementId);
+        } else if (networkIdentifiable instanceof HvdcLine) {
+            return new HvdcLineContingency(elementId);
+        } else if (networkIdentifiable instanceof BusbarSection) {
+            return new BusbarSectionContingency(elementId);
         } else {
             throw new FaraoException("Unable to apply contingency element " + elementId);
         }
