@@ -56,6 +56,8 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
+        // This implementation is unused for now as long as the contingencies are applied in the systematic sensitivity computation
+        // It might be used to implement curative features
         com.powsybl.contingency.Contingency contingency = new com.powsybl.contingency.Contingency(getId(), new ArrayList<>());
         getNetworkElements().forEach(contingencyElement -> {
             Identifiable element = network.getIdentifiable(contingencyElement.getId());
