@@ -50,7 +50,7 @@ public final class JsonRaoParameters {
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "rao-parameters"));
 
     /**
-     * Gets the known extension serializers.
+     * @return the known extension serializers.
      */
     public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
         return SUPPLIER.get();
@@ -60,21 +60,25 @@ public final class JsonRaoParameters {
     }
 
     /**
-     * Reads parameters from a JSON file (will NOT rely on platform config).
+     * @param jsonFile Path where the RaoParameters should be read from
+     * @return parameters from a JSON file (will NOT rely on platform config).
      */
     public static RaoParameters read(Path jsonFile) {
         return update(new RaoParameters(), jsonFile);
     }
 
     /**
-     * Reads parameters from a JSON file (will NOT rely on platform config).
+     * @param jsonStream InputStream where the RaoParameters are
+     * @return  parameters from a JSON file (will NOT rely on platform config).
      */
     public static RaoParameters read(InputStream jsonStream) {
         return update(new RaoParameters(), jsonStream);
     }
 
     /**
-     * Updates parameters by reading the content of a JSON file.
+     * @param parameters RaoParameters containing original parameters
+     * @param jsonFile Path containing parameters to update
+     * @return parameters updated with the ones found by reading the content of jsonFile.
      */
     public static RaoParameters update(RaoParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
@@ -87,7 +91,9 @@ public final class JsonRaoParameters {
     }
 
     /**
-     * Updates parameters by reading the content of a JSON stream.
+     * @param parameters RaoParameters containing original parameters
+     * @param jsonStream InputStream containing parameters to update
+     * @return parameters updated with the ones found by reading the content of jsonStream.
      */
     public static RaoParameters update(RaoParameters parameters, InputStream jsonStream) {
         try {
@@ -100,6 +106,8 @@ public final class JsonRaoParameters {
 
     /**
      * Writes parameters as JSON to a file.
+     * @param parameters RaoParameters containing the parameters that will be exported to a file
+     * @param jsonFile Path containing the file where the parameters will be exported
      */
     public static void write(RaoParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
@@ -112,7 +120,9 @@ public final class JsonRaoParameters {
     }
 
     /**
-     * Writes parameters as JSON to an output stream.
+     * Writes parameters as JSON to an OutputStream
+     * @param parameters RaoParameters containing the parameters that will be exported to an OutputStream
+     * @param outputStream OutputStream where the parameters will be exported
      */
     public static void write(RaoParameters parameters, OutputStream outputStream) {
         try {
@@ -126,6 +136,11 @@ public final class JsonRaoParameters {
 
     /**
      * Low level deserialization method, to be used for instance for reading rao parameters nested in another object.
+     * @param parser JsonParser of a file containing a representation of RaoParameters
+     * @param context DeserializationContext used in the deserialization
+     * @param parameters RaoParameters to be updated
+     * @return RaoParameters object updated with the content of the JsonParser
+     * @throws IOException when an unexpected field is found
      */
     public static RaoParameters deserialize(JsonParser parser, DeserializationContext context, RaoParameters parameters) throws IOException {
         return new RaoParametersDeserializer().deserialize(parser, context, parameters);
@@ -133,6 +148,10 @@ public final class JsonRaoParameters {
 
     /**
      * Low level deserialization method, to be used for instance for updating rao parameters nested in another object.
+     * @param parser JsonParser of a file containing a representation of RaoParameters
+     * @param context DeserializationContext used in the deserialization
+     * @return RaoParameters object representing the content of the JsonParser
+     * @throws IOException when an unexpected field is found
      */
     public static RaoParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new RaoParametersDeserializer().deserialize(parser, context);
@@ -140,6 +159,10 @@ public final class JsonRaoParameters {
 
     /**
      * Low level serialization method, to be used for instance for writing Rao Parameters nested in another object.
+     * @param parameters RaoParameters containing what needs to be serialized
+     * @param jsonGenerator JsonGenerator used for the serialization
+     * @param serializerProvider SerializerProvider used for the serialization
+     * @throws IOException if the serialization fails
      */
     public static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         new RaoParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
