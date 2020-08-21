@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.stream.Collectors;
@@ -24,6 +25,15 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class ComplexContingencyTest {
+
+    private Network network;
+    private ComputationManager computationManager;
+
+    @Before
+    public void setUp() {
+        computationManager = LocalComputationManager.getDefault();
+        network = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
+    }
 
     @Test
     public void testDifferentWithDifferentIds() {
@@ -71,17 +81,31 @@ public class ComplexContingencyTest {
     }
 
     @Test(expected = FaraoException.class)
-    public void testApply() {
-        ComplexContingency complexContingency = new ComplexContingency("cnec1");
+    public void testApplyFails() {
+        ComplexContingency complexContingency = new ComplexContingency("contingency");
+        complexContingency.addNetworkElement(new NetworkElement("None"));
+        assertEquals(1, complexContingency.getNetworkElements().size());
+        complexContingency.apply(network, computationManager);
+    }
+
+    @Test
+    public void testApplyOnBranch() {
+        ComplexContingency complexContingency = new ComplexContingency("contingency");
         complexContingency.addNetworkElement(new NetworkElement("FRANCE_BELGIUM_1"));
         assertEquals(1, complexContingency.getNetworkElements().size());
-        ComputationManager computationManager = LocalComputationManager.getDefault();
-        Network network = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
         assertFalse(network.getBranch("FRANCE_BELGIUM_1").getTerminal1().connect());
         complexContingency.apply(network, computationManager);
         assertTrue(network.getBranch("FRANCE_BELGIUM_1").getTerminal1().connect());
-        complexContingency.addNetworkElement(new NetworkElement("None"));
+    }
+
+    @Test
+    public void testApplyOnGenerator() {
+        ComplexContingency complexContingency = new ComplexContingency("contingency");
+        complexContingency.addNetworkElement(new NetworkElement("GENERATOR_FR_2"));
+        assertEquals(1, complexContingency.getNetworkElements().size());
+        assertTrue(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
         complexContingency.apply(network, computationManager);
+        assertFalse(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
     }
 
 }
