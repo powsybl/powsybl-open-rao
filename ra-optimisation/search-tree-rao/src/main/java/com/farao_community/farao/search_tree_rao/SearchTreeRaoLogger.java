@@ -18,9 +18,9 @@ import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -56,8 +56,10 @@ final class SearchTreeRaoLogger {
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Crac crac, Unit unit) {
-        List<Cnec> sortedCnecs = new ArrayList<>(crac.getCnecs());
-        sortedCnecs.sort(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit)));
+        List<Cnec> sortedCnecs = crac.getCnecs().stream().
+            filter(Cnec::isOptimized).
+            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit))).
+            collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
             Cnec cnec = sortedCnecs.get(i);
