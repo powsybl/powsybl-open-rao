@@ -55,17 +55,17 @@ public class SystematicSensitivityAnalysisResultTest {
         // Then
         assertTrue(result.isSuccess());
         //  in basecase
-        double vNom = network.getBranch(nStateCnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
+        //double vNom = network.getBranch(nStateCnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
         assertEquals(10, result.getReferenceFlow(nStateCnec), EPSILON);
         assertEquals(100, result.getReferenceIntensity(nStateCnec), EPSILON);
         assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec), EPSILON);
-        assertEquals(0.25, result.getSensitivityOnIntensity(rangeAction, nStateCnec), EPSILON);
+        //assertEquals(0.25, result.getSensitivityOnIntensity(rangeAction, nStateCnec), EPSILON);
 
         //  after contingency
         assertEquals(-20, result.getReferenceFlow(contingencyCnec), EPSILON);
         assertEquals(-200, result.getReferenceIntensity(contingencyCnec), EPSILON);
         assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec), EPSILON);
-        assertEquals(-5, result.getSensitivityOnIntensity(rangeAction, contingencyCnec), EPSILON);
+        //assertEquals(-5, result.getSensitivityOnIntensity(rangeAction, contingencyCnec), EPSILON);
 
     }
 
