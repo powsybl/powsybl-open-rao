@@ -147,14 +147,7 @@ public class LoopFlowComputation {
     }
 
     public Map<Country, Double> getRefNetPositionByCountry(Network network) {
-        //get Net Position of each country from Network
-        Map<Country, Double> refNpCountry = new HashMap<>();
-        for (Country country : countries) {
-            CountryAreaFactory countryAreaFactory = new CountryAreaFactory(country);
-            double countryNetPositionValue = countryAreaFactory.create(network).getNetPosition();
-            refNpCountry.put(country, countryNetPositionValue);
-        }
-        return refNpCountry;
+        return (new CountryNetPositionComputation(network)).getNetPositions();
     }
 
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults, Map<Country, Double> referenceNetPositionByCountry) {
