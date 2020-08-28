@@ -43,7 +43,7 @@ public final class SystematicSensitivityAnalysisService {
             Crac crac,
             SensitivityComputationParameters sensitivityComputationParameters) {
 
-        SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac, isDc(sensitivityComputationParameters));
+        SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac, !isDc(sensitivityComputationParameters));
         ContingenciesProvider contingenciesProvider = new CracContingenciesProvider(crac);
         try {
             return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, contingenciesProvider, sensitivityComputationParameters);
