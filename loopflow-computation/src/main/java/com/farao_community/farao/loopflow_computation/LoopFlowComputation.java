@@ -41,6 +41,7 @@ public class LoopFlowComputation {
     private Crac crac;
     private GlskProvider glskProvider;
     private List<Country> countries;
+    private CountryNetPositionComputation countryNetPositionComputation;
 
     /**
      * @param crac a crac with or without CracLoopFlowExtension.
@@ -147,7 +148,10 @@ public class LoopFlowComputation {
     }
 
     public Map<Country, Double> getRefNetPositionByCountry(Network network) {
-        return (new CountryNetPositionComputation(network)).getNetPositions();
+        if (countryNetPositionComputation == null) {
+            countryNetPositionComputation = new CountryNetPositionComputation(network);
+        }
+        return countryNetPositionComputation.getNetPositions();
     }
 
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults, Map<Country, Double> referenceNetPositionByCountry) {
