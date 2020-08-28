@@ -3,6 +3,7 @@ package com.farao_community.farao.loopflow_computation;
 import com.powsybl.iidm.network.*;
 
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class CountryNetPositionComputation {
@@ -14,7 +15,7 @@ public class CountryNetPositionComputation {
         this.network = network;
     }
 
-    public EnumMap<Country, Double> getNetPositions() {
+    public Map<Country, Double> getNetPositions() {
         if (Objects.isNull(netPositions)) {
             computeNetPositions();
         }
