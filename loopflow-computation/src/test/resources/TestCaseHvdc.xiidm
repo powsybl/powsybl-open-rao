@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="test" caseDate="2020-08-28T08:44:14.736+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="sub_FR_1_id" country="FR" tso="tso_FR">
+        <iidm:voltageLevel id="vl_FR_1_id" nominalV="200.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="bus_FR_1_id"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="conv_FR_1_id" voltageRegulatorOn="false" lossFactor="0.011" reactivePowerSetpoint="1.0" bus="bus_FR_1_id" connectableBus="bus_FR_1_id" p="256" q="45">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="sub_FR_2_id" country="FR" tso="tso_FR">
+        <iidm:voltageLevel id="vl_FR_2_id" nominalV="200.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="bus_FR_2_id"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="conv_FR_2_id" voltageRegulatorOn="false" lossFactor="0.011" reactivePowerSetpoint="1.0" bus="bus_FR_2_id" connectableBus="bus_FR_2_id" p="400" q="20">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="sub_DE_id" country="DE" tso="tso_DE">
+        <iidm:voltageLevel id="vl_DE_id" nominalV="200.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="bus_DE_id"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="conv_DE_id" voltageRegulatorOn="false" lossFactor="0.011" reactivePowerSetpoint="1.0" bus="bus_DE_id" connectableBus="bus_DE_id" p="56" q="450">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:hvdcLine id="hvdc_line_FR_1_DE" r="5.0" nominalV="440.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="20.0" maxP="50.0" converterStation1="conv_FR_1_id" converterStation2="conv_DE_id"/>
+    <iidm:hvdcLine id="hvdc_line_FR_2_DE" r="5.0" nominalV="440.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="20.0" maxP="50.0" converterStation1="conv_FR_2_id" converterStation2="conv_DE_id"/>
+    <iidm:hvdcLine id="hvdc_line_FR_1_FR_2" r="5.0" nominalV="440.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="20.0" maxP="50.0" converterStation1="conv_FR_1_id" converterStation2="conv_FR_2_id"/>
+</iidm:network>

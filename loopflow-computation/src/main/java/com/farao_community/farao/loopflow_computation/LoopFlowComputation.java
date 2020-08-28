@@ -15,7 +15,6 @@ import com.farao_community.farao.util.EICode;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
-import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -42,6 +41,7 @@ public class LoopFlowComputation {
     private Crac crac;
     private GlskProvider glskProvider;
     private List<Country> countries;
+    private CountryNetPositionComputation countryNetPositionComputation;
 
     /**
      * @param crac a crac with or without CracLoopFlowExtension.
@@ -148,14 +148,10 @@ public class LoopFlowComputation {
     }
 
     public Map<Country, Double> getRefNetPositionByCountry(Network network) {
-        //get Net Position of each country from Network
-        Map<Country, Double> refNpCountry = new HashMap<>();
-        for (Country country : countries) {
-            CountryAreaFactory countryAreaFactory = new CountryAreaFactory(country);
-            double countryNetPositionValue = countryAreaFactory.create(network).getNetPosition();
-            refNpCountry.put(country, countryNetPositionValue);
+        if (countryNetPositionComputation == null) {
+            countryNetPositionComputation = new CountryNetPositionComputation(network);
         }
-        return refNpCountry;
+        return countryNetPositionComputation.getNetPositions();
     }
 
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults, Map<Country, Double> referenceNetPositionByCountry) {

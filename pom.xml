@@ -120,7 +120,6 @@
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.version>2.19.0</mockito.version>
         <powermock.version>2.0.2</powermock.version>
-        <powsybl.balances-adjustment.version>1.2.1</powsybl.balances-adjustment.version>
         <powsybl.core.version>3.5.0</powsybl.core.version>
         <powsybl.hades2.version>2.12.0</powsybl.hades2.version>
         <slf4j.version>1.7.22</slf4j.version>
@@ -409,11 +408,6 @@
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-action-util</artifactId>
                 <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-balances-adjustment</artifactId>
-                <version>${powsybl.balances-adjustment.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
