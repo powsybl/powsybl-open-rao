@@ -41,7 +41,7 @@ public class SystematicSensitivityAnalysisResultTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
         sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
-                .run(new CracFactorsProvider(crac), new CracContingenciesProvider(crac), network.getVariantManager().getWorkingVariantId(), null).join();
+                .run(new CracFactorsProvider(crac, true), new CracContingenciesProvider(crac), network.getVariantManager().getWorkingVariantId(), null).join();
         nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
         contingencyCnec = crac.getCnec("cnec1stateCurativeContingency1");

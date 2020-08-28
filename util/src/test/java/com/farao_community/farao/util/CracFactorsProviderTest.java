@@ -29,7 +29,7 @@ public class CracFactorsProviderTest {
     public void cracPstWithRange() {
         Crac crac = CommonCracCreation.createWithPstRange();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        CracFactorsProvider provider = new CracFactorsProvider(crac);
+        CracFactorsProvider provider = new CracFactorsProvider(crac, true);
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
@@ -42,7 +42,7 @@ public class CracFactorsProviderTest {
     public void cracWithoutRangeActionButWithPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        CracFactorsProvider provider = new CracFactorsProvider(crac);
+        CracFactorsProvider provider = new CracFactorsProvider(crac, true);
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
@@ -52,11 +52,16 @@ public class CracFactorsProviderTest {
     }
 
     @Test
+    public void testWithNoGenerationOfIntensities() {
+        // todo
+    }
+
+    @Test
     @Ignore("Broken while there is no BranchIntensityPerInjectionIncrease factor")
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
-        CracFactorsProvider provider = new CracFactorsProvider(crac);
+        CracFactorsProvider provider = new CracFactorsProvider(crac, true);
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);

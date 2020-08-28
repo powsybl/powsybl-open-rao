@@ -35,7 +35,6 @@ public class SystematicSensitivityAnalysisResult {
             this.results = null;
             return;
         }
-        LOGGER.debug("Filling data...");
         this.isSuccess = results.isOk();
         this.results = results;
     }
@@ -51,20 +50,35 @@ public class SystematicSensitivityAnalysisResult {
         if (!optSensiMW.isPresent()) {
             return Double.NaN;
         } else {
-            return optSensiMW.get().getFunctionReference();
+
+            double referenceFlow = optSensiMW.get().getFunctionReference();
+
+            // TODO: remove this fix when reference function patched in case NaN and no divergence
+            if (Double.isNaN(referenceFlow) && !Double.isNaN(optSensiMW.get().getValue())) {
+                referenceFlow = 0.0;
+            }
+
+            return referenceFlow;
         }
     }
 
     public double getReferenceIntensity(Cnec cnec) {
 
-        Optional<SensitivityValue> optSensiMW = getSensitivityValues(cnec).filter(v -> v.getFactor().getFunction() instanceof BranchFlow).findFirst();
         Optional<SensitivityValue> optSensiA = getSensitivityValues(cnec).filter(v -> v.getFactor().getFunction() instanceof BranchIntensity).findFirst();
+        double flowInMW = getReferenceFlow(cnec);
 
-        if (!optSensiMW.isPresent() || !optSensiA.isPresent() || Double.isNaN(optSensiMW.get().getFunctionReference())) {
+        if (!optSensiA.isPresent() || Double.isNaN(flowInMW)) {
             return Double.NaN;
         } else {
-            double flowInMW = optSensiMW.get().getFunctionReference();
-            return flowInMW > 0 ? optSensiA.get().getFunctionReference() : -optSensiA.get().getFunctionReference();
+
+            double referenceIntensity = flowInMW > 0 ? optSensiA.get().getFunctionReference() : -optSensiA.get().getFunctionReference();
+
+            // TODO: remove this fix when reference function patched in case NaN and no divergence
+            if (Double.isNaN(referenceIntensity) && !Double.isNaN(optSensiA.get().getValue())) {
+                referenceIntensity = 0.0;
+            }
+
+            return referenceIntensity;
         }
     }
 

@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
+import com.rte_france.powsybl.iidm.export.adn.ADNLoadFlowParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +28,13 @@ public final class SystematicSensitivityAnalysisService {
     public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
                                                                   Crac crac,
                                                                   SensitivityComputationParameters sensitivityComputationParameters) {
+        LOGGER.debug("Sensi run method [start]"); // temp ==> DELETE THIS LOG
         SensitivityComputationResults allStatesSensi = runSensitivityComputation(network, crac, sensitivityComputationParameters);
+        LOGGER.debug("Sensi run method [end]"); // temp ==> DELETE THIS LOG
 
-        LOGGER.debug("Filling systematic analysis results [start]");
+        LOGGER.debug("Filling systematic analysis results [start]"); // DELETE THIS LOG
         SystematicSensitivityAnalysisResult results = new SystematicSensitivityAnalysisResult(allStatesSensi);
-        LOGGER.debug("Filling systematic analysis results [end]");
+        LOGGER.debug("Filling systematic analysis results [end]"); // DELETE THIS LOG
         return results;
     }
 
@@ -39,7 +42,8 @@ public final class SystematicSensitivityAnalysisService {
             Network network,
             Crac crac,
             SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac);
+
+        SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac, isDc(sensitivityComputationParameters));
         ContingenciesProvider contingenciesProvider = new CracContingenciesProvider(crac);
         try {
             return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, contingenciesProvider, sensitivityComputationParameters);
@@ -47,6 +51,25 @@ public final class SystematicSensitivityAnalysisService {
             LOGGER.error(e.getMessage());
             return null;
         }
+    }
 
+    private static boolean isDc(SensitivityComputationParameters sensitivityComputationParameters) {
+
+        boolean isDc = false;
+
+         /*
+        todo : do something more generic, less specific to Hades sensitivity implementation
+         (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
+         the AC/DC information of the sensi).
+         */
+        if (!(sensitivityComputationParameters.getLoadFlowParameters() == null) &&
+            !(sensitivityComputationParameters.getLoadFlowParameters().getExtension(ADNLoadFlowParameters.class) == null)) {
+
+            isDc = sensitivityComputationParameters.getLoadFlowParameters().getExtension(ADNLoadFlowParameters.class).isDcMode();
+        } else {
+            LOGGER.info("AC/DC mode of the sensitivity engine is unknown, BranchIntensity sensitivities will be by default transmitted to the engine.");
+        }
+
+        return isDc;
     }
 }

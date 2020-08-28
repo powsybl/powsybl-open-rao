@@ -99,14 +99,19 @@ public class SystematicSensitivityComputation {
     private void runWithConfig(RaoData raoData, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
 
         try {
+            LOGGER.info("run sensi core method [start]"); // temp ==> DELETE THIS LOG
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
                 .runAnalysis(raoData.getNetwork(), raoData.getCrac(), sensitivityComputationParameters);
+            LOGGER.info("run sensi core method [end]"); // temp ==> DELETE THIS LOG
 
+            LOGGER.info("check sensi results [start]"); // temp ==> DELETE THIS LOG
             if (!systematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
             checkSensiResults(raoData, systematicSensitivityAnalysisResult, defaultUnit);
+            LOGGER.info("check sensi results [end]"); // temp ==> DELETE THIS LOG
+
             setResults(raoData, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
