@@ -2,27 +2,27 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Objects;
 
 public class CountryNetPositionComputation {
 
     private Network network;
-    private HashMap<Country, Double> netPositions;
+    private EnumMap<Country, Double> netPositions;
 
     public CountryNetPositionComputation(Network network) {
         this.network = network;
     }
 
-    public HashMap<Country, Double> getNetPositions() {
+    public EnumMap<Country, Double> getNetPositions() {
         if (Objects.isNull(netPositions)) {
-            computeNetPoisitons();
+            computeNetPositions();
         }
         return netPositions;
     }
 
-    private void computeNetPoisitons() {
-        netPositions = new HashMap<>();
+    private void computeNetPositions() {
+        netPositions = new EnumMap<>(Country.class);
 
         for (Country country : Country.values()) {
             netPositions.put(country, 0.0);
@@ -56,19 +56,19 @@ public class CountryNetPositionComputation {
 
     private void addLeavingFlow(DanglingLine danglingLine, Country country) {
         if (!Objects.isNull(country)) {
-            netPositions.put(country, netPositions.get(country) +  getLeavingFlow(danglingLine));
+            netPositions.put(country, netPositions.get(country) + getLeavingFlow(danglingLine));
         }
     }
 
     private void addLeavingFlow(Line line, Country country) {
         if (!Objects.isNull(country)) {
-            netPositions.put(country, netPositions.get(country) +  getLeavingFlow(line, country));
+            netPositions.put(country, netPositions.get(country) + getLeavingFlow(line, country));
         }
     }
 
     private void addLeavingFlow(HvdcLine hvdcLine, Country country) {
         if (!Objects.isNull(country)) {
-            netPositions.put(country, netPositions.get(country) +  getLeavingFlow(hvdcLine, country));
+            netPositions.put(country, netPositions.get(country) + getLeavingFlow(hvdcLine, country));
         }
     }
 
