@@ -12,8 +12,6 @@ import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,8 +21,6 @@ import java.util.stream.Stream;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityAnalysisResult {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisResult.class);
 
     private final boolean isSuccess;
     private final SensitivityComputationResults results;
@@ -103,8 +99,9 @@ public class SystematicSensitivityAnalysisResult {
     }
 
     private Collection<SensitivityValue> getSensitivityValues(State state) {
-        if (state.getContingency().isPresent()) {
-            return results.getSensitivityValuesContingencies().get(state.getContingency().get().getId());
+        Optional<Contingency> optionalContingency = state.getContingency();
+        if (optionalContingency.isPresent()) {
+            return results.getSensitivityValuesContingencies().get(optionalContingency.get().getId());
         } else {
             return results.getSensitivityValues();
         }

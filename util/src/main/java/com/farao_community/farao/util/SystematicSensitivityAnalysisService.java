@@ -62,8 +62,8 @@ public final class SystematicSensitivityAnalysisService {
          (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
          the AC/DC information of the sensi).
          */
-        if (!(sensitivityComputationParameters.getLoadFlowParameters() == null) &&
-            !(sensitivityComputationParameters.getLoadFlowParameters().getExtension(ADNLoadFlowParameters.class) == null)) {
+        if (sensitivityComputationParameters.getLoadFlowParameters() != null &&
+            sensitivityComputationParameters.getLoadFlowParameters().getExtension(ADNLoadFlowParameters.class) != null) {
 
             isDc = sensitivityComputationParameters.getLoadFlowParameters().getExtension(ADNLoadFlowParameters.class).isDcMode();
         } else {
