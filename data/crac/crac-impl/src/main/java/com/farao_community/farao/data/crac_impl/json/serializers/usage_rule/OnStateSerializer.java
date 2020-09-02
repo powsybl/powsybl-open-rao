@@ -7,8 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.usage_rule;
 
-import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -17,11 +16,10 @@ import java.io.IOException;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OnContingencySerializer extends UsageRuleSerializer<OnContingency> {
+public class OnStateSerializer extends UsageRuleSerializer<OnState> {
 
     @Override
-    public void serialize(OnContingency usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(OnState usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serialize(usageRule, jsonGenerator, serializerProvider);
-        jsonGenerator.writeStringField(JsonSerializationNames.CONTINGENCY, usageRule.getContingency().getId());
     }
 }
