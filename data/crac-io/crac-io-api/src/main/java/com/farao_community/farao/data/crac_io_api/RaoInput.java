@@ -13,12 +13,11 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class RaoInput {
+public final class RaoInput {
 
     public static class Builder {
 
@@ -86,6 +85,10 @@ public class RaoInput {
 
     public String getVariantId() {
         return variantId;
+    }
+
+    public void setVariantId(String variantId) {
+        this.variantId = variantId;
     }
 
     public List<Pair<Country, Country>> getBoundaries() {
