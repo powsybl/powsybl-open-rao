@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.data.crac_io_api.RaoInput;
 import com.powsybl.commons.Versionable;
 import com.powsybl.computation.ComputationManager;
 
