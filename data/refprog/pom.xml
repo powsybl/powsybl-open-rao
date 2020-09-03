@@ -10,9 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>refprog</artifactId>
+    <name>RefProg related modules</name>
+    <description>Module that regroups all features related to RefProg file</description>
+
     <packaging>pom</packaging>
     <modules>
-        <module>refrence-program</module>
+        <module>reference-program</module>
         <module>refprog-xml-importer</module>
     </modules>
 

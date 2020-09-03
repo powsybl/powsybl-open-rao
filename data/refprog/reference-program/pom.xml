@@ -12,7 +12,7 @@
     <artifactId>refrence-program</artifactId>
     <packaging>jar</packaging>
     <name>Reference program</name>
-    <description>Object model for Reference Program</description>
+    <description>Object model classes for Reference Program</description>
 
     <dependencies>
         <dependency>

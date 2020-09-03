@@ -10,6 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>refprog-xml-importer</artifactId>
+    <packaging>jar</packaging>
+    <name>RefProg importer</name>
+    <description>Module that contains RefProg file importer</description>
 
     <build>
         <plugins>
