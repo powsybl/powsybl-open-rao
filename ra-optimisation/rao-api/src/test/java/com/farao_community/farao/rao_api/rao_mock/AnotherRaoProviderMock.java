@@ -27,6 +27,11 @@ public class AnotherRaoProviderMock implements RaoProvider {
     }
 
     @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+        return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+    }
+
+    @Override
     public String getName() {
         return "GlobalRAOptimizer";
     }

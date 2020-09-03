@@ -55,6 +55,17 @@ public class LinearRaoMock implements RaoProvider {
     }
 
     @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+        if (raoInput.getCrac().getName().equals(CRAC_NAME_RAO_THROWS_EXCEPTION)) {
+            throw new FaraoException("Mocked error while running LinearRaoMock");
+        }
+        if (raoInput.getCrac().getName().equals(CRAC_NAME_RAO_RETURNS_FAILURE)) {
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        }
+        return CompletableFuture.completedFuture(createLittleResult(raoInput.getCrac()));
+    }
+
+    @Override
     public String getName() {
         return "Linear Range Action Rao Mock";
     }
