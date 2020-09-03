@@ -22,5 +22,6 @@
         <module>glsk</module>
         <module>crac</module>
         <module>crac-io</module>
+        <module>refprog</module>
     </modules>
 </project>
