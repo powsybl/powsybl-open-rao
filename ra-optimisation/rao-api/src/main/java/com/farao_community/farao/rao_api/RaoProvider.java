@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.data.crac_io_api.RaoInput;
 import com.powsybl.commons.Versionable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -29,4 +30,13 @@ public interface RaoProvider extends Versionable {
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
     CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters);
+
+
+    /**
+     * @param raoInput: Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
+     * @param computationManager: Computation configuration.
+     * @param parameters: RAO parameters.
+     * @return A completable future of a RaoComputationResult it gathers all the optimization results.
+     */
+    CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters);
 }

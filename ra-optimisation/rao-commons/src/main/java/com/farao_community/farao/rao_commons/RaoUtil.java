@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_io_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
@@ -30,11 +31,15 @@ public final class RaoUtil {
 
     private RaoUtil() { }
 
-    public static RaoData initRaoData(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
+    public static RaoData initRaoData(RaoInput raoInput, RaoParameters raoParameters) {
+        Network network = raoInput.getNetwork();
+        Crac crac = raoInput.getCrac();
+        String variantId = raoInput.getVariantId();
+
         network.getVariantManager().setWorkingVariant(variantId);
         UcteAliasesCreation.createAliases(network);
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
         RaoData raoData = new RaoData(network, crac);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
