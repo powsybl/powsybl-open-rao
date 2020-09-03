@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_io_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
@@ -55,7 +56,17 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
+        RaoInput raoInput = new RaoInput.Builder().newRaoInput()
+            .withNetwork(network)
+            .withCrac(crac)
+            .withVariantId(variantId)
+            .build();
+        return run(raoInput, computationManager, raoParameters);
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+        RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
         this.unit = raoParameters.getObjectiveFunction().getUnit();
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
             raoParameters.getDefaultSensitivityComputationParameters(), raoParameters.getFallbackSensitivityComputationParameters());
@@ -64,6 +75,7 @@ public class LinearRao implements RaoProvider {
 
         return run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters);
     }
+
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation
     CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation,

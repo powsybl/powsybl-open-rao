@@ -68,8 +68,8 @@ public class LeafTest {
         crac.addNetworkAction(na1);
         crac.addNetworkAction(na2);
 
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
         raoData = Mockito.spy(new RaoData(network, crac));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
