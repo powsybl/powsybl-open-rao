@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>refprog</artifactId>
+        <artifactId>farao-refprog</artifactId>
         <groupId>com.farao-community.farao</groupId>
         <version>2.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>refprog-xml-importer</artifactId>
+    <artifactId>farao-refprog-xml-importer</artifactId>
     <packaging>jar</packaging>
     <name>RefProg importer</name>
     <description>Module that contains RefProg file importer</description>

@@ -30,12 +30,12 @@ public class RefProgImporterTest {
 
     @Test(expected = FaraoException.class)
     public void testWrongXml() {
-        RefProgImporter.importRefProg(getClass().getResourceAsStream("/wrong_refprog.xml"), offsetDateTime);
+        RefProgImporter.importRefProg(getClass().getResourceAsStream("/wrong_refProg.xml"), offsetDateTime);
     }
 
     @Test(expected = FaraoException.class)
     public void testRefProgWithoutInterval() {
-        RefProgImporter.importRefProg(getClass().getResourceAsStream("/refprog_noInterval.xml"), offsetDateTime);
+        RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_noInterval.xml"), offsetDateTime);
     }
 
     @Test(expected = FaraoException.class)
@@ -75,7 +75,7 @@ public class RefProgImporterTest {
     @Test
     public void testImportLargeFile1() {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 6, 30, 0, 0, ZoneOffset.UTC);
-        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refprog.xml"), offsetDateTime);
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime);
         assertEquals(76, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(191, referenceProgram.getExchange("10YFR-RTE------C", "10YCB-GERMANY--8"), DOUBLE_TOLERANCE);
         assertEquals(-191, referenceProgram.getExchange("10YCB-GERMANY--8", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
@@ -88,7 +88,7 @@ public class RefProgImporterTest {
     @Test
     public void testImportLargeFile2() {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
-        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResource("/large_refprog.xml").getPath(), offsetDateTime);
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResource("/large_refProg.xml").getPath(), offsetDateTime);
         assertEquals(76, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(-1397, referenceProgram.getExchange(Country.CH, Country.FR), DOUBLE_TOLERANCE);
         assertEquals(-147, referenceProgram.getExchange(Country.BA, Country.RS), DOUBLE_TOLERANCE);
