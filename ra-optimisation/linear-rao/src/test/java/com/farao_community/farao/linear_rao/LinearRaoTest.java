@@ -10,6 +10,7 @@ package com.farao_community.farao.linear_rao;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.data.crac_io_api.RaoInput;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
@@ -51,6 +52,7 @@ public class LinearRaoTest {
     private Crac crac;
     private String variantId;
     private RaoData raoData;
+    private RaoInput raoInput;
 
     @Before
     public void setUp() {
@@ -73,6 +75,12 @@ public class LinearRaoTest {
 
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
+
+        raoInput = new RaoInput.Builder().newRaoInput()
+            .withNetwork(network)
+            .withCrac(crac)
+            .withVariantId(variantId)
+            .build();
         mockRaoUtil();
     }
 
@@ -97,7 +105,7 @@ public class LinearRaoTest {
         ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
         BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenReturn(costEvaluator);
-        BDDMockito.when(RaoUtil.initRaoData(network, crac, variantId, raoParameters)).thenCallRealMethod();
+        BDDMockito.when(RaoUtil.initRaoData(raoInput, raoParameters)).thenCallRealMethod();
     }
 
     @Test
@@ -119,7 +127,7 @@ public class LinearRaoTest {
     public void runWithRaoParametersError() {
         raoParameters.removeExtension(LinearRaoParameters.class);
 
-        RaoResult results = linearRao.run(network, crac, variantId, computationManager, raoParameters).join();
+        RaoResult results = linearRao.run(raoInput, computationManager, raoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.FAILURE, results.getStatus());

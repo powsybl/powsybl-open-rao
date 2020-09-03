@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.mock;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_io_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -52,6 +53,17 @@ public class LinearRaoMock implements RaoProvider {
             return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
         }
         return CompletableFuture.completedFuture(createLittleResult(crac));
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+        if (raoInput.getCrac().getName().equals(CRAC_NAME_RAO_THROWS_EXCEPTION)) {
+            throw new FaraoException("Mocked error while running LinearRaoMock");
+        }
+        if (raoInput.getCrac().getName().equals(CRAC_NAME_RAO_RETURNS_FAILURE)) {
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        }
+        return CompletableFuture.completedFuture(createLittleResult(raoInput.getCrac()));
     }
 
     @Override
