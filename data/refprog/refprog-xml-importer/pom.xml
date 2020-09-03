@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>refrence-program</artifactId>
+            <artifactId>farao-reference-program</artifactId>
             <version>${project.version}</version>
         </dependency>
 
