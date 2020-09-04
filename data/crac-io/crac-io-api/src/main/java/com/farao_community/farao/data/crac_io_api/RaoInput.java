@@ -8,11 +8,14 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -25,6 +28,7 @@ public final class RaoInput {
         private Network network;
         private String variantId;
         private List<Pair<Country, Country> > boundaries;
+        private ReferenceProgram referenceProgram;
 
         public Builder newRaoInput() {
             crac = null;
@@ -55,12 +59,18 @@ public final class RaoInput {
             return this;
         }
 
+        public Builder withRefProg(ReferenceProgram referenceProgram) {
+            this.referenceProgram = referenceProgram;
+            return this;
+        }
+
         public RaoInput build() {
             RaoInput raoInput = new RaoInput();
             raoInput.crac = crac;
             raoInput.network = network;
             raoInput.variantId = variantId;
             raoInput.boundaries = boundaries;
+            raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
 
             return raoInput;
         }
@@ -71,6 +81,7 @@ public final class RaoInput {
     private Network network;
     private String variantId;
     private List<Pair<Country, Country> > boundaries;
+    private Optional<ReferenceProgram> referenceProgram;
 
     private RaoInput() {
     }
@@ -93,5 +104,9 @@ public final class RaoInput {
 
     public List<Pair<Country, Country>> getBoundaries() {
         return boundaries;
+    }
+
+    public Optional<ReferenceProgram> getReferenceProgram() {
+        return referenceProgram;
     }
 }
