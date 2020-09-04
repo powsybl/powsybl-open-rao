@@ -14,8 +14,9 @@ import com.farao_community.farao.data.crac_impl.threshold.ThresholdAdderImpl;
 
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -87,6 +88,9 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
     @Override
     public Cnec add() {
         checkId();
+        if (parent.getCnec(id) != null) {
+            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
+        }
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a cnec without a network element. Please use newNetworkElement.");
         }
@@ -96,10 +100,9 @@ public class SimpleCnecAdder extends AbstractIdentifiableAdder<SimpleCnecAdder> 
         if (this.instant == null) {
             throw new FaraoException("Cannot add a cnec with no specified state instant. Please use setInstant.");
         }
-        SimpleState state = new SimpleState((this.contingency != null) ? Optional.of(this.contingency) : Optional.empty(), this.instant);
-        SimpleCnec cnec = new SimpleCnec(this.id, this.name, networkElement, thresholds, state, frm, optimized, monitored);
-        parent.addCnec(cnec);
-        return cnec;
+        parent.addNetworkElement(networkElement);
+        State state = parent.addState(contingency, instant);
+        return parent.addCnec(id, name, networkElement.getId(), thresholds, state.getId(), frm, optimized, monitored);
     }
 
     @Override
