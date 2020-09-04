@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -55,8 +55,8 @@ final class UsageRuleDeserializer {
                     usageRule = deserializeOnConstraintUsageRule(jsonParser, simpleCrac);
                     break;
 
-                case ON_CONTINGENCY_TYPE:
-                    usageRule = deserializeOnContingencyUsageRule(jsonParser, simpleCrac);
+                case ON_STATE_TYPE:
+                    usageRule = deserializeOnStateUsageRule(jsonParser, simpleCrac);
                     break;
 
                 default:
@@ -138,11 +138,10 @@ final class UsageRuleDeserializer {
         return new OnConstraint(usageMethod, state, cnec);
     }
 
-    private static OnContingency deserializeOnContingencyUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static OnState deserializeOnStateUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
 
         UsageMethod usageMethod = null;
         String stateId = null;
-        String contingencyId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -156,10 +155,6 @@ final class UsageRuleDeserializer {
                     stateId = jsonParser.nextTextValue();
                     break;
 
-                case CONTINGENCY:
-                    contingencyId = jsonParser.nextTextValue();
-                    break;
-
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
@@ -170,11 +165,6 @@ final class UsageRuleDeserializer {
             throw new FaraoException(String.format("The state [%s] mentioned in the on-contingency usage rule is not defined", stateId));
         }
 
-        Contingency contingency = simpleCrac.getContingency(contingencyId);
-        if (contingency == null) {
-            throw new FaraoException(String.format("The contingency [%s] mentioned in the on-contingency usage rule is not defined", contingencyId));
-        }
-
-        return new OnContingency(usageMethod, state, contingency);
+        return new OnState(usageMethod, state);
     }
 }

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FreeToUse.class, name = "free-to-use"),
         @JsonSubTypes.Type(value = OnConstraint.class, name = "on-constraint"),
-        @JsonSubTypes.Type(value = OnContingency.class, name = "on-contingency")
+        @JsonSubTypes.Type(value = OnState.class, name = "on-state")
     })
 public abstract class AbstractUsageRule implements UsageRule {
 
@@ -64,7 +64,7 @@ public abstract class AbstractUsageRule implements UsageRule {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode();
+    public int hashCode()  {
+        return usageMethod.hashCode() * 23 + state.hashCode() * 53;
     }
 }

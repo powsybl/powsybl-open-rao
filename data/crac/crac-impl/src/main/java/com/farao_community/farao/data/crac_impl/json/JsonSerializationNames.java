@@ -73,5 +73,5 @@ public final class JsonSerializationNames {
 
     public static final String FREE_TO_USE_TYPE = "free-to-use";
     public static final String ON_CONSTRAINT_TYPE = "on-constraint";
-    public static final String ON_CONTINGENCY_TYPE = "on-contingency";
+    public static final String ON_STATE_TYPE = "on-state";
 }
