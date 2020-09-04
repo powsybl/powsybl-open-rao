@@ -57,11 +57,13 @@ public final class RefProgImporter {
             try {
                 inArea = (new EICode(timeSeries.getInArea().getV())).getCountry();
             } catch (IllegalArgumentException e) {
-                LOGGER.warn("EIC code {} is not mapped to a country. The flow to this area will not be saved.", timeSeries.getOutArea().getV());
+                LOGGER.warn("EIC code {} is not mapped to a country. The flow to this area will not be saved.", timeSeries.getInArea().getV());
             }
             if (outArea != null || inArea != null) {
                 double flow = getFlow(dateTime, timeSeries);
                 exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
+            } else {
+                LOGGER.warn("Neither origin ({}) nor extremity ({}) EIC code is mapped to a country. The flow will not be imported.", timeSeries.getOutArea().getV(), timeSeries.getInArea().getV());
             }
         });
         LOGGER.info("RefProg file was imported");
