@@ -17,9 +17,9 @@ public class ReferenceExchangeData {
     private double flow;
 
     /**
-     * @param areaOut id of origin area
-     * @param areaIn id of destination area
-     * @param flow flow exchanged from origin area to destination area in MW
+     * @param areaOut origin country
+     * @param areaIn destination country
+     * @param flow flow exchanged from origin country to destination country in MW
      */
     public ReferenceExchangeData(Country areaOut, Country areaIn, double flow) {
         this.areaOut = areaOut;
