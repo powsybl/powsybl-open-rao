@@ -38,7 +38,7 @@ public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ComplexCo
         checkId();
         ComplexContingency contingency = new ComplexContingency(this.id, this.name, this.networkElements);
         parent.addContingency(contingency);
-        return contingency;
+        return parent.getContingency(contingency.getId());
     }
 
     @Override

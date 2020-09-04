@@ -38,8 +38,6 @@ public class InstantAdderImpl extends AbstractIdentifiableAdder<InstantAdderImpl
         if (this.seconds == null) {
             throw new FaraoException("Cannot add an instant without a number of seconds. Please use setSeconds.");
         }
-        Instant instant = new Instant(this.id, this.seconds);
-        parent.addInstant(instant);
-        return instant;
+        return parent.addInstant(id, seconds);
     }
 }
