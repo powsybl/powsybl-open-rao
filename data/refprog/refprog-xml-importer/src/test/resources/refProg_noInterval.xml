@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PublicationDocument xmlns="refprog" DtdRelease="0" DtdVersion="1">
+    <DocumentIdentification v="RP-CORESO-20200106-05"/>
+    <DocumentVersion v="5"/>
+    <DocumentType v="A45"/>
+    <SenderIdentification codingScheme="A01" v="22XCORESO------S"/>
+    <SenderRole v="A44"/>
+    <ReceiverIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+    <ReceiverRole v="A36"/>
+    <CreationDateTime v="2020-02-26T11:12:12.304+01:00"/>
+    <PublicationTimeSeries>
+        <TimeSeriesIdentification v="BE-FR"/>
+        <BusinessType v="A66"/>
+        <InArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <OutArea codingScheme="A01" v="10YBE----------2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+            <TimeInterval v="2020-01-05T23:00Z/2020-01-06T23:00Z"/>
+            <Resolution v="PT60M"/>
+            <Interval>
+                <Pos v="23"/>
+                <Qty v="500"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+        <TimeSeriesIdentification v="BE-NL"/>
+        <BusinessType v="A66"/>
+        <InArea codingScheme="A01" v="10YNL----------L"/>
+        <OutArea codingScheme="A01" v="10YBE----------2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+            <TimeInterval v="2020-01-05T23:00Z/2020-01-06T23:00Z"/>
+            <Resolution v="PT60M"/>
+            <Interval>
+                <Pos v="23"/>
+                <Qty v="1300"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+        <TimeSeriesIdentification v="DE-FR"/>
+        <BusinessType v="A66"/>
+        <InArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+            <TimeInterval v="2020-01-05T23:00Z/2020-01-06T23:00Z"/>
+            <Resolution v="PT60M"/>
+            <Interval>
+                <Pos v="23"/>
+                <Qty v="-1600"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+        <TimeSeriesIdentification v="DE-NL"/>
+        <BusinessType v="A66"/>
+        <InArea codingScheme="A01" v="10YNL----------L"/>
+        <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+            <TimeInterval v="2020-01-05T23:00Z/2020-01-06T23:00Z"/>
+            <Resolution v="PT60M"/>
+            <Interval>
+                <Pos v="23"/>
+                <Qty v="-600"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+</PublicationDocument>
