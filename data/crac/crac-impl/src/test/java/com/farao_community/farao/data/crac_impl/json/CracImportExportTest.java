@@ -22,7 +22,7 @@ import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnContingency;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -71,7 +71,7 @@ public class CracImportExportTest {
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
         usageRules.add(new OnConstraint(UsageMethod.UNAVAILABLE, preventiveState, preventiveCnec1));
-        usageRules.add(new OnContingency(UsageMethod.FORCED, postContingencyState, contingency));
+        usageRules.add(new OnState(UsageMethod.FORCED, postContingencyState));
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
         simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15));

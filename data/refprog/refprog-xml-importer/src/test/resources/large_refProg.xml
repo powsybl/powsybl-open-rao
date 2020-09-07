@@ -1,0 +1,1476 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PublicationDocument DtdRelease="1" DtdVersion="0" xmlns="refprog">
+  <DocumentIdentification v="refprog"/>
+  <DocumentVersion v="1"/>
+  <DocumentType v="A45"/>
+  <SenderIdentification codingScheme="A01" v="refprog-sender"/>
+  <SenderRole v="A36"/>
+  <ReceiverIdentification codingScheme="A01" v="refprog-receiver"/>
+  <ReceiverRole v="A04"/>
+  <CreationDateTime v="2015-01-21T16:00:00Z"/>
+  <PublicationTimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+  <Domain codingScheme="A01" v="10Y1001C--00059P"/>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="BE-NL"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YNL----------L"/>
+      <OutArea codingScheme="A01" v="10YBE----------2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-46"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-389"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="FR-BE"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YBE----------2"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="2284"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="2367"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-NL"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YNL----------L"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="2046"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="2067"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="FR-DE"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="191"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-88"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-PL"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YPL-AREA-----S"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="710"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="496"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-CZ"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCZ-CEPS-----N"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="722"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="408"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-AT"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YAT-APG------L"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="978"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="261"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="PL-CZ"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCZ-CEPS-----N"/>
+      <OutArea codingScheme="A01" v="10YPL-AREA-----S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="12"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-89"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="PL-SK"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YSK-SEPS-----K"/>
+      <OutArea codingScheme="A01" v="10YPL-AREA-----S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="398"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="285"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="AT-CZ"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCZ-CEPS-----N"/>
+      <OutArea codingScheme="A01" v="10YAT-APG------L"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-256"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="147"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="AT-SI"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YSI-ELES-----O"/>
+      <OutArea codingScheme="A01" v="10YAT-APG------L"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="675"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="726"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="HR-SI"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YSI-ELES-----O"/>
+      <OutArea codingScheme="A01" v="10YHR-HEP------M"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-257"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-290"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="AT-HU"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHU-MAVIR----U"/>
+      <OutArea codingScheme="A01" v="10YAT-APG------L"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="757"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="888"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="CZ-SK"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YSK-SEPS-----K"/>
+      <OutArea codingScheme="A01" v="10YCZ-CEPS-----N"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="386"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="374"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="SK-HU"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHU-MAVIR----U"/>
+      <OutArea codingScheme="A01" v="10YSK-SEPS-----K"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="627"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="368"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="HR-HU"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHU-MAVIR----U"/>
+      <OutArea codingScheme="A01" v="10YHR-HEP------M"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-174"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-128"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RO-HU"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHU-MAVIR----U"/>
+      <OutArea codingScheme="A01" v="10YRO-TEL------P"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="435"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="699"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-DK1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YDK-1--------W"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-1300"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-1300"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="UA-SK"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YSK-SEPS-----K"/>
+      <OutArea codingScheme="A01" v="10Y1001C--00003F"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-347"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-419"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="UA-HU"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHU-MAVIR----U"/>
+      <OutArea codingScheme="A01" v="10Y1001C--00003F"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="250"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="432"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="UA-RO"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YRO-TEL------P"/>
+      <OutArea codingScheme="A01" v="10Y1001C--00003F"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="30"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="197"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="CH-DE"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+      <OutArea codingScheme="A01" v="10YCB-SWITZERL-D"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="1313"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="1470"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="CH-AT"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YAT-APG------L"/>
+      <OutArea codingScheme="A01" v="10YCB-SWITZERL-D"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-437"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="243"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="CH-FR"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YFR-RTE------C"/>
+      <OutArea codingScheme="A01" v="10YCB-SWITZERL-D"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-1949"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-1397"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="CH-IT"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YIT-GRTN-----B"/>
+      <OutArea codingScheme="A01" v="10YCB-SWITZERL-D"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="2649"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="2704"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="FR-ES"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YES-REE------0"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="1756"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="3653"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ES-PT"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YPT-REN------W"/>
+      <OutArea codingScheme="A01" v="10YES-REE------0"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-462"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-596"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="IT-SI"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YSI-ELES-----O"/>
+      <OutArea codingScheme="A01" v="10YIT-GRTN-----B"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-467"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-472"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-BG"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-BULGARIA-F"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-223"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-300"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-RO"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YRO-TEL------P"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="104"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-141"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RO-BG"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-BULGARIA-F"/>
+      <OutArea codingScheme="A01" v="10YRO-TEL------P"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="553"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="424"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-HU"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHU-MAVIR----U"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-431"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-446"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-HR"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHR-HEP------M"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-122"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-121"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-BA"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YBA-JPCC-----D"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="175"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="147"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-ME"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YDK-1--------W"/>
+      <OutArea codingScheme="A01" v="17YXXXXXXAAAAAAQ"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-323"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-323"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-ME"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="49Y000000000001Q"/>
+      <OutArea codingScheme="A01" v="17YXXXXXXAAAAAAQ"/>
+      <MeasureUnitQuantity v="MAW"/>
+      <Period>
+        <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+        <Resolution v="PT60M"/>
+        <Interval>
+          <Pos v="8"/>
+          <Qty v="-323"/>
+        </Interval>
+        <Interval>
+          <Pos v="21"/>
+          <Qty v="-323"/>
+        </Interval>
+      </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-AL"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-ALBANIA--1"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="183"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="183"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="RS-MK"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YMK-MEPSO----8"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="MK-BG"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-BULGARIA-F"/>
+      <OutArea codingScheme="A01" v="10YMK-MEPSO----8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-291"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-298"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="GR-MK"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YMK-MEPSO----8"/>
+      <OutArea codingScheme="A01" v="10YCB-GREECE---2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-377"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-380"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="GR-BG"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-BULGARIA-F"/>
+      <OutArea codingScheme="A01" v="10YCB-GREECE---2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-650"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-650"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="GR-TR"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-TURKEY---V"/>
+      <OutArea codingScheme="A01" v="10YCB-GREECE---2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-45"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-50"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="GR-AL"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-ALBANIA--1"/>
+      <OutArea codingScheme="A01" v="10YCB-GREECE---2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-240"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-245"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-BA"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YBA-JPCC-----D"/>
+      <OutArea codingScheme="A01" v="10YCS-CG-TSO---S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-195"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-195"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-AL"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-ALBANIA--1"/>
+      <OutArea codingScheme="A01" v="10YCS-CG-TSO---S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="288"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="288"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="BA-HR"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YHR-HEP------M"/>
+      <OutArea codingScheme="A01" v="10YBA-JPCC-----D"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="145"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="208"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="FR-IT"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YIT-GRTN-----B"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="2016"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="2036"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="IT-AT"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YAT-APG------L"/>
+      <OutArea codingScheme="A01" v="10YIT-GRTN-----B"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-232"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-234"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="BG-TR"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCB-TURKEY---V"/>
+      <OutArea codingScheme="A01" v="10YCB-BULGARIA-F"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="329"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="329"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="NL-UK_BritNed"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="49Y000000000001Q"/>
+      <OutArea codingScheme="A01" v="10YNL----------L"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="1031"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="1092"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="BE-UK_NemoLink"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="22Y20191008----W"/>
+      <OutArea codingScheme="A01" v="10YBE----------2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="200"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="1000"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="FR-UK_IFA2000_link1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17Y000000930811P"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="991"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="991"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="FR-UK_IFA2000_link2"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17Y000000930815H"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="1011"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="1010"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="NL-NO_NorNed"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YDOM-1001A039M"/>
+      <OutArea codingScheme="A01" v="10YNL----------L"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-700"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-700"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DK1-NL_Cobra"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="49Y000000000002O"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="694"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="694"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="NL-DK1_Cobra"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10Y1001C--00001J"/>
+      <OutArea codingScheme="A01" v="10YNL----------L"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-684"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-684"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-DK2_Kontek"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAC"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-589"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-588"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DE-SE_Baltic"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAF"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="PL-SE_SwePol"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAG"/>
+      <OutArea codingScheme="A01" v="10YPL-AREA-----S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-602"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-602"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="PL-LT_LitPol1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAH"/>
+      <OutArea codingScheme="A01" v="10YPL-AREA-----S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="PL-LT_LitPol2"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAI"/>
+      <OutArea codingScheme="A01" v="10YPL-AREA-----S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-189"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-485"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="PL-UA_Dobrotwor"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAJ"/>
+      <OutArea codingScheme="A01" v="10YPL-AREA-----S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-210"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-210"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DK1-SE_Kontiskan1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAK"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-285"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-283"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DK1-SE_Kontiskan2"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAL"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-286"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-283"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DK1-DK2_GreatBelt"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAM"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DK1-NO_Skaggerak1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAN"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-4"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-4"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="DK1-NO_Skaggerak2"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAO"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-220"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-220"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="IT-GR_HVDC"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YDOM-1010A0108"/>
+      <OutArea codingScheme="A01" v="10YIT-GRTN-----B"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="500"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="500"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="GR-IT_HVDC"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAU"/>
+      <OutArea codingScheme="A01" v="10YCB-GREECE---2"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="-493"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="-516"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="IT-ME_MONITA2"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAP"/>
+      <OutArea codingScheme="A01" v="10YDK-1--------W"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-IT_MONITA2"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10YCS-CG-TSO---S"/>
+      <OutArea codingScheme="A01" v="10YCS-SERBIATSOV"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="IT-ME_MONITA1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAS"/>
+      <OutArea codingScheme="A01" v="10YIT-GRTN-----B"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-IT_MONITA1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAT"/>
+      <OutArea codingScheme="A01" v="10YCS-CG-TSO---S"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-IT_MONITA1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17Y000000930809C"/>
+      <OutArea codingScheme="A01" v="10YFR-RTE------C"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-IT_MONITA1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="10Y1001C--00082U"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-IT_MONITA1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAD"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+    <PublicationTimeSeries>
+      <TimeSeriesIdentification v="ME-IT_MONITA1"/>
+      <BusinessType v="A66"/>
+      <InArea codingScheme="A01" v="17YXXXXXXAAAAAAE"/>
+      <OutArea codingScheme="A01" v="10YCB-GERMANY--8"/>
+        <MeasureUnitQuantity v="MAW"/>
+        <Period>
+          <TimeInterval v="2015-01-10T23:00Z/2015-01-11T23:00Z"/>
+          <Resolution v="PT60M"/>
+            <Interval>
+              <Pos v="8"/>
+                <Qty v="0"/>
+            </Interval>
+            <Interval>
+              <Pos v="21"/>
+                <Qty v="0"/>
+            </Interval>
+        </Period>
+    </PublicationTimeSeries>
+</PublicationDocument>
