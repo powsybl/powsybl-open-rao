@@ -8,11 +8,9 @@ package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.SensitivityFactorsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +39,9 @@ public final class SystematicSensitivityAnalysisService {
             Network network,
             Crac crac,
             SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityFactorsProvider factorsProvider = new CracFactorsProvider(crac);
-        ContingenciesProvider contingenciesProvider = new CracContingenciesProvider(crac);
+        SensitivityProvider sensitivityProvider = new RangeActionSensitivitiesProvider(crac);
         try {
-            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, contingenciesProvider, sensitivityComputationParameters);
+            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), sensitivityProvider, sensitivityProvider, sensitivityComputationParameters);
         } catch (FaraoException e) {
             LOGGER.error(e.getMessage());
             return null;
