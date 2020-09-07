@@ -34,10 +34,6 @@
             <artifactId>powsybl-sensitivity-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.oliviercailloux</groupId>
-            <artifactId>google-or-tools</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
         </dependency>

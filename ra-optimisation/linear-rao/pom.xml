@@ -53,8 +53,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.github.oliviercailloux</groupId>
-            <artifactId>google-or-tools</artifactId>
+            <groupId>com.farao-community.ortools</groupId>
+            <artifactId>ortools-java</artifactId>
         </dependency>
 
         <!-- test -->
