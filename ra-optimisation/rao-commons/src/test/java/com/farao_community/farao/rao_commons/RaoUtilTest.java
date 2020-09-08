@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_io_api.RaoInput;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
@@ -75,7 +75,7 @@ public class RaoUtilTest {
         Network network = ExampleGenerator.network();
         Crac crac = ExampleGenerator.crac();
         String variantId = network.getVariantManager().getWorkingVariantId();
-        RaoInput raoInput = new RaoInput.Builder().newRaoInput()
+        RaoInput raoInput = RaoInput.builder()
             .withNetwork(network)
             .withCrac(crac)
             .withVariantId(variantId)

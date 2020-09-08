@@ -9,7 +9,7 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_io_api.RaoInput;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
@@ -21,7 +21,6 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,16 +51,6 @@ public class LinearRao implements RaoProvider {
     @Override
     public String getVersion() {
         return "1.0.0";
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        RaoInput raoInput = new RaoInput.Builder().newRaoInput()
-            .withNetwork(network)
-            .withCrac(crac)
-            .withVariantId(variantId)
-            .build();
-        return run(raoInput, computationManager, raoParameters);
     }
 
     @Override

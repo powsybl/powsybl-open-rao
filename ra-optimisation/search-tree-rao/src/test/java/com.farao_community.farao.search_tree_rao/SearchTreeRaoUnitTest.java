@@ -10,7 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.crac_io_api.RaoInput;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -61,7 +61,7 @@ public class SearchTreeRaoUnitTest {
     private RaoInput raoInput;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         searchTreeRao = new SearchTreeRao();
         computationManager = LocalComputationManager.getDefault();
         network = NetworkImportsUtil.import12NodesNetwork();
@@ -72,7 +72,7 @@ public class SearchTreeRaoUnitTest {
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParameters.json"));
         systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
-        raoInput = new RaoInput.Builder().newRaoInput()
+        raoInput = RaoInput.builder()
             .withNetwork(network)
             .withCrac(crac)
             .withVariantId(variantId)

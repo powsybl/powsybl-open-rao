@@ -32,24 +32,20 @@ import static org.junit.Assert.*;
 public class RaoTest {
 
     private FileSystem fileSystem;
-
     private InMemoryPlatformConfig platformConfig;
-
-    private Network network;
-
-    private Crac crac;
-
+    private RaoInput raoInput;
     private ComputationManager computationManager;
 
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        network = Mockito.mock(Network.class);
-        crac = Mockito.mock(Crac.class);
+        Network network = Mockito.mock(Network.class);
+        Crac crac = Mockito.mock(Crac.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
+        raoInput = RaoInput.builder().withNetwork(network).withCrac(crac).withVariantId("variant-id").build();
         computationManager = Mockito.mock(ComputationManager.class);
     }
 
@@ -67,10 +63,10 @@ public class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoResult result = defaultRao.run(network, crac, computationManager, new RaoParameters());
+        RaoResult result = defaultRao.run(raoInput, computationManager, new RaoParameters());
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
-        RaoResult resultAsync = defaultRao.runAsync(network, crac, computationManager, new RaoParameters()).join();
+        RaoResult resultAsync = defaultRao.runAsync(raoInput, computationManager, new RaoParameters()).join();
         assertNotNull(resultAsync);
         assertEquals(RaoResult.Status.SUCCESS, resultAsync.getStatus());
     }

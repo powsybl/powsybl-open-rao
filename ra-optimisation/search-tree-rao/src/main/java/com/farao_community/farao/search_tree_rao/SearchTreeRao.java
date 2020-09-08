@@ -7,9 +7,8 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_io_api.RaoInput;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -76,16 +75,6 @@ public class SearchTreeRao implements RaoProvider {
         rootLeaf = new Leaf(rootRaoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        RaoInput raoInput = new RaoInput.Builder().newRaoInput()
-            .withNetwork(network)
-            .withCrac(crac)
-            .withVariantId(variantId)
-            .build();
-        return run(raoInput, computationManager, raoParameters);
     }
 
     @Override

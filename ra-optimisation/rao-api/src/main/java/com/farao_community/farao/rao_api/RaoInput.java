@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_io_api;
+package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 public final class RaoInput {
 
-    public static class Builder {
+    public static final class RaoInputBuilder {
 
         private Crac crac;
         private Network network;
@@ -30,45 +30,51 @@ public final class RaoInput {
         private List<Pair<Country, Country> > boundaries;
         private ReferenceProgram referenceProgram;
 
-        public Builder newRaoInput() {
-            crac = null;
-            network = null;
-            variantId = null;
-            boundaries = null;
+        private RaoInputBuilder() {
 
-            return this;
         }
 
-        public Builder withCrac(Crac crac) {
+        public RaoInputBuilder withCrac(Crac crac) {
             this.crac = crac;
             return this;
         }
 
-        public Builder withNetwork(Network network) {
+        public RaoInputBuilder withNetwork(Network network) {
             this.network = network;
             return this;
         }
 
-        public Builder withVariantId(String variantId) {
+        public RaoInputBuilder withVariantId(String variantId) {
             this.variantId = variantId;
             return this;
         }
 
-        public Builder withBoundaries(List<Pair<Country, Country> > boundaries) {
+        public RaoInputBuilder withBoundaries(List<Pair<Country, Country> > boundaries) {
             this.boundaries = boundaries;
             return this;
         }
 
-        public Builder withRefProg(ReferenceProgram referenceProgram) {
+        public RaoInputBuilder withRefProg(ReferenceProgram referenceProgram) {
             this.referenceProgram = referenceProgram;
             return this;
         }
 
         public RaoInput build() {
+            if (Objects.isNull(network)) {
+                throw new RaoInputException("Network is mandatory when building RAO input.");
+            }
+            if (Objects.isNull(crac)) {
+                throw new RaoInputException("CRAC is mandatory when building RAO input.");
+            }
+
             RaoInput raoInput = new RaoInput();
             raoInput.crac = crac;
             raoInput.network = network;
-            raoInput.variantId = variantId;
+            if (Objects.isNull(variantId)) {
+                raoInput.variantId = network.getVariantManager().getWorkingVariantId();
+            } else {
+                raoInput.variantId = variantId;
+            }
             raoInput.boundaries = boundaries;
             raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
 
@@ -84,6 +90,10 @@ public final class RaoInput {
     private Optional<ReferenceProgram> referenceProgram;
 
     private RaoInput() {
+    }
+
+    public static RaoInputBuilder builder() {
+        return new RaoInputBuilder();
     }
 
     public Crac getCrac() {
