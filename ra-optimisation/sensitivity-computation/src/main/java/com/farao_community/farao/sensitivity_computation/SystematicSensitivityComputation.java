@@ -141,7 +141,8 @@ public class SystematicSensitivityComputation {
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    private void setResults(Network network, Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    private void setResults(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        //TODO::this method should be deleted, and where it is used, the call to raoData.setSystematicSensitivityAnalysisResult can be done
         //raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
     }
 }
