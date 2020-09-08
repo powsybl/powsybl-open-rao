@@ -30,9 +30,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public enum ObjectiveFunction {
         MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
-        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE),
-        MAX_REL_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
-        MAX_REL_MARGIN_IN_AMPERE(Unit.AMPERE);
+        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE);
 
         private Unit unit;
 
