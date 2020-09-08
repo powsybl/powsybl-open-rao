@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -21,15 +20,10 @@ import java.util.*;
  */
 public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private final GlskProvider glskProvider;
-    private List<Cnec> cnecs;
 
     PtdfSensitivityProvider(GlskProvider glskProvider) {
         this.glskProvider = Objects.requireNonNull(glskProvider);
         cnecs = new ArrayList<>();
-    }
-
-    void addPtdfFactors(Set<Cnec> cnecs) {
-        this.cnecs.addAll(cnecs);
     }
 
     @Override

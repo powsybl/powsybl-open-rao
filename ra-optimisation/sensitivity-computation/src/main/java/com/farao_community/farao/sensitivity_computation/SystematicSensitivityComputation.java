@@ -9,10 +9,11 @@ package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,21 +66,21 @@ public class SystematicSensitivityComputation {
     }
 
     /**
-     * Run the systematic sensitivity analysis on the given RaoData (so on its network), and associates the
-     * SystematicSensitivityAnalysisResult to the given RaoData variant.
+     * Run the systematic sensitivity analysis on the given network and crac, and associates the
+     * SystematicSensitivityAnalysisResult to the given network variant.
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    public void run(RaoData raoData, Unit defaultUnit) {
+    public void run(Network network, Crac crac, Unit defaultUnit) {
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ? fallbackParameters : defaultParameters;
 
         try {
-            runWithConfig(raoData, sensitivityComputationParameters, defaultUnit);
+            runWithConfig(network, crac, sensitivityComputationParameters, defaultUnit);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                run(raoData, defaultUnit);
+                run(network, crac, defaultUnit);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -89,44 +90,44 @@ public class SystematicSensitivityComputation {
     }
 
     // Method for tests
-    void run(RaoData raoData) {
-        run(raoData, Unit.AMPERE);
+    void run(Crac crac, Network network) {
+        run(network, crac, Unit.AMPERE);
     }
 
     /**
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private void runWithConfig(RaoData raoData, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
+    private void runWithConfig(Network network, Crac crac, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
 
         try {
             SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-                .runAnalysis(raoData.getNetwork(), raoData.getCrac(), sensitivityComputationParameters);
+                .runAnalysis(network, crac, sensitivityComputationParameters);
 
             if (!systematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            checkSensiResults(raoData, systematicSensitivityAnalysisResult, defaultUnit);
-            setResults(raoData, systematicSensitivityAnalysisResult);
+            checkSensiResults(crac, systematicSensitivityAnalysisResult, defaultUnit);
+            setResults(network, crac, systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
         }
     }
 
-    private void checkSensiResults(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
+    private void checkSensiResults(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
         if (!systematicSensitivityAnalysisResult.isSuccess()) {
             throw new SensitivityComputationException("Status of the sensitivity result indicates a failure.");
         }
 
-        if (raoData.getCrac().getCnecs().stream()
+        if (crac.getCnecs().stream()
             .map(systematicSensitivityAnalysisResult::getReferenceFlow)
             .anyMatch(f -> Double.isNaN(f))) {
             throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
         }
 
-        if (raoData.getCrac().getCnecs().stream()
+        if (crac.getCnecs().stream()
             .map(systematicSensitivityAnalysisResult::getReferenceIntensity)
             .anyMatch(f -> Double.isNaN(f)) && !isFallback() && defaultUnit.equals(Unit.AMPERE)) {
             // in default mode, this means that there is an error in the sensitivity computation, or an
@@ -140,7 +141,7 @@ public class SystematicSensitivityComputation {
      * add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    private void setResults(RaoData raoData, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+    private void setResults(Network network, Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+        //raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
     }
 }

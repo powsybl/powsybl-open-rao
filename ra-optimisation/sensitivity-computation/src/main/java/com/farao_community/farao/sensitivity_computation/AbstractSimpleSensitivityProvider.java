@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public abstract class AbstractSimpleSensitivityProvider implements SensitivityProvider {
-    private List<Cnec> cnecs;
+    protected List<Cnec> cnecs;
 
     AbstractSimpleSensitivityProvider() {
         cnecs = new ArrayList<>();
