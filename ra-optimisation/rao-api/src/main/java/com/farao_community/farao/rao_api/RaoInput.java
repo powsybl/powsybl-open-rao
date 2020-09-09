@@ -27,7 +27,7 @@ public final class RaoInput {
         private Crac crac;
         private Network network;
         private String variantId;
-        private List<Pair<Country, Country> > boundaries;
+        private List<Pair<Country, Country>> boundaries;
         private ReferenceProgram referenceProgram;
 
         private RaoInputBuilder() {
@@ -49,7 +49,7 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withBoundaries(List<Pair<Country, Country> > boundaries) {
+        public RaoInputBuilder withBoundaries(List<Pair<Country, Country>> boundaries) {
             this.boundaries = boundaries;
             return this;
         }
@@ -86,7 +86,7 @@ public final class RaoInput {
     private Crac crac;
     private Network network;
     private String variantId;
-    private List<Pair<Country, Country> > boundaries;
+    private List<Pair<Country, Country>> boundaries;
     private Optional<ReferenceProgram> referenceProgram;
 
     private RaoInput() {
