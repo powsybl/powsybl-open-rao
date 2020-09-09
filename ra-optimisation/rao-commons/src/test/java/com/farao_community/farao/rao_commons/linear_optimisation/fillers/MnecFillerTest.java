@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_commons.RaoInput;
+import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -59,8 +59,8 @@ public class MnecFillerTest extends AbstractFillerTest {
         mnec2 = crac.getCnec("MNEC2 - N - preventive");
 
         crac.desynchronize();
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
 
         String testVariant = "test-variant";
         crac.getExtension(ResultVariantManager.class).createVariant(testVariant);

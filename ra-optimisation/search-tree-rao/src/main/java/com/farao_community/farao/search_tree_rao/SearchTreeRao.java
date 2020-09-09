@@ -7,8 +7,8 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -64,22 +64,22 @@ public class SearchTreeRao implements RaoProvider {
         return "1.0.0";
     }
 
-    void init(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
+    void init(RaoInput raoInput, RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         } else {
             searchTreeRaoParameters = new SearchTreeRaoParameters();
         }
-        RaoData rootRaoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
+        RaoData rootRaoData = RaoUtil.initRaoData(raoInput, raoParameters);
         rootLeaf = new Leaf(rootRaoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        init(network, crac, variantId, raoParameters);
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+        init(raoInput, raoParameters);
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
@@ -101,7 +101,7 @@ public class SearchTreeRao implements RaoProvider {
         iterateOnTree();
 
         //TODO: refactor output format
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, crac, raoParameters.getObjectiveFunction().getUnit());
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoInput.getCrac(), raoParameters.getObjectiveFunction().getUnit());
         return CompletableFuture.completedFuture(buildOutput());
     }
 

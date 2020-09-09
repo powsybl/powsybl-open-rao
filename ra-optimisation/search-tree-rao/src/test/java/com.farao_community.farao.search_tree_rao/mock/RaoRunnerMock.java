@@ -7,14 +7,9 @@
 
 package com.farao_community.farao.search_tree_rao.mock;
 
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.Rao;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.rao_api.RaoResult;
-import com.powsybl.iidm.network.Network;
+import com.farao_community.farao.rao_api.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -26,16 +21,16 @@ public class RaoRunnerMock extends Rao.Runner {
     }
 
     @Override
-    public RaoResult run(Network network, Crac crac, String variantId, RaoParameters raoParameters) {
-        String preOpt = "preOpt-".concat(variantId);
-        String postOpt = "postOpt-".concat(variantId);
+    public RaoResult run(RaoInput raoInput, RaoParameters raoParameters) {
+        String preOpt = "preOpt-".concat(raoInput.getVariantId());
+        String postOpt = "postOpt-".concat(raoInput.getVariantId());
 
-        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        ResultVariantManager resultVariantManager = raoInput.getCrac().getExtension(ResultVariantManager.class);
         resultVariantManager.createVariant(preOpt);
         resultVariantManager.createVariant(postOpt);
 
-        crac.getExtension(CracResultExtension.class).getVariant(preOpt).setFunctionalCost(10);
-        crac.getExtension(CracResultExtension.class).getVariant(postOpt).setFunctionalCost(2);
+        raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(preOpt).setFunctionalCost(10);
+        raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(postOpt).setFunctionalCost(2);
 
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOpt);

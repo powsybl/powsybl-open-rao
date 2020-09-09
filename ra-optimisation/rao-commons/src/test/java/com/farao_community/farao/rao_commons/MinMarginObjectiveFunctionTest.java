@@ -53,8 +53,8 @@ public class MinMarginObjectiveFunctionTest {
         Cnec mnec = crac.getCnec("MNEC1 - initial-instant - preventive");
 
         crac.desynchronize();
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
 
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);

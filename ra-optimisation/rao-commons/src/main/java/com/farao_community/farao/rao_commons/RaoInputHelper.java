@@ -18,11 +18,11 @@ import java.util.List;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public final class RaoInput {
+public final class RaoInputHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaoInput.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaoInputHelper.class);
 
-    private RaoInput() { }
+    private RaoInputHelper() { }
 
     public static void synchronize(Crac crac, Network network) {
         if (!crac.isSynchronized()) {
