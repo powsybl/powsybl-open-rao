@@ -19,6 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -38,7 +40,7 @@ public class MinMarginEvaluatorTest {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState());
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
 
         systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
 

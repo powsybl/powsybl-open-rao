@@ -28,6 +28,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Collections;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -58,7 +59,7 @@ public class SystematicSensitivityComputationTest {
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
-        initialRaoData = new RaoData(network, crac, crac.getPreventiveState());
+        initialRaoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
 
         defaultParameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"));

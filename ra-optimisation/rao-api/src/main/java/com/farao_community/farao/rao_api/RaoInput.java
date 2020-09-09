@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -24,9 +22,9 @@ import java.util.Optional;
 public final class RaoInput {
 
     public static final class RaoInputBuilder {
-
         private Crac crac;
         private State optimizedState;
+        private Set<State> perimeter;
         private Network network;
         private String variantId;
         private List<Pair<Country, Country> > boundaries;
@@ -42,7 +40,12 @@ public final class RaoInput {
         }
 
         public RaoInputBuilder withOptimizedState(State state) {
-            this.optimizedState = optimizedState;
+            this.optimizedState = state;
+            return this;
+        }
+
+        public RaoInputBuilder withPerimeter(Set<State> states) {
+            this.perimeter = states;
             return this;
         }
 
@@ -87,6 +90,11 @@ public final class RaoInput {
             } else {
                 raoInput.optimizedState = optimizedState;
             }
+            if (Objects.isNull(perimeter)) {
+                raoInput.perimeter = Collections.singleton(raoInput.optimizedState);
+            } else {
+                raoInput.perimeter = perimeter;
+            }
             raoInput.boundaries = boundaries;
             raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
 
@@ -97,6 +105,7 @@ public final class RaoInput {
     //TODO: add an optional GLSK provider argument
     private Crac crac;
     private State optimizedState;
+    private Set<State> perimeter;
     private Network network;
     private String variantId;
     private List<Pair<Country, Country> > boundaries;
@@ -115,6 +124,10 @@ public final class RaoInput {
 
     public State getOptimizedState() {
         return optimizedState;
+    }
+
+    public Set<State> getPerimeter() {
+        return perimeter;
     }
 
     public Network getNetwork() {

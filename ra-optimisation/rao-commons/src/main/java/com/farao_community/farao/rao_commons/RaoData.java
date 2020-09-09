@@ -33,6 +33,7 @@ public class RaoData {
     private Network network;
     private Crac crac;
     private State optimizedState;
+    private Set<State> perimeter;
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
     private RaoDataManager raoDataManager;
 
@@ -44,10 +45,11 @@ public class RaoData {
      * @param network: Network object.
      * @param crac: CRAC object.
      */
-    public RaoData(Network network, Crac crac, State optimizedState) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
         this.network = network;
         this.crac = crac;
         this.optimizedState = optimizedState;
+        this.perimeter = perimeter;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityAnalysisResultMap = new HashMap<>();
 
@@ -97,19 +99,8 @@ public class RaoData {
     }
 
     public Set<Cnec> getCnecs() {
-        return crac.getCnecs(optimizedState);
-    }
-
-    private Set<Cnec> getCnecsAfterContingency(Contingency contingency) {
         Set<Cnec> cnecs = new HashSet<>();
-        for (State nextState : getCrac().getStates(contingency)) {
-            if (getCrac().getRangeActions(getNetwork(), nextState, UsageMethod.AVAILABLE).isEmpty() &&
-                getCrac().getNetworkActions(getNetwork(), nextState, UsageMethod.AVAILABLE).isEmpty()) {
-                cnecs.addAll(crac.getCnecs(nextState));
-            } else {
-                break;
-            }
-        }
+        perimeter.forEach(state -> cnecs.addAll(crac.getCnecs(state)));
         return cnecs;
     }
 
@@ -130,6 +121,10 @@ public class RaoData {
 
     public State getOptimizedState() {
         return optimizedState;
+    }
+
+    public Set<State> getPerimeter() {
+        return perimeter;
     }
 
     public CracResult getCracResult() {
