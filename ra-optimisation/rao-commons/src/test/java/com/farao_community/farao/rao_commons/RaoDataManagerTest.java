@@ -35,7 +35,7 @@ public class RaoDataManagerTest {
     public void setUp() {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState());
     }
 
     @Test

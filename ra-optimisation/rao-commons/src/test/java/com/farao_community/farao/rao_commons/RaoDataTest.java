@@ -47,7 +47,7 @@ public class RaoDataTest {
         PstRange pstRange = new PstWithRange("RA PST BE", pstElement);
         ((SimpleCrac) crac).addRangeAction(pstRange);
         crac.synchronize(network);
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState());
         initialVariantId  = raoData.getWorkingVariantId();
     }
 
@@ -133,7 +133,7 @@ public class RaoDataTest {
 
     @Test
     public void sameRasTest() {
-        RaoData raoData = new RaoData(network, crac);
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState());
         String initialVariantId = raoData.getWorkingVariantId();
         String sameVariantId = raoData.cloneWorkingVariant();
         String differentVariantId = raoData.cloneWorkingVariant();

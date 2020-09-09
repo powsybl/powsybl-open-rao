@@ -39,7 +39,7 @@ public class MinMarginObjectiveFunctionTest {
     private void setUp(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState());
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit);
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);

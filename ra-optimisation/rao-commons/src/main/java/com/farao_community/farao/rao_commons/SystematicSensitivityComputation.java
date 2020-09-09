@@ -119,13 +119,13 @@ public class SystematicSensitivityComputation {
             throw new SensitivityComputationException("Status of the sensitivity result indicates a failure.");
         }
 
-        if (raoData.getCrac().getCnecs().stream()
+        if (raoData.getCnecs().stream()
             .map(systematicSensitivityAnalysisResult::getReferenceFlow)
             .anyMatch(f -> Double.isNaN(f))) {
             throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
         }
 
-        if (raoData.getCrac().getCnecs().stream()
+        if (raoData.getCnecs().stream()
             .map(systematicSensitivityAnalysisResult::getReferenceIntensity)
             .anyMatch(f -> Double.isNaN(f)) && !isFallback() && defaultUnit.equals(Unit.AMPERE)) {
             // in default mode, this means that there is an error in the sensitivity computation, or an

@@ -39,7 +39,7 @@ public class MnecViolationCostEvaluatorTest {
     private void setUp(Unit unit) {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState());
         this.unit = unit;
 
         evaluator1 = new MnecViolationCostEvaluator(unit, 50, 10);

@@ -58,7 +58,7 @@ public class SystematicSensitivityComputationTest {
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
-        initialRaoData = new RaoData(network, crac);
+        initialRaoData = new RaoData(network, crac, crac.getPreventiveState());
         PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
 
         defaultParameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"));

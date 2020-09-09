@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -25,6 +26,7 @@ public final class RaoInput {
     public static final class RaoInputBuilder {
 
         private Crac crac;
+        private State optimizedState;
         private Network network;
         private String variantId;
         private List<Pair<Country, Country> > boundaries;
@@ -36,6 +38,11 @@ public final class RaoInput {
 
         public RaoInputBuilder withCrac(Crac crac) {
             this.crac = crac;
+            return this;
+        }
+
+        public RaoInputBuilder withOptimizedState(State state) {
+            this.optimizedState = optimizedState;
             return this;
         }
 
@@ -75,6 +82,11 @@ public final class RaoInput {
             } else {
                 raoInput.variantId = variantId;
             }
+            if (Objects.isNull(optimizedState)) {
+                raoInput.optimizedState = crac.getPreventiveState();
+            } else {
+                raoInput.optimizedState = optimizedState;
+            }
             raoInput.boundaries = boundaries;
             raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
 
@@ -84,6 +96,7 @@ public final class RaoInput {
 
     //TODO: add an optional GLSK provider argument
     private Crac crac;
+    private State optimizedState;
     private Network network;
     private String variantId;
     private List<Pair<Country, Country> > boundaries;
@@ -98,6 +111,10 @@ public final class RaoInput {
 
     public Crac getCrac() {
         return crac;
+    }
+
+    public State getOptimizedState() {
+        return optimizedState;
     }
 
     public Network getNetwork() {

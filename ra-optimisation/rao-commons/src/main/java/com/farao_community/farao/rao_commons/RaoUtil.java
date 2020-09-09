@@ -40,7 +40,7 @@ public final class RaoUtil {
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
-        RaoData raoData = new RaoData(network, crac);
+        RaoData raoData = new RaoData(network, crac, raoInput.getOptimizedState());
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {

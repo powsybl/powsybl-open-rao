@@ -32,6 +32,7 @@ public class RaoData {
     private String workingVariantId;
     private Network network;
     private Crac crac;
+    private State optimizedState;
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
     private RaoDataManager raoDataManager;
 
@@ -43,9 +44,10 @@ public class RaoData {
      * @param network: Network object.
      * @param crac: CRAC object.
      */
-    public RaoData(Network network, Crac crac) {
+    public RaoData(Network network, Crac crac, State optimizedState) {
         this.network = network;
         this.crac = crac;
+        this.optimizedState = optimizedState;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityAnalysisResultMap = new HashMap<>();
 
@@ -94,11 +96,40 @@ public class RaoData {
         return crac;
     }
 
+    public Set<Cnec> getCnecs() {
+        return crac.getCnecs(optimizedState);
+    }
+
+    private Set<Cnec> getCnecsAfterContingency(Contingency contingency) {
+        Set<Cnec> cnecs = new HashSet<>();
+        for (State nextState : getCrac().getStates(contingency)) {
+            if (getCrac().getRangeActions(getNetwork(), nextState, UsageMethod.AVAILABLE).isEmpty() &&
+                getCrac().getNetworkActions(getNetwork(), nextState, UsageMethod.AVAILABLE).isEmpty()) {
+                cnecs.addAll(crac.getCnecs(nextState));
+            } else {
+                break;
+            }
+        }
+        return cnecs;
+    }
+
+    public Set<RangeAction> getAvailableRangeActions() {
+        return crac.getRangeActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
+    public Set<NetworkAction> getAvailableNetworkActions() {
+        return crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
     public CracResult getCracResult(String variantId) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         return crac.getExtension(CracResultExtension.class).getVariant(variantId);
+    }
+
+    public State getOptimizedState() {
+        return optimizedState;
     }
 
     public CracResult getCracResult() {
