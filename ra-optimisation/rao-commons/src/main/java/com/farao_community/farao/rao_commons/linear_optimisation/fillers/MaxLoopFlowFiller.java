@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -97,7 +98,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(RaoData raoData, LinearProblem linearProblem) {
         Map<Cnec, Double> loopFlowShifts;
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
         if (isLoopFlowApproximation) {
             loopFlowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(raoData.getCrac());
         } else {

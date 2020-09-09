@@ -49,21 +49,7 @@ public class LoopFlowComputation {
      * @param crac a crac with or without CracLoopFlowExtension.
      * @param cracLoopFlowExtension contains GlskProvider and List of countries, to add to crac if not already.
      */
-    /*public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
-        this.glskProvider = cracLoopFlowExtension.getGlskProvider();
-        this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
-        this.crac = crac;
-        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
-            this.crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        }
-    }*/
-
-    /**
-     * @param crac a crac already contains CracLoopFlowExtension
-     */
-    public LoopFlowComputation(Crac crac) {
-        //this(crac, crac.getExtension(CracLoopFlowExtension.class));
-        CracLoopFlowExtension cracLoopFlowExtension = crac.getExtension(CracLoopFlowExtension.class)
+    public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
         this.glskProvider = cracLoopFlowExtension.getGlskProvider();
         this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
         this.crac = crac;
@@ -73,11 +59,18 @@ public class LoopFlowComputation {
     }
 
     /**
+     * @param crac a crac already contains CracLoopFlowExtension
+     */
+    /*public LoopFlowComputation(Crac crac) {
+        this(crac, crac.getExtension(CracLoopFlowExtension.class));
+    }*/
+
+    /**
      * @param crac CracLoopFlowExtension is added to crac
      * @param glskProvider use list of countires in GlskProvider
      * @param network necessary to get list of countries from GlskProvider
      */
-    /*public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
+    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
         this.glskProvider = glskProvider;
         this.countries = new ArrayList<>();
         glskProvider.getAllGlsk(network).keySet().forEach(key -> this.countries.add(new EICode(key).getCountry()));
@@ -86,7 +79,7 @@ public class LoopFlowComputation {
         if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
             this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
         }
-    }*/
+    }
 
     /**
      * @param crac CracLoopFlowExtension is added to crac
@@ -95,6 +88,8 @@ public class LoopFlowComputation {
      * @param referenceProgram reference program containing net positions of countries
      */
     public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network, ReferenceProgram referenceProgram) {
+        requireNonNull(glskProvider);
+        requireNonNull(referenceProgram);
         this.glskProvider = glskProvider;
         Set<Country> glskCountries = new HashSet<>();
         glskProvider.getAllGlsk(network).keySet().forEach(key -> glskCountries.add(new EICode(key).getCountry()));

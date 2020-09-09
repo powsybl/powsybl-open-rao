@@ -9,6 +9,8 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.powsybl.iidm.network.Network;
 
@@ -34,6 +36,8 @@ public class RaoData {
     private Crac crac;
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
     private RaoDataManager raoDataManager;
+    private ReferenceProgram referenceProgram;
+    private GlskProvider glskProvider;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
@@ -42,12 +46,16 @@ public class RaoData {
      *
      * @param network: Network object.
      * @param crac: CRAC object.
+     * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
+     * @param glskProvider: GLSK provider (needed only for loopflows)
      */
-    public RaoData(Network network, Crac crac) {
+    public RaoData(Network network, Crac crac, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
         this.network = network;
         this.crac = crac;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityAnalysisResultMap = new HashMap<>();
+        this.referenceProgram = referenceProgram;
+        this.glskProvider = glskProvider;
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
@@ -92,6 +100,14 @@ public class RaoData {
 
     public Crac getCrac() {
         return crac;
+    }
+
+    public ReferenceProgram getReferenceProgram() {
+        return referenceProgram;
+    }
+
+    public GlskProvider getGlskProvider() {
+        return glskProvider;
     }
 
     public CracResult getCracResult(String variantId) {

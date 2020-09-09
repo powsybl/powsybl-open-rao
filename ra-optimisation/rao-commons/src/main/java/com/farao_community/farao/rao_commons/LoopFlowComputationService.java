@@ -30,7 +30,7 @@ public final class LoopFlowComputationService {
     private LoopFlowComputationService() { }
 
     public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData, double violationCost) {
-        LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
         Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(raoData.getNetwork()); // Get reference flow
         Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); // Compute PTDF * NetPosition
         Map<String, Double> loopFlows = initialLoopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts);
@@ -40,7 +40,7 @@ public final class LoopFlowComputationService {
 
     public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {
         Map<String, Double> loopFlows;
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
         if (isLoopFlowApproximation) { // No re-compute ptdf
             loopFlows = loopFlowComputation.calculateLoopFlowsApproximation(raoData.getNetwork());
         } else {
