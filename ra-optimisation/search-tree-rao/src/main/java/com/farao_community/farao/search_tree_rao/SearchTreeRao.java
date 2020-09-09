@@ -89,7 +89,7 @@ public class SearchTreeRao implements RaoProvider {
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
         } else if (stopCriterionReached(rootLeaf)) {
-            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoInput.getCrac(), raoParameters.getObjectiveFunction().getUnit());
+            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit());
             return CompletableFuture.completedFuture(buildOutput());
         }
         rootLeaf.optimize();
@@ -102,7 +102,7 @@ public class SearchTreeRao implements RaoProvider {
         iterateOnTree();
 
         //TODO: refactor output format
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoInput.getCrac(), raoParameters.getObjectiveFunction().getUnit());
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit());
         return CompletableFuture.completedFuture(buildOutput());
     }
 

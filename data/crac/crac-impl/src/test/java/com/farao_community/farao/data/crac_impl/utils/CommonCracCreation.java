@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 
 import java.util.*;
 
@@ -91,6 +92,7 @@ public final class CommonCracCreation {
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
+        pstWithRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addRangeAction(pstWithRange);
 
         return crac;

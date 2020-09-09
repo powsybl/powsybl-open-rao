@@ -8,12 +8,11 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.ActionType;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -65,7 +64,9 @@ public class LeafTest {
         // other mocks
         crac = CommonCracCreation.create();
         na1 = new Topology("topology1", crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
+        na1.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         na2 = new Topology("topology2", crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN);
+        na2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addNetworkAction(na1);
         crac.addNetworkAction(na2);
 
@@ -199,7 +200,9 @@ public class LeafTest {
 
     @Test
     public void testOptimizeWithRangeActions() {
-        crac.addRangeAction(new PstWithRange("pst", new NetworkElement("test")));
+        RangeAction rangeAction = new PstWithRange("pst", new NetworkElement("test"));
+        rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        crac.addRangeAction(rangeAction);
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
         Leaf rootLeaf = new Leaf(raoData, raoParameters, systematicSensitivityComputation, iteratingLinearOptimizer);
         Mockito.doNothing().when(systematicSensitivityComputation).run(eq(raoData), any());

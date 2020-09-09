@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
@@ -82,6 +83,8 @@ abstract class AbstractFillerTest {
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
         cnec2 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
         rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
+        rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", "Défaut")));
 
         resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);

@@ -41,4 +41,9 @@ public final class FreeToUse extends AbstractUsageRule {
     public int hashCode() {
         return usageMethod.hashCode() * 19 + state.hashCode() * 47;
     }
+
+    @Override
+    public UsageMethod getUsageMethod(State state) {
+        return this.state.equals(state) ? usageMethod : UsageMethod.UNDEFINED;
+    }
 }
