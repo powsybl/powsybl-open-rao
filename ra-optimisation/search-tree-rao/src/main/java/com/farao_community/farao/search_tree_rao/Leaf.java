@@ -190,7 +190,7 @@ class Leaf {
      */
     void optimize() {
         if (status.equals(Status.EVALUATED)) {
-            if (!raoData.getCrac().getRangeActions().isEmpty()) {
+            if (!raoData.getAvailableRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
                 activateNetworkActionInCracResult(optimizedVariantId);

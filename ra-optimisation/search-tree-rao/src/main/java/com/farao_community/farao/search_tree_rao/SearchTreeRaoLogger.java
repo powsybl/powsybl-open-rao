@@ -42,11 +42,11 @@ final class SearchTreeRaoLogger {
             rangeActionMsg.append(prefix).append(" - ");
         }
         rangeActionMsg.append("Range action(s): ");
-        for (RangeAction rangeAction : leaf.getRaoData().getCrac().getRangeActions()) {
+        for (RangeAction rangeAction : leaf.getRaoData().getAvailableRangeActions()) {
             String rangeActionName = rangeAction.getName();
             int rangeActionTap = ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
                     .getVariant(leaf.getRaoData().getWorkingVariantId()))
-                    .getTap(leaf.getRaoData().getCrac().getPreventiveState().getId());
+                    .getTap(leaf.getRaoData().getOptimizedState().getId());
             rangeActionMsg
                     .append(format("%s: %d", rangeActionName, rangeActionTap))
                     .append(" , ");
