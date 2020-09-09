@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RaoProvider extends Versionable {
-
+    
     /**
      * @param raoInput: Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
      * @param computationManager: Computation configuration.
