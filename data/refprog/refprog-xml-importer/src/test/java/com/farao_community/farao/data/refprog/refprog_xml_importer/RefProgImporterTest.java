@@ -48,6 +48,8 @@ public class RefProgImporterTest {
     public void testImportSimpleFile() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 21, 00, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
+        assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
+        assertEquals(4, referenceProgram.getListOfCountries().size());
         assertEquals(500, referenceProgram.getExchange("10YBE----------2", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
         assertEquals(1300, referenceProgram.getExchange("10YBE----------2", "10YNL----------L"), DOUBLE_TOLERANCE);
         assertEquals(-1600, referenceProgram.getExchange("10YCB-GERMANY--8", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
@@ -62,6 +64,8 @@ public class RefProgImporterTest {
     public void testImportSimpleFileWithoutFlowForTimestamp() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 19, 00, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
+        assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
+        assertEquals(4, referenceProgram.getListOfCountries().size());
         assertEquals(0, referenceProgram.getExchange("10YBE----------2", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
         assertEquals(0, referenceProgram.getExchange("10YBE----------2", "10YNL----------L"), DOUBLE_TOLERANCE);
         assertEquals(-0, referenceProgram.getExchange("10YCB-GERMANY--8", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
@@ -77,6 +81,7 @@ public class RefProgImporterTest {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 6, 30, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime);
         assertEquals(76, referenceProgram.getReferenceExchangeDataList().size());
+        assertEquals(26, referenceProgram.getListOfCountries().size());
         assertEquals(191, referenceProgram.getExchange("10YFR-RTE------C", "10YCB-GERMANY--8"), DOUBLE_TOLERANCE);
         assertEquals(-191, referenceProgram.getExchange("10YCB-GERMANY--8", "10YFR-RTE------C"), DOUBLE_TOLERANCE);
         assertEquals(1756, referenceProgram.getExchange("10YFR-RTE------C", "10YES-REE------0"), DOUBLE_TOLERANCE);
@@ -90,6 +95,7 @@ public class RefProgImporterTest {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResource("/large_refProg.xml").getPath(), offsetDateTime);
         assertEquals(76, referenceProgram.getReferenceExchangeDataList().size());
+        assertEquals(26, referenceProgram.getListOfCountries().size());
         assertEquals(-1397, referenceProgram.getExchange(Country.CH, Country.FR), DOUBLE_TOLERANCE);
         assertEquals(-147, referenceProgram.getExchange(Country.BA, Country.RS), DOUBLE_TOLERANCE);
         assertEquals(288, referenceProgram.getExchange("10YCS-CG-TSO---S", "10YCB-ALBANIA--1"), DOUBLE_TOLERANCE);
