@@ -92,7 +92,7 @@ public class MinMarginEvaluatorTest {
                 .add();
 
         crac.desynchronize();
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.synchronize(crac, network);
 
         Mockito.when(systematicSensitivityAnalysisResult.getReferenceFlow(crac.getCnec("mnec1basecase")))
                 .thenReturn(200.);
