@@ -22,7 +22,6 @@
         <module>rao-api</module>
         <module>rao-commons</module>
         <module>search-tree-rao</module>
-        <module>sensitivity-computation</module>
     </modules>
 
 </project>

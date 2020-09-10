@@ -39,7 +39,7 @@ public final class SystematicSensitivityAnalysisService {
             Network network,
             Crac crac,
             SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityProvider sensitivityProvider = new RangeActionSensitivitiesProvider(crac);
+        SensitivityProvider sensitivityProvider = new RangeActionSensitivityProvider(crac);
         try {
             return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), sensitivityProvider, sensitivityProvider, sensitivityComputationParameters);
         } catch (FaraoException e) {

@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class RangeActionSensitivitiesProvider extends AbstractSimpleSensitivityProvider {
+public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private final Crac crac;
     private List<RangeAction> rangeActions;
 
-    RangeActionSensitivitiesProvider(Crac crac) {
+    RangeActionSensitivityProvider(Crac crac) {
         super();
         this.crac = Objects.requireNonNull(crac);
         rangeActions = new ArrayList<>();

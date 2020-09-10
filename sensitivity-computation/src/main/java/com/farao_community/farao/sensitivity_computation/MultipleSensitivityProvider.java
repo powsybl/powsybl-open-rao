@@ -28,6 +28,7 @@ public class MultipleSensitivityProvider implements SensitivityProvider {
 
     @Override
     public List<Contingency> getContingencies(Network network) {
+        //using a set to avoid duplicates
         Set<Contingency> contingencies = new HashSet<>();
         for (SensitivityProvider sensitivityProvider : sensitivityProviders) {
             contingencies.addAll(sensitivityProvider.getContingencies(network));
@@ -38,6 +39,7 @@ public class MultipleSensitivityProvider implements SensitivityProvider {
 
     @Override
     public List<SensitivityFactor> getFactors(Network network) {
+        //using a set to avoid duplicates
         Set<SensitivityFactor> factors = new HashSet<>();
         for (SensitivityProvider sensitivityProvider : sensitivityProviders) {
             factors.addAll(sensitivityProvider.getFactors(network));

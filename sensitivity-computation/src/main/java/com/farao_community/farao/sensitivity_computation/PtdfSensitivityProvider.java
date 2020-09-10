@@ -22,8 +22,8 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     private final GlskProvider glskProvider;
 
     PtdfSensitivityProvider(GlskProvider glskProvider) {
+        super();
         this.glskProvider = Objects.requireNonNull(glskProvider);
-        cnecs = new ArrayList<>();
     }
 
     @Override
