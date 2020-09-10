@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +62,9 @@ public final class LoopFlowComputationService {
     }
 
     public static void checkDataConsistency(RaoData raoData) {
-        if (Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+        if (Objects.isNull(raoData.getReferenceProgram()) || Objects.isNull(raoData.getGlskProvider())) {
             String msg = format(
-                "Loopflow computation cannot be performed CRAC %s because it does not have loop flow extension",
+                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                 raoData.getCrac().getId());
             LOGGER.error(msg);
             throw new FaraoException(msg);

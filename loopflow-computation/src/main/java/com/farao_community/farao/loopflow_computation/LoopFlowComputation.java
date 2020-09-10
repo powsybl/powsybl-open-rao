@@ -10,7 +10,6 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
@@ -44,19 +43,6 @@ public class LoopFlowComputation {
     private GlskProvider glskProvider;
     private List<Country> countries;
     private ReferenceProgram referenceProgram;
-
-    /**
-     * @param crac                  a crac with or without CracLoopFlowExtension.
-     * @param cracLoopFlowExtension contains GlskProvider and List of countries, to add to crac if not already.
-     */
-    public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
-        this.glskProvider = cracLoopFlowExtension.getGlskProvider();
-        this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
-        this.crac = crac;
-        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
-            this.crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        }
-    }
 
     /**
      * @param crac             CracLoopFlowExtension is added to crac

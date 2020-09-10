@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.SensitivityComputationService;
@@ -41,7 +40,6 @@ import static org.junit.Assert.*;
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     private MaxLoopFlowFiller maxLoopFlowFiller;
-    private CracLoopFlowExtension cracLoopFlowExtension;
 
     @Before
     public void setUp() {

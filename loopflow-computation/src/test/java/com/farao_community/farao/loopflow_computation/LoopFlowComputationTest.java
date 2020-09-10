@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
@@ -96,13 +95,6 @@ public class LoopFlowComputationTest {
 
     @Test
     public void testPtdf() {
-        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
-        cracLoopFlowExtension.setGlskProvider(glskProvider);
-        List<Country> countriesFromGlsk = new ArrayList<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> countriesFromGlsk.add(Country.valueOf(key)));
-        Assert.assertEquals(countriesFromGlsk.size(), countries.size());
-        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
-
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, network, referenceProgram);
 
         assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, network), EPSILON);
