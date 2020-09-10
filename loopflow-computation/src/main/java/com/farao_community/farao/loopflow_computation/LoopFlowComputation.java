@@ -46,7 +46,7 @@ public class LoopFlowComputation {
     private ReferenceProgram referenceProgram;
 
     /**
-     * @param crac a crac with or without CracLoopFlowExtension.
+     * @param crac                  a crac with or without CracLoopFlowExtension.
      * @param cracLoopFlowExtension contains GlskProvider and List of countries, to add to crac if not already.
      */
     public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
@@ -59,43 +59,27 @@ public class LoopFlowComputation {
     }
 
     /**
-     * @param crac a crac already contains CracLoopFlowExtension
-     */
-    /*public LoopFlowComputation(Crac crac) {
-        this(crac, crac.getExtension(CracLoopFlowExtension.class));
-    }*/
-
-    /**
-     * @param crac CracLoopFlowExtension is added to crac
-     * @param glskProvider use list of countires in GlskProvider
-     * @param network necessary to get list of countries from GlskProvider
-     */
-    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
-        this.glskProvider = glskProvider;
-        this.countries = new ArrayList<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> this.countries.add(new EICode(key).getCountry()));
-
-        this.crac = crac;
-        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
-            this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
-        }
-    }
-
-    /**
-     * @param crac CracLoopFlowExtension is added to crac
-     * @param glskProvider use list of countires in GlskProvider
-     * @param network necessary to get list of countries from GlskProvider
+     * @param crac             CracLoopFlowExtension is added to crac
+     * @param glskProvider     use list of countires in GlskProvider
+     * @param network          necessary to get list of countries from GlskProvider
      * @param referenceProgram reference program containing net positions of countries
      */
     public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network, ReferenceProgram referenceProgram) {
-        requireNonNull(glskProvider);
-        requireNonNull(referenceProgram);
+        requireNonNull(glskProvider, "glskProvider should not be null");
+        requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.glskProvider = glskProvider;
         Set<Country> glskCountries = new HashSet<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> glskCountries.add(new EICode(key).getCountry()));
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> {
+            try {
+                glskCountries.add(new EICode(key).getCountry());
+            } catch (IllegalArgumentException e) {
+                glskCountries.add(Country.valueOf(key));
+            }
+        });
         glskCountries.retainAll(referenceProgram.getListOfCountries());
         this.countries = new ArrayList<>(glskCountries);
         this.crac = crac;
+        this.referenceProgram = referenceProgram;
     }
 
     public List<Country> getCountries() {
@@ -145,7 +129,7 @@ public class LoopFlowComputation {
 
     private Country glskIdToCountry(String glskId) {
         if (glskId.length() < EICode.LENGTH) {
-            throw  new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
+            throw new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
         }
         EICode eiCode = new EICode(glskId.substring(0, EICode.LENGTH));
         return eiCode.getCountry();

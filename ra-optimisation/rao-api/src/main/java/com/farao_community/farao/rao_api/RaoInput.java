@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,6 +30,7 @@ public final class RaoInput {
         private String variantId;
         private List<Pair<Country, Country>> boundaries;
         private ReferenceProgram referenceProgram;
+        private GlskProvider glskProvider;
 
         private RaoInputBuilder() {
 
@@ -59,6 +61,11 @@ public final class RaoInput {
             return this;
         }
 
+        public RaoInputBuilder withGlskProvider(GlskProvider glskProvider) {
+            this.glskProvider = glskProvider;
+            return this;
+        }
+
         public RaoInput build() {
             if (Objects.isNull(network)) {
                 throw new RaoInputException("Network is mandatory when building RAO input.");
@@ -77,6 +84,7 @@ public final class RaoInput {
             }
             raoInput.boundaries = boundaries;
             raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
+            raoInput.glskProvider = Objects.isNull(glskProvider) ? Optional.empty() : Optional.of(glskProvider);
 
             return raoInput;
         }
@@ -88,6 +96,7 @@ public final class RaoInput {
     private String variantId;
     private List<Pair<Country, Country>> boundaries;
     private Optional<ReferenceProgram> referenceProgram;
+    private Optional<GlskProvider> glskProvider;
 
     private RaoInput() {
     }
@@ -118,5 +127,14 @@ public final class RaoInput {
 
     public Optional<ReferenceProgram> getReferenceProgram() {
         return referenceProgram;
+    }
+
+    public void setReferenceProgram(ReferenceProgram referenceProgram) {
+        Objects.requireNonNull(referenceProgram);
+        this.referenceProgram = Optional.of(referenceProgram);
+    }
+
+    public Optional<GlskProvider> getGlskProvider() {
+        return glskProvider;
     }
 }

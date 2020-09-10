@@ -44,10 +44,10 @@ public class RaoData {
      * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
      * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
      *
-     * @param network: Network object.
-     * @param crac: CRAC object.
+     * @param network:          Network object.
+     * @param crac:             CRAC object.
      * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
-     * @param glskProvider: GLSK provider (needed only for loopflows)
+     * @param glskProvider:     GLSK provider (needed only for loopflows)
      */
     public RaoData(Network network, Crac crac, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
         this.network = network;
@@ -67,6 +67,18 @@ public class RaoData {
         setWorkingVariant(variantId);
         raoDataManager = new RaoDataManager(this);
         raoDataManager.fillRangeActionResultsWithNetworkValues();
+    }
+
+    /**
+     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
+     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
+     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
+     *
+     * @param network: Network object.
+     * @param crac:    CRAC object.
+     */
+    public RaoData(Network network, Crac crac) {
+        this(network, crac, null, null);
     }
 
     public List<String> getVariantIds() {
@@ -194,9 +206,9 @@ public class RaoData {
      * This method deletes a variant according to its ID. If the working variant is the variant to be deleted nothing
      * would be done. CRAC result can be kept.
      *
-     * @param variantId: Variant ID that is required to delete.
+     * @param variantId:      Variant ID that is required to delete.
      * @param keepCracResult: If true it will delete the variant as data variant and the related network variant
-     *                      but it will keep the crac variant.
+     *                        but it will keep the crac variant.
      * @throws FaraoException if variantId is not an existing data variant.
      */
     public void deleteVariant(String variantId, boolean keepCracResult) {
@@ -222,7 +234,7 @@ public class RaoData {
         workingVariantId = null;
         String[] copiedIds = new String[variantIds.size()];
         variantIds.toArray(copiedIds);
-        for (String variantId: copiedIds) {
+        for (String variantId : copiedIds) {
             deleteVariant(variantId, remainingCracResults.contains(variantId));
         }
         variantIds.clear();
