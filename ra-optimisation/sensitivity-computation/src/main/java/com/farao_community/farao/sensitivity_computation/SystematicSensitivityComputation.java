@@ -10,9 +10,6 @@ package com.farao_community.farao.sensitivity_computation;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.util.SensitivityComputationException;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
@@ -31,6 +28,7 @@ public class SystematicSensitivityComputation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityComputation.class);
 
+
     /**
      * LinearRao configurations, containing the default and fallback configurations
      * of the sensitivity computation
@@ -44,6 +42,11 @@ public class SystematicSensitivityComputation {
      * engine is active.
      */
     private boolean fallbackMode = false;
+
+    /**
+     * A SystematicSensitivityAnalysisResult which will contain the latest result from the run methods.
+     */
+    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
 
     /**
      * Constructors
@@ -90,7 +93,7 @@ public class SystematicSensitivityComputation {
     }
 
     // Method for tests
-    void run(Crac crac, Network network) {
+    void run(Network network, Crac crac) {
         run(network, crac, Unit.AMPERE);
     }
 
@@ -109,7 +112,7 @@ public class SystematicSensitivityComputation {
             }
 
             checkSensiResults(crac, systematicSensitivityAnalysisResult, defaultUnit);
-            setResults(systematicSensitivityAnalysisResult);
+            this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -138,11 +141,9 @@ public class SystematicSensitivityComputation {
     }
 
     /**
-     * add results of the systematic analysis (flows and objective function value) in the
-     * Crac result variant of the situation.
+     * Returns the last result from the run method.
      */
-    private void setResults(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
-        //TODO::this method should be deleted, and where it is used, the call to raoData.setSystematicSensitivityAnalysisResult can be done
-        //raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+    public SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+        return systematicSensitivityAnalysisResult;
     }
 }
