@@ -27,16 +27,6 @@ public class RaoProviderMock implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
-        return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.SUCCESS));
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
-        return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.SUCCESS));
-    }
-
-    @Override
     public String getName() {
         return "RandomRAO";
     }
