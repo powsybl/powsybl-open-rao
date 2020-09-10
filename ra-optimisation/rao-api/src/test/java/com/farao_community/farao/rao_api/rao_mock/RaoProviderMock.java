@@ -6,13 +6,12 @@
  */
 package com.farao_community.farao.rao_api.rao_mock;
 
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public class RaoProviderMock implements RaoProvider {
 
     @Override
-    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
         return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.SUCCESS));
     }
 

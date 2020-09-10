@@ -7,7 +7,6 @@
 package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
@@ -15,7 +14,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Objects;
@@ -49,56 +47,34 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
-            Objects.requireNonNull(network, "network should not be null");
-            Objects.requireNonNull(crac, "crac should not be null");
-            Objects.requireNonNull(variantId, "variantId should not be null");
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
-            return provider.run(network, crac, variantId, computationManager, parameters);
+
+            return provider.run(raoInput, computationManager, parameters);
         }
 
-        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
-            return runAsync(network, crac, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
+            return runAsync(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
         }
 
-        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
-            return runAsync(network, crac, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
+            return runAsync(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
         }
 
-        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String variantId) {
-            return runAsync(network, crac, variantId, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
-        }
-
-        public CompletableFuture<RaoResult> runAsync(Network network, Crac crac) {
-            return runAsync(network, crac, RaoParameters.load());
-        }
-
-        public RaoResult run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters parameters) {
-            Objects.requireNonNull(network, "network should not be null");
-            Objects.requireNonNull(crac, "crac should not be null");
-            Objects.requireNonNull(variantId, "variantId should not be null");
+        public RaoResult run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
-            return provider.run(network, crac, variantId, computationManager, parameters).join();
+
+            return provider.run(raoInput, computationManager, parameters).join();
         }
 
-        public RaoResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
-            return run(network, crac, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+        public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
+            return run(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
         }
 
-        public RaoResult run(Network network, Crac crac, RaoParameters parameters) {
-            return run(network, crac, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
-        }
-
-        public RaoResult run(Network network, Crac crac, String variantId) {
-            return run(network, crac, variantId, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
-        }
-
-        public RaoResult run(Network network, Crac crac, String variantId, RaoParameters parameters) {
-            return run(network, crac, variantId, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
-        }
-
-        public RaoResult run(Network network, Crac crac) {
-            return run(network, crac, RaoParameters.load());
+        public RaoResult run(RaoInput raoInput) {
+            return run(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
         }
 
         @Override
@@ -178,39 +154,27 @@ public final class Rao {
         return new Runner(provider);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
-        return find().runAsync(network, crac, workingStateId, computationManager, parameters);
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+        return find().runAsync(raoInput, computationManager, parameters);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
-        return find().runAsync(network, crac, computationManager, parameters);
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
+        return find().runAsync(raoInput, parameters);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac, RaoParameters parameters) {
-        return find().runAsync(network, crac, parameters);
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
+        return find().runAsync(raoInput);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(Network network, Crac crac) {
-        return find().runAsync(network, crac);
+    public static RaoResult run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+        return find().run(raoInput, computationManager, parameters);
     }
 
-    public static RaoResult run(Network network, Crac crac, String workingStateId, ComputationManager computationManager, RaoParameters parameters) {
-        return find().run(network, crac, workingStateId, computationManager, parameters);
+    public static RaoResult run(RaoInput raoInput, RaoParameters parameters) {
+        return find().run(raoInput, parameters);
     }
 
-    public static RaoResult run(Network network, Crac crac, ComputationManager computationManager, RaoParameters parameters) {
-        return find().run(network, crac, computationManager, parameters);
-    }
-
-    public static RaoResult run(Network network, Crac crac, RaoParameters parameters) {
-        return find().run(network, crac, parameters);
-    }
-
-    public static RaoResult run(Network network, Crac crac, String workingStateId, RaoParameters parameters) {
-        return find().run(network, crac, workingStateId, parameters);
-    }
-
-    public static RaoResult run(Network network, Crac crac) {
-        return find().run(network, crac);
+    public static RaoResult run(RaoInput raoInput) {
+        return find().run(raoInput);
     }
 }

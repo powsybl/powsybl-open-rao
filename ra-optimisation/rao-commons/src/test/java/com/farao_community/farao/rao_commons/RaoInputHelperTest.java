@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RaoInputTest {
+public class RaoInputHelperTest {
 
     private Network network;
 
@@ -47,16 +47,16 @@ public class RaoInputTest {
     @Test
     public void testSynchronizeOk() {
         Crac crac = CommonCracCreation.create();
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.synchronize(crac, network);
         assertTrue(crac.isSynchronized());
     }
 
     @Test
     public void testSynchronizeNotFailSecondTime() {
         Crac crac = CommonCracCreation.create();
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.synchronize(crac, network);
         try {
-            RaoInput.synchronize(crac, network);
+            RaoInputHelper.synchronize(crac, network);
         } catch (AlreadySynchronizedException e) {
             fail("AlreadySynchronizedException should not be thrown");
         }
@@ -122,7 +122,7 @@ public class RaoInputTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
 
-        List<String> qualityReport = RaoInput.cleanCrac(simpleCrac, network);
+        List<String> qualityReport = RaoInputHelper.cleanCrac(simpleCrac, network);
 
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
@@ -165,7 +165,7 @@ public class RaoInputTest {
                 .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
                 .setInstant(inst)
                 .add();
-        List<String> qualityReport = RaoInput.cleanCrac(crac, network);
+        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, network);
         assertEquals(1, qualityReport.size());
         assertEquals(3, crac.getCnecs().size());
         assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
