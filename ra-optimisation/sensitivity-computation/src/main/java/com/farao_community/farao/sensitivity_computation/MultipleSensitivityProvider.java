@@ -18,7 +18,9 @@ import java.util.*;
 public class MultipleSensitivityProvider implements SensitivityProvider {
     private List<SensitivityProvider> sensitivityProviders;
 
-    MultipleSensitivityProvider() { }
+    MultipleSensitivityProvider() {
+        sensitivityProviders = new ArrayList<>();
+    }
 
     void addProvider(SensitivityProvider sensitivityProvider) {
         sensitivityProviders.add(sensitivityProvider);
