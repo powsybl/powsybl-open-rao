@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-
 /**
  * Provides methods to read and write JsonFlowBasedComputationParameters from and to JSON.
  *

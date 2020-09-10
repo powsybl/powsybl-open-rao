@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.doAnswer;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class IteratingLinearOptimizerTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
@@ -54,7 +56,6 @@ public class IteratingLinearOptimizerTest {
 
     private void mockNativeLibraryLoader() {
         PowerMockito.mockStatic(NativeLibraryLoader.class);
-        PowerMockito.doNothing().when(NativeLibraryLoader.class);
         NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 

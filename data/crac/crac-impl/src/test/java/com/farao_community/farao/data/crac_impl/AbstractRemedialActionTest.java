@@ -5,7 +5,6 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 
-
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */

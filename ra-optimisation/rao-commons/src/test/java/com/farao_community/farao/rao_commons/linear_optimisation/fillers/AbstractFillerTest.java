@@ -18,7 +18,9 @@ import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import static org.mockito.Mockito.*;
@@ -28,6 +30,7 @@ import static org.mockito.Mockito.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @PrepareForTest(MPSolver.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 abstract class AbstractFillerTest {
 
     static final double DOUBLE_TOLERANCE = 0.1;
@@ -90,7 +93,7 @@ abstract class AbstractFillerTest {
         // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
+        when(MPSolver.infinity()).thenAnswer((Answer<Double>) invocation -> Double.POSITIVE_INFINITY);
         linearProblem = new LinearProblem(solver);
 
         systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);

@@ -16,7 +16,6 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
  * in the scope of the LinearRao.
