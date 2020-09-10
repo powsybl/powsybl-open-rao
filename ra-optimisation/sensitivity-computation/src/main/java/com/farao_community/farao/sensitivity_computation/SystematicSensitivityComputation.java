@@ -109,7 +109,7 @@ public class SystematicSensitivityComputation {
             }
 
             checkSensiResults(crac, systematicSensitivityAnalysisResult, defaultUnit);
-            setResults(network, crac, systematicSensitivityAnalysisResult);
+            setResults(systematicSensitivityAnalysisResult);
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
