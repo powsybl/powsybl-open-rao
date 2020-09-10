@@ -120,17 +120,21 @@ public class RangeActionSensitivitiesProvider extends AbstractSimpleSensitivityP
             } else if (variable instanceof InjectionIncrease) {
                 return new BranchFlowPerInjectionIncrease((BranchFlow) function, (InjectionIncrease) variable);
             } else {
-                throw new FaraoException("Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName());
+                throw new FaraoException(faraoExceptionSensitivityString(function, variable));
             }
         } else if (function instanceof BranchIntensity) {
             if (variable instanceof PhaseTapChangerAngle) {
                 return new BranchIntensityPerPSTAngle((BranchIntensity) function, (PhaseTapChangerAngle) variable);
             } else {
-                throw new FaraoException("Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName());
+                throw new FaraoException(faraoExceptionSensitivityString(function, variable));
             }
         } else {
-            throw new FaraoException("Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName());
+            throw new FaraoException(faraoExceptionSensitivityString(function, variable));
         }
+    }
+
+    private String faraoExceptionSensitivityString(SensitivityFunction function, SensitivityVariable variable) {
+        return "Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName();
     }
 
     @Override

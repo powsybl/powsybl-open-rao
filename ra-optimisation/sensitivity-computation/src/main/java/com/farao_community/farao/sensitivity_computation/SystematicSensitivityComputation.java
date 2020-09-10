@@ -104,15 +104,15 @@ public class SystematicSensitivityComputation {
     private void runWithConfig(Network network, Crac crac, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
 
         try {
-            SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+            SystematicSensitivityAnalysisResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
                 .runAnalysis(network, crac, sensitivityComputationParameters);
 
-            if (!systematicSensitivityAnalysisResult.isSuccess()) {
+            if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            checkSensiResults(crac, systematicSensitivityAnalysisResult, defaultUnit);
-            this.systematicSensitivityAnalysisResult = systematicSensitivityAnalysisResult;
+            checkSensiResults(crac, tempSystematicSensitivityAnalysisResult, defaultUnit);
+            systematicSensitivityAnalysisResult = tempSystematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);

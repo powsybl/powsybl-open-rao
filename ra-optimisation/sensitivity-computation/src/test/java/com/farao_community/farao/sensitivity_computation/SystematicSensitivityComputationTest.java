@@ -76,11 +76,11 @@ public class SystematicSensitivityComputationTest {
         assertFalse(systematicSensitivityComputation.isFallback());
         for (Cnec cnec: crac.getCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceFlow(cnec), 1400., FLOW_TOLERANCE);
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), 2000., FLOW_TOLERANCE);
+                assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
             } else {
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceFlow(cnec), 0., FLOW_TOLERANCE);
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), 0., FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
             }
         }
     }
@@ -123,11 +123,11 @@ public class SystematicSensitivityComputationTest {
         assertTrue(systematicSensitivityComputation.isFallback());
         for (Cnec cnec: crac.getCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceFlow(cnec), 1400., FLOW_TOLERANCE);
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), 2000., FLOW_TOLERANCE);
+                assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
             } else {
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceFlow(cnec), 0., FLOW_TOLERANCE);
-                assertEquals(systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), 0., FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
             }
         }
     }
