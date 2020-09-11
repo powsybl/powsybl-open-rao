@@ -24,10 +24,9 @@ import org.slf4j.LoggerFactory;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SystematicSensitivityComputation {
+public class SystematicSensitivityAnalysisInterface {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityComputation.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisInterface.class);
 
     /**
      * LinearRao configurations, containing the default and fallback configurations
@@ -36,6 +35,11 @@ public class SystematicSensitivityComputation {
     private SensitivityComputationParameters defaultParameters;
 
     private SensitivityComputationParameters fallbackParameters;
+
+    /**
+     * The sensitivity provider to be used in the sensitivity computation
+     */
+    private SensitivityProvider sensitivityProvider;
 
     /**
      * A boolean indicating whether or not the fallback mode of the sensitivity computation
@@ -51,17 +55,21 @@ public class SystematicSensitivityComputation {
     /**
      * Constructors
      */
-    public SystematicSensitivityComputation(SensitivityComputationParameters defaultParameters) {
+    public SystematicSensitivityAnalysisInterface(SensitivityComputationParameters defaultParameters) {
         this.defaultParameters = defaultParameters;
     }
 
-    public SystematicSensitivityComputation(SensitivityComputationParameters defaultParameters, SensitivityComputationParameters fallbackParameters) {
+    public SystematicSensitivityAnalysisInterface(SensitivityComputationParameters defaultParameters, SensitivityComputationParameters fallbackParameters) {
         this.defaultParameters = defaultParameters;
         this.fallbackParameters = fallbackParameters;
     }
 
-    public SystematicSensitivityComputation() {
+    public SystematicSensitivityAnalysisInterface() {
         this.defaultParameters = new SensitivityComputationParameters();
+    }
+
+    public void setSensitivityProvider(SensitivityProvider sensitivityProvider) {
+        this.sensitivityProvider = sensitivityProvider;
     }
 
     public boolean isFallback() {
@@ -105,7 +113,7 @@ public class SystematicSensitivityComputation {
 
         try {
             SystematicSensitivityAnalysisResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
-                .runAnalysis(network, crac, sensitivityComputationParameters);
+                .runSensitivity(network, network.getVariantManager().getWorkingVariantId(), sensitivityProvider, sensitivityComputationParameters);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");

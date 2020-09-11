@@ -6,139 +6,32 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class SystematicSensitivityAnalysisServiceTest {
-
-    private Network network;
-    private ComputationManager computationManager;
-    private SimpleCrac crac;
-    private SensitivityComputationParameters sensitivityComputationParameters;
-
-    @Before
-    public void setUp() {
-        network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.create();
-
-        computationManager = LocalComputationManager.getDefault();
-        SensitivityComputationFactory sensitivityComputationFactory = new SensitivityComputationFactoryRandomMock();
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-
-        sensitivityComputationParameters = Mockito.mock(SensitivityComputationParameters.class);
-    }
-
     @Test
-    public void testSensiSAresult() {
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(Mockito.mock(SensitivityComputationResults.class));
-        assertNotNull(result);
+    public void testLoadflowServiceInitialisation() {
+        SensitivityComputationFactory sensitivityComputationFactory = Mockito.mock(SensitivityComputationFactory.class);
+        SensitivityComputation sensitivityComputation = Mockito.mock(SensitivityComputation.class);
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
+        Mockito.when(sensitivityComputationFactory.create(Mockito.any(), Mockito.any(), Mockito.anyInt())).thenReturn(sensitivityComputation);
+        Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
+        Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
+
+        SystematicSensitivityAnalysisService.init(sensitivityComputationFactory, computationManager);
+        assertTrue(SystematicSensitivityAnalysisService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(SensitivityProvider.class), Mockito.mock(SensitivityComputationParameters.class)).isSuccess());
     }
-
-    @Test
-    public void testSensiSArunSensitivitySA() {
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, sensitivityComputationParameters);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testSensiSArunSensitivitySAFailure() {
-        crac.addRangeAction(new PstWithRange("myPst", new NetworkElement(network.getTwoWindingsTransformers().iterator().next().getId())));
-        SystematicSensitivityAnalysisResult result = SystematicSensitivityAnalysisService.runAnalysis(network, crac, sensitivityComputationParameters);
-        assertNotNull(result);
-
-        SensitivityComputationFactory sensitivityComputationFactory = new SensitivityComputationFactoryBrokenMock();
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-        SystematicSensitivityAnalysisService.runAnalysis(network, crac, sensitivityComputationParameters);
-    }
-
-    public class SensitivityComputationFactoryBrokenMock implements SensitivityComputationFactory {
-        @Override
-        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
-            return new SensitivityComputation() {
-
-                @Override
-                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                    throw new FaraoException("This should fail");
-                }
-
-                @Override
-                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                    throw new FaraoException("This should fail");
-                }
-
-                @Override
-                public String getName() {
-                    return "Mock";
-                }
-
-                @Override
-                public String getVersion() {
-                    return "Mock";
-                }
-            };
-        }
-    }
-
-    public class SensitivityComputationFactoryRandomMock implements SensitivityComputationFactory {
-        @Override
-        public SensitivityComputation create(Network network, ComputationManager computationManager, int priority) {
-            Random random = new Random();
-            random.setSeed(42);
-            return new SensitivityComputation() {
-                @Override
-                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
-                    List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, random.nextDouble(), random.nextDouble(), random.nextDouble())).collect(Collectors.toList());
-                    Map<String, List<SensitivityValue>> sensitivityValuesContingencies = contingenciesProvider.getContingencies(network).stream()
-                            .collect(Collectors.toMap(
-                                contingency -> contingency.getId(),
-                                contingency -> factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, random.nextDouble(), random.nextDouble(), random.nextDouble())).collect(Collectors.toList())
-                            ));
-                    SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, sensitivityValuesContingencies);
-                    return CompletableFuture.completedFuture(results);
-                }
-
-                @Override
-                public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
-                    List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, random.nextDouble(), random.nextDouble(), random.nextDouble())).collect(Collectors.toList());
-                    SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, Collections.emptyMap());
-                    return CompletableFuture.completedFuture(results);
-                }
-
-                @Override
-                public String getName() {
-                    return "Sensitivity computation mock";
-                }
-
-                @Override
-                public String getVersion() {
-                    return null;
-                }
-            };
-        }
-    }
-
 }

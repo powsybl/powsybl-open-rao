@@ -7,45 +7,63 @@
 package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class SystematicSensitivityAnalysisService {
+final class SystematicSensitivityAnalysisService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisService.class);
 
-    private SystematicSensitivityAnalysisService() {
+    private static SensitivityComputationFactory sensitivityComputationFactory;
+    private static ComputationManager computationManager;
+
+    static void init(SensitivityComputationFactory factory, ComputationManager computationManager) {
+        sensitivityComputationFactory = factory;
+        SystematicSensitivityAnalysisService.computationManager = computationManager;
     }
 
-    public static SystematicSensitivityAnalysisResult runAnalysis(Network network,
-                                                                  Crac crac,
-                                                                  SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityComputationResults allStatesSensi = runSensitivityComputation(network, crac, sensitivityComputationParameters);
-
-        LOGGER.debug("Filling systematic analysis results [start]");
-        SystematicSensitivityAnalysisResult results = new SystematicSensitivityAnalysisResult(allStatesSensi);
-        LOGGER.debug("Filling systematic analysis results [end]");
-        return results;
-    }
-
-    private static SensitivityComputationResults runSensitivityComputation(
-            Network network,
-            Crac crac,
-            SensitivityComputationParameters sensitivityComputationParameters) {
-        SensitivityProvider sensitivityProvider = new RangeActionSensitivityProvider(crac);
-        try {
-            return SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), sensitivityProvider, sensitivityProvider, sensitivityComputationParameters);
-        } catch (FaraoException e) {
-            LOGGER.error(e.getMessage());
-            return null;
+    static SystematicSensitivityAnalysisResult runSensitivity(Network network,
+                                                               String workingStateId,
+                                                               SensitivityProvider sensitivityProvider,
+                                                               SensitivityComputationParameters sensitivityComputationParameters,
+                                                               ComputationManager computationManager) {
+        if (!initialised()) {
+            init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), computationManager);
         }
+        SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
+        LOGGER.debug("Sensitivity computation [start]");
+        CompletableFuture<SensitivityComputationResults> results = computation.run(sensitivityProvider, sensitivityProvider, workingStateId, sensitivityComputationParameters);
+        try {
+            SensitivityComputationResults joinedResults = results.join();
+            LOGGER.debug("Sensitivity computation [end]");
+            return new SystematicSensitivityAnalysisResult(joinedResults);
+        } catch (CompletionException e) {
+            throw new FaraoException("Sensitivity computation failed");
+        }
+    }
 
+    static SystematicSensitivityAnalysisResult runSensitivity(Network network,
+                                                               String workingStateId,
+                                                               SensitivityProvider sensitivityProvider,
+                                                               SensitivityComputationParameters sensitivityComputationParameters) {
+        return runSensitivity(network, workingStateId, sensitivityProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
+    }
+
+    private static boolean initialised() {
+        return sensitivityComputationFactory != null && computationManager != null;
+    }
+
+    private SystematicSensitivityAnalysisService() {
     }
 }

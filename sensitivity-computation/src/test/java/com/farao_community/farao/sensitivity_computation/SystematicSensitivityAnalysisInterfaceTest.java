@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystematicSensitivityAnalysisService.class})
-public class SystematicSensitivityComputationTest {
+public class SystematicSensitivityAnalysisInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
 
@@ -63,17 +63,17 @@ public class SystematicSensitivityComputationTest {
     @Test
     public void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        BDDMockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+        BDDMockito.when(SystematicSensitivityAnalysisService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultOk);
 
         // run engine
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(defaultParameters);
-        systematicSensitivityComputation.run(network, crac);
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityComputation.getSystematicSensitivityAnalysisResult();
+        SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(defaultParameters);
+        systematicSensitivityAnalysisInterface.run(network, crac);
+        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.getSystematicSensitivityAnalysisResult();
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
-        assertFalse(systematicSensitivityComputation.isFallback());
+        assertFalse(systematicSensitivityAnalysisInterface.isFallback());
         for (Cnec cnec: crac.getCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
@@ -88,14 +88,14 @@ public class SystematicSensitivityComputationTest {
     @Test
     public void testRunDefaultConfigFailsAndNoFallback() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAnalysisService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultFailed);
 
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(defaultParameters);
+        SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(defaultParameters);
 
         // run - expected failure
         try {
-            systematicSensitivityComputation.run(network, crac);
+            systematicSensitivityAnalysisInterface.run(network, crac);
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with default parameters. No fallback parameters available."));
@@ -105,22 +105,22 @@ public class SystematicSensitivityComputationTest {
     @Test
     public void testRunDefaultConfigFailsButFallbackOk() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
+        Mockito.when(SystematicSensitivityAnalysisService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
+        Mockito.when(SystematicSensitivityAnalysisService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
             .thenReturn(systematicAnalysisResultOk);
 
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
+        SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(
             defaultParameters, fallbackParameters);
 
         // run
-        systematicSensitivityComputation.run(network, crac);
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityComputation.getSystematicSensitivityAnalysisResult();
+        systematicSensitivityAnalysisInterface.run(network, crac);
+        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.getSystematicSensitivityAnalysisResult();
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
-        assertTrue(systematicSensitivityComputation.isFallback());
+        assertTrue(systematicSensitivityAnalysisInterface.isFallback());
         for (Cnec cnec: crac.getCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
@@ -135,18 +135,18 @@ public class SystematicSensitivityComputationTest {
     @Test
     public void testRunDefaultConfigAndFallbackFail() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
+        Mockito.when(SystematicSensitivityAnalysisService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
+        Mockito.when(SystematicSensitivityAnalysisService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
+        SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(
             defaultParameters, fallbackParameters);
 
         // run - expected failure
         try {
-            systematicSensitivityComputation.run(network, crac);
+            systematicSensitivityAnalysisInterface.run(network, crac);
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with all available sensitivity parameters."));
