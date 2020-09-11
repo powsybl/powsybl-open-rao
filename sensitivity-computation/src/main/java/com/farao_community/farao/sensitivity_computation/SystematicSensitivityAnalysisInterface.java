@@ -48,11 +48,6 @@ public class SystematicSensitivityAnalysisInterface {
     private boolean fallbackMode = false;
 
     /**
-     * A SystematicSensitivityAnalysisResult which will contain the latest result from the run methods.
-     */
-    private SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
-
-    /**
      * Constructors
      */
     public SystematicSensitivityAnalysisInterface(SensitivityComputationParameters defaultParameters) {
@@ -82,16 +77,16 @@ public class SystematicSensitivityAnalysisInterface {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    public void run(Network network, Crac crac, Unit defaultUnit) {
+    public SystematicSensitivityAnalysisResult run(Network network, Crac crac, Unit defaultUnit) {
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ? fallbackParameters : defaultParameters;
 
         try {
-            runWithConfig(network, crac, sensitivityComputationParameters, defaultUnit);
+            return runWithConfig(network, crac, sensitivityComputationParameters, defaultUnit);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                run(network, crac, defaultUnit);
+                return run(network, crac, defaultUnit);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -101,15 +96,15 @@ public class SystematicSensitivityAnalysisInterface {
     }
 
     // Method for tests
-    void run(Network network, Crac crac) {
-        run(network, crac, Unit.AMPERE);
+    SystematicSensitivityAnalysisResult run(Network network, Crac crac) {
+        return run(network, crac, Unit.AMPERE);
     }
 
     /**
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private void runWithConfig(Network network, Crac crac, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
+    private SystematicSensitivityAnalysisResult runWithConfig(Network network, Crac crac, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
 
         try {
             SystematicSensitivityAnalysisResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
@@ -120,7 +115,7 @@ public class SystematicSensitivityAnalysisInterface {
             }
 
             checkSensiResults(crac, tempSystematicSensitivityAnalysisResult, defaultUnit);
-            systematicSensitivityAnalysisResult = tempSystematicSensitivityAnalysisResult;
+            return tempSystematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
             throw new SensitivityComputationException("Sensitivity computation fails.", e);
@@ -146,12 +141,5 @@ public class SystematicSensitivityAnalysisInterface {
             // made in DC mode and no intensity are computed).
             throw new FaraoException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
         }
-    }
-
-    /**
-     * Returns the last result from the run method.
-     */
-    public SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
-        return systematicSensitivityAnalysisResult;
     }
 }

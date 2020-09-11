@@ -68,8 +68,7 @@ public class SystematicSensitivityAnalysisInterfaceTest {
 
         // run engine
         SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(defaultParameters);
-        systematicSensitivityAnalysisInterface.run(network, crac);
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.getSystematicSensitivityAnalysisResult();
+        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.run(network, crac);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -115,8 +114,7 @@ public class SystematicSensitivityAnalysisInterfaceTest {
             defaultParameters, fallbackParameters);
 
         // run
-        systematicSensitivityAnalysisInterface.run(network, crac);
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.getSystematicSensitivityAnalysisResult();
+        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.run(network, crac);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
