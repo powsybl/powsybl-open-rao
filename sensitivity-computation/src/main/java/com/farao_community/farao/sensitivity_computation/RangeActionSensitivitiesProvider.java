@@ -8,7 +8,6 @@ package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.powsybl.iidm.network.*;
@@ -30,12 +29,10 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class RangeActionSensitivitiesProvider extends AbstractSimpleSensitivityProvider {
-    private final Crac crac;
     private List<RangeAction> rangeActions;
 
-    RangeActionSensitivitiesProvider(Crac crac) {
+    RangeActionSensitivitiesProvider() {
         super();
-        this.crac = Objects.requireNonNull(crac);
         rangeActions = new ArrayList<>();
     }
 
@@ -91,7 +88,7 @@ public class RangeActionSensitivitiesProvider extends AbstractSimpleSensitivityP
             Generator gen = optionalGen.get();
             return new InjectionIncrease(gen.getId(), gen.getNameOrId(), gen.getId());
         }
-        throw new FaraoException(String.format("Unable to create sensitivity factors for CRAC '%s'. Did not find any varying element in network '%s'.", crac.getId(), network.getId()));
+        throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
     }
 
     private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
@@ -151,7 +148,7 @@ public class RangeActionSensitivitiesProvider extends AbstractSimpleSensitivityP
         }
 
         Set<NetworkElement> networkElements = new HashSet<>();
-        crac.getCnecs().forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
+        cnecs.forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
         List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
             .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
             .flatMap(Collection::stream)

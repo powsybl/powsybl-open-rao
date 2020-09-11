@@ -43,7 +43,7 @@ public class MultipleSensitivityProviderTest {
 
         glskProviderMock = glskProvider();
         ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock);
-        rangeActionSensitivitiesProvider = new RangeActionSensitivitiesProvider(crac);
+        rangeActionSensitivitiesProvider = new RangeActionSensitivitiesProvider();
         multipleSensitivityProvider = new MultipleSensitivityProvider();
         multipleSensitivityProvider.addProvider(rangeActionSensitivitiesProvider);
         multipleSensitivityProvider.addProvider(ptdfSensitivityProvider);

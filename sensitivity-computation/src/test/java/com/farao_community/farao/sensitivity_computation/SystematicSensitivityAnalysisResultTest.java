@@ -44,7 +44,7 @@ public class SystematicSensitivityAnalysisResultTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
-        RangeActionSensitivitiesProvider rangeActionSensitivitiesProvider = new RangeActionSensitivitiesProvider(crac);
+        RangeActionSensitivitiesProvider rangeActionSensitivitiesProvider = new RangeActionSensitivitiesProvider();
         rangeActionSensitivitiesProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
         sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
                 .run(rangeActionSensitivitiesProvider, rangeActionSensitivitiesProvider, network.getVariantManager().getWorkingVariantId(), null).join();

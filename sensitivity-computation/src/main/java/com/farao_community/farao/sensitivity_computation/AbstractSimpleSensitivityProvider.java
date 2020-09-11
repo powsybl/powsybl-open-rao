@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.contingency.*;
@@ -49,7 +48,7 @@ public abstract class AbstractSimpleSensitivityProvider implements SensitivityPr
         } else if (networkIdentifiable instanceof BusbarSection) {
             return new BusbarSectionContingency(elementId);
         } else {
-            throw new FaraoException("Unable to apply contingency element " + elementId);
+            throw new SensitivityComputationException("Unable to apply contingency element " + elementId);
         }
     }
 

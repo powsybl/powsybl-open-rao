@@ -68,6 +68,7 @@ public class SystematicSensitivityAnalysisInterfaceTest {
 
         // run engine
         SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(defaultParameters);
+        systematicSensitivityAnalysisInterface.setSensitivityProvider(Mockito.mock(SensitivityProvider.class));
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.run(network, crac);
 
         // assert results
@@ -91,6 +92,7 @@ public class SystematicSensitivityAnalysisInterfaceTest {
             .thenReturn(systematicAnalysisResultFailed);
 
         SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(defaultParameters);
+        systematicSensitivityAnalysisInterface.setSensitivityProvider(Mockito.mock(SensitivityProvider.class));
 
         // run - expected failure
         try {
@@ -112,6 +114,7 @@ public class SystematicSensitivityAnalysisInterfaceTest {
 
         SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(
             defaultParameters, fallbackParameters);
+        systematicSensitivityAnalysisInterface.setSensitivityProvider(Mockito.mock(SensitivityProvider.class));
 
         // run
         SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult = systematicSensitivityAnalysisInterface.run(network, crac);
@@ -141,6 +144,7 @@ public class SystematicSensitivityAnalysisInterfaceTest {
 
         SystematicSensitivityAnalysisInterface systematicSensitivityAnalysisInterface = new SystematicSensitivityAnalysisInterface(
             defaultParameters, fallbackParameters);
+        systematicSensitivityAnalysisInterface.setSensitivityProvider(Mockito.mock(SensitivityProvider.class));
 
         // run - expected failure
         try {

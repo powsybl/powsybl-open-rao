@@ -15,6 +15,8 @@ import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 
 /**
  * A computation engine dedicated to the systematic sensitivity analyses performed
@@ -79,6 +81,9 @@ public class SystematicSensitivityAnalysisInterface {
      */
     public SystematicSensitivityAnalysisResult run(Network network, Crac crac, Unit defaultUnit) {
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ? fallbackParameters : defaultParameters;
+        if (Objects.isNull(sensitivityProvider)) {
+            throw new SensitivityComputationException("Sensitivity provider was not defined.");
+        }
 
         try {
             return runWithConfig(network, crac, sensitivityComputationParameters, defaultUnit);

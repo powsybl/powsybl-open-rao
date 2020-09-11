@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
@@ -49,7 +48,7 @@ final class SystematicSensitivityAnalysisService {
             LOGGER.debug("Sensitivity computation [end]");
             return new SystematicSensitivityAnalysisResult(joinedResults);
         } catch (CompletionException e) {
-            throw new FaraoException("Sensitivity computation failed");
+            throw new SensitivityComputationException("Sensitivity computation failed");
         }
     }
 

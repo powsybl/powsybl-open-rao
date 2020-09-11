@@ -76,8 +76,8 @@ public class RangeActionSensitivitiesProviderTest {
             thresholdSet,
             new SimpleState(Optional.of(busbarSectionContingency), instant)));
 
-        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider(crac);
-        provider.addSensitivityFactors(new HashSet<>(), crac.getCnecs());
+        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider();
+        provider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
 
         // Common Crac contains 6 CNEC and 1 range action
         List<Contingency> contingencyList = provider.getContingencies(network);
@@ -98,7 +98,7 @@ public class RangeActionSensitivitiesProviderTest {
         busBreakerContingency.addNetworkElement(new NetworkElement("FFR3AA1"));
         crac.addContingency(busBreakerContingency);
 
-        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider(crac);
+        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider();
 
         Set<AbstractThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 10));
@@ -119,7 +119,8 @@ public class RangeActionSensitivitiesProviderTest {
     public void factorsCracPstWithRange() {
         Crac crac = CommonCracCreation.createWithPstRange();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        SensitivityProvider provider = new RangeActionSensitivitiesProvider(crac);
+        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider();
+        provider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
@@ -132,7 +133,8 @@ public class RangeActionSensitivitiesProviderTest {
     public void cracWithoutRangeActionButWithPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        SensitivityProvider provider = new RangeActionSensitivitiesProvider(crac);
+        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider();
+        provider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
@@ -146,7 +148,8 @@ public class RangeActionSensitivitiesProviderTest {
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
-        SensitivityProvider provider = new RangeActionSensitivitiesProvider(crac);
+        RangeActionSensitivitiesProvider provider = new RangeActionSensitivitiesProvider();
+        provider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
