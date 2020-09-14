@@ -23,8 +23,7 @@ import java.util.Set;
 
 
 /**
- * A computation engine dedicated to the systematic sensitivity analyses performed
- * in the scope of the LinearRao.
+ * An interface with the engine that computes sensitivities and flows needed in the RAO.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -35,11 +34,10 @@ public final class SystematicSensitivityInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityInterface.class);
 
     /**
-     * LinearRao configurations, containing the default and fallback configurations
+     * Sensitivity configurations, containing the default and fallback configurations
      * of the sensitivity computation
      */
     private SensitivityComputationParameters defaultParameters;
-
     private SensitivityComputationParameters fallbackParameters;
 
     /**
@@ -54,14 +52,13 @@ public final class SystematicSensitivityInterface {
     private boolean fallbackMode = false;
 
     /**
-     * Constructors
+     * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
         private SensitivityComputationParameters defaultParameters;
         private SensitivityComputationParameters fallbackParameters;
-        private SensitivityProvider sensitivityProvider;
-        private PtdfSensitivityProvider ptdfSensitivityProvider;
-        private RangeActionSensitivityProvider rangeActionSensitivityProvider;
+        private MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
+        private boolean providerInitialised = false;
 
         private SystematicSensitivityInterfaceBuilder() {
 
@@ -78,38 +75,29 @@ public final class SystematicSensitivityInterface {
         }
 
         public SystematicSensitivityInterfaceBuilder withSensitivityProvider(SensitivityProvider sensitivityProvider) {
-            this.sensitivityProvider = sensitivityProvider;
+            this.multipleSensitivityProvider.addProvider(sensitivityProvider);
+            providerInitialised = true;
             return this;
         }
 
         public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glskProvider, Set<Cnec> cnecs) {
-            ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
+            PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
             ptdfSensitivityProvider.addCnecs(cnecs);
+            this.multipleSensitivityProvider.addProvider(ptdfSensitivityProvider);
+            providerInitialised = true;
             return this;
         }
 
         public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
-            rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
+            RangeActionSensitivityProvider rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
             rangeActionSensitivityProvider.addSensitivityFactors(rangeActions, cnecs);
+            multipleSensitivityProvider.addProvider(rangeActionSensitivityProvider);
+            providerInitialised = true;
             return this;
         }
 
         public SystematicSensitivityInterface build() {
-            //builds a MultipleSensitivityProvider if both a PtdfSensitivityProvider and a RangeActionSensitivityProvider were given
-            //otherwise sets sensitivityProvider to the given one (if at least one was given)
-            if (!Objects.isNull(ptdfSensitivityProvider)) {
-                if (!Objects.isNull(rangeActionSensitivityProvider)) {
-                    sensitivityProvider = new MultipleSensitivityProvider();
-                    ((MultipleSensitivityProvider) sensitivityProvider).addProvider(ptdfSensitivityProvider);
-                    ((MultipleSensitivityProvider) sensitivityProvider).addProvider(rangeActionSensitivityProvider);
-                } else {
-                    sensitivityProvider = ptdfSensitivityProvider;
-                }
-            } else if (!Objects.isNull(rangeActionSensitivityProvider)) {
-                sensitivityProvider = rangeActionSensitivityProvider;
-            }
-
-            if (Objects.isNull(sensitivityProvider)) {
+            if (!providerInitialised) {
                 throw new SensitivityComputationException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
             }
             if (Objects.isNull(defaultParameters)) {
@@ -118,7 +106,7 @@ public final class SystematicSensitivityInterface {
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
             systematicSensitivityInterface.defaultParameters = defaultParameters;
             systematicSensitivityInterface.fallbackParameters = fallbackParameters;
-            systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
+            systematicSensitivityInterface.sensitivityProvider = multipleSensitivityProvider;
             return systematicSensitivityInterface;
         }
     }
