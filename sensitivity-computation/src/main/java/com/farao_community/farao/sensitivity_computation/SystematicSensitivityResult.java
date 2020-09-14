@@ -25,9 +25,9 @@ import java.util.Set;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class SystematicSensitivityAnalysisResult {
+public class SystematicSensitivityResult {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisResult.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityResult.class);
 
     private class StateResult {
         private final Map<String, Double> referenceFlows = new HashMap<>();
@@ -56,7 +56,7 @@ public class SystematicSensitivityAnalysisResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new HashMap<>();
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults results) {
+    public SystematicSensitivityResult(SensitivityComputationResults results) {
         if (results == null) {
             this.isSuccess = false;
             return;

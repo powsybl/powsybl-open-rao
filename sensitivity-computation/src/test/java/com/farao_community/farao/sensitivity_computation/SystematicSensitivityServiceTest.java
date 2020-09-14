@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SystematicSensitivityAnalysisServiceTest {
+public class SystematicSensitivityServiceTest {
     @Test
     public void testLoadflowServiceInitialisation() {
         SensitivityComputationFactory sensitivityComputationFactory = Mockito.mock(SensitivityComputationFactory.class);
@@ -31,7 +31,7 @@ public class SystematicSensitivityAnalysisServiceTest {
         Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
         Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
 
-        SystematicSensitivityAnalysisService.init(sensitivityComputationFactory, computationManager);
-        assertTrue(SystematicSensitivityAnalysisService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(SensitivityProvider.class), Mockito.mock(SensitivityComputationParameters.class)).isSuccess());
+        SystematicSensitivityService.init(sensitivityComputationFactory, computationManager);
+        assertTrue(SystematicSensitivityService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(SensitivityProvider.class), Mockito.mock(SensitivityComputationParameters.class)).isSuccess());
     }
 }

@@ -26,9 +26,9 @@ import java.util.Objects;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SystematicSensitivityAnalysisInterface {
+public final class SystematicSensitivityInterface {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisInterface.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityInterface.class);
 
     /**
      * LinearRao configurations, containing the default and fallback configurations
@@ -52,21 +52,51 @@ public class SystematicSensitivityAnalysisInterface {
     /**
      * Constructors
      */
-    public SystematicSensitivityAnalysisInterface(SensitivityComputationParameters defaultParameters) {
-        this.defaultParameters = defaultParameters;
+    public static final class SystematicSensitivityInterfaceBuilder {
+        private SensitivityComputationParameters defaultParameters;
+        private SensitivityComputationParameters fallbackParameters;
+        private SensitivityProvider sensitivityProvider;
+
+        private SystematicSensitivityInterfaceBuilder() {
+
+        }
+
+        public SystematicSensitivityInterfaceBuilder withFallbackParameters(SensitivityComputationParameters fallbackParameters) {
+            this.fallbackParameters = fallbackParameters;
+            return this;
+        }
+
+        public SystematicSensitivityInterfaceBuilder withDefaultParameters(SensitivityComputationParameters defaultParameters) {
+            this.defaultParameters = defaultParameters;
+            return this;
+        }
+
+        public SystematicSensitivityInterfaceBuilder withSensitivityProvider(SensitivityProvider sensitivityProvider) {
+            this.sensitivityProvider = sensitivityProvider;
+            return this;
+        }
+
+        public SystematicSensitivityInterface build() {
+            if (Objects.isNull(sensitivityProvider)) {
+                throw new SensitivityComputationException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
+            }
+            if (Objects.isNull(defaultParameters)) {
+                defaultParameters = new SensitivityComputationParameters();
+            }
+            SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
+            systematicSensitivityInterface.defaultParameters = defaultParameters;
+            systematicSensitivityInterface.fallbackParameters = fallbackParameters;
+            systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
+            return systematicSensitivityInterface;
+        }
     }
 
-    public SystematicSensitivityAnalysisInterface(SensitivityComputationParameters defaultParameters, SensitivityComputationParameters fallbackParameters) {
-        this.defaultParameters = defaultParameters;
-        this.fallbackParameters = fallbackParameters;
+    public static SystematicSensitivityInterfaceBuilder builder() {
+        return new SystematicSensitivityInterfaceBuilder();
     }
 
-    public SystematicSensitivityAnalysisInterface() {
-        this.defaultParameters = new SensitivityComputationParameters();
-    }
+    private SystematicSensitivityInterface() {
 
-    public void setSensitivityProvider(SensitivityProvider sensitivityProvider) {
-        this.sensitivityProvider = sensitivityProvider;
     }
 
     public boolean isFallback() {
@@ -79,7 +109,7 @@ public class SystematicSensitivityAnalysisInterface {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    public SystematicSensitivityAnalysisResult run(Network network, Crac crac, Unit defaultUnit) {
+    public SystematicSensitivityResult run(Network network, Crac crac, Unit defaultUnit) {
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ? fallbackParameters : defaultParameters;
         if (Objects.isNull(sensitivityProvider)) {
             throw new SensitivityComputationException("Sensitivity provider was not defined.");
@@ -101,7 +131,7 @@ public class SystematicSensitivityAnalysisInterface {
     }
 
     // Method for tests
-    SystematicSensitivityAnalysisResult run(Network network, Crac crac) {
+    SystematicSensitivityResult run(Network network, Crac crac) {
         return run(network, crac, Unit.AMPERE);
     }
 
@@ -109,10 +139,10 @@ public class SystematicSensitivityAnalysisInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityAnalysisResult runWithConfig(Network network, Crac crac, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
+    private SystematicSensitivityResult runWithConfig(Network network, Crac crac, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
 
         try {
-            SystematicSensitivityAnalysisResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAnalysisService
+            SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityService
                 .runSensitivity(network, network.getVariantManager().getWorkingVariantId(), sensitivityProvider, sensitivityComputationParameters);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
@@ -127,7 +157,7 @@ public class SystematicSensitivityAnalysisInterface {
         }
     }
 
-    private void checkSensiResults(Crac crac, SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
+    private void checkSensiResults(Crac crac, SystematicSensitivityResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
         if (!systematicSensitivityAnalysisResult.isSuccess()) {
             throw new SensitivityComputationException("Status of the sensitivity result indicates a failure.");
         }

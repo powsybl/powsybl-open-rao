@@ -21,18 +21,18 @@ import java.util.concurrent.CompletionException;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-final class SystematicSensitivityAnalysisService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisService.class);
+final class SystematicSensitivityService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityService.class);
 
     private static SensitivityComputationFactory sensitivityComputationFactory;
     private static ComputationManager computationManager;
 
     static void init(SensitivityComputationFactory factory, ComputationManager computationManager) {
         sensitivityComputationFactory = factory;
-        SystematicSensitivityAnalysisService.computationManager = computationManager;
+        SystematicSensitivityService.computationManager = computationManager;
     }
 
-    static SystematicSensitivityAnalysisResult runSensitivity(Network network,
+    static SystematicSensitivityResult runSensitivity(Network network,
                                                                String workingStateId,
                                                                SensitivityProvider sensitivityProvider,
                                                                SensitivityComputationParameters sensitivityComputationParameters,
@@ -46,13 +46,13 @@ final class SystematicSensitivityAnalysisService {
         try {
             SensitivityComputationResults joinedResults = results.join();
             LOGGER.debug("Sensitivity computation [end]");
-            return new SystematicSensitivityAnalysisResult(joinedResults);
+            return new SystematicSensitivityResult(joinedResults);
         } catch (CompletionException e) {
             throw new SensitivityComputationException("Sensitivity computation failed");
         }
     }
 
-    static SystematicSensitivityAnalysisResult runSensitivity(Network network,
+    static SystematicSensitivityResult runSensitivity(Network network,
                                                                String workingStateId,
                                                                SensitivityProvider sensitivityProvider,
                                                                SensitivityComputationParameters sensitivityComputationParameters) {
@@ -63,6 +63,6 @@ final class SystematicSensitivityAnalysisService {
         return sensitivityComputationFactory != null && computationManager != null;
     }
 
-    private SystematicSensitivityAnalysisService() {
+    private SystematicSensitivityService() {
     }
 }

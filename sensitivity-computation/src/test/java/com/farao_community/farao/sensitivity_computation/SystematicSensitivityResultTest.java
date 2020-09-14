@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SystematicSensitivityAnalysisResultTest {
+public class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
     private SensitivityComputationResults sensitivityComputationResults;
     private Network network;
@@ -56,7 +56,7 @@ public class SystematicSensitivityAnalysisResultTest {
     @Test
     public void testCompleteResultManipulation() {
         // When
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
 
         // Then
         assertTrue(result.isSuccess());
@@ -80,7 +80,7 @@ public class SystematicSensitivityAnalysisResultTest {
         // When
         SensitivityComputationResults sensitivityComputationResults = Mockito.mock(SensitivityComputationResults.class);
         Mockito.when(sensitivityComputationResults.isOk()).thenReturn(false);
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
 
         // Then
         assertFalse(result.isSuccess());
