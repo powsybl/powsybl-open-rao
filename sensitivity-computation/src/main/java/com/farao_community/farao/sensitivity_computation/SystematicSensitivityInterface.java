@@ -9,13 +9,17 @@ package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -56,6 +60,8 @@ public final class SystematicSensitivityInterface {
         private SensitivityComputationParameters defaultParameters;
         private SensitivityComputationParameters fallbackParameters;
         private SensitivityProvider sensitivityProvider;
+        private PtdfSensitivityProvider ptdfSensitivityProvider;
+        private RangeActionSensitivityProvider rangeActionSensitivityProvider;
 
         private SystematicSensitivityInterfaceBuilder() {
 
@@ -76,7 +82,33 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glskProvider, Set<Cnec> cnecs) {
+            ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
+            ptdfSensitivityProvider.addCnecs(cnecs);
+            return this;
+        }
+
+        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
+            rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
+            rangeActionSensitivityProvider.addSensitivityFactors(rangeActions, cnecs);
+            return this;
+        }
+
         public SystematicSensitivityInterface build() {
+            //builds a MultipleSensitivityProvider if both a PtdfSensitivityProvider and a RangeActionSensitivityProvider were given
+            //otherwise sets sensitivityProvider to the given one (if at least one was given)
+            if (!Objects.isNull(ptdfSensitivityProvider)) {
+                if (!Objects.isNull(rangeActionSensitivityProvider)) {
+                    sensitivityProvider = new MultipleSensitivityProvider();
+                    ((MultipleSensitivityProvider) sensitivityProvider).addProvider(ptdfSensitivityProvider);
+                    ((MultipleSensitivityProvider) sensitivityProvider).addProvider(rangeActionSensitivityProvider);
+                } else {
+                    sensitivityProvider = ptdfSensitivityProvider;
+                }
+            } else if (!Objects.isNull(rangeActionSensitivityProvider)) {
+                sensitivityProvider = rangeActionSensitivityProvider;
+            }
+
             if (Objects.isNull(sensitivityProvider)) {
                 throw new SensitivityComputationException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
             }

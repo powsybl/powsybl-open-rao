@@ -33,7 +33,7 @@ public class MultipleSensitivityProviderTest {
     private Crac crac;
     private GlskProvider glskProviderMock;
     PtdfSensitivityProvider ptdfSensitivityProvider;
-    RangeActionSensitivitiesProvider rangeActionSensitivitiesProvider;
+    RangeActionSensitivityProvider rangeActionSensitivityProvider;
     MultipleSensitivityProvider multipleSensitivityProvider;
 
     @Before
@@ -43,16 +43,16 @@ public class MultipleSensitivityProviderTest {
 
         glskProviderMock = glskProvider();
         ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock);
-        rangeActionSensitivitiesProvider = new RangeActionSensitivitiesProvider();
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
         multipleSensitivityProvider = new MultipleSensitivityProvider();
-        multipleSensitivityProvider.addProvider(rangeActionSensitivitiesProvider);
+        multipleSensitivityProvider.addProvider(rangeActionSensitivityProvider);
         multipleSensitivityProvider.addProvider(ptdfSensitivityProvider);
     }
 
     @Test
     public void testGetFactors() {
         ptdfSensitivityProvider.addCnecs(crac.getCnecs());
-        rangeActionSensitivitiesProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
+        rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
         List<SensitivityFactor> sensitivityFactors = multipleSensitivityProvider.getFactors(network);
 
         assertEquals(28, sensitivityFactors.size());
