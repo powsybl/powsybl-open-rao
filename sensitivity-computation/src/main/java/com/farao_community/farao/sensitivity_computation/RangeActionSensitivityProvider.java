@@ -54,7 +54,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         if (networkIdentifiable instanceof TwoWindingsTransformer) {
             return new PhaseTapChangerAngle(elementId, elementId, elementId);
         } else {
-            throw new FaraoException("Unable to create sensitivity variable for " + elementId);
+            throw new SensitivityComputationException("Unable to create sensitivity variable for " + elementId);
         }
     }
 
