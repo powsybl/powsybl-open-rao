@@ -19,6 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -38,7 +40,7 @@ public class MinMarginEvaluatorTest {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
 
         systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
 
@@ -65,7 +67,7 @@ public class MinMarginEvaluatorTest {
     @Test
     public void getCostInAmpereWithMissingValues() {
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
-        assertEquals(1196, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -103,6 +105,6 @@ public class MinMarginEvaluatorTest {
         assertEquals(787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
         minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
-        assertEquals(1196, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 }
