@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class RaoDataManagerTest {
     public void setUp() {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
     }
 
     @Test

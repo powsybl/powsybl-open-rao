@@ -32,6 +32,8 @@ public class RaoData {
     private String workingVariantId;
     private Network network;
     private Crac crac;
+    private State optimizedState;
+    private Set<State> perimeter;
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
     private RaoDataManager raoDataManager;
 
@@ -43,9 +45,11 @@ public class RaoData {
      * @param network: Network object.
      * @param crac: CRAC object.
      */
-    public RaoData(Network network, Crac crac) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
         this.network = network;
         this.crac = crac;
+        this.optimizedState = optimizedState;
+        this.perimeter = perimeter;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityAnalysisResultMap = new HashMap<>();
 
@@ -94,11 +98,33 @@ public class RaoData {
         return crac;
     }
 
+    public Set<Cnec> getCnecs() {
+        Set<Cnec> cnecs = new HashSet<>();
+        perimeter.forEach(state -> cnecs.addAll(crac.getCnecs(state)));
+        return cnecs;
+    }
+
+    public Set<RangeAction> getAvailableRangeActions() {
+        return crac.getRangeActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
+    public Set<NetworkAction> getAvailableNetworkActions() {
+        return crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
     public CracResult getCracResult(String variantId) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         return crac.getExtension(CracResultExtension.class).getVariant(variantId);
+    }
+
+    public State getOptimizedState() {
+        return optimizedState;
+    }
+
+    public Set<State> getPerimeter() {
+        return perimeter;
     }
 
     public CracResult getCracResult() {

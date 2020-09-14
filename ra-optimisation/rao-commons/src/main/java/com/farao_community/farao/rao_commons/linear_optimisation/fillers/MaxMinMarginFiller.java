@@ -89,7 +89,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
     private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
+        raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
@@ -146,7 +146,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getRangeActions().forEach(rangeAction -> {
+        raoData.getAvailableRangeActions().forEach(rangeAction -> {
 
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 

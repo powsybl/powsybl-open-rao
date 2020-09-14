@@ -82,7 +82,7 @@ public class LinearRao implements RaoProvider {
 
         // stop here if no optimisation should be done
         StringBuilder skipReason = new StringBuilder();
-        if (skipOptim(raoParameters, raoData.getCrac(), skipReason)) {
+        if (skipOptim(raoParameters, raoData, skipReason)) {
             LOGGER.warn(format("Linear optimization is skipped. Cause: %s", skipReason));
             return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation));
         }
@@ -96,14 +96,14 @@ public class LinearRao implements RaoProvider {
      * Method returning a boolean indicating whether an optimisation should be done,
      * or whether the LinearRao should only perform a security analysis
      */
-    private boolean skipOptim(RaoParameters raoParameters, Crac crac, StringBuilder skipReason) {
+    private boolean skipOptim(RaoParameters raoParameters, RaoData raoData, StringBuilder skipReason) {
         if (raoParameters.getExtension(LinearRaoParameters.class).isSecurityAnalysisWithoutRao()) {
             skipReason.append("security analysis without RAO");
             return true;
         } else if (raoParameters.getMaxIterations() == 0) {
             skipReason.append("max number of iterations is null");
             return true;
-        } else if (crac.getRangeActions().isEmpty()) {
+        } else if (raoData.getAvailableRangeActions().isEmpty()) {
             skipReason.append("no range actions available in the CRAC");
             return true;
         } else {
