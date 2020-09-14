@@ -26,4 +26,9 @@ public final class OnState extends AbstractUsageRule {
     public OnState(UsageMethod usageMethod, State state) {
         super(usageMethod, state);
     }
+
+    @Override
+    public UsageMethod getUsageMethod(State state) {
+        return this.state.equals(state) ? usageMethod : UsageMethod.UNDEFINED;
+    }
 }

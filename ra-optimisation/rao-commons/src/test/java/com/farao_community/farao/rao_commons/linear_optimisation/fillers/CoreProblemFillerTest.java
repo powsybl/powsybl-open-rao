@@ -41,8 +41,73 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillTest() {
+    public void fillTestOnPreventive() {
+        coreProblemFiller = new CoreProblemFiller(0);
+        fillProblemWithCoreFiller();
 
+        // some additional data
+        final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
+        final double maxAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+
+        // check range action setpoint variable
+        MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
+        assertNotNull(setPointVariable);
+        assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
+
+        // check range action absolute variation variable
+        MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+        assertNotNull(absoluteVariationVariable);
+        assertEquals(0, absoluteVariationVariable.lb(), 0.01);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+
+        // check flow variable for cnec1
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        assertNotNull(flowVariable);
+        assertEquals(-Double.POSITIVE_INFINITY, flowVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(Double.POSITIVE_INFINITY, flowVariable.ub(), DOUBLE_TOLERANCE);
+
+        // check flow constraint for cnec1
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        assertNotNull(flowConstraint);
+        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
+        assertEquals(REF_FLOW_CNEC1_IT1 - currentAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(1, flowConstraint.getCoefficient(flowVariable), 0.1);
+        assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
+
+        // check flow variable for cnec2 does not exist
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        assertNull(flowVariable2);
+
+        // check flow constraint for cnec2 does not exist
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        assertNull(flowConstraint2);
+
+        // check absolute variation constraints
+        MPConstraint absoluteVariationConstraint1 = linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.NEGATIVE);
+        MPConstraint absoluteVariationConstraint2 = linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE);
+        assertNotNull(absoluteVariationConstraint1);
+        assertNotNull(absoluteVariationConstraint2);
+        assertEquals(-currentAlpha, absoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(currentAlpha, absoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+
+        // check the number of variables and constraints
+        // total number of variables 4 :
+        //      - 1 per CNEC (flow)
+        //      - 2 per range action (set-point and variation)
+        // total number of constraints 4 :
+        //      - 1 per CNEC (flow constraint)
+        //      - 2 per range action (absolute variation constraints)
+        assertEquals(3, linearProblem.getSolver().numVariables());
+        assertEquals(3, linearProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void fillTestOnPreventiveFiltered() {
+        coreProblemFiller = new CoreProblemFiller(2.5);
         fillProblemWithCoreFiller();
 
         // some additional data
@@ -76,6 +141,66 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(1, flowConstraint.getCoefficient(flowVariable), 0.1);
         assertEquals(0, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
 
+        // check flow variable for cnec2 does not exist
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        assertNull(flowVariable2);
+
+        // check flow constraint for cnec2 does not exist
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        assertNull(flowConstraint2);
+
+        // check absolute variation constraints
+        MPConstraint absoluteVariationConstraint1 = linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.NEGATIVE);
+        MPConstraint absoluteVariationConstraint2 = linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE);
+        assertNotNull(absoluteVariationConstraint1);
+        assertNotNull(absoluteVariationConstraint2);
+        assertEquals(-currentAlpha, absoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(currentAlpha, absoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+
+        // check the number of variables and constraints
+        // total number of variables 4 :
+        //      - 1 per CNEC (flow)
+        //      - 2 per range action (set-point and variation)
+        // total number of constraints 4 :
+        //      - 1 per CNEC (flow constraint)
+        //      - 2 per range action (absolute variation constraints)
+        assertEquals(3, linearProblem.getSolver().numVariables());
+        assertEquals(3, linearProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void fillTestOnCurative() {
+        coreProblemFiller = new CoreProblemFiller(0);
+        initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
+        fillProblemWithCoreFiller();
+
+        // some additional data
+        final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
+        final double maxAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+
+        // check range action setpoint variable
+        MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
+        assertNotNull(setPointVariable);
+        assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
+
+        // check range action absolute variation variable
+        MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+        assertNotNull(absoluteVariationVariable);
+        assertEquals(0, absoluteVariationVariable.lb(), 0.01);
+        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+
+        // check flow variable for cnec1 does not exist
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        assertNull(flowVariable);
+
+        // check flow constraint for cnec1 does not exist
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        assertNull(flowConstraint);
+
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
         assertNotNull(flowVariable2);
@@ -107,8 +232,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(4, linearProblem.getSolver().numVariables());
-        assertEquals(4, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.getSolver().numVariables());
+        assertEquals(3, linearProblem.getSolver().numConstraints());
     }
 
     private void updateProblemWithCoreFiller() {
@@ -125,7 +250,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void updateTest() {
+    public void updateTestOnPreventive() {
 
         // fill a first time the linearRaoProblem with some data
         fillProblemWithCoreFiller();
@@ -152,6 +277,47 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(1, flowConstraint.getCoefficient(flowVariable), 0.1);
         assertEquals(-SENSI_CNEC1_IT2, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
+        // check flow variable for cnec2 does not exist
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        assertNull(flowVariable2);
+
+        // check flow constraint for cnec2 does not exist
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        assertNull(flowConstraint2);
+
+        // check the number of variables and constraints
+        // total number of variables 4 :
+        //      - 1 per CNEC (flow)
+        //      - 2 per range action (set-point and variation)
+        // total number of constraints 4 :
+        //      - 1 per CNEC (flow constraint)
+        //      - 2 per range action (absolute variation constraints)
+        assertEquals(3, linearProblem.getSolver().numVariables());
+        assertEquals(3, linearProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void updateTestOnCurative() {
+        initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
+        // fill a first time the linearRaoProblem with some data
+        fillProblemWithCoreFiller();
+
+        // update the problem with new data
+        updateProblemWithCoreFiller();
+
+        // some additional data
+        final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+
+        MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
+
+        // check flow variable for cnec1 does not exist
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        assertNull(flowVariable);
+
+        // check flow constraint for cnec1 does not exist
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        assertNull(flowConstraint);
+
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
         assertNotNull(flowVariable2);
@@ -173,8 +339,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(4, linearProblem.getSolver().numVariables());
-        assertEquals(4, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.getSolver().numVariables());
+        assertEquals(3, linearProblem.getSolver().numConstraints());
     }
 
     @Test

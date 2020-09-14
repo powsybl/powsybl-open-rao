@@ -18,4 +18,6 @@ public interface UsageRule {
     State getState();
 
     UsageMethod getUsageMethod();
+
+    UsageMethod getUsageMethod(State state);
 }

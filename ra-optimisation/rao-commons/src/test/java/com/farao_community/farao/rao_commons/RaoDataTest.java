@@ -8,8 +8,6 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.*;
@@ -42,12 +40,9 @@ public class RaoDataTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
-        crac = CommonCracCreation.create();
-        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstRange pstRange = new PstWithRange("RA PST BE", pstElement);
-        ((SimpleCrac) crac).addRangeAction(pstRange);
+        crac = CommonCracCreation.createWithPstRange();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         initialVariantId  = raoData.getWorkingVariantId();
     }
 
@@ -63,7 +58,7 @@ public class RaoDataTest {
 
     @Test
     public void rangeActionsInitializationTest() {
-        RangeActionResult rangeActionResult = crac.getRangeAction("RA PST BE").getExtension(RangeActionResultExtension.class).getVariant(initialVariantId);
+        RangeActionResult rangeActionResult = crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(initialVariantId);
         raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
         Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
         Assert.assertEquals(0, ((PstRangeResult) rangeActionResult).getTap("none-initial"));
@@ -133,7 +128,7 @@ public class RaoDataTest {
 
     @Test
     public void sameRasTest() {
-        RaoData raoData = new RaoData(network, crac);
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         String initialVariantId = raoData.getWorkingVariantId();
         String sameVariantId = raoData.cloneWorkingVariant();
         String differentVariantId = raoData.cloneWorkingVariant();

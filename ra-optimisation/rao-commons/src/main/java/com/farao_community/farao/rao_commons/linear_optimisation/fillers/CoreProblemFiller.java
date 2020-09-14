@@ -57,7 +57,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
      */
     private void buildFlowVariables(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().forEach(cnec ->
+        raoData.getCnecs().forEach(cnec ->
                 linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec)
         );
     }
@@ -76,7 +76,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
     private void buildRangeActionSetPointVariables(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getRangeActions().forEach(rangeAction -> {
+        raoData.getAvailableRangeActions().forEach(rangeAction -> {
             double minSetPoint = rangeAction.getMinValue(raoData.getNetwork());
             double maxSetPoint = rangeAction.getMaxValue(raoData.getNetwork());
             linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
@@ -92,7 +92,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * </ul>
      */
     private void buildRangeActionAbsoluteVariationVariables(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getRangeActions().forEach(rangeAction ->
+        raoData.getAvailableRangeActions().forEach(rangeAction ->
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction)
         );
     }
@@ -105,7 +105,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void buildFlowConstraints(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().forEach(cnec -> {
+        raoData.getCnecs().forEach(cnec -> {
             // create constraint
             double referenceFlow = raoData.getReferenceFlow(cnec);
             MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
@@ -128,7 +128,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void updateFlowConstraints(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().forEach(cnec -> {
+        raoData.getCnecs().forEach(cnec -> {
             double referenceFlow = raoData.getReferenceFlow(cnec);
             MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
@@ -152,7 +152,7 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(String.format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        raoData.getCrac().getRangeActions().forEach(rangeAction -> {
+        raoData.getAvailableRangeActions().forEach(rangeAction -> {
             if (rangeAction instanceof PstRange) {
                 addImpactOfPstOnCnec(raoData, linearProblem, rangeAction, cnec, flowConstraint);
             } else {
@@ -190,9 +190,8 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildRangeActionConstraints(RaoData raoData, LinearProblem linearProblem) {
         String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
-        String preventiveStateId = raoData.getCrac().getPreventiveState().getId();
-        raoData.getCrac().getRangeActions().forEach(rangeAction -> {
-            double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(preventiveStateId);
+        raoData.getAvailableRangeActions().forEach(rangeAction -> {
+            double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(raoData.getOptimizedState().getId());
             MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
             MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
 

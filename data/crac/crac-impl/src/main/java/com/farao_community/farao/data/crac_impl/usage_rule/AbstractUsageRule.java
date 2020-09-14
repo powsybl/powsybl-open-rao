@@ -34,6 +34,7 @@ public abstract class AbstractUsageRule implements UsageRule {
         this.state = state;
     }
 
+    @Override
     public UsageMethod getUsageMethod() {
         return usageMethod;
     }

@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
@@ -42,11 +41,11 @@ final class SearchTreeRaoLogger {
             rangeActionMsg.append(prefix).append(" - ");
         }
         rangeActionMsg.append("Range action(s): ");
-        for (RangeAction rangeAction : leaf.getRaoData().getCrac().getRangeActions()) {
+        for (RangeAction rangeAction : leaf.getRaoData().getAvailableRangeActions()) {
             String rangeActionName = rangeAction.getName();
             int rangeActionTap = ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
                     .getVariant(leaf.getRaoData().getWorkingVariantId()))
-                    .getTap(leaf.getRaoData().getCrac().getPreventiveState().getId());
+                    .getTap(leaf.getRaoData().getOptimizedState().getId());
             rangeActionMsg
                     .append(format("%s: %d", rangeActionName, rangeActionTap))
                     .append(" , ");
@@ -55,8 +54,8 @@ final class SearchTreeRaoLogger {
         SearchTreeRao.LOGGER.info(rangeActionsLog);
     }
 
-    static void logMostLimitingElementsResults(Leaf leaf, Crac crac, Unit unit) {
-        List<Cnec> sortedCnecs = crac.getCnecs().stream().
+    static void logMostLimitingElementsResults(Leaf leaf, Unit unit) {
+        List<Cnec> sortedCnecs = leaf.getRaoData().getCnecs().stream().
             filter(Cnec::isOptimized).
             sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit))).
             collect(Collectors.toList());

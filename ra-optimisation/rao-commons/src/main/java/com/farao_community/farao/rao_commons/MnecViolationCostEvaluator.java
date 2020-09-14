@@ -47,7 +47,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         double totalMnecMarginViolation = 0;
         boolean mnecsSkipped = false;
         String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
-        for (Cnec cnec : raoData.getCrac().getCnecs()) {
+        for (Cnec cnec : raoData.getCnecs()) {
             if (cnec.isMonitored()) {
                 double initialFlow = (unit == MEGAWATT) ? cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW()
                         : cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInA();
