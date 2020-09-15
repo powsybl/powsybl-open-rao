@@ -11,6 +11,7 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -25,7 +26,7 @@ public class RefProgImporterTest {
 
     @Test(expected = FaraoException.class)
     public void testUnexistantFile() {
-        RefProgImporter.importRefProg("/refProg_12nodes_doesntexist.xml", offsetDateTime);
+        RefProgImporter.importRefProg(Paths.get("/refProg_12nodes_doesntexist.xml"), offsetDateTime);
     }
 
     @Test(expected = FaraoException.class)
@@ -93,7 +94,7 @@ public class RefProgImporterTest {
     @Test
     public void testImportLargeFile2() {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
-        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResource("/large_refProg.xml").getPath(), offsetDateTime);
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(Paths.get(getClass().getResource("/large_refProg.xml").getPath()), offsetDateTime);
         assertEquals(76, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(26, referenceProgram.getListOfCountries().size());
         assertEquals(-1397, referenceProgram.getExchange(Country.CH, Country.FR), DOUBLE_TOLERANCE);

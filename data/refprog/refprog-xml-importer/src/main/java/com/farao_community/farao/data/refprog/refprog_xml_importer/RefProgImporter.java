@@ -20,6 +20,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -70,8 +71,8 @@ public final class RefProgImporter {
         return new ReferenceProgram(exchangeDataList);
     }
 
-    public static ReferenceProgram importRefProg(String inputPath, OffsetDateTime dateTime) {
-        try (InputStream inputStream = new FileInputStream(inputPath)) {
+    public static ReferenceProgram importRefProg(Path inputPath, OffsetDateTime dateTime) {
+        try (InputStream inputStream = new FileInputStream(inputPath.toFile())) {
             return importRefProg(inputStream, dateTime);
         } catch (IOException e) {
             throw new FaraoException(e);
