@@ -34,6 +34,8 @@ public class RaoData {
     private String workingVariantId;
     private Network network;
     private Crac crac;
+    private State optimizedState;
+    private Set<State> perimeter;
     private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
     private RaoDataManager raoDataManager;
     private ReferenceProgram referenceProgram;
@@ -46,12 +48,16 @@ public class RaoData {
      *
      * @param network:          Network object.
      * @param crac:             CRAC object.
+     * @param optimizedState:   State in which the remedial actions are optimized
+     * @param perimeter:        set of State for which the Cnecs are monitored
      * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
      * @param glskProvider:     GLSK provider (needed only for loopflows)
      */
-    public RaoData(Network network, Crac crac, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
         this.network = network;
         this.crac = crac;
+        this.optimizedState = optimizedState;
+        this.perimeter = perimeter;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityAnalysisResultMap = new HashMap<>();
         this.referenceProgram = referenceProgram;
@@ -76,9 +82,11 @@ public class RaoData {
      *
      * @param network: Network object.
      * @param crac:    CRAC object.
+     * @param optimizedState:   State in which the remedial actions are optimized
+     * @param perimeter:        set of State for which the Cnecs are monitored
      */
-    public RaoData(Network network, Crac crac) {
-        this(network, crac, null, null);
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
+        this(network, crac, optimizedState, perimeter, null, null);
     }
 
     public List<String> getVariantIds() {
@@ -122,11 +130,33 @@ public class RaoData {
         return glskProvider;
     }
 
+    public Set<Cnec> getCnecs() {
+        Set<Cnec> cnecs = new HashSet<>();
+        perimeter.forEach(state -> cnecs.addAll(crac.getCnecs(state)));
+        return cnecs;
+    }
+
+    public Set<RangeAction> getAvailableRangeActions() {
+        return crac.getRangeActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
+    public Set<NetworkAction> getAvailableNetworkActions() {
+        return crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
     public CracResult getCracResult(String variantId) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         return crac.getExtension(CracResultExtension.class).getVariant(variantId);
+    }
+
+    public State getOptimizedState() {
+        return optimizedState;
+    }
+
+    public Set<State> getPerimeter() {
+        return perimeter;
     }
 
     public CracResult getCracResult() {
@@ -234,7 +264,7 @@ public class RaoData {
         workingVariantId = null;
         String[] copiedIds = new String[variantIds.size()];
         variantIds.toArray(copiedIds);
-        for (String variantId : copiedIds) {
+        for (String variantId: copiedIds) {
             deleteVariant(variantId, remainingCracResults.contains(variantId));
         }
         variantIds.clear();

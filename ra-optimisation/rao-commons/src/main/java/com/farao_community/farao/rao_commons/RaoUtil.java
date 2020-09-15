@@ -31,7 +31,8 @@ import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RaoUtil {
-    static final Logger LOGGER = LoggerFactory.getLogger(RaoUtil.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaoUtil.class);
 
     private RaoUtil() { }
 
@@ -52,7 +53,7 @@ public final class RaoUtil {
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
         }
 
-        RaoData raoData = new RaoData(network, crac, raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null));
+        RaoData raoData = new RaoData(network, crac, raoInput.getOptimizedState(), raoInput.getPerimeter(), raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null));
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {

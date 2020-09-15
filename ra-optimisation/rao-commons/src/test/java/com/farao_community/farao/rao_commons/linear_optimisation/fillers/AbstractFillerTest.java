@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
@@ -22,6 +23,8 @@ import com.powsybl.iidm.network.*;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+
+import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -69,6 +72,10 @@ abstract class AbstractFillerTest {
     RaoData raoData;
     Crac crac;
     Network network;
+    ResultVariantManager resultVariantManager;
+
+    private ReferenceProgram referenceProgram;
+    private GlskProvider glskProvider;
 
     void init() {
         init(null, null);
@@ -81,17 +88,18 @@ abstract class AbstractFillerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, referenceProgram, glskProvider);
+        this.glskProvider = glskProvider;
+        this.referenceProgram = referenceProgram;
 
         // get cnec and rangeAction
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
         cnec2 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
         rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
+        rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", "Défaut")));
 
-        ResultVariantManager resultVariantManager = new ResultVariantManager();
+        resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
 
         // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();
@@ -104,6 +112,15 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
+
+        // init RaoData
+        initRaoData(crac.getPreventiveState());
+    }
+
+    void initRaoData(State state) {
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider);
+        resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
+        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
     }
 }

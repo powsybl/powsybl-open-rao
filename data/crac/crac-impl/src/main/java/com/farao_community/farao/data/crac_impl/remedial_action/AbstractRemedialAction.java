@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Business object of a group of elementary remedial actions (range or network action).
@@ -92,8 +93,19 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     @Override
     public UsageMethod getUsageMethod(Network network, State state) {
-        // TODO: implement method
-        return UsageMethod.AVAILABLE;
+        List<UsageMethod> usageMethods = usageRules.stream()
+            .map(usageRule -> usageRule.getUsageMethod(state))
+            .collect(Collectors.toList());
+
+        if (usageMethods.contains(UsageMethod.UNAVAILABLE)) {
+            return UsageMethod.UNAVAILABLE;
+        } else if (usageMethods.contains(UsageMethod.FORCED)) {
+            return UsageMethod.FORCED;
+        } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
+            return UsageMethod.AVAILABLE;
+        } else {
+            return UsageMethod.UNAVAILABLE;
+        }
     }
 
     @Override
