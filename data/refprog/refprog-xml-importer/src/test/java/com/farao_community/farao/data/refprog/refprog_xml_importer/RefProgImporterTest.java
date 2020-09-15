@@ -94,7 +94,7 @@ public class RefProgImporterTest {
     @Test
     public void testImportLargeFile2() {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
-        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(Paths.get(getClass().getResource("/large_refProg.xml").getPath()), offsetDateTime);
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime);
         assertEquals(76, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(26, referenceProgram.getListOfCountries().size());
         assertEquals(-1397, referenceProgram.getExchange(Country.CH, Country.FR), DOUBLE_TOLERANCE);
