@@ -29,18 +29,25 @@ import static java.lang.Math.max;
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public enum ObjectiveFunction {
-        MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
-        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE),
-        MAX_MIN_RELATIVE_RAM(Unit.MEGAWATT);
+        MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT, false),
+        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE, false),
+        MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT(Unit.MEGAWATT, true),
+        MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE, true);
 
         private Unit unit;
+        private boolean requirePtdf;
 
-        ObjectiveFunction(Unit unit) {
+        ObjectiveFunction(Unit unit, boolean requirePtdf) {
             this.unit = unit;
+            this.requirePtdf = requirePtdf;
         }
 
         public Unit getUnit() {
             return unit;
+        }
+
+        public boolean doesRequirePtdf() {
+            return requirePtdf;
         }
     }
 

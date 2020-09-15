@@ -47,7 +47,7 @@ public final class RaoUtil {
         RaoInputHelper.synchronize(crac, network);
 
         if ((raoParameters.isRaoWithLoopFlowLimitation()
-                || raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_RAM))
+                || raoParameters.getObjectiveFunction().doesRequirePtdf())
                 && (!raoInput.getReferenceProgram().isPresent())) {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
