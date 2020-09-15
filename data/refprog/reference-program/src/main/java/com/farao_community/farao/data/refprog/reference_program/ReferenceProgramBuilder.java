@@ -48,9 +48,8 @@ public final class ReferenceProgramBuilder {
         computeRefFlowOnCurrentNetwork(network);
         Map<Country, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         List<ReferenceExchangeData> referenceExchangeDataList = new ArrayList<>();
-        netPositions.forEach((country, flow) -> {
-            referenceExchangeDataList.add(new ReferenceExchangeData(country, null, flow));
-        });
+        netPositions.forEach((country, flow) ->
+            referenceExchangeDataList.add(new ReferenceExchangeData(country, null, flow)));
         return new ReferenceProgram(referenceExchangeDataList);
     }
 }

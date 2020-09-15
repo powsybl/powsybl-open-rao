@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.util.EICode;
 import com.farao_community.farao.util.LoadFlowService;
@@ -140,13 +139,6 @@ public class LoopFlowComputation {
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> cnecFlowMap.put(cnec, cnec.getP(network))));
     }
 
-    public Map<Country, Double> getRefNetPositionByCountry(Network network) {
-        if (referenceProgram == null) {
-            referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network);
-        }
-        return referenceProgram.getAllGlobalNetPositions();
-    }
-
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults) {
         Map<Cnec, Double> loopFlowShift = new HashMap<>();
         for (Map.Entry<Cnec, Map<Country, Double>> entry : ptdfResults.entrySet()) {
@@ -185,9 +177,6 @@ public class LoopFlowComputation {
     }
 
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Network network) {
-        if (referenceProgram == null) {
-            referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network);
-        }
         Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
         return buildZeroBalanceFlowShift(ptdfResults); //compute PTDF * NetPosition
     }
