@@ -45,8 +45,8 @@ public class LoopFlowComputation {
     private ReferenceProgram referenceProgram;
 
     /**
-     * @param crac             CracLoopFlowExtension is added to crac
-     * @param glskProvider     use list of countires in GlskProvider
+     * @param crac             loop-flows will be computed for all the Cnecs of the Crac
+     * @param glskProvider     use list of countries in GlskProvider
      * @param network          necessary to get list of countries from GlskProvider
      * @param referenceProgram reference program containing net positions of countries
      */
