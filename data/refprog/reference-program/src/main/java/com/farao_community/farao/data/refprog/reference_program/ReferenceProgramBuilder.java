@@ -52,7 +52,6 @@ public final class ReferenceProgramBuilder {
         // warning: only the net positions are properly filled. With the use of the "null" in the
         // construction of the ReferenceExchangeData below, the zone to zone exchanges cannot be
         // retrieved from the ReferenceProgram.
-        
         netPositions.forEach((country, flow) ->
             referenceExchangeDataList.add(new ReferenceExchangeData(country, null, flow)));
         return new ReferenceProgram(referenceExchangeDataList);
