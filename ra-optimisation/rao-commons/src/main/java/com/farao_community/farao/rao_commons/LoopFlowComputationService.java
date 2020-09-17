@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public final class LoopFlowComputationService {
     private LoopFlowComputationService() { }
 
     public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData, double violationCost) {
-        LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
         Map<Cnec, Double> frefResults = initialLoopFlowComputation.computeRefFlowOnCurrentNetwork(raoData.getNetwork()); // Get reference flow
         Map<Cnec, Double> loopFlowShifts = initialLoopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork()); // Compute PTDF * NetPosition
         Map<String, Double> loopFlows = initialLoopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopFlowShifts);
@@ -40,7 +39,7 @@ public final class LoopFlowComputationService {
 
     public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {
         Map<String, Double> loopFlows;
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
         if (isLoopFlowApproximation) { // No re-compute ptdf
             loopFlows = loopFlowComputation.calculateLoopFlowsApproximation(raoData.getNetwork());
         } else {
@@ -63,9 +62,9 @@ public final class LoopFlowComputationService {
     }
 
     public static void checkDataConsistency(RaoData raoData) {
-        if (Objects.isNull(raoData.getCrac().getExtension(CracLoopFlowExtension.class))) {
+        if (Objects.isNull(raoData.getReferenceProgram()) || Objects.isNull(raoData.getGlskProvider())) {
             String msg = format(
-                "Loopflow computation cannot be performed CRAC %s because it does not have loop flow extension",
+                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                 raoData.getCrac().getId());
             LOGGER.error(msg);
             throw new FaraoException(msg);
