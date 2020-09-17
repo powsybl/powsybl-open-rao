@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
 import org.mockito.Mockito;
@@ -63,7 +63,7 @@ abstract class AbstractFillerTest {
 
     CoreProblemFiller coreProblemFiller;
     LinearProblem linearProblem;
-    SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+    SystematicSensitivityResult systematicSensitivityResult;
     RaoData raoData;
     Crac crac;
     Network network;
@@ -93,11 +93,11 @@ abstract class AbstractFillerTest {
         when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
         linearProblem = new LinearProblem(solver);
 
-        systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
-        when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
-        when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
-        raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
+        raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }
 }

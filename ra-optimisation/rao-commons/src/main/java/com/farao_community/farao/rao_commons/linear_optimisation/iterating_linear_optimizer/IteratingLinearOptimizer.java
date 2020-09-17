@@ -10,11 +10,11 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.util.SensitivityComputationException;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,24 +40,24 @@ public class IteratingLinearOptimizer {
 
     protected RaoData raoData;
     protected String bestVariantId;
-    protected SystematicSensitivityComputation systematicSensitivityComputation;
+    protected SystematicSensitivityInterface systematicSensitivityInterface;
     protected ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
     protected LinearOptimizer linearOptimizer;
     protected IteratingLinearOptimizerParameters parameters;
 
     public IteratingLinearOptimizer(List<ProblemFiller> fillers,
-                                    SystematicSensitivityComputation systematicSensitivityComputation,
+                                    SystematicSensitivityInterface systematicSensitivityInterface,
                                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                                     IteratingLinearOptimizerParameters parameters) {
-        this(systematicSensitivityComputation, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
+        this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
     }
 
     // Method for tests
-    IteratingLinearOptimizer(SystematicSensitivityComputation systematicSensitivityComputation,
+    IteratingLinearOptimizer(SystematicSensitivityInterface systematicSensitivityInterface,
                              ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                              LinearOptimizer linearOptimizer,
                              IteratingLinearOptimizerParameters parameters) {
-        this.systematicSensitivityComputation = systematicSensitivityComputation;
+        this.systematicSensitivityInterface = systematicSensitivityInterface;
         this.objectiveFunctionEvaluator = objectiveFunctionEvaluator;
         this.linearOptimizer = linearOptimizer;
         this.parameters = parameters;
@@ -129,7 +129,7 @@ public class IteratingLinearOptimizer {
             return true;
         } catch (SensitivityComputationException e) {
             LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
-                systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage()));
+                systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
             return false;
         }
     }
@@ -167,9 +167,10 @@ public class IteratingLinearOptimizer {
     }
 
     void runSensitivityAndUpdateResults() {
-        systematicSensitivityComputation.run(raoData, objectiveFunctionEvaluator.getUnit());
+        raoData.setSystematicSensitivityResult(
+            systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCrac(), objectiveFunctionEvaluator.getUnit()));
         raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                (systematicSensitivityComputation.isFallback() ? parameters.getFallbackOverCost() : 0)
+                (systematicSensitivityInterface.isFallback() ? parameters.getFallbackOverCost() : 0)
                 + objectiveFunctionEvaluator.getVirtualCost(raoData));
     }
 }

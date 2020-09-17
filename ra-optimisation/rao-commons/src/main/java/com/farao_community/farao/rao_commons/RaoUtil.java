@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.*;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -51,7 +52,7 @@ public final class RaoUtil {
         return raoData;
     }
 
-    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
@@ -61,10 +62,10 @@ public final class RaoUtil {
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             fillers.add(createMaxLoopFlowFiller(raoParameters));
-            return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityComputation,
+            return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
                 createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
         }
     }
 

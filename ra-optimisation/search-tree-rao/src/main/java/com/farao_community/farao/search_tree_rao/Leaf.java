@@ -16,7 +16,7 @@ import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ class Leaf {
     private final String initialVariantId;
     private String optimizedVariantId;
     private final RaoParameters raoParameters;
-    private final SystematicSensitivityComputation systematicSensitivityComputation;
+    private final SystematicSensitivityInterface systematicSensitivityInterface;
     private final IteratingLinearOptimizer iteratingLinearOptimizer;
 
     /**
@@ -75,11 +75,11 @@ class Leaf {
      *
      * It is built directly from a RaoData on which a systematic sensitivity analysis could hav already been run or not.
      */
-    // This constructor is useful to mock SystematicSensitivityComputation in LeafTest
-    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation, IteratingLinearOptimizer iteratingLinearOptimizer) {
+    // This constructor is useful to mock SystematicSensitivityInterface in LeafTest
+    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface, IteratingLinearOptimizer iteratingLinearOptimizer) {
         this.networkActions = new HashSet<>(); // Root leaf has no network action
         this.raoParameters = raoParameters;
-        this.systematicSensitivityComputation = systematicSensitivityComputation;
+        this.systematicSensitivityInterface = systematicSensitivityInterface;
         this.iteratingLinearOptimizer = iteratingLinearOptimizer;
         this.raoData = raoData;
         initialVariantId = raoData.getInitialVariantId();
@@ -91,13 +91,12 @@ class Leaf {
     }
 
     Leaf(RaoData raoData, RaoParameters raoParameters) {
-        this(raoData, raoParameters, new SystematicSensitivityComputation(
-            raoParameters.getDefaultSensitivityComputationParameters(), raoParameters.getFallbackSensitivityComputationParameters()));
+        this(raoData, raoParameters, SystematicSensitivityInterface.builder().build());
     }
 
-    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
-        this(raoData, raoParameters, systematicSensitivityComputation,
-            RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation));
+    Leaf(RaoData raoData, RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
+        this(raoData, raoParameters, systematicSensitivityInterface,
+            RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface));
     }
 
     /**
@@ -107,9 +106,8 @@ class Leaf {
         networkActions = new HashSet<>(parentLeaf.networkActions);
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
-        this.systematicSensitivityComputation = new SystematicSensitivityComputation(
-            parentLeaf.raoParameters.getDefaultSensitivityComputationParameters(), parentLeaf.raoParameters.getFallbackSensitivityComputationParameters());
-        iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
+        this.systematicSensitivityInterface = SystematicSensitivityInterface.builder().build();
+        iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
@@ -160,11 +158,11 @@ class Leaf {
         if (status.equals(Status.CREATED)) {
             try {
                 LOGGER.debug("Evaluating leaf...");
-                systematicSensitivityComputation.run(raoData, raoParameters.getObjectiveFunction().getUnit());
+                systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCrac(), raoParameters.getObjectiveFunction().getUnit());
                 ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
                         objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                        (systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0)
+                        (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
                         + objectiveFunctionEvaluator.getVirtualCost(raoData));
                 if (raoParameters.isRaoWithLoopFlowLimitation()) {
                     Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, raoParameters.isLoopFlowApproximation());

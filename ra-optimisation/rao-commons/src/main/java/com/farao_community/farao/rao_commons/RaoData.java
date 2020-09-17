@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public class RaoData {
     private String workingVariantId;
     private Network network;
     private Crac crac;
-    private Map<String, SystematicSensitivityAnalysisResult> systematicSensitivityAnalysisResultMap;
+    private Map<String, SystematicSensitivityResult> systematicSensitivityResultMap;
     private RaoDataManager raoDataManager;
 
     /**
@@ -47,7 +47,7 @@ public class RaoData {
         this.network = network;
         this.crac = crac;
         this.variantIds = new ArrayList<>();
-        this.systematicSensitivityAnalysisResultMap = new HashMap<>();
+        this.systematicSensitivityResultMap = new HashMap<>();
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
@@ -108,30 +108,30 @@ public class RaoData {
         return getCracResult(workingVariantId);
     }
 
-    public SystematicSensitivityAnalysisResult getSystematicSensitivityAnalysisResult() {
+    public SystematicSensitivityResult getSystematicSensitivityResult() {
         if (workingVariantId == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
-        return systematicSensitivityAnalysisResultMap.get(workingVariantId);
+        return systematicSensitivityResultMap.get(workingVariantId);
     }
 
-    public void setSystematicSensitivityAnalysisResult(SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult) {
+    public void setSystematicSensitivityResult(SystematicSensitivityResult systematicSensitivityResult) {
         if (workingVariantId == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
-        systematicSensitivityAnalysisResultMap.put(workingVariantId, systematicSensitivityAnalysisResult);
+        systematicSensitivityResultMap.put(workingVariantId, systematicSensitivityResult);
     }
 
     public boolean hasSensitivityValues() {
-        return getSystematicSensitivityAnalysisResult() != null;
+        return getSystematicSensitivityResult() != null;
     }
 
     public double getReferenceFlow(Cnec cnec) {
-        return getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
+        return getSystematicSensitivityResult().getReferenceFlow(cnec);
     }
 
     public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
-        return getSystematicSensitivityAnalysisResult().getSensitivityOnFlow(rangeAction, cnec);
+        return getSystematicSensitivityResult().getSensitivityOnFlow(rangeAction, cnec);
     }
 
     public RaoDataManager getRaoDataManager() {
@@ -147,18 +147,18 @@ public class RaoData {
 
     private String createVariantFromWorkingVariant(VariantType variantType) {
         String prefix;
-        SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+        SystematicSensitivityResult systematicSensitivityResult;
         if (variantType == VariantType.PRE_OPTIM) {
             prefix = "preOptimisationResults";
-            systematicSensitivityAnalysisResult = null;
+            systematicSensitivityResult = null;
         } else {
             prefix = "postOptimisationResults";
-            systematicSensitivityAnalysisResult = getSystematicSensitivityAnalysisResult();
+            systematicSensitivityResult = getSystematicSensitivityResult();
         }
         String variantId = crac.getExtension(ResultVariantManager.class).createNewUniqueVariantId(prefix);
         //TODO: Copy crac result in the copy ?
         variantIds.add(variantId);
-        systematicSensitivityAnalysisResultMap.put(variantId, systematicSensitivityAnalysisResult);
+        systematicSensitivityResultMap.put(variantId, systematicSensitivityResult);
         return variantId;
     }
 
@@ -188,7 +188,7 @@ public class RaoData {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         if (!variantId.equals(workingVariantId)) {
-            systematicSensitivityAnalysisResultMap.remove(variantId);
+            systematicSensitivityResultMap.remove(variantId);
             if (!keepCracResult) {
                 crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
             }

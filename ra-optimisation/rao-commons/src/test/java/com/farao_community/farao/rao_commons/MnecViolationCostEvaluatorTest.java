@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class MnecViolationCostEvaluatorTest {
     Cnec mnec;
     double mnecThreshold = 1000.;
     Unit unit;
-    SystematicSensitivityAnalysisResult sensiResult;
+    SystematicSensitivityResult sensiResult;
     MnecViolationCostEvaluator evaluator1;
     MnecViolationCostEvaluator evaluator2;
     private static final String TEST_VARIANT = "test-variant";
@@ -60,8 +60,8 @@ public class MnecViolationCostEvaluatorTest {
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);
 
-        sensiResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
-        raoData.setSystematicSensitivityAnalysisResult(sensiResult);
+        sensiResult = Mockito.mock(SystematicSensitivityResult.class);
+        raoData.setSystematicSensitivityResult(sensiResult);
     }
 
     private void testCost(double initFlow, double newFlow, MnecViolationCostEvaluator evaluator, double expectedCost) {
