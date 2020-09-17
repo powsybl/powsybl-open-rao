@@ -113,8 +113,7 @@ class Leaf {
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
-        raoData = new RaoData(network, parentLeaf.getRaoData().getCrac(),
-            parentLeaf.getRaoData().getOptimizedState(), parentLeaf.getRaoData().getPerimeter());
+        raoData = new RaoData(network, parentLeaf.getRaoData().getCrac(), parentLeaf.getRaoData().getOptimizedState(), parentLeaf.getRaoData().getPerimeter(), parentLeaf.getRaoData().getReferenceProgram(), parentLeaf.getRaoData().getGlskProvider());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         status = Status.CREATED;

@@ -10,9 +10,9 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.util.EICode;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.util.EICode;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.iidm.network.Country;
@@ -41,42 +41,34 @@ public class LoopFlowComputation {
     private Crac crac;
     private GlskProvider glskProvider;
     private List<Country> countries;
-    private CountryNetPositionComputation countryNetPositionComputation;
+    private ReferenceProgram referenceProgram;
 
     /**
-     * @param crac a crac with or without CracLoopFlowExtension.
-     * @param cracLoopFlowExtension contains GlskProvider and List of countries, to add to crac if not already.
+     * @param crac             loop-flows will be computed for all the Cnecs of the Crac
+     * @param glskProvider     use list of countries in GlskProvider
+     * @param network          necessary to get list of countries from GlskProvider
+     * @param referenceProgram reference program containing net positions of countries
      */
-    public LoopFlowComputation(Crac crac, CracLoopFlowExtension cracLoopFlowExtension) {
-        this.glskProvider = cracLoopFlowExtension.getGlskProvider();
-        this.countries = cracLoopFlowExtension.getCountriesForLoopFlow();
-        this.crac = crac;
-        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
-            this.crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
-        }
-    }
-
-    /**
-     * @param crac a crac already contains CracLoopFlowExtension
-     */
-    public LoopFlowComputation(Crac crac) {
-        this(crac, crac.getExtension(CracLoopFlowExtension.class));
-    }
-
-    /**
-     * @param crac CracLoopFlowExtension is added to crac
-     * @param glskProvider use list of countires in GlskProvider
-     * @param network necessary to get list of countries from GlskProvider
-     */
-    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network) {
+    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, Network network, ReferenceProgram referenceProgram) {
+        requireNonNull(glskProvider, "glskProvider should not be null");
+        requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.glskProvider = glskProvider;
-        this.countries = new ArrayList<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> this.countries.add(new EICode(key).getCountry()));
-
+        Set<Country> glskCountries = new HashSet<>();
+        glskProvider.getAllGlsk(network).keySet().forEach(key -> {
+            try {
+                glskCountries.add(new EICode(key).getCountry());
+            } catch (IllegalArgumentException e) {
+                glskCountries.add(Country.valueOf(key));
+            }
+        });
+        glskCountries.retainAll(referenceProgram.getListOfCountries());
+        this.countries = new ArrayList<>(glskCountries);
         this.crac = crac;
-        if (Objects.isNull(this.crac.getExtension(CracLoopFlowExtension.class))) {
-            this.crac.addExtension(CracLoopFlowExtension.class, new CracLoopFlowExtension(this.glskProvider, this.countries));
-        }
+        this.referenceProgram = referenceProgram;
+    }
+
+    public List<Country> getCountries() {
+        return this.countries;
     }
 
     public Map<String, Double> calculateLoopFlows(Network network) {
@@ -122,7 +114,7 @@ public class LoopFlowComputation {
 
     private Country glskIdToCountry(String glskId) {
         if (glskId.length() < EICode.LENGTH) {
-            throw  new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
+            throw new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
         }
         EICode eiCode = new EICode(glskId.substring(0, EICode.LENGTH));
         return eiCode.getCountry();
@@ -147,14 +139,7 @@ public class LoopFlowComputation {
         states.forEach(state -> crac.getCnecs(state).forEach(cnec -> cnecFlowMap.put(cnec, cnec.getP(network))));
     }
 
-    public Map<Country, Double> getRefNetPositionByCountry(Network network) {
-        if (countryNetPositionComputation == null) {
-            countryNetPositionComputation = new CountryNetPositionComputation(network);
-        }
-        return countryNetPositionComputation.getNetPositions();
-    }
-
-    public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults, Map<Country, Double> referenceNetPositionByCountry) {
+    public Map<Cnec, Double> buildZeroBalanceFlowShift(Map<Cnec, Map<Country, Double>> ptdfResults) {
         Map<Cnec, Double> loopFlowShift = new HashMap<>();
         for (Map.Entry<Cnec, Map<Country, Double>> entry : ptdfResults.entrySet()) {
             Cnec cnec = entry.getKey();
@@ -163,7 +148,7 @@ public class LoopFlowComputation {
             // calculate PTDF * NP(ref)
             for (Map.Entry<Country, Double> e : cnecptdf.entrySet()) {
                 Country country = e.getKey();
-                sum += cnecptdf.get(country) * referenceNetPositionByCountry.get(country);
+                sum += cnecptdf.get(country) * referenceProgram.getGlobalNetPosition(country);
             }
             loopFlowShift.put(cnec, sum);
         }
@@ -193,8 +178,7 @@ public class LoopFlowComputation {
 
     public Map<Cnec, Double> buildZeroBalanceFlowShift(Network network) {
         Map<Cnec, Map<Country, Double>> ptdfResults = computePtdfOnCurrentNetwork(network); // get ptdf
-        Map<Country, Double> referenceNetPositionByCountry = getRefNetPositionByCountry(network); // get Net positions
-        return buildZeroBalanceFlowShift(ptdfResults, referenceNetPositionByCountry); //compute PTDF * NetPosition
+        return buildZeroBalanceFlowShift(ptdfResults); //compute PTDF * NetPosition
     }
 }
 
