@@ -9,6 +9,8 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
@@ -32,22 +34,34 @@ public class RaoData {
     private String workingVariantId;
     private Network network;
     private Crac crac;
+    private State optimizedState;
+    private Set<State> perimeter;
     private Map<String, SystematicSensitivityResult> systematicSensitivityResultMap;
     private RaoDataManager raoDataManager;
+    private ReferenceProgram referenceProgram;
+    private GlskProvider glskProvider;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
      * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
      * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
      *
-     * @param network: Network object.
-     * @param crac: CRAC object.
+     * @param network:          Network object.
+     * @param crac:             CRAC object.
+     * @param optimizedState:   State in which the remedial actions are optimized
+     * @param perimeter:        set of State for which the Cnecs are monitored
+     * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
+     * @param glskProvider:     GLSK provider (needed only for loopflows)
      */
-    public RaoData(Network network, Crac crac) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
         this.network = network;
         this.crac = crac;
+        this.optimizedState = optimizedState;
+        this.perimeter = perimeter;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityResultMap = new HashMap<>();
+        this.referenceProgram = referenceProgram;
+        this.glskProvider = glskProvider;
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
@@ -59,6 +73,20 @@ public class RaoData {
         setWorkingVariant(variantId);
         raoDataManager = new RaoDataManager(this);
         raoDataManager.fillRangeActionResultsWithNetworkValues();
+    }
+
+    /**
+     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
+     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
+     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
+     *
+     * @param network: Network object.
+     * @param crac:    CRAC object.
+     * @param optimizedState:   State in which the remedial actions are optimized
+     * @param perimeter:        set of State for which the Cnecs are monitored
+     */
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
+        this(network, crac, optimizedState, perimeter, null, null);
     }
 
     public List<String> getVariantIds() {
@@ -94,11 +122,41 @@ public class RaoData {
         return crac;
     }
 
+    public ReferenceProgram getReferenceProgram() {
+        return referenceProgram;
+    }
+
+    public GlskProvider getGlskProvider() {
+        return glskProvider;
+    }
+
+    public Set<Cnec> getCnecs() {
+        Set<Cnec> cnecs = new HashSet<>();
+        perimeter.forEach(state -> cnecs.addAll(crac.getCnecs(state)));
+        return cnecs;
+    }
+
+    public Set<RangeAction> getAvailableRangeActions() {
+        return crac.getRangeActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
+    public Set<NetworkAction> getAvailableNetworkActions() {
+        return crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE);
+    }
+
     public CracResult getCracResult(String variantId) {
         if (!variantIds.contains(variantId)) {
             throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
         }
         return crac.getExtension(CracResultExtension.class).getVariant(variantId);
+    }
+
+    public State getOptimizedState() {
+        return optimizedState;
+    }
+
+    public Set<State> getPerimeter() {
+        return perimeter;
     }
 
     public CracResult getCracResult() {
@@ -178,9 +236,9 @@ public class RaoData {
      * This method deletes a variant according to its ID. If the working variant is the variant to be deleted nothing
      * would be done. CRAC result can be kept.
      *
-     * @param variantId: Variant ID that is required to delete.
+     * @param variantId:      Variant ID that is required to delete.
      * @param keepCracResult: If true it will delete the variant as data variant and the related network variant
-     *                      but it will keep the crac variant.
+     *                        but it will keep the crac variant.
      * @throws FaraoException if variantId is not an existing data variant.
      */
     public void deleteVariant(String variantId, boolean keepCracResult) {

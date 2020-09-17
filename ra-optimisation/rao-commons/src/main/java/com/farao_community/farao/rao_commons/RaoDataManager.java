@@ -47,14 +47,13 @@ public class RaoDataManager {
         if (raoData.getWorkingVariantId() == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
-        String preventiveState = raoData.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(raoData.getWorkingVariantId());
-            rangeActionResult.setSetPoint(preventiveState, valueInNetwork);
+            rangeActionResult.setSetPoint(raoData.getOptimizedState().getId(), valueInNetwork);
             if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(preventiveState, ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
+                ((PstRangeResult) rangeActionResult).setTap(raoData.getOptimizedState().getId(), ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
             }
         }
     }
@@ -67,10 +66,10 @@ public class RaoDataManager {
         if (raoData.getWorkingVariantId() == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
-        String preventiveState = raoData.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            rangeAction.apply(raoData.getNetwork(), rangeActionResultMap.getVariant(raoData.getWorkingVariantId()).getSetPoint(preventiveState));
+            rangeAction.apply(raoData.getNetwork(),
+                rangeActionResultMap.getVariant(raoData.getWorkingVariantId()).getSetPoint(raoData.getOptimizedState().getId()));
         }
     }
 
@@ -83,11 +82,10 @@ public class RaoDataManager {
      * @return True if all the range actions are set at the same values and false otherwise.
      */
     public boolean sameRemedialActions(String variantId1, String variantId2) {
-        String preventiveState = raoData.getCrac().getPreventiveState().getId();
-        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            double value1 = rangeActionResultMap.getVariant(variantId1).getSetPoint(preventiveState);
-            double value2 = rangeActionResultMap.getVariant(variantId2).getSetPoint(preventiveState);
+            double value1 = rangeActionResultMap.getVariant(variantId1).getSetPoint(raoData.getOptimizedState().getId());
+            double value2 = rangeActionResultMap.getVariant(variantId2).getSetPoint(raoData.getOptimizedState().getId());
             if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
                 return false;
             }
@@ -96,10 +94,9 @@ public class RaoDataManager {
     }
 
     public void fillRangeActionResultsWithLinearProblem(LinearProblem linearProblem) {
-        String preventiveState = raoData.getCrac().getPreventiveState().getId();
         LOGGER.debug(format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
         LOGGER.debug(format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
-        for (RangeAction rangeAction: raoData.getCrac().getRangeActions()) {
+        for (RangeAction rangeAction: raoData.getAvailableRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                 double rangeActionVal = linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
@@ -111,8 +108,8 @@ public class RaoDataManager {
 
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-                pstRangeResult.setSetPoint(preventiveState, approximatedPostOptimAngle);
-                pstRangeResult.setTap(preventiveState, approximatedPostOptimTap);
+                pstRangeResult.setSetPoint(raoData.getOptimizedState().getId(), approximatedPostOptimAngle);
+                pstRangeResult.setTap(raoData.getOptimizedState().getId(), approximatedPostOptimTap);
                 LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
             }
         }
@@ -131,7 +128,7 @@ public class RaoDataManager {
     }
 
     public void fillCracResultsWithLoopFlowConstraints(Map<String, Double> loopFlows, Map<Cnec, Double> loopFlowShifts, Network network) {
-        raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()).forEach(cnec -> {
+        raoData.getCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
             if (!Objects.isNull(cnecLoopFlowExtension)) {
@@ -145,7 +142,7 @@ public class RaoDataManager {
     }
 
     public void fillCracResultsWithLoopFlows(Map<String, Double> loopFlows, double violationCost) {
-        raoData.getCrac().getCnecs().forEach(cnec -> {
+        raoData.getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && loopFlows.containsKey(cnec.getId())) {
                 cnecResult.setLoopflowInMW(loopFlows.get(cnec.getId()));
@@ -155,7 +152,7 @@ public class RaoDataManager {
 
         double loopFlowTotalViolationCost = 0.0;
         boolean loopFlowViolated = false;
-        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
+        for (Cnec cnec : raoData.getCnecs()) {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 double loopFlow = loopFlows.get(cnec.getId());
                 double constraint = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
@@ -177,7 +174,7 @@ public class RaoDataManager {
         if (raoData.getWorkingVariantId() == null) {
             throw new FaraoException(NO_WORKING_VARIANT);
         }
-        raoData.getCrac().getCnecs().forEach(cnec -> {
+        raoData.getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             cnecResult.setFlowInMW(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec));
             cnecResult.setFlowInA(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec));

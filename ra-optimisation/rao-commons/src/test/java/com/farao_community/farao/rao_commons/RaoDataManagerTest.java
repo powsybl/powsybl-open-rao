@@ -11,11 +11,11 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public class RaoDataManagerTest {
     public void setUp() {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
     }
 
     @Test
@@ -55,8 +55,6 @@ public class RaoDataManagerTest {
         loopflowShifts.put(crac.getCnec("FR-DE"), 0.0);
         loopflowShifts.put(crac.getCnec("BE-NL"), 0.0);
         loopflowShifts.put(crac.getCnec("DE-NL"), 0.0);
-        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
-        crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
         raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(fzeroallmap, loopflowShifts, raoData.getNetwork());
         crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
             assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);

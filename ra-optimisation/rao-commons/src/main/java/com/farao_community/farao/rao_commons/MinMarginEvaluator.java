@@ -47,13 +47,13 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
-        return raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).
+        return raoData.getCnecs().stream().filter(Cnec::isOptimized).
             map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), MEGAWATT)).
             min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
-        List<Double> marginsInAmpere = raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).
+        List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(Cnec::isOptimized).
             map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Unit.AMPERE)
         ).collect(Collectors.toList());
 
@@ -69,7 +69,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private List<Double> getMarginsInAmpereFromMegawattConversion(RaoData raoData) {
-        return raoData.getCrac().getCnecs().stream().filter(Cnec::isOptimized).map(cnec -> {
+        return raoData.getCnecs().stream().filter(Cnec::isOptimized).map(cnec -> {
                 double flowInMW = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec);
                 double uNom = raoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
                 return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);

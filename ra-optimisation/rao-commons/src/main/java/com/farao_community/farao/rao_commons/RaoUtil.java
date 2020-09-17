@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -19,6 +20,8 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
 import com.powsybl.ucte.util.UcteAliasesCreation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,8 @@ import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RaoUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaoUtil.class);
 
     private RaoUtil() { }
 
@@ -41,7 +46,15 @@ public final class RaoUtil {
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
-        RaoData raoData = new RaoData(network, crac);
+
+        if ((raoParameters.isRaoWithLoopFlowLimitation()
+                || raoParameters.getObjectiveFunction().doesRequirePtdf())
+                && (!raoInput.getReferenceProgram().isPresent())) {
+            LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
+        }
+
+        RaoData raoData = new RaoData(network, crac, raoInput.getOptimizedState(), raoInput.getPerimeter(), raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null));
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
