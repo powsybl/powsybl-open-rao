@@ -8,9 +8,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
-import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.auto.service.AutoService;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -18,7 +17,6 @@ import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -27,7 +25,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
@@ -39,20 +40,12 @@ import static org.junit.Assert.*;
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     private MaxLoopFlowFiller maxLoopFlowFiller;
-    private CracLoopFlowExtension cracLoopFlowExtension;
 
     @Before
     public void setUp() {
-        init();
+        init(new ReferenceProgram(new ArrayList<>()), glskProvider());
+
         coreProblemFiller = new CoreProblemFiller();
-        GlskProvider glskProvider = glskProvider();
-        cracLoopFlowExtension = new CracLoopFlowExtension();
-        cracLoopFlowExtension.setGlskProvider(glskProvider);
-        List<Country> countries = new ArrayList<>();
-        countries.add(Country.FR);
-        countries.add(Country.BE);
-        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
-        crac.addExtension(CracLoopFlowExtension.class, cracLoopFlowExtension);
 
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(0.0, Unit.PERCENT_IMAX);
         cnecLoopFlowExtension.setLoopFlowConstraintInMW(100.0);
@@ -66,8 +59,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFill() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
-        assertNotNull(loopFlowComputation);
         coreProblemFiller.fill(raoData, linearProblem);
 
         // fill max loop flow
@@ -102,8 +93,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFillLoopflow() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
-        assertNotNull(loopFlowComputation);
         coreProblemFiller.fill(raoData, linearProblem);
 
         // fill max loop flow

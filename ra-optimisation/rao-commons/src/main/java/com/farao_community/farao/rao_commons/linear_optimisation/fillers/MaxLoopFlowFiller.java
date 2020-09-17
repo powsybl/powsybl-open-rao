@@ -15,7 +15,8 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.*;
@@ -97,7 +98,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(RaoData raoData, LinearProblem linearProblem) {
         Map<Cnec, Double> loopFlowShifts;
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
         if (isLoopFlowApproximation) {
             loopFlowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(raoData.getCrac());
         } else {

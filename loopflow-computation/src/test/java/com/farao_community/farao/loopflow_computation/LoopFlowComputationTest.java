@@ -10,10 +10,11 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
-import com.farao_community.farao.util.EICode;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.flowbased_computation.glsk_provider.UcteGlskProvider;
+import com.farao_community.farao.util.EICode;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.SensitivityComputationService;
 import com.google.common.jimfs.Configuration;
@@ -41,7 +42,7 @@ import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -56,6 +57,7 @@ public class LoopFlowComputationTest {
     private Map<Country, Double> referenceNetPositionByCountry;
     private Map<Cnec, Map<Country, Double>> ptdfs;
     private Map<Cnec, Double> frefResults;
+    private ReferenceProgram referenceProgram;
 
     @Before
     public void setUp() {
@@ -76,46 +78,24 @@ public class LoopFlowComputationTest {
         LoadFlowService.init(loadFlowRunner, computationManager);
         countries = Stream.of("FR", "BE", "DE", "NL").map(Country::valueOf).collect(Collectors.toList());
 
+        List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
+                new ReferenceExchangeData(Country.FR, Country.BE, 50),
+                new ReferenceExchangeData(Country.FR, Country.DE, 50),
+                new ReferenceExchangeData(Country.BE, Country.NL, 50),
+                new ReferenceExchangeData(Country.DE, Country.NL, 50));
+        referenceProgram = new ReferenceProgram(exchangeDataList);
+
         ptdfs = new HashMap<>();
         frefResults = new HashMap<>();
         frefResults.put(crac.getCnec("FR-BE"), 50.0);
         frefResults.put(crac.getCnec("FR-DE"), 50.0);
         frefResults.put(crac.getCnec("BE-NL"), 50.0);
         frefResults.put(crac.getCnec("DE-NL"), 50.0);
-
-        referenceNetPositionByCountry = new HashMap<>();
-        referenceNetPositionByCountry.put(Country.valueOf("FR"), 100.0);
-        referenceNetPositionByCountry.put(Country.valueOf("BE"), 0.0);
-        referenceNetPositionByCountry.put(Country.valueOf("DE"), 0.0);
-        referenceNetPositionByCountry.put(Country.valueOf("NL"), -100.0);
-    }
-
-    @Test
-    public void testConstructor() {
-        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
-        cracLoopFlowExtension.setGlskProvider(glskProvider);
-        List<Country> countriesFromGlsk = new ArrayList<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> countriesFromGlsk.add(Country.valueOf(key)));
-        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
-
-        assertNull(crac.getExtension(CracLoopFlowExtension.class));
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
-        assertNotNull(loopFlowComputation);
-        assertNotNull(crac.getExtension(CracLoopFlowExtension.class));
-
-        LoopFlowComputation anotherComputation = new LoopFlowComputation(crac);
-        assertNotNull(anotherComputation);
     }
 
     @Test
     public void testPtdf() {
-        CracLoopFlowExtension cracLoopFlowExtension = new CracLoopFlowExtension();
-        cracLoopFlowExtension.setGlskProvider(glskProvider);
-        List<Country> countriesFromGlsk = new ArrayList<>();
-        glskProvider.getAllGlsk(network).keySet().forEach(key -> countriesFromGlsk.add(Country.valueOf(key)));
-        Assert.assertEquals(countriesFromGlsk.size(), countries.size());
-        cracLoopFlowExtension.setCountriesForLoopFlow(countries);
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, cracLoopFlowExtension);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, network, referenceProgram);
 
         assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, network), EPSILON);
 
@@ -124,7 +104,7 @@ public class LoopFlowComputationTest {
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get(Country.valueOf("FR")), EPSILON);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get(Country.valueOf("DE")), EPSILON);
         Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get(Country.valueOf("BE")), EPSILON);
-        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildZeroBalanceFlowShift(ptdfs, referenceNetPositionByCountry);
+        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildZeroBalanceFlowShift(ptdfs);
         Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopflowShift);
         Assert.assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
         Assert.assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
@@ -162,8 +142,25 @@ public class LoopFlowComputationTest {
 
         assertEquals(4, countriesFromGlsk.size());
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network, referenceProgram);
         assertNotNull(loopFlowComputation);
+    }
+
+    @Test
+    public void testCountriesListIntersection() {
+        List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
+                new ReferenceExchangeData(Country.FR, Country.BE, 50),
+                new ReferenceExchangeData(Country.FR, Country.SK, 50));
+        ReferenceProgram referenceProgram = new ReferenceProgram(exchangeDataList);
+
+        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
+        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/glsk_lots_of_lf_12nodes.xml"), network, instant);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network, referenceProgram);
+        assertNotNull(loopFlowComputation);
+        assertEquals(2, loopFlowComputation.getCountries().size());
+        assertTrue(loopFlowComputation.getCountries().contains(Country.FR));
+        assertTrue(loopFlowComputation.getCountries().contains(Country.BE));
     }
 
     private void setCnecLoopFlowInputThresholdAsPercentageOfMaxThreshold(double percentage) {

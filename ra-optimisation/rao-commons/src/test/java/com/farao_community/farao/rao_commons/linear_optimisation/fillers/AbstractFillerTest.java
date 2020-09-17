@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -72,12 +74,22 @@ abstract class AbstractFillerTest {
     Network network;
     ResultVariantManager resultVariantManager;
 
+    private ReferenceProgram referenceProgram;
+    private GlskProvider glskProvider;
+
     void init() {
+        init(null, null);
+    }
+
+    void init(ReferenceProgram referenceProgram, GlskProvider glskProvider) {
+
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
+        this.glskProvider = glskProvider;
+        this.referenceProgram = referenceProgram;
 
         // get cnec and rangeAction
         cnec1 = crac.getCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
@@ -100,11 +112,13 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
         when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
+
+        // init RaoData
         initRaoData(crac.getPreventiveState());
     }
 
     void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state));
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider);
         resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
         raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);

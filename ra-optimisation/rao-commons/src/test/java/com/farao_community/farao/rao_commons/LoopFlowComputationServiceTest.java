@@ -9,7 +9,6 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_loopflow_extension.CracLoopFlowExtension;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -22,7 +21,6 @@ public class LoopFlowComputationServiceTest {
     public void testRunLoopFlowExtensionInCracNotAvailable() {
         RaoData raoData = Mockito.mock(RaoData.class);
         Crac crac = Mockito.mock(Crac.class);
-        Mockito.when(crac.getExtension(CracLoopFlowExtension.class)).thenReturn(null);
         Mockito.when(raoData.getCrac()).thenReturn(crac);
         LoopFlowComputationService.checkDataConsistency(raoData);
     }
