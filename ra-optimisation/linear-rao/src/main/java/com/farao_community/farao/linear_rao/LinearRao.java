@@ -59,7 +59,13 @@ public class LinearRao implements RaoProvider {
         this.unit = raoParameters.getObjectiveFunction().getUnit();
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface
             .builder()
+            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs())
             .build();
+        //TODO; also add PTDF sensitivities once we remove the old PTDF sensitivity computation module.
+        //We may also want to have a different interface for the first run and the successive runs if we do not wish to
+        //compute the PTDFs at every iteration.
 
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 

@@ -58,40 +58,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         }
     }
 
-    private boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
-        return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
-            twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
-            twoWindingsTransformer.getPhaseTapChanger() != null;
-    }
-
-    private boolean willBeKeptInSensi(Generator gen) {
-        return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
-    }
-
-    private SensitivityVariable defaultSensitivityVariable(Network network) {
-        // First try to get a PST angle
-        Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
-            .filter(this::willBeKeptInSensi)
-            .findAny();
-
-        if (optionalPst.isPresent()) {
-            TwoWindingsTransformer pst = optionalPst.get();
-            return new PhaseTapChangerAngle(pst.getId(), pst.getNameOrId(), pst.getId());
-        }
-
-        // If no one found, pick a Generator injection
-        Optional<Generator> optionalGen = network.getGeneratorStream()
-            .filter(this::willBeKeptInSensi)
-            .findAny();
-
-        if (optionalGen.isPresent()) {
-            Generator gen = optionalGen.get();
-            return new InjectionIncrease(gen.getId(), gen.getNameOrId(), gen.getId());
-        }
-        throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
-    }
-
-    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
+    protected List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
         String id = networkElement.getId();
         String name = networkElement.getName();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
@@ -110,7 +77,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         }
     }
 
-    private SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
+    protected SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
         if (function instanceof BranchFlow) {
             if (variable instanceof PhaseTapChangerAngle) {
                 return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);
@@ -144,7 +111,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
 
         // Case no RangeAction is provided, we still want to get reference flows
         if (sensitivityVariables.isEmpty()) {
-            sensitivityVariables.add(defaultSensitivityVariable(network));
+            throw new SensitivityComputationException("No range action provided. Use an EmptySensitivityProvider if this is the intended behaviour.");
         }
 
         Set<NetworkElement> networkElements = new HashSet<>();

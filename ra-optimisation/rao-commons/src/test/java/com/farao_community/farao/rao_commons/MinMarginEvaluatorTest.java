@@ -67,7 +67,7 @@ public class MinMarginEvaluatorTest {
     @Test
     public void getCostInAmpereWithMissingValues() {
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
-        assertEquals(-1196, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
