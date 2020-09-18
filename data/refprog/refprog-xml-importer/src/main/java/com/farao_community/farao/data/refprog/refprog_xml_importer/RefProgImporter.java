@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
  * RefProg xml file importer
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class RefProgImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RefProgImporter.class);
