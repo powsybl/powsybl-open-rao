@@ -102,7 +102,7 @@ public final class RefProgImporter {
     }
 
     private static boolean isValidPeriodInterval(OffsetDateTime timeSeriesStart, Duration resolution, IntervalType interval, OffsetDateTime dateTime) {
-        OffsetDateTime startDateTime = timeSeriesStart.plus(resolution.multipliedBy(interval.getPos().getV() - 1));
+        OffsetDateTime startDateTime = timeSeriesStart.plus(resolution.multipliedBy(interval.getPos().getV() - 1L));
         OffsetDateTime endDateTime = startDateTime.plus(resolution);
         return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
     }
