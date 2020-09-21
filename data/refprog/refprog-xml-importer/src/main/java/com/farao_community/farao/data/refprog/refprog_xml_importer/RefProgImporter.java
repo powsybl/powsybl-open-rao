@@ -37,7 +37,6 @@ public final class RefProgImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RefProgImporter.class);
 
     private RefProgImporter() {
-
     }
 
     public static ReferenceProgram importRefProg(InputStream inputStream, OffsetDateTime dateTime) {
@@ -102,24 +101,24 @@ public final class RefProgImporter {
         }
     }
 
-    private static boolean isValidPeriodInterval(OffsetDateTime timeSeriesStart, Duration resolution, PublicationDocument.PublicationTimeSeries.Period.Interval interval, OffsetDateTime dateTime) {
-        OffsetDateTime startDateTime = timeSeriesStart.plus(resolution.multipliedBy(interval.getPos().getV().longValue() - 1));
+    private static boolean isValidPeriodInterval(OffsetDateTime timeSeriesStart, Duration resolution, IntervalType interval, OffsetDateTime dateTime) {
+        OffsetDateTime startDateTime = timeSeriesStart.plus(resolution.multipliedBy(interval.getPos().getV() - 1L));
         OffsetDateTime endDateTime = startDateTime.plus(resolution);
         return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
     }
 
-    private static double getFlow(OffsetDateTime dateTime, PublicationDocument.PublicationTimeSeries timeSeries) {
-        String timeSeriesInterval = timeSeries.getPeriod().getTimeInterval().getV();
+    private static double getFlow(OffsetDateTime dateTime, PublicationTimeSeriesType timeSeries) {
+        String timeSeriesInterval = timeSeries.getPeriod().get(0).getTimeInterval().getV();
         OffsetDateTime timeSeriesStart = OffsetDateTime.parse(timeSeriesInterval.substring(0, timeSeriesInterval.indexOf("/")), DateTimeFormatter.ISO_DATE_TIME);
-        Duration resolution = Duration.parse(timeSeries.getPeriod().getResolution().getV());
-        List<PublicationDocument.PublicationTimeSeries.Period.Interval> validIntervals = timeSeries.getPeriod().getInterval().stream().filter(interval -> isValidPeriodInterval(timeSeriesStart, resolution, interval, dateTime)).collect(Collectors.toList());
+        Duration resolution = Duration.parse(timeSeries.getPeriod().get(0).getResolution().getV().toString());
+        List<IntervalType> validIntervals = timeSeries.getPeriod().get(0).getInterval().stream().filter(interval -> isValidPeriodInterval(timeSeriesStart, resolution, interval, dateTime)).collect(Collectors.toList());
         double flow = 0;
         if (validIntervals.isEmpty()) {
             String outArea = timeSeries.getOutArea().getV();
             String inArea = timeSeries.getInArea().getV();
             LOGGER.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
         } else {
-            PublicationDocument.PublicationTimeSeries.Period.Interval validInterval = validIntervals.get(0);
+            IntervalType validInterval = validIntervals.get(0);
             flow = validInterval.getQty().getV().doubleValue();
         }
         return flow;

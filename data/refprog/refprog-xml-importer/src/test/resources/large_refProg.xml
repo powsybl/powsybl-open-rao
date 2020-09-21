@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PublicationDocument DtdRelease="1" DtdVersion="0" xmlns="refprog">
+<PublicationDocument DtdRelease="1" DtdVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="publication-document-v2r0.xsd">
   <DocumentIdentification v="refprog"/>
   <DocumentVersion v="1"/>
   <DocumentType v="A45"/>

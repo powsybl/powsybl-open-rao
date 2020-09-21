@@ -3,7 +3,7 @@
               xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
               xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
               xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <jxb:bindings schemaLocation="../xsd/refprog.xsd">
+    <jxb:bindings schemaLocation="../xsd/publication-document-v2r0.xsd">
         <jxb:schemaBindings>
             <jxb:package name="com.farao_community.farao.data.refprog.refprog_xml_importer" />
         </jxb:schemaBindings>

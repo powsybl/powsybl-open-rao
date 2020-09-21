@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<PublicationDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="publication-document-v2r0.xsd">
+<PublicationDocument DtdRelease="1" DtdVersion="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="publication-document-v2r0.xsd">
     <DocumentIdentification v="RP-CORESO-20200106-05"/>
     <DocumentVersion v="5"/>
     <DocumentType v="A45"/>
