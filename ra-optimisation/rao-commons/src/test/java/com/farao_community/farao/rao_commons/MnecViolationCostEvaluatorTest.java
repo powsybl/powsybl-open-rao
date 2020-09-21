@@ -19,6 +19,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -39,7 +41,7 @@ public class MnecViolationCostEvaluatorTest {
     private void setUp(Unit unit) {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         this.unit = unit;
 
         evaluator1 = new MnecViolationCostEvaluator(unit, 50, 10);
@@ -54,8 +56,8 @@ public class MnecViolationCostEvaluatorTest {
         mnec = crac.getCnec("MNEC1 - initial-instant - preventive");
 
         crac.desynchronize();
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
 
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);

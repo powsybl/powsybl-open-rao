@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -39,7 +41,7 @@ public class MinMarginObjectiveFunctionTest {
     private void setUp(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
         Network network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
-        raoData = new RaoData(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit);
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
@@ -53,8 +55,8 @@ public class MinMarginObjectiveFunctionTest {
         Cnec mnec = crac.getCnec("MNEC1 - initial-instant - preventive");
 
         crac.desynchronize();
-        RaoInput.cleanCrac(crac, network);
-        RaoInput.synchronize(crac, network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
 
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);

@@ -9,6 +9,7 @@ package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
@@ -20,7 +21,6 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.util.SensitivityComputationException;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +54,8 @@ public class LinearRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(Network network, Crac crac, String variantId, ComputationManager computationManager, RaoParameters raoParameters) {
-        RaoData raoData = RaoUtil.initRaoData(network, crac, variantId, raoParameters);
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+        RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
         this.unit = raoParameters.getObjectiveFunction().getUnit();
         SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
             raoParameters.getDefaultSensitivityComputationParameters(), raoParameters.getFallbackSensitivityComputationParameters());
@@ -64,6 +64,7 @@ public class LinearRao implements RaoProvider {
 
         return run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters);
     }
+
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation
     CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation,
@@ -81,7 +82,7 @@ public class LinearRao implements RaoProvider {
 
         // stop here if no optimisation should be done
         StringBuilder skipReason = new StringBuilder();
-        if (skipOptim(raoParameters, raoData.getCrac(), skipReason)) {
+        if (skipOptim(raoParameters, raoData, skipReason)) {
             LOGGER.warn(format("Linear optimization is skipped. Cause: %s", skipReason));
             return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation));
         }
@@ -95,14 +96,14 @@ public class LinearRao implements RaoProvider {
      * Method returning a boolean indicating whether an optimisation should be done,
      * or whether the LinearRao should only perform a security analysis
      */
-    private boolean skipOptim(RaoParameters raoParameters, Crac crac, StringBuilder skipReason) {
+    private boolean skipOptim(RaoParameters raoParameters, RaoData raoData, StringBuilder skipReason) {
         if (raoParameters.getExtension(LinearRaoParameters.class).isSecurityAnalysisWithoutRao()) {
             skipReason.append("security analysis without RAO");
             return true;
         } else if (raoParameters.getMaxIterations() == 0) {
             skipReason.append("max number of iterations is null");
             return true;
-        } else if (crac.getRangeActions().isEmpty()) {
+        } else if (raoData.getAvailableRangeActions().isEmpty()) {
             skipReason.append("no range actions available in the CRAC");
             return true;
         } else {
