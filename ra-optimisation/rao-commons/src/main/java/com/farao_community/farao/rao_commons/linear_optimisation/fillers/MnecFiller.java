@@ -45,7 +45,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     private void buildMarginViolationVariable(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
+        raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
             linearProblem.addMnecViolationVariable(0, linearProblem.infinity(), mnec)
         );
     }
@@ -53,7 +53,7 @@ public class MnecFiller implements ProblemFiller {
     private void buildMnecMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
         String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
 
-        raoData.getCrac().getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec -> {
+        raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec -> {
                 if (Objects.isNull(mnec.getExtension(CnecResultExtension.class))) {
                     return;
                 }
@@ -91,7 +91,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     public void fillObjectiveWithMnecPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCrac().getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
+        raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost / getUnitConversionCoefficient(mnec, raoData))
         );
     }

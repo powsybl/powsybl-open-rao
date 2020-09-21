@@ -105,8 +105,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork());
         }
 
-        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()).stream()
-                .filter(cnec -> cnec.getExtension(CnecLoopFlowExtension.class) != null)
+        for (Cnec cnec : raoData.getCnecs().stream()
+                .filter(cnec -> !cnec.getState().getContingency().isPresent()) // preventive state
+                .filter(cnec -> cnec.getExtension(CnecLoopFlowExtension.class) != null) // with loop-flow extension
                 .collect(Collectors.toList())) {
 
             //get and update MapLoopflowLimit with loopflowConstraintAdjustmentCoefficient
