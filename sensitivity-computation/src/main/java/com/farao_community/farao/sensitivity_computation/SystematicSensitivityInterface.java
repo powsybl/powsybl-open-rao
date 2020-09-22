@@ -124,7 +124,7 @@ public final class SystematicSensitivityInterface {
 
     /**
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
-     * SystematicSensitivityAnalysisResult to the given network variant.
+     * SystematicSensitivityResult to the given network variant.
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
