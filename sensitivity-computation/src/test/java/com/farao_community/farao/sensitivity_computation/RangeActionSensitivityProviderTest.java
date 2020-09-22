@@ -130,20 +130,6 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void cracWithoutRangeActionButWithPst() {
-        Crac crac = CommonCracCreation.create();
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider();
-        provider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
-
-        // Common Crac contains 6 CNEC and 1 range action
-        List<SensitivityFactor> factorList = provider.getFactors(network);
-        assertEquals(4, factorList.size());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
-    }
-
-    @Test
     @Ignore("Broken while there is no BranchIntensityPerInjectionIncrease factor")
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();

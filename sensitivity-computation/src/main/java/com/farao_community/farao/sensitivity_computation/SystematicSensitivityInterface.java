@@ -151,7 +151,7 @@ public final class SystematicSensitivityInterface {
     }
 
     // Method for tests
-    SystematicSensitivityResult run(Network network, Crac crac) {
+    SystematicSensitivityResult     run(Network network, Crac crac) {
         return run(network, crac, Unit.AMPERE);
     }
 

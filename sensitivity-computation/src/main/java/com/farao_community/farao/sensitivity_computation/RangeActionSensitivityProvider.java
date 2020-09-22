@@ -21,6 +21,8 @@ import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,14 +31,16 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RangeActionSensitivityProvider.class);
+
     private List<RangeAction> rangeActions;
 
-    RangeActionSensitivityProvider() {
+    public RangeActionSensitivityProvider() {
         super();
         rangeActions = new ArrayList<>();
     }
 
-    void addSensitivityFactors(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
+    public void addSensitivityFactors(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
         this.rangeActions.addAll(rangeActions);
         super.addCnecs(cnecs);
     }
@@ -101,6 +105,39 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         return "Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName();
     }
 
+    protected boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
+        return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
+            twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
+            twoWindingsTransformer.getPhaseTapChanger() != null;
+    }
+
+    protected boolean willBeKeptInSensi(Generator gen) {
+        return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
+    }
+
+    protected SensitivityVariable defaultSensitivityVariable(Network network) {
+        // First try to get a PST angle
+        Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
+            .filter(this::willBeKeptInSensi)
+            .findAny();
+
+        if (optionalPst.isPresent()) {
+            TwoWindingsTransformer pst = optionalPst.get();
+            return new PhaseTapChangerAngle(pst.getId(), pst.getNameOrId(), pst.getId());
+        }
+
+        // If no one found, pick a Generator injection
+        Optional<Generator> optionalGen = network.getGeneratorStream()
+            .filter(this::willBeKeptInSensi)
+            .findAny();
+
+        if (optionalGen.isPresent()) {
+            Generator gen = optionalGen.get();
+            return new InjectionIncrease(gen.getId(), gen.getNameOrId(), gen.getId());
+        }
+        throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
+    }
+
     @Override
     public List<SensitivityFactor> getFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
@@ -111,7 +148,8 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
 
         // Case no RangeAction is provided, we still want to get reference flows
         if (sensitivityVariables.isEmpty()) {
-            throw new SensitivityComputationException("No range action provided. Use an EmptySensitivityProvider if this is the intended behaviour.");
+            LOGGER.warn("No range action provided. You may wish to use  an EmptySensitivityProvider if this is the intended behaviour.");
+            sensitivityVariables.add(defaultSensitivityVariable(network));
         }
 
         Set<NetworkElement> networkElements = new HashSet<>();

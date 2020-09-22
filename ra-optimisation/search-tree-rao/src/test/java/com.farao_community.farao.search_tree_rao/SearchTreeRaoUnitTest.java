@@ -18,6 +18,7 @@ import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.NativeLibraryLoader;
@@ -120,7 +121,7 @@ public class SearchTreeRaoUnitTest {
         Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
 
         PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
-        Mockito.doNothing().when(systematicSensitivityInterface).run(any(), any(), any());
+        Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any(), any(), any());
 
         mockRaoUtil();
 

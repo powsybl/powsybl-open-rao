@@ -39,7 +39,7 @@ public class MultipleSensitivityProviderTest {
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.create();
+        crac = CommonCracCreation.createWithPstRange();
 
         glskProviderMock = glskProvider();
         ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock);

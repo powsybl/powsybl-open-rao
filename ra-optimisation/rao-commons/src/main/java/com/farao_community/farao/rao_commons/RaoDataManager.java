@@ -123,7 +123,7 @@ public class RaoDataManager {
         raoData.getCracResult().setFunctionalCost(cost);
         raoData.getCracResult().addVirtualCost(overCost);
         raoData.getCracResult().setNetworkSecurityStatus(cost < 0 ?
-            CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
+            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
         updateCnecExtensions();
     }
 

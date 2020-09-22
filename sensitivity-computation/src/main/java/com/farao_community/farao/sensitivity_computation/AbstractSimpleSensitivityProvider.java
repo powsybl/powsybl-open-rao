@@ -24,7 +24,7 @@ public abstract class AbstractSimpleSensitivityProvider implements SensitivityPr
         cnecs = new ArrayList<>();
     }
 
-    void addCnecs(Set<Cnec> cnecs) {
+    public void addCnecs(Set<Cnec> cnecs) {
         this.cnecs.addAll(cnecs);
     }
 
