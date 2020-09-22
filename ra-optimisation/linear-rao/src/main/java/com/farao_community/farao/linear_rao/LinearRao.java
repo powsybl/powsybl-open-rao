@@ -78,7 +78,7 @@ public class LinearRao implements RaoProvider {
                                      IteratingLinearOptimizer iteratingLinearOptimizer, RaoParameters raoParameters) {
         try {
             LOGGER.info("Initial systematic analysis [start]");
-            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCrac(), unit));
+            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCnecs(), unit));
             raoData.getRaoDataManager().fillCracResultsWithSensis(
                 RaoUtil.createObjectiveFunction(raoParameters).getFunctionalCost(raoData),
                 systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0);

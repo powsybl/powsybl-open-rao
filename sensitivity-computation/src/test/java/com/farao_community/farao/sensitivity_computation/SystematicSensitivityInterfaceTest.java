@@ -71,7 +71,7 @@ public class SystematicSensitivityInterfaceTest {
             .withDefaultParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(SensitivityProvider.class))
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getCnecs());
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -100,7 +100,7 @@ public class SystematicSensitivityInterfaceTest {
 
         // run - expected failure
         try {
-            systematicSensitivityInterface.run(network, crac);
+            systematicSensitivityInterface.run(network, crac.getCnecs());
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with default parameters. No fallback parameters available."));
@@ -123,7 +123,7 @@ public class SystematicSensitivityInterfaceTest {
             .build();
 
         // run
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, crac.getCnecs());
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -156,7 +156,7 @@ public class SystematicSensitivityInterfaceTest {
 
         // run - expected failure
         try {
-            systematicSensitivityInterface.run(network, crac);
+            systematicSensitivityInterface.run(network, crac.getCnecs());
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with all available sensitivity parameters."));
