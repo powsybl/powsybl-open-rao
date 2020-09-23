@@ -68,7 +68,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    private SensitivityVariable defaultSensitivityVariable(Network network) {
+    protected SensitivityVariable defaultSensitivityVariable(Network network) {
         // First try to get a PST angle
         Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
             .filter(this::willBeKeptInSensi)
@@ -91,7 +91,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
     }
 
-    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
+    protected List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
         String id = networkElement.getId();
         String name = networkElement.getName();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
@@ -110,7 +110,7 @@ public class RangeActionSensitivityProvider extends AbstractSimpleSensitivityPro
         }
     }
 
-    private SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
+    protected SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
         if (function instanceof BranchFlow) {
             if (variable instanceof PhaseTapChangerAngle) {
                 return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);
