@@ -87,7 +87,7 @@ public final class RaoInputHelper {
         Set<Contingency> absentFromNetworkContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
             contingency.getNetworkElements().forEach(networkElement -> {
-                Identifiable identifiable = network.getIdentifiable(networkElement.getId());
+                Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
                     absentFromNetworkContingencies.add(contingency);
                     report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
