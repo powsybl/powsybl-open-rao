@@ -121,7 +121,7 @@ public class SearchTreeRaoUnitTest {
         Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
 
         PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
-        Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any(), any(), any());
+        Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any(), any());
 
         mockRaoUtil();
 

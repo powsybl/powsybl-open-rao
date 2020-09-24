@@ -176,7 +176,7 @@ public class LeafTest {
         Mockito.doAnswer(invocationOnMock -> {
             raoData.setSystematicSensitivityResult(systematicSensitivityResult);
             return systematicSensitivityResult;
-        }).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any(), Mockito.any());
+        }).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         rootLeaf.evaluate();
@@ -188,7 +188,7 @@ public class LeafTest {
     @Test
     public void testEvaluateError() {
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
-        Mockito.doThrow(new SensitivityComputationException("mock")).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doThrow(new SensitivityComputationException("mock")).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         rootLeaf.evaluate();
@@ -220,7 +220,7 @@ public class LeafTest {
         crac.addRangeAction(rangeAction);
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Mockito.doReturn(systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doReturn(systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals("successful", rootLeaf.getBestVariantId());

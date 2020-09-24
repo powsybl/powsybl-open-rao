@@ -113,7 +113,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoWithSensitivityComputationError() {
-        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(systematicSensitivityInterface).run(any(), any(), any());
+        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(systematicSensitivityInterface).run(any(), any());
         RaoResult raoResult = linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, raoParameters).join();
         assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());
         assertEquals(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE,

@@ -168,7 +168,7 @@ public class IteratingLinearOptimizer {
 
     void runSensitivityAndUpdateResults() {
         raoData.setSystematicSensitivityResult(
-            systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCnecs(), objectiveFunctionEvaluator.getUnit()));
+            systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
         raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunctionEvaluator.getFunctionalCost(raoData),
                 (systematicSensitivityInterface.isFallback() ? parameters.getFallbackOverCost() : 0)
                 + objectiveFunctionEvaluator.getVirtualCost(raoData));

@@ -8,7 +8,6 @@
 package com.farao_community.farao.linear_rao;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -78,7 +77,7 @@ public class LinearRao implements RaoProvider {
                                      IteratingLinearOptimizer iteratingLinearOptimizer, RaoParameters raoParameters) {
         try {
             LOGGER.info("Initial systematic analysis [start]");
-            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCnecs(), unit));
+            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), unit));
             raoData.getRaoDataManager().fillCracResultsWithSensis(
                 RaoUtil.createObjectiveFunction(raoParameters).getFunctionalCost(raoData),
                 systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0);

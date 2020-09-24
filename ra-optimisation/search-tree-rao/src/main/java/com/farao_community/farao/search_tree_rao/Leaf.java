@@ -157,7 +157,7 @@ class Leaf {
             try {
                 LOGGER.debug("Evaluating leaf...");
                 raoData.setSystematicSensitivityResult(
-                    systematicSensitivityInterface.run(raoData.getNetwork(), raoData.getCnecs(), raoParameters.getObjectiveFunction().getUnit()));
+                    systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
                 ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
                         objectiveFunctionEvaluator.getFunctionalCost(raoData),
