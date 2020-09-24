@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 
 /**
- * A LinearRaoData is an object that gathers Network, Crac and SystematicSensitivityResult data. It manages
+ * A RaoData is an object that gathers Network, Crac and SystematicSensitivityResult data. It manages
  * variants of these objects to ensure data consistency at any moment. Network will remain the same at any moment
  * with no variant management. It is a single point of entry to manipulate all data related to linear rao with
  * variant management.
