@@ -16,6 +16,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * To run a systematic sensitivity analysis and evaluate the flows in all states at once,
+ * hades requires sensitivities. We therefore extend RangeActionSensitivityProvider to use
+ * some of its conversion methods, and use a random PST from the network to create "dummy"
+ * sensitivities for each studied cnec.
+ *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class LoadflowProvider extends RangeActionSensitivityProvider {
