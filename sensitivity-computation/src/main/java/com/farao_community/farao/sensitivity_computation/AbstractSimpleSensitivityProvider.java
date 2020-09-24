@@ -17,15 +17,19 @@ import java.util.stream.Collectors;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public abstract class AbstractSimpleSensitivityProvider implements SensitivityProvider {
-    protected List<Cnec> cnecs;
+public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
+    protected Set<Cnec> cnecs;
 
     AbstractSimpleSensitivityProvider() {
-        cnecs = new ArrayList<>();
+        cnecs = new HashSet<>();
     }
 
     public void addCnecs(Set<Cnec> cnecs) {
         this.cnecs.addAll(cnecs);
+    }
+
+    public Set<Cnec> getCnecs() {
+        return cnecs;
     }
 
     private Contingency convertCracContingencyToPowsybl(com.farao_community.farao.data.crac_api.Contingency cracContingency, Network network) {

@@ -32,6 +32,6 @@ public class SystematicSensitivityServiceTest {
         Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
 
         SystematicSensitivityService.init(sensitivityComputationFactory, computationManager);
-        assertTrue(SystematicSensitivityService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(SensitivityProvider.class), Mockito.mock(SensitivityComputationParameters.class)).isSuccess());
+        assertTrue(SystematicSensitivityService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(CnecSensitivityProvider.class), Mockito.mock(SensitivityComputationParameters.class)).isSuccess());
     }
 }

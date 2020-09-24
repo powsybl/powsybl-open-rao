@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -15,23 +16,31 @@ import java.util.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class MultipleSensitivityProvider implements SensitivityProvider {
-    private List<SensitivityProvider> sensitivityProviders;
+public class MultipleSensitivityProvider implements CnecSensitivityProvider {
+    private List<CnecSensitivityProvider> cnecSensitivityProviders;
 
     MultipleSensitivityProvider() {
-        sensitivityProviders = new ArrayList<>();
+        cnecSensitivityProviders = new ArrayList<>();
     }
 
-    void addProvider(SensitivityProvider sensitivityProvider) {
-        sensitivityProviders.add(sensitivityProvider);
+    void addProvider(CnecSensitivityProvider cnecSensitivityProvider) {
+        cnecSensitivityProviders.add(cnecSensitivityProvider);
+    }
+
+    public Set<Cnec> getCnecs() {
+        Set<Cnec> cnecs = new HashSet<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            cnecs.addAll(cnecSensitivityProvider.getCnecs());
+        }
+        return cnecs;
     }
 
     @Override
     public List<Contingency> getContingencies(Network network) {
         //using a set to avoid duplicates
         Set<Contingency> contingencies = new HashSet<>();
-        for (SensitivityProvider sensitivityProvider : sensitivityProviders) {
-            contingencies.addAll(sensitivityProvider.getContingencies(network));
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            contingencies.addAll(cnecSensitivityProvider.getContingencies(network));
         }
         return new ArrayList<>(contingencies);
 
@@ -41,8 +50,8 @@ public class MultipleSensitivityProvider implements SensitivityProvider {
     public List<SensitivityFactor> getFactors(Network network) {
         //using a set to avoid duplicates
         Set<SensitivityFactor> factors = new HashSet<>();
-        for (SensitivityProvider sensitivityProvider : sensitivityProviders) {
-            factors.addAll(sensitivityProvider.getFactors(network));
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            factors.addAll(cnecSensitivityProvider.getFactors(network));
         }
         return new ArrayList<>(factors);
     }

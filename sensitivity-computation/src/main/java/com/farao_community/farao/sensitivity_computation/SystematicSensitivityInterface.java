@@ -42,7 +42,7 @@ public final class SystematicSensitivityInterface {
     /**
      * The sensitivity provider to be used in the sensitivity computation
      */
-    private SensitivityProvider sensitivityProvider;
+    private CnecSensitivityProvider cnecSensitivityProvider;
 
     /**
      * A boolean indicating whether or not the fallback mode of the sensitivity computation
@@ -73,8 +73,8 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withSensitivityProvider(SensitivityProvider sensitivityProvider) {
-            this.multipleSensitivityProvider.addProvider(sensitivityProvider);
+        public SystematicSensitivityInterfaceBuilder withSensitivityProvider(CnecSensitivityProvider cnecSensitivityProvider) {
+            this.multipleSensitivityProvider.addProvider(cnecSensitivityProvider);
             providerInitialised = true;
             return this;
         }
@@ -82,17 +82,19 @@ public final class SystematicSensitivityInterface {
         public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glskProvider, Set<Cnec> cnecs) {
             PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
             ptdfSensitivityProvider.addCnecs(cnecs);
-            this.multipleSensitivityProvider.addProvider(ptdfSensitivityProvider);
-            providerInitialised = true;
-            return this;
+            return this.withSensitivityProvider(ptdfSensitivityProvider);
         }
 
         public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
             RangeActionSensitivityProvider rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
             rangeActionSensitivityProvider.addSensitivityFactors(rangeActions, cnecs);
-            multipleSensitivityProvider.addProvider(rangeActionSensitivityProvider);
-            providerInitialised = true;
-            return this;
+            return this.withSensitivityProvider(rangeActionSensitivityProvider);
+        }
+
+        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<Cnec> cnecs) {
+            LoadflowProvider loadflowProvider = new LoadflowProvider();
+            loadflowProvider.addCnecs(cnecs);
+            return this.withSensitivityProvider(loadflowProvider);
         }
 
         public SystematicSensitivityInterface build() {
@@ -105,7 +107,7 @@ public final class SystematicSensitivityInterface {
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
             systematicSensitivityInterface.defaultParameters = defaultParameters;
             systematicSensitivityInterface.fallbackParameters = fallbackParameters;
-            systematicSensitivityInterface.sensitivityProvider = multipleSensitivityProvider;
+            systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             return systematicSensitivityInterface;
         }
     }
@@ -128,19 +130,19 @@ public final class SystematicSensitivityInterface {
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
-    public SystematicSensitivityResult run(Network network, Set<Cnec> cnecs, Unit defaultUnit) {
+    public SystematicSensitivityResult run(Network network, Unit defaultUnit) {
         SensitivityComputationParameters sensitivityComputationParameters = fallbackMode ? fallbackParameters : defaultParameters;
-        if (Objects.isNull(sensitivityProvider)) {
+        if (Objects.isNull(cnecSensitivityProvider)) {
             throw new SensitivityComputationException("Sensitivity provider was not defined.");
         }
 
         try {
-            return runWithConfig(network, cnecs, sensitivityComputationParameters, defaultUnit);
+            return runWithConfig(network, sensitivityComputationParameters, defaultUnit);
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                return run(network, cnecs, defaultUnit);
+                return run(network, defaultUnit);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityComputationException("Sensitivity computation failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -150,25 +152,24 @@ public final class SystematicSensitivityInterface {
     }
 
     // Method for tests
-    SystematicSensitivityResult run(Network network, Set<Cnec> cnecs) {
-        return run(network, cnecs, Unit.AMPERE);
+    SystematicSensitivityResult run(Network network) {
+        return run(network, Unit.AMPERE);
     }
 
     /**
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, Set<Cnec> cnecs, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
-
+    private SystematicSensitivityResult runWithConfig(Network network, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityService
-                .runSensitivity(network, network.getVariantManager().getWorkingVariantId(), sensitivityProvider, sensitivityComputationParameters);
+                .runSensitivity(network, network.getVariantManager().getWorkingVariantId(), cnecSensitivityProvider, sensitivityComputationParameters);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityComputationException("Some output data of the sensitivity computation are missing.");
             }
 
-            checkSensiResults(cnecs, tempSystematicSensitivityAnalysisResult, defaultUnit);
+            checkSensiResults(tempSystematicSensitivityAnalysisResult, defaultUnit);
             return tempSystematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
@@ -176,18 +177,18 @@ public final class SystematicSensitivityInterface {
         }
     }
 
-    private void checkSensiResults(Set<Cnec> cnecs, SystematicSensitivityResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
+    private void checkSensiResults(SystematicSensitivityResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
         if (!systematicSensitivityAnalysisResult.isSuccess()) {
             throw new SensitivityComputationException("Status of the sensitivity result indicates a failure.");
         }
 
-        if (cnecs.stream()
+        if (cnecSensitivityProvider.getCnecs().stream()
             .map(systematicSensitivityAnalysisResult::getReferenceFlow)
             .anyMatch(f -> Double.isNaN(f))) {
             throw new SensitivityComputationException("Flow values are missing from the output of the sensitivity analysis.");
         }
 
-        if (cnecs.stream()
+        if (cnecSensitivityProvider.getCnecs().stream()
             .map(systematicSensitivityAnalysisResult::getReferenceIntensity)
             .anyMatch(f -> Double.isNaN(f)) && !isFallback() && defaultUnit.equals(Unit.AMPERE)) {
             // in default mode, this means that there is an error in the sensitivity computation, or an
