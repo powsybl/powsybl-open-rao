@@ -86,7 +86,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         }
     }
 
-    private String faraoExceptionSensitivityString(SensitivityFunction function, SensitivityVariable variable) {
+    private String  faraoExceptionSensitivityString(SensitivityFunction function, SensitivityVariable variable) {
         return "Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName();
     }
 
