@@ -23,7 +23,6 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
 import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
 import com.powsybl.sensitivity.factors.BranchIntensityPerPSTAngle;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -143,8 +142,7 @@ public class RangeActionSensitivityProviderTest {
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
     }
 
-    @Test
-    @Ignore("Broken while there is no BranchIntensityPerInjectionIncrease factor")
+    @Test (expected = FaraoException.class)
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();

@@ -34,7 +34,7 @@ final class SystematicSensitivityService {
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                                String workingStateId,
-                                                               SensitivityProvider sensitivityProvider,
+                                                               CnecSensitivityProvider cnecSensitivityProvider,
                                                                SensitivityComputationParameters sensitivityComputationParameters,
                                                                ComputationManager computationManager) {
         if (!initialised()) {
@@ -42,7 +42,7 @@ final class SystematicSensitivityService {
         }
         SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
         LOGGER.debug("Sensitivity computation [start]");
-        CompletableFuture<SensitivityComputationResults> results = computation.run(sensitivityProvider, sensitivityProvider, workingStateId, sensitivityComputationParameters);
+        CompletableFuture<SensitivityComputationResults> results = computation.run(cnecSensitivityProvider, cnecSensitivityProvider, workingStateId, sensitivityComputationParameters);
         try {
             SensitivityComputationResults joinedResults = results.join();
             LOGGER.debug("Sensitivity computation [end]");
@@ -54,9 +54,9 @@ final class SystematicSensitivityService {
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                                String workingStateId,
-                                                               SensitivityProvider sensitivityProvider,
+                                                               CnecSensitivityProvider cnecSensitivityProvider,
                                                                SensitivityComputationParameters sensitivityComputationParameters) {
-        return runSensitivity(network, workingStateId, sensitivityProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
+        return runSensitivity(network, workingStateId, cnecSensitivityProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
     }
 
     private static boolean initialised() {
