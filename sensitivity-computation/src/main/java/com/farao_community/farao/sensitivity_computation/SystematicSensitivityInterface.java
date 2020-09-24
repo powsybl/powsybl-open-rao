@@ -29,7 +29,7 @@ import java.util.Set;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class SystematicSensitivityInterface {
+public class SystematicSensitivityInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityInterface.class);
 
@@ -54,7 +54,7 @@ public final class SystematicSensitivityInterface {
     /**
      * Builder
      */
-    public static final class SystematicSensitivityInterfaceBuilder {
+    public static class SystematicSensitivityInterfaceBuilder {
         private SensitivityComputationParameters defaultParameters;
         private SensitivityComputationParameters fallbackParameters;
         private MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
