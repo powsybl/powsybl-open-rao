@@ -58,8 +58,8 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
                     continue;
                 }
                 double initialMargin = cnec.computeMargin(initialFlow, unit);
-                double newFlow = (unit == MEGAWATT) ? raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec) :
-                        raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec);
+                double newFlow = (unit == MEGAWATT) ? raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) :
+                        raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec);
                 double newMargin = cnec.computeMargin(newFlow, unit);
                 double convertedAcceptableMarginDiminution = mnecAcceptableMarginDiminution / getUnitConversionCoefficient(cnec, raoData);
                 totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - convertedAcceptableMarginDiminution) - newMargin);
