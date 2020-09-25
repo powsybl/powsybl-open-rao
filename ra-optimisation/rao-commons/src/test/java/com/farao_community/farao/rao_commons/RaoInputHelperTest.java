@@ -21,7 +21,6 @@ import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -173,15 +172,13 @@ public class RaoInputHelperTest {
     }
 
     @Test
-    public void testRemoveContingencyOnDanglingLine() {
-
-        Network networkWithDanglingLine = Importers.loadNetwork("TestCase12NodesWithDanglingLine.uct", getClass().getResourceAsStream("/TestCase12NodesWithDanglingLine.uct"));
+    public void testRemoveContingencyOnUnhandledElement() {
 
         CracFactory factory = CracFactory.find("SimpleCracFactory");
         Crac crac = factory.create("test-crac");
         Instant inst = crac.newInstant().setId("inst1").setSeconds(10).add();
-        Contingency contingency1 = crac.newContingency().setId("contingency1").setName("on dangling line")
-            .newNetworkElement().setId("XED_EE1D FFR3AA1  1").add().add();
+        Contingency contingency1 = crac.newContingency().setId("contingency1").setName("on substation")
+            .newNetworkElement().setId("FFR3AA1").add().add();
         Contingency contingency2 = crac.newContingency().setId("contingency2").setName("on classic line")
             .newNetworkElement().setId("NNL1AA1  NNL3AA1  1").add().add();
         crac.newCnec().setId("BBE1AA1  BBE2AA1  1").setOptimized(true).setMonitored(true)
@@ -195,7 +192,7 @@ public class RaoInputHelperTest {
             .setInstant(inst).setContingency(contingency2)
             .add();
 
-        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, networkWithDanglingLine);
+        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, network);
         assertEquals(2, qualityReport.size());
         assertEquals(1, crac.getContingencies().size());
         assertEquals(1, crac.getCnecs().size());
