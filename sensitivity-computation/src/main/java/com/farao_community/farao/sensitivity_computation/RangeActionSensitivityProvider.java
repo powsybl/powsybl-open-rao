@@ -64,7 +64,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
         // Case no RangeAction is provided, we still want to get reference flows
         if (sensitivityVariables.isEmpty()) {
-            LOGGER.warn("No range action provided. You may wish to use  an EmptySensitivityProvider if this is the intended behaviour.");
+            LOGGER.debug("No range action provided. You may wish to use  an EmptySensitivityProvider if this is the intended behaviour.");
             sensitivityVariables.add(defaultSensitivityVariable(network));
         }
 
