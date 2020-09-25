@@ -120,10 +120,10 @@ public class RaoDataManager {
      * Crac result variant of the situation.
      */
     public void fillCracResultsWithSensis(double cost, double overCost) {
-        raoData.getCracResult().setFunctionalCost(-cost);
+        raoData.getCracResult().setFunctionalCost(cost);
         raoData.getCracResult().addVirtualCost(overCost);
         raoData.getCracResult().setNetworkSecurityStatus(cost < 0 ?
-            CracResult.NetworkSecurityStatus.UNSECURED : CracResult.NetworkSecurityStatus.SECURED);
+            CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
         updateCnecExtensions();
     }
 
@@ -176,8 +176,8 @@ public class RaoDataManager {
         }
         raoData.getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-            cnecResult.setFlowInMW(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec));
-            cnecResult.setFlowInA(raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec));
+            cnecResult.setFlowInMW(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec));
+            cnecResult.setFlowInA(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec));
             cnecResult.setThresholds(cnec);
         });
     }

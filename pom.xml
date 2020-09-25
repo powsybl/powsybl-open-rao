@@ -79,6 +79,7 @@
         <module>flow-decomposition</module>
         <module>loopflow-computation</module>
         <module>ra-optimisation</module>
+        <module>sensitivity-computation</module>
         <module>util</module>
     </modules>
 

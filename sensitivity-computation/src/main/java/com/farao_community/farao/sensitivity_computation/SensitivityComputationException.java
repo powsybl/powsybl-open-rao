@@ -7,7 +7,7 @@
  *
  */
 
-package com.farao_community.farao.util;
+package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.commons.FaraoException;
 

@@ -15,7 +15,7 @@ import com.farao_community.farao.commons.Unit;
 public interface CostEvaluator {
 
     /**
-     * It evaluates the cost of RaoData containing a Network, a Crac and a SystematicSensitivityAnalysisResult on
+     * It evaluates the cost of RaoData containing a Network, a Crac and a SystematicSensitivityResult on
      * the current RaoData variant.
      *
      * @param raoData: RaoData object to evaluate the cost on.

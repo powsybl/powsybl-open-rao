@@ -9,10 +9,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 
 import com.farao_community.farao.rao_commons.LoopFlowComputationService;
 import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.util.SensitivityComputationException;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
 
 import java.util.List;
 import java.util.Map;
@@ -28,10 +28,10 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
     private double loopFlowViolationCost;
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
-                                                 SystematicSensitivityComputation systematicSensitivityComputation,
+                                                 SystematicSensitivityInterface systematicSensitivityInterface,
                                                  ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
-        super(fillers, systematicSensitivityComputation, objectiveFunctionEvaluator, parameters);
+        super(fillers, systematicSensitivityInterface, objectiveFunctionEvaluator, parameters);
         loopFlowApproximation = parameters.isLoopflowApproximation();
         loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);
@@ -50,7 +50,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
             return true;
         } catch (SensitivityComputationException e) {
             LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
-                systematicSensitivityComputation.isFallback() ? "Fallback" : "Default", e.getMessage()));
+                systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
             return false;
         }
     }

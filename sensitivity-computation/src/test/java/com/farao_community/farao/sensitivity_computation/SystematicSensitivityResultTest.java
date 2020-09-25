@@ -4,9 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.util;
+package com.farao_community.farao.sensitivity_computation;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.computation.ComputationManager;
@@ -19,7 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -28,7 +32,7 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SystematicSensitivityAnalysisResultTest {
+public class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
     private SensitivityComputationResults sensitivityComputationResults;
     private Network network;
@@ -40,8 +44,10 @@ public class SystematicSensitivityAnalysisResultTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
+        RangeActionSensitivityProvider rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
+        rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
         sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
-                .run(new CracFactorsProvider(crac), new CracContingenciesProvider(crac), network.getVariantManager().getWorkingVariantId(), null).join();
+                .run(rangeActionSensitivityProvider, rangeActionSensitivityProvider, network.getVariantManager().getWorkingVariantId(), null).join();
         nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
         contingencyCnec = crac.getCnec("cnec1stateCurativeContingency1");
@@ -50,7 +56,7 @@ public class SystematicSensitivityAnalysisResultTest {
     @Test
     public void testCompleteResultManipulation() {
         // When
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
 
         // Then
         assertTrue(result.isSuccess());
@@ -74,7 +80,7 @@ public class SystematicSensitivityAnalysisResultTest {
         // When
         SensitivityComputationResults sensitivityComputationResults = Mockito.mock(SensitivityComputationResults.class);
         Mockito.when(sensitivityComputationResults.isOk()).thenReturn(false);
-        SystematicSensitivityAnalysisResult result = new SystematicSensitivityAnalysisResult(sensitivityComputationResults);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
 
         // Then
         assertFalse(result.isSuccess());

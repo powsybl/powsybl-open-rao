@@ -40,21 +40,21 @@ public class MinMarginEvaluator implements CostEvaluator {
     @Override
     public double getCost(RaoData raoData) {
         if (unit.equals(MEGAWATT)) {
-            return getMinMarginInMegawatt(raoData);
+            return -getMinMarginInMegawatt(raoData);
         } else {
-            return getMinMarginInAmpere(raoData);
+            return -getMinMarginInAmpere(raoData);
         }
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
         return raoData.getCnecs().stream().filter(Cnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec), MEGAWATT)).
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), MEGAWATT)).
             min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(Cnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityAnalysisResult().getReferenceIntensity(cnec), Unit.AMPERE)
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Unit.AMPERE)
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN)) { // It means that computation has been performed in DC mode
@@ -70,7 +70,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     private List<Double> getMarginsInAmpereFromMegawattConversion(RaoData raoData) {
         return raoData.getCnecs().stream().filter(Cnec::isOptimized).map(cnec -> {
-                double flowInMW = raoData.getSystematicSensitivityAnalysisResult().getReferenceFlow(cnec);
+                double flowInMW = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec);
                 double uNom = raoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
                 return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);
             }

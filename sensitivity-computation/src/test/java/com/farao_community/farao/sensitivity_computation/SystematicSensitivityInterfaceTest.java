@@ -5,19 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.sensitivity_computation;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.util.SensitivityComputationException;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +24,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Collections;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -38,29 +33,28 @@ import static org.junit.Assert.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class})
-public class SystematicSensitivityComputationTest {
+@PrepareForTest({SystematicSensitivityService.class})
+public class SystematicSensitivityInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
 
     private Crac crac;
-    private RaoData initialRaoData;
-    private SystematicSensitivityAnalysisResult systematicAnalysisResultOk;
-    private SystematicSensitivityAnalysisResult systematicAnalysisResultFailed;
+    private Network network;
+    private SystematicSensitivityResult systematicAnalysisResultOk;
+    private SystematicSensitivityResult systematicAnalysisResultFailed;
     private SensitivityComputationParameters defaultParameters;
     private SensitivityComputationParameters fallbackParameters;
 
     @Before
     public void setUp() {
 
-        Network network = NetworkImportsUtil.import12NodesNetwork();
+        network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         crac.synchronize(network);
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
-        initialRaoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
-        PowerMockito.mockStatic(SystematicSensitivityAnalysisService.class);
+        PowerMockito.mockStatic(SystematicSensitivityService.class);
 
         defaultParameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"));
         fallbackParameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"));
@@ -69,33 +63,44 @@ public class SystematicSensitivityComputationTest {
     @Test
     public void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        BDDMockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+        BDDMockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultOk);
 
         // run engine
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(defaultParameters);
-        systematicSensitivityComputation.run(initialRaoData);
-        initialRaoData.getRaoDataManager().updateCnecExtensions();
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withDefaultParameters(defaultParameters)
+            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .build();
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
 
         // assert results
-        assertNotNull(initialRaoData);
-        assertFalse(systematicSensitivityComputation.isFallback());
-        String resultVariant = initialRaoData.getWorkingVariantId();
-        Assert.assertEquals(1400, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        Assert.assertEquals(2000, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        assertNotNull(systematicSensitivityAnalysisResult);
+        assertFalse(systematicSensitivityInterface.isFallback());
+        for (Cnec cnec: crac.getCnecs()) {
+            if (cnec.getId().equals("cnec2basecase")) {
+                assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
+            } else {
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
+            }
+        }
     }
 
     @Test
     public void testRunDefaultConfigFailsAndNoFallback() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(systematicAnalysisResultFailed);
 
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(defaultParameters);
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withDefaultParameters(defaultParameters)
+            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .build();
 
         // run - expected failure
         try {
-            systematicSensitivityComputation.run(initialRaoData);
+            systematicSensitivityInterface.run(network);
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with default parameters. No fallback parameters available."));
@@ -105,51 +110,63 @@ public class SystematicSensitivityComputationTest {
     @Test
     public void testRunDefaultConfigFailsButFallbackOk() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
+        Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
+        Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
             .thenReturn(systematicAnalysisResultOk);
 
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            defaultParameters, fallbackParameters);
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withDefaultParameters(defaultParameters)
+            .withFallbackParameters(fallbackParameters)
+            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .build();
 
         // run
-        systematicSensitivityComputation.run(initialRaoData);
-        initialRaoData.getRaoDataManager().updateCnecExtensions();
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
 
-        // assert
-        assertTrue(systematicSensitivityComputation.isFallback());
-        String resultVariant = initialRaoData.getWorkingVariantId();
-        Assert.assertEquals(1400, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInMW(), FLOW_TOLERANCE);
-        Assert.assertEquals(2000, initialRaoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(resultVariant).getFlowInA(), FLOW_TOLERANCE);
+        // assert results
+        assertNotNull(systematicSensitivityAnalysisResult);
+        assertTrue(systematicSensitivityInterface.isFallback());
+        for (Cnec cnec: crac.getCnecs()) {
+            if (cnec.getId().equals("cnec2basecase")) {
+                assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
+            } else {
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
+                assertEquals(0., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
+            }
+        }
     }
 
     @Test
     public void testRunDefaultConfigAndFallbackFail() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
+        Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAnalysisService.runAnalysis(Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
+        Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
             .thenReturn(systematicAnalysisResultFailed);
 
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            defaultParameters, fallbackParameters);
+        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withDefaultParameters(defaultParameters)
+            .withFallbackParameters(fallbackParameters)
+            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .build();
 
         // run - expected failure
         try {
-            systematicSensitivityComputation.run(initialRaoData);
+            systematicSensitivityInterface.run(network);
             fail();
         } catch (SensitivityComputationException e) {
             assertTrue(e.getMessage().contains("Sensitivity computation failed with all available sensitivity parameters."));
         }
     }
 
-    private SystematicSensitivityAnalysisResult buildSystematicAnalysisResultOk() {
+    private SystematicSensitivityResult buildSystematicAnalysisResultOk() {
         Random random = new Random();
         random.setSeed(42L);
-        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+        SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(true);
         crac.getCnecs().forEach(cnec -> {
             if (cnec.getId().equals("cnec2basecase")) {
@@ -171,8 +188,8 @@ public class SystematicSensitivityComputationTest {
         return result;
     }
 
-    private SystematicSensitivityAnalysisResult buildSystematicAnalysisResultFailed() {
-        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+    private SystematicSensitivityResult buildSystematicAnalysisResultFailed() {
+        SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(false);
         return result;
     }

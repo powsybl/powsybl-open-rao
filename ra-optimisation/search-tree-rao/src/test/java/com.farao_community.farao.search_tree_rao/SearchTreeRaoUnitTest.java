@@ -17,6 +17,8 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.NativeLibraryLoader;
@@ -46,13 +48,13 @@ import static org.mockito.Mockito.when;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({NativeLibraryLoader.class, RaoUtil.class, SearchTreeRaoLogger.class, SystematicSensitivityComputation.class, Leaf.class, SearchTreeRao.class})
+@PrepareForTest({NativeLibraryLoader.class, RaoUtil.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, SearchTreeRao.class})
 public class SearchTreeRaoUnitTest {
 
     private SearchTreeRao searchTreeRao;
     private ComputationManager computationManager;
     private RaoParameters raoParameters;
-    private SystematicSensitivityComputation systematicSensitivityComputation;
+    private SystematicSensitivityInterface systematicSensitivityInterface;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
     private Network network;
     private Crac crac;
@@ -70,7 +72,7 @@ public class SearchTreeRaoUnitTest {
         variantId = network.getVariantManager().getWorkingVariantId();
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParameters.json"));
-        systematicSensitivityComputation = Mockito.mock(SystematicSensitivityComputation.class);
+        systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
 
         raoInput = RaoInput.builder()
@@ -118,8 +120,8 @@ public class SearchTreeRaoUnitTest {
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
         Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
 
-        PowerMockito.whenNew(SystematicSensitivityComputation.class).withAnyArguments().thenReturn(systematicSensitivityComputation);
-        Mockito.doNothing().when(systematicSensitivityComputation).run(any(), any());
+        PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
+        Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any(), any());
 
         mockRaoUtil();
 
