@@ -45,6 +45,8 @@ public class CracContingenciesProvider implements ContingenciesProvider {
             return new HvdcLineContingency(elementId);
         } else if (networkIdentifiable instanceof BusbarSection) {
             return new BusbarSectionContingency(elementId);
+        } else if (networkIdentifiable instanceof DanglingLine) {
+            return new DanglingLineContingency(elementId);
         } else {
             throw new FaraoException("Unable to apply contingency element " + elementId);
         }
