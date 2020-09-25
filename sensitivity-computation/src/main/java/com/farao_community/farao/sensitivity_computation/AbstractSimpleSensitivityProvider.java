@@ -42,7 +42,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
 
     private ContingencyElement convertCracContingencyElementToPowsybl(NetworkElement cracContingencyElement, Network network) {
         String elementId = cracContingencyElement.getId();
-        Identifiable networkIdentifiable = network.getIdentifiable(elementId);
+        Identifiable<?> networkIdentifiable = network.getIdentifiable(elementId);
         if (networkIdentifiable instanceof Branch) {
             return new BranchContingency(elementId);
         } else if (networkIdentifiable instanceof Generator) {

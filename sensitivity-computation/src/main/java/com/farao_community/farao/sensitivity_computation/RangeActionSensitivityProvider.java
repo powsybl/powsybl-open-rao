@@ -46,7 +46,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
     private SensitivityVariable networkElementToSensitivityVariable(Network network, NetworkElement networkElement) {
         String elementId = networkElement.getId();
-        Identifiable networkIdentifiable = network.getIdentifiable(elementId);
+        Identifiable<?> networkIdentifiable = network.getIdentifiable(elementId);
         if (networkIdentifiable instanceof TwoWindingsTransformer) {
             return new PhaseTapChangerAngle(elementId, elementId, elementId);
         } else {
