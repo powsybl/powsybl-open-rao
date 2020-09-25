@@ -14,6 +14,8 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunction;
 import com.powsybl.sensitivity.SensitivityVariable;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,14 +24,15 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class RangeActionSensitivityProvider extends LoadflowProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RangeActionSensitivityProvider.class);
     private List<RangeAction> rangeActions;
 
-    RangeActionSensitivityProvider() {
+    public RangeActionSensitivityProvider() {
         super();
         rangeActions = new ArrayList<>();
     }
 
-    void addSensitivityFactors(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
+    public void addSensitivityFactors(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
         this.rangeActions.addAll(rangeActions);
         super.addCnecs(cnecs);
     }
@@ -61,6 +64,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
         // Case no RangeAction is provided, we still want to get reference flows
         if (sensitivityVariables.isEmpty()) {
+            LOGGER.warn("No range action provided. You may wish to use  an EmptySensitivityProvider if this is the intended behaviour.");
             sensitivityVariables.add(defaultSensitivityVariable(network));
         }
 

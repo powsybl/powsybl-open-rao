@@ -24,7 +24,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         cnecs = new HashSet<>();
     }
 
-    void addCnecs(Set<Cnec> cnecs) {
+    public void addCnecs(Set<Cnec> cnecs) {
         this.cnecs.addAll(cnecs);
     }
 

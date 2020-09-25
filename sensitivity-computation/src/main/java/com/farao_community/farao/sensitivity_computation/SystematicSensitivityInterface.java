@@ -126,7 +126,7 @@ public final class SystematicSensitivityInterface {
 
     /**
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
-     * SystematicSensitivityAnalysisResult to the given network variant.
+     * SystematicSensitivityResult to the given network variant.
      *
      * Throw a SensitivityComputationException if the computation fails.
      */
@@ -161,7 +161,6 @@ public final class SystematicSensitivityInterface {
      * SensitivityComputationException is the computation fails.
      */
     private SystematicSensitivityResult runWithConfig(Network network, SensitivityComputationParameters sensitivityComputationParameters, Unit defaultUnit) {
-
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityService
                 .runSensitivity(network, network.getVariantManager().getWorkingVariantId(), cnecSensitivityProvider, sensitivityComputationParameters);
