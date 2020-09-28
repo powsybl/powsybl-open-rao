@@ -102,7 +102,6 @@ class PexGraphEdge {
     }
 }
 
-
 /**
  * Business object for PEX graph
  *

@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 /**
  * Convert a single GlskPoint to Scalable
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}

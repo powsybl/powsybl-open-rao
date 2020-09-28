@@ -15,7 +15,6 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
