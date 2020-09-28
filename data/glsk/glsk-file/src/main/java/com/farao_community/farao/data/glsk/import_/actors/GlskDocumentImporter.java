@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-
 /**
  * Importer for CIM type GlskDocument
  * Create a GlskDocument object

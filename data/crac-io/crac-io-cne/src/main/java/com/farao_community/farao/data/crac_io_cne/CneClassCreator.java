@@ -116,7 +116,6 @@ public final class CneClassCreator {
         return contingencySeries;
     }
 
-
     /*****************
      MONITORED SERIES
      *****************/
@@ -181,7 +180,6 @@ public final class CneClassCreator {
 
         return measurement;
     }
-
 
     /*****************
      REMEDIAL ACTION SERIES

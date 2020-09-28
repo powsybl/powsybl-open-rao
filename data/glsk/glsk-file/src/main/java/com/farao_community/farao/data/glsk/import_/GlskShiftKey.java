@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-
 /**
  * Shift Key
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
@@ -90,7 +89,6 @@ public class GlskShiftKey {
         this.glskShiftKeyInterval = pointInterval;
     }
 
-
     /**
      * @param businessType business type for UCTE Glsk shift key constructor
      * @param ucteBusinessType ucte businesstype for load and generator
@@ -114,7 +112,6 @@ public class GlskShiftKey {
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
     }
-
 
     /**
      * @return debug to string

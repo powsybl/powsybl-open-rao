@@ -25,9 +25,9 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -42,6 +42,7 @@ import static org.mockito.ArgumentMatchers.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
 
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
@@ -87,9 +88,9 @@ public class LeafTest {
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         try {
-            PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
+            PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenAnswer(invocationOnMock -> systematicSensitivityInterface);
             PowerMockito.mockStatic(RaoUtil.class);
-            PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenReturn(iteratingLinearOptimizer);
+            PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,8 +106,8 @@ public class LeafTest {
 
     private void mockRaoUtil() {
         ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
-        Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenReturn(costEvaluator);
+        Mockito.when(costEvaluator.getCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluator);
     }
 
     @Test
@@ -218,9 +219,11 @@ public class LeafTest {
         RangeAction rangeAction = new PstWithRange("pst", new NetworkElement("test"));
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addRangeAction(rangeAction);
-        Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
+
+        Mockito.doAnswer(invocationOnMock -> "successful").when(iteratingLinearOptimizer).optimize(any());
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Mockito.doReturn(systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
+        Mockito.doAnswer(invocationOnMock -> systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
+
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals("successful", rootLeaf.getBestVariantId());

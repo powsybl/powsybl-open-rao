@@ -31,9 +31,9 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -49,6 +49,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class, RaoUtil.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, SearchTreeRao.class})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class SearchTreeRaoUnitTest {
 
     private SearchTreeRao searchTreeRao;
@@ -84,7 +85,6 @@ public class SearchTreeRaoUnitTest {
 
     private void mockNativeLibraryLoader() {
         PowerMockito.mockStatic(NativeLibraryLoader.class);
-        PowerMockito.doNothing().when(NativeLibraryLoader.class);
         NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
@@ -92,8 +92,8 @@ public class SearchTreeRaoUnitTest {
         PowerMockito.mockStatic(RaoUtil.class);
         ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenReturn(costEvaluator);
-        BDDMockito.when(RaoUtil.initRaoData(raoInput, raoParameters)).thenCallRealMethod();
+        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluator);
+        Mockito.when(RaoUtil.initRaoData(raoInput, raoParameters)).thenCallRealMethod();
     }
 
     @Test

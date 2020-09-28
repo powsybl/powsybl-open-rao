@@ -36,7 +36,7 @@ public final class NativeLibraryLoader {
                 NATIVE_LIBRARIES_LOADED.add(libraryName);
             } catch (UnsatisfiedLinkError e) {
                 LOGGER.error("Failed to load library '{}'", libraryName);
-                throw new FaraoException(String.format("Failed to load library '%s'", libraryName));
+                throw new FaraoException(String.format("Failed to load library '%s'", libraryName), e);
             }
         }
     }

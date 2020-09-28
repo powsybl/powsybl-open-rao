@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

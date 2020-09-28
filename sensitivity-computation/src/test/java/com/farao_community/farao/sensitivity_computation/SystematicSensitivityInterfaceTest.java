@@ -18,9 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -34,6 +34,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystematicSensitivityService.class})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class SystematicSensitivityInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
@@ -63,8 +64,8 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        BDDMockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(systematicAnalysisResultOk);
+        Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         // run engine
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
@@ -91,7 +92,7 @@ public class SystematicSensitivityInterfaceTest {
     public void testRunDefaultConfigFailsAndNoFallback() {
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(systematicAnalysisResultFailed);
+            .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(defaultParameters)
@@ -111,10 +112,10 @@ public class SystematicSensitivityInterfaceTest {
     public void testRunDefaultConfigFailsButFallbackOk() {
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
-            .thenReturn(systematicAnalysisResultFailed);
+            .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
-            .thenReturn(systematicAnalysisResultOk);
+            .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(defaultParameters)
@@ -143,10 +144,10 @@ public class SystematicSensitivityInterfaceTest {
     public void testRunDefaultConfigAndFallbackFail() {
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
-            .thenReturn(systematicAnalysisResultFailed);
+            .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         Mockito.when(SystematicSensitivityService.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
-            .thenReturn(systematicAnalysisResultFailed);
+            .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(defaultParameters)

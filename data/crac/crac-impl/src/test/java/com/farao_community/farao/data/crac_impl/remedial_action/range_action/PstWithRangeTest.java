@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.FieldSetter;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.spy;
@@ -179,8 +179,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     public void computeCurrentValueFromCenteredOnZero() throws NoSuchFieldException {
         PstWithRange pstWithRange = spy(pst);
 
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -16);
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 16);
+        Whitebox.setInternalState(pstWithRange, "lowTapPosition", -16);
+        Whitebox.setInternalState(pstWithRange, "highTapPosition", 16);
 
         pstWithRange.apply(network, 0.0); // tap 0 (CENTERED_ON_ZERO)
         assertEquals(0, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO), 0);
@@ -199,8 +199,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
         // we artifically modify the lowTapPosition and highTapPosition, and we need also to shift the taps in the assertEquals,
         // because the conversion from angle to tap is based on the network (so it gives a tap CENTERED_ON_ZERO)
         int tapShift = 17;
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), 1);
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 33);
+        Whitebox.setInternalState(pstWithRange, "lowTapPosition", 1);
+        Whitebox.setInternalState(pstWithRange, "highTapPosition", 33);
 
         pstWithRange.apply(network, 0.0); // tap 17 (STARTS_AT_ONE)
         assertEquals(0, pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO) + tapShift, 0);
@@ -220,8 +220,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void convertToStartsAtOneFails() throws NoSuchFieldException {
         PstWithRange pstWithRange = spy(pst);
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -12);
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 35);
+        Whitebox.setInternalState(pstWithRange, "lowTapPosition", -12);
+        Whitebox.setInternalState(pstWithRange, "highTapPosition", 35);
         try {
             pstWithRange.getCurrentTapPosition(network, RangeDefinition.STARTS_AT_ONE);
         } catch (FaraoException e) {
@@ -232,8 +232,8 @@ public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
     @Test
     public void convertToCenteredOnZero() throws NoSuchFieldException {
         PstWithRange pstWithRange = spy(pst);
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("lowTapPosition"), -12);
-        FieldSetter.setField(pstWithRange, pstWithRange.getClass().getDeclaredField("highTapPosition"), 35);
+        Whitebox.setInternalState(pstWithRange, "lowTapPosition", -12);
+        Whitebox.setInternalState(pstWithRange, "highTapPosition", 35);
         try {
             pstWithRange.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO);
         } catch (FaraoException e) {

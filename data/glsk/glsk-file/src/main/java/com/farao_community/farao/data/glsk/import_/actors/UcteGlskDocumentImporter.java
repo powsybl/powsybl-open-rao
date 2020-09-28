@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-
 /**
  * Import a UCTE type GLSK Document
  * return a UcteGlskDocument object
@@ -44,7 +43,6 @@ public final class UcteGlskDocumentImporter {
         }
     }
 
-
     /**
      * @param filepath file path in java Path
      * @return ucte glsk document
@@ -57,7 +55,6 @@ public final class UcteGlskDocumentImporter {
             throw new FaraoException(ERROR_MESSAGE, e);
         }
     }
-
 
     /**
      * @param data InputStream

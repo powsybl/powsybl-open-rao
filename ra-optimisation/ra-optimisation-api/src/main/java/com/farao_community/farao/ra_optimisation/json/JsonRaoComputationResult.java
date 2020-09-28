@@ -54,7 +54,6 @@ public final class JsonRaoComputationResult {
         throw new IllegalStateException("Utility class");
     }
 
-
     /**
      * Reads result from a JSON file (will NOT rely on platform config).
      */

@@ -16,9 +16,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -29,6 +29,7 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MPSolver.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LinearProblemTest {
 
     private static final double LB = -11.1;
@@ -46,7 +47,7 @@ public class LinearProblemTest {
     public void setUp() {
         MPSolver solver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
+        when(MPSolver.infinity()).thenAnswer(invocationOnMock -> Double.POSITIVE_INFINITY);
         linearProblem = new LinearProblem(solver);
 
         rangeAction = Mockito.mock(RangeAction.class);

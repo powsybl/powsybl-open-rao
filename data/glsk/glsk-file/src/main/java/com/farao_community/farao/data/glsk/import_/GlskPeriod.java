@@ -79,7 +79,6 @@ public class GlskPeriod {
         }
     }
 
-
     /**
      * @return getter Interval of period
      */
