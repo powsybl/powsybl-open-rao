@@ -19,7 +19,7 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
@@ -82,16 +82,16 @@ public class LinearOptimizerTest {
         raoData = Mockito.spy(raoData);
         raoDataManager = raoData.getRaoDataManager();
 
-        SystematicSensitivityAnalysisResult result = createSystematicAnalysisResult();
-        raoData.setSystematicSensitivityAnalysisResult(result);
+        SystematicSensitivityResult result = createSystematicResult();
+        raoData.setSystematicSensitivityResult(result);
 
         rangeActionSetPoint = Mockito.mock(MPVariable.class);
         rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
         absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class);
     }
 
-    private SystematicSensitivityAnalysisResult createSystematicAnalysisResult() {
-        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+    private SystematicSensitivityResult createSystematicResult() {
+        SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(true);
         crac.getCnecs().forEach(cnec -> {
             Mockito.when(result.getReferenceFlow(cnec)).thenReturn(499.);

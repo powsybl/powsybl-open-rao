@@ -11,15 +11,10 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisService;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 
@@ -27,9 +22,6 @@ import static org.junit.Assert.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAnalysisService.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class RaoDataTest {
 
     private Network network;

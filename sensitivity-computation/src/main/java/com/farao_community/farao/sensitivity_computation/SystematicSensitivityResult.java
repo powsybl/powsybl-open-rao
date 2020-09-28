@@ -4,9 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.util;
+package com.farao_community.farao.sensitivity_computation;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -14,14 +17,17 @@ import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
-public class SystematicSensitivityAnalysisResult {
+public class SystematicSensitivityResult {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityAnalysisResult.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityResult.class);
 
     private class StateResult {
         private final Map<String, Double> referenceFlows = new HashMap<>();
@@ -50,7 +56,7 @@ public class SystematicSensitivityAnalysisResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new HashMap<>();
 
-    public SystematicSensitivityAnalysisResult(SensitivityComputationResults results) {
+    public SystematicSensitivityResult(SensitivityComputationResults results) {
         if (results == null) {
             this.isSuccess = false;
             return;
