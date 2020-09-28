@@ -88,9 +88,9 @@ public class LeafTest {
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         try {
-            PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
+            PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenAnswer(invocationOnMock -> systematicSensitivityInterface);
             PowerMockito.mockStatic(RaoUtil.class);
-            PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenReturn(iteratingLinearOptimizer);
+            PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -219,9 +219,11 @@ public class LeafTest {
         RangeAction rangeAction = new PstWithRange("pst", new NetworkElement("test"));
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addRangeAction(rangeAction);
-        Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
+
+        Mockito.doAnswer(invocationOnMock -> "successful").when(iteratingLinearOptimizer).optimize(any());
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Mockito.doReturn(systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
+        Mockito.doAnswer(invocationOnMock -> systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
+
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals("successful", rootLeaf.getBestVariantId());
