@@ -146,7 +146,7 @@ public class SimpleCnecTest {
 
         // terminal 1 disconnected
         networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().setP(0.0);
+        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().setP(Double.NaN);
 
         assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
