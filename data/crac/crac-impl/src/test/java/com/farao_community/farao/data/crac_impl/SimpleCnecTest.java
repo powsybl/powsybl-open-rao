@@ -27,8 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -39,10 +38,13 @@ public class SimpleCnecTest {
 
     private Cnec cnec1;
     private Cnec cnec2;
+    private Cnec cnec3;
+
     private AbstractFlowThreshold threshold;
 
     private Network networkWithLf;
     private Network networkWithoutLf;
+    private Network network15nodes;
 
     @Before
     public void setUp() {
@@ -56,10 +58,12 @@ public class SimpleCnecTest {
         // arrange Cnecs
         cnec1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(threshold), state);
         cnec2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(threshold), state);
+        cnec3 = new SimpleCnec("cnec3", new NetworkElement("FFR4AA1  FFR6AA1  1"), Collections.singleton(threshold), state);
 
-        // create LF
+        // create networks
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
         networkWithLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
+        network15nodes = Importers.loadNetwork("TestCase15Nodes_2_components.uct", getClass().getResourceAsStream("/TestCase15Nodes_2_components.uct"));
     }
 
     @Test
@@ -92,6 +96,12 @@ public class SimpleCnecTest {
         } catch (FaraoException e) {
             // should throw
         }
+    }
+
+    @Test
+    public void getPNotMainComponent() {
+        network15nodes.getBranch("FFR4AA1  FFR6AA1  1").getTerminal1().setP(Double.NaN);
+        assertEquals(0.0, cnec3.getP(network15nodes), DOUBLE_TOLERANCE);
     }
 
     @Test
