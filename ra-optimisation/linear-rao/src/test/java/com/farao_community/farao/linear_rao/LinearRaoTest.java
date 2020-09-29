@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -44,6 +45,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class, RaoUtil.class})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LinearRaoTest {
 
     private LinearRao linearRao;
@@ -99,7 +101,6 @@ public class LinearRaoTest {
 
     private void mockNativeLibraryLoader() {
         PowerMockito.mockStatic(NativeLibraryLoader.class);
-        PowerMockito.doNothing().when(NativeLibraryLoader.class);
         NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
@@ -107,7 +108,7 @@ public class LinearRaoTest {
         PowerMockito.mockStatic(RaoUtil.class);
         ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenReturn(costEvaluator);
+        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluator);
         BDDMockito.when(RaoUtil.initRaoData(raoInput, raoParameters)).thenCallRealMethod();
     }
 
