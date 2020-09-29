@@ -48,6 +48,9 @@ import static org.junit.Assert.assertTrue;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class LoopFlowComputationTest {
+
+    /*
+
     private static final double EPSILON = 1e-3;
     private Network network;
     private Crac crac;
@@ -64,6 +67,7 @@ public class LoopFlowComputationTest {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
+
         network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
         setCnecLoopFlowInputThresholdAsPercentageOfMaxThreshold(0.5);
@@ -170,4 +174,6 @@ public class LoopFlowComputationTest {
             cnec.addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(loopflowInputLimit, Unit.MEGAWATT));
         });
     }
+
+     */
 }

@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
+import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.LoopFlowComputationService;
 import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
@@ -44,8 +46,10 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
         try {
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
             runSensitivityAndUpdateResults();
+
             Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, loopFlowApproximation);
             raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, loopFlowViolationCost);
+
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
         } catch (SensitivityComputationException e) {
@@ -54,4 +58,26 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
             return false;
         }
     }
+
+    @Override
+    void runSensitivityAndUpdateResults() {
+
+        raoData.setSystematicSensitivityResult(
+            systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
+
+
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
+        LoopFlowResult lfResults;
+
+        if (loopFlowApproximation) {
+            lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), null, raoData.getNetwork());
+        } else {
+            lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
+        }
+
+        raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunctionEvaluator.getFunctionalCost(raoData),
+            (systematicSensitivityInterface.isFallback() ? parameters.getFallbackOverCost() : 0)
+                + objectiveFunctionEvaluator.getVirtualCost(raoData));
+    }
+
 }

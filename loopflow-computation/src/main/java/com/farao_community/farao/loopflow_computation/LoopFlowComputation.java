@@ -9,23 +9,14 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
-import com.farao_community.farao.sensitivity_computation.CnecSensitivityProvider;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
-import com.farao_community.farao.util.LoadFlowService;
-import com.farao_community.farao.util.SensitivityComputationService;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
-import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +46,7 @@ public class LoopFlowComputation {
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }
 
-    public LoopFlows calculateLoopFlows(GlskProvider glskProvider, Network network, SensitivityComputationParameters sensitivityComputationParameters) {
+    public LoopFlowResult calculateLoopFlows(Network network, SensitivityComputationParameters sensitivityComputationParameters) {
 
         Set<Cnec> cnecs = crac.getCnecs(crac.getPreventiveState());
         // todo : add this Set of Cnecs in argument of the method calculateLoopFlows()
@@ -71,12 +62,12 @@ public class LoopFlowComputation {
         return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, network);
     }
 
-    public LoopFlows buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Network network) {
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Network network) {
         return buildLoopFlowsFromReferenceFlowAndPtdf(alreadyCalculatedPtdfAndFlows, alreadyCalculatedPtdfAndFlows, network);
 
     }
 
-    public LoopFlows buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedFlows, SystematicSensitivityResult alreadyCalculatedPtdfs, Network network) {
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedFlows, SystematicSensitivityResult alreadyCalculatedPtdfs, Network network) {
 
         Set<Cnec> cnecs = crac.getCnecs(crac.getPreventiveState());
         // todo : add this Set of Cnecs in argument of the method calculateLoopFlows()
@@ -84,7 +75,7 @@ public class LoopFlowComputation {
 
         List<LinearGlsk> glsks = getValidGlsks(network);
 
-        LoopFlows results = new LoopFlows();
+        LoopFlowResult results = new LoopFlowResult();
 
         for(Cnec cnec : cnecs) {
 
