@@ -133,7 +133,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     private boolean isCnecInMainComponent(Network network) {
-        return getTerminal(network).getBusView().getBus().isInMainConnectedComponent();
+        return getTerminal(network).getBusView().getBus().isInMainSynchronousComponent();
     }
 
     @Override
