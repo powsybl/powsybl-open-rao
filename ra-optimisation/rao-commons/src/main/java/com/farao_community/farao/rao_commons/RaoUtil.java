@@ -59,7 +59,7 @@ public final class RaoUtil {
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowComputationService.checkDataConsistency(raoData);
-            LoopFlowComputationService.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters.getLoopFlowViolationCost());
+            LoopFlowComputationService.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters);
         }
 
         return raoData;

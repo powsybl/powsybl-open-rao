@@ -10,10 +10,12 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
+import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.sensitivity.SensitivityComputationParameters;
 
 import java.util.Map;
 import java.util.Objects;
@@ -39,8 +41,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private boolean isLoopFlowApproximation;
     private double loopFlowConstraintAdjustmentCoefficient;
     private double loopFlowViolationCost;
+    private SensitivityComputationParameters sensitivityComputationParameters;
 
-    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost) {
+    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityComputationParameters sensitivityComputationParameters) {
         this.isLoopFlowApproximation = isLoopFlowApproximation;
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
         this.loopFlowViolationCost = loopFlowViolationCost;
@@ -48,7 +51,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     // Methods for tests
     public MaxLoopFlowFiller() {
-        this(DEFAULT_LOOP_FLOW_APPROXIMATION, DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT, DEFAULT_LOOP_FLOW_VIOLATION_COST);
+        this(DEFAULT_LOOP_FLOW_APPROXIMATION, DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT, DEFAULT_LOOP_FLOW_VIOLATION_COST, DEFAULT_SENSITIVITY_COMPUTATION_PARAMETERS);
     }
 
     void setLoopFlowApproximation(boolean loopFlowApproximation) {
@@ -98,11 +101,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(RaoData raoData, LinearProblem linearProblem) {
         Map<Cnec, Double> loopFlowShifts;
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getNetwork(), raoData.getReferenceProgram());
-        if (isLoopFlowApproximation) {
-            loopFlowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(raoData.getCrac());
-        } else {
-            loopFlowShifts = loopFlowComputation.buildZeroBalanceFlowShift(raoData.getNetwork());
+
+        LoopFlowResult loopFlowResult = null;
+        //todo : do not compute loopFlow from scratch here : not necessary
+        if (!isLoopFlowApproximation) {
+            loopFlowResult = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram()).calculateLoopFlows(raoData.getNetwork(), sensitivityComputationParameters);
         }
 
         for (Cnec cnec : raoData.getCnecs().stream()
@@ -118,8 +121,13 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
 
-            //get loopflow shift
-            double loopFlowShift = loopFlowShifts.getOrDefault(cnec, 0.0);
+            double commercialFlow;
+            //get commercial flow
+            if (!isLoopFlowApproximation) {
+                commercialFlow = loopFlowResult.getCommercialFlow(cnec);
+            } else {
+                commercialFlow = cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
+            }
 
             //get MPVariable: flowVariable
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
@@ -131,8 +139,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 //no loopflow violation cost => 1 MP constraint
                 //NOTE: The "zero-loopflowViolationCost" routine handles infeasible / non-optimal solver status in LinearRao.
                 MPConstraint maxLoopflowConstraint = linearProblem.addMaxLoopFlowConstraint(
-                        -maxLoopFlowLimit + loopFlowShift,
-                        maxLoopFlowLimit + loopFlowShift,
+                        -maxLoopFlowLimit + commercialFlow,
+                        maxLoopFlowLimit + commercialFlow,
                         cnec);
                 maxLoopflowConstraint.setCoefficient(flowVariable, 1);
             } else {
@@ -145,7 +153,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
                 // - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
                 MPConstraint positiveLoopflowViolationConstraint = linearProblem.addPositiveLoopflowViolationConstraint(
-                        -maxLoopFlowLimit + loopFlowShift,
+                        -maxLoopFlowLimit + commercialFlow,
                         linearProblem.infinity(),
                         cnec
                 );
@@ -155,7 +163,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + LoopFlowShift
                 MPConstraint negativeLoopflowViolationConstraint = linearProblem.addNegativeLoopflowViolationConstraint(
                         -linearProblem.infinity(),
-                        maxLoopFlowLimit + loopFlowShift,
+                        maxLoopFlowLimit + commercialFlow,
                         cnec
                 );
                 negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
