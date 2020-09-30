@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
@@ -8,6 +14,9 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowViolationCostEvaluator.class);
@@ -16,7 +25,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private double violationCost;
 
     LoopFlowViolationCostEvaluator(double violationCost) {
-        if (Math.abs(violationCost)>0) {
+        if (Math.abs(violationCost) > 0) {
             this.violationCost = violationCost;
         } else {
             this.violationCost = MAX_LOOP_FLOW_VIOLATION_COST;

@@ -48,24 +48,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowViolationCost = loopFlowViolationCost;
     }
 
-    // Methods for tests
-    public MaxLoopFlowFiller() {
-        this(DEFAULT_LOOP_FLOW_APPROXIMATION, DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT, DEFAULT_LOOP_FLOW_VIOLATION_COST, DEFAULT_SENSITIVITY_COMPUTATION_PARAMETERS);
-    }
-
-    void setLoopFlowApproximation(boolean loopFlowApproximation) {
-        isLoopFlowApproximation = loopFlowApproximation;
-    }
-
-    void setLoopFlowConstraintAdjustmentCoefficient(double loopFlowConstraintAdjustmentCoefficient) {
-        this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
-    }
-
-    void setLoopFlowViolationCost(double loopFlowViolationCost) {
-        this.loopFlowViolationCost = loopFlowViolationCost;
-    }
-    // End of methods for tests
-
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem) {
         buildLoopFlowConstraintsAndUpdateObjectiveFunction(raoData, linearProblem);
@@ -134,43 +116,34 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
             }
 
-            if (loopFlowViolationCost == 0.0) {
-                //no loopflow violation cost => 1 MP constraint
-                //NOTE: The "zero-loopflowViolationCost" routine handles infeasible / non-optimal solver status in LinearRao.
-                MPConstraint maxLoopflowConstraint = linearProblem.addMaxLoopFlowConstraint(
-                        -maxLoopFlowLimit + commercialFlow,
-                        maxLoopFlowLimit + commercialFlow,
-                        cnec);
-                maxLoopflowConstraint.setCoefficient(flowVariable, 1);
-            } else {
-                //loopflow violation cost is not zero => 2 MP constraints, additional MPVariable loopflowViolationVariable
-                MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
-                        0, //virtual cost is strict positive, so lb = 0 for target variable solution at lb
-                        linearProblem.infinity(),
-                        cnec
-                );
+            MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
+                0,
+                linearProblem.infinity(),
+                cnec
+            );
 
-                // - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
-                MPConstraint positiveLoopflowViolationConstraint = linearProblem.addPositiveLoopflowViolationConstraint(
-                        -maxLoopFlowLimit + commercialFlow,
-                        linearProblem.infinity(),
-                        cnec
-                );
-                positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
-                positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
+            // - MaxLoopFlow + LoopFlowShift <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
+            MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
+                -maxLoopFlowLimit + commercialFlow,
+                linearProblem.infinity(),
+                cnec,
+                LinearProblem.BoundExtension.LOWER_BOUND
+            );
+            positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
+            positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
 
-                // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + LoopFlowShift
-                MPConstraint negativeLoopflowViolationConstraint = linearProblem.addNegativeLoopflowViolationConstraint(
-                        -linearProblem.infinity(),
-                        maxLoopFlowLimit + commercialFlow,
-                        cnec
-                );
-                negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
-                negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
+            // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + LoopFlowShift
+            MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
+                -linearProblem.infinity(),
+                maxLoopFlowLimit + commercialFlow,
+                cnec,
+                LinearProblem.BoundExtension.UPPER_BOUND
+            );
+            negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
+            negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
 
-                //update objective function when non-zero-loopflowViolationCost
-                linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost);
-            }
-        } // end cnec loop
-    }
+            //update objective function with loopflowViolationCost
+            linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost);
+        }
+    } // end cnec loop
 }

@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -44,8 +45,18 @@ public class MinMarginObjectiveFunctionTest {
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit);
+        RaoParameters raoParameters = new RaoParameters();
+        if (unit == Unit.MEGAWATT) {
+            raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        } else {
+            raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        }
+        raoParameters.setMnecAcceptableMarginDiminution(mnecAcceptableMarginDiminution);
+        raoParameters.setMnecViolationCost(mnecViolationCost);
+
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
-        minMarginObjectiveFunction = new MinMarginObjectiveFunction(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
+        minMarginObjectiveFunction = new MinMarginObjectiveFunction(raoParameters);
+
         crac.newCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FR-BE").add()
                 .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(commonThreshold).setUnit(unit).add()

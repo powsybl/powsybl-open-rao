@@ -74,17 +74,13 @@ public class LoopFlowComputation {
         //  required : loop-flows can be computed for N-1 states
 
         List<LinearGlsk> glsks = getValidGlsks(network);
-
         LoopFlowResult results = new LoopFlowResult();
 
-        for(Cnec cnec : cnecs) {
-
+        for (Cnec cnec : cnecs) {
             double refFlow = alreadyCalculatedFlows.getReferenceFlow(cnec);
-
             double commercialFLow = glsks.stream()
                 .mapToDouble(glsk -> alreadyCalculatedPtdfs.getSensitivityOnFlow(glsk, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glsk)))
                 .sum();
-
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
         return results;
@@ -100,12 +96,12 @@ public class LoopFlowComputation {
 
     private List<LinearGlsk> getValidGlsks(Network network) {
         return glskProvider.getAllGlsk(network).values().stream().filter(linearGlsk -> {
-                if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
-                    LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
-                    return false;
-                }
-                return true;
-            }).collect(Collectors.toList());
+            if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
+                LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
+                return false;
+            }
+            return true;
+        }).collect(Collectors.toList());
     }
 }
 
