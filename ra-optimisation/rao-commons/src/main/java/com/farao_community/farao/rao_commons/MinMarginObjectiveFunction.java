@@ -6,7 +6,9 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.RaoParameters;
 
 /**
  * Represents an objective function divided into:
@@ -17,13 +19,28 @@ import com.farao_community.farao.commons.Unit;
 public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
 
     private Unit unit;
+    private boolean isRaoWithLoopFlow;
     private MinMarginEvaluator minMarginEvaluator;
     private MnecViolationCostEvaluator mnecViolationCostEvaluator;
+    private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
 
-    public MinMarginObjectiveFunction(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
-        this.unit = unit;
-        this.minMarginEvaluator = new MinMarginEvaluator(unit);
-        this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
+    public MinMarginObjectiveFunction(RaoParameters raoParameters) {
+
+        switch (raoParameters.getObjectiveFunction()) {
+            case MAX_MIN_MARGIN_IN_AMPERE:
+                this.unit = Unit.AMPERE;
+                break;
+            case MAX_MIN_MARGIN_IN_MEGAWATT:
+                this.unit = Unit.MEGAWATT;
+                break;
+            default:
+                throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", raoParameters.getObjectiveFunction().toString()));
+        }
+
+        this.minMarginEvaluator = new MinMarginEvaluator(this.unit);
+        this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+        this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
+        this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost());
     }
 
     @Override
@@ -33,7 +50,11 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
 
     @Override
     public double getVirtualCost(RaoData raoData) {
-        return mnecViolationCostEvaluator.getCost(raoData);
+        if (isRaoWithLoopFlow) {
+            return mnecViolationCostEvaluator.getCost(raoData) + loopFlowViolationCostEvaluator.getCost(raoData);
+        } else {
+            return mnecViolationCostEvaluator.getCost(raoData);
+        }
     }
 
     /**

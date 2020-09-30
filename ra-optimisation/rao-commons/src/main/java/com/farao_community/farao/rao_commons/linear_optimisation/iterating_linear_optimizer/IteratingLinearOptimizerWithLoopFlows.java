@@ -27,7 +27,6 @@ import static java.lang.String.format;
 public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimizer {
 
     private boolean loopFlowApproximation;
-    private double loopFlowViolationCost;
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
                                                  SystematicSensitivityInterface systematicSensitivityInterface,
@@ -35,28 +34,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
         super(fillers, systematicSensitivityInterface, objectiveFunctionEvaluator, parameters);
         loopFlowApproximation = parameters.isLoopflowApproximation();
-        loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);
-    }
-
-    @Override
-    protected boolean evaluateNewCost(String optimizedVariantId, int iteration) {
-        // If evaluating the new cost fails iteration can stop
-        raoData.setWorkingVariant(optimizedVariantId);
-        try {
-            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            runSensitivityAndUpdateResults();
-
-            Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, loopFlowApproximation);
-            raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, loopFlowViolationCost);
-
-            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
-            return true;
-        } catch (SensitivityComputationException e) {
-            LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
-                systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
-            return false;
-        }
     }
 
     @Override
@@ -65,19 +43,12 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
         raoData.setSystematicSensitivityResult(
             systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
 
-
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
-        LoopFlowResult lfResults;
-
-        if (loopFlowApproximation) {
-            lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), null, raoData.getNetwork());
-        } else {
-            lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
-        }
+        LoopFlowComputationService.buildLoopFlowsWithLatestSensi(raoData, loopFlowApproximation);
 
         raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunctionEvaluator.getFunctionalCost(raoData),
             (systematicSensitivityInterface.isFallback() ? parameters.getFallbackOverCost() : 0)
                 + objectiveFunctionEvaluator.getVirtualCost(raoData));
+
     }
 
 }

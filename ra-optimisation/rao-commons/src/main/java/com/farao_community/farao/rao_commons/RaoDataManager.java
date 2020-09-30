@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxLoopFlowFiller;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
@@ -119,10 +120,10 @@ public class RaoDataManager {
      * Add results of the systematic analysis (flows and objective function value) in the
      * Crac result variant of the situation.
      */
-    public void fillCracResultsWithSensis(double cost, double overCost) {
-        raoData.getCracResult().setFunctionalCost(cost);
-        raoData.getCracResult().addVirtualCost(overCost);
-        raoData.getCracResult().setNetworkSecurityStatus(cost < 0 ?
+    public void fillCracResultsWithSensis(double functionalCost, double virtualCost) {
+        raoData.getCracResult().setFunctionalCost(functionalCost);
+        raoData.getCracResult().addVirtualCost(virtualCost);
+        raoData.getCracResult().setNetworkSecurityStatus(functionalCost < 0 ?
             CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
         updateCnecExtensions();
     }
@@ -141,7 +142,7 @@ public class RaoDataManager {
         });
     }
 
-    public void fillCracResultsWithLoopFlows(LoopFlowResult loopFlowResult, double violationCost) {
+    public void fillCracResultsWithLoopFlows(LoopFlowResult loopFlowResult) {
         raoData.getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
@@ -149,25 +150,17 @@ public class RaoDataManager {
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
             }
         });
+    }
 
-        double loopFlowTotalViolationCost = 0.0;
-        boolean loopFlowViolated = false;
-        for (Cnec cnec : raoData.getCnecs()) {
+    public void fillCracResultsWithLoopFlowApproximation() {
+        raoData.getCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                double loopFlow = loopFlowResult.getLoopFlow(cnec);
-                double constraint = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
-                if (Math.abs(loopFlow) > Math.abs(constraint)) {
-                    loopFlowTotalViolationCost += violationCost * (Math.abs(loopFlow) - Math.abs(constraint));
-                    loopFlowViolated = true;
-                }
+                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
+                cnecResult.setLoopflowInMW(loopFLow);
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
             }
-        }
-        raoData.getCracResult().addVirtualCost(loopFlowTotalViolationCost);
-
-        if (loopFlowViolated && violationCost == 0.0) {
-            raoData.getCracResult().setVirtualCost(MaxLoopFlowFiller.MAX_LOOP_FLOW_VIOLATION_COST); // "zero-loopflowViolationCost", no virtual cost available from Linear optim, set to MAX
-            raoData.getCracResult().setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
-        }
+        });
     }
 
     public void updateCnecExtensions() {

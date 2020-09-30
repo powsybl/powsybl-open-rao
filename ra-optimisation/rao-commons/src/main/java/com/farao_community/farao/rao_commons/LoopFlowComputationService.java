@@ -36,34 +36,17 @@ public final class LoopFlowComputationService {
         LoopFlowResult loopFlowResult = initialLoopFlowComputation.calculateLoopFlows(raoData.getNetwork(), raoParameters.getDefaultSensitivityComputationParameters());
 
         raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(loopFlowResult, raoData.getNetwork());
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlowResult, raoParameters.getLoopFlowViolationCost());
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlowResult);
     }
 
-    public static Map<String, Double> calculateLoopFlows(RaoData raoData, boolean isLoopFlowApproximation) {
-        Map<String, Double> loopFlows;
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
-
-        if (isLoopFlowApproximation) { // do not recompute PTDFs
-            //
-            return loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(p)
+    public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
+        if (isLoopFlowApproximation) {
+            raoData.getRaoDataManager().fillCracResultsWithLoopFlowApproximation();
         } else {
-            loopFlows = loopFlowComputation.calculateLoopFlows(raoData.getNetwork()); // Re-compute ptdf
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
+            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
+            raoData.getRaoDataManager().fillCracResultsWithLoopFlows(lfResults);
         }
-
-        return loopFlows;
-    }
-
-    public static boolean isLoopFlowsViolated(RaoData raoData, Map<String, Double> loopFlows) {
-        boolean violated = false;
-        for (Cnec cnec : raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState())) {
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))
-                && Math.abs(loopFlows.get(cnec.getId())) > Math.abs(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW())) {
-                violated = true;
-                LOGGER.info("Some loopflow constraints are not respected.");
-                break;
-            }
-        }
-        return violated;
     }
 
     public static void checkDataConsistency(RaoData raoData) {

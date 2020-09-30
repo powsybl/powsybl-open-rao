@@ -158,15 +158,17 @@ class Leaf {
                 LOGGER.debug("Evaluating leaf...");
                 raoData.setSystematicSensitivityResult(
                     systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
+
+                if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                    LoopFlowComputationService.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
+                }
+
                 ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
-                        objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                        (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
+                    objectiveFunctionEvaluator.getFunctionalCost(raoData),
+                    (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
                         + objectiveFunctionEvaluator.getVirtualCost(raoData));
-                if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                    Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, raoParameters.isLoopFlowApproximation());
-                    raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, raoParameters.getLoopFlowViolationCost());
-                }
+
                 status = Status.EVALUATED;
             } catch (FaraoException e) {
                 LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));

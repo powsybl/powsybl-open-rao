@@ -36,7 +36,6 @@ import static com.farao_community.farao.rao_api.RaoParameters.*;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
-    public static final double MAX_LOOP_FLOW_VIOLATION_COST = 1000000.0;
 
     private boolean isLoopFlowApproximation;
     private double loopFlowConstraintAdjustmentCoefficient;
