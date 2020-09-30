@@ -4,7 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_commons.objective_function_evaluator;
+
+import com.farao_community.farao.rao_commons.RaoData;
 
 /**
  * Represents an objective function value evaluator, divided into functional and virtual parts

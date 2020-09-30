@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;

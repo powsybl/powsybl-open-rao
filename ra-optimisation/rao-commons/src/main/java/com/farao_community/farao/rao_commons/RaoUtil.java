@@ -12,6 +12,8 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.*;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;

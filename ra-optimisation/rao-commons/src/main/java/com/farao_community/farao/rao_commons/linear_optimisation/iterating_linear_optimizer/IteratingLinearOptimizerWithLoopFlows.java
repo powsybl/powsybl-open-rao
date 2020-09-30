@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.rao_commons.LoopFlowComputationService;
-import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
