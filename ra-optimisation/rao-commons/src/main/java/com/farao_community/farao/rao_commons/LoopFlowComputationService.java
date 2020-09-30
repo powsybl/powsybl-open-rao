@@ -32,7 +32,7 @@ public final class LoopFlowComputationService {
         LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
         LoopFlowResult loopFlowResult = initialLoopFlowComputation.calculateLoopFlows(raoData.getNetwork(), raoParameters.getDefaultSensitivityComputationParameters());
 
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(loopFlowResult, raoData.getNetwork());
+        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
         raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlowResult);
     }
 

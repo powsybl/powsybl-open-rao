@@ -8,67 +8,87 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.loopflow_computation.LoopFlowResult;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoDataManagerTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
 
-    private Crac crac;
     private RaoData raoData;
+    private LoopFlowResult loopFlowResult;
 
     @Before
     public void setUp() {
-        Network network = ExampleGenerator.network();
-        crac = ExampleGenerator.crac();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.create();
+
+        CnecLoopFlowExtension cnecLoopFlowExtension1 = new CnecLoopFlowExtension(100., Unit.MEGAWATT);
+        CnecLoopFlowExtension cnecLoopFlowExtension2 = new CnecLoopFlowExtension(100., Unit.MEGAWATT);
+
+        crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension1);
+        crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension2);
+
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+
+        loopFlowResult = new LoopFlowResult();
+        loopFlowResult.addCnecResult(crac.getCnec("cnec1basecase"), -252, 128., -124.);
+        loopFlowResult.addCnecResult(crac.getCnec("cnec2basecase"), 24., 45., 69.);
     }
 
     @Test
-    public void testCalculateLoopFlowConstraintAndUpdateAllCnec() {
-        //CnecLoopFlowExtensionTest
-        crac.getCnecs().forEach(cnec -> {
-            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        });
-        Map<String, Double> fzeroallmap = new HashMap<>();
-        fzeroallmap.put("FR-BE", 0.0);
-        fzeroallmap.put("FR-DE", 0.0);
-        fzeroallmap.put("BE-NL", 0.0);
-        fzeroallmap.put("DE-NL", 0.0);
-        Map<Cnec, Double> loopflowShifts = new HashMap<>();
-        loopflowShifts.put(crac.getCnec("FR-BE"), 0.0);
-        loopflowShifts.put(crac.getCnec("FR-DE"), 0.0);
-        loopflowShifts.put(crac.getCnec("BE-NL"), 0.0);
-        loopflowShifts.put(crac.getCnec("DE-NL"), 0.0);
-        //raoData.getRaoDataManager().fillCracResultsWithLoopFlowConstraints(fzeroallmap, loopflowShifts, raoData.getNetwork());
-        //crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
-        //    assertEquals(100.0, cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
-        //});
+    public void testFillCnecLoopExtensionsWithInitialResults() {
+        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        assertEquals(252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
+        assertEquals(128., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopflowShift(), DOUBLE_TOLERANCE);
+        assertEquals(45., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecLoopFlowExtension.class).getLoopflowShift(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testLoopflowRelated() {
-        CnecLoopFlowExtension cnec1LoopFlowExtension = new CnecLoopFlowExtension(0.0, Unit.PERCENT_IMAX);
-        cnec1LoopFlowExtension.setLoopFlowConstraintInMW(0.0);
-        crac.getCnec("FR-BE").addExtension(CnecLoopFlowExtension.class, cnec1LoopFlowExtension);
-        Map<String, Double> loopflows = new HashMap<>();
-        loopflows.put("FR-BE", 1.0);
-        //raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopflows, 1.0);
-        //assertEquals(1.0, raoData.getCracResult().getVirtualCost(), DOUBLE_TOLERANCE);
-        //raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopflows, 0.0);
-        //assertEquals(1000000.0, raoData.getCracResult().getVirtualCost(), DOUBLE_TOLERANCE);
+    public void testFillCracResultsWithLoopFlows() {
+        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlowResult);
+        String var = raoData.getWorkingVariantId();
+
+        assertEquals(-252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(24, raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testFillCracResultsWithLoopFlowApproximation() {
+
+        SystematicSensitivityResult sensiResults = Mockito.mock(SystematicSensitivityResult.class);
+        Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getCnec("cnec1basecase"))).thenReturn(-162.);
+        Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getCnec("cnec2basecase"))).thenReturn(47.);
+
+        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        raoData.setSystematicSensitivityResult(sensiResults);
+        raoData.getRaoDataManager().fillCracResultsWithLoopFlowApproximation();
+        String var = raoData.getWorkingVariantId();
+
+        assertEquals(-162 - 128., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(47. - 45., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
     }
 }

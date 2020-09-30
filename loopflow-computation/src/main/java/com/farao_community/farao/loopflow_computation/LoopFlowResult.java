@@ -34,11 +34,11 @@ public class LoopFlowResult {
         }
     }
 
-    LoopFlowResult() {
+    public LoopFlowResult() {
         this.loopFlowmap = new HashMap<>();
     }
 
-    void addCnecResult(Cnec cnec, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
+    public void addCnecResult(Cnec cnec, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
         loopFlowmap.put(cnec, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue));
     }
 

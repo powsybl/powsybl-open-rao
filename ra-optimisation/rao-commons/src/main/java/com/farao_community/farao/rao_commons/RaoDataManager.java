@@ -125,7 +125,7 @@ public class RaoDataManager {
         updateCnecExtensions();
     }
 
-    public void fillCracResultsWithLoopFlowConstraints(LoopFlowResult loopFlowResult, Network network) {
+    public void fillCnecLoopExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
         raoData.getCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
