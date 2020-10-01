@@ -20,6 +20,7 @@
     <packaging>jar</packaging>
     <name>Dichotomy computation for capacity calculation API</name>
     <description>API module to interface a dichotomy computation on a region to retrieve NTC between countries</description>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -32,6 +33,4 @@
             <artifactId>powsybl-iidm-api</artifactId>
         </dependency>
     </dependencies>
-
-
 </project>
