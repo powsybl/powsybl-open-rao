@@ -81,6 +81,7 @@
         <module>ra-optimisation</module>
         <module>sensitivity-computation</module>
         <module>util</module>
+        <module>dichotomy</module>
     </modules>
 
     <properties>
