@@ -8,6 +8,7 @@
 package com.farao_community.farao.dichotomy;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Country;
@@ -27,7 +28,7 @@ public class SimpleDichotomy implements DichotomyProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleDichotomy.class);
 
     @Override
-    public CompletableFuture<DichotomyResult> run(Network network, Crac crac, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
+    public CompletableFuture<DichotomyResult> run(Network network, Crac crac, GlskProvider glskProvider, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
         LOGGER.info("For simple dichotomy, computation manager will be ignored");
         return null;
     }

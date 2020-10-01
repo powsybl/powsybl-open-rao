@@ -8,6 +8,7 @@
 package com.farao_community.farao.dichotomy;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
@@ -36,18 +37,18 @@ public final class Dichotomy {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<DichotomyResult> runAsync(Network network, Crac crac, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
+        public CompletableFuture<DichotomyResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(crac, "CRAC should not be null");
             Objects.requireNonNull(region, "Region should not be null");
             Objects.requireNonNull(parameters, "Parameters should not be null");
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
 
-            return provider.run(network, crac, region, parameters, computationManager);
+            return provider.run(network, crac, glskProvider, region, parameters, computationManager);
         }
 
-        public DichotomyResult run(Network network, Crac crac, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
-            return runAsync(network, crac, region, parameters, computationManager).join();
+        public DichotomyResult run(Network network, Crac crac, GlskProvider glskProvider, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
+            return runAsync(network, crac, glskProvider, region, parameters, computationManager).join();
         }
 
         @Override
@@ -70,11 +71,11 @@ public final class Dichotomy {
         return find(null);
     }
 
-    public CompletableFuture<DichotomyResult> runAsync(Network network, Crac crac, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
-        return find().runAsync(network, crac, region, parameters, computationManager);
+    public CompletableFuture<DichotomyResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
+        return find().runAsync(network, crac, glskProvider, region, parameters, computationManager);
     }
 
-    public DichotomyResult run(Network network, Crac crac, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
-        return find().run(network, crac, region, parameters, computationManager);
+    public DichotomyResult run(Network network, Crac crac, GlskProvider glskProvider, Set<Country> region, DichotomyParameters parameters, ComputationManager computationManager) {
+        return find().run(network, crac, glskProvider, region, parameters, computationManager);
     }
 }

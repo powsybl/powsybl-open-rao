@@ -8,6 +8,7 @@
 package com.farao_community.farao.dichotomy;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
@@ -24,6 +25,7 @@ public interface DichotomyProvider extends Versionable, PlatformConfigNamedProvi
 
     CompletableFuture<DichotomyResult> run(Network network,
                                            Crac crac,
+                                           GlskProvider glskProvider,
                                            Set<Country> region,
                                            DichotomyParameters parameters,
                                            ComputationManager computationManager);
