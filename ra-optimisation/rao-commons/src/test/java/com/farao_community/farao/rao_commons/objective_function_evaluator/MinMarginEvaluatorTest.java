@@ -35,7 +35,7 @@ public class MinMarginEvaluatorTest {
     private Crac crac;
     private RaoData raoData;
     private SystematicSensitivityResult systematicSensitivityResult;
-    Network network;
+    private Network network;
 
     @Before
     public void setUp() {
