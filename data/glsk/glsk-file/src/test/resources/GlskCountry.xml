@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GLSK_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1 iec62325-451-n-glsk_v2_1.xsd">
+<GLSK_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1 ../../../../../../flowbased-computation/flowbased-computation-api/src/test/resources/iec62325-451-n-glsk_v2_1.xsd">
   <mRID>49V000000000017G-20180829-F717</mRID>
   <revisionNumber>1</revisionNumber>
   <type>B22</type>

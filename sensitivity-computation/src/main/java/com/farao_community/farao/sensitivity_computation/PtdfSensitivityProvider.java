@@ -7,7 +7,7 @@
 package com.farao_community.farao.sensitivity_computation;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
@@ -33,10 +33,10 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
 
         cnecs.stream().map(Cnec::getNetworkElement)
-            .distinct()
-            .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
-                .forEach(factors::add));
+                .distinct()
+                .forEach(ne -> mapCountryLinearGlsk.values().stream()
+                        .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
+                        .forEach(factors::add));
 
         return factors;
     }

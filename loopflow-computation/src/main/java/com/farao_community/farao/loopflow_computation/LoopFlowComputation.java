@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;

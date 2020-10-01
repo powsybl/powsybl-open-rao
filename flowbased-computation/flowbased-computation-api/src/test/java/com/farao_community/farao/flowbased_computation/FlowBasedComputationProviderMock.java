@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.farao_community.farao.data.crac_file.CracFile;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlowBasedComputationProviderMock implements FlowBasedComputationProvider {
 
     @Override
-    public CompletableFuture<FlowBasedComputationResult> run(Network network, CracFile cracFile, GlskProvider glskProvider, ComputationManager computationManager, String workingStateId, FlowBasedComputationParameters parameters) {
+    public CompletableFuture<FlowBasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingStateId, FlowBasedComputationParameters parameters) {
         return CompletableFuture.completedFuture(new FlowBasedComputationResultImpl(FlowBasedComputationResult.Status.SUCCESS, Mockito.mock(DataDomain.class)));
     }
 
