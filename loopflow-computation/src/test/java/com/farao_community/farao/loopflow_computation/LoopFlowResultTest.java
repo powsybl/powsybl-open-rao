@@ -12,7 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -31,9 +33,12 @@ public class LoopFlowResultTest {
     public void loopFlowResultTest() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
         loopFlowResult.addCnecResult(cnec, 1., 2., 3.);
+        assertTrue(loopFlowResult.containValues(cnec));
         assertEquals(1., loopFlowResult.getLoopFlow(cnec), DOUBLE_TOLERANCE);
         assertEquals(2., loopFlowResult.getCommercialFlow(cnec), DOUBLE_TOLERANCE);
         assertEquals(3., loopFlowResult.getReferenceFlow(cnec), DOUBLE_TOLERANCE);
+
+        assertFalse(loopFlowResult.containValues(Mockito.mock(Cnec.class)));
     }
 
     @Test(expected = FaraoException.class)

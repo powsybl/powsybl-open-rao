@@ -65,4 +65,8 @@ public class LoopFlowResult {
         }
         return loopFlow.getTotalFlow();
     }
+
+    public boolean containValues(Cnec cnec) {
+        return !(loopFlowmap.get(cnec) == null);
+    }
 }
