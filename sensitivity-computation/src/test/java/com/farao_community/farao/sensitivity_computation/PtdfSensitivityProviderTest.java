@@ -29,7 +29,7 @@ public class PtdfSensitivityProviderTest {
     private Network network;
     private Crac crac;
     private GlskProvider glskProviderMock;
-    PtdfSensitivityProvider ptdfSensitivityProvider;
+    private PtdfSensitivityProvider ptdfSensitivityProvider;
 
     @Before
     public void setUp() {
@@ -45,8 +45,8 @@ public class PtdfSensitivityProviderTest {
         ptdfSensitivityProvider.addCnecs(crac.getCnecs());
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getFactors(network);
 
-        assertEquals(24, sensitivityFactors.size());
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("cnec2basecase")
+        assertEquals(8, sensitivityFactors.size());
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
     }
 
