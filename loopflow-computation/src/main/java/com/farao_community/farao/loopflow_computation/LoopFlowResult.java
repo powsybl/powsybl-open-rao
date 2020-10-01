@@ -67,6 +67,6 @@ public class LoopFlowResult {
     }
 
     public boolean containValues(Cnec cnec) {
-        return !(loopFlowmap.get(cnec) == null);
+        return loopFlowmap.get(cnec) != null;
     }
 }
