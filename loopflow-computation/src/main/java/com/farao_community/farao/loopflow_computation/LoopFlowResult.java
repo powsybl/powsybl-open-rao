@@ -11,26 +11,26 @@ public class LoopFlowResult {
     private Map<Cnec, LoopFlow> loopFlowmap;
 
     private class LoopFlow {
-        double loopFlow;
-        double commercialFlow;
-        double totalFlow;
+        double loopFlowValue;
+        double commercialFlowValue;
+        double totalFlowValue;
 
         LoopFlow(double loopFlow, double commercialFlow, double totalFlow) {
-            this.loopFlow = loopFlow;
-            this.commercialFlow = commercialFlow;
-            this.totalFlow = totalFlow;
+            this.loopFlowValue = loopFlow;
+            this.commercialFlowValue = commercialFlow;
+            this.totalFlowValue = totalFlow;
         }
 
         double getLoopFlow() {
-            return loopFlow;
+            return loopFlowValue;
         }
 
         double getCommercialFlow() {
-            return commercialFlow;
+            return commercialFlowValue;
         }
 
         double getTotalFlow() {
-            return totalFlow;
+            return totalFlowValue;
         }
     }
 

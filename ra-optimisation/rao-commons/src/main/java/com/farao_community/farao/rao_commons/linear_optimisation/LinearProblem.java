@@ -30,8 +30,6 @@ public class LinearProblem {
     private static final String MIN_MARGIN = "minmargin";
     private static final String MAX_LOOPFLOW = "maxloopflow";
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
-    private static final String POSITIVE_LOOPFLOWVIOLATION = "positiveloopflowviolation";
-    private static final String NEGATIVE_LOOPFLOWVIOLATION = "negativeloopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
 
