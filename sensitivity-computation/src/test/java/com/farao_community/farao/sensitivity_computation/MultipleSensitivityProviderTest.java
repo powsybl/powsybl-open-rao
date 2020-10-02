@@ -32,9 +32,9 @@ public class MultipleSensitivityProviderTest {
     private Network network;
     private Crac crac;
     private GlskProvider glskProviderMock;
-    PtdfSensitivityProvider ptdfSensitivityProvider;
-    RangeActionSensitivityProvider rangeActionSensitivityProvider;
-    MultipleSensitivityProvider multipleSensitivityProvider;
+    private PtdfSensitivityProvider ptdfSensitivityProvider;
+    private RangeActionSensitivityProvider rangeActionSensitivityProvider;
+    private MultipleSensitivityProvider multipleSensitivityProvider;
 
     @Before
     public void setUp() {

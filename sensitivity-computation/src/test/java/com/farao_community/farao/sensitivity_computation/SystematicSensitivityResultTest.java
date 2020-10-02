@@ -11,16 +11,20 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.flowbased_computation.glsk_provider.UcteGlskProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,34 +38,49 @@ import static org.junit.Assert.*;
  */
 public class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
-    private SensitivityComputationResults sensitivityComputationResults;
+
     private Network network;
     private Cnec nStateCnec;
     private Cnec contingencyCnec;
     private RangeAction rangeAction;
+    private LinearGlsk linearGlsk;
+
+    private RangeActionSensitivityProvider rangeActionSensitivityProvider;
+    private PtdfSensitivityProvider ptdfSensitivityProvider;
 
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
-        RangeActionSensitivityProvider rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
+        UcteGlskProvider glskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"), network);
+        glskProvider.selectInstant(Instant.parse("2016-07-28T22:30:00Z"));
+
+        // Ra Provider
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
         rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
-        sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
-                .run(rangeActionSensitivityProvider, rangeActionSensitivityProvider, network.getVariantManager().getWorkingVariantId(), null).join();
+
+        // Ptdf Provider
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
+        ptdfSensitivityProvider.addCnecs(crac.getCnecs());
+
         nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
         contingencyCnec = crac.getCnec("cnec1stateCurativeContingency1");
+        linearGlsk = glskProvider.getGlsk(network, "10YFR-RTE------C");
     }
 
     @Test
-    public void testCompleteResultManipulation() {
+    public void testCompleteRaResultManipulation() {
         // When
+        SensitivityComputationResults sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
+            .run(rangeActionSensitivityProvider, rangeActionSensitivityProvider, network.getVariantManager().getWorkingVariantId(), null).join();
+
         SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
 
         // Then
         assertTrue(result.isSuccess());
+
         //  in basecase
-        double vNom = network.getBranch(nStateCnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
         assertEquals(10, result.getReferenceFlow(nStateCnec), EPSILON);
         assertEquals(100, result.getReferenceIntensity(nStateCnec), EPSILON);
         assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec), EPSILON);
@@ -72,7 +91,26 @@ public class SystematicSensitivityResultTest {
         assertEquals(-200, result.getReferenceIntensity(contingencyCnec), EPSILON);
         assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec), EPSILON);
         assertEquals(-5, result.getSensitivityOnIntensity(rangeAction, contingencyCnec), EPSILON);
+    }
 
+    @Test
+    public void testCompletePtdfResultManipulation() {
+        // When
+        SensitivityComputationResults sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
+            .run(ptdfSensitivityProvider, ptdfSensitivityProvider, network.getVariantManager().getWorkingVariantId(), null).join();
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
+
+        // Then
+        assertTrue(result.isSuccess());
+
+        //  in basecase
+        assertEquals(40, result.getReferenceFlow(nStateCnec), EPSILON);
+        assertEquals(0.140, result.getSensitivityOnFlow(linearGlsk, nStateCnec), EPSILON);
+
+        //  after contingency
+        assertEquals(-13, result.getReferenceFlow(contingencyCnec), EPSILON);
+        assertEquals(6, result.getSensitivityOnFlow(linearGlsk, contingencyCnec), EPSILON);
     }
 
     @Test
@@ -98,10 +136,12 @@ public class SystematicSensitivityResultTest {
             public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
                 List<SensitivityValue> values = sensitivityFactorsProvider.getFactors(network).stream()
                         .map(factor -> {
-                            if (factor.getFunction() instanceof BranchFlow) {
+                            if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                 return new SensitivityValue(factor, 0.5, 10, 10);
-                            } else if (factor.getFunction() instanceof BranchIntensity) {
+                            } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                 return new SensitivityValue(factor, 0.25, 100, -10);
+                            } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
+                                return new SensitivityValue(factor, 0.140, 40, -11);
                             } else {
                                 throw new AssertionError();
                             }
@@ -114,10 +154,12 @@ public class SystematicSensitivityResultTest {
             public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
                 List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getFactors(network).stream()
                         .map(factor -> {
-                            if (factor.getFunction() instanceof BranchFlow) {
+                            if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                 return new SensitivityValue(factor, 0.5, 10, 10);
-                            } else if (factor.getFunction() instanceof BranchIntensity) {
+                            } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                 return new SensitivityValue(factor, 0.25, 100, -10);
+                            } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
+                                return new SensitivityValue(factor, 0.140, 40, -11);
                             } else {
                                 throw new AssertionError();
                             }
@@ -128,10 +170,12 @@ public class SystematicSensitivityResultTest {
                             contingency -> contingency.getId(),
                             contingency -> sensitivityFactorsProvider.getFactors(network).stream()
                                .map(factor -> {
-                                   if (factor.getFunction() instanceof BranchFlow) {
+                                   if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                        return new SensitivityValue(factor, -5, -20, 20);
-                                   } else if (factor.getFunction() instanceof BranchIntensity) {
+                                   } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                        return new SensitivityValue(factor, 5, 200, -20);
+                                   } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
+                                       return new SensitivityValue(factor, 6, -13, 15);
                                    } else {
                                        throw new AssertionError();
                                    }
