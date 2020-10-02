@@ -133,37 +133,43 @@ public class RaoDataManager {
     }
 
     public void fillCnecLoopExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
-        raoData.getCnecs().forEach(cnec -> {
-            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+        raoData.getCnecs().stream()
+            .filter(cnec -> !cnec.getState().getContingency().isPresent())
+            .forEach(cnec -> {
+                CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
-            if (!Objects.isNull(cnecLoopFlowExtension)) {
-                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
-                double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
+                if (!Objects.isNull(cnecLoopFlowExtension)) {
+                    double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
+                    double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
-                cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
-            }
-        });
+                    cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
+                    cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
+                }
+            });
     }
 
     public void fillCnecResultsWithLoopFlows(LoopFlowResult loopFlowResult) {
-        raoData.getCnecs().forEach(cnec -> {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
-            }
-        });
+        raoData.getCnecs().stream()
+            .filter(cnec -> !cnec.getState().getContingency().isPresent())
+            .forEach(cnec -> {
+                CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                    cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
+                    cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                }
+            });
     }
 
     public void fillCnecResultsWithApproximatedLoopFlows() {
-        raoData.getCnecs().forEach(cnec -> {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
-                cnecResult.setLoopflowInMW(loopFLow);
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
-            }
-        });
+        raoData.getCnecs().stream()
+            .filter(cnec -> !cnec.getState().getContingency().isPresent())
+            .forEach(cnec -> {
+                CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                    double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
+                    cnecResult.setLoopflowInMW(loopFLow);
+                    cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                }
+            });
     }
 }
