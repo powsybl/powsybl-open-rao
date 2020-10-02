@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -16,10 +15,11 @@ import com.farao_community.farao.sensitivity_computation.SystematicSensitivityRe
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
+ * This class aims at performing the initial sensitivity analysis of a RAO, the one
+ * which defines the pre-optimisation variant. It is common to both the Search Tree
+ * and the Linear RAO.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class InitialSensitivityAnalysis {
@@ -32,7 +32,7 @@ public class InitialSensitivityAnalysis {
     public InitialSensitivityAnalysis(RaoData raoData, RaoParameters raoParameters) {
         this.raoData = raoData;
         this.raoParameters = raoParameters;
-        this.systematicSensitivityInterface = getSystematicSensitivityInterface();
+        this.systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
     }
 
     public void run() {
@@ -53,23 +53,6 @@ public class InitialSensitivityAnalysis {
     private void runSensitivityComputation() {
         SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit());
         raoData.setSystematicSensitivityResult(sensitivityResult);
-    }
-
-    private SystematicSensitivityInterface getSystematicSensitivityInterface() {
-        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
-            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
-
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            Set<Cnec> cnecsWithLf = raoData.getCnecs().stream()
-                .filter(cnec -> !cnec.getState().getContingency().isPresent())
-                .collect(Collectors.toSet());
-
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), cnecsWithLf);
-        }
-
-        return builder.build();
     }
 
     private void fillReferenceFlowsAndObjectiveFunction() {
