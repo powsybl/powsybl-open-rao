@@ -12,19 +12,11 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceExchang
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
-import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.mockito.Mockito;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
