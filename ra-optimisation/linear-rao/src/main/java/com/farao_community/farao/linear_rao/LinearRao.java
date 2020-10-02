@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -56,11 +57,16 @@ public class LinearRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
-        this.unit = raoParameters.getObjectiveFunction().getUnit();
 
+        if (raoParameters.getExtension(LinearRaoParameters.class) == null) {
+            String msg = "The configuration should contain a LinearRaoParameters extensions";
+            LOGGER.error(msg);
+            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, new FaraoException(msg)));
+        }
+
+        this.unit = raoParameters.getObjectiveFunction().getUnit();
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
-
         return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
     }
 

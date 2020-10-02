@@ -42,7 +42,7 @@ import static org.mockito.ArgumentMatchers.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class, InitialSensitivityAnalysis.class})
+@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
 
@@ -94,9 +94,10 @@ public class LeafTest {
 
         try {
             PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenAnswer(invocationOnMock -> initialSensitivityAnalysis);
-            PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenAnswer(invocationOnMock -> systematicSensitivityInterface);
             PowerMockito.mockStatic(RaoUtil.class);
             PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+            PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
