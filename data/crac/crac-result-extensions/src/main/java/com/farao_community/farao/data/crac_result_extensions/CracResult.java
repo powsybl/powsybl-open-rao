@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.Map;
+
 /**
  * Extension of {@link Crac} containing data related to an optimization:
  * <ul>
@@ -39,6 +41,7 @@ public class CracResult implements Result {
     private NetworkSecurityStatus networkSecurityStatus;
     private double functionalCost;
     private double virtualCost;
+    private Map<String, Double> ptdfSums;
 
     public NetworkSecurityStatus getNetworkSecurityStatus() {
         return networkSecurityStatus;
@@ -73,13 +76,32 @@ public class CracResult implements Result {
         this.virtualCost += virtualCost;
     }
 
+    public Map<String, Double> getPtdfSums() {
+        return ptdfSums;
+    }
+
+    public void setPtdfSums(Map<String, Double> ptdfSums) {
+        this.ptdfSums = ptdfSums;
+    }
+
     @JsonCreator
     public CracResult(@JsonProperty("networkSecurityStatus") NetworkSecurityStatus networkSecurityStatus,
                       @JsonProperty("functionalCost") double functionalCost,
-                      @JsonProperty("virtualCost") double virtualCost) {
+                      @JsonProperty("virtualCost") double virtualCost,
+                      @JsonProperty("ptdfSums") Map<String, Double> ptdfSums) {
         this.networkSecurityStatus = networkSecurityStatus;
         this.functionalCost = functionalCost;
         this.virtualCost = virtualCost;
+        this.ptdfSums = ptdfSums;
+    }
+
+    public CracResult(NetworkSecurityStatus networkSecurityStatus,
+                      double functionalCost,
+                      double virtualCost) {
+        this.networkSecurityStatus = networkSecurityStatus;
+        this.functionalCost = functionalCost;
+        this.virtualCost = virtualCost;
+        this.ptdfSums = ptdfSums;
     }
 
     public CracResult(double functionalCost) {

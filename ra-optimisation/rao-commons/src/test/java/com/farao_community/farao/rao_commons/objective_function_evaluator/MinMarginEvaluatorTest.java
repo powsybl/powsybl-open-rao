@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -22,8 +23,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
@@ -44,46 +46,64 @@ public class MinMarginEvaluatorTest {
         crac.synchronize(network);
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
 
+        Map<String, Double> ptdfSums = Map.of(
+                "cnec1basecase", 0.5,
+                "cnec1stateCurativeContingency1", .95,
+                "cnec1stateCurativeContingency2", .95,
+                "cnec2basecase", 0.4,
+                "cnec2stateCurativeContingency1", 0.6,
+                "cnec2stateCurativeContingency2", 0.6);
+        crac.getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setPtdfSums(ptdfSums);
+
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
 
         Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getCnec("cnec1basecase")))
-            .thenReturn(100.);
+                .thenReturn(100.);
         Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getCnec("cnec2basecase")))
-            .thenReturn(200.);
+                .thenReturn(200.);
 
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(any())).thenReturn(Double.NaN);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("cnec1basecase")))
-            .thenReturn(30.);
+                .thenReturn(30.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("cnec2basecase")))
-            .thenReturn(60.);
+                .thenReturn(60.);
 
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }
 
     @Test
     public void getCostInMegawatt() {
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, false);
         assertEquals(-787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, true);
+        assertEquals(-1968, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInAmpereWithMissingValues() {
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true);
+        assertEquals(-1350, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInAmpereWithNoMissingValues() {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("cnec1stateCurativeContingency1")))
-            .thenReturn(10.);
+                .thenReturn(10.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("cnec1stateCurativeContingency2")))
-            .thenReturn(10.);
+                .thenReturn(10.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("cnec2stateCurativeContingency1")))
-            .thenReturn(10.);
+                .thenReturn(10.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("cnec2stateCurativeContingency2")))
-            .thenReturn(10.);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
+                .thenReturn(10.);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true);
+        assertEquals(-1350, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -103,10 +123,10 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getCnec("mnec1basecase")))
                 .thenReturn(60.);
 
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, false);
         assertEquals(-787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
-        minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE);
+        minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 }
