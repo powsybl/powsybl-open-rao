@@ -7,11 +7,11 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -19,13 +19,16 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MinMarginObjectiveFunctionTest {
+public class MinRelativeMarginObjectiveFunctionTest {
     static final double DOUBLE_TOLERANCE = 0.1;
     Crac crac = ExampleGenerator.crac();
     RaoData raoData;
@@ -34,7 +37,8 @@ public class MinMarginObjectiveFunctionTest {
     SystematicSensitivityResult sensiResult;
     MnecViolationCostEvaluator mnecViolationCostEvaluator;
     MinMarginEvaluator minMarginEvaluator;
-    MinMarginObjectiveFunction minMarginObjectiveFunction;
+    MinMarginEvaluator minRelativeMarginEvaluator;
+    MinRelativeMarginObjectiveFunction minRelativeMarginObjectiveFunction;
     private static final String TEST_VARIANT = "test-variant";
 
     private void setUp(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
@@ -43,19 +47,26 @@ public class MinMarginObjectiveFunctionTest {
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit, false);
+        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true);
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
-        minMarginObjectiveFunction = new MinMarginObjectiveFunction(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
+        minRelativeMarginObjectiveFunction = new MinRelativeMarginObjectiveFunction(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
         crac.newCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FR-BE").add()
                 .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(commonThreshold).setUnit(unit).add()
                 .setOptimized(false).setMonitored(true)
                 .setInstant(crac.getInstant("initial-instant"))
                 .add();
-        Cnec mnec = crac.getCnec("MNEC1 - initial-instant - preventive");
 
         crac.desynchronize();
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
+
+        Map<String, Double> ptdfSums = new HashMap<>();
+        Random rand = new Random();
+        crac.getCnecs().forEach(cnec -> {
+            ptdfSums.put(cnec.getId(), rand.nextDouble());
+        });
+        raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setPtdfSums(ptdfSums);
 
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);
@@ -69,20 +80,21 @@ public class MinMarginObjectiveFunctionTest {
         double newFlow = commonThreshold - newMargin;
         if (unit == Unit.MEGAWATT) {
             crac.getCnecs().forEach(cnec ->
-                cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInMW(initFlow)
+                    cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInMW(initFlow)
             );
             Mockito.when(sensiResult.getReferenceFlow(Mockito.any())).thenReturn(newFlow);
         } else {
             crac.getCnecs().forEach(cnec ->
-                cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInA(initFlow)
+                    cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInA(initFlow)
             );
             Mockito.when(sensiResult.getReferenceIntensity(Mockito.any())).thenReturn(newFlow);
         }
-        double expectedFunctionalCost = minMarginEvaluator.getCost(raoData);
+        double absoluteFunctionalCost = minMarginEvaluator.getCost(raoData);
+        double expectedFunctionalCost = (absoluteFunctionalCost > 0) ? absoluteFunctionalCost : minRelativeMarginEvaluator.getCost(raoData);
         double expectedVirtualCost = mnecViolationCostEvaluator.getCost(raoData);
-        assertEquals(expectedFunctionalCost, minMarginObjectiveFunction.getFunctionalCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(expectedVirtualCost, minMarginObjectiveFunction.getVirtualCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(expectedFunctionalCost + expectedVirtualCost, minMarginObjectiveFunction.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(expectedFunctionalCost, minRelativeMarginObjectiveFunction.getFunctionalCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(expectedVirtualCost, minRelativeMarginObjectiveFunction.getVirtualCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(expectedFunctionalCost + expectedVirtualCost, minRelativeMarginObjectiveFunction.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -117,6 +129,8 @@ public class MinMarginObjectiveFunctionTest {
         testCost(200, 100);
         testCost(200, 0);
         testCost(200, -10);
+        testCost(0, 1000);
+        testCost(0, 1500);
+        testCost(0, 2000);
     }
-
 }

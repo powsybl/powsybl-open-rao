@@ -7,19 +7,29 @@
 
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.flowbased_computation.glsk_provider.UcteGlskProvider;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -86,5 +96,58 @@ public class RaoUtilTest {
         assertEquals(network, raoData.getNetwork());
         assertEquals(crac, raoData.getCrac());
         assertTrue(crac.isSynchronized());
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testExceptionForGlskOnRelativeMargin() {
+        List<Pair<Country, Country>> boundaries = new ArrayList<>(Collections.singleton(new ImmutablePair<>(Country.FR, Country.BE)));
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+                .withNetwork(network)
+                .withCrac(crac)
+                .withBoundaries(boundaries)
+                .withVariantId(variantId)
+                .build();
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RaoUtil.initRaoData(raoInput, parameters);
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testExceptionForBoundariesOnRelativeMargin() {
+        Network network = ExampleGenerator.network();
+        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network);
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+                .withNetwork(network)
+                .withCrac(crac)
+                .withGlskProvider(ucteGlskProvider)
+                .withVariantId(variantId)
+                .build();
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RaoUtil.initRaoData(raoInput, parameters);
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testExceptionForEmptyBoundariesOnRelativeMargin() {
+        Network network = ExampleGenerator.network();
+        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network);
+        List<Pair<Country, Country>> boundaries = new ArrayList<>();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+                .withNetwork(network)
+                .withCrac(crac)
+                .withGlskProvider(ucteGlskProvider)
+                .withBoundaries(boundaries)
+                .withVariantId(variantId)
+                .build();
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RaoUtil.initRaoData(raoInput, parameters);
     }
 }

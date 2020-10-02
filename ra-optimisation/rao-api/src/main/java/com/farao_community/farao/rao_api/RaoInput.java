@@ -110,7 +110,6 @@ public final class RaoInput {
         }
     }
 
-    //TODO: add an optional GLSK provider argument
     private Crac crac;
     private State optimizedState;
     private Set<State> perimeter;

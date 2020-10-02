@@ -10,25 +10,32 @@ import com.farao_community.farao.commons.Unit;
 
 /**
  * Represents an objective function divided into:
- * - functional cost: minimum margin
- * - virtual cost: mnec margin violation
+ * - functional cost: minimum margin, absolute if negative or relative if positive
+ * - virtual cost: mnec margin violation, absolute if minimum amrgin is negative, or relative if minimum margin is positive
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
-
+public class MinRelativeMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     private Unit unit;
     private MinMarginEvaluator minMarginEvaluator;
     private MnecViolationCostEvaluator mnecViolationCostEvaluator;
+    private MinMarginEvaluator minRelativeMarginEvaluator;
 
-    public MinMarginObjectiveFunction(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
+    public MinRelativeMarginObjectiveFunction(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
         this.unit = unit;
         this.minMarginEvaluator = new MinMarginEvaluator(unit, false);
+        this.minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true);
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
     }
 
     @Override
     public double getFunctionalCost(RaoData raoData) {
-        return minMarginEvaluator.getCost(raoData);
+        double inverseMinimumMargin = minMarginEvaluator.getCost(raoData);
+        if (inverseMinimumMargin > 0) {
+            return inverseMinimumMargin;
+        } else {
+            return minRelativeMarginEvaluator.getCost(raoData);
+        }
     }
 
     @Override
