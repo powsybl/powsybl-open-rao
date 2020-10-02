@@ -132,6 +132,10 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
     }
 
+    private boolean isCnecInMainComponent(Network network) {
+        return getTerminal(network).getBusView().getBus().isInMainSynchronousComponent();
+    }
+
     @Override
     public PhysicalParameter getPhysicalParameter() {
         if (!thresholds.isEmpty()) {
@@ -173,8 +177,11 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public double getP(Network network) {
-        double p = isCnecDisconnected(network) ? 0 : getTerminal(network).getP();
+        double p = getTerminal(network).getP();
         if (Double.isNaN(p)) {
+            if (isCnecDisconnected(network) || !isCnecInMainComponent(network)) {
+                return 0.0;
+            }
             throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", getName()));
         }
         return p;
