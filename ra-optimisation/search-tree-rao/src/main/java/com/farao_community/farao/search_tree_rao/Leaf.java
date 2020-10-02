@@ -78,7 +78,7 @@ class Leaf {
         this.raoParameters = raoParameters;
         this.raoData = raoData;
         initialVariantId = raoData.getInitialVariantId();
-        initializeSystematicSensitivityInterface();
+        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
 
         if (raoData.hasSensitivityValues()) {
             status = Status.EVALUATED;
@@ -101,19 +101,9 @@ class Leaf {
         raoData = new RaoData(network, parentLeaf.getRaoData().getCrac(), parentLeaf.getRaoData().getOptimizedState(), parentLeaf.getRaoData().getPerimeter(), parentLeaf.getRaoData().getReferenceProgram(), parentLeaf.getRaoData().getGlskProvider());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
-        initializeSystematicSensitivityInterface();
+        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
 
         status = Status.CREATED;
-    }
-
-    private void initializeSystematicSensitivityInterface() {
-        //TODO: check in parameters if we need PTDFs for loopflows or not
-        systematicSensitivityInterface =  SystematicSensitivityInterface
-            .builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
-            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs())
-            .build();
     }
 
     RaoData getRaoData() {

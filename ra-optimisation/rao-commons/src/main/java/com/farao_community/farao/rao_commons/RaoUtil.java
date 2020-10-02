@@ -66,6 +66,30 @@ public final class RaoUtil {
         return raoData;
     }
 
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
+
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
+            .builder()
+            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
+
+        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
+
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()));
+
+            // For now, we compute the PTDF for all the preventive states at the LoopFLowComputation API does not allow
+            // to compute the loopFlows only for a given set of cnecs
+            // todo : compute sensitivities for Cnec with loopFlowExtensions only
+
+            // We may also want to have a different interface for the first run and the successive runs if we do not wish to
+            // compute the PTDFs at every iteration.
+
+        }
+
+        return builder.build();
+    }
+
     public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));

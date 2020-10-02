@@ -56,21 +56,12 @@ public class LinearRao implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface
-            .builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
-            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs())
-            .build();
-        //TODO; also add PTDF sensitivities once we remove the old PTDF sensitivity computation module.
-        //We may also want to have a different interface for the first run and the successive runs if we do not wish to
-        //compute the PTDFs at every iteration.
 
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
         return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, raoParameters);
     }
-
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation
     CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityInterface systematicSensitivityInterface,
