@@ -42,7 +42,7 @@ import static org.mockito.ArgumentMatchers.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class})
+@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class, InitialSensitivityAnalysis.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
 
@@ -57,6 +57,7 @@ public class LeafTest {
     private RaoData raoDataMock;
     private RaoParameters raoParameters;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
+    private InitialSensitivityAnalysis initialSensitivityAnalysis;
 
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private SystematicSensitivityResult systematicSensitivityResult;
@@ -80,7 +81,8 @@ public class LeafTest {
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultWithCosts(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCnecResultWithFlows();
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
@@ -88,7 +90,10 @@ public class LeafTest {
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
+        initialSensitivityAnalysis = Mockito.mock(InitialSensitivityAnalysis.class);
+
         try {
+            PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenAnswer(invocationOnMock -> initialSensitivityAnalysis);
             PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenAnswer(invocationOnMock -> systematicSensitivityInterface);
             PowerMockito.mockStatic(RaoUtil.class);
             PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);

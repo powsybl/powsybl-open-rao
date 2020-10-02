@@ -54,6 +54,7 @@ public class LinearRaoTest {
     private RaoParameters raoParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
+    private InitialSensitivityAnalysis initialSensitivityAnalysis;
     private Network network;
     private Crac crac;
     private String variantId;
@@ -73,7 +74,8 @@ public class LinearRaoTest {
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCnecResultWithFlows();
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultWithCosts(anyDouble(), anyDouble());
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
         LinearRaoParameters linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
         linearRaoParameters.setSecurityAnalysisWithoutRao(false);
@@ -81,6 +83,7 @@ public class LinearRaoTest {
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
+        initialSensitivityAnalysis = Mockito.mock(InitialSensitivityAnalysis.class);
 
         raoInput = RaoInput.builder()
             .withNetwork(network)
@@ -115,8 +118,8 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoWithSensitivityComputationError() {
-        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(systematicSensitivityInterface).run(any(), any());
-        RaoResult raoResult = linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, raoParameters).join();
+        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(initialSensitivityAnalysis).run();
+        RaoResult raoResult = linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, initialSensitivityAnalysis, raoParameters).join();
         assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());
         assertEquals(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE,
             raoResult.getExtension(LinearRaoResult.class).getSystematicSensitivityAnalysisStatus());
@@ -124,8 +127,9 @@ public class LinearRaoTest {
 
     @Test(expected = LinearOptimisationException.class)
     public void runLinearRaoWithLinearOptimisationError() {
+        Mockito.doNothing().when(initialSensitivityAnalysis).run();
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenThrow(new LinearOptimisationException("error with optim"));
-        linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, raoParameters).join();
+        linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, initialSensitivityAnalysis, raoParameters).join();
     }
 
     @Test

@@ -10,7 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.LoopFlowComputationService;
+import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
+import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -146,18 +147,25 @@ class Leaf {
         if (status.equals(Status.CREATED)) {
             try {
                 LOGGER.debug("Evaluating leaf...");
-                raoData.setSystematicSensitivityResult(
-                    systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
 
-                if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                    LoopFlowComputationService.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
+                if (isRoot()) {
+                    new InitialSensitivityAnalysis(raoData, raoParameters).run();
+                } else {
+
+                    raoData.setSystematicSensitivityResult(
+                        systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
+
+                    if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
+                    }
+
+                    ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+                    raoData.getRaoDataManager().fillCnecResultWithFlows();
+                    raoData.getRaoDataManager().fillCracResultWithCosts(
+                        objectiveFunctionEvaluator.getFunctionalCost(raoData),
+                        (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
+                            + objectiveFunctionEvaluator.getVirtualCost(raoData));
                 }
-
-                ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
-                raoData.getRaoDataManager().fillCracResultsWithSensis(
-                    objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                    (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
-                        + objectiveFunctionEvaluator.getVirtualCost(raoData));
 
                 status = Status.EVALUATED;
             } catch (FaraoException e) {

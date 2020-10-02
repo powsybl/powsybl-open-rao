@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import com.farao_community.farao.rao_api.RaoParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,28 +20,19 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public final class LoopFlowComputationService {
+public final class LoopFlowUtil {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowUtil.class);
 
-    private LoopFlowComputationService() { }
-
-    public static void computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(RaoData raoData, RaoParameters raoParameters) {
-
-        LoopFlowComputation initialLoopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
-        LoopFlowResult loopFlowResult = initialLoopFlowComputation.calculateLoopFlows(raoData.getNetwork(), raoParameters.getDefaultSensitivityComputationParameters());
-
-        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlowResult);
-    }
+    private LoopFlowUtil() { }
 
     public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
         if (isLoopFlowApproximation) {
-            raoData.getRaoDataManager().fillCracResultsWithLoopFlowApproximation();
+            raoData.getRaoDataManager().fillCnecResultsWithApproximatedLoopFlows();
         } else {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
             LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
-            raoData.getRaoDataManager().fillCracResultsWithLoopFlows(lfResults);
+            raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
         }
     }
 

@@ -22,7 +22,7 @@ public class LoopFlowComputationServiceTest {
         RaoData raoData = Mockito.mock(RaoData.class);
         Crac crac = Mockito.mock(Crac.class);
         Mockito.when(raoData.getCrac()).thenReturn(crac);
-        LoopFlowComputationService.checkDataConsistency(raoData);
+        LoopFlowUtil.checkDataConsistency(raoData);
     }
 
 }

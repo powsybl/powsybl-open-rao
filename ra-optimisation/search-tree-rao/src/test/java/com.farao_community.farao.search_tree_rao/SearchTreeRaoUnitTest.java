@@ -119,7 +119,8 @@ public class SearchTreeRaoUnitTest {
 
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultWithCosts(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCnecResultWithFlows();
 
         PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
         Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any(), any());

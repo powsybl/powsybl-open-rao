@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -60,19 +61,15 @@ public class LinearRao implements RaoProvider {
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
-        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, raoParameters);
+        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
     }
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation
     CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityInterface systematicSensitivityInterface,
-                                     IteratingLinearOptimizer iteratingLinearOptimizer, RaoParameters raoParameters) {
+                                     IteratingLinearOptimizer iteratingLinearOptimizer, InitialSensitivityAnalysis initialSensitivityAnalysis, RaoParameters raoParameters) {
+
         try {
-            LOGGER.info("Initial systematic analysis [start]");
-            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), unit));
-            raoData.getRaoDataManager().fillCracResultsWithSensis(
-                RaoUtil.createObjectiveFunction(raoParameters).getFunctionalCost(raoData),
-                systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0);
-            LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
+            initialSensitivityAnalysis.run();
         } catch (SensitivityComputationException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
         }

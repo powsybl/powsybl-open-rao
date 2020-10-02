@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.rao_commons.LoopFlowComputationService;
+import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
@@ -37,12 +37,12 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
         raoData.setSystematicSensitivityResult(
             systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
 
-        LoopFlowComputationService.buildLoopFlowsWithLatestSensi(raoData, loopFlowApproximation);
+        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, loopFlowApproximation);
 
-        raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunctionEvaluator.getFunctionalCost(raoData),
+        raoData.getRaoDataManager().fillCnecResultWithFlows();
+        raoData.getRaoDataManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData),
             (systematicSensitivityInterface.isFallback() ? parameters.getFallbackOverCost() : 0)
                 + objectiveFunctionEvaluator.getVirtualCost(raoData));
 
     }
-
 }

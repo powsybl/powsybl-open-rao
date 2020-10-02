@@ -65,7 +65,7 @@ public class RaoDataManagerTest {
     @Test
     public void testFillCracResultsWithLoopFlows() {
         raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlowResult);
+        raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(loopFlowResult);
         String var = raoData.getWorkingVariantId();
 
         assertEquals(-252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
@@ -83,7 +83,7 @@ public class RaoDataManagerTest {
 
         raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
         raoData.setSystematicSensitivityResult(sensiResults);
-        raoData.getRaoDataManager().fillCracResultsWithLoopFlowApproximation();
+        raoData.getRaoDataManager().fillCnecResultsWithApproximatedLoopFlows();
         String var = raoData.getWorkingVariantId();
 
         assertEquals(-162 - 128., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
