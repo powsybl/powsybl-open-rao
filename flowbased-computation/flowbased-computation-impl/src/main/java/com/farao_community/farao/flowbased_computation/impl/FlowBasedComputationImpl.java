@@ -8,11 +8,10 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.flowbased_domain.DataDomain;
-import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
-import com.farao_community.farao.data.flowbased_domain.DataPreContingency;
-import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
@@ -79,18 +78,32 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
                 .description("")
                 .sourceFormat("code")
                 .dataPreContingency(buildDataPreContingency(network, crac, glskProvider, result))
+                .dataPostContingency(buildDataPostContingencies(network, crac, glskProvider, result))
+                .build();
+    }
+
+    private List<DataPostContingency> buildDataPostContingencies(Network network, Crac crac, GlskProvider glskProvider, SystematicSensitivityResult result) {
+        List<DataPostContingency> postContingencyList = new ArrayList<>();
+        crac.getContingencies().forEach(contingency -> postContingencyList.add(buildDataPostContingency(network, crac, contingency, glskProvider, result)));
+        return postContingencyList;
+    }
+
+    private DataPostContingency buildDataPostContingency(Network network, Crac crac, Contingency contingency, GlskProvider glskProvider, SystematicSensitivityResult result) {
+        return DataPostContingency.builder()
+                .contingencyId(contingency.getId())
+                .dataMonitoredBranches(buildDataMonitoredBranches(network, crac, crac.getStates(contingency), glskProvider, result))
                 .build();
     }
 
     private DataPreContingency buildDataPreContingency(Network network, Crac crac, GlskProvider glskProvider, SystematicSensitivityResult result) {
         return DataPreContingency.builder()
-                .dataMonitoredBranches(buildDataMonitoredBranches(network, crac, glskProvider, result))
+                .dataMonitoredBranches(buildDataMonitoredBranches(network, crac, Set.of(crac.getPreventiveState()), glskProvider, result))
                 .build();
     }
 
-    private List<DataMonitoredBranch> buildDataMonitoredBranches(Network network, Crac crac, GlskProvider glskProvider, SystematicSensitivityResult result) {
+    private List<DataMonitoredBranch> buildDataMonitoredBranches(Network network, Crac crac, Set<State> states, GlskProvider glskProvider, SystematicSensitivityResult result) {
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(network, cnec, glskProvider, result)));
+        states.forEach(state -> crac.getCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(network, cnec, glskProvider, result))));
         return branchResultList;
     }
 

@@ -61,58 +61,86 @@ public class FlowBasedComputationImplTest {
         FlowBasedComputationResult result = flowBasedComputationProvider.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
         assertEquals(FlowBasedComputationResult.Status.SUCCESS, result.getStatus());
 
-        Map<String, Double> frefResults = frefResultById(result);
-        Map<String, Double> fmaxResults = fmaxResultById(result);
-        Map<String, Map<String, Double>> ptdfResults = ptdfResultById(result);
-        assertEquals(50, frefResults.get("FR-BE - N - preventive"), EPSILON);
-        assertEquals(100, fmaxResults.get("FR-BE - N - preventive"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("FR-BE - N - preventive").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("FR-BE - N - preventive").get("10YBE----------2"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("FR-BE - N - preventive").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("FR-BE - N - preventive").get("10YNL----------L"), EPSILON);
+        assertEquals(50, getPreventiveFref(result, "FR-BE - N - preventive"), EPSILON);
+        assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
+        assertEquals(0.375, getPreventivePtdf(result, "FR-BE - N - preventive", "10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.375, getPreventivePtdf(result, "FR-BE - N - preventive", "10YBE----------2"), EPSILON);
+        assertEquals(0.125, getPreventivePtdf(result, "FR-BE - N - preventive", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.125, getPreventivePtdf(result, "FR-BE - N - preventive", "10YNL----------L"), EPSILON);
 
-        assertEquals(50, frefResults.get("FR-DE - N - preventive"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("FR-DE - N - preventive").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("FR-DE - N - preventive").get("10YBE----------2"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("FR-DE - N - preventive").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("FR-DE - N - preventive").get("10YNL----------L"), EPSILON);
+        assertEquals(50, getPreventiveFref(result, "FR-DE - N - preventive"), EPSILON);
+        assertEquals(100, getPreventiveFmax(result, "FR-DE - N - preventive"), EPSILON);
+        assertEquals(0.375, getPreventivePtdf(result, "FR-DE - N - preventive", "10YFR-RTE------C"), EPSILON);
+        assertEquals(0.125, getPreventivePtdf(result, "FR-DE - N - preventive", "10YBE----------2"), EPSILON);
+        assertEquals(-0.375, getPreventivePtdf(result, "FR-DE - N - preventive", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.125, getPreventivePtdf(result, "FR-DE - N - preventive", "10YNL----------L"), EPSILON);
 
-        assertEquals(50, frefResults.get("BE-NL - N - preventive"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("BE-NL - N - preventive").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("BE-NL - N - preventive").get("10YBE----------2"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("BE-NL - N - preventive").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("BE-NL - N - preventive").get("10YNL----------L"), EPSILON);
+        assertEquals(50, getPreventiveFref(result, "BE-NL - N - preventive"), EPSILON);
+        assertEquals(100, getPreventiveFmax(result, "BE-NL - N - preventive"), EPSILON);
+        assertEquals(0.125, getPreventivePtdf(result, "BE-NL - N - preventive", "10YFR-RTE------C"), EPSILON);
+        assertEquals(0.375, getPreventivePtdf(result, "BE-NL - N - preventive", "10YBE----------2"), EPSILON);
+        assertEquals(-0.125, getPreventivePtdf(result, "BE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.375, getPreventivePtdf(result, "BE-NL - N - preventive", "10YNL----------L"), EPSILON);
 
-        assertEquals(50, frefResults.get("DE-NL - N - preventive"), EPSILON);
-        assertEquals(0.125, ptdfResults.get("DE-NL - N - preventive").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.125, ptdfResults.get("DE-NL - N - preventive").get("10YBE----------2"), EPSILON);
-        assertEquals(0.375, ptdfResults.get("DE-NL - N - preventive").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.375, ptdfResults.get("DE-NL - N - preventive").get("10YNL----------L"), EPSILON);
+        assertEquals(50, getPreventiveFref(result, "DE-NL - N - preventive"), EPSILON);
+        assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
+        assertEquals(0.125, getPreventivePtdf(result, "DE-NL - N - preventive", "10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.125, getPreventivePtdf(result, "DE-NL - N - preventive", "10YBE----------2"), EPSILON);
+        assertEquals(0.375, getPreventivePtdf(result, "DE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.375, getPreventivePtdf(result, "DE-NL - N - preventive", "10YNL----------L"), EPSILON);
 
-        assertEquals(0., frefResults.get("FR-BE - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(0., ptdfResults.get("FR-BE - N-1 - N-1 FR-BE").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(0., ptdfResults.get("FR-BE - N-1 - N-1 FR-BE").get("10YBE----------2"), EPSILON);
-        assertEquals(0., ptdfResults.get("FR-BE - N-1 - N-1 FR-BE").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(0., ptdfResults.get("FR-BE - N-1 - N-1 FR-BE").get("10YNL----------L"), EPSILON);
+        assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
 
-        assertEquals(100, frefResults.get("FR-DE - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(0.75, ptdfResults.get("FR-DE - N-1 - N-1 FR-BE").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("FR-DE - N-1 - N-1 FR-BE").get("10YBE----------2"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("FR-DE - N-1 - N-1 FR-BE").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("FR-DE - N-1 - N-1 FR-BE").get("10YNL----------L"), EPSILON);
+        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
 
-        assertEquals(0, frefResults.get("BE-NL - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("BE-NL - N-1 - N-1 FR-BE").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(0.75, ptdfResults.get("BE-NL - N-1 - N-1 FR-BE").get("10YBE----------2"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("BE-NL - N-1 - N-1 FR-BE").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, ptdfResults.get("BE-NL - N-1 - N-1 FR-BE").get("10YNL----------L"), EPSILON);
+        assertEquals(0, getCurativeFref(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
+        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
 
-        assertEquals(100, frefResults.get("DE-NL - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(0.5, ptdfResults.get("DE-NL - N-1 - N-1 FR-BE").get("10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.5, ptdfResults.get("DE-NL - N-1 - N-1 FR-BE").get("10YBE----------2"), EPSILON);
-        assertEquals(0.5, ptdfResults.get("DE-NL - N-1 - N-1 FR-BE").get("10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.5, ptdfResults.get("DE-NL - N-1 - N-1 FR-BE").get("10YNL----------L"), EPSILON);
+        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE"), EPSILON);
+        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
+        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
+        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
+        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
 
+    }
+
+    private double getPreventiveFref(FlowBasedComputationResult result, String monitoredBranch) {
+        return result.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(monitoredBranch).getFref();
+    }
+
+    private double getPreventiveFmax(FlowBasedComputationResult result, String monitoredBranch) {
+        return result.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(monitoredBranch).getFmax();
+    }
+
+    private double getPreventivePtdf(FlowBasedComputationResult result, String monitoredBranch, String glskId) {
+        return result.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(monitoredBranch).findPtdfByCountry(glskId).getPtdf();
+    }
+
+    private double getCurativeFref(FlowBasedComputationResult result, String contingency, String monitoredBranch) {
+        return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchById(monitoredBranch).getFref();
+    }
+
+    private double getCurativeFmax(FlowBasedComputationResult result, String contingency, String monitoredBranch) {
+        return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchById(monitoredBranch).getFmax();
+    }
+
+    private double getCurativePtdf(FlowBasedComputationResult result, String contingency, String monitoredBranch, String glskId) {
+        return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchById(monitoredBranch).findPtdfByCountry(glskId).getPtdf();
     }
 
     private Map<String, Double> frefResultById(FlowBasedComputationResult result) {
