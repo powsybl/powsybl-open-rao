@@ -18,6 +18,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -30,10 +31,26 @@ import static org.junit.Assert.*;
  */
 public class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
+    private RaoParameters raoParameters;
+    private RaoData raoData;
+
+    @Before
+    public void setUp() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.create();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+            .withNetwork(network)
+            .withCrac(crac)
+            .withVariantId(variantId)
+            .build();
+        raoParameters = new RaoParameters();
+
+        raoData = RaoUtil.initRaoData(raoInput, raoParameters);
+    }
 
     @Test
     public void createLinearOptimizerFromRaoParameters() {
-        RaoParameters raoParameters = new RaoParameters();
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
@@ -46,7 +63,6 @@ public class RaoUtilTest {
 
     @Test
     public void createLinearOptimizerFromRaoParametersWithLoopFlows() {
-        RaoParameters raoParameters = new RaoParameters();
         raoParameters.setRaoWithLoopFlowLimitation(true);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
@@ -60,7 +76,6 @@ public class RaoUtilTest {
 
     @Test
     public void createCostEvaluatorFromRaoParametersMegawatt() {
-        RaoParameters raoParameters = new RaoParameters();
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
@@ -68,7 +83,6 @@ public class RaoUtilTest {
 
     @Test
     public void createCostEvaluatorFromRaoParametersAmps() {
-        RaoParameters raoParameters = new RaoParameters();
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
@@ -77,18 +91,14 @@ public class RaoUtilTest {
 
     @Test
     public void testThatRaoDataCreationSynchronizesCrac() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.create();
-        String variantId = network.getVariantManager().getWorkingVariantId();
-        RaoInput raoInput = RaoInput.builder()
-            .withNetwork(network)
-            .withCrac(crac)
-            .withVariantId(variantId)
-            .build();
-        RaoParameters parameters = new RaoParameters();
-        RaoData raoData = RaoUtil.initRaoData(raoInput, parameters);
-        assertEquals(network, raoData.getNetwork());
-        assertEquals(crac, raoData.getCrac());
-        assertTrue(crac.isSynchronized());
+        assertTrue(raoData.getCrac().isSynchronized());
+    }
+
+    @Test
+    public void testCreationOfSystematicSensitivityInterface() {
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        assertNotNull(systematicSensitivityInterface);
     }
 }
+

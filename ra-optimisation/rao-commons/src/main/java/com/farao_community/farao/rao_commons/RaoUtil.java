@@ -83,7 +83,6 @@ public final class RaoUtil {
 
             // We may also want to have a different interface for the first run and the successive runs if we do not wish to
             // compute the PTDFs at every iteration.
-
         }
 
         return builder.build();
