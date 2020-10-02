@@ -8,8 +8,12 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
@@ -73,8 +77,8 @@ public class RaoUtilTest {
 
     @Test
     public void testThatRaoDataCreationSynchronizesCrac() {
-        Network network = ExampleGenerator.network();
-        Crac crac = ExampleGenerator.crac();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.create();
         String variantId = network.getVariantManager().getWorkingVariantId();
         RaoInput raoInput = RaoInput.builder()
             .withNetwork(network)

@@ -6,8 +6,8 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.farao_community.farao.data.crac_file.CracFile;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.commons.Versionable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -18,5 +18,5 @@ import java.util.concurrent.CompletableFuture;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public interface FlowBasedComputationProvider extends Versionable {
-    CompletableFuture<FlowBasedComputationResult> run(Network network, CracFile cracFile, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowBasedComputationParameters parameters);
+    CompletableFuture<FlowBasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowBasedComputationParameters parameters);
 }

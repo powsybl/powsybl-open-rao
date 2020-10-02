@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;

@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_computation;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -55,8 +55,8 @@ public class MultipleSensitivityProviderTest {
         rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
         List<SensitivityFactor> sensitivityFactors = multipleSensitivityProvider.getFactors(network);
 
-        assertEquals(28, sensitivityFactors.size());
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("cnec2basecase")
+        assertEquals(12, sensitivityFactors.size());
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("BBE2AA1  BBE3AA1  1")));

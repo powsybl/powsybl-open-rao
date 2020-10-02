@@ -61,6 +61,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
     public static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    public static final SensitivityComputationParameters DEFAULT_SENSITIVITY_COMPUTATION_PARAMETERS = new SensitivityComputationParameters();
     private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
     private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
     private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
@@ -77,7 +78,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
-    private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
+    private SensitivityComputationParameters defaultSensitivityComputationParameters = DEFAULT_SENSITIVITY_COMPUTATION_PARAMETERS;
     private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
 
     public ObjectiveFunction getObjectiveFunction() {

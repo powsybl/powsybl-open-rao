@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;

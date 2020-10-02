@@ -141,7 +141,7 @@ public class CsvFlowBasedComputationResultPrinter {
     }
 
     private DataMonitoredBranch findDataMonitoredBranch(MonitoredBranch branch) {
-        DataMonitoredBranch out = flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchbyId(branch.getId());
+        DataMonitoredBranch out = flowBasedComputationResult.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(branch.getId());
         if (out != null) {
             return out;
         }

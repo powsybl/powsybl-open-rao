@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -13,6 +13,8 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -33,7 +35,7 @@ public class MinMarginEvaluatorTest {
     private Crac crac;
     private RaoData raoData;
     private SystematicSensitivityResult systematicSensitivityResult;
-    Network network;
+    private Network network;
 
     @Before
     public void setUp() {

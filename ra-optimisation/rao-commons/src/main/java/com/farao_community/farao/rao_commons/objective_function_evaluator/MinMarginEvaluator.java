@@ -5,10 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.rao_commons.RaoData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

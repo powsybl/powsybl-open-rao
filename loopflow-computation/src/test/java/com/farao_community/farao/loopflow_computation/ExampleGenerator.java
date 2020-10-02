@@ -7,15 +7,10 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_file.Contingency;
-import com.farao_community.farao.data.crac_file.*;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -34,20 +29,20 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 /**
  * Test case is a 4 nodes network, with 4 countries.
  *
- *       FR   (+100 MW)       BE  (0 MW)
+ *       FR   (+100 MW)       BE 1  (+125 MW)
  *          + ------------ +
  *          |              |
- *          |              |
+ *          |              +  BE 2 (-125 MW)
  *          |              |
  *          + ------------ +
  *       DE   (0 MW)          NL  (-100 MW)
  *
  * All lines have same impedance and are monitored.
- * One contingency is simulated, the loss of FR-BE interconnection line.
- * Each Country GLSK is a simple one node GLSK.
+ * Each Country GLSK is a simple one node GLSK, except for Belgium where GLSKs on both nodes are equally distributed
  * Compensation is considered as equally shared on each country, and there are no losses.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 final class ExampleGenerator {
 
@@ -111,13 +106,38 @@ final class ExampleGenerator {
             .add();
         voltageLevelBe.getBusBreakerView()
             .newBus()
-            .setId("Bus BE")
-            .setName("Bus BE")
+            .setId("Bus BE 1")
+            .setName("Bus BE 1")
             .add();
         voltageLevelBe.newGenerator()
-            .setId("Generator BE")
-            .setName("Generator BE")
-            .setBus("Bus BE")
+            .setId("Generator BE 1")
+            .setName("Generator BE 1")
+            .setBus("Bus BE 1")
+            .setEnergySource(EnergySource.OTHER)
+            .setMinP(1000)
+            .setMaxP(2000)
+            .setRatedS(100)
+            .setTargetP(1625)
+            .setTargetV(400)
+            .setVoltageRegulatorOn(true)
+            .add();
+        voltageLevelBe.newLoad()
+            .setId("Load BE 1")
+            .setName("Load BE 1")
+            .setBus("Bus BE 1")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(1500)
+            .setQ0(0)
+            .add();
+        voltageLevelBe.getBusBreakerView()
+            .newBus()
+            .setId("Bus BE 2")
+            .setName("Bus BE 2")
+            .add();
+        voltageLevelBe.newGenerator()
+            .setId("Generator BE 2")
+            .setName("Generator BE 2")
+            .setBus("Bus BE 2")
             .setEnergySource(EnergySource.OTHER)
             .setMinP(1000)
             .setMaxP(2000)
@@ -127,11 +147,11 @@ final class ExampleGenerator {
             .setVoltageRegulatorOn(true)
             .add();
         voltageLevelBe.newLoad()
-            .setId("Load BE")
-            .setName("Load BE")
-            .setBus("Bus BE")
+            .setId("Load BE 2")
+            .setName("Load BE 2")
+            .setBus("Bus BE 2")
             .setLoadType(LoadType.UNDEFINED)
-            .setP0(1500)
+            .setP0(1625)
             .setQ0(0)
             .add();
 
@@ -214,12 +234,12 @@ final class ExampleGenerator {
             .add();
 
         network.newLine()
-            .setId("FR-BE")
-            .setName("FR-BE")
+            .setId("FR-BE1")
+            .setName("FR-BE1")
             .setVoltageLevel1("Voltage level FR")
             .setVoltageLevel2("Voltage level BE")
             .setBus1("Bus FR")
-            .setBus2("Bus BE")
+            .setBus2("Bus BE 1")
             .setR(0)
             .setX(5)
             .setB1(0)
@@ -242,11 +262,11 @@ final class ExampleGenerator {
             .setG2(0)
             .add();
         network.newLine()
-            .setId("BE-NL")
-            .setName("BE-NL")
+            .setId("BE2-NL")
+            .setName("BE2-NL")
             .setVoltageLevel1("Voltage level BE")
             .setVoltageLevel2("Voltage level NL")
-            .setBus1("Bus BE")
+            .setBus1("Bus BE 2")
             .setBus2("Bus NL")
             .setR(0)
             .setX(5)
@@ -269,97 +289,55 @@ final class ExampleGenerator {
             .setG1(0)
             .setG2(0)
             .add();
+        network.newLine()
+            .setId("BE1-BE2")
+            .setName("BE1-BE2")
+            .setVoltageLevel1("Voltage level BE")
+            .setVoltageLevel2("Voltage level BE")
+            .setBus1("Bus BE 1")
+            .setBus2("Bus BE 2")
+            .setR(0)
+            .setX(5)
+            .setB1(0)
+            .setB2(0)
+            .setG1(0)
+            .setG2(0)
+            .add();
+
         return network;
     }
 
-    static CracFile cracFile() {
-        return CracFile.builder()
-            .id("Test")
-            .name("Test")
-            .sourceFormat("code")
-            .preContingency(
-                PreContingency.builder()
-                    .monitoredBranches(
-                        Arrays.asList(
-                            MonitoredBranch.builder()
-                                .id("FR-BE")
-                                .name("FR-BE")
-                                .branchId("FR-BE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("FR-DE")
-                                .name("FR-DE")
-                                .branchId("FR-DE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("BE-NL")
-                                .name("BE-NL")
-                                .branchId("BE-NL")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("DE-NL")
-                                .name("DE-NL")
-                                .branchId("DE-NL")
-                                .fmax(100)
-                                .build()
-                        )
-                    )
-                .build()
-        )
-        .contingencies(
-            Collections.singletonList(
-                Contingency.builder()
-                    .id("N-1 FR-BE")
-                    .name("N-1 FR-BE")
-                    .contingencyElements(
-                        Collections.singletonList(
-                            ContingencyElement.builder()
-                                .name("N-1 FR-BE")
-                                .elementId("FR-BE")
-                                .build()
-                        )
-                    )
-                    .monitoredBranches(
-                        Arrays.asList(
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / FR-BE")
-                                .name("N-1 FR-BE / FR-BE")
-                                .branchId("FR-BE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / FR-DE")
-                                .name("N-1 FR-BE / FR-DE")
-                                .branchId("FR-DE")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / BE-NL")
-                                .name("N-1 FR-BE / BE-NL")
-                                .branchId("BE-NL")
-                                .fmax(100)
-                                .build(),
-                            MonitoredBranch.builder()
-                                .id("N-1 FR-BE / DE-NL")
-                                .name("N-1 FR-BE / DE-NL")
-                                .branchId("DE-NL")
-                                .fmax(100)
-                                .build()
-                        )
-                    )
-                    .build()
-            )
-        )
-        .build();
+    static Crac crac() {
+        Crac crac = new SimpleCrac("test-crac");
+        Instant instantN = crac.newInstant().setId("N").setSeconds(-1).add();
+
+        crac.newCnec().setId("FR-BE1").setInstant(instantN)
+            .newNetworkElement().setId("FR-BE1").add()
+            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add();
+        crac.newCnec().setId("FR-DE").setInstant(instantN)
+            .newNetworkElement().setId("FR-DE").add()
+            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add();
+        crac.newCnec().setId("BE2-NL").setInstant(instantN)
+            .newNetworkElement().setId("BE2-NL").add()
+            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add();
+        crac.newCnec().setId("DE-NL").setInstant(instantN)
+            .newNetworkElement().setId("DE-NL").add()
+            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add();
+        crac.newCnec().setId("BE1-BE2").setInstant(instantN)
+            .newNetworkElement().setId("BE1-BE2").add()
+            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add();
+
+        return crac;
     }
 
     static GlskProvider glskProvider() {
+        HashMap<String, Float> glskBe = new HashMap<>();
+        glskBe.put("Generator BE 1", 0.5f);
+        glskBe.put("Generator BE 2", 0.5f);
+
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
+        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", glskBe));
         glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
@@ -373,6 +351,15 @@ final class ExampleGenerator {
                 return glsks.get(area);
             }
         };
+    }
+
+    static ReferenceProgram referenceProgram() {
+        List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
+            new ReferenceExchangeData(Country.FR, Country.BE, 50),
+            new ReferenceExchangeData(Country.FR, Country.DE, 50),
+            new ReferenceExchangeData(Country.BE, Country.NL, 50),
+            new ReferenceExchangeData(Country.DE, Country.NL, 50));
+        return new ReferenceProgram(exchangeDataList);
     }
 
     static SensitivityComputationFactory sensitivityComputationFactory() {
@@ -399,88 +386,58 @@ final class ExampleGenerator {
 
         private Map<String, Double> getExpectedFref() {
             Map<String, Double> expectedFrefByBranch = new HashMap<>();
-            expectedFrefByBranch.put("FR-BE", 50.);
-            expectedFrefByBranch.put("FR-DE", 50.);
-            expectedFrefByBranch.put("BE-NL", 50.);
-            expectedFrefByBranch.put("DE-NL", 50.);
-            expectedFrefByBranch.put("N-1 FR-BE / FR-BE", 0.);
-            expectedFrefByBranch.put("N-1 FR-BE / FR-DE", 100.);
-            expectedFrefByBranch.put("N-1 FR-BE / BE-NL", 0.);
-            expectedFrefByBranch.put("N-1 FR-BE / DE-NL", 100.);
+            expectedFrefByBranch.put("FR-BE1", -10.);
+            expectedFrefByBranch.put("BE1-BE2", 240.);
+            expectedFrefByBranch.put("FR-DE", -10.);
+            expectedFrefByBranch.put("BE2-NL", -110.);
+            expectedFrefByBranch.put("DE-NL", -110.);
             return expectedFrefByBranch;
         }
 
         private Map<String, Map<String, Double>> getExpectedPtdf() {
             Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
-            expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
+            expectedPtdfByBranch.put("FR-BE1", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("10YFR-RTE------C", 0.375),
-                            entry("10YBE----------2", -0.375),
-                            entry("10YCB-GERMANY--8", 0.125),
-                            entry("10YNL----------L", -0.125)
+                            entry("10YFR-RTE------C", 0.),
+                            entry("10YBE----------2", -0.7),
+                            entry("10YCB-GERMANY--8", -0.4),
+                            entry("10YNL----------L", -0.8)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("10YFR-RTE------C", 0.375),
-                            entry("10YBE----------2", 0.125),
-                            entry("10YCB-GERMANY--8", -0.375),
-                            entry("10YNL----------L", -0.125)
+                            entry("10YFR-RTE------C", 0.),
+                            entry("10YBE----------2", -0.3),
+                            entry("10YCB-GERMANY--8", 1.6),
+                            entry("10YNL----------L", 1.2)
                     )
                             .collect(entriesToMap())
             ));
-            expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
+            expectedPtdfByBranch.put("BE2-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("10YFR-RTE------C", 0.125),
-                            entry("10YBE----------2", 0.375),
-                            entry("10YCB-GERMANY--8", -0.125),
-                            entry("10YNL----------L", -0.375)
+                            entry("10YFR-RTE------C", 0.),
+                            entry("10YBE----------2", 0.3),
+                            entry("10YCB-GERMANY--8", -0.4),
+                            entry("10YNL----------L", -0.8)
                     )
                             .collect(entriesToMap())
             ));
             expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("10YFR-RTE------C", 0.125),
-                            entry("10YBE----------2", -0.125),
-                            entry("10YCB-GERMANY--8", 0.375),
-                            entry("10YNL----------L", -0.375)
+                            entry("10YFR-RTE------C", 0.),
+                            entry("10YBE----------2", -0.3),
+                            entry("10YCB-GERMANY--8", 0.4),
+                            entry("10YNL----------L", 1.2)
                     )
                             .collect(entriesToMap())
             ));
-            expectedPtdfByBranch.put("N-1 FR-BE / FR-BE", Collections.unmodifiableMap(
+            expectedPtdfByBranch.put("BE1-BE2", Collections.unmodifiableMap(
                     Stream.of(
-                            entry("10YFR-RTE------C", Double.NaN),
-                            entry("10YBE----------2", Double.NaN),
-                            entry("10YCB-GERMANY--8", Double.NaN),
-                            entry("10YNL----------L", Double.NaN)
-                    )
-                            .collect(entriesToMap())
-            ));
-            expectedPtdfByBranch.put("N-1 FR-BE / FR-DE", Collections.unmodifiableMap(
-                    Stream.of(
-                            entry("10YFR-RTE------C", 0.75),
-                            entry("10YBE----------2", -0.25),
-                            entry("10YCB-GERMANY--8", -0.25),
-                            entry("10YNL----------L", -0.25)
-                    )
-                            .collect(entriesToMap())
-            ));
-            expectedPtdfByBranch.put("N-1 FR-BE / BE-NL", Collections.unmodifiableMap(
-                    Stream.of(
-                            entry("10YFR-RTE------C", -0.25),
-                            entry("10YBE----------2", 0.75),
-                            entry("10YCB-GERMANY--8", -0.25),
-                            entry("10YNL----------L", -0.25)
-                    )
-                            .collect(entriesToMap())
-            ));
-            expectedPtdfByBranch.put("N-1 FR-BE / DE-NL", Collections.unmodifiableMap(
-                    Stream.of(
-                            entry("10YFR-RTE------C", 0.5),
-                            entry("10YBE----------2", -0.5),
-                            entry("10YCB-GERMANY--8", 0.5),
-                            entry("10YNL----------L", -0.5)
+                            entry("10YFR-RTE------C", 0.),
+                            entry("10YBE----------2", -0.2),
+                            entry("10YCB-GERMANY--8", -0.4),
+                            entry("10YNL----------L", -0.8)
                     )
                             .collect(entriesToMap())
             ));
@@ -515,49 +472,5 @@ final class ExampleGenerator {
                 }
             };
         }
-    }
-
-    static Crac crac() {
-        SimpleCrac crac = new SimpleCrac("Test", "Test");
-
-        NetworkElement networkElementFrBe = new NetworkElement("FR-BE", "FR-BE");
-        NetworkElement networkElementFrDe = new NetworkElement("FR-DE", "FR-DE");
-        NetworkElement networkElementBeNl = new NetworkElement("BE-NL", "BE-NL");
-        NetworkElement networkElementDeNl = new NetworkElement("DE-NL", "DE-NL");
-        AbsoluteFlowThreshold absoluteFlowThresholdMW = new AbsoluteFlowThreshold(MEGAWATT, Side.LEFT, Direction.BOTH, 100);
-
-        com.farao_community.farao.data.crac_api.Contingency contingency = new ComplexContingency("N-1 FR-BE", "N-1 FR-BE", Collections.singleton(networkElementFrBe));
-
-        // add preventive state
-        State preState = new SimpleState(Optional.empty(), new Instant("initial-instant", -1));
-        crac.addState(preState); // add preventive state
-
-        // add post contingency state
-        State postContingencyState = new SimpleState(Optional.of(contingency), new Instant("PostContingency-instant", 1));
-        crac.addState(postContingencyState);
-
-        Set<AbstractThreshold> thresholds = new HashSet<>();
-        thresholds.add(absoluteFlowThresholdMW);
-        //pre state cnec
-        Cnec cnecPreFrBe = new SimpleCnec("FR-BE", "FR-BE", networkElementFrBe, thresholds, preState);
-        Cnec cnecPreFrDe = new SimpleCnec("FR-DE", "FR-DE", networkElementFrDe, thresholds, preState);
-        Cnec cnecPreBeNl = new SimpleCnec("BE-NL", "BE-NL", networkElementBeNl, thresholds, preState);
-        Cnec cnecPreDeNl = new SimpleCnec("DE-NL", "DE-NL", networkElementDeNl, thresholds, preState);
-        crac.addCnec(cnecPreFrBe);
-        crac.addCnec(cnecPreFrDe);
-        crac.addCnec(cnecPreBeNl);
-        crac.addCnec(cnecPreDeNl);
-
-        //post contingency state cnec
-        Cnec cnecPostFrBe = new SimpleCnec("N-1 FR-BE / FR-BE", "N-1 FR-BE / FR-BE", networkElementFrBe, thresholds, postContingencyState);
-        Cnec cnecPostFrDe = new SimpleCnec("N-1 FR-BE / FR-DE", "N-1 FR-BE / FR-DE", networkElementFrDe, thresholds, postContingencyState);
-        Cnec cnecPostBeNl = new SimpleCnec("N-1 FR-BE / BE-NL", "N-1 FR-BE / BE-NL", networkElementBeNl, thresholds, postContingencyState);
-        Cnec cnecPostDeNl = new SimpleCnec("N-1 FR-BE / DE-NL", "N-1 FR-BE / DE-NL", networkElementDeNl, thresholds, postContingencyState);
-        crac.addCnec(cnecPostFrBe);
-        crac.addCnec(cnecPostFrDe);
-        crac.addCnec(cnecPostBeNl);
-        crac.addCnec(cnecPostDeNl);
-
-        return crac;
     }
 }

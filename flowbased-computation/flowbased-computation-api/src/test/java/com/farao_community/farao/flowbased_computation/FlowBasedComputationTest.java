@@ -7,8 +7,8 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_file.CracFile;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -36,7 +36,7 @@ public class FlowBasedComputationTest {
 
     private Network network;
 
-    private CracFile cracFile;
+    private Crac crac;
 
     private GlskProvider glskProvider;
 
@@ -47,7 +47,7 @@ public class FlowBasedComputationTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         network = Mockito.mock(Network.class);
-        cracFile = Mockito.mock(CracFile.class);
+        crac = Mockito.mock(Crac.class);
         glskProvider = Mockito.mock(GlskProvider.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
@@ -66,9 +66,9 @@ public class FlowBasedComputationTest {
         FlowBasedComputation.Runner defaultFlowBased = FlowBasedComputation.find(null, ImmutableList.of(new FlowBasedComputationProviderMock()), platformConfig);
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());
         assertEquals("1.0", defaultFlowBased.getVersion());
-        FlowBasedComputationResult result = defaultFlowBased.run(network, cracFile, glskProvider, computationManager, new FlowBasedComputationParameters());
+        FlowBasedComputationResult result = defaultFlowBased.run(network, crac, glskProvider, computationManager, new FlowBasedComputationParameters());
         assertNotNull(result);
-        FlowBasedComputationResult resultAsync = defaultFlowBased.runAsync(network, cracFile, glskProvider, computationManager, new FlowBasedComputationParameters()).join();
+        FlowBasedComputationResult resultAsync = defaultFlowBased.runAsync(network, crac, glskProvider, computationManager, new FlowBasedComputationParameters()).join();
         assertNotNull(resultAsync);
     }
 

@@ -14,6 +14,7 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,6 +138,19 @@ public class SystematicSensitivityResult {
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
         return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
+    }
+
+    public double getSensitivityOnFlow(LinearGlsk glsk, Cnec cnec) {
+        return getSensitivityOnFlow(glsk.getId(), cnec);
+    }
+
+    public double getSensitivityOnFlow(String variableId, Cnec cnec) {
+        StateResult stateResult = getCnecStateResult(cnec);
+        if (!stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
+            return Double.NaN;
+        }
+        Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
+        return sensitivities.get(variableId);
     }
 
     public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec cnec) {

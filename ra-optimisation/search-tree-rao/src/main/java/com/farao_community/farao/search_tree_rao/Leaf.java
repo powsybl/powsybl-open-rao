@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowComputationService;
-import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -158,15 +158,17 @@ class Leaf {
                 LOGGER.debug("Evaluating leaf...");
                 raoData.setSystematicSensitivityResult(
                     systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
+
+                if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                    LoopFlowComputationService.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
+                }
+
                 ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                 raoData.getRaoDataManager().fillCracResultsWithSensis(
-                        objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                        (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
+                    objectiveFunctionEvaluator.getFunctionalCost(raoData),
+                    (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
                         + objectiveFunctionEvaluator.getVirtualCost(raoData));
-                if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                    Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, raoParameters.isLoopFlowApproximation());
-                    raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, raoParameters.getLoopFlowViolationCost());
-                }
+
                 status = Status.EVALUATED;
             } catch (FaraoException e) {
                 LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));

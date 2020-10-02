@@ -30,8 +30,6 @@ public class LinearProblem {
     private static final String MIN_MARGIN = "minmargin";
     private static final String MAX_LOOPFLOW = "maxloopflow";
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
-    private static final String POSITIVE_LOOPFLOWVIOLATION = "positiveloopflowviolation";
-    private static final String NEGATIVE_LOOPFLOWVIOLATION = "negativeloopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
 
@@ -43,6 +41,11 @@ public class LinearProblem {
     public enum MarginExtension {
         BELOW_THRESHOLD,
         ABOVE_THRESHOLD
+    }
+
+    public enum BoundExtension {
+        LOWER_BOUND,
+        UPPER_BOUND
     }
 
     private MPSolver solver;
@@ -144,17 +147,16 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(minimumMarginVariableId());
     }
 
-    //Begin MaxLoopFlowFiller section
-    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, Cnec cnec) {
-        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec));
+    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, Cnec cnec, BoundExtension lbOrUb) {
+        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, lbOrUb));
     }
 
-    private String maxLoopFlowConstraintId(Cnec cnec) {
-        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + SEPARATOR + CONSTRAINT_SUFFIX;
+    private String maxLoopFlowConstraintId(Cnec cnec, BoundExtension lbOrUb) {
+        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + lbOrUb.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public MPConstraint getMaxLoopFlowConstraint(Cnec cnec) {
-        return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec));
+    public MPConstraint getMaxLoopFlowConstraint(Cnec cnec, BoundExtension lbOrUb) {
+        return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec, lbOrUb));
     }
 
     public MPVariable addLoopflowViolationVariable(double lb, double ub, Cnec cnec) {
@@ -168,31 +170,6 @@ public class LinearProblem {
     private String loopflowViolationVariableId(Cnec cnec) {
         return cnec.getId() + SEPARATOR + LOOPFLOWVIOLATION + SEPARATOR + VARIABLE_SUFFIX;
     }
-
-    public MPConstraint addPositiveLoopflowViolationConstraint(double lb, double ub, Cnec cnec) {
-        return solver.makeConstraint(lb, ub, positiveLoopflowViolationConstraintId(cnec));
-    }
-
-    public MPConstraint getPositiveLoopflowViolationConstraint(Cnec cnec) {
-        return solver.lookupConstraintOrNull(positiveLoopflowViolationConstraintId(cnec));
-    }
-
-    private String positiveLoopflowViolationConstraintId(Cnec cnec) {
-        return cnec.getId() + SEPARATOR + POSITIVE_LOOPFLOWVIOLATION + SEPARATOR + CONSTRAINT_SUFFIX;
-    }
-
-    public MPConstraint addNegativeLoopflowViolationConstraint(double lb, double ub, Cnec cnec) {
-        return solver.makeConstraint(lb, ub, negativeLoopflowViolationConstraintId(cnec));
-    }
-
-    public MPConstraint getNegativeLoopflowViolationConstraint(Cnec cnec) {
-        return solver.lookupConstraintOrNull(negativeLoopflowViolationConstraintId(cnec));
-    }
-
-    private String negativeLoopflowViolationConstraintId(Cnec cnec) {
-        return cnec.getId() + SEPARATOR + NEGATIVE_LOOPFLOWVIOLATION + SEPARATOR + CONSTRAINT_SUFFIX;
-    }
-    //End MaxLoopFlowFiller section
 
     private String mnecViolationVariableId(Cnec mnec) {
         return mnec.getId() + SEPARATOR + MNEC_VIOLATION + SEPARATOR + VARIABLE_SUFFIX;

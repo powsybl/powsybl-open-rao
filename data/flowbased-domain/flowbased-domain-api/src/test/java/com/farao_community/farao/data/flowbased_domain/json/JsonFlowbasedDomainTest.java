@@ -59,11 +59,11 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
     public void testUtilityMethods() {
         DataDomain flowbasedDomain = JsonFlowbasedDomainTest.create();
 
-        assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_1"));
-        assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_2"));
+        assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchById("FLOWBASED_DATA_DOMAIN_BRANCH_1"));
+        assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchById("FLOWBASED_DATA_DOMAIN_BRANCH_2"));
 
-        assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("France"));
-        assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchbyId("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("Austria"));
+        assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchById("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("France"));
+        assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchById("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("Austria"));
     }
 
     @Test
