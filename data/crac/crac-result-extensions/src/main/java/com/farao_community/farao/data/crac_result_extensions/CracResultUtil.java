@@ -32,7 +32,12 @@ public final class CracResultUtil {
     public static void applyPreventiveRemedialActions(Network network, Crac crac, String cracVariantId) {
         String preventiveStateId = crac.getPreventiveState().getId();
         crac.getNetworkActions().forEach(na -> {
-            NetworkActionResult networkActionResult = na.getExtension(NetworkActionResultExtension.class).getVariant(cracVariantId);
+            NetworkActionResultExtension resultExtension = na.getExtension(NetworkActionResultExtension.class);
+            if (resultExtension == null) {
+                LOGGER.error(String.format("Could not find results on network action %s", na.getId()));
+                return;
+            }
+            NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
             if (networkActionResult != null) {
                 if (networkActionResult.isActivated(preventiveStateId)) {
                     na.apply(network);
@@ -42,7 +47,12 @@ public final class CracResultUtil {
             }
         });
         crac.getRangeActions().forEach(ra -> {
-            RangeActionResult rangeActionResult = ra.getExtension(RangeActionResultExtension.class).getVariant(cracVariantId);
+            RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
+            if (resultExtension == null) {
+                LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
+                return;
+            }
+            RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
             if (rangeActionResult != null) {
                 ra.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
             } else {

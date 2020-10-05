@@ -1210,27 +1210,7 @@
       } ],
       "networkElements" : [ "FFR1AA1  FFR2AA1  1" ],
       "actionType" : "OPEN"
-    } ],
-    "extensions" : {
-      "NetworkActionResultExtension" : {
-        "resultsPerVariant" : {
-          "postOptimisationResults-d98e1bba-05ef-46d9-8f47-fae6752991ea" : {
-            "type" : "network-action-result",
-            "activationMap" : {
-              "none-N" : false,
-              "Contingency FR1 FR3-Outage" : false
-            }
-          },
-          "preOptimisationResults-899b1d6c-9d4c-4db2-bdde-0eef417e8898" : {
-            "type" : "network-action-result",
-            "activationMap" : {
-              "none-N" : false,
-              "Contingency FR1 FR3-Outage" : false
-            }
-          }
-        }
-      }
-    }
+    } ]
   } ],
   "extensions" : {
     "ResultVariantManager" : {
