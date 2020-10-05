@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LoopFlowComputationServiceTest {
+public class LoopFlowUtilTest {
 
     @Test(expected = FaraoException.class)
     public void testRunLoopFlowExtensionInCracNotAvailable() {
