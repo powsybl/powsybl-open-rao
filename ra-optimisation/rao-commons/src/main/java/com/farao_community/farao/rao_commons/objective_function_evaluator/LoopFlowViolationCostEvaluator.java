@@ -22,15 +22,10 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowViolationCostEvaluator.class);
 
-    private static final double MAX_LOOP_FLOW_VIOLATION_COST = 1000000.0;
     private double violationCost;
 
     LoopFlowViolationCostEvaluator(double violationCost) {
-        if (Math.abs(violationCost) > 0) {
-            this.violationCost = violationCost;
-        } else {
-            this.violationCost = MAX_LOOP_FLOW_VIOLATION_COST;
-        }
+        this.violationCost = violationCost;
     }
 
     @Override

@@ -17,11 +17,8 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.farao_community.farao.rao_api.RaoParameters.*;
 
 /**
  * Filler of loopflow constraint in linear rao problem.
@@ -46,6 +43,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.isLoopFlowApproximation = isLoopFlowApproximation;
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
         this.loopFlowViolationCost = loopFlowViolationCost;
+        this.sensitivityComputationParameters = sensitivityComputationParameters;
     }
 
     @Override
@@ -81,7 +79,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * and a "virtual cost" is added to objective function as "loopflowViolationVariable * Loopflow violation cost"
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(RaoData raoData, LinearProblem linearProblem) {
-        Map<Cnec, Double> loopFlowShifts;
 
         LoopFlowResult loopFlowResult = null;
         //todo : do not compute loopFlow from scratch here : not necessary
@@ -94,7 +91,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 .filter(cnec -> cnec.getExtension(CnecLoopFlowExtension.class) != null) // with loop-flow extension
                 .collect(Collectors.toList())) {
 
-            //get and update MapLoopflowLimit with loopflowConstraintAdjustmentCoefficient
+            //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
             if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
                 continue;

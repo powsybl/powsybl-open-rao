@@ -24,6 +24,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     private MinMarginEvaluator minMarginEvaluator;
     private MnecViolationCostEvaluator mnecViolationCostEvaluator;
     private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
+    private SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
 
     public MinMarginObjectiveFunction(RaoParameters raoParameters) {
 
@@ -42,6 +43,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
         this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost());
+        this.sensitivityFallbackOvercostEvaluator = new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost());
     }
 
     @Override
@@ -51,10 +53,13 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
 
     @Override
     public double getVirtualCost(RaoData raoData) {
+
+        double baseVirtualCost = mnecViolationCostEvaluator.getCost(raoData) + sensitivityFallbackOvercostEvaluator.getCost(raoData);
+
         if (isRaoWithLoopFlow) {
-            return mnecViolationCostEvaluator.getCost(raoData) + loopFlowViolationCostEvaluator.getCost(raoData);
+            return baseVirtualCost + loopFlowViolationCostEvaluator.getCost(raoData);
         } else {
-            return mnecViolationCostEvaluator.getCost(raoData);
+            return baseVirtualCost;
         }
     }
 

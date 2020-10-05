@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +57,9 @@ public class MinMarginEvaluator implements CostEvaluator {
     private double getMinMarginInAmpere(RaoData raoData) {
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(Cnec::isOptimized).
             map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Unit.AMPERE)
-        ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
 
-        if (marginsInAmpere.contains(Double.NaN)) { // It means that computation has been performed in DC mode
+        if (marginsInAmpere.contains(Double.NaN) && raoData.getSystematicSensitivityResult().getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
             // in fallback, intensities can be missing as the fallback configuration does not necessarily
             // compute them (example : default in AC, fallback in DC). In that case a fallback computation
             // of the intensity is made, based on the MEGAWATT values and the nominal voltage

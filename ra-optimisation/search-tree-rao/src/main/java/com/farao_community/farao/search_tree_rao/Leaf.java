@@ -162,9 +162,7 @@ class Leaf {
                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                     raoData.getRaoDataManager().fillCnecResultWithFlows();
                     raoData.getRaoDataManager().fillCracResultWithCosts(
-                        objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                        (systematicSensitivityInterface.isFallback() ? raoParameters.getFallbackOverCost() : 0)
-                            + objectiveFunctionEvaluator.getVirtualCost(raoData));
+                        objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
                 }
 
                 status = Status.EVALUATED;
