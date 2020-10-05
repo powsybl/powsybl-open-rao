@@ -42,7 +42,7 @@ import static org.mockito.ArgumentMatchers.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class})
+@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.class, InitialSensitivityAnalysis.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
 
@@ -57,10 +57,10 @@ public class LeafTest {
     private RaoData raoDataMock;
     private RaoParameters raoParameters;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
-    private InitialSensitivityAnalysis initialSensitivityAnalysis;
 
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private SystematicSensitivityResult systematicSensitivityResult;
+    private SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder sensitivityBuilder;
 
     @Before
     public void setUp() {
@@ -90,10 +90,17 @@ public class LeafTest {
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
-        initialSensitivityAnalysis = Mockito.mock(InitialSensitivityAnalysis.class);
+        sensitivityBuilder = Mockito.mock(SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class);
+        Mockito.when(sensitivityBuilder.build()).thenReturn(systematicSensitivityInterface);
+        Mockito.when(sensitivityBuilder.withDefaultParameters(any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withFallbackParameters(any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withRangeActionSensitivities(any(), any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withSensitivityProvider(any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withPtdfSensitivities(any(), any())).thenReturn(sensitivityBuilder);
 
         try {
-            PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenAnswer(invocationOnMock -> initialSensitivityAnalysis);
+            PowerMockito.mockStatic(SystematicSensitivityInterface.class);
+            PowerMockito.when(SystematicSensitivityInterface.builder()).thenAnswer(invocationOnMock -> sensitivityBuilder);
             PowerMockito.mockStatic(RaoUtil.class);
             PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
             PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);

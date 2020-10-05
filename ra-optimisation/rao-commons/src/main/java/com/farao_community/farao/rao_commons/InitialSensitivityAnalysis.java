@@ -32,7 +32,7 @@ public class InitialSensitivityAnalysis {
     public InitialSensitivityAnalysis(RaoData raoData, RaoParameters raoParameters) {
         this.raoData = raoData;
         this.raoParameters = raoParameters;
-        this.systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        this.systematicSensitivityInterface = getSystematicSensitivityInterface();
     }
 
     public void run() {
@@ -70,4 +70,19 @@ public class InitialSensitivityAnalysis {
         raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(lfResults, raoData.getNetwork());
         raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
     }
+
+    private SystematicSensitivityInterface getSystematicSensitivityInterface() {
+
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
+            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
+
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()));
+        }
+
+        return builder.build();
+    }
+
 }
