@@ -273,7 +273,6 @@
                                 </goals>
                                 <configuration>
                                     <configLocation>checkstyle.xml</configLocation>
-                                    <excludes>**/generated-sources/**/*</excludes>
                                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                                     <consoleOutput>true</consoleOutput>
                                     <failsOnError>true</failsOnError>
