@@ -181,5 +181,58 @@ public class RaoUtilTest {
         parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.initRaoData(raoInput, parameters);
     }
+
+    @Test (expected = FaraoException.class)
+    public void testExceptionForGlskOnRelativeMargin() {
+        List<Pair<Country, Country>> boundaries = new ArrayList<>(Collections.singleton(new ImmutablePair<>(Country.FR, Country.BE)));
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+                .withNetwork(network)
+                .withCrac(crac)
+                .withBoundaries(boundaries)
+                .withVariantId(variantId)
+                .build();
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RaoUtil.initRaoData(raoInput, parameters);
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testExceptionForBoundariesOnRelativeMargin() {
+        Network network = ExampleGenerator.network();
+        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network);
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+                .withNetwork(network)
+                .withCrac(crac)
+                .withGlskProvider(ucteGlskProvider)
+                .withVariantId(variantId)
+                .build();
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RaoUtil.initRaoData(raoInput, parameters);
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testExceptionForEmptyBoundariesOnRelativeMargin() {
+        Network network = ExampleGenerator.network();
+        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network);
+        List<Pair<Country, Country>> boundaries = new ArrayList<>();
+        Crac crac = ExampleGenerator.crac();
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        RaoInput raoInput = RaoInput.builder()
+                .withNetwork(network)
+                .withCrac(crac)
+                .withGlskProvider(ucteGlskProvider)
+                .withBoundaries(boundaries)
+                .withVariantId(variantId)
+                .build();
+        RaoParameters parameters = new RaoParameters();
+        parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        RaoUtil.initRaoData(raoInput, parameters);
+    }
 }
 

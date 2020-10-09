@@ -97,6 +97,12 @@ public final class RaoUtil {
             computeAndSaveAbsolutePtdfSums(raoInput, raoData, boundaries);
         }
 
+        // TO DO : move to ReferenceSensitivityComputation
+        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+            List<Pair<Country, Country>> boundaries = raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries();
+            computeAndSaveAbsolutePtdfSums(raoInput, raoData, boundaries);
+        }
+
         return raoData;
     }
 
