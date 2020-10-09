@@ -20,19 +20,16 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-computation-api</artifactId>
+            <artifactId>farao-glsk-file</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-util</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
