@@ -54,7 +54,7 @@ final class SearchTreeRaoLogger {
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
         List<Cnec> sortedCnecs = leaf.getRaoData().getCnecs().stream().
             filter(Cnec::isOptimized).
-            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins, leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId()));
+            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins, leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId())))).
             collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
@@ -62,7 +62,7 @@ final class SearchTreeRaoLogger {
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
-            String margin = new DecimalFormat("#0.00").format(computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins));
+            String margin = new DecimalFormat("#0.00").format(computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins, leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId())));
             SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a margin of {} {}",
                 i + 1,
                 cnecNetworkElementName,
