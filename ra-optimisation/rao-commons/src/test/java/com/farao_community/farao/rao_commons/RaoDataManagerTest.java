@@ -55,7 +55,7 @@ public class RaoDataManagerTest {
 
     @Test
     public void testFillCnecLoopExtensionsWithInitialResults() {
-        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        raoData.getRaoDataManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
         assertEquals(252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
         assertEquals(100., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
         assertEquals(128., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopflowShift(), DOUBLE_TOLERANCE);
@@ -64,7 +64,7 @@ public class RaoDataManagerTest {
 
     @Test
     public void testFillCracResultsWithLoopFlows() {
-        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        raoData.getRaoDataManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
         raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(loopFlowResult);
         String var = raoData.getWorkingVariantId();
 
@@ -81,7 +81,7 @@ public class RaoDataManagerTest {
         Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getCnec("cnec1basecase"))).thenReturn(-162.);
         Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getCnec("cnec2basecase"))).thenReturn(47.);
 
-        raoData.getRaoDataManager().fillCnecLoopExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        raoData.getRaoDataManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
         raoData.setSystematicSensitivityResult(sensiResults);
         raoData.getRaoDataManager().fillCnecResultsWithApproximatedLoopFlows();
         String var = raoData.getWorkingVariantId();

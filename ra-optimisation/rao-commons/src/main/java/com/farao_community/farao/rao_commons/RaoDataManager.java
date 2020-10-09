@@ -132,7 +132,7 @@ public class RaoDataManager {
         });
     }
 
-    public void fillCnecLoopExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
+    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
         raoData.getCnecs().stream()
             .filter(cnec -> !cnec.getState().getContingency().isPresent())
             .forEach(cnec -> {

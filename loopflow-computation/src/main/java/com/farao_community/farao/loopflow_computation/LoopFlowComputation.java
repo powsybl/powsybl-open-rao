@@ -63,11 +63,6 @@ public class LoopFlowComputation {
     }
 
     public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Network network) {
-        return buildLoopFlowsFromReferenceFlowAndPtdf(alreadyCalculatedPtdfAndFlows, alreadyCalculatedPtdfAndFlows, network);
-
-    }
-
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedFlows, SystematicSensitivityResult alreadyCalculatedPtdfs, Network network) {
 
         Set<Cnec> cnecs = crac.getCnecs(crac.getPreventiveState());
         // todo : add this Set of Cnecs in argument of the method calculateLoopFlows()
@@ -77,9 +72,9 @@ public class LoopFlowComputation {
         LoopFlowResult results = new LoopFlowResult();
 
         for (Cnec cnec : cnecs) {
-            double refFlow = alreadyCalculatedFlows.getReferenceFlow(cnec);
+            double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
             double commercialFLow = glsks.stream()
-                .mapToDouble(glsk -> alreadyCalculatedPtdfs.getSensitivityOnFlow(glsk, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glsk)))
+                .mapToDouble(glsk -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glsk, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glsk)))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
