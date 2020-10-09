@@ -14,6 +14,7 @@ import com.powsybl.sensitivity.SensitivityComputationResults;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,16 +53,22 @@ public class SystematicSensitivityResult {
         }
     }
 
-    private final boolean isSuccess;
+    public enum SensitivityComputationStatus {
+        SUCCESS,
+        FALLBACK,
+        FAILURE
+    }
+
+    private SensitivityComputationStatus status;
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new HashMap<>();
 
     public SystematicSensitivityResult(SensitivityComputationResults results) {
-        if (results == null) {
-            this.isSuccess = false;
+        if (results == null || !results.isOk()) {
+            this.status = SensitivityComputationStatus.FAILURE;
             return;
         }
-        this.isSuccess = results.isOk();
+        this.status = SensitivityComputationStatus.SUCCESS;
         LOGGER.debug("Filling data...");
         fillData(results);
         LOGGER.debug("Data post treatment...");
@@ -116,7 +123,15 @@ public class SystematicSensitivityResult {
     }
 
     public boolean isSuccess() {
-        return isSuccess;
+        return status != SensitivityComputationStatus.FAILURE;
+    }
+
+    public SensitivityComputationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SensitivityComputationStatus status) {
+        this.status = status;
     }
 
     public double getReferenceFlow(Cnec cnec) {
@@ -137,6 +152,19 @@ public class SystematicSensitivityResult {
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
         return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
+    }
+
+    public double getSensitivityOnFlow(LinearGlsk glsk, Cnec cnec) {
+        return getSensitivityOnFlow(glsk.getId(), cnec);
+    }
+
+    public double getSensitivityOnFlow(String variableId, Cnec cnec) {
+        StateResult stateResult = getCnecStateResult(cnec);
+        if (!stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
+            return Double.NaN;
+        }
+        Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
+        return sensitivities.get(variableId);
     }
 
     public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec cnec) {

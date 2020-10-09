@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
@@ -41,7 +42,7 @@ import static org.mockito.ArgumentMatchers.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class})
+@PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.class, InitialSensitivityAnalysis.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
 
@@ -59,6 +60,7 @@ public class LeafTest {
 
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private SystematicSensitivityResult systematicSensitivityResult;
+    private SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder sensitivityBuilder;
 
     @Before
     public void setUp() {
@@ -79,7 +81,8 @@ public class LeafTest {
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultsWithSensis(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultWithCosts(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedRaoDataManager).fillCnecResultWithFlows();
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
@@ -87,10 +90,21 @@ public class LeafTest {
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
+        sensitivityBuilder = Mockito.mock(SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class);
+        Mockito.when(sensitivityBuilder.build()).thenReturn(systematicSensitivityInterface);
+        Mockito.when(sensitivityBuilder.withDefaultParameters(any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withFallbackParameters(any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withRangeActionSensitivities(any(), any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withSensitivityProvider(any())).thenReturn(sensitivityBuilder);
+        Mockito.when(sensitivityBuilder.withPtdfSensitivities(any(), any())).thenReturn(sensitivityBuilder);
+
         try {
-            PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenAnswer(invocationOnMock -> systematicSensitivityInterface);
+            PowerMockito.mockStatic(SystematicSensitivityInterface.class);
+            PowerMockito.when(SystematicSensitivityInterface.builder()).thenAnswer(invocationOnMock -> sensitivityBuilder);
             PowerMockito.mockStatic(RaoUtil.class);
             PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+            PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

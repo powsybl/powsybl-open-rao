@@ -15,14 +15,14 @@ import org.mockito.Mockito;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LoopFlowComputationServiceTest {
+public class LoopFlowUtilTest {
 
     @Test(expected = FaraoException.class)
     public void testRunLoopFlowExtensionInCracNotAvailable() {
         RaoData raoData = Mockito.mock(RaoData.class);
         Crac crac = Mockito.mock(Crac.class);
         Mockito.when(raoData.getCrac()).thenReturn(crac);
-        LoopFlowComputationService.checkDataConsistency(raoData);
+        LoopFlowUtil.checkDataConsistency(raoData);
     }
 
 }

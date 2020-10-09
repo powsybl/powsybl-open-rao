@@ -6,168 +6,50 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
-import com.farao_community.farao.flowbased_computation.glsk_provider.UcteGlskProvider;
-import com.farao_community.farao.util.EICode;
-import com.farao_community.farao.util.LoadFlowService;
-import com.farao_community.farao.util.SensitivityComputationService;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowResultImpl;
-import com.powsybl.sensitivity.SensitivityComputationFactory;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.nio.file.FileSystem;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LoopFlowComputationTest {
-    private static final double EPSILON = 1e-3;
-    private Network network;
-    private Crac crac;
-    private GlskProvider glskProvider;
-    private ComputationManager computationManager;
-    private List<Country> countries;
-    private Map<Country, Double> referenceNetPositionByCountry;
-    private Map<Cnec, Map<Country, Double>> ptdfs;
-    private Map<Cnec, Double> frefResults;
-    private ReferenceProgram referenceProgram;
 
-    @Before
-    public void setUp() {
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "MockLoadflow");
-        network = ExampleGenerator.network();
-        crac = ExampleGenerator.crac();
-        setCnecLoopFlowInputThresholdAsPercentageOfMaxThreshold(0.5);
-
-        glskProvider = ExampleGenerator.glskProvider();
-        computationManager = LocalComputationManager.getDefault();
-        SensitivityComputationFactory sensitivityComputationFactory = ExampleGenerator.sensitivityComputationFactory();
-        SensitivityComputationService.init(sensitivityComputationFactory, computationManager);
-
-        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
-        Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-        LoadFlowService.init(loadFlowRunner, computationManager);
-        countries = Stream.of("FR", "BE", "DE", "NL").map(Country::valueOf).collect(Collectors.toList());
-
-        List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
-                new ReferenceExchangeData(Country.FR, Country.BE, 50),
-                new ReferenceExchangeData(Country.FR, Country.DE, 50),
-                new ReferenceExchangeData(Country.BE, Country.NL, 50),
-                new ReferenceExchangeData(Country.DE, Country.NL, 50));
-        referenceProgram = new ReferenceProgram(exchangeDataList);
-
-        ptdfs = new HashMap<>();
-        frefResults = new HashMap<>();
-        frefResults.put(crac.getCnec("FR-BE"), 50.0);
-        frefResults.put(crac.getCnec("FR-DE"), 50.0);
-        frefResults.put(crac.getCnec("BE-NL"), 50.0);
-        frefResults.put(crac.getCnec("DE-NL"), 50.0);
-    }
+    private static final double DOUBLE_TOLERANCE = 0.1;
 
     @Test
-    public void testPtdf() {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, network, referenceProgram);
+    public void calculateLoopFlowTest() {
+        Network network = ExampleGenerator.network();
+        Crac crac = ExampleGenerator.crac();
+        GlskProvider glskProvider = ExampleGenerator.glskProvider();
+        ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
+        SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(network, crac, glskProvider);
 
-        assertEquals(50, crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, network), EPSILON);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, referenceProgram);
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, network);
 
-        ptdfs = loopFlowComputation.computePtdfOnCurrentNetwork(network);
-        Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-BE")).get(Country.valueOf("FR")), EPSILON);
-        Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("FR-DE")).get(Country.valueOf("FR")), EPSILON);
-        Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("DE-NL")).get(Country.valueOf("DE")), EPSILON);
-        Assert.assertEquals(0.375, ptdfs.get(crac.getCnec("BE-NL")).get(Country.valueOf("BE")), EPSILON);
-        Map<Cnec, Double> loopflowShift = loopFlowComputation.buildZeroBalanceFlowShift(ptdfs);
-        Map<String, Double> fzeroNpResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndLoopflowShifts(frefResults, loopflowShift);
-        Assert.assertEquals(0.0, fzeroNpResults.get("FR-DE"), EPSILON);
-        Assert.assertEquals(0.0, fzeroNpResults.get("FR-BE"), EPSILON);
-        Assert.assertEquals(0.0, fzeroNpResults.get("DE-NL"), EPSILON);
-        Assert.assertEquals(0.0, fzeroNpResults.get("BE-NL"), EPSILON);
+        assertEquals(-50., loopFlowResult.getLoopFlow(crac.getCnec("FR-BE1")), DOUBLE_TOLERANCE);
+        assertEquals(200., loopFlowResult.getLoopFlow(crac.getCnec("BE1-BE2")), DOUBLE_TOLERANCE);
+        assertEquals(-50., loopFlowResult.getLoopFlow(crac.getCnec("BE2-NL")), DOUBLE_TOLERANCE);
+        assertEquals(50., loopFlowResult.getLoopFlow(crac.getCnec("FR-DE")), DOUBLE_TOLERANCE);
+        assertEquals(50., loopFlowResult.getLoopFlow(crac.getCnec("DE-NL")), DOUBLE_TOLERANCE);
 
-        crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
-        crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setHasLoopflowShift(true);
-        Map<Cnec, Double> loopflowShifts = loopFlowComputation.buildLoopflowShiftsApproximation(crac);
-        assertEquals(1.0, loopflowShifts.get(crac.getCnec("FR-BE")), EPSILON);
-        crac.getCnec("FR-BE").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
-        crac.getCnec("FR-DE").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
-        crac.getCnec("DE-NL").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
-        crac.getCnec("BE-NL").getExtension(CnecLoopFlowExtension.class).setLoopflowShift(1.0);
+        assertEquals(80, loopFlowResult.getCommercialFlow(crac.getCnec("FR-BE1")), DOUBLE_TOLERANCE);
+        assertEquals(80., loopFlowResult.getCommercialFlow(crac.getCnec("BE1-BE2")), DOUBLE_TOLERANCE);
+        assertEquals(80, loopFlowResult.getCommercialFlow(crac.getCnec("BE2-NL")), DOUBLE_TOLERANCE);
+        assertEquals(120., loopFlowResult.getCommercialFlow(crac.getCnec("FR-DE")), DOUBLE_TOLERANCE);
+        assertEquals(120., loopFlowResult.getCommercialFlow(crac.getCnec("DE-NL")), DOUBLE_TOLERANCE);
 
-        network.getBranch("DE-NL").getTerminal(Branch.Side.ONE).setP(10.0);
-        network.getBranch("FR-BE").getTerminal(Branch.Side.ONE).setP(10.0);
-        network.getBranch("FR-DE").getTerminal(Branch.Side.ONE).setP(10.0);
-        network.getBranch("BE-NL").getTerminal(Branch.Side.ONE).setP(10.0);
-        Map<String, Double> loopflowApprox = loopFlowComputation.calculateLoopFlowsApproximation(network);
-        assertEquals(9.0, loopflowApprox.get("FR-BE"), EPSILON);
-    }
-
-    @Test
-    public void testImportGlsk() {
-        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
-        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
-
-        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/glsk_lots_of_lf_12nodes.xml"), network, instant);
-
-        List<Country> countriesFromGlsk = new ArrayList<>();
-        ucteGlskProvider.getAllGlsk(network).keySet().forEach(key -> {
-            countriesFromGlsk.add(new EICode(key).getCountry());
-        });
-
-        assertEquals(4, countriesFromGlsk.size());
-
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network, referenceProgram);
-        assertNotNull(loopFlowComputation);
-    }
-
-    @Test
-    public void testCountriesListIntersection() {
-        List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
-                new ReferenceExchangeData(Country.FR, Country.BE, 50),
-                new ReferenceExchangeData(Country.FR, Country.SK, 50));
-        ReferenceProgram referenceProgram = new ReferenceProgram(exchangeDataList);
-
-        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
-        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
-        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/glsk_lots_of_lf_12nodes.xml"), network, instant);
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, ucteGlskProvider, network, referenceProgram);
-        assertNotNull(loopFlowComputation);
-        assertEquals(2, loopFlowComputation.getCountries().size());
-        assertTrue(loopFlowComputation.getCountries().contains(Country.FR));
-        assertTrue(loopFlowComputation.getCountries().contains(Country.BE));
-    }
-
-    private void setCnecLoopFlowInputThresholdAsPercentageOfMaxThreshold(double percentage) {
-        crac.getCnecs(crac.getPreventiveState()).forEach(cnec -> {
-            double pMax = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-            double loopflowInputLimit = percentage * Math.abs(pMax);
-            cnec.addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(loopflowInputLimit, Unit.MEGAWATT));
-        });
+        assertEquals(30., loopFlowResult.getReferenceFlow(crac.getCnec("FR-BE1")), DOUBLE_TOLERANCE);
+        assertEquals(280., loopFlowResult.getReferenceFlow(crac.getCnec("BE1-BE2")), DOUBLE_TOLERANCE);
+        assertEquals(30., loopFlowResult.getReferenceFlow(crac.getCnec("BE2-NL")), DOUBLE_TOLERANCE);
+        assertEquals(170., loopFlowResult.getReferenceFlow(crac.getCnec("FR-DE")), DOUBLE_TOLERANCE);
+        assertEquals(170., loopFlowResult.getReferenceFlow(crac.getCnec("DE-NL")), DOUBLE_TOLERANCE);
     }
 }

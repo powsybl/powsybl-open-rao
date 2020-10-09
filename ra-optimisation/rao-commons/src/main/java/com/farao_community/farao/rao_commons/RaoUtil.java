@@ -7,12 +7,13 @@
 
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.*;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
@@ -58,11 +59,33 @@ public final class RaoUtil {
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            LoopFlowComputationService.checkDataConsistency(raoData);
-            LoopFlowComputationService.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters.getLoopFlowViolationCost());
+            LoopFlowUtil.checkDataConsistency(raoData);
         }
 
         return raoData;
+    }
+
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
+
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
+            .builder()
+            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
+
+        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
+
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()));
+
+            // For now, we compute the PTDF for all the preventive states at the LoopFLowComputation API does not allow
+            // to compute the loopFlows only for a given set of cnecs
+            // todo : compute sensitivities for Cnec with loopFlowExtensions only
+
+            // We may also want to have a different interface for the first run and the successive runs if we do not wish to
+            // compute the PTDFs at every iteration.
+        }
+
+        return builder.build();
     }
 
     public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
@@ -84,7 +107,7 @@ public final class RaoUtil {
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
         return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost());
+            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityComputationParameters());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
@@ -99,9 +122,8 @@ public final class RaoUtil {
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
-                return new MinMarginObjectiveFunction(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
             case MAX_MIN_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+                return new MinMarginObjectiveFunction(raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
