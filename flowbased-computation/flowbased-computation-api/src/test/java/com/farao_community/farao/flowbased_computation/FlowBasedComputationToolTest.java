@@ -61,8 +61,8 @@ public class FlowBasedComputationToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "instant", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
 
-        Assert.assertEquals(tool.getCommand().getTheme(), "Computation");
-        Assert.assertEquals(tool.getCommand().getDescription(), "Run modular FlowBased computation");
+        Assert.assertEquals("Computation", tool.getCommand().getTheme());
+        Assert.assertEquals("Run modular FlowBased computation", tool.getCommand().getDescription());
     }
 
     @Test
