@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_impl.json.deserializers.SimpleCracDes
 import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
@@ -44,7 +43,6 @@ public class JsonImport implements CracImporter {
         }
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.registerModule(new Jdk8Module());
             SimpleModule module = new SimpleModule();
             module.addDeserializer(SimpleCrac.class, new SimpleCracDeserializer());
             objectMapper.registerModule(module);

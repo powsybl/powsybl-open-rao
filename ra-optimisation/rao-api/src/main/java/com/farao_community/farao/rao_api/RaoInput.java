@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,7 +33,6 @@ public final class RaoInput {
         private GlskProvider glskProvider;
 
         private RaoInputBuilder() {
-
         }
 
         public RaoInputBuilder withCrac(Crac crac) {

@@ -30,10 +30,6 @@
             <artifactId>farao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

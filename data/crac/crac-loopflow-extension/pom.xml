@@ -18,7 +18,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-computation-api</artifactId>
+            <artifactId>farao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
