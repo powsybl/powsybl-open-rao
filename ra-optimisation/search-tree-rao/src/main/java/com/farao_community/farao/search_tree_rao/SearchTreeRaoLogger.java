@@ -11,10 +11,7 @@ import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.*;
 
 import java.text.DecimalFormat;
 import java.util.Comparator;
@@ -54,10 +51,10 @@ final class SearchTreeRaoLogger {
         SearchTreeRao.LOGGER.info(rangeActionsLog);
     }
 
-    static void logMostLimitingElementsResults(Leaf leaf, Unit unit) {
+    static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
         List<Cnec> sortedCnecs = leaf.getRaoData().getCnecs().stream().
             filter(Cnec::isOptimized).
-            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit))).
+            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins, leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId()));
             collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
@@ -65,7 +62,7 @@ final class SearchTreeRaoLogger {
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
-            String margin = new DecimalFormat("#0.00").format(computeCnecMargin(cnec, leaf.getBestVariantId(), unit));
+            String margin = new DecimalFormat("#0.00").format(computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins));
             SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a margin of {} {}",
                 i + 1,
                 cnecNetworkElementName,
@@ -75,10 +72,15 @@ final class SearchTreeRaoLogger {
         }
     }
 
-    private static double computeCnecMargin(Cnec cnec, String variantId, Unit unit) {
+    private static double computeCnecMargin(Cnec cnec, String variantId, Unit unit, boolean relativePositiveMargins, CracResult cracResult) {
         CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
-        return cnec.computeMargin(actualValue, unit);
+        double absoluteMargin = cnec.computeMargin(actualValue, unit);
+        if (relativePositiveMargins && (absoluteMargin > 0)) {
+            return absoluteMargin / cracResult.getAbsPtdfSums().get(cnec.getId());
+        } else {
+            return absoluteMargin;
+        }
     }
 }

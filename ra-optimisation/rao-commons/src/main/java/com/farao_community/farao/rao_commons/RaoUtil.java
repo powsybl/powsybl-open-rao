@@ -8,43 +8,30 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFLowsParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.util.EICode;
-import com.farao_community.farao.util.SensitivityComputationService;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFactorsProvider;
-import com.powsybl.sensitivity.SensitivityValue;
-import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
-import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -91,18 +78,6 @@ public final class RaoUtil {
             LoopFlowUtil.checkDataConsistency(raoData);
         }
 
-        // TO DO : move to ReferenceSensitivityComputation
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            List<Pair<Country, Country>> boundaries = raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries();
-            computeAndSaveAbsolutePtdfSums(raoInput, raoData, boundaries);
-        }
-
-        // TO DO : move to ReferenceSensitivityComputation
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            List<Pair<Country, Country>> boundaries = raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries();
-            computeAndSaveAbsolutePtdfSums(raoInput, raoData, boundaries);
-        }
-
         return raoData;
     }
 
@@ -124,6 +99,8 @@ public final class RaoUtil {
 
             // We may also want to have a different interface for the first run and the successive runs if we do not wish to
             // compute the PTDFs at every iteration.
+        } else if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCnecs());
         }
 
         return builder.build();
@@ -151,57 +128,6 @@ public final class RaoUtil {
         }
     }
 
-    private static void computeAndSaveAbsolutePtdfSums(RaoInput raoInput, RaoData raoData, List<Pair<Country, Country>> boundaries) {
-        Map<String, Double> ptdfSums = new HashMap<>();
-        Map<Cnec, Map<Country, Double>> ptdfMap = computePtdfOnCurrentNetwork(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getGlskProvider().orElse(null));
-        raoInput.getCrac().getCnecs().forEach(cnec -> {
-            double ptdfSum = 0;
-            for (Pair<Country, Country> countryPair : boundaries) {
-                if (ptdfMap.get(cnec).containsKey(countryPair.getLeft()) && ptdfMap.get(cnec).containsKey(countryPair.getRight())) {
-                    ptdfSum += Math.abs(ptdfMap.get(cnec).get(countryPair.getLeft()).doubleValue() - ptdfMap.get(cnec).get(countryPair.getRight()).doubleValue());
-                }
-            }
-            ptdfSums.put(cnec.getId(), ptdfSum);
-        });
-        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
-    }
-
-    private static Map<Cnec, Map<Country, Double>> computePtdfOnCurrentNetwork(Crac crac, Network network, GlskProvider glskProvider) {
-        Map<Cnec, Map<Country, Double>> ptdfs = new HashMap<>();
-        SensitivityFactorsProvider factorsProvider = net -> generateSensitivityFactorsProvider(net, crac.getCnecs(), glskProvider);
-        SensitivityComputationResults sensiResults = SensitivityComputationService.runSensitivity(network, network.getVariantManager().getWorkingVariantId(), factorsProvider);
-        sensiResults.getSensitivityValues().forEach(sensitivityValue -> addSensitivityValue(sensitivityValue, crac, ptdfs));
-        return ptdfs;
-    }
-
-    private static List<SensitivityFactor> generateSensitivityFactorsProvider(Network network, Set<Cnec> cnecs, GlskProvider glskProvider) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
-        cnecs.forEach(cnec -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(cnec.getId(), cnec.getName(), cnec.getNetworkElement().getId()), linearGlsk))
-                .forEach(factors::add));
-        return factors;
-    }
-
-    private static void addSensitivityValue(SensitivityValue sensitivityValue, Crac crac, Map<Cnec, Map<Country, Double>> ptdfs) {
-        String cnecId = sensitivityValue.getFactor().getFunction().getId();
-        Cnec cnec = crac.getCnec(cnecId);
-        String glskId = sensitivityValue.getFactor().getVariable().getId();
-        double ptdfValue = sensitivityValue.getValue();
-        if (!ptdfs.containsKey(cnec)) {
-            ptdfs.put(cnec, new HashMap<>());
-        }
-        ptdfs.get(cnec).put(glskIdToCountry(glskId), ptdfValue);
-    }
-
-    private static Country glskIdToCountry(String glskId) {
-        if (glskId.length() < EICode.LENGTH) {
-            throw new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
-        }
-        EICode eiCode = new EICode(glskId.substring(0, EICode.LENGTH));
-        return eiCode.getCountry();
-    }
-
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
         return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
             raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityComputationParameters());
@@ -220,11 +146,9 @@ public final class RaoUtil {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(raoParameters);
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
-                return new MinRelativeMarginObjectiveFunction(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                return new MinRelativeMarginObjectiveFunction(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+                return new MinMarginObjectiveFunction(raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
