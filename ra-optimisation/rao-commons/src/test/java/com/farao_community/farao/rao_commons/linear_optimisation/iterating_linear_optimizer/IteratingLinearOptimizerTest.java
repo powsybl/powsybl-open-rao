@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
@@ -143,7 +144,7 @@ public class IteratingLinearOptimizerTest {
             systematicSensitivityInterface,
             costEvaluator,
             linearOptimizer,
-            parameters).optimize(raoData);
+            parameters, false).optimize(raoData);
 
         // check results
         assertNotNull(bestVariantId);
@@ -164,6 +165,40 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
+    public void optimizeRelativeMargins() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+
+        String preOptimVariant = raoData.getWorkingVariantId();
+
+        Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
+        Mockito.when(costEvaluator.getFunctionalCost(Mockito.any())).thenReturn(-20., -50., -80., -100.);
+
+        // run an iterating optimization
+        String bestVariantId = new IteratingLinearOptimizer(
+                systematicSensitivityInterface,
+                costEvaluator,
+                linearOptimizer,
+                parameters, true).optimize(raoData);
+
+        // check results
+        assertNotNull(bestVariantId);
+        /*assertEquals(100, crac.getExtension(CracResultExtension.class).getVariant(preOptimVariant).getCost(), DOUBLE_TOLERANCE);
+        assertEquals(20, crac.getExtension(CracResultExtension.class).getVariant(bestVariantId).getCost(), DOUBLE_TOLERANCE);
+
+        // In the end CRAC should contain results only for pre-optim variant and post-optim variant
+        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
+        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(1)));
+        assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+                .getVariant(preOptimVariant)
+                .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+                .getVariant(bestVariantId)
+                .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);*/
+    }
+
+    @Test
     public void optimizeWithInfeasibility() {
         String preOptimVariant = raoData.getWorkingVariantId();
 
@@ -175,7 +210,7 @@ public class IteratingLinearOptimizerTest {
             systematicSensitivityInterface,
             costEvaluator,
             linearOptimizer,
-            parameters).optimize(raoData);
+            parameters, false).optimize(raoData);
 
         // check results
         assertNotNull(bestVariantId);

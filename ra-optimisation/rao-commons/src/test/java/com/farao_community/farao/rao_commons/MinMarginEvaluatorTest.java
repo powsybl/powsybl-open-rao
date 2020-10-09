@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -51,7 +50,7 @@ public class MinMarginEvaluatorTest {
                 "cnec2basecase", 0.4,
                 "cnec2stateCurativeContingency1", 0.6,
                 "cnec2stateCurativeContingency2", 0.6);
-        crac.getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setPtdfSums(ptdfSums);
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
 
@@ -84,7 +83,7 @@ public class MinMarginEvaluatorTest {
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true);
-        assertEquals(-1350, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-3600, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -101,7 +100,7 @@ public class MinMarginEvaluatorTest {
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true);
-        assertEquals(-1350, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-3600, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test

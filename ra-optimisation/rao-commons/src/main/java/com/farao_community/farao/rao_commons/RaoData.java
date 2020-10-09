@@ -40,6 +40,7 @@ public class RaoData {
     private RaoDataManager raoDataManager;
     private ReferenceProgram referenceProgram;
     private GlskProvider glskProvider;
+    private boolean maximizeMinRelativeMargin;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
@@ -62,6 +63,7 @@ public class RaoData {
         this.systematicSensitivityResultMap = new HashMap<>();
         this.referenceProgram = referenceProgram;
         this.glskProvider = glskProvider;
+        this.maximizeMinRelativeMargin = false;
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
@@ -87,6 +89,14 @@ public class RaoData {
      */
     public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
         this(network, crac, optimizedState, perimeter, null, null);
+    }
+
+    public boolean isMaximizeMinRelativeMargin() {
+        return maximizeMinRelativeMargin;
+    }
+
+    public void setMaximizeMinRelativeMargin(boolean maximizeMinRelativeMargin) {
+        this.maximizeMinRelativeMargin = maximizeMinRelativeMargin;
     }
 
     public List<String> getVariantIds() {

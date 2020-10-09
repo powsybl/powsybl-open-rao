@@ -13,11 +13,10 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
@@ -32,10 +31,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -44,7 +45,7 @@ import static org.mockito.ArgumentMatchers.*;
 @PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
-
+    private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
 
     private NetworkAction na1;
@@ -133,12 +134,18 @@ public class LeafTest {
 
     @Test
     public void testLeafDefinition() {
+        Map<String, Double> rootPtdfSums = Map.of("cnec1", 0.5, "cnec2", .4);
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(rootPtdfSums);
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
+        Map<String, Double> childPtdfSums = leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId()).getAbsPtdfSums();
+        assertNotNull(childPtdfSums);
+        assertEquals(0.5, childPtdfSums.get("cnec1"), DOUBLE_TOLERANCE);
+        assertEquals(0.4, childPtdfSums.get("cnec2"), DOUBLE_TOLERANCE);
     }
 
     @Test

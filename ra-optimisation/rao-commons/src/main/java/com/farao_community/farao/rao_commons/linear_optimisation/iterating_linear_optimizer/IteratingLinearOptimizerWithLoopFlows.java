@@ -31,7 +31,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
                                                  SystematicSensitivityInterface systematicSensitivityInterface,
                                                  ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
-        super(fillers, systematicSensitivityInterface, objectiveFunctionEvaluator, parameters);
+        super(fillers, systematicSensitivityInterface, objectiveFunctionEvaluator, parameters, false);
         loopFlowApproximation = parameters.isLoopflowApproximation();
         loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);
