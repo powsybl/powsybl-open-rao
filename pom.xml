@@ -75,8 +75,6 @@
         <module>commons</module>
         <module>data</module>
         <module>distribution</module>
-        <module>flowbased-computation</module>
-        <module>flow-decomposition</module>
         <module>loopflow-computation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-computation</module>
@@ -392,31 +390,6 @@
                 <version>${google.guava.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-guava</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.farao-community.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
@@ -429,11 +402,6 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-commons</artifactId>
-                <version>${powsybl.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-config-classic</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
             <dependency>
@@ -482,61 +450,6 @@
                 <version>${threeten.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.rte-france.powsybl</groupId>
-                <artifactId>powsybl-hades2-integration</artifactId>
-                <version>${powsybl.hades2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commonsio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.vavr</groupId>
-                <artifactId>vavr</artifactId>
-                <version>${vavr.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.vavr</groupId>
-                <artifactId>vavr-jackson</artifactId>
-                <version>${vavr.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>${javax.annotation.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-csv</artifactId>
-                <version>${apache.commonscsv.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi</artifactId>
-                <version>${apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi-excelant</artifactId>
-                <version>${apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi-ooxml</artifactId>
-                <version>${apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ejml</groupId>
-                <artifactId>ejml-all</artifactId>
-                <version>${ejml.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>${jgrapht.core.version}</version>
@@ -547,12 +460,18 @@
                 <version>${slf4j.version}</version>
             </dependency>
 
-            <!-- Provided dependencies -->
+            <!-- Runtime dependencies -->
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-config-classic</artifactId>
+                <version>${powsybl.core.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.rte-france.powsybl</groupId>
+                <artifactId>powsybl-hades2-integration</artifactId>
+                <version>${powsybl.hades2.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Test dependencies -->
@@ -583,6 +502,12 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-config-test</artifactId>
+                <version>${powsybl.core.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-iidm-impl</artifactId>
                 <version>${powsybl.core.version}</version>
                 <scope>test</scope>
@@ -597,30 +522,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.easytesting</groupId>
-                <artifactId>fest-assert</artifactId>
-                <version>${test.assert.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-core</artifactId>
-                <version>${hamcrest.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-library</artifactId>
-                <version>${hamcrest.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -645,12 +546,6 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-reflect</artifactId>
                 <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-config-test</artifactId>
-                <version>${powsybl.core.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

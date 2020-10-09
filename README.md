@@ -10,7 +10,6 @@
 FARAO stands for *Fully Autonomous Remedial Actions Optimisation*. It is an open-source toolbox that aims at providing a modular engine for remedial actions optimisation.
 
 **farao-core** repository contains the main features of FARAO. It provides a command line tool to interact with these features.
-If you want to use a graphical user interface with FARAO, please consider using [**farao-gse**](https://github.com/farao-community/farao-gse).
 
 For detailed information about FARAO toolbox, please refer to the [detailed documentation](https://farao-community.github.io/docs/).
 
@@ -25,7 +24,7 @@ for development and testing purposes.
 ### Prerequisites
 
 In order to build **farao-core**, you need the following environment available:
-  - Install JDK *(1.8 or greater)*,
+  - Install JDK *(11 or greater)*,
   - Install Maven latest version.
 
 ### Installing
