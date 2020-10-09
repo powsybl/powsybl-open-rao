@@ -75,6 +75,7 @@
         <module>commons</module>
         <module>data</module>
         <module>distribution</module>
+        <module>flowbased-computation</module>
         <module>loopflow-computation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-computation</module>
@@ -94,17 +95,11 @@
 
         <!-- Dependencies versions -->
         <apache.commonscsv.version>1.8</apache.commonscsv.version>
-        <apache.poi.version>3.17</apache.poi.version>
-        <assertj.version>3.17.2</assertj.version>
-        <commonsio.version>2.8.0</commonsio.version>
-        <ejml.version>0.39</ejml.version>
         <google.autoservice.version>1.0-rc7</google.autoservice.version>
         <google.guava.version>29.0-jre</google.guava.version>
         <google.ortools.version>7.8.7959</google.ortools.version>
-        <hamcrest.version>2.2</hamcrest.version>
         <jackson.version>2.11.2</jackson.version>
         <java.version>11</java.version>
-        <javax.annotation.api.version>1.3.2</javax.annotation.api.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jimfs.version>1.1</jimfs.version>
         <jgrapht.core.version>1.0.1</jgrapht.core.version>
@@ -129,8 +124,6 @@
         <powsybl.core.version>3.5.0</powsybl.core.version>
         <powsybl.hades2.version>2.12.1</powsybl.hades2.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <test.assert.version>1.4</test.assert.version>
-        <vavr.version>1.0.0-alpha-3</vavr.version>
         <threeten.version>1.5.0</threeten.version>
     </properties>
 
@@ -395,6 +388,11 @@
                 <version>${google.ortools.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-action-util</artifactId>
                 <version>${powsybl.core.version}</version>
@@ -445,6 +443,11 @@
                 <version>${powsybl.core.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.threeten</groupId>
                 <artifactId>threeten-extra</artifactId>
                 <version>${threeten.version}</version>
@@ -458,6 +461,14 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+
+            <!-- Provided dependencies -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- Runtime dependencies -->

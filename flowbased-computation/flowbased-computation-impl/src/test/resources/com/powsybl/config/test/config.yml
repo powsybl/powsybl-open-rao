@@ -1,0 +1,5 @@
+load-flow:
+  default: "MockLoadflow"
+
+componentDefaultConfig:
+  SensitivityComputationFactory: "com.farao_community.farao.flowbased_computation.impl.SensitivityComputationFactoryMock"
