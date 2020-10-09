@@ -100,6 +100,24 @@ public class RaoUtilTest {
     }
 
     @Test
+    public void createCostEvaluatorFromRaoParametersRelativeMW() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinRelativeMarginObjectiveFunction);
+        assertEquals(MEGAWATT, costEvaluator.getUnit());
+    }
+
+    @Test
+    public void createCostEvaluatorFromRaoParametersRelativeAmps() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        assertTrue(costEvaluator instanceof MinRelativeMarginObjectiveFunction);
+        assertEquals(AMPERE, costEvaluator.getUnit());
+    }
+
+    @Test
     public void testThatRaoDataCreationSynchronizesCrac() {
         assertTrue(raoData.getCrac().isSynchronized());
     }

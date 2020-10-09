@@ -53,7 +53,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getRelativeCoef(Cnec cnec, RaoData raoData) {
-        return relative ? 1 / raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).getPtdfSums().get(cnec.getId()) : 1;
+        return relative ? 1 / raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums().get(cnec.getId()) : 1;
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
@@ -64,7 +64,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     private double getMinMarginInAmpere(RaoData raoData) {
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(Cnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec) * getRelativeCoef(cnec, raoData), Unit.AMPERE)
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Unit.AMPERE) * getRelativeCoef(cnec, raoData)
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN) && raoData.getSystematicSensitivityResult().getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {

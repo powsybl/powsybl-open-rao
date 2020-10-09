@@ -28,6 +28,7 @@ public class LinearProblem {
     private static final String SET_POINT = "setpoint";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
+    private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MAX_LOOPFLOW = "maxloopflow";
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
@@ -127,6 +128,10 @@ public class LinearProblem {
         return cnec.getId() + SEPARATOR + MIN_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
+    private String minimumRelativeMarginConstraintId(Cnec cnec, MarginExtension belowOrAboveThreshold) {
+        return cnec.getId() + SEPARATOR + MIN_RELATIVE_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
     public MPConstraint addMinimumMarginConstraint(double lb, double ub, Cnec cnec, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, belowOrAboveThreshold));
     }
@@ -135,8 +140,20 @@ public class LinearProblem {
         return solver.lookupConstraintOrNull(minimumMarginConstraintId(cnec, belowOrAboveThreshold));
     }
 
+    public MPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, Cnec cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.makeConstraint(lb, ub, minimumRelativeMarginConstraintId(cnec, belowOrAboveThreshold));
+    }
+
+    public MPConstraint getMinimumRelativeMarginConstraint(Cnec cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.lookupConstraintOrNull(minimumRelativeMarginConstraintId(cnec, belowOrAboveThreshold));
+    }
+
     private String minimumMarginVariableId() {
         return MIN_MARGIN + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    private String minimumRelativeMarginVariableId() {
+        return MIN_RELATIVE_MARGIN + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public MPVariable addMinimumMarginVariable(double lb, double ub) {
@@ -147,6 +164,15 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(minimumMarginVariableId());
     }
 
+    public MPVariable addMinimumRelativeMarginVariable(double lb, double ub) {
+        return solver.makeNumVar(lb, ub, minimumRelativeMarginVariableId());
+    }
+
+    public MPVariable getMinimumRelativeMarginVariable() {
+        return solver.lookupVariableOrNull(minimumRelativeMarginVariableId());
+    }
+
+    //Begin MaxLoopFlowFiller section
     public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, Cnec cnec, BoundExtension lbOrUb) {
         return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, lbOrUb));
     }

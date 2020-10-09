@@ -41,7 +41,7 @@ public class CracResult implements Result {
     private NetworkSecurityStatus networkSecurityStatus;
     private double functionalCost;
     private double virtualCost;
-    private Map<String, Double> ptdfSums;
+    private Map<String, Double> absPtdfSums;
 
     public NetworkSecurityStatus getNetworkSecurityStatus() {
         return networkSecurityStatus;
@@ -76,23 +76,23 @@ public class CracResult implements Result {
         this.virtualCost += virtualCost;
     }
 
-    public Map<String, Double> getPtdfSums() {
-        return ptdfSums;
+    public Map<String, Double> getAbsPtdfSums() {
+        return absPtdfSums;
     }
 
-    public void setPtdfSums(Map<String, Double> ptdfSums) {
-        this.ptdfSums = ptdfSums;
+    public void setAbsPtdfSums(Map<String, Double> absPtdfSums) {
+        this.absPtdfSums = absPtdfSums;
     }
 
     @JsonCreator
     public CracResult(@JsonProperty("networkSecurityStatus") NetworkSecurityStatus networkSecurityStatus,
                       @JsonProperty("functionalCost") double functionalCost,
                       @JsonProperty("virtualCost") double virtualCost,
-                      @JsonProperty("ptdfSums") Map<String, Double> ptdfSums) {
+                      @JsonProperty("absPtdfSums") Map<String, Double> absPtdfSums) {
         this.networkSecurityStatus = networkSecurityStatus;
         this.functionalCost = functionalCost;
         this.virtualCost = virtualCost;
-        this.ptdfSums = ptdfSums;
+        this.absPtdfSums = absPtdfSums;
     }
 
     public CracResult(NetworkSecurityStatus networkSecurityStatus,
@@ -101,7 +101,6 @@ public class CracResult implements Result {
         this.networkSecurityStatus = networkSecurityStatus;
         this.functionalCost = functionalCost;
         this.virtualCost = virtualCost;
-        this.ptdfSums = ptdfSums;
     }
 
     public CracResult(double functionalCost) {

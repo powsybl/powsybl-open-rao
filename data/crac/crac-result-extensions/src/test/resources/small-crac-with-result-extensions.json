@@ -139,7 +139,7 @@
           "networkSecurityStatus" : "UNSECURED",
           "functionalCost" : 10.0,
           "virtualCost" : 5.0,
-          "ptdfSums" : {
+          "absPtdfSums" : {
             "Tieline BE FR - Défaut - N-1 NL1-NL3" : 0.5,
             "Tieline BE FR - N - preventive" : 0.6
           }

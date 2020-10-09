@@ -103,6 +103,7 @@ class Leaf {
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        insertAbsPtdfSums(initialVariantId, parentLeaf.getRaoData().getCracResult(parentLeaf.getRaoData().getInitialVariantId()).getAbsPtdfSums());
 
         status = Status.CREATED;
     }
@@ -269,6 +270,15 @@ class Leaf {
         for (NetworkAction networkAction : networkActions) {
             networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
         }
+    }
+
+    /**
+     * This method inserts pre-computed absolute PTDF sums into the leaf's crac result extension
+     * @param variantId: the ID of the variant to update.
+     * @param absPtdfSums: the absolute PTDF sums (for each CNEC) to insert.
+     */
+    private void insertAbsPtdfSums(String variantId, Map<String, Double> absPtdfSums) {
+        raoData.getCracResult(variantId).setAbsPtdfSums(absPtdfSums);
     }
 
     @Override

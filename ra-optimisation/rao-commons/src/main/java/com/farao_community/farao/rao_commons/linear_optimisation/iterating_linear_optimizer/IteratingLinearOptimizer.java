@@ -13,8 +13,8 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
+import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,23 +44,26 @@ public class IteratingLinearOptimizer {
     protected ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
     protected LinearOptimizer linearOptimizer;
     protected IteratingLinearOptimizerParameters parameters;
+    protected boolean optimizeRelativeMargins;
 
     public IteratingLinearOptimizer(List<ProblemFiller> fillers,
                                     SystematicSensitivityInterface systematicSensitivityInterface,
                                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
-                                    IteratingLinearOptimizerParameters parameters) {
-        this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
+                                    IteratingLinearOptimizerParameters parameters, boolean optimizeRelativeMargins) {
+        this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters, optimizeRelativeMargins);
     }
 
     // Method for tests
     IteratingLinearOptimizer(SystematicSensitivityInterface systematicSensitivityInterface,
                              ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                              LinearOptimizer linearOptimizer,
-                             IteratingLinearOptimizerParameters parameters) {
+                             IteratingLinearOptimizerParameters parameters,
+                             boolean optimizeRelativeMargins) {
         this.systematicSensitivityInterface = systematicSensitivityInterface;
         this.objectiveFunctionEvaluator = objectiveFunctionEvaluator;
         this.linearOptimizer = linearOptimizer;
         this.parameters = parameters;
+        this.optimizeRelativeMargins = optimizeRelativeMargins;
     }
 
     public ObjectiveFunctionEvaluator getObjectiveFunctionEvaluator() {
@@ -82,9 +85,9 @@ public class IteratingLinearOptimizer {
             optimizedVariantId = raoData.cloneWorkingVariant();
             raoData.setWorkingVariant(optimizedVariantId);
             if (!optimize(iteration)
-                || !hasRemedialActionsChanged(optimizedVariantId, iteration)
-                || !evaluateNewCost(optimizedVariantId, iteration)
-                || !hasCostImproved(optimizedVariantId, iteration)) {
+                    || !hasRemedialActionsChanged(optimizedVariantId, iteration)
+                    || !evaluateNewCost(optimizedVariantId, iteration)
+                    || !hasCostImproved(optimizedVariantId, iteration)) {
                 return getBestVariantWithSafeDelete(optimizedVariantId);
             }
             updateBestVariantId(optimizedVariantId);
@@ -96,6 +99,14 @@ public class IteratingLinearOptimizer {
         // If optimization fails iteration can stop
         try {
             LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
+            if (optimizeRelativeMargins && iteration > 1
+                    && raoData.getCracResult(bestVariantId).getNetworkSecurityStatus().equals(CracResult.NetworkSecurityStatus.SECURED)
+                    && !raoData.isMaximizeMinRelativeMargin()) {
+                LOGGER.info("Network status is secured. Switching to relative margin optimization.");
+                raoData.setMaximizeMinRelativeMargin(true);
+            } else {
+                raoData.setMaximizeMinRelativeMargin(false);
+            }
             linearOptimizer.optimize(raoData);
             if (!linearOptimizer.getSolverResultStatusString().equals("OPTIMAL")) {
                 LOGGER.info(format(LINEAR_OPTIMIZATION_INFEASIBLE, iteration)); //handle INFEASIBLE solver status
@@ -129,7 +140,7 @@ public class IteratingLinearOptimizer {
             return true;
         } catch (SensitivityComputationException e) {
             LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
-                systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
+                    systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
             return false;
         }
     }
@@ -144,8 +155,8 @@ public class IteratingLinearOptimizer {
             return true;
         } else { // unexpected behaviour, stop the search
             LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
-                -optimizedVariantResult.getFunctionalCost(), objectiveFunctionEvaluator.getUnit(), bestVariantResult.getCost(),
-                optimizedVariantResult.getCost()));
+                    -optimizedVariantResult.getFunctionalCost(), objectiveFunctionEvaluator.getUnit(), bestVariantResult.getCost(),
+                    optimizedVariantResult.getCost()));
             return false;
         }
     }

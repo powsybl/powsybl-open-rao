@@ -20,6 +20,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Map;
+
+import static com.farao_community.farao.commons.Unit.AMPERE;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
@@ -31,27 +36,30 @@ import static org.junit.Assert.*;
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private MaxMinMarginFiller maxMinMarginFiller;
+    private MaxMinMarginFiller maxMinRelativeMarginFiller;
+    static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     @Before
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
-        maxMinMarginFiller = new MaxMinMarginFiller();
+        maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, false);
+        maxMinRelativeMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, true);
     }
 
-    private void fillProblemWithFiller() {
+    private void fillProblemWithCoreFiller() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
 
         // fill the problem : the core filler is required
         coreProblemFiller.fill(raoData, linearProblem);
-        maxMinMarginFiller.fill(raoData, linearProblem);
     }
 
     @Test
     public void fillWithMaxMinMarginInMegawatt() {
-        fillProblemWithFiller();
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -93,7 +101,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     @Test
     public void fillWithMaxMinMarginInAmpere() {
         maxMinMarginFiller.setUnit(Unit.AMPERE);
-        fillProblemWithFiller();
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -162,11 +171,116 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
                 .setInstant(crac.getInstant("N"))
                 .add();
         Cnec mnec = crac.getCnec("MNEC - N - preventive");
-        fillProblemWithFiller();
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
         MPConstraint mnecAboveThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         MPConstraint mnecBelowThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNull(mnecAboveThreshold);
         assertNull(mnecBelowThreshold);
+    }
+
+    @Test
+    public void fillWithMaxMinRelativeMarginInMegawatt() {
+        // this is almost a copy of fillWithMaxMinMarginInMegawatt()
+        // only the coefficients in the MinMargin constraint should be different
+        fillProblemWithCoreFiller();
+        Map<String, Double> ptdfSums = Map.of(cnec1.getId(), 0.9, cnec2.getId(), 0.7);
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        maxMinRelativeMarginFiller.fill(raoData, linearProblem);
+
+        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
+        MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+
+        // check minimum margin variable
+        MPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        assertNotNull(minimumMargin);
+
+        // check minimum margin constraints
+        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        assertNotNull(cnec1AboveThreshold);
+        assertNotNull(cnec1BelowThreshold);
+        assertEquals(-Double.POSITIVE_INFINITY, cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-Double.POSITIVE_INFINITY, cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-1 / 0.9, cnec1BelowThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
+        assertEquals(1 / 0.9, cnec1AboveThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+
+        // check objective
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
+        assertTrue(linearProblem.getObjective().minimization());
+
+        // check the number of variables and constraints
+        assertEquals(4, linearProblem.getSolver().numVariables());
+        assertEquals(5, linearProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void fillWithMaxMinRelativeMarginInAmpere() {
+        // this is almost a copy of fillWithMaxMinMarginInAmpere()
+        // only the objective function should be different
+        fillProblemWithCoreFiller();
+        Map<String, Double> ptdfSums = Map.of(cnec1.getId(), 0.5, cnec2.getId(), 0.1);
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        maxMinRelativeMarginFiller.setUnit(AMPERE);
+        maxMinRelativeMarginFiller.fill(raoData, linearProblem);
+
+        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
+        MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+
+        // check minimum margin variable
+        MPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        assertNotNull(minimumMargin);
+
+        // check minimum margin constraints
+        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        assertNotNull(cnec1AboveThreshold);
+        assertNotNull(cnec1BelowThreshold);
+        assertEquals(-Double.POSITIVE_INFINITY, cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-Double.POSITIVE_INFINITY, cnec1AboveThreshold.lb(), DOUBLE_TOLERANCE);
+        assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-1 / 0.5, cnec1BelowThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
+        assertEquals(1 / 0.5, cnec1AboveThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
+
+        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+
+        // check objective
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), 1e-10); // penalty cost
+        assertTrue(linearProblem.getObjective().minimization());
+
+        // check the number of variables and constraints
+        assertEquals(4, linearProblem.getSolver().numVariables());
+        assertEquals(5, linearProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void testUpdate() {
+        Map<String, Double> ptdfSums = Map.of(cnec1.getId(), 0.8, cnec2.getId(), 0.7);
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
+        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
+        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+
+        // convert to relative
+        raoData.setMaximizeMinRelativeMargin(true);
+        maxMinMarginFiller.update(raoData, linearProblem);
+        assertEquals(-1 / 0.8, cnec1BelowThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
+        assertEquals(1 / 0.8, cnec1AboveThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
+
+        // convert back to absolute
+        raoData.setMaximizeMinRelativeMargin(false);
+        maxMinMarginFiller.update(raoData, linearProblem);
+        assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
     }
 }
 

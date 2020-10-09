@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
@@ -44,8 +43,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE;
-import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
+import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
+import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -71,7 +70,9 @@ public final class RaoUtil {
             if (!raoInput.getGlskProvider().isPresent()) {
                 throw new FaraoException("Relative margin objective function requires a GLSK provider.");
             }
-            if (Objects.isNull(raoInput.getBoundaries()) || raoInput.getBoundaries().isEmpty()) {
+            if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
+                    || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
+                    || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
                 throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
             }
         }
@@ -92,7 +93,8 @@ public final class RaoUtil {
 
         // TO DO : move to ReferenceSensitivityComputation
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            computeAndSavePtdfSums(raoInput, raoData);
+            List<Pair<Country, Country>> boundaries = raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries();
+            computeAndSaveAbsolutePtdfSums(raoInput, raoData, boundaries);
         }
 
         return raoData;
@@ -125,30 +127,37 @@ public final class RaoUtil {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
-                || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
+                || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)
+                || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
+            fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), false));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
+        boolean optimizeRelativeMargins = raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            // TO DO : add relative margins to IteratingLinearOptimizerWithLoopFlows
+            // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
                     createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters), optimizeRelativeMargins);
         }
     }
 
-    private static void computeAndSavePtdfSums(RaoInput raoInput, RaoData raoData) {
+    private static void computeAndSaveAbsolutePtdfSums(RaoInput raoInput, RaoData raoData, List<Pair<Country, Country>> boundaries) {
         Map<String, Double> ptdfSums = new HashMap<>();
         Map<Cnec, Map<Country, Double>> ptdfMap = computePtdfOnCurrentNetwork(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getGlskProvider().orElse(null));
         raoInput.getCrac().getCnecs().forEach(cnec -> {
             double ptdfSum = 0;
-            for (Pair<Country, Country> countryPair : raoInput.getBoundaries()) {
-                ptdfSum += ptdfMap.get(cnec).get(countryPair.getLeft()).doubleValue() - ptdfMap.get(cnec).get(countryPair.getRight()).doubleValue();
+            for (Pair<Country, Country> countryPair : boundaries) {
+                if (ptdfMap.get(cnec).containsKey(countryPair.getLeft()) && ptdfMap.get(cnec).containsKey(countryPair.getRight())) {
+                    ptdfSum += Math.abs(ptdfMap.get(cnec).get(countryPair.getLeft()).doubleValue() - ptdfMap.get(cnec).get(countryPair.getRight()).doubleValue());
+                }
             }
             ptdfSums.put(cnec.getId(), ptdfSum);
         });
-        raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setPtdfSums(ptdfSums);
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
     }
 
     private static Map<Cnec, Map<Country, Double>> computePtdfOnCurrentNetwork(Crac crac, Network network, GlskProvider glskProvider) {
@@ -206,6 +215,10 @@ public final class RaoUtil {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_MARGIN_IN_MEGAWATT:
                 return new MinMarginObjectiveFunction(raoParameters);
+            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
+                return new MinRelativeMarginObjectiveFunction(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+            case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
+                return new MinRelativeMarginObjectiveFunction(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }

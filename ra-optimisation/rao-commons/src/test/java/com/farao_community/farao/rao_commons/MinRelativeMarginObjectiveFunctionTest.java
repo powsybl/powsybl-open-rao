@@ -66,7 +66,7 @@ public class MinRelativeMarginObjectiveFunctionTest {
         crac.getCnecs().forEach(cnec -> {
             ptdfSums.put(cnec.getId(), rand.nextDouble());
         });
-        raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setPtdfSums(ptdfSums);
+        raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
 
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);
