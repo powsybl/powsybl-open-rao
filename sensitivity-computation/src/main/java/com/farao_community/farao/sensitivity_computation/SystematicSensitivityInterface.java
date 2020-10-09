@@ -136,7 +136,12 @@ public final class SystematicSensitivityInterface {
         }
 
         try {
-            return runWithConfig(network, sensitivityComputationParameters, defaultUnit);
+            SystematicSensitivityResult result = runWithConfig(network, sensitivityComputationParameters, defaultUnit);
+            if (fallbackMode) {
+                result.setStatus(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
+            }
+            return result;
+
         } catch (SensitivityComputationException e) {
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity computation with default parameters, fallback sensitivity parameters are now used.");

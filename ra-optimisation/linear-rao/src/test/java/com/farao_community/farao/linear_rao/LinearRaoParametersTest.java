@@ -17,8 +17,6 @@ import static org.junit.Assert.*;
  */
 public class LinearRaoParametersTest {
 
-    private static final double DOUBLE_TOLERANCE = 0.1;
-
     private LinearRaoParameters raoParameters;
 
     @Before

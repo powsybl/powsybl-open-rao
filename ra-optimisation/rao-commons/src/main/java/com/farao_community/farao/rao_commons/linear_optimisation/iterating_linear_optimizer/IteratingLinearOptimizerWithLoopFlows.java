@@ -7,17 +7,13 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.rao_commons.LoopFlowComputationService;
-import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.LoopFlowUtil;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
 
 import java.util.List;
-import java.util.Map;
-
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -25,7 +21,6 @@ import static java.lang.String.format;
 public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimizer {
 
     private boolean loopFlowApproximation;
-    private double loopFlowViolationCost;
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
                                                  SystematicSensitivityInterface systematicSensitivityInterface,
@@ -33,25 +28,19 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
         super(fillers, systematicSensitivityInterface, objectiveFunctionEvaluator, parameters);
         loopFlowApproximation = parameters.isLoopflowApproximation();
-        loopFlowViolationCost = parameters.getLoopFlowViolationCost();
         linearOptimizer = new LinearOptimizer(fillers);
     }
 
     @Override
-    protected boolean evaluateNewCost(String optimizedVariantId, int iteration) {
-        // If evaluating the new cost fails iteration can stop
-        raoData.setWorkingVariant(optimizedVariantId);
-        try {
-            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            runSensitivityAndUpdateResults();
-            Map<String, Double> loopFlows = LoopFlowComputationService.calculateLoopFlows(raoData, loopFlowApproximation);
-            raoData.getRaoDataManager().fillCracResultsWithLoopFlows(loopFlows, loopFlowViolationCost);
-            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
-            return true;
-        } catch (SensitivityComputationException e) {
-            LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
-                systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
-            return false;
-        }
+    void runSensitivityAndUpdateResults() {
+
+        raoData.setSystematicSensitivityResult(
+            systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
+
+        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, loopFlowApproximation);
+
+        raoData.getRaoDataManager().fillCnecResultWithFlows();
+        raoData.getRaoDataManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
+
     }
 }

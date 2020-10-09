@@ -32,9 +32,9 @@ public class MultipleSensitivityProviderTest {
     private Network network;
     private Crac crac;
     private GlskProvider glskProviderMock;
-    PtdfSensitivityProvider ptdfSensitivityProvider;
-    RangeActionSensitivityProvider rangeActionSensitivityProvider;
-    MultipleSensitivityProvider multipleSensitivityProvider;
+    private PtdfSensitivityProvider ptdfSensitivityProvider;
+    private RangeActionSensitivityProvider rangeActionSensitivityProvider;
+    private MultipleSensitivityProvider multipleSensitivityProvider;
 
     @Before
     public void setUp() {
@@ -55,8 +55,8 @@ public class MultipleSensitivityProviderTest {
         rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
         List<SensitivityFactor> sensitivityFactors = multipleSensitivityProvider.getFactors(network);
 
-        assertEquals(28, sensitivityFactors.size());
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("cnec2basecase")
+        assertEquals(12, sensitivityFactors.size());
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("BBE2AA1  BBE3AA1  1")));

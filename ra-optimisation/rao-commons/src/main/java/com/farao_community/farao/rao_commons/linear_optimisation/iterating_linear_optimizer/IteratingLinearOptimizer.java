@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.rao_commons.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
@@ -169,8 +169,8 @@ public class IteratingLinearOptimizer {
     void runSensitivityAndUpdateResults() {
         raoData.setSystematicSensitivityResult(
             systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
-        raoData.getRaoDataManager().fillCracResultsWithSensis(objectiveFunctionEvaluator.getFunctionalCost(raoData),
-                (systematicSensitivityInterface.isFallback() ? parameters.getFallbackOverCost() : 0)
-                + objectiveFunctionEvaluator.getVirtualCost(raoData));
+
+        raoData.getRaoDataManager().fillCnecResultWithFlows();
+        raoData.getRaoDataManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
     }
 }
