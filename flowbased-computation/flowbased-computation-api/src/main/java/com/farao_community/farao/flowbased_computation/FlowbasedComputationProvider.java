@@ -17,6 +17,6 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public interface FlowBasedComputationProvider extends Versionable {
-    CompletableFuture<FlowBasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowBasedComputationParameters parameters);
+public interface FlowbasedComputationProvider extends Versionable {
+    CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowbasedComputationParameters parameters);
 }

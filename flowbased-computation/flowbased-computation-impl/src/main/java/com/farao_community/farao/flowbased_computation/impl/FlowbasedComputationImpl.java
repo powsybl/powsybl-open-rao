@@ -33,9 +33,9 @@ import java.util.stream.Collectors;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-@AutoService(FlowBasedComputationProvider.class)
-public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowBasedComputationImpl.class);
+@AutoService(FlowbasedComputationProvider.class)
+public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
@@ -48,7 +48,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
     }
 
     @Override
-    public CompletableFuture<FlowBasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowBasedComputationParameters parameters) {
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowbasedComputationParameters parameters) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(crac);
         Objects.requireNonNull(glskProvider);
@@ -65,7 +65,7 @@ public class FlowBasedComputationImpl implements FlowBasedComputationProvider {
                 .build();
 
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
-        FlowBasedComputationResult flowBasedComputationResult = new FlowBasedComputationResultImpl(FlowBasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(network, crac, glskProvider, result));
+        FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(network, crac, glskProvider, result));
 
         network.getVariantManager().setWorkingVariant(initialVariantId);
         return CompletableFuture.completedFuture(flowBasedComputationResult);

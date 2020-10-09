@@ -24,14 +24,14 @@ import java.util.Objects;
  *
  * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowBasedComputationParameters extends AbstractExtendable<FlowBasedComputationParameters> {
+public class FlowbasedComputationParameters extends AbstractExtendable<FlowbasedComputationParameters> {
 
     /**
      * A configuration loader interface for the FlowBasedComputationParameters extensions loaded from the platform configuration
      *
      * @param <E> The extension class
      */
-    public interface ConfigLoader<E extends Extension<FlowBasedComputationParameters>> extends ExtensionConfigLoader<FlowBasedComputationParameters, E> {
+    public interface ConfigLoader<E extends Extension<FlowbasedComputationParameters>> extends ExtensionConfigLoader<FlowbasedComputationParameters, E> {
     }
 
     public static final String VERSION = "1.0";
@@ -43,14 +43,14 @@ public class FlowBasedComputationParameters extends AbstractExtendable<FlowBased
 
     private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
 
-    public static FlowBasedComputationParameters load() {
+    public static FlowbasedComputationParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public static FlowBasedComputationParameters load(PlatformConfig platformConfig) {
+    public static FlowbasedComputationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        FlowBasedComputationParameters parameters = new FlowBasedComputationParameters();
+        FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
@@ -69,7 +69,7 @@ public class FlowBasedComputationParameters extends AbstractExtendable<FlowBased
         return loadFlowParameters;
     }
 
-    public FlowBasedComputationParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+    public FlowbasedComputationParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
         return this;
     }
@@ -78,7 +78,7 @@ public class FlowBasedComputationParameters extends AbstractExtendable<FlowBased
         return sensitivityComputationParameters;
     }
 
-    public FlowBasedComputationParameters setSensitivityComputationParameters(SensitivityComputationParameters sensitivityComputationParameters) {
+    public FlowbasedComputationParameters setSensitivityComputationParameters(SensitivityComputationParameters sensitivityComputationParameters) {
         this.sensitivityComputationParameters = Objects.requireNonNull(sensitivityComputationParameters);
         return this;
     }

@@ -7,15 +7,15 @@
 package com.farao_community.farao.flowbased_computation.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowBasedComputationParametersJsonModule extends SimpleModule {
+public class FlowbasedComputationParametersJsonModule extends SimpleModule {
 
-    public FlowBasedComputationParametersJsonModule() {
-        addDeserializer(FlowBasedComputationParameters.class, new FlowBasedComputationParametersDeserializer());
-        addSerializer(FlowBasedComputationParameters.class, new FlowBasedComputationParametersSerializer());
+    public FlowbasedComputationParametersJsonModule() {
+        addDeserializer(FlowbasedComputationParameters.class, new FlowbasedComputationParametersDeserializer());
+        addSerializer(FlowbasedComputationParameters.class, new FlowbasedComputationParametersSerializer());
     }
 }

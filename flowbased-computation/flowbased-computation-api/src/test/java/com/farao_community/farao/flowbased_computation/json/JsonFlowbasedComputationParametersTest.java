@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.json;
 
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
@@ -15,10 +15,10 @@ import java.io.IOException;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class JsonFlowBasedComputationParametersTest extends AbstractConverterTest {
+public class JsonFlowbasedComputationParametersTest extends AbstractConverterTest {
     @Test
     public void roundTripDefault() throws IOException {
-        FlowBasedComputationParameters parameters = new FlowBasedComputationParameters();
-        roundTripTest(parameters, JsonFlowBasedComputationParameters::write, JsonFlowBasedComputationParameters::read, "/FlowbasedComputationParameters.json");
+        FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
+        roundTripTest(parameters, JsonFlowbasedComputationParameters::write, JsonFlowbasedComputationParameters::read, "/FlowbasedComputationParameters.json");
     }
 }

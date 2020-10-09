@@ -9,12 +9,12 @@ package com.farao_community.farao.flowbased_computation.tools;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputation;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.CimGlskProvider;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
-import com.farao_community.farao.flowbased_computation.json.JsonFlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
 import com.google.auto.service.AutoService;
 
@@ -42,7 +42,7 @@ import java.time.Instant;
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class FlowBasedComputationTool implements Tool {
+public class FlowbasedComputationTool implements Tool {
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String CRAC_FILE_OPTION = "crac-file";
@@ -154,12 +154,12 @@ public class FlowBasedComputationTool implements Tool {
         //TODO : handling also Ucte format
         GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
-        FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load();
+        FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
-            JsonFlowBasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
+            JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        FlowBasedComputationResult result = FlowBasedComputation.run(network, crac, cimGlskProvider, computationManager, parameters);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlskProvider, computationManager, parameters);
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.getFlowBasedDomain(), Files.newOutputStream(outputFile));
         }

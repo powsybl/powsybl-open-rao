@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 /**
  * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowBasedComputationParametersTest {
+public class FlowbasedComputationParametersTest {
 
     protected PlatformConfig config;
 
@@ -29,7 +29,7 @@ public class FlowBasedComputationParametersTest {
 
     @Test
     public void testExtensions() {
-        FlowBasedComputationParameters parameters = new FlowBasedComputationParameters();
+        FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
@@ -41,7 +41,7 @@ public class FlowBasedComputationParametersTest {
 
     @Test
     public void testNoExtensions() {
-        FlowBasedComputationParameters parameters = new FlowBasedComputationParameters();
+        FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
 
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
@@ -51,14 +51,14 @@ public class FlowBasedComputationParametersTest {
 
     @Test
     public void testExtensionFromConfig() {
-        FlowBasedComputationParameters parameters = FlowBasedComputationParameters.load(config);
+        FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
-    private static class DummyExtension extends AbstractExtension<FlowBasedComputationParameters> {
+    private static class DummyExtension extends AbstractExtension<FlowbasedComputationParameters> {
 
         @Override
         public String getName() {
@@ -66,8 +66,8 @@ public class FlowBasedComputationParametersTest {
         }
     }
 
-    @AutoService(FlowBasedComputationParameters.ConfigLoader.class)
-    public static class DummyLoader implements FlowBasedComputationParameters.ConfigLoader<DummyExtension> {
+    @AutoService(FlowbasedComputationParameters.ConfigLoader.class)
+    public static class DummyLoader implements FlowbasedComputationParameters.ConfigLoader<DummyExtension> {
 
         @Override
         public DummyExtension load(PlatformConfig platformConfig) {

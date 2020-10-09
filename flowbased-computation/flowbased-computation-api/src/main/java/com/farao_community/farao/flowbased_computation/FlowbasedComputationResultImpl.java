@@ -12,16 +12,16 @@ import com.farao_community.farao.data.flowbased_domain.DataDomain;
  * FlowBased Computation Result
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowBasedComputationResultImpl implements FlowBasedComputationResult {
+public class FlowbasedComputationResultImpl implements FlowbasedComputationResult {
     private final Status status;
     private final DataDomain flowBasedDomain;
 
-    public FlowBasedComputationResultImpl() {
+    public FlowbasedComputationResultImpl() {
         status = null;
         flowBasedDomain = null;
     }
 
-    public FlowBasedComputationResultImpl(final Status status, final DataDomain flowBasedDomain) {
+    public FlowbasedComputationResultImpl(final Status status, final DataDomain flowBasedDomain) {
         this.status = status;
         this.flowBasedDomain = flowBasedDomain;
     }

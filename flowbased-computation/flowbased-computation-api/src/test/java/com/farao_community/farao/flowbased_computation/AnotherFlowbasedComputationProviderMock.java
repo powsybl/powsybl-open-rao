@@ -19,17 +19,17 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-@AutoService(FlowBasedComputationProvider.class)
-public class FlowBasedComputationProviderMock implements FlowBasedComputationProvider {
+@AutoService(FlowbasedComputationProvider.class)
+public class AnotherFlowbasedComputationProviderMock implements FlowbasedComputationProvider {
 
     @Override
-    public CompletableFuture<FlowBasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingStateId, FlowBasedComputationParameters parameters) {
-        return CompletableFuture.completedFuture(new FlowBasedComputationResultImpl(FlowBasedComputationResult.Status.SUCCESS, Mockito.mock(DataDomain.class)));
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingStateId, FlowbasedComputationParameters parameters) {
+        return CompletableFuture.completedFuture(new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, Mockito.mock(DataDomain.class)));
     }
 
     @Override
     public String getName() {
-        return "FlowBasedComputationMock";
+        return "AnotherFlowBasedComputationMock";
     }
 
     @Override

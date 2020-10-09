@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class FlowBasedComputationTest {
+public class FlowbasedComputationTest {
 
     private FileSystem fileSystem;
 
@@ -63,29 +63,29 @@ public class FlowBasedComputationTest {
     @Test
     public void testDefaultOneProvider() {
         // case with only one provider, no need for config
-        FlowBasedComputation.Runner defaultFlowBased = FlowBasedComputation.find(null, ImmutableList.of(new FlowBasedComputationProviderMock()), platformConfig);
+        FlowbasedComputation.Runner defaultFlowBased = FlowbasedComputation.find(null, ImmutableList.of(new FlowbasedComputationProviderMock()), platformConfig);
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());
         assertEquals("1.0", defaultFlowBased.getVersion());
-        FlowBasedComputationResult result = defaultFlowBased.run(network, crac, glskProvider, computationManager, new FlowBasedComputationParameters());
+        FlowbasedComputationResult result = defaultFlowBased.run(network, crac, glskProvider, computationManager, new FlowbasedComputationParameters());
         assertNotNull(result);
-        FlowBasedComputationResult resultAsync = defaultFlowBased.runAsync(network, crac, glskProvider, computationManager, new FlowBasedComputationParameters()).join();
+        FlowbasedComputationResult resultAsync = defaultFlowBased.runAsync(network, crac, glskProvider, computationManager, new FlowbasedComputationParameters()).join();
         assertNotNull(resultAsync);
     }
 
     @Test(expected = FaraoException.class)
     public void testDefaultTwoProviders() {
-        FlowBasedComputation.find(null, ImmutableList.of(new FlowBasedComputationProviderMock(), new AnotherFlowBasedComputationProviderMock()), platformConfig);
+        FlowbasedComputation.find(null, ImmutableList.of(new FlowbasedComputationProviderMock(), new AnotherFlowbasedComputationProviderMock()), platformConfig);
     }
 
     @Test(expected = FaraoException.class)
     public void testDefaultNoProvider() {
-        FlowBasedComputation.find(null, ImmutableList.of(), platformConfig);
+        FlowbasedComputation.find(null, ImmutableList.of(), platformConfig);
     }
 
     @Test
     public void testTwoProviders() {
         // case with 2 providers without any config but specifying which one to use programmatically
-        FlowBasedComputation.Runner otherFlowBasedComputation = FlowBasedComputation.find("AnotherFlowBasedComputationMock", ImmutableList.of(new FlowBasedComputationProviderMock(), new AnotherFlowBasedComputationProviderMock()), platformConfig);
+        FlowbasedComputation.Runner otherFlowBasedComputation = FlowbasedComputation.find("AnotherFlowBasedComputationMock", ImmutableList.of(new FlowbasedComputationProviderMock(), new AnotherFlowbasedComputationProviderMock()), platformConfig);
         assertEquals("AnotherFlowBasedComputationMock", otherFlowBasedComputation.getName());
     }
 
@@ -93,7 +93,7 @@ public class FlowBasedComputationTest {
     public void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("flowbased-computation").setStringProperty("default", "AnotherFlowBasedComputationMock");
-        FlowBasedComputation.Runner otherFlowBasedComputation2 = FlowBasedComputation.find(null, ImmutableList.of(new FlowBasedComputationProviderMock(), new AnotherFlowBasedComputationProviderMock()), platformConfig);
+        FlowbasedComputation.Runner otherFlowBasedComputation2 = FlowbasedComputation.find(null, ImmutableList.of(new FlowbasedComputationProviderMock(), new AnotherFlowbasedComputationProviderMock()), platformConfig);
         assertEquals("AnotherFlowBasedComputationMock", otherFlowBasedComputation2.getName());
     }
 
@@ -101,6 +101,6 @@ public class FlowBasedComputationTest {
     public void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("flowbased-computation").setStringProperty("default", "AnotherFlowBasedComputationMock");
-        FlowBasedComputation.find(null, ImmutableList.of(new FlowBasedComputationProviderMock()), platformConfig);
+        FlowbasedComputation.find(null, ImmutableList.of(new FlowbasedComputationProviderMock()), platformConfig);
     }
 }

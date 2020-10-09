@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,21 +22,21 @@ import java.util.List;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowBasedComputationParametersDeserializer extends StdDeserializer<FlowBasedComputationParameters> {
+public class FlowbasedComputationParametersDeserializer extends StdDeserializer<FlowbasedComputationParameters> {
 
-    FlowBasedComputationParametersDeserializer() {
-        super(FlowBasedComputationParameters.class);
+    FlowbasedComputationParametersDeserializer() {
+        super(FlowbasedComputationParameters.class);
     }
 
     @Override
-    public FlowBasedComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new FlowBasedComputationParameters());
+    public FlowbasedComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        return deserialize(parser, deserializationContext, new FlowbasedComputationParameters());
     }
 
     @Override
-    public FlowBasedComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, FlowBasedComputationParameters parameters) throws IOException {
+    public FlowbasedComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, FlowbasedComputationParameters parameters) throws IOException {
 
-        List<Extension<FlowBasedComputationParameters>> extensions = Collections.emptyList();
+        List<Extension<FlowbasedComputationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
@@ -51,7 +51,7 @@ public class FlowBasedComputationParametersDeserializer extends StdDeserializer<
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonFlowBasedComputationParameters.getExtensionSerializers());
+                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonFlowbasedComputationParameters.getExtensionSerializers());
                     break;
 
                 default:
@@ -59,7 +59,7 @@ public class FlowBasedComputationParametersDeserializer extends StdDeserializer<
             }
         }
 
-        JsonFlowBasedComputationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        JsonFlowbasedComputationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
 
         return parameters;
     }

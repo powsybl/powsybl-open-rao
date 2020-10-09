@@ -11,7 +11,7 @@ import com.farao_community.farao.data.flowbased_domain.DataDomain;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public interface FlowBasedComputationResult {
+public interface FlowbasedComputationResult {
     enum Status {
         FAILURE,
         SUCCESS

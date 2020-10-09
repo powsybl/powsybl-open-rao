@@ -7,7 +7,7 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.commons.AbstractToolTest;
-import com.farao_community.farao.flowbased_computation.tools.FlowBasedComputationTool;
+import com.farao_community.farao.flowbased_computation.tools.FlowbasedComputationTool;
 import com.powsybl.tools.Tool;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import java.util.Collections;
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowBasedComputationToolTest extends AbstractToolTest {
+public class FlowbasedComputationToolTest extends AbstractToolTest {
 
     //how to use itools to test flowbased-computation:
     //command line example, from git farao root directory:
@@ -35,7 +35,7 @@ public class FlowBasedComputationToolTest extends AbstractToolTest {
     // --output-file /tmp/outputflowbased
 
     private static final String COMMAND_NAME = "flowbased-computation";
-    private final FlowBasedComputationTool tool = new FlowBasedComputationTool();
+    private final FlowbasedComputationTool tool = new FlowbasedComputationTool();
 
     @Override
     @Before

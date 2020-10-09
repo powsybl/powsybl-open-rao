@@ -18,7 +18,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,14 +33,14 @@ import java.util.Objects;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class JsonFlowBasedComputationParameters {
+public final class JsonFlowbasedComputationParameters {
 
     /**
      * A configuration loader interface for the LoadFlowParameters extensions loaded from the platform configuration
      *
      * @param <E> The extension class
      */
-    public interface ExtensionSerializer<E extends Extension<FlowBasedComputationParameters>> extends ExtensionJsonSerializer<FlowBasedComputationParameters, E> {
+    public interface ExtensionSerializer<E extends Extension<FlowbasedComputationParameters>> extends ExtensionJsonSerializer<FlowbasedComputationParameters, E> {
     }
 
     /**
@@ -56,27 +56,27 @@ public final class JsonFlowBasedComputationParameters {
         return SUPPLIER.get();
     }
 
-    private JsonFlowBasedComputationParameters() {
+    private JsonFlowbasedComputationParameters() {
     }
 
     /**
      * Reads parameters from a JSON file (will NOT rely on platform config).
      */
-    public static FlowBasedComputationParameters read(Path jsonFile) {
-        return update(new FlowBasedComputationParameters(), jsonFile);
+    public static FlowbasedComputationParameters read(Path jsonFile) {
+        return update(new FlowbasedComputationParameters(), jsonFile);
     }
 
     /**
      * Reads parameters from a JSON file (will NOT rely on platform config).
      */
-    public static FlowBasedComputationParameters read(InputStream jsonStream) {
-        return update(new FlowBasedComputationParameters(), jsonStream);
+    public static FlowbasedComputationParameters read(InputStream jsonStream) {
+        return update(new FlowbasedComputationParameters(), jsonStream);
     }
 
     /**
      * Updates parameters by reading the content of a JSON file.
      */
-    public static FlowBasedComputationParameters update(FlowBasedComputationParameters parameters, Path jsonFile) {
+    public static FlowbasedComputationParameters update(FlowbasedComputationParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -89,7 +89,7 @@ public final class JsonFlowBasedComputationParameters {
     /**
      * Updates parameters by reading the content of a JSON stream.
      */
-    public static FlowBasedComputationParameters update(FlowBasedComputationParameters parameters, InputStream jsonStream) {
+    public static FlowbasedComputationParameters update(FlowbasedComputationParameters parameters, InputStream jsonStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
@@ -101,7 +101,7 @@ public final class JsonFlowBasedComputationParameters {
     /**
      * Writes parameters as JSON to a file.
      */
-    public static void write(FlowBasedComputationParameters parameters, Path jsonFile) {
+    public static void write(FlowbasedComputationParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
@@ -114,7 +114,7 @@ public final class JsonFlowBasedComputationParameters {
     /**
      * Writes parameters as JSON to an output stream.
      */
-    public static void write(FlowBasedComputationParameters parameters, OutputStream outputStream) {
+    public static void write(FlowbasedComputationParameters parameters, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
@@ -127,26 +127,26 @@ public final class JsonFlowBasedComputationParameters {
     /**
      * Low level deserialization method, to be used for instance for reading rao_computation_api computation parameters nested in another object.
      */
-    public static FlowBasedComputationParameters deserialize(JsonParser parser, DeserializationContext context, FlowBasedComputationParameters parameters) throws IOException {
-        return new FlowBasedComputationParametersDeserializer().deserialize(parser, context, parameters);
+    public static FlowbasedComputationParameters deserialize(JsonParser parser, DeserializationContext context, FlowbasedComputationParameters parameters) throws IOException {
+        return new FlowbasedComputationParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
      * Low level deserialization method, to be used for instance for updating lrao computation parameters nested in another object.
      */
-    public static FlowBasedComputationParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return new FlowBasedComputationParametersDeserializer().deserialize(parser, context);
+    public static FlowbasedComputationParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        return new FlowbasedComputationParametersDeserializer().deserialize(parser, context);
     }
 
     /**
      * Low level serialization method, to be used for instance for writing rao_computation_api computation parameters nested in another object.
      */
-    public static void serialize(FlowBasedComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        new FlowBasedComputationParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    public static void serialize(FlowbasedComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        new FlowbasedComputationParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new FlowBasedComputationParametersJsonModule());
+                .registerModule(new FlowbasedComputationParametersJsonModule());
     }
 }

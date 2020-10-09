@@ -9,9 +9,9 @@ package com.farao_community.farao.flowbased_computation.impl;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationProvider;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationResult;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -27,23 +27,23 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowBasedComputationImplTest {
+public class FlowbasedComputationImplTest {
     private static final double EPSILON = 1e-3;
-    private FlowBasedComputationProvider flowBasedComputationProvider;
+    private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
     private Crac crac;
     private GlskProvider glskProvider;
     private ComputationManager computationManager;
-    private FlowBasedComputationParameters parameters;
+    private FlowbasedComputationParameters parameters;
 
     @Before
     public void setUp() {
-        flowBasedComputationProvider = new FlowBasedComputationImpl();
+        flowBasedComputationProvider = new FlowbasedComputationImpl();
         network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
         glskProvider = ExampleGenerator.glskProvider();
         computationManager = LocalComputationManager.getDefault();
-        parameters = FlowBasedComputationParameters.load();
+        parameters = FlowbasedComputationParameters.load();
     }
 
     @Test
@@ -58,8 +58,8 @@ public class FlowBasedComputationImplTest {
 
     @Test
     public void testRun() {
-        FlowBasedComputationResult result = flowBasedComputationProvider.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
-        assertEquals(FlowBasedComputationResult.Status.SUCCESS, result.getStatus());
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
+        assertEquals(FlowbasedComputationResult.Status.SUCCESS, result.getStatus());
 
         assertEquals(50, getPreventiveFref(result, "FR-BE - N - preventive"), EPSILON);
         assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
@@ -119,45 +119,45 @@ public class FlowBasedComputationImplTest {
 
     }
 
-    private double getPreventiveFref(FlowBasedComputationResult result, String monitoredBranch) {
+    private double getPreventiveFref(FlowbasedComputationResult result, String monitoredBranch) {
         return result.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(monitoredBranch).getFref();
     }
 
-    private double getPreventiveFmax(FlowBasedComputationResult result, String monitoredBranch) {
+    private double getPreventiveFmax(FlowbasedComputationResult result, String monitoredBranch) {
         return result.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(monitoredBranch).getFmax();
     }
 
-    private double getPreventivePtdf(FlowBasedComputationResult result, String monitoredBranch, String glskId) {
+    private double getPreventivePtdf(FlowbasedComputationResult result, String monitoredBranch, String glskId) {
         return result.getFlowBasedDomain().getDataPreContingency().findMonitoredBranchById(monitoredBranch).findPtdfByCountry(glskId).getPtdf();
     }
 
-    private double getCurativeFref(FlowBasedComputationResult result, String contingency, String monitoredBranch) {
+    private double getCurativeFref(FlowbasedComputationResult result, String contingency, String monitoredBranch) {
         return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchById(monitoredBranch).getFref();
     }
 
-    private double getCurativeFmax(FlowBasedComputationResult result, String contingency, String monitoredBranch) {
+    private double getCurativeFmax(FlowbasedComputationResult result, String contingency, String monitoredBranch) {
         return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchById(monitoredBranch).getFmax();
     }
 
-    private double getCurativePtdf(FlowBasedComputationResult result, String contingency, String monitoredBranch, String glskId) {
+    private double getCurativePtdf(FlowbasedComputationResult result, String contingency, String monitoredBranch, String glskId) {
         return result.getFlowBasedDomain().findContingencyById(contingency).findMonitoredBranchById(monitoredBranch).findPtdfByCountry(glskId).getPtdf();
     }
 
-    private Map<String, Double> frefResultById(FlowBasedComputationResult result) {
+    private Map<String, Double> frefResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
                 .collect(Collectors.toMap(
                         DataMonitoredBranch::getId,
                         DataMonitoredBranch::getFref));
     }
 
-    private Map<String, Double> fmaxResultById(FlowBasedComputationResult result) {
+    private Map<String, Double> fmaxResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
                 .collect(Collectors.toMap(
                         DataMonitoredBranch::getId,
                         DataMonitoredBranch::getFmax));
     }
 
-    private Map<String, Map<String, Double>> ptdfResultById(FlowBasedComputationResult result) {
+    private Map<String, Map<String, Double>> ptdfResultById(FlowbasedComputationResult result) {
         return result.getFlowBasedDomain().getDataPreContingency().getDataMonitoredBranches().stream()
             .collect(Collectors.toMap(
                 DataMonitoredBranch::getId,

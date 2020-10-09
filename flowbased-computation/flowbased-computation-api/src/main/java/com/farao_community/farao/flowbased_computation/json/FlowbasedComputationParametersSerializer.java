@@ -11,30 +11,30 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
-import com.farao_community.farao.flowbased_computation.FlowBasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 
 import java.io.IOException;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowBasedComputationParametersSerializer extends StdSerializer<FlowBasedComputationParameters> {
+public class FlowbasedComputationParametersSerializer extends StdSerializer<FlowbasedComputationParameters> {
 
-    FlowBasedComputationParametersSerializer() {
-        super(FlowBasedComputationParameters.class);
+    FlowbasedComputationParametersSerializer() {
+        super(FlowbasedComputationParameters.class);
     }
 
     @Override
-    public void serialize(FlowBasedComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FlowbasedComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", FlowBasedComputationParameters.VERSION);
+        jsonGenerator.writeStringField("version", FlowbasedComputationParameters.VERSION);
 
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonFlowBasedComputationParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonFlowbasedComputationParameters.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }
