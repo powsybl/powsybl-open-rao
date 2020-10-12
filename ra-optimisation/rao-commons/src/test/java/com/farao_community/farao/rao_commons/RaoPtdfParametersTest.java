@@ -46,22 +46,24 @@ public class RaoPtdfParametersTest {
         assertTrue(ptdfParameters.getBoundaries().contains(new ImmutablePair<>(Country.ES, Country.PT)));
     }
 
+    private void testWrongBoundary(String boundary) {
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList(boundary));
+        ptdfParameters.setBoundariesFromCountryCodes(stringBoundaries);
+    }
+
     @Test (expected = FaraoException.class)
     public void testSetBoundariesFromCountryCodesException1() {
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FRANCE-SPAIN"));
-        ptdfParameters.setBoundariesFromCountryCodes(stringBoundaries);
+        testWrongBoundary("FRANCE-SPAIN");
     }
 
     @Test (expected = FaraoException.class)
     public void testSetBoundariesFromCountryCodesException2() {
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-ES-"));
-        ptdfParameters.setBoundariesFromCountryCodes(stringBoundaries);
+        testWrongBoundary("FR-ES-");
     }
 
     @Test (expected = FaraoException.class)
     public void testSetBoundariesFromCountryCodesException3() {
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-YY"));
-        ptdfParameters.setBoundariesFromCountryCodes(stringBoundaries);
+        testWrongBoundary("FR-YY");
     }
 
     @Test

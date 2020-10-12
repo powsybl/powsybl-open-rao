@@ -99,7 +99,7 @@ public class IteratingLinearOptimizer {
         // If optimization fails iteration can stop
         try {
             LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
-            if (optimizeRelativeMargins && iteration > 1
+            if (optimizeRelativeMargins
                     && raoData.getCracResult(bestVariantId).getNetworkSecurityStatus().equals(CracResult.NetworkSecurityStatus.SECURED)
                     && !raoData.isMaximizeMinRelativeMargin()) {
                 LOGGER.info("Network status is secured. Switching to relative margin optimization.");

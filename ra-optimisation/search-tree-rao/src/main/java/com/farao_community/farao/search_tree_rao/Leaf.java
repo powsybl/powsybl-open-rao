@@ -71,7 +71,6 @@ class Leaf {
 
     /**
      * Root Leaf constructors
-     *
      * It is built directly from a RaoData on which a systematic sensitivity analysis could hav already been run or not.
      */
     Leaf(RaoData raoData, RaoParameters raoParameters) {
@@ -154,7 +153,7 @@ class Leaf {
                 } else {
 
                     raoData.setSystematicSensitivityResult(
-                        systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
+                            systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
 
                     if (raoParameters.isRaoWithLoopFlowLimitation()) {
                         LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
@@ -163,7 +162,7 @@ class Leaf {
                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                     raoData.getRaoDataManager().fillCnecResultWithFlows();
                     raoData.getRaoDataManager().fillCracResultWithCosts(
-                        objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
+                            objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
                 }
 
                 status = Status.EVALUATED;
@@ -211,9 +210,9 @@ class Leaf {
      */
     Set<NetworkAction> bloom() {
         return raoData.getAvailableNetworkActions()
-            .stream()
-            .filter(na -> !networkActions.contains(na))
-            .collect(Collectors.toSet());
+                .stream()
+                .filter(na -> !networkActions.contains(na))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -223,6 +222,7 @@ class Leaf {
      */
     void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
+            raoData.getCracResult(optimizedVariantId).setAbsPtdfSums(raoData.getCracResult(initialVariantId).getAbsPtdfSums());
             raoData.deleteVariant(initialVariantId, false);
         }
     }
@@ -274,7 +274,8 @@ class Leaf {
 
     /**
      * This method inserts pre-computed absolute PTDF sums into the leaf's crac result extension
-     * @param variantId: the ID of the variant to update.
+     *
+     * @param variantId:   the ID of the variant to update.
      * @param absPtdfSums: the absolute PTDF sums (for each CNEC) to insert.
      */
     private void insertAbsPtdfSums(String variantId, Map<String, Double> absPtdfSums) {
@@ -284,7 +285,7 @@ class Leaf {
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
-            "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+                "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
         info += String.format(", Cost: %.2f", getBestCost());
         info += String.format(" (Functional: %.2f", raoData.getCracResult().getFunctionalCost());
         info += String.format(", Virtual: %.2f)", raoData.getCracResult().getVirtualCost());

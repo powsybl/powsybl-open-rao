@@ -23,7 +23,7 @@ import java.util.List;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @AutoService(JsonRaoParameters.ExtensionSerializer.class)
-public class JsonRaoPtdfParameters implements JsonRaoParameters.ExtensionSerializer<RaoPtdfParameters>  {
+public class JsonRaoPtdfParameters implements JsonRaoParameters.ExtensionSerializer<RaoPtdfParameters> {
 
     @Override
     public void serialize(RaoPtdfParameters extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -40,18 +40,16 @@ public class JsonRaoPtdfParameters implements JsonRaoParameters.ExtensionSeriali
     public RaoPtdfParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         RaoPtdfParameters parameters = new RaoPtdfParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case "boundaries":
-                    if (jsonParser.getCurrentToken() == JsonToken.START_ARRAY) {
-                        List<String> boundaries = new ArrayList<>();
-                        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                            boundaries.add(jsonParser.getValueAsString());
-                        }
-                        parameters.setBoundariesFromCountryCodes(boundaries);
+            if (jsonParser.getCurrentName().equals("boundaries")) {
+                if (jsonParser.getCurrentToken() == JsonToken.START_ARRAY) {
+                    List<String> boundaries = new ArrayList<>();
+                    while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                        boundaries.add(jsonParser.getValueAsString());
                     }
-                    break;
-                default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    parameters.setBoundariesFromCountryCodes(boundaries);
+                }
+            } else {
+                throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
         return parameters;
