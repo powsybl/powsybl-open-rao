@@ -40,9 +40,7 @@ public final class JsonFlowbasedComputationResult {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(os, result);
+            write(result, os);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
