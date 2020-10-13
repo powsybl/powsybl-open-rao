@@ -6,14 +6,15 @@
  */
 package com.farao_community.farao.util;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowResultImpl;
+import com.powsybl.loadflow.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
 
@@ -23,12 +24,24 @@ import static org.junit.Assert.*;
 public class LoadFlowServiceTest {
     @Test
     public void testLoadflowServiceInitialisation() {
-        LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
-        Mockito.when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-
-        LoadFlowService.init(loadFlowRunner, computationManager);
         assertTrue(LoadFlowService.runLoadFlow(Mockito.mock(Network.class), "").isOk());
+    }
+
+    @AutoService(LoadFlowProvider.class)
+    public static final class MockLoadFlow implements LoadFlowProvider {
+        @Override
+        public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String s, LoadFlowParameters loadFlowParameters) {
+            return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+        }
+
+        @Override
+        public String getName() {
+            return "MockLoadFlow";
+        }
+
+        @Override
+        public String getVersion() {
+            return "0";
+        }
     }
 }

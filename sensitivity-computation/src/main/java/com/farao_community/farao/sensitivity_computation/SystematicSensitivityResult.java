@@ -10,7 +10,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
@@ -63,7 +63,7 @@ public class SystematicSensitivityResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new HashMap<>();
 
-    public SystematicSensitivityResult(SensitivityComputationResults results) {
+    public SystematicSensitivityResult(SensitivityAnalysisResult results) {
         if (results == null || !results.isOk()) {
             this.status = SensitivityComputationStatus.FAILURE;
             return;
@@ -93,7 +93,7 @@ public class SystematicSensitivityResult {
         });
     }
 
-    private void fillData(SensitivityComputationResults results) {
+    private void fillData(SensitivityAnalysisResult results) {
         results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
         results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
             StateResult contingencyStateResult = new StateResult();

@@ -6,16 +6,10 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
-import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -24,43 +18,14 @@ import java.util.concurrent.CompletionException;
 final class SystematicSensitivityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityService.class);
 
-    private static SensitivityComputationFactory sensitivityComputationFactory;
-    private static ComputationManager computationManager;
-
-    static void init(SensitivityComputationFactory factory, ComputationManager computationManager) {
-        sensitivityComputationFactory = factory;
-        SystematicSensitivityService.computationManager = computationManager;
-    }
-
     static SystematicSensitivityResult runSensitivity(Network network,
                                                                String workingStateId,
                                                                CnecSensitivityProvider cnecSensitivityProvider,
-                                                               SensitivityComputationParameters sensitivityComputationParameters,
-                                                               ComputationManager computationManager) {
-        if (!initialised()) {
-            init(ComponentDefaultConfig.load().newFactoryImpl(SensitivityComputationFactory.class), computationManager);
-        }
-        SensitivityComputation computation = sensitivityComputationFactory.create(network, computationManager, 1);
+                                                               SensitivityAnalysisParameters sensitivityComputationParameters) {
         LOGGER.debug("Sensitivity computation [start]");
-        CompletableFuture<SensitivityComputationResults> results = computation.run(cnecSensitivityProvider, cnecSensitivityProvider, workingStateId, sensitivityComputationParameters);
-        try {
-            SensitivityComputationResults joinedResults = results.join();
-            LOGGER.debug("Sensitivity computation [end]");
-            return new SystematicSensitivityResult(joinedResults);
-        } catch (CompletionException e) {
-            throw new SensitivityComputationException("Sensitivity computation failed");
-        }
-    }
-
-    static SystematicSensitivityResult runSensitivity(Network network,
-                                                               String workingStateId,
-                                                               CnecSensitivityProvider cnecSensitivityProvider,
-                                                               SensitivityComputationParameters sensitivityComputationParameters) {
-        return runSensitivity(network, workingStateId, cnecSensitivityProvider, sensitivityComputationParameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
-    }
-
-    private static boolean initialised() {
-        return sensitivityComputationFactory != null && computationManager != null;
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, workingStateId, cnecSensitivityProvider, cnecSensitivityProvider, sensitivityComputationParameters);
+        LOGGER.debug("Sensitivity computation [end]");
+        return new SystematicSensitivityResult(result);
     }
 
     private SystematicSensitivityService() {

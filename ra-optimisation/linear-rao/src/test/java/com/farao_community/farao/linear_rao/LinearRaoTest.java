@@ -21,8 +21,6 @@ import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +48,6 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 public class LinearRaoTest {
 
     private LinearRao linearRao;
-    private ComputationManager computationManager;
     private RaoParameters raoParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
@@ -79,7 +76,6 @@ public class LinearRaoTest {
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/LinearRaoParameters.json"));
         LinearRaoParameters linearRaoParameters = raoParameters.getExtension(LinearRaoParameters.class);
         linearRaoParameters.setSecurityAnalysisWithoutRao(false);
-        computationManager = DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager();
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
@@ -136,7 +132,7 @@ public class LinearRaoTest {
     public void runWithRaoParametersError() {
         raoParameters.removeExtension(LinearRaoParameters.class);
 
-        RaoResult results = linearRao.run(raoInput, computationManager, raoParameters).join();
+        RaoResult results = linearRao.run(raoInput, raoParameters).join();
 
         assertNotNull(results);
         assertEquals(RaoResult.Status.FAILURE, results.getStatus());

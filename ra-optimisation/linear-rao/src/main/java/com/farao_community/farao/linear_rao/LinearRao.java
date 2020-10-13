@@ -21,7 +21,6 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ public class LinearRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
 
         if (raoParameters.getExtension(LinearRaoParameters.class) == null) {

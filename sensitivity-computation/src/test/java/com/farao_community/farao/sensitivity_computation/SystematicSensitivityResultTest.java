@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.UcteGlskProvider;
-import com.powsybl.computation.ComputationManager;
+import com.google.auto.service.AutoService;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
@@ -72,10 +72,8 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testCompleteRaResultManipulation() {
         // When
-        SensitivityComputationResults sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
-            .run(rangeActionSensitivityProvider, rangeActionSensitivityProvider, network.getVariantManager().getWorkingVariantId(), null).join();
-
-        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, rangeActionSensitivityProvider, SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
 
         // Then
         assertTrue(result.isSuccess());
@@ -96,10 +94,8 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testCompletePtdfResultManipulation() {
         // When
-        SensitivityComputationResults sensitivityComputationResults = (new MockSensiFactory()).create(network, null, 0)
-            .run(ptdfSensitivityProvider, ptdfSensitivityProvider, network.getVariantManager().getWorkingVariantId(), null).join();
-
-        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), ptdfSensitivityProvider, ptdfSensitivityProvider, SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
 
         // Then
         assertTrue(result.isSuccess());
@@ -116,89 +112,59 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testIncompleteSensiResult() {
         // When
-        SensitivityComputationResults sensitivityComputationResults = Mockito.mock(SensitivityComputationResults.class);
-        Mockito.when(sensitivityComputationResults.isOk()).thenReturn(false);
-        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityComputationResults);
+        SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
+        Mockito.when(sensitivityAnalysisResult.isOk()).thenReturn(false);
+        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
 
         // Then
         assertFalse(result.isSuccess());
     }
 
-    private final class MockSensiFactory implements SensitivityComputationFactory {
-        private final class MockSensi implements SensitivityComputation {
-            private Network network;
-
-            private MockSensi(Network network) {
-                this.network = network;
-            }
-
-            @Override
-            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                List<SensitivityValue> values = sensitivityFactorsProvider.getFactors(network).stream()
-                        .map(factor -> {
-                            if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                                return new SensitivityValue(factor, 0.5, 10, 10);
-                            } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                                return new SensitivityValue(factor, 0.25, 100, -10);
-                            } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                                return new SensitivityValue(factor, 0.140, 40, -11);
-                            } else {
-                                throw new AssertionError();
-                            }
-                        })
-                        .collect(Collectors.toList());
-                return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", values));
-            }
-
-            @Override
-            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getFactors(network).stream()
-                        .map(factor -> {
-                            if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                                return new SensitivityValue(factor, 0.5, 10, 10);
-                            } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                                return new SensitivityValue(factor, 0.25, 100, -10);
-                            } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                                return new SensitivityValue(factor, 0.140, 40, -11);
-                            } else {
-                                throw new AssertionError();
-                            }
-                        })
-                        .collect(Collectors.toList());
-                Map<String, List<SensitivityValue>> contingenciesValues = contingenciesProvider.getContingencies(network).stream()
-                        .collect(Collectors.toMap(
-                            contingency -> contingency.getId(),
-                            contingency -> sensitivityFactorsProvider.getFactors(network).stream()
-                               .map(factor -> {
-                                   if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                                       return new SensitivityValue(factor, -5, -20, 20);
-                                   } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                                       return new SensitivityValue(factor, 5, 200, -20);
-                                   } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                                       return new SensitivityValue(factor, 6, -13, 15);
-                                   } else {
-                                       throw new AssertionError();
-                                   }
-                               })
-                               .collect(Collectors.toList())
-                        ));
-                return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", nStateValues, contingenciesValues));
-            }
-
-            @Override
-            public String getName() {
-                return "MockSensi";
-            }
-
-            @Override
-            public String getVersion() {
-                return "0";
-            }
+    @AutoService(SensitivityAnalysisProvider.class)
+    public static final class MockSensiProvider implements SensitivityAnalysisProvider {
+        @Override
+        public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, com.powsybl.computation.ComputationManager computationManager) {
+            List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getFactors(network).stream()
+                    .map(factor -> {
+                        if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
+                            return new SensitivityValue(factor, 0.5, 10, 10);
+                        } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
+                            return new SensitivityValue(factor, 0.25, 100, -10);
+                        } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
+                            return new SensitivityValue(factor, 0.140, 40, -11);
+                        } else {
+                            throw new AssertionError();
+                        }
+                    })
+                    .collect(Collectors.toList());
+            Map<String, List<SensitivityValue>> contingenciesValues = contingenciesProvider.getContingencies(network).stream()
+                    .collect(Collectors.toMap(
+                        contingency -> contingency.getId(),
+                        contingency -> sensitivityFactorsProvider.getFactors(network).stream()
+                                .map(factor -> {
+                                    if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
+                                        return new SensitivityValue(factor, -5, -20, 20);
+                                    } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
+                                        return new SensitivityValue(factor, 5, 200, -20);
+                                    } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
+                                        return new SensitivityValue(factor, 6, -13, 15);
+                                    } else {
+                                        throw new AssertionError();
+                                    }
+                                })
+                                .collect(Collectors.toList())
+                    ));
+            return CompletableFuture.completedFuture(new SensitivityAnalysisResult(true, Collections.emptyMap(), "", nStateValues, contingenciesValues));
         }
 
         @Override
-        public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
-            return new MockSensi(network);
+        public String getName() {
+            return "MockSensi";
+        }
+
+        @Override
+        public String getVersion() {
+            return "0";
         }
     }
 }

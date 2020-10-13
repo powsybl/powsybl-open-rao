@@ -72,8 +72,8 @@ public class InitialSensitivityAnalysis {
     private SystematicSensitivityInterface getSystematicSensitivityInterface() {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
+            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {

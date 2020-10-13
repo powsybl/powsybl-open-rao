@@ -6,14 +6,11 @@
  */
 package com.farao_community.farao.sensitivity_computation;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertTrue;
 
@@ -23,15 +20,6 @@ import static org.junit.Assert.assertTrue;
 public class SystematicSensitivityServiceTest {
     @Test
     public void testLoadflowServiceInitialisation() {
-        SensitivityComputationFactory sensitivityComputationFactory = Mockito.mock(SensitivityComputationFactory.class);
-        SensitivityComputation sensitivityComputation = Mockito.mock(SensitivityComputation.class);
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
-        Mockito.when(sensitivityComputationFactory.create(Mockito.any(), Mockito.any(), Mockito.anyInt())).thenReturn(sensitivityComputation);
-        Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
-        Mockito.when(sensitivityComputation.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList())));
-
-        SystematicSensitivityService.init(sensitivityComputationFactory, computationManager);
-        assertTrue(SystematicSensitivityService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(CnecSensitivityProvider.class), Mockito.mock(SensitivityComputationParameters.class)).isSuccess());
+        assertTrue(SystematicSensitivityService.runSensitivity(Mockito.mock(Network.class), "", Mockito.mock(CnecSensitivityProvider.class), Mockito.mock(SensitivityAnalysisParameters.class)).isSuccess());
     }
 }

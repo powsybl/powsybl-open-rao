@@ -12,8 +12,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,8 +43,8 @@ public class SystematicSensitivityInterfaceTest {
     private Network network;
     private SystematicSensitivityResult systematicAnalysisResultOk;
     private SystematicSensitivityResult systematicAnalysisResultFailed;
-    private SensitivityComputationParameters defaultParameters;
-    private SensitivityComputationParameters fallbackParameters;
+    private SensitivityAnalysisParameters defaultParameters;
+    private SensitivityAnalysisParameters fallbackParameters;
 
     @Before
     public void setUp() {
@@ -57,8 +57,8 @@ public class SystematicSensitivityInterfaceTest {
 
         PowerMockito.mockStatic(SystematicSensitivityService.class);
 
-        defaultParameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"));
-        fallbackParameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"));
+        defaultParameters = JsonSensitivityAnalysisParameters.read(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"));
+        fallbackParameters = JsonSensitivityAnalysisParameters.read(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"));
     }
 
     @Test

@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 
@@ -77,8 +77,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
-    private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
-    private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
+    private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
+    private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -160,21 +160,21 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.loopFlowViolationCost = loopflowViolationCost;
     }
 
-    public SensitivityComputationParameters getDefaultSensitivityComputationParameters() {
-        return defaultSensitivityComputationParameters;
+    public SensitivityAnalysisParameters getDefaultSensitivityAnalysisParameters() {
+        return defaultSensitivityAnalysisParameters;
     }
 
-    public RaoParameters setDefaultSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
-        this.defaultSensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+    public RaoParameters setDefaultSensitivityAnalysisParameters(SensitivityAnalysisParameters sensiParameters) {
+        this.defaultSensitivityAnalysisParameters = Objects.requireNonNull(sensiParameters);
         return this;
     }
 
-    public SensitivityComputationParameters getFallbackSensitivityComputationParameters() {
-        return fallbackSensitivityComputationParameters;
+    public SensitivityAnalysisParameters getFallbackSensitivityAnalysisParameters() {
+        return fallbackSensitivityAnalysisParameters;
     }
 
-    public RaoParameters setFallbackSensitivityComputationParameters(SensitivityComputationParameters sensiParameters) {
-        this.fallbackSensitivityComputationParameters = Objects.requireNonNull(sensiParameters);
+    public RaoParameters setFallbackSensitivityAnalysisParameters(SensitivityAnalysisParameters sensiParameters) {
+        this.fallbackSensitivityAnalysisParameters = Objects.requireNonNull(sensiParameters);
         return this;
     }
 
@@ -256,7 +256,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
-        parameters.setDefaultSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
+        parameters.setDefaultSensitivityAnalysisParameters(SensitivityAnalysisParameters.load(platformConfig));
     }
 
     private void readExtensions(PlatformConfig platformConfig) {

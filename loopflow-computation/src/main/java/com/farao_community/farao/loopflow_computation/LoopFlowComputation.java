@@ -16,7 +16,7 @@ import com.farao_community.farao.sensitivity_computation.SystematicSensitivityRe
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +46,14 @@ public class LoopFlowComputation {
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }
 
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityComputationParameters sensitivityComputationParameters) {
+    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
 
         Set<Cnec> cnecs = crac.getCnecs(crac.getPreventiveState());
         // todo : add this Set of Cnecs in argument of the method calculateLoopFlows()
         //  required : loop-flows can be computed for N-1 states
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(sensitivityComputationParameters)
+            .withDefaultParameters(sensitivityAnalysisParameters)
             .withPtdfSensitivities(glskProvider, cnecs)
             .build();
 
