@@ -65,9 +65,32 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
         assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertFalse(((MinMarginObjectiveFunction)optimizer.getObjectiveFunctionEvaluator()).isRelative());
         assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
+    }
+
+    @Test
+    public void createRelativeOptimizerMegawatt() {
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
+        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
+
+        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertTrue(((MinMarginObjectiveFunction)optimizer.getObjectiveFunctionEvaluator()).isRelative());
+        assertEquals(MEGAWATT, optimizer.getObjectiveFunctionEvaluator().getUnit());
+    }
+
+    @Test
+    public void createRelativeOptimizerAmpere() {
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
+        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
+
+        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
+        assertTrue(((MinMarginObjectiveFunction)optimizer.getObjectiveFunctionEvaluator()).isRelative());
+        assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
     }
 
     @Test

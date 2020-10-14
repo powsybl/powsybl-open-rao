@@ -44,26 +44,23 @@ public class IteratingLinearOptimizer {
     protected ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
     protected LinearOptimizer linearOptimizer;
     protected IteratingLinearOptimizerParameters parameters;
-    protected boolean optimizeRelativeMargins;
 
     public IteratingLinearOptimizer(List<ProblemFiller> fillers,
                                     SystematicSensitivityInterface systematicSensitivityInterface,
                                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
-                                    IteratingLinearOptimizerParameters parameters, boolean optimizeRelativeMargins) {
-        this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters, optimizeRelativeMargins);
+                                    IteratingLinearOptimizerParameters parameters) {
+        this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
     }
 
     // Method for tests
     IteratingLinearOptimizer(SystematicSensitivityInterface systematicSensitivityInterface,
                              ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                              LinearOptimizer linearOptimizer,
-                             IteratingLinearOptimizerParameters parameters,
-                             boolean optimizeRelativeMargins) {
+                             IteratingLinearOptimizerParameters parameters) {
         this.systematicSensitivityInterface = systematicSensitivityInterface;
         this.objectiveFunctionEvaluator = objectiveFunctionEvaluator;
         this.linearOptimizer = linearOptimizer;
         this.parameters = parameters;
-        this.optimizeRelativeMargins = optimizeRelativeMargins;
     }
 
     public ObjectiveFunctionEvaluator getObjectiveFunctionEvaluator() {

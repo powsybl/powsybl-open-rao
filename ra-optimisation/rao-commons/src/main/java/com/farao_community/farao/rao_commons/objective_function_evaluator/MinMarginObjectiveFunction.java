@@ -58,6 +58,10 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
         this.sensitivityFallbackOvercostEvaluator = new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost());
     }
 
+    public boolean isRelative() {
+        return relativeMargin;
+    }
+
     @Override
     public double getFunctionalCost(RaoData raoData) {
         double inverseMinimumMargin = minMarginEvaluator.getCost(raoData);

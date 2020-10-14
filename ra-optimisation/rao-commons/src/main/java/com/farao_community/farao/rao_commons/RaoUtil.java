@@ -118,7 +118,6 @@ public final class RaoUtil {
             fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
-        boolean optimizeRelativeMargins = raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             // TO DO : add relative margins to IteratingLinearOptimizerWithLoopFlows
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
@@ -126,7 +125,7 @@ public final class RaoUtil {
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
                     createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters), optimizeRelativeMargins);
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
         }
     }
 
