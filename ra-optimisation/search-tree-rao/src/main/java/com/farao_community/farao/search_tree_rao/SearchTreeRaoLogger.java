@@ -54,7 +54,7 @@ final class SearchTreeRaoLogger {
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
         List<Cnec> sortedCnecs = leaf.getRaoData().getCnecs().stream().
             filter(Cnec::isOptimized).
-            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins, leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId())))).
+            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins))).
             collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
@@ -62,7 +62,7 @@ final class SearchTreeRaoLogger {
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
-            double cnecMargin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins, leaf.getRaoData().getCracResult(leaf.getRaoData().getInitialVariantId()));
+            double cnecMargin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
             SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
@@ -75,13 +75,13 @@ final class SearchTreeRaoLogger {
         }
     }
 
-    private static double computeCnecMargin(Cnec cnec, String variantId, Unit unit, boolean relativePositiveMargins, CracResult cracResult) {
+    private static double computeCnecMargin(Cnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
         CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
         double absoluteMargin = cnec.computeMargin(actualValue, unit);
         if (relativePositiveMargins && (absoluteMargin > 0)) {
-            return absoluteMargin / cracResult.getAbsPtdfSums().get(cnec.getId());
+            return absoluteMargin / cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
         } else {
             return absoluteMargin;
         }

@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getRelativeCoef(Cnec cnec, RaoData raoData) {
-        return relative ? 1 / Math.max(raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums().get(cnec.getId()), ptdfSumLowerBound) : 1;
+        return relative ? 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), ptdfSumLowerBound) : 1;
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {

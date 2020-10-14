@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -13,8 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.Map;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -53,8 +52,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         // this is almost a copy of fillWithMaxMinMarginInMegawatt()
         // only the coefficients in the MinMargin constraint should be different
         fillProblemWithCoreFiller();
-        Map<String, Double> ptdfSums = Map.of(cnec1.getId(), 0.9, cnec2.getId(), 0.7);
-        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.9);
+        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.7);
         maxMinRelativeMarginFiller.fill(raoData, linearProblem);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
@@ -100,8 +99,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         // this is almost a copy of fillWithMaxMinMarginInAmpere()
         // only the objective function should be different
         fillProblemWithCoreFiller();
-        Map<String, Double> ptdfSums = Map.of(cnec1.getId(), 0.005, cnec2.getId(), 0.1);
-        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.005);
+        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.1);
         maxMinRelativeMarginFiller.setUnit(AMPERE);
         maxMinRelativeMarginFiller.fill(raoData, linearProblem);
 

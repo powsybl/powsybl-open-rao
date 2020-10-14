@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -93,7 +94,7 @@ public class InitialSensitivityAnalysis {
     }
 
     private static void fillAbsolutePtdfSums(RaoData raoData, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
-        Map<String, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getNetwork(), raoData.getGlskProvider(), boundaries, sensitivityResult);
-        raoData.getRaoDataManager().fillCracResultsWithAbsolutePtdfSums(ptdfSums);
+        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getNetwork(), raoData.getGlskProvider(), boundaries, sensitivityResult);
+        raoData.getRaoDataManager().fillCnecResultsWithAbsolutePtdfSums(ptdfSums);
     }
 }

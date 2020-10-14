@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
-import java.util.Map;
 
 import static junit.framework.TestCase.*;
 
@@ -79,7 +78,6 @@ public class JsonResultTest {
         CracResultExtension cracResultExtension = simpleCrac.getExtension(CracResultExtension.class);
         cracResultExtension.getVariant("variant1").setFunctionalCost(10);
         cracResultExtension.getVariant("variant1").setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
-        cracResultExtension.getVariant("variant1").setAbsPtdfSums(Map.of("cnec1prev", 0.1, "cnec2prev", 0.2));
 
         // CnecResult
         CnecResultExtension cnecResultExtension = simpleCrac.getCnec("cnec2prev").getExtension(CnecResultExtension.class);
@@ -89,6 +87,7 @@ public class JsonResultTest {
         cnecResultExtension.getVariant("variant1").setMaxThresholdInMW(1000);
         cnecResultExtension.getVariant("variant1").setMinThresholdInA(-700);
         cnecResultExtension.getVariant("variant1").setMaxThresholdInA(700);
+        cnecResultExtension.getVariant("variant1").setAbsolutePtdfSum(0.2);
         cnecResultExtension.getVariant("variant2").setFlowInA(750.0);
         cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
 
@@ -138,8 +137,6 @@ public class JsonResultTest {
         assertEquals(10.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, crac.getExtension(CracResultExtension.class).getVariant("variant1").getNetworkSecurityStatus());
-        assertEquals(0.1, crac.getExtension(CracResultExtension.class).getVariant("variant1").getAbsPtdfSums().get("cnec1prev"), DOUBLE_TOLERANCE);
-        assertEquals(0.2, crac.getExtension(CracResultExtension.class).getVariant("variant1").getAbsPtdfSums().get("cnec2prev"), DOUBLE_TOLERANCE);
 
         // assert that cnecs exist in the crac
         assertEquals(2, crac.getCnecs().size());
@@ -156,6 +153,7 @@ public class JsonResultTest {
         assertEquals(1000.0, extCnec.getVariant("variant1").getMaxThresholdInMW(),  DOUBLE_TOLERANCE);
         assertEquals(-700.0, extCnec.getVariant("variant1").getMinThresholdInA(),  DOUBLE_TOLERANCE);
         assertEquals(700.0, extCnec.getVariant("variant1").getMaxThresholdInA(),  DOUBLE_TOLERANCE);
+        assertEquals(0.2, extCnec.getVariant("variant1").getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
 
         // assert that the PstWithRange has a RangeActionResultExtension with the expected content
         assertEquals(1, crac.getRangeAction("pst1").getExtensions().size());
@@ -198,14 +196,13 @@ public class JsonResultTest {
         assertEquals(10.0, extCrac.getVariant("variant1").getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(5.0, extCrac.getVariant("variant1").getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
-        assertEquals(0.5, extCrac.getVariant("variant1").getAbsPtdfSums().get("Tieline BE FR - Défaut - N-1 NL1-NL3"), DOUBLE_TOLERANCE);
-        assertEquals(0.6, extCrac.getVariant("variant1").getAbsPtdfSums().get("Tieline BE FR - N - preventive"), DOUBLE_TOLERANCE);
 
         // CnecResultExtension
         CnecResultExtension extCnec = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
         assertNotNull(extCnec);
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
+        assertEquals(0.85, extCnec.getVariant("variant2").getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
     }
 
     @Test

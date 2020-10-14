@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -24,8 +23,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
@@ -76,12 +73,10 @@ public class MinMarginObjectiveFunctionTest {
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
-        Map<String, Double> ptdfSums = new HashMap<>();
         Random rand = new Random();
-        crac.getCnecs().forEach(cnec -> {
-            ptdfSums.put(cnec.getId(), rand.nextDouble());
-        });
-        raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        crac.getCnecs().forEach(cnec ->
+                cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(rand.nextDouble())
+        );
 
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);

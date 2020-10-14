@@ -9,13 +9,13 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -73,9 +73,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         if (minRelMarginVariable == null) {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
-        Map<String, Double> ptdfSums = raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums();
         raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
-            double marginCoef = 1 / Math.max(ptdfSums.get(cnec.getId()), ptdfSumLowerBound);
+            double marginCoef = 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {

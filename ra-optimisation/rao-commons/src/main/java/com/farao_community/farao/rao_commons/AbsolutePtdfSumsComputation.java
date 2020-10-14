@@ -29,8 +29,8 @@ import java.util.Set;
 public final class AbsolutePtdfSumsComputation {
     private AbsolutePtdfSumsComputation() { }
 
-    public static Map<String, Double> computeAbsolutePtdfSums(Set<Cnec> cnecs, Network network, GlskProvider glskProvider, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
-        Map<String, Double> ptdfSums = new HashMap<>();
+    public static Map<Cnec, Double> computeAbsolutePtdfSums(Set<Cnec> cnecs, Network network, GlskProvider glskProvider, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
+        Map<Cnec, Double> ptdfSums = new HashMap<>();
         Map<String, Map<Country, Double>> ptdfMap = computePtdf(cnecs, network, glskProvider, sensitivityResult);
         cnecs.forEach(cnec -> {
             double ptdfSum = 0;
@@ -39,17 +39,17 @@ public final class AbsolutePtdfSumsComputation {
                     ptdfSum += Math.abs(ptdfMap.get(cnec.getId()).get(countryPair.getLeft()).doubleValue() - ptdfMap.get(cnec.getId()).get(countryPair.getRight()).doubleValue());
                 }
             }
-            ptdfSums.put(cnec.getId(), ptdfSum);
+            ptdfSums.put(cnec, ptdfSum);
         });
         return ptdfSums;
     }
 
-    private static Map<String, Map<Country, Double>> computePtdf(Set<Cnec> cnecs, Network network, GlskProvider glskProvider, SystematicSensitivityResult ptdfsAndRefFlows) {
+    private static Map<String, Map<Country, Double>> computePtdf(Set<Cnec> cnecs, Network network, GlskProvider glskProvider, SystematicSensitivityResult sensitivityResult) {
         Map<String, Map<Country, Double>> ptdfs = new HashMap<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
         for (Cnec cnec : cnecs) {
             for (LinearGlsk linearGlsk: mapCountryLinearGlsk.values()) {
-                double ptdfValue = ptdfsAndRefFlows.getSensitivityOnFlow(linearGlsk, cnec);
+                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
                 Country country = glskIdToCountry(linearGlsk.getId());
                 if (!ptdfs.containsKey(cnec.getId())) {
                     ptdfs.put(cnec.getId(), new HashMap<>());

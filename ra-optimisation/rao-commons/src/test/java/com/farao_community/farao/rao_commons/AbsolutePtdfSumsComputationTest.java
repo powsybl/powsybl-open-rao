@@ -59,13 +59,13 @@ public class AbsolutePtdfSumsComputationTest {
 
     @Test
     public void testComputation() {
-        Map<String, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getCnecs(), network, glskProvider, boundaries, systematicSensitivityResult);
-        assertEquals(0.8, ptdfSums.get("cnec1basecase"), DOUBLE_TOLERANCE);
-        assertEquals(0.6, ptdfSums.get("cnec2basecase"), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get("cnec1stateCurativeContingency1"), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get("cnec1stateCurativeContingency2"), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get("cnec2stateCurativeContingency1"), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get("cnec2stateCurativeContingency2"), DOUBLE_TOLERANCE);
+        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getCnecs(), network, glskProvider, boundaries, systematicSensitivityResult);
+        assertEquals(0.8, ptdfSums.get(crac.getCnec("cnec1basecase")), DOUBLE_TOLERANCE);
+        assertEquals(0.6, ptdfSums.get(crac.getCnec("cnec2basecase")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
 
     }
 }

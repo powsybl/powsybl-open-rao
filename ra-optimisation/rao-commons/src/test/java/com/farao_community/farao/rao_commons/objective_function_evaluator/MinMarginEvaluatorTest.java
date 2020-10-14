@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
@@ -23,7 +24,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,14 +46,12 @@ public class MinMarginEvaluatorTest {
         crac.synchronize(network);
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
 
-        Map<String, Double> ptdfSums = Map.of(
-                "cnec1basecase", 0.5,
-                "cnec1stateCurativeContingency1", .95,
-                "cnec1stateCurativeContingency2", .95,
-                "cnec2basecase", 0.4,
-                "cnec2stateCurativeContingency1", 0.6,
-                "cnec2stateCurativeContingency2", 0.6);
-        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        setPtdfSum("cnec1basecase", 0.5);
+        setPtdfSum("cnec1stateCurativeContingency1", 0.95);
+        setPtdfSum("cnec1stateCurativeContingency2", 0.95);
+        setPtdfSum("cnec2basecase", 0.4);
+        setPtdfSum("cnec2stateCurativeContingency1", 0.6);
+        setPtdfSum("cnec2stateCurativeContingency2", 0.6);
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
 
@@ -69,6 +67,10 @@ public class MinMarginEvaluatorTest {
                 .thenReturn(60.);
 
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
+    }
+
+    private void setPtdfSum(String cnecId, double ptdfSum) {
+        crac.getCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(ptdfSum);
     }
 
     @Test
@@ -132,14 +134,12 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void testMinimumPtdfSum() {
-        Map<String, Double> ptdfSums = Map.of(
-                "cnec1basecase", 0.005,
-                "cnec1stateCurativeContingency1", .0095,
-                "cnec1stateCurativeContingency2", .0095,
-                "cnec2basecase", 0.004,
-                "cnec2stateCurativeContingency1", 0.006,
-                "cnec2stateCurativeContingency2", 0.006);
-        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
+        setPtdfSum("cnec1basecase", 0.005);
+        setPtdfSum("cnec1stateCurativeContingency1", 0.0095);
+        setPtdfSum("cnec1stateCurativeContingency2", 0.0095);
+        setPtdfSum("cnec2basecase", 0.004);
+        setPtdfSum("cnec2stateCurativeContingency1", 0.006);
+        setPtdfSum("cnec2stateCurativeContingency2", 0.006);
 
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, true, 0.02);
         assertEquals(-39363, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);

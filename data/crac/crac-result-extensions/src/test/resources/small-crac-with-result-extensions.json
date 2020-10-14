@@ -77,7 +77,8 @@
             "variant2" : {
               "type" : "cnec-result",
               "flowInA" : 750.0,
-              "flowInMW" : -450.0
+              "flowInMW" : -450.0,
+              "absolutePtdfSum" : 0.85
             },
             "variant1" : {
               "type" : "cnec-result",
@@ -138,11 +139,7 @@
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
           "functionalCost" : 10.0,
-          "virtualCost" : 5.0,
-          "absPtdfSums" : {
-            "Tieline BE FR - Défaut - N-1 NL1-NL3" : 0.5,
-            "Tieline BE FR - N - preventive" : 0.6
-          }
+          "virtualCost" : 5.0
         }
       }
     }

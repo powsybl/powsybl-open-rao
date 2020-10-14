@@ -64,9 +64,9 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
 
     @Override
     public double getFunctionalCost(RaoData raoData) {
-        double inverseMinimumMargin = minMarginEvaluator.getCost(raoData);
-        if ((!relativeMargin) || (inverseMinimumMargin > 0)) {
-            return inverseMinimumMargin;
+        double oppositeMinimumMargin = minMarginEvaluator.getCost(raoData);
+        if ((!relativeMargin) || (oppositeMinimumMargin > 0)) {
+            return oppositeMinimumMargin;
         } else {
             return minRelativeMarginEvaluator.getCost(raoData);
         }

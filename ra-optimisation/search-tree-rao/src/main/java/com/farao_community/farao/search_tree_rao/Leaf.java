@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
@@ -102,7 +103,7 @@ class Leaf {
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
-        insertAbsPtdfSums(initialVariantId, parentLeaf.getRaoData().getCracResult(parentLeaf.getRaoData().getInitialVariantId()).getAbsPtdfSums());
+        copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getInitialVariantId(), initialVariantId);
 
         status = Status.CREATED;
     }
@@ -222,9 +223,21 @@ class Leaf {
      */
     void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
-            raoData.getCracResult(optimizedVariantId).setAbsPtdfSums(raoData.getCracResult(initialVariantId).getAbsPtdfSums());
+            copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
             raoData.deleteVariant(initialVariantId, false);
         }
+    }
+
+    /**
+     * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
+     * @param originVariant: the origin variant containing the PTDF sums
+     * @param destinationVariant: the destination variant
+     */
+    void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {
+        raoData.getCnecs().forEach(cnec ->
+                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
+                        cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
+                ));
     }
 
     /**
@@ -270,16 +283,6 @@ class Leaf {
         for (NetworkAction networkAction : networkActions) {
             networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
         }
-    }
-
-    /**
-     * This method inserts pre-computed absolute PTDF sums into the leaf's crac result extension
-     *
-     * @param variantId:   the ID of the variant to update.
-     * @param absPtdfSums: the absolute PTDF sums (for each CNEC) to insert.
-     */
-    private void insertAbsPtdfSums(String variantId, Map<String, Double> absPtdfSums) {
-        raoData.getCracResult(variantId).setAbsPtdfSums(absPtdfSums);
     }
 
     @Override
