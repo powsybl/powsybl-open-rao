@@ -65,7 +65,7 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
         assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertFalse(((MinMarginObjectiveFunction)optimizer.getObjectiveFunctionEvaluator()).isRelative());
+        assertFalse(((MinMarginObjectiveFunction) optimizer.getObjectiveFunctionEvaluator()).isRelative());
         assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
         assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
         assertEquals(10, optimizer.getParameters().getMaxIterations());
@@ -78,7 +78,7 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
         assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertTrue(((MinMarginObjectiveFunction)optimizer.getObjectiveFunctionEvaluator()).isRelative());
+        assertTrue(((MinMarginObjectiveFunction) optimizer.getObjectiveFunctionEvaluator()).isRelative());
         assertEquals(MEGAWATT, optimizer.getObjectiveFunctionEvaluator().getUnit());
     }
 
@@ -89,7 +89,7 @@ public class RaoUtilTest {
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
         assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertTrue(((MinMarginObjectiveFunction)optimizer.getObjectiveFunctionEvaluator()).isRelative());
+        assertTrue(((MinMarginObjectiveFunction) optimizer.getObjectiveFunctionEvaluator()).isRelative());
         assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
     }
 
