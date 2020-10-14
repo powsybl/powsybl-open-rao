@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
