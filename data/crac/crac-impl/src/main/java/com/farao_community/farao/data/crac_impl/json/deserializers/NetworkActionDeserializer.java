@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 /**
@@ -34,7 +35,8 @@ import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNam
  */
 final class NetworkActionDeserializer {
 
-    private NetworkActionDeserializer() { }
+    private NetworkActionDeserializer() {
+    }
 
     static Set<NetworkAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard NetworkAction deserializer as it requires the simpleCrac to compare
@@ -83,7 +85,7 @@ final class NetworkActionDeserializer {
         String operator = null;
         List<UsageRule> usageRules = new ArrayList<>();
         String networkElementId = null;
-        List <Extension< NetworkAction >> extensions = null;
+        List<Extension<NetworkAction>> extensions = null;
 
         ActionType actionType = null; // useful only if type is "topology"
         double setPoint = 0; // useful only if type is "pst-setpoint"
@@ -152,7 +154,7 @@ final class NetworkActionDeserializer {
                 break;
 
             case PST_SETPOINT_TYPE:
-                networkAction = new PstSetpoint(id, name, operator, usageRules, ne, setPoint);
+                networkAction = new PstSetpoint(id, name, operator, usageRules, ne, setPoint, STARTS_AT_ONE);
                 break;
 
             default:
@@ -174,7 +176,7 @@ final class NetworkActionDeserializer {
         String operator = null;
         List<UsageRule> usageRules = new ArrayList<>();
         Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
-        List <Extension< NetworkAction >> extensions = null;
+        List<Extension<NetworkAction>> extensions = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 

@@ -74,53 +74,54 @@ public class CracImportExportTest {
         usageRules.add(new OnState(UsageMethod.FORCED, postContingencyState));
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
-        simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15));
+        simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15, RangeDefinition.CENTERED_ON_ZERO));
 
         Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
         PstSetpoint pstSetpoint = new PstSetpoint(
-            "pstSetpointId",
-            "pstSetpointName",
-            "RTE",
-            new ArrayList<>(),
-            simpleCrac.getNetworkElement("pst"),
-            5
+                "pstSetpointId",
+                "pstSetpointName",
+                "RTE",
+                new ArrayList<>(),
+                simpleCrac.getNetworkElement("pst"),
+                5,
+                RangeDefinition.CENTERED_ON_ZERO // todo assert type
         );
         Topology topology = new Topology(
-            "topologyId",
-            "topologyName",
-            "RTE",
-            new ArrayList<>(),
-            simpleCrac.getNetworkElement("neId"),
-            ActionType.CLOSE
+                "topologyId",
+                "topologyName",
+                "RTE",
+                new ArrayList<>(),
+                simpleCrac.getNetworkElement("neId"),
+                ActionType.CLOSE
         );
         elementaryNetworkActions.add(pstSetpoint);
         elementaryNetworkActions.add(topology);
         ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction(
-            "complexNetworkActionId",
-            "complexNetworkActionName",
-            "RTE",
-            new ArrayList<>(),
-            elementaryNetworkActions
+                "complexNetworkActionId",
+                "complexNetworkActionName",
+                "RTE",
+                new ArrayList<>(),
+                elementaryNetworkActions
         );
         simpleCrac.addNetworkAction(complexNetworkAction);
 
         simpleCrac.addRangeAction(new PstWithRange(
-            "pstRangeId",
-            "pstRangeName",
-            "RTE",
-            Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
-            Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO)),
-            simpleCrac.getNetworkElement("pst")
+                "pstRangeId",
+                "pstRangeName",
+                "RTE",
+                Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
+                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
+                        new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO)),
+                simpleCrac.getNetworkElement("pst")
         ));
 
         simpleCrac.addRangeAction(new AlignedRangeAction(
-            "alignedRangeId",
-            "alignedRangeName",
-            "RTE",
-            Collections.singletonList(new OnConstraint(UsageMethod.AVAILABLE, preventiveState, preventiveCnec1)),
-            Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO)),
-            Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
+                "alignedRangeId",
+                "alignedRangeName",
+                "RTE",
+                Collections.singletonList(new OnConstraint(UsageMethod.AVAILABLE, preventiveState, preventiveCnec1)),
+                Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO)),
+                Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
         ));
 
         simpleCrac.setNetworkDate(new DateTime(2020, 5, 14, 11, 35));

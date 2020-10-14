@@ -64,7 +64,7 @@ public class JsonResultTest {
         simpleCrac.addNetworkAction(topology);
 
         // PstSetpoint
-        PstSetpoint pstSetpoint = new PstSetpoint("pstSetpoint", networkElement2, 12.0);
+        PstSetpoint pstSetpoint = new PstSetpoint("pstSetpoint", networkElement2, 12.0, RangeDefinition.CENTERED_ON_ZERO);
         simpleCrac.addNetworkAction(pstSetpoint);
 
         // add a ResultVariantManager to the Crac
