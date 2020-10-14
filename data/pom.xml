@@ -16,9 +16,6 @@
     <description>Business data classes (inputs and outputs) of FARAO core and associated converters</description>
 
     <modules>
-        <module>flowbased-domain</module>
-        <module>flow-decomposition-results</module>
-        <module>crac-file</module>
         <module>glsk</module>
         <module>crac</module>
         <module>crac-io</module>
