@@ -11,11 +11,12 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -28,7 +29,6 @@ public final class RaoInput {
         private Set<State> perimeter;
         private Network network;
         private String variantId;
-        private List<Pair<Country, Country>> boundaries;
         private ReferenceProgram referenceProgram;
         private GlskProvider glskProvider;
 
@@ -57,11 +57,6 @@ public final class RaoInput {
 
         public RaoInputBuilder withVariantId(String variantId) {
             this.variantId = variantId;
-            return this;
-        }
-
-        public RaoInputBuilder withBoundaries(List<Pair<Country, Country>> boundaries) {
-            this.boundaries = boundaries;
             return this;
         }
 
@@ -101,7 +96,6 @@ public final class RaoInput {
             } else {
                 raoInput.perimeter = perimeter;
             }
-            raoInput.boundaries = boundaries;
             raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
             raoInput.glskProvider = Objects.isNull(glskProvider) ? Optional.empty() : Optional.of(glskProvider);
 
@@ -114,7 +108,6 @@ public final class RaoInput {
     private Set<State> perimeter;
     private Network network;
     private String variantId;
-    private List<Pair<Country, Country>> boundaries;
     private Optional<ReferenceProgram> referenceProgram;
     private Optional<GlskProvider> glskProvider;
 
@@ -147,10 +140,6 @@ public final class RaoInput {
 
     public void setVariantId(String variantId) {
         this.variantId = variantId;
-    }
-
-    public List<Pair<Country, Country>> getBoundaries() {
-        return boundaries;
     }
 
     public Optional<ReferenceProgram> getReferenceProgram() {

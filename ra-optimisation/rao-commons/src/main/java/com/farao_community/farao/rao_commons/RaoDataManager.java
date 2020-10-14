@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Objects;
 
 import static com.farao_community.farao.rao_commons.RaoData.NO_WORKING_VARIANT;
@@ -171,5 +172,9 @@ public class RaoDataManager {
                     cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
                 }
             });
+    }
+
+    public void fillCracResultsWithAbsolutePtdfSums(Map<String, Double> ptdfSums) {
+        raoData.getCracResult(raoData.getInitialVariantId()).setAbsPtdfSums(ptdfSums);
     }
 }
