@@ -51,7 +51,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
         }
 
         this.minMarginEvaluator = new MinMarginEvaluator(this.unit, false);
-        this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, true);
+        this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, true, raoParameters.getPtdfSumLowerBound());
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
         this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost());

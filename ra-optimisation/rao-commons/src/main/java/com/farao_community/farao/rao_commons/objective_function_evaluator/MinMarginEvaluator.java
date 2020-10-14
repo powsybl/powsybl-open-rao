@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -31,10 +32,20 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     private Unit unit;
     private boolean relative;
+    private double ptdfSumLowerBound;
 
     public MinMarginEvaluator(Unit unit, boolean relative) {
         this.unit = unit;
         this.relative = relative;
+        if (relative) {
+            throw new FaraoException("Please provide a PTDF sum lower bound for relative margins.");
+        }
+    }
+
+    public MinMarginEvaluator(Unit unit, boolean relative, double ptdfSumLowerBound) {
+        this.unit = unit;
+        this.relative = relative;
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
     @Override
@@ -52,7 +63,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getRelativeCoef(Cnec cnec, RaoData raoData) {
-        return relative ? 1 / raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums().get(cnec.getId()) : 1;
+        return relative ? 1 / Math.max(raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums().get(cnec.getId()), ptdfSumLowerBound) : 1;
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {

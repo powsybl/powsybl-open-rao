@@ -99,14 +99,6 @@ public class IteratingLinearOptimizer {
         // If optimization fails iteration can stop
         try {
             LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
-            if (optimizeRelativeMargins
-                    && raoData.getCracResult(bestVariantId).getNetworkSecurityStatus().equals(CracResult.NetworkSecurityStatus.SECURED)
-                    && !raoData.isMaximizeMinRelativeMargin()) {
-                LOGGER.info("Network status is secured. Switching to relative margin optimization.");
-                raoData.setMaximizeMinRelativeMargin(true);
-            } else {
-                raoData.setMaximizeMinRelativeMargin(false);
-            }
             linearOptimizer.optimize(raoData);
             if (!linearOptimizer.getSolverResultStatusString().equals("OPTIMAL")) {
                 LOGGER.info(format(LINEAR_OPTIMIZATION_INFEASIBLE, iteration)); //handle INFEASIBLE solver status

@@ -49,18 +49,20 @@ public class MinMarginObjectiveFunctionTest {
     private static final String TEST_VARIANT = "test-variant";
 
     private void setUp(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost, RaoParameters.ObjectiveFunction objectiveFunction) {
+        double ptdfSumLowerBound = 0.02;
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit, false);
-        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true);
+        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true, ptdfSumLowerBound);
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
 
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setMnecAcceptableMarginDiminution(mnecAcceptableMarginDiminution);
         raoParameters.setMnecViolationCost(mnecViolationCost);
         raoParameters.setObjectiveFunction(objectiveFunction);
+        raoParameters.setPtdfSumLowerBound(ptdfSumLowerBound);
 
         minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(raoParameters);
         crac.newCnec().setId("MNEC1 - initial-instant - preventive")

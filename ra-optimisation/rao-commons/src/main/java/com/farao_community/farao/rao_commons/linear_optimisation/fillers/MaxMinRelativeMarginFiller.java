@@ -25,11 +25,13 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
-    double absMarginObjCoef;
+    double negativeMarginObjectiveCoefficient;
+    double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, double absMarginObjCoef) {
-        super(unit, pstPenaltyCost, false);
-        this.absMarginObjCoef = absMarginObjCoef;
+    public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
+        super(unit, pstPenaltyCost);
+        this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
     @Override
@@ -46,13 +48,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
      * Add a big coefficient to it in the objective function, in order to render it the primary objective
      */
     private void updateMinimumNegativeMarginDefinitionAndCost(LinearProblem linearProblem) {
-        MPVariable minAbsMargin = linearProblem.getMinimumMarginVariable();
-        if (minAbsMargin == null) {
+        MPVariable minNegMargin = linearProblem.getMinimumMarginVariable();
+        if (minNegMargin == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        minAbsMargin.setUb(.0);
+        minNegMargin.setUb(.0);
         MPObjective objective = linearProblem.getObjective();
-        objective.setCoefficient(minAbsMargin, absMarginObjCoef);
+        objective.setCoefficient(minNegMargin, -1 * negativeMarginObjectiveCoefficient);
     }
 
     /**
@@ -60,7 +62,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
      * should be able to be negative in unsecured cases (see constraints)
      */
     private void buildMinimumRelativeMarginVariable(LinearProblem linearProblem) {
-        linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
+        linearProblem.addMinimumRelativeMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
     }
 
     /**
@@ -73,7 +75,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         }
         Map<String, Double> ptdfSums = raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums();
         raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
-            double marginCoef = 1 / ptdfSums.get(cnec.getId());
+            double marginCoef = 1 / Math.max(ptdfSums.get(cnec.getId()), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -87,13 +89,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData);
 
             if (minFlow.isPresent()) {
-                MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                MPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1 * marginCoef);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1 * marginCoef);
             }

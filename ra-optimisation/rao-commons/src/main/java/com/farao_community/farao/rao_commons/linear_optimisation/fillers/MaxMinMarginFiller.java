@@ -11,14 +11,11 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -31,12 +28,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     private Unit unit;
     private double pstPenaltyCost;
-    private boolean relativeMargins;
 
-    public MaxMinMarginFiller(Unit unit, double pstPenaltyCost, boolean relativeMargins) {
+    public MaxMinMarginFiller(Unit unit, double pstPenaltyCost) {
         this.unit = unit;
         this.pstPenaltyCost = pstPenaltyCost;
-        this.relativeMargins = relativeMargins;
     }
 
     public void setUnit(Unit unit) {
@@ -59,13 +54,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     @Override
     public void update(RaoData raoData, LinearProblem linearProblem) {
-        if (raoData.isMaximizeMinRelativeMargin() && !relativeMargins) {
-            relativeMargins = true;
-            updateCoefsToRelativeMargin(raoData, linearProblem);
-        } else if (!raoData.isMaximizeMinRelativeMargin() && relativeMargins) {
-            relativeMargins = false;
-            updateCoefsToAbsoluteMargin(raoData, linearProblem);
-        }
+        // Objective does not change, nothing to do
     }
 
     /**
@@ -98,9 +87,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        Map<String, Double> ptdfSums = raoData.getCracResult(raoData.getInitialVariantId()).getAbsPtdfSums();
         raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
-            double marginCoef = relativeMargins ? 1 / ptdfSums.get(cnec.getId()) : 1;
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -116,13 +103,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
-                minimumMarginNegative.setCoefficient(flowVariable, -1 * marginCoef);
+                minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
-                minimumMarginPositive.setCoefficient(flowVariable, 1 * marginCoef);
+                minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });
     }
@@ -176,42 +163,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
             // Unom(cnec) * sqrt(3) / 1000
             return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
         }
-    }
-
-    private void updateCoefsToRelativeMargin(RaoData raoData, LinearProblem linearProblem) {
-        Map<String, Double> ptdfSums = raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsPtdfSums();
-        raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
-            Double ptdfSum = ptdfSums.get(cnec.getId());
-
-            MPConstraint minimumMarginNegative = linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-            if (!Objects.isNull(minimumMarginNegative)) {
-                minimumMarginNegative.setCoefficient(flowVariable, minimumMarginNegative.getCoefficient(flowVariable) / ptdfSum);
-            }
-
-            MPConstraint minimumMarginPositive = linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-            if (!Objects.isNull(minimumMarginPositive)) {
-                minimumMarginPositive.setCoefficient(flowVariable, minimumMarginPositive.getCoefficient(flowVariable) / ptdfSum);
-            }
-        });
-    }
-
-    private void updateCoefsToAbsoluteMargin(RaoData raoData, LinearProblem linearProblem) {
-        Map<String, Double> ptdfSums = raoData.getCrac().getExtension(CracResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsPtdfSums();
-        raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
-            Double ptdfSum = ptdfSums.get(cnec.getId());
-
-            MPConstraint minimumMarginNegative = linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-            if (!Objects.isNull(minimumMarginNegative)) {
-                minimumMarginNegative.setCoefficient(flowVariable, -1);
-            }
-
-            MPConstraint minimumMarginPositive = linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-            if (!Objects.isNull(minimumMarginPositive)) {
-                minimumMarginPositive.setCoefficient(flowVariable, 1);
-            }
-        });
     }
 }
 
