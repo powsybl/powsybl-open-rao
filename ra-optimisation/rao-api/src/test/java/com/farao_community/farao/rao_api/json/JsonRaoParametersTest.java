@@ -43,6 +43,11 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRaoWithLoopFlowLimitation(true);
         parameters.setLoopFlowApproximation(false);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
+        parameters.setMnecViolationCost(20);
+        parameters.setMnecAcceptableMarginDiminution(30);
+        parameters.setMnecConstraintAdjustmentCoefficient(3);
+        parameters.setNegativeMarginObjectiveCoefficient(100);
+        parameters.setPtdfSumLowerBound(0.05);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 

@@ -6,14 +6,20 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Country;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class aims at performing the initial sensitivity analysis of a RAO, the one
@@ -53,6 +59,9 @@ public class InitialSensitivityAnalysis {
     private void runSensitivityComputation() {
         SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit());
         raoData.setSystematicSensitivityResult(sensitivityResult);
+        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+            fillAbsolutePtdfSums(raoData, raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries(), sensitivityResult);
+        }
     }
 
     private void fillReferenceFlowsAndObjectiveFunction() {
@@ -70,17 +79,22 @@ public class InitialSensitivityAnalysis {
     }
 
     private SystematicSensitivityInterface getSystematicSensitivityInterface() {
-
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs());
+        } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()));
         }
 
         return builder.build();
     }
 
+    private static void fillAbsolutePtdfSums(RaoData raoData, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
+        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getNetwork(), raoData.getGlskProvider(), boundaries, sensitivityResult);
+        raoData.getRaoDataManager().fillCnecResultsWithAbsolutePtdfSums(ptdfSums);
+    }
 }

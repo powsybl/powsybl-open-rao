@@ -103,7 +103,7 @@
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jimfs.version>1.1</jimfs.version>
         <jgrapht.core.version>1.0.1</jgrapht.core.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <logback.version>1.2.3</logback.version>
         <lombok.version>1.18.12</lombok.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>

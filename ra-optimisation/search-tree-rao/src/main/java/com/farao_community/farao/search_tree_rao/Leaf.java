@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
@@ -71,7 +72,6 @@ class Leaf {
 
     /**
      * Root Leaf constructors
-     *
      * It is built directly from a RaoData on which a systematic sensitivity analysis could hav already been run or not.
      */
     Leaf(RaoData raoData, RaoParameters raoParameters) {
@@ -103,6 +103,7 @@ class Leaf {
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getInitialVariantId(), initialVariantId);
 
         status = Status.CREATED;
     }
@@ -153,7 +154,7 @@ class Leaf {
                 } else {
 
                     raoData.setSystematicSensitivityResult(
-                        systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
+                            systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
 
                     if (raoParameters.isRaoWithLoopFlowLimitation()) {
                         LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
@@ -162,7 +163,7 @@ class Leaf {
                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
                     raoData.getRaoDataManager().fillCnecResultWithFlows();
                     raoData.getRaoDataManager().fillCracResultWithCosts(
-                        objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
+                            objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
                 }
 
                 status = Status.EVALUATED;
@@ -210,9 +211,9 @@ class Leaf {
      */
     Set<NetworkAction> bloom() {
         return raoData.getAvailableNetworkActions()
-            .stream()
-            .filter(na -> !networkActions.contains(na))
-            .collect(Collectors.toSet());
+                .stream()
+                .filter(na -> !networkActions.contains(na))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -222,8 +223,21 @@ class Leaf {
      */
     void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
+            copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
             raoData.deleteVariant(initialVariantId, false);
         }
+    }
+
+    /**
+     * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
+     * @param originVariant: the origin variant containing the PTDF sums
+     * @param destinationVariant: the destination variant
+     */
+    void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {
+        raoData.getCnecs().forEach(cnec ->
+                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
+                        cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
+                ));
     }
 
     /**
@@ -274,7 +288,7 @@ class Leaf {
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
-            "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+                "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
         info += String.format(", Cost: %.2f", getBestCost());
         info += String.format(" (Functional: %.2f", raoData.getCracResult().getFunctionalCost());
         info += String.format(", Virtual: %.2f)", raoData.getCracResult().getVirtualCost());

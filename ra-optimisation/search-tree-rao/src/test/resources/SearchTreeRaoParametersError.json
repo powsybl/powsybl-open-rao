@@ -8,6 +8,11 @@
   "rao-with-loop-flow-limitation" : false,
   "loop-flow-approximation" : true,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
+  "mnec-acceptable-margin-diminution" : 50.0,
+  "mnec-violation-cost" : 10.0,
+  "mnec-constraint-adjustment-coefficient" : 0.0,
+  "negative-margin-objective-coefficient" : 1000.0,
+  "ptdf-sum-lower-bound" : 0.01,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
