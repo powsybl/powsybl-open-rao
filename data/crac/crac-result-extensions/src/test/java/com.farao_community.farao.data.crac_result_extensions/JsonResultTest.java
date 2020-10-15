@@ -87,6 +87,7 @@ public class JsonResultTest {
         cnecResultExtension.getVariant("variant1").setMaxThresholdInMW(1000);
         cnecResultExtension.getVariant("variant1").setMinThresholdInA(-700);
         cnecResultExtension.getVariant("variant1").setMaxThresholdInA(700);
+        cnecResultExtension.getVariant("variant1").setAbsolutePtdfSum(0.2);
         cnecResultExtension.getVariant("variant2").setFlowInA(750.0);
         cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
 
@@ -152,6 +153,7 @@ public class JsonResultTest {
         assertEquals(1000.0, extCnec.getVariant("variant1").getMaxThresholdInMW(),  DOUBLE_TOLERANCE);
         assertEquals(-700.0, extCnec.getVariant("variant1").getMinThresholdInA(),  DOUBLE_TOLERANCE);
         assertEquals(700.0, extCnec.getVariant("variant1").getMaxThresholdInA(),  DOUBLE_TOLERANCE);
+        assertEquals(0.2, extCnec.getVariant("variant1").getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
 
         // assert that the PstWithRange has a RangeActionResultExtension with the expected content
         assertEquals(1, crac.getRangeAction("pst1").getExtensions().size());
@@ -200,6 +202,7 @@ public class JsonResultTest {
         assertNotNull(extCnec);
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
+        assertEquals(0.85, extCnec.getVariant("variant2").getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
     }
 
     @Test

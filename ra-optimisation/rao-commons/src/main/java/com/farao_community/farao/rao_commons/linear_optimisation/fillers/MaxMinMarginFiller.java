@@ -19,7 +19,6 @@ import com.google.ortools.linearsolver.MPVariable;
 import java.util.Optional;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -33,11 +32,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
     public MaxMinMarginFiller(Unit unit, double pstPenaltyCost) {
         this.unit = unit;
         this.pstPenaltyCost = pstPenaltyCost;
-    }
-
-    // Methods for tests
-    public MaxMinMarginFiller() {
-        this(MEGAWATT, DEFAULT_PST_PENALTY_COST);
     }
 
     public void setUnit(Unit unit) {
@@ -89,18 +83,15 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
     private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
+        MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        if (minimumMarginVariable == null) {
+            throw new FaraoException("Minimum margin variable has not yet been created");
+        }
         raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
-
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
                 throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s", cnec.getId()));
-            }
-
-            MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-
-            if (minimumMarginVariable == null) {
-                throw new FaraoException("Minimum margin variable has not yet been created");
             }
 
             Optional<Double> minFlow;
@@ -165,7 +156,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the flows are always defined in MW, so if the minimum margin is defined in ampere,
      * and appropriate conversion coefficient should be used.
      */
-    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+    protected double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
         if (unit.equals(MEGAWATT)) {
             return 1;
         } else {

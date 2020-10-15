@@ -27,5 +27,11 @@
       "readSlackBus" : false,
       "writeSlackBus" : false
     }
+  },
+  "extensions" : {
+    "RaoPtdfParameters" : {
+      "boundaries" : [ "FR-ES", "ES-PT" ],
+      "unknownField" : true
+    }
   }
 }

@@ -91,6 +91,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setMnecConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
+                case "negative-margin-objective-coefficient":
+                    parser.nextToken();
+                    parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
+                    break;
+                case "ptdf-sum-lower-bound":
+                    parser.nextToken();
+                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
+                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());

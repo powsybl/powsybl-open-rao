@@ -31,8 +31,12 @@ public class CnecResult implements Result {
     private double loopflowInMW; //loopflow value in MW
     private double loopflowThresholdInMW; //loopflow threshold in MW. Normally = max(Tso input, initial calculated lp)
 
+    private double absolutePtdfSum;
+
     @JsonCreator
-    public CnecResult(@JsonProperty("flowInMW") double flowInMW, @JsonProperty("flowInA") double flowInA) {
+    public CnecResult(@JsonProperty("flowInMW") double flowInMW,
+                      @JsonProperty("flowInA") double flowInA,
+                      @JsonProperty("absolutePtdfSum") double absolutePtdfSum) {
         this.flowInMW = flowInMW;
         this.flowInA = flowInA;
         this.minThresholdInMW = Double.NaN;
@@ -41,14 +45,19 @@ public class CnecResult implements Result {
         this.maxThresholdInA = Double.NaN;
         this.loopflowInMW = Double.NaN;
         this.loopflowThresholdInMW = Double.NaN;
+        this.absolutePtdfSum = absolutePtdfSum;
+    }
+
+    public CnecResult(double flowInMW, double flowInA) {
+        this(flowInMW, flowInA, Double.NaN);
     }
 
     public CnecResult(double flowInMW) {
-        this(flowInMW, Double.NaN);
+        this(flowInMW, Double.NaN, Double.NaN);
     }
 
     public CnecResult() {
-        this(Double.NaN, Double.NaN);
+        this(Double.NaN, Double.NaN, Double.NaN);
     }
 
     public void setFlowInMW(double flow) {
@@ -120,5 +129,13 @@ public class CnecResult implements Result {
 
     public void setLoopflowThresholdInMW(double loopflowThresholdInMW) {
         this.loopflowThresholdInMW = loopflowThresholdInMW;
+    }
+
+    public double getAbsolutePtdfSum() {
+        return absolutePtdfSum;
+    }
+
+    public void setAbsolutePtdfSum(double absolutePtdfSum) {
+        this.absolutePtdfSum = absolutePtdfSum;
     }
 }

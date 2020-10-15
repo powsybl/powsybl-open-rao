@@ -64,6 +64,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
     private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
     private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    private static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
+    private static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -77,6 +79,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
+    private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
+    private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
 
@@ -202,6 +206,22 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.mnecViolationCost = mnecViolationCost;
     }
 
+    public double getNegativeMarginObjectiveCoefficient() {
+        return negativeMarginObjectiveCoefficient;
+    }
+
+    public void setNegativeMarginObjectiveCoefficient(double negativeMarginObjectiveCoefficient) {
+        this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
+    }
+
+    public double getPtdfSumLowerBound() {
+        return ptdfSumLowerBound;
+    }
+
+    public void setPtdfSumLowerBound(double ptdfSumLowerBound) {
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -253,6 +273,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setMnecAcceptableMarginDiminution(config.getDoubleProperty("mnec-acceptable-margin-diminution", DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION));
                 parameters.setMnecViolationCost(config.getDoubleProperty("mnec-violation-cost", DEFAULT_MNEC_VIOLATION_COST));
                 parameters.setMnecConstraintAdjustmentCoefficient(config.getDoubleProperty("mnec-constraint-adjustment-coefficient", DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
+                parameters.setNegativeMarginObjectiveCoefficient(config.getDoubleProperty("negative-margin-objective-coefficient", DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT));
+                parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
