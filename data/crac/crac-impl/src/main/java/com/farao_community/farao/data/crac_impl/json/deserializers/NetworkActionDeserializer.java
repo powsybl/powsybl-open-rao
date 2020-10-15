@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 /**
@@ -86,6 +85,7 @@ final class NetworkActionDeserializer {
         List<UsageRule> usageRules = new ArrayList<>();
         String networkElementId = null;
         List<Extension<NetworkAction>> extensions = null;
+        RangeDefinition rangeDefinition = null;
 
         ActionType actionType = null; // useful only if type is "topology"
         double setPoint = 0; // useful only if type is "pst-setpoint"
@@ -137,6 +137,10 @@ final class NetworkActionDeserializer {
                     jsonParser.nextToken();
                     extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                     break;
+                case RANGE_DEFINITION:
+                    jsonParser.nextToken();
+                    rangeDefinition = jsonParser.readValueAs(RangeDefinition.class);
+                    break;
 
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
@@ -154,7 +158,7 @@ final class NetworkActionDeserializer {
                 break;
 
             case PST_SETPOINT_TYPE:
-                networkAction = new PstSetpoint(id, name, operator, usageRules, ne, setPoint, STARTS_AT_ONE);
+                networkAction = new PstSetpoint(id, name, operator, usageRules, ne, setPoint, rangeDefinition);
                 break;
 
             default:

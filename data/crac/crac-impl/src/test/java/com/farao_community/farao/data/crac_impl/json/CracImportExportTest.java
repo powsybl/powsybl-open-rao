@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_impl.json.RoundTripUtil.roundTrip;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
@@ -74,7 +75,7 @@ public class CracImportExportTest {
         usageRules.add(new OnState(UsageMethod.FORCED, postContingencyState));
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
-        simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15, RangeDefinition.CENTERED_ON_ZERO));
+        simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15, CENTERED_ON_ZERO));
 
         Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
         PstSetpoint pstSetpoint = new PstSetpoint(
@@ -84,7 +85,7 @@ public class CracImportExportTest {
                 new ArrayList<>(),
                 simpleCrac.getNetworkElement("pst"),
                 5,
-                RangeDefinition.CENTERED_ON_ZERO // todo assert type
+                CENTERED_ON_ZERO
         );
         Topology topology = new Topology(
                 "topologyId",
@@ -111,7 +112,7 @@ public class CracImportExportTest {
                 "RTE",
                 Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
                 Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO)),
+                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
         ));
 
@@ -120,13 +121,14 @@ public class CracImportExportTest {
                 "alignedRangeName",
                 "RTE",
                 Collections.singletonList(new OnConstraint(UsageMethod.AVAILABLE, preventiveState, preventiveCnec1)),
-                Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, RangeDefinition.CENTERED_ON_ZERO)),
+                Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, CENTERED_ON_ZERO)),
                 Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
         ));
 
         simpleCrac.setNetworkDate(new DateTime(2020, 5, 14, 11, 35));
 
         Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
+
         assertEquals(5, crac.getNetworkElements().size());
         assertEquals(2, crac.getInstants().size());
         assertEquals(2, crac.getContingencies().size());

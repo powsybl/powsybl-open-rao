@@ -66,6 +66,14 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
         this.rangeDefinition = rangeDefinition;
     }
 
+    public RangeDefinition getRangeDefinition() {
+        return this.rangeDefinition;
+    }
+
+    public void setRangeDefinition(RangeDefinition rangeDefinition) {
+        this.rangeDefinition = rangeDefinition;
+    }
+
     /**
      * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
      *
