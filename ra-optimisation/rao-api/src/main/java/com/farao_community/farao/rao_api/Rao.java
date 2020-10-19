@@ -12,8 +12,6 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.DefaultComputationManagerConfig;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,34 +45,26 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
-            return provider.run(raoInput, computationManager, parameters);
-        }
-
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
-            return runAsync(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
+            return provider.run(raoInput, parameters);
         }
 
         public CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
-            return runAsync(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
-        }
-
-        public RaoResult run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
-            Objects.requireNonNull(raoInput, "RAO input should not be null");
-            Objects.requireNonNull(parameters, "parameters should not be null");
-
-            return provider.run(raoInput, computationManager, parameters).join();
+            return runAsync(raoInput, RaoParameters.load());
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
-            return run(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), parameters);
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+
+            return provider.run(raoInput, parameters).join();
         }
 
         public RaoResult run(RaoInput raoInput) {
-            return run(raoInput, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager(), RaoParameters.load());
+            return run(raoInput, RaoParameters.load());
         }
 
         @Override
@@ -154,20 +144,12 @@ public final class Rao {
         return new Runner(provider);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
-        return find().runAsync(raoInput, computationManager, parameters);
-    }
-
     public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
         return find().runAsync(raoInput, parameters);
     }
 
     public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
         return find().runAsync(raoInput);
-    }
-
-    public static RaoResult run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
-        return find().run(raoInput, computationManager, parameters);
     }
 
     public static RaoResult run(RaoInput raoInput, RaoParameters parameters) {
