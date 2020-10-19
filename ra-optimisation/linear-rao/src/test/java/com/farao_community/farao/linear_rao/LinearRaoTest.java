@@ -18,9 +18,9 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisat
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.util.NativeLibraryLoader;
-import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
+import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,7 +114,7 @@ public class LinearRaoTest {
 
     @Test
     public void runLinearRaoWithSensitivityComputationError() {
-        Mockito.doThrow(new SensitivityComputationException("error with sensi")).when(initialSensitivityAnalysis).run();
+        Mockito.doThrow(new SensitivityAnalysisException("error with sensi")).when(initialSensitivityAnalysis).run();
         RaoResult raoResult = linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, initialSensitivityAnalysis, raoParameters).join();
         assertEquals(RaoResult.Status.FAILURE, raoResult.getStatus());
         assertEquals(LinearRaoResult.SystematicSensitivityAnalysisStatus.FAILURE,

@@ -77,7 +77,7 @@
         <module>distribution</module>
         <module>loopflow-computation</module>
         <module>ra-optimisation</module>
-        <module>sensitivity-computation</module>
+        <module>sensitivity-analysis</module>
         <module>util</module>
     </modules>
 
