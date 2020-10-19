@@ -9,6 +9,9 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -30,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 
@@ -44,7 +48,17 @@ public final class RaoUtil {
     }
 
     public static RaoData initRaoData(RaoInput raoInput, RaoParameters raoParameters) {
+        return initRaoData(raoInput, raoParameters, raoInput.getOptimizedState(), raoInput.getPerimeter(), null, null);
+    }
+
+    public static RaoData initRaoData(RaoInput raoInput, RaoParameters raoParameters, State optimizedState, Set<State> perimeter, String initialStateId, String initialVariantId) {
         Network network = raoInput.getNetwork();
+        if (!Objects.isNull(initialStateId) && !Objects.isNull(initialVariantId)) {
+            raoInput.getCrac().getNetworkActions().stream()
+                    .filter(na -> na.getExtension(NetworkActionResultExtension.class).getVariant(initialVariantId).isActivated(initialStateId))
+                    .forEach(na -> na.apply(network));
+            raoInput.getCrac().getRangeActions().forEach(ra -> ra.apply(network, ra.getExtension(RangeActionResultExtension.class).getVariant(initialVariantId).getSetPoint(initialStateId)));
+        }
         Crac crac = raoInput.getCrac();
         String variantId = raoInput.getVariantId();
 
@@ -70,8 +84,8 @@ public final class RaoUtil {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
         }
-
-        RaoData raoData = new RaoData(network, crac, raoInput.getOptimizedState(), raoInput.getPerimeter(), raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null));
+        
+        RaoData raoData = new RaoData(network, crac, optimizedState, perimeter, raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null), initialVariantId);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {

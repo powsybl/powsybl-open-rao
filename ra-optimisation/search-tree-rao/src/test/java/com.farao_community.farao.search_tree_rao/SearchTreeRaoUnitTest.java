@@ -10,14 +10,16 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.rao_commons.*;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoDataManager;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.farao_community.farao.util.FaraoNetworkPool;
@@ -148,7 +150,7 @@ public class SearchTreeRaoUnitTest {
     public void optimizeNextLeafAndUpdate() throws Exception {
         NetworkAction networkAction = Mockito.mock(NetworkAction.class);
         FaraoNetworkPool faraoNetworkPool = Mockito.mock(FaraoNetworkPool.class);
-        searchTreeRao.init(raoInput, raoParameters);
+        searchTreeRao.init(raoInput, raoParameters, raoInput.getOptimizedState(), raoInput.getPerimeter(), null, null);
         Mockito.doThrow(new NotImplementedException("")).when(networkAction).apply(network);
         searchTreeRao.optimizeNextLeafAndUpdate(networkAction, network, faraoNetworkPool);
     }

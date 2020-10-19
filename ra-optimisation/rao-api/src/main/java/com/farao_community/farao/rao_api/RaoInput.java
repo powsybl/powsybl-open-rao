@@ -86,12 +86,8 @@ public final class RaoInput {
             } else {
                 raoInput.variantId = variantId;
             }
-            if (Objects.isNull(optimizedState)) {
-                raoInput.optimizedState = crac.getPreventiveState();
-            } else {
-                raoInput.optimizedState = optimizedState;
-            }
-            if (Objects.isNull(perimeter)) {
+            raoInput.optimizedState = optimizedState;
+            if (Objects.isNull(perimeter) && (!Objects.isNull(raoInput.optimizedState))) {
                 raoInput.perimeter = Collections.singleton(raoInput.optimizedState);
             } else {
                 raoInput.perimeter = perimeter;

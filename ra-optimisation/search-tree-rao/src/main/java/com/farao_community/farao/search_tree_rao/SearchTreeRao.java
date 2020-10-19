@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -22,9 +23,12 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,14 +69,16 @@ public class SearchTreeRao implements RaoProvider {
         return "1.0.0";
     }
 
-    void init(RaoInput raoInput, RaoParameters raoParameters) {
+    void init(RaoInput raoInput, RaoParameters raoParameters, State optimizedState, Set<State> perimeter, RaoResult initialRaoResult, String initialStateId) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         } else {
             searchTreeRaoParameters = new SearchTreeRaoParameters();
         }
-        RaoData rootRaoData = RaoUtil.initRaoData(raoInput, raoParameters);
+        String initialVariantId = Objects.isNull(initialRaoResult) ? null : initialRaoResult.getPostOptimVariantId();
+        RaoData rootRaoData = RaoUtil.initRaoData(raoInput, raoParameters, optimizedState, perimeter, initialStateId, initialVariantId);
+
         rootLeaf = new Leaf(rootRaoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
@@ -83,7 +89,34 @@ public class SearchTreeRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
-        init(raoInput, raoParameters);
+        if (Objects.isNull(raoInput.getOptimizedState())) {
+            State preventiveState = raoInput.getCrac().getPreventiveState();
+            Set<State> preventivePerimeter = raoInput.getCrac().getStates();
+            try {
+                LOGGER.info("Optimization of preventive state [start]");
+                RaoResult preventiveRaoResult = runOnPerimeter(raoInput, raoParameters, preventiveState, preventivePerimeter).get();
+                State curativeState = raoInput.getCrac().getStates().stream().filter(state -> !state.equals(preventiveState)).findFirst().orElseThrow();
+                Set<State> curativePerimeter = Collections.singleton(curativeState);
+                LOGGER.info("Optimization of preventive state [end]");
+                LOGGER.info("Optimization of curative state [start]");
+                return runOnPerimeter(raoInput, raoParameters, curativeState, curativePerimeter, preventiveRaoResult, preventiveState.getId());
+            } catch (InterruptedException | ExecutionException e) {
+                RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
+                return CompletableFuture.completedFuture(raoResult);
+            }
+        } else {
+            return runOnPerimeter(raoInput, raoParameters, raoInput.getOptimizedState(), raoInput.getPerimeter());
+        }
+    }
+
+    private CompletableFuture<RaoResult> runOnPerimeter(RaoInput raoInput, RaoParameters raoParameters, State optimizedState, Set<State> perimeter) {
+        return runOnPerimeter(raoInput, raoParameters, optimizedState, perimeter, null, null);
+    }
+
+    private CompletableFuture<RaoResult> runOnPerimeter(RaoInput raoInput, RaoParameters raoParameters, State optimizedState, Set<State> perimeter, RaoResult initialRaoResult, String initialStateId) {
+        init(raoInput, raoParameters, optimizedState, perimeter, initialRaoResult, initialStateId);
+
+        Optional<String> preOptimVariantId = Objects.isNull(initialRaoResult) ? Optional.empty() : Optional.of(initialRaoResult.getPreOptimVariantId());
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
@@ -94,20 +127,20 @@ public class SearchTreeRao implements RaoProvider {
             return CompletableFuture.completedFuture(raoResult);
         } else if (stopCriterionReached(rootLeaf)) {
             SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
-            return CompletableFuture.completedFuture(buildOutput());
+            return CompletableFuture.completedFuture(buildOutput(preOptimVariantId));
         }
         rootLeaf.optimize();
         LOGGER.info(rootLeaf.toString());
         SearchTreeRaoLogger.logRangeActions(optimalLeaf);
         if (stopCriterionReached(rootLeaf)) {
-            return CompletableFuture.completedFuture(buildOutput());
+            return CompletableFuture.completedFuture(buildOutput(preOptimVariantId));
         }
 
         iterateOnTree();
 
         //TODO: refactor output format
         SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
-        return CompletableFuture.completedFuture(buildOutput());
+        return CompletableFuture.completedFuture(buildOutput(preOptimVariantId));
     }
 
     private void iterateOnTree() {
@@ -234,9 +267,9 @@ public class SearchTreeRao implements RaoProvider {
                 && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
-    private RaoResult buildOutput() {
+    private RaoResult buildOutput(Optional<String> overrideInitialVariantId) {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
+        raoResult.setPreOptimVariantId(overrideInitialVariantId.orElse(rootLeaf.getInitialVariantId()));
         raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }

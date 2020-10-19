@@ -52,8 +52,9 @@ public class RaoData {
      * @param perimeter:        set of State for which the Cnecs are monitored
      * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
      * @param glskProvider:     GLSK provider (needed only for loopflows)
+     * @param initialVariantId: initial variant id (optional or null)
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, String initialVariantId) {
         this.network = network;
         this.crac = crac;
         this.optimizedState = optimizedState;
@@ -69,10 +70,32 @@ public class RaoData {
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
 
-        String variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
+        String variantId = initialVariantId;
+        if (Objects.isNull(variantId)) {
+            variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
+        } else {
+            variantIds.add(variantId);
+            systematicSensitivityResultMap.put(variantId, null);
+        }
         setWorkingVariant(variantId);
         raoDataManager = new RaoDataManager(this);
         raoDataManager.fillRangeActionResultsWithNetworkValues();
+    }
+
+    /**
+     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
+     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
+     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
+     *
+     * @param network:          Network object.
+     * @param crac:             CRAC object.
+     * @param optimizedState:   State in which the remedial actions are optimized
+     * @param perimeter:        set of State for which the Cnecs are monitored
+     * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
+     * @param glskProvider:     GLSK provider (needed only for loopflows)
+     */
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
+        this(network, crac, optimizedState, perimeter, referenceProgram, glskProvider, null);
     }
 
     /**
@@ -86,7 +109,7 @@ public class RaoData {
      * @param perimeter:        set of State for which the Cnecs are monitored
      */
     public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
-        this(network, crac, optimizedState, perimeter, null, null);
+        this(network, crac, optimizedState, perimeter, null, null, null);
     }
 
     public List<String> getVariantIds() {
