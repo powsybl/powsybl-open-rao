@@ -13,8 +13,8 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +127,7 @@ public class IteratingLinearOptimizer {
             runSensitivityAndUpdateResults();
             LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
             return true;
-        } catch (SensitivityComputationException e) {
+        } catch (SensitivityAnalysisException e) {
             LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
                     systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
             return false;

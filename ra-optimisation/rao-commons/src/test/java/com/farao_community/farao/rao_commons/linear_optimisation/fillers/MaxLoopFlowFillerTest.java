@@ -43,9 +43,9 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         boolean isLoopFlowApproximation = true; // currently cannot be tested without the loop-flow approximation, otherwise a sensitivity computation should be made
         double loopFlowConstraintAdjustmentCoefficient = 5.;
         double loopFlowViolationCost = 10.;
-        SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
 
-        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(isLoopFlowApproximation, loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, sensitivityComputationParameters);
+        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(isLoopFlowApproximation, loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, sensitivityAnalysisParameters);
 
         // build problem
         coreProblemFiller.fill(raoData, linearProblem);

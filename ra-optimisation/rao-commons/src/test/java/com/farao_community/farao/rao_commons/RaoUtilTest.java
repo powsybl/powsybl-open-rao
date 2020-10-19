@@ -18,7 +18,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;

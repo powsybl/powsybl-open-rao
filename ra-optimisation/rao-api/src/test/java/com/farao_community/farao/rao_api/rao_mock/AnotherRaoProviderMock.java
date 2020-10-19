@@ -11,7 +11,6 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 public class AnotherRaoProviderMock implements RaoProvider {
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
     }
 

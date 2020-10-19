@@ -11,8 +11,8 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -80,8 +80,8 @@ public class InitialSensitivityAnalysis {
 
     private SystematicSensitivityInterface getSystematicSensitivityInterface() {
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityComputationParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityComputationParameters())
+            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {

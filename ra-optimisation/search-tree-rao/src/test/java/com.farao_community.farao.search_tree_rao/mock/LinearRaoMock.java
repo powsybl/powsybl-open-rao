@@ -15,7 +15,6 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -44,7 +43,7 @@ public class LinearRaoMock implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters parameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         if (raoInput.getCrac().getName().equals(CRAC_NAME_RAO_THROWS_EXCEPTION)) {
             throw new FaraoException("Mocked error while running LinearRaoMock");
         }

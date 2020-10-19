@@ -16,7 +16,6 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class SearchTreeRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
         init(raoInput, raoParameters);
 
         LOGGER.info("Evaluate root leaf");

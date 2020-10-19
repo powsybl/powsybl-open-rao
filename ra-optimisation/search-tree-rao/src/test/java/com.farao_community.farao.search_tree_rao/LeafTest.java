@@ -19,9 +19,9 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
-import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -208,7 +208,7 @@ public class LeafTest {
     @Test
     public void testEvaluateError() {
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
-        Mockito.doThrow(new SensitivityComputationException("mock")).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
+        Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         rootLeaf.evaluate();
