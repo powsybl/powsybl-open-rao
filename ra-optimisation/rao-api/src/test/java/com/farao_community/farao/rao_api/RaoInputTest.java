@@ -8,6 +8,8 @@
 package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Country;
@@ -32,6 +34,7 @@ public class RaoInputTest {
 
     private Network network;
     private Crac crac;
+    private State optimizedState;
     private RaoInput.RaoInputBuilder defaultBuilder;
 
     @Before
@@ -41,23 +44,27 @@ public class RaoInputTest {
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn(INITIAL_VARIANT_ID);
         crac = Mockito.mock(Crac.class);
-        defaultBuilder = RaoInput.builder().withNetwork(network).withCrac(crac).withVariantId(VARIANT_ID);
+        optimizedState = Mockito.mock(State.class);
+        defaultBuilder = RaoInput.builder()
+            .withNetwork(network)
+            .withCrac(crac)
+            .withVariantId(VARIANT_ID)
+            .withOptimizedState(optimizedState);
     }
 
     @Test(expected = RaoInputException.class)
     public void failWithoutNetwork() {
-        RaoInput.builder().withCrac(crac).withVariantId(VARIANT_ID).build();
+        RaoInput.builder().withCrac(crac).withOptimizedState(optimizedState).build();
     }
 
     @Test(expected = RaoInputException.class)
     public void failWithoutCrac() {
-        RaoInput.builder().withNetwork(network).withVariantId(VARIANT_ID).build();
+        RaoInput.builder().withNetwork(network).withOptimizedState(optimizedState).build();
     }
 
-    @Test
-    public void failWithoutVariantId() {
-        RaoInput raoInput = RaoInput.builder().withNetwork(network).withCrac(crac).build();
-        assertEquals(INITIAL_VARIANT_ID, raoInput.getVariantId());
+    @Test(expected = RaoInputException.class)
+    public void failWithoutOptimizedState() {
+        RaoInput.builder().withCrac(crac).withNetwork(network).build();
     }
 
     @Test
@@ -65,6 +72,7 @@ public class RaoInputTest {
         RaoInput raoInput = defaultBuilder.build();
         assertSame(network, raoInput.getNetwork());
         assertSame(crac, raoInput.getCrac());
+        assertSame(optimizedState, raoInput.getOptimizedState());
         assertEquals(VARIANT_ID, raoInput.getVariantId());
     }
 
@@ -87,5 +95,20 @@ public class RaoInputTest {
         assertEquals(2, actualRefProg.getReferenceExchangeDataList().size());
         assertEquals(100, actualRefProg.getExchange(Country.FR, Country.BE), DOUBLE_TOLERANCE);
         assertEquals(-200, actualRefProg.getExchange(Country.DE, Country.NL), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testBuildWithoutGlskProvider() {
+        RaoInput raoInput = defaultBuilder.build();
+        assertFalse(raoInput.getGlskProvider().isPresent());
+    }
+
+    @Test
+    public void testBuildWithGlskProvider() {
+        GlskProvider glskProvider = Mockito.mock(GlskProvider.class);
+        RaoInput raoInput = defaultBuilder
+            .withGlskProvider(glskProvider)
+            .build();
+        assertTrue(raoInput.getGlskProvider().isPresent());
     }
 }

@@ -18,12 +18,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class RaoInput {
 
     public static final class RaoInputBuilder {
+
+        private static final String REQUIRED_ARGUMENT_MESSAGE = "%s is mandatory when building RAO input.";
         private Crac crac;
         private State optimizedState;
         private Set<State> perimeter;
@@ -70,31 +74,19 @@ public final class RaoInput {
             return this;
         }
 
+        private RaoInputException requiredArgumentError(String type) {
+            return new RaoInputException(format(REQUIRED_ARGUMENT_MESSAGE, type));
+        }
+
         public RaoInput build() {
-            if (Objects.isNull(network)) {
-                throw new RaoInputException("Network is mandatory when building RAO input.");
-            }
-            if (Objects.isNull(crac)) {
-                throw new RaoInputException("CRAC is mandatory when building RAO input.");
-            }
-
             RaoInput raoInput = new RaoInput();
-            raoInput.crac = crac;
-            raoInput.network = network;
-            if (Objects.isNull(variantId)) {
-                raoInput.variantId = network.getVariantManager().getWorkingVariantId();
-            } else {
-                raoInput.variantId = variantId;
-            }
-            raoInput.optimizedState = optimizedState;
-            if (Objects.isNull(perimeter) && (!Objects.isNull(raoInput.optimizedState))) {
-                raoInput.perimeter = Collections.singleton(raoInput.optimizedState);
-            } else {
-                raoInput.perimeter = perimeter;
-            }
-            raoInput.referenceProgram = Objects.isNull(referenceProgram) ? Optional.empty() : Optional.of(referenceProgram);
-            raoInput.glskProvider = Objects.isNull(glskProvider) ? Optional.empty() : Optional.of(glskProvider);
-
+            raoInput.crac = Optional.ofNullable(crac).orElseThrow(() -> requiredArgumentError("CRAC"));
+            raoInput.network = Optional.ofNullable(network).orElseThrow(() -> requiredArgumentError("Network"));
+            raoInput.optimizedState = Optional.ofNullable(optimizedState).orElseThrow(() -> requiredArgumentError("Optimized state"));
+            raoInput.variantId = variantId != null ? variantId : network.getVariantManager().getWorkingVariantId();
+            raoInput.perimeter = perimeter != null ? perimeter : Collections.singleton(raoInput.optimizedState);
+            raoInput.referenceProgram = referenceProgram != null ? Optional.of(referenceProgram) : Optional.empty();
+            raoInput.glskProvider = glskProvider != null ? Optional.of(glskProvider) : Optional.empty();
             return raoInput;
         }
     }

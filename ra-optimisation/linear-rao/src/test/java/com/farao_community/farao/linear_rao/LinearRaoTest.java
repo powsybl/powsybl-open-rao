@@ -54,7 +54,6 @@ public class LinearRaoTest {
     private InitialSensitivityAnalysis initialSensitivityAnalysis;
     private Network network;
     private Crac crac;
-    private String variantId;
     private RaoData raoData;
     private RaoInput raoInput;
 
@@ -67,7 +66,6 @@ public class LinearRaoTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        variantId = network.getVariantManager().getWorkingVariantId();
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
@@ -84,7 +82,7 @@ public class LinearRaoTest {
         raoInput = RaoInput.builder()
             .withNetwork(network)
             .withCrac(crac)
-            .withVariantId(variantId)
+            .withOptimizedState(crac.getPreventiveState())
             .build();
         mockRaoUtil();
     }
@@ -110,6 +108,7 @@ public class LinearRaoTest {
         Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
         BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluator);
         BDDMockito.when(RaoUtil.initRaoData(raoInput, raoParameters)).thenCallRealMethod();
+        BDDMockito.when(RaoUtil.initRaoData(raoInput, raoParameters, raoInput.getOptimizedState(), raoInput.getPerimeter(), null, null)).thenCallRealMethod();
     }
 
     @Test

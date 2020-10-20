@@ -84,7 +84,7 @@ public final class RaoUtil {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
         }
-        
+
         RaoData raoData = new RaoData(network, crac, optimizedState, perimeter, raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null), initialVariantId);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 

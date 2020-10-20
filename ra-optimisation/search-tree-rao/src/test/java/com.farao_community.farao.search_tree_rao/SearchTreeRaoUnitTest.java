@@ -58,7 +58,6 @@ public class SearchTreeRaoUnitTest {
     private IteratingLinearOptimizer iteratingLinearOptimizer;
     private Network network;
     private Crac crac;
-    private String variantId;
     private RaoData raoData;
     private RaoInput raoInput;
 
@@ -68,7 +67,6 @@ public class SearchTreeRaoUnitTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CracImporters.importCrac("small-crac-with-network-actions.json", getClass().getResourceAsStream("/small-crac-with-network-actions.json"));
         crac.synchronize(network);
-        variantId = network.getVariantManager().getWorkingVariantId();
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParameters.json"));
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
@@ -77,7 +75,7 @@ public class SearchTreeRaoUnitTest {
         raoInput = RaoInput.builder()
             .withNetwork(network)
             .withCrac(crac)
-            .withVariantId(variantId)
+            .withOptimizedState(crac.getPreventiveState())
             .build();
     }
 

@@ -8,13 +8,13 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.rao_api.rao_mock.AnotherRaoProviderMock;
 import com.farao_community.farao.rao_api.rao_mock.RaoProviderMock;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.After;
@@ -34,7 +34,6 @@ public class RaoTest {
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
     private RaoInput raoInput;
-    private ComputationManager computationManager;
 
     @Before
     public void setUp() {
@@ -45,8 +44,7 @@ public class RaoTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        raoInput = RaoInput.builder().withNetwork(network).withCrac(crac).withVariantId("variant-id").build();
-        computationManager = Mockito.mock(ComputationManager.class);
+        raoInput = RaoInput.builder().withNetwork(network).withCrac(crac).withOptimizedState(Mockito.mock(State.class)).build();
     }
 
     @After
