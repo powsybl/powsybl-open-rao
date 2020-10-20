@@ -114,7 +114,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-sensitivity-computation</artifactId>
+            <artifactId>farao-sensitivity-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
