@@ -25,11 +25,11 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
 
     //how to use itools to test flowbased-computation:
     //command line example, from git farao root directory:
-    // ~/farao/bin/itools flowbased-computation --case-file flowbased-computation/flowbased-computation-api/src/test/resources/testCase.xiidm --crac-file flowbased-computation/flowbased-computation-api/src/test/resources/cracDataFlowBased.json --glsk-file flowbased-computation/flowbased-computation-api/src/test/resources/GlskCountry.xml --instant 2018-08-28T22:00:00Z --output-file /tmp/outputflowbased
+    // ~/farao/bin/itools flowbased-computation --case-file flowbased-computation/flowbased-computation-api/src/test/resources/testCase.xiidm --crac-file flowbased-computation/flowbased-computation-api/src/test/resources/fakeCrac.json --glsk-file flowbased-computation/flowbased-computation-api/src/test/resources/GlskCountry.xml --instant 2018-08-28T22:00:00Z --output-file /tmp/outputflowbased
 
     // ~/farao/bin/itools flowbased-computation
     // --case-file flowbased-computation/flowbased-computation-api/src/test/resources/testCase.xiidm
-    // --crac-file flowbased-computation/flowbased-computation-api/src/test/resources/cracDataFlowBased.json
+    // --crac-file flowbased-computation/flowbased-computation-api/src/test/resources/fakeCrac.json
     // --glsk-file flowbased-computation/flowbased-computation-api/src/test/resources/GlskCountry.xml
     // --instant 2018-08-28T22:00:00Z
     // --output-file /tmp/outputflowbased
@@ -42,7 +42,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     public void setUp() throws Exception {
         super.setUp();
         createFile("testCase.xiidm", "");
-        createFile("cracDataFlowBased.json", "");
+        createFile("fakeCrac.json", "");
         createFile("GlskCountry.xml", "");
         createFile("outputflowbased", "");
     }
@@ -75,7 +75,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",
-            "--crac-file", "cracDataFlowBased.json",
+            "--crac-file", "fakeCrac.json",
             "--glsk-file", "GlskCountry.xml"
         }, 2, "", "");
     }
@@ -85,7 +85,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",
-            "--crac-file", "cracDataFlowBased.json",
+            "--crac-file", "fakeCrac.json",
             "--glsk-file", "GlskCountry.xml",
             "--instant", "2018-08-28T22:00:00Z",
             "--output-file", "outputflowbased"

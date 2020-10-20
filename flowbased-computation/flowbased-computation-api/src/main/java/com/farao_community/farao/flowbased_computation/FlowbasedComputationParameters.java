@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 
@@ -41,7 +41,7 @@ public class FlowbasedComputationParameters extends AbstractExtendable<Flowbased
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
-    private SensitivityComputationParameters sensitivityComputationParameters = new SensitivityComputationParameters();
+    private SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
 
     public static FlowbasedComputationParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -54,7 +54,7 @@ public class FlowbasedComputationParameters extends AbstractExtendable<Flowbased
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
-        parameters.setSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
+        parameters.setSensitivityAnalysisParameters(SensitivityAnalysisParameters.load(platformConfig));
 
         return parameters;
     }
@@ -74,12 +74,12 @@ public class FlowbasedComputationParameters extends AbstractExtendable<Flowbased
         return this;
     }
 
-    public SensitivityComputationParameters getSensitivityComputationParameters() {
-        return sensitivityComputationParameters;
+    public SensitivityAnalysisParameters getSensitivityAnalysisParameters() {
+        return sensitivityAnalysisParameters;
     }
 
-    public FlowbasedComputationParameters setSensitivityComputationParameters(SensitivityComputationParameters sensitivityComputationParameters) {
-        this.sensitivityComputationParameters = Objects.requireNonNull(sensitivityComputationParameters);
+    public FlowbasedComputationParameters setSensitivityAnalysisParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {
+        this.sensitivityAnalysisParameters = Objects.requireNonNull(sensitivityAnalysisParameters);
         return this;
     }
 }

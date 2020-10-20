@@ -49,7 +49,7 @@ public class DataDomain {
 
     public DataPostContingency findContingencyById(String contingencyId) {
         return dataPostContingency.stream()
-                .filter(dataPostContingency -> dataPostContingency.getContingencyId().equals(contingencyId))
+                .filter(dpc -> dpc.getContingencyId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
     }

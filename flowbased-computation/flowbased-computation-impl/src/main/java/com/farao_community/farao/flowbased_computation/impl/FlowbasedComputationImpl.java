@@ -14,9 +14,9 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -60,7 +60,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         network.getVariantManager().setWorkingVariant(workingVariantId);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
-                .withDefaultParameters(parameters.getSensitivityComputationParameters())
+                .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glskProvider, crac.getCnecs())
                 .build();
 

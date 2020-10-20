@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
@@ -23,8 +22,8 @@ import java.util.stream.Stream;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-@AutoService(SensitivityComputationFactory.class)
-public class SensitivityComputationFactoryMock implements SensitivityComputationFactory {
+@AutoService(SensitivityAnalysisProvider.class)
+public class SensitivityComputationFactoryMock implements SensitivityAnalysisProvider {
     private final Map<String, Double> preContingencyFref;
     private final Map<String, Double> postContingencyFref;
     private final Map<String, Map<String, Double>> preContingencyPtdf;
@@ -145,35 +144,6 @@ public class SensitivityComputationFactoryMock implements SensitivityComputation
         return expectedPtdfByBranch;
     }
 
-    @Override
-    public SensitivityComputation create(Network network, ComputationManager computationManager, int i) {
-        return new SensitivityComputation() {
-
-            @Override
-            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                return run(sensitivityFactorsProvider, new EmptyContingencyListProvider(), s, sensitivityComputationParameters);
-            }
-
-            @Override
-            public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, String s, SensitivityComputationParameters sensitivityComputationParameters) {
-                List<SensitivityValue> preContingencySensitivityValues = getPreContingencySensitivityValues(sensitivityFactorsProvider, network);
-                Map<String, List<SensitivityValue>> postContingencySensitivityValues = contingenciesProvider.getContingencies(network).stream()
-                        .collect(Collectors.toMap(Contingency::getId, co -> getPostContingencySensitivityValues(sensitivityFactorsProvider, network)));
-                return CompletableFuture.completedFuture(new SensitivityComputationResults(true, Collections.emptyMap(), "", preContingencySensitivityValues, postContingencySensitivityValues));
-            }
-
-            @Override
-            public String getName() {
-                return "MockSensitivity";
-            }
-
-            @Override
-            public String getVersion() {
-                return "1.0.0";
-            }
-        };
-    }
-
     private List<SensitivityValue> getPreContingencySensitivityValues(SensitivityFactorsProvider sensitivityFactorsProvider, Network network) {
         return sensitivityFactorsProvider.getFactors(network).stream()
                 .map(factor -> new SensitivityValue(factor, preContingencyPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), preContingencyFref.get(factor.getFunction().getId()), Double.NaN))
@@ -184,5 +154,23 @@ public class SensitivityComputationFactoryMock implements SensitivityComputation
         return sensitivityFactorsProvider.getFactors(network).stream()
                 .map(factor -> new SensitivityValue(factor, postContingencyPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), postContingencyFref.get(factor.getFunction().getId()), Double.NaN))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
+        List<SensitivityValue> preContingencySensitivityValues = getPreContingencySensitivityValues(sensitivityFactorsProvider, network);
+        Map<String, List<SensitivityValue>> postContingencySensitivityValues = contingenciesProvider.getContingencies(network).stream()
+                .collect(Collectors.toMap(Contingency::getId, co -> getPostContingencySensitivityValues(sensitivityFactorsProvider, network)));
+        return CompletableFuture.completedFuture(new SensitivityAnalysisResult(true, Collections.emptyMap(), "", preContingencySensitivityValues, postContingencySensitivityValues));
+    }
+
+    @Override
+    public String getName() {
+        return "MockSensitivity";
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0.0";
     }
 }
