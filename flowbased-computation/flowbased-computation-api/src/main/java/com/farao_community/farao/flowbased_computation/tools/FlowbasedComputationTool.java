@@ -151,6 +151,7 @@ public class FlowbasedComputationTool implements Tool {
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
         Crac crac = CracImporters.importCrac(cracFile);
+        crac.synchronize(network);
         //TODO : handling also Ucte format
         GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
