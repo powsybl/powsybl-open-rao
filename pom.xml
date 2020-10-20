@@ -193,6 +193,7 @@
                                 <head>To do:</head>
                             </tag>
                         </tags>
+                        <excludePackageNames>xsd.*</excludePackageNames>
                     </configuration>
                 </plugin>
                 <plugin>
