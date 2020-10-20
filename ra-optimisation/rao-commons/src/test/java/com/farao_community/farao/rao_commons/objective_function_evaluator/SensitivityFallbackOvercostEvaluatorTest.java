@@ -8,7 +8,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

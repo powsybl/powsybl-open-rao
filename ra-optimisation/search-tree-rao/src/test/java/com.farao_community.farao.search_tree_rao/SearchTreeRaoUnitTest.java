@@ -20,13 +20,10 @@ import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.FaraoNetworkPool;
-import com.farao_community.farao.util.LoadFlowService;
 import com.farao_community.farao.util.NativeLibraryLoader;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResultImpl;
@@ -56,7 +53,6 @@ import static org.mockito.Mockito.when;
 public class SearchTreeRaoUnitTest {
 
     private SearchTreeRao searchTreeRao;
-    private ComputationManager computationManager;
     private RaoParameters raoParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
@@ -69,7 +65,6 @@ public class SearchTreeRaoUnitTest {
     @Before
     public void setUp() {
         searchTreeRao = new SearchTreeRao();
-        computationManager = LocalComputationManager.getDefault();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CracImporters.importCrac("small-crac-with-network-actions.json", getClass().getResourceAsStream("/small-crac-with-network-actions.json"));
         crac.synchronize(network);
@@ -114,7 +109,6 @@ public class SearchTreeRaoUnitTest {
 
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-        LoadFlowService.init(loadFlowRunner, computationManager);
 
         mockNativeLibraryLoader();
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenReturn("successful");
@@ -141,7 +135,7 @@ public class SearchTreeRaoUnitTest {
         when(mockLeaf.getBestCost()).thenReturn(0.);
         PowerMockito.doNothing().when(mockLeaf).evaluate();
 
-        RaoResult result = searchTreeRao.run(raoInput, computationManager, raoParameters).join();
+        RaoResult result = searchTreeRao.run(raoInput, raoParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
     }
