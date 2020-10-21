@@ -72,7 +72,7 @@ class Leaf {
 
     /**
      * Root Leaf constructors
-     * It is built directly from a RaoData on which a systematic sensitivity analysis could hav already been run or not.
+     * It is built directly from a RaoData on which a systematic sensitivity analysis could have already been run or not.
      */
     Leaf(RaoData raoData, RaoParameters raoParameters) {
         this.networkActions = new HashSet<>(); // Root leaf has no network action
