@@ -79,7 +79,12 @@ public class LeafTest {
 
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
-        raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
+        raoData = Mockito.spy(
+            RaoData.builderFromCrac(crac)
+                .withNetwork(network)
+                .withOptimizedState(crac.getPreventiveState())
+                .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+                .build());
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
         Mockito.doNothing().when(spiedRaoDataManager).fillCracResultWithCosts(anyDouble(), anyDouble());
@@ -253,11 +258,11 @@ public class LeafTest {
     public void testClearAllVariantsExceptInitialOne() {
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         String initialVariantId = rootLeaf.getInitialVariantId();
-        rootLeaf.getRaoData().cloneWorkingVariant();
-        rootLeaf.getRaoData().cloneWorkingVariant();
-        rootLeaf.getRaoData().cloneWorkingVariant();
+        rootLeaf.getRaoData().getVariantManager().cloneWorkingVariant();
+        rootLeaf.getRaoData().getVariantManager().cloneWorkingVariant();
+        rootLeaf.getRaoData().getVariantManager().cloneWorkingVariant();
         rootLeaf.clearAllVariantsExceptInitialOne();
-        assertEquals(1, rootLeaf.getRaoData().getVariantIds().size());
-        assertEquals(initialVariantId, rootLeaf.getRaoData().getVariantIds().get(0));
+        assertEquals(1, rootLeaf.getRaoData().getVariantManager().getVariantIds().size());
+        assertEquals(initialVariantId, rootLeaf.getRaoData().getVariantManager().getVariantIds().get(0));
     }
 }

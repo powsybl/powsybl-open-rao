@@ -71,7 +71,11 @@ public class IteratingLinearOptimizerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.builderFromCrac(crac)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
         parameters = new IteratingLinearOptimizerParameters(10, 0);
 
         workingVariants = new ArrayList<>();

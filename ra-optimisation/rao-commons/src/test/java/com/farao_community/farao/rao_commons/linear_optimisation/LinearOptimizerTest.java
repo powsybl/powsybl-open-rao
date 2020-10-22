@@ -78,7 +78,11 @@ public class LinearOptimizerTest {
         rangeAction = new PstWithRange("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
 
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.builderFromCrac(crac)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
         raoData = Mockito.spy(raoData);
         raoDataManager = raoData.getRaoDataManager();
 
@@ -149,7 +153,11 @@ public class LinearOptimizerTest {
         crac = CommonCracCreation.create();
         crac.addRangeAction(rangeAction);
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.builderFromCrac(crac)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
         raoDataManager = raoData.getRaoDataManager();
         Mockito.when(linearProblemMock.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
         Mockito.when(linearProblemMock.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);

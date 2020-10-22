@@ -46,7 +46,11 @@ public class RaoDataManagerTest {
         crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension1);
         crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension2);
 
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.builderFromCrac(crac)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
 
         loopFlowResult = new LoopFlowResult();
         loopFlowResult.addCnecResult(crac.getCnec("cnec1basecase"), -252, 128., -124.);

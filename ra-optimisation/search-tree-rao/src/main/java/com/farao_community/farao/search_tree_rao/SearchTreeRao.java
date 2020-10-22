@@ -64,25 +64,36 @@ public class SearchTreeRao implements RaoProvider {
         return "1.0.0";
     }
 
-    void init(RaoInput raoInput, RaoParameters raoParameters) {
+    void initData(RaoInput raoInput, RaoParameters raoParameters) {
+        initParameters(raoParameters);
+        RaoUtil.checkParameters(raoParameters, raoInput);
+        RaoUtil.initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        RaoUtil.initCrac(raoInput.getCrac(), raoInput.getNetwork());
+    }
+
+    void initLeaves(RaoInput raoInput) {
+        RaoData rootRaoData = RaoUtil.initRaoData(raoInput);
+        rootLeaf = new Leaf(rootRaoData, raoParameters);
+        optimalLeaf = rootLeaf;
+        previousDepthOptimalLeaf = rootLeaf;
+    }
+
+    private void initParameters(RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         } else {
             searchTreeRaoParameters = new SearchTreeRaoParameters();
         }
-        RaoData rootRaoData = RaoUtil.initRaoData(raoInput, raoParameters);
-        rootLeaf = new Leaf(rootRaoData, raoParameters);
-        optimalLeaf = rootLeaf;
-        previousDepthOptimalLeaf = rootLeaf;
         relativePositiveMargins =
-                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
-                        raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+            raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
     }
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        init(raoInput, raoParameters);
+        initData(raoInput, raoParameters);
+        initLeaves(raoInput);
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();

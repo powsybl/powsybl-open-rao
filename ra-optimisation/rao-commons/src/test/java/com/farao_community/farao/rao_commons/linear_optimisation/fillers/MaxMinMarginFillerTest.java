@@ -39,6 +39,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         init();
         coreProblemFiller = new CoreProblemFiller();
         maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST);
+        initRaoData(crac.getPreventiveState());
     }
 
     private void fillProblemWithCoreFiller() {

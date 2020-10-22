@@ -49,7 +49,6 @@ public class MinMarginObjectiveFunctionTest {
         double ptdfSumLowerBound = 0.02;
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit, false);
         minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true, ptdfSumLowerBound);
@@ -73,13 +72,20 @@ public class MinMarginObjectiveFunctionTest {
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
+        ResultVariantManager resultVariantManager = new ResultVariantManager();
+        crac.addExtension(ResultVariantManager.class, resultVariantManager);
+        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
+        crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
         Random rand = new Random();
         crac.getCnecs().forEach(cnec ->
-                cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(rand.nextDouble())
+                cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setAbsolutePtdfSum(rand.nextDouble())
         );
 
-        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
-        crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);
+        raoData = RaoData.builderFromExistingCracVariant(crac, TEST_VARIANT)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
 
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(sensiResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);

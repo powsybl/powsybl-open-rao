@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.*;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -54,7 +53,6 @@ public class LinearRaoTest {
     private InitialSensitivityAnalysis initialSensitivityAnalysis;
     private Network network;
     private Crac crac;
-    private String variantId;
     private RaoData raoData;
     private RaoInput raoInput;
 
@@ -67,8 +65,12 @@ public class LinearRaoTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        variantId = network.getVariantManager().getWorkingVariantId();
-        raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
+        raoData = Mockito.spy(
+            RaoData.builderFromCrac(crac)
+                .withNetwork(network)
+                .withOptimizedState(crac.getPreventiveState())
+                .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+                .build());
         RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
         Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
         Mockito.doNothing().when(spiedRaoDataManager).fillCnecResultWithFlows();
@@ -81,11 +83,7 @@ public class LinearRaoTest {
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         initialSensitivityAnalysis = Mockito.mock(InitialSensitivityAnalysis.class);
 
-        raoInput = RaoInput.builder()
-            .withNetwork(network)
-            .withCrac(crac)
-            .withVariantId(variantId)
-            .build();
+        raoInput = Mockito.mock(RaoInput.class);
         mockRaoUtil();
     }
 
@@ -106,10 +104,7 @@ public class LinearRaoTest {
 
     private void mockRaoUtil() {
         PowerMockito.mockStatic(RaoUtil.class);
-        ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
-        Mockito.when(costEvaluator.getCost(raoData)).thenReturn(0.);
-        BDDMockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluator);
-        BDDMockito.when(RaoUtil.initRaoData(raoInput, raoParameters)).thenCallRealMethod();
+        BDDMockito.when(RaoUtil.initRaoData(Mockito.any())).thenAnswer(invocation -> raoData);
     }
 
     @Test

@@ -44,7 +44,11 @@ public class MinMarginEvaluatorTest {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.builderFromCrac(crac)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
 
         setPtdfSum("cnec1basecase", 0.5);
         setPtdfSum("cnec1stateCurativeContingency1", 0.95);

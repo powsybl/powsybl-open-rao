@@ -119,4 +119,29 @@ public class PerimeterRaoProviderTest {
         assertEquals(1, perimeters.get(1).size());
     }
 
+    @Test
+    public void testCreatePerimetersWithTwoRemedialActions() {
+        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement(new NetworkElement("pst1")));
+        pstRange1.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
+        crac.addRangeAction(pstRange1);
+        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
+        pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
+        crac.addRangeAction(pstRange2);
+        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        assertEquals(3, perimeters.size());
+        assertEquals(4, perimeters.get(0).size());
+    }
+
+    @Test
+    public void testCreatePerimetersWithTwoRemedialActionsOnSameContingency() {
+        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement(new NetworkElement("pst1")));
+        pstRange1.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Curative")));
+        crac.addRangeAction(pstRange1);
+        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
+        pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
+        crac.addRangeAction(pstRange2);
+        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        assertEquals(3, perimeters.size());
+        assertEquals(5, perimeters.get(0).size());
+    }
 }

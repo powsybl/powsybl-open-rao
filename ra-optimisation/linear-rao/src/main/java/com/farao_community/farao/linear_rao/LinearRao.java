@@ -55,7 +55,9 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
+        RaoUtil.initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        RaoUtil.initCrac(raoInput.getCrac(), raoInput.getNetwork());
+        RaoData raoData = RaoUtil.initRaoData(raoInput);
 
         if (raoParameters.getExtension(LinearRaoParameters.class) == null) {
             String msg = "The configuration should contain a LinearRaoParameters extensions";
@@ -131,7 +133,7 @@ public class LinearRao implements RaoProvider {
             minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
             objFunctionValue));
 
-        raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
+        raoData.getVariantManager().clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;
     }
 
@@ -150,7 +152,7 @@ public class LinearRao implements RaoProvider {
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
-        raoData.clearWithKeepingCracResults(Collections.singletonList(raoData.getInitialVariantId()));
+        raoData.getVariantManager().clearWithKeepingCracResults(Collections.singletonList(raoData.getInitialVariantId()));
 
         return raoResult;
     }

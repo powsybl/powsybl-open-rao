@@ -7,22 +7,13 @@
 
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class LoopFlowUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowUtil.class);
 
     private LoopFlowUtil() { }
 
@@ -33,16 +24,6 @@ public final class LoopFlowUtil {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
             LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
             raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
-        }
-    }
-
-    public static void checkDataConsistency(RaoData raoData) {
-        if (Objects.isNull(raoData.getReferenceProgram()) || Objects.isNull(raoData.getGlskProvider())) {
-            String msg = format(
-                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                raoData.getCrac().getId());
-            LOGGER.error(msg);
-            throw new FaraoException(msg);
         }
     }
 }

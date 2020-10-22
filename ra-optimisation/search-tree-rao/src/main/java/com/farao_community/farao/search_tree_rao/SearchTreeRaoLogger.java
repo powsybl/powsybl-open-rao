@@ -61,7 +61,7 @@ final class SearchTreeRaoLogger {
             Cnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
+            leaf.getRaoData().getVariantManager().setWorkingVariant(leaf.getBestVariantId());
             double cnecMargin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";

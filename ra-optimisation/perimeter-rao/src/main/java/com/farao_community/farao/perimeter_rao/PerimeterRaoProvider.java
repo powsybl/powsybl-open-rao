@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.rao_api.*;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
@@ -21,8 +20,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -51,15 +48,15 @@ public class PerimeterRaoProvider implements RaoProvider {
         List<List<State>> perimeters = createPerimeters(raoInput.getCrac(), network, raoInput.getCrac().getPreventiveState());
         List<State> preventivePerimeter = perimeters.remove(0);
 
-        RaoInput.RaoInputBuilder preventiveRaoInputBuilder = RaoInput.builder()
+        RaoInput preventiveRaoInput = RaoInput.builder()
             .withNetwork(raoInput.getNetwork())
             .withCrac(raoInput.getCrac())
-            .withVariantId(PREVENTIVE_VARIANT)
+            .withNetworkVariantId(PREVENTIVE_VARIANT)
             .withOptimizedState(preventivePerimeter.get(0))
-            .withPerimeter(new HashSet<>(preventivePerimeter));
-        raoInput.getGlskProvider().ifPresent(preventiveRaoInputBuilder::withGlskProvider);
-        raoInput.getReferenceProgram().ifPresent(preventiveRaoInputBuilder::withRefProg);
-        RaoInput preventiveRaoInput = preventiveRaoInputBuilder.build();
+            .withPerimeter(new HashSet<>(preventivePerimeter))
+            .withGlskProvider(raoInput.getGlskProvider())
+            .withRefProg(raoInput.getReferenceProgram())
+            .build();
         RaoResult preventiveRaoResult = Rao.find(SEARCH_TREE_RAO).run(preventiveRaoInput, parameters);
 
         List<RaoResult> curativeResults = new ArrayList<>();
@@ -69,15 +66,15 @@ public class PerimeterRaoProvider implements RaoProvider {
                 networkPool.submit(() -> {
                     try {
                         Network networkClone = networkPool.getAvailableNetwork();
-                        RaoInput.RaoInputBuilder curativeRaoInputBuilder = RaoInput.builder()
+                        RaoInput curativeRaoInput = RaoInput.builder()
                             .withNetwork(networkClone)
                             .withCrac(raoInput.getCrac())
-                            .withVariantId(CURATIVE_VARIANT)
+                            .withNetworkVariantId(CURATIVE_VARIANT)
                             .withOptimizedState(perimeter.get(0))
-                            .withPerimeter(new HashSet<>(perimeter));
-                        raoInput.getGlskProvider().ifPresent(curativeRaoInputBuilder::withGlskProvider);
-                        raoInput.getReferenceProgram().ifPresent(curativeRaoInputBuilder::withRefProg);
-                        RaoInput curativeRaoInput = curativeRaoInputBuilder.build();
+                            .withPerimeter(new HashSet<>(perimeter))
+                            .withGlskProvider(raoInput.getGlskProvider())
+                            .withRefProg(raoInput.getReferenceProgram())
+                            .build();
 
                         curativeResults.add(Rao.find(SEARCH_TREE_RAO).run(curativeRaoInput, parameters));
                         networkPool.releaseUsedNetwork(networkClone);
@@ -94,7 +91,7 @@ public class PerimeterRaoProvider implements RaoProvider {
         return CompletableFuture.completedFuture(mergeRaoResults(preventiveRaoResult, curativeResults));
     }
 
-    public static List<List<State>> createPerimeters(Crac crac, Network network, State startingState) {
+    static List<List<State>> createPerimeters(Crac crac, Network network, State startingState) {
         List<List<State>> perimeters = new ArrayList<>();
         State preventiveState = crac.getPreventiveState();
 

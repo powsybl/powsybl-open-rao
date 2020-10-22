@@ -119,7 +119,7 @@ public class RaoTool implements Tool {
         RaoInput raoInput = RaoInput.builder()
             .withNetwork(network)
             .withCrac(crac)
-            .withVariantId(currentState)
+            .withNetworkVariantId(currentState)
             .build();
         RaoResult raoResult = Rao.run(raoInput, raoParameters);
 

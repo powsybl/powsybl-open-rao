@@ -99,7 +99,7 @@ class Leaf {
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
-        raoData = new RaoData(network, parentLeaf.getRaoData().getCrac(), parentLeaf.getRaoData().getOptimizedState(), parentLeaf.getRaoData().getPerimeter(), parentLeaf.getRaoData().getReferenceProgram(), parentLeaf.getRaoData().getGlskProvider());
+        raoData = RaoData.fromNetworkAndPreviousRaoData(network, parentLeaf.getRaoData());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
@@ -224,7 +224,7 @@ class Leaf {
     void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
             copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
-            raoData.deleteVariant(initialVariantId, false);
+            raoData.getVariantManager().deleteVariant(initialVariantId, false);
         }
     }
 
@@ -248,10 +248,10 @@ class Leaf {
      */
     void clearAllVariantsExceptInitialOne() {
         HashSet<String> variantIds = new HashSet<>();
-        variantIds.addAll(raoData.getVariantIds());
+        variantIds.addAll(raoData.getVariantManager().getVariantIds());
         variantIds.remove(initialVariantId);
-        raoData.setWorkingVariant(initialVariantId);
-        variantIds.forEach(variantId -> raoData.deleteVariant(variantId, false));
+        raoData.getVariantManager().setWorkingVariant(initialVariantId);
+        variantIds.forEach(variantId -> raoData.getVariantManager().deleteVariant(variantId, false));
     }
 
     /**
@@ -260,7 +260,7 @@ class Leaf {
      * user.
      */
     void clearAllVariants() {
-        raoData.clear();
+        raoData.getVariantManager().clear();
     }
 
     /**
@@ -268,7 +268,7 @@ class Leaf {
      * to avoid calling directly rao data as a leaf user.
      */
     void applyRangeActionResultsOnNetwork() {
-        getRaoData().setWorkingVariant(getBestVariantId());
+        getRaoData().getVariantManager().setWorkingVariant(getBestVariantId());
         getRaoData().getRaoDataManager().applyRangeActionResultsOnNetwork();
     }
 

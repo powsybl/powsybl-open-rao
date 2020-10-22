@@ -86,20 +86,25 @@ public class MnecViolationCostEvaluatorTest {
         network.getVoltageLevels().forEach(v -> v.setNominalV(400.));
 
         Crac crac = CommonCracCreation.create();
-
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         mnec = crac.newCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
                 .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(MNEC_THRESHOLD).setUnit(unit).add()
                 .setOptimized(false).setMonitored(true)
                 .setInstant(crac.getInstant("initial"))
                 .add();
+        ResultVariantManager resultVariantManager = new ResultVariantManager();
+        crac.addExtension(ResultVariantManager.class, resultVariantManager);
+        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
+        crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
 
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
-        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
-        crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(TEST_VARIANT);
+        raoData = RaoData.builderFromExistingCracVariant(crac, TEST_VARIANT)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
 
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         raoData.setSystematicSensitivityResult(sensiResult);

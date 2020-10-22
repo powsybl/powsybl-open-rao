@@ -36,13 +36,17 @@ public class RaoDataTest {
         initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
         crac = CommonCracCreation.createWithPstRange();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.builderFromCrac(crac)
+            .withNetwork(network)
+            .withOptimizedState(crac.getPreventiveState())
+            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
+            .build();
         initialVariantId  = raoData.getWorkingVariantId();
     }
 
     @Test
     public void variantIdsInitializationTest() {
-        assertEquals(1, raoData.getVariantIds().size());
+        assertEquals(1, raoData.getVariantManager().getVariantIds().size());
         assertNotNull(crac.getExtension(CracResultExtension.class));
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         Assert.assertEquals(1, resultVariantManager.getVariants().size());
@@ -60,9 +64,9 @@ public class RaoDataTest {
 
     @Test
     public void differentIdsForTwoClonedVariants() {
-        String clonedVariantId1 = raoData.cloneWorkingVariant();
-        String clonedVariantId2 = raoData.cloneWorkingVariant();
-        assertEquals(3, raoData.getVariantIds().size());
+        String clonedVariantId1 = raoData.getVariantManager().cloneWorkingVariant();
+        String clonedVariantId2 = raoData.getVariantManager().cloneWorkingVariant();
+        assertEquals(3, raoData.getVariantManager().getVariantIds().size());
 
         assertNotEquals(initialVariantId, clonedVariantId1);
         assertNotEquals(clonedVariantId1, clonedVariantId2);
@@ -70,62 +74,61 @@ public class RaoDataTest {
 
     @Test
     public void deleteVariantWithRemovingCracVariant() {
-        String clonedVariantId = raoData.cloneWorkingVariant();
+        String clonedVariantId = raoData.getVariantManager().cloneWorkingVariant();
         assertEquals(initialVariantId, raoData.getWorkingVariantId());
-        assertEquals(2, raoData.getVariantIds().size());
+        assertEquals(2, raoData.getVariantManager().getVariantIds().size());
         assertEquals(1, raoData.getNetwork().getVariantManager().getVariantIds().size());
         Assert.assertEquals(2, raoData.getCrac().getExtension(ResultVariantManager.class).getVariants().size());
 
-        raoData.deleteVariant(clonedVariantId, false);
+        raoData.getVariantManager().deleteVariant(clonedVariantId, false);
 
         assertEquals(1, raoData.getNetwork().getVariantManager().getVariantIds().size());
         Assert.assertEquals(1, raoData.getCrac().getExtension(ResultVariantManager.class).getVariants().size());
-        assertEquals(1, raoData.getVariantIds().size());
+        assertEquals(1, raoData.getVariantManager().getVariantIds().size());
     }
 
     @Test
     public void deleteVariantWithKeepingCracVariant() {
-        String clonedVariantId = raoData.cloneWorkingVariant();
+        String clonedVariantId = raoData.getVariantManager().cloneWorkingVariant();
         assertEquals(initialVariantId, raoData.getWorkingVariantId());
-        assertEquals(2, raoData.getVariantIds().size());
+        assertEquals(2, raoData.getVariantManager().getVariantIds().size());
         assertEquals(1, raoData.getNetwork().getVariantManager().getVariantIds().size());
         Assert.assertEquals(2, raoData.getCrac().getExtension(ResultVariantManager.class).getVariants().size());
 
-        raoData.deleteVariant(clonedVariantId, true);
+        raoData.getVariantManager().deleteVariant(clonedVariantId, true);
 
         assertEquals(1, raoData.getNetwork().getVariantManager().getVariantIds().size());
         Assert.assertEquals(2, raoData.getCrac().getExtension(ResultVariantManager.class).getVariants().size());
-        assertEquals(1, raoData.getVariantIds().size());
+        assertEquals(1, raoData.getVariantManager().getVariantIds().size());
     }
 
     @Test
     public void clearVariants() {
-        raoData.cloneWorkingVariant();
-        raoData.cloneWorkingVariant();
-        assertEquals(3, raoData.getVariantIds().size());
-        raoData.clear();
+        raoData.getVariantManager().cloneWorkingVariant();
+        raoData.getVariantManager().cloneWorkingVariant();
+        assertEquals(3, raoData.getVariantManager().getVariantIds().size());
+        raoData.getVariantManager().clear();
         assertEquals(initialNetworkVariantId, network.getVariantManager().getWorkingVariantId());
         Assert.assertEquals(0, crac.getExtension(ResultVariantManager.class).getVariants().size());
-        assertEquals(0, raoData.getVariantIds().size());
+        assertEquals(0, raoData.getVariantManager().getVariantIds().size());
     }
 
     @Test
     public void clearVariantsWithKeepingCracVariant() {
-        String keptVariantId = raoData.cloneWorkingVariant();
-        raoData.cloneWorkingVariant();
-        assertEquals(3, raoData.getVariantIds().size());
-        raoData.clearWithKeepingCracResults(Collections.singletonList(keptVariantId));
+        String keptVariantId = raoData.getVariantManager().cloneWorkingVariant();
+        raoData.getVariantManager().cloneWorkingVariant();
+        assertEquals(3, raoData.getVariantManager().getVariantIds().size());
+        raoData.getVariantManager().clearWithKeepingCracResults(Collections.singletonList(keptVariantId));
         assertEquals(initialNetworkVariantId, network.getVariantManager().getWorkingVariantId());
         Assert.assertEquals(1, crac.getExtension(ResultVariantManager.class).getVariants().size());
-        assertEquals(0, raoData.getVariantIds().size());
+        assertEquals(0, raoData.getVariantManager().getVariantIds().size());
     }
 
     @Test
     public void sameRasTest() {
-        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         String initialVariantId = raoData.getWorkingVariantId();
-        String sameVariantId = raoData.cloneWorkingVariant();
-        String differentVariantId = raoData.cloneWorkingVariant();
+        String sameVariantId = raoData.getVariantManager().cloneWorkingVariant();
+        String differentVariantId = raoData.getVariantManager().cloneWorkingVariant();
 
         RangeActionResultExtension rangeActionResultExtension = crac.getRangeActions().iterator().next().getExtension(RangeActionResultExtension.class);
         RangeActionResult pstResult1 = rangeActionResultExtension.getVariant(initialVariantId);

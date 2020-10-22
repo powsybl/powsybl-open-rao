@@ -9,7 +9,6 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -43,42 +43,55 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static RaoData initRaoData(RaoInput raoInput, RaoParameters raoParameters) {
-        Network network = raoInput.getNetwork();
-        Crac crac = raoInput.getCrac();
-        String variantId = raoInput.getVariantId();
-
-        network.getVariantManager().setWorkingVariant(variantId);
+    public static void initNetwork(Network network, String networkVariantId) {
+        network.getVariantManager().setWorkingVariant(networkVariantId);
         UcteAliasesCreation.createAliases(network);
+    }
+
+    public static void initCrac(Crac crac, Network network) {
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
+    }
 
+    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            if (!raoInput.getGlskProvider().isPresent()) {
+            if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException("Relative margin objective function requires a GLSK provider.");
             }
             if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
-                    || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
-                    || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
+                || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
+                || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
                 throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
             }
         }
 
         if ((raoParameters.isRaoWithLoopFlowLimitation()
-                || raoParameters.getObjectiveFunction().doesRequirePtdf())
-                && (!raoInput.getReferenceProgram().isPresent())) {
+            || raoParameters.getObjectiveFunction().doesRequirePtdf())
+            && (raoInput.getReferenceProgram() == null)) {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
         }
 
-        RaoData raoData = new RaoData(network, crac, raoInput.getOptimizedState(), raoInput.getPerimeter(), raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null));
-        crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
-
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            LoopFlowUtil.checkDataConsistency(raoData);
+            if (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider())) {
+                String msg = format(
+                    "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                    raoInput.getCrac().getId());
+                LOGGER.error(msg);
+                throw new FaraoException(msg);
+            }
         }
+    }
 
-        return raoData;
+    public static RaoData initRaoData(RaoInput raoInput) {
+        Crac crac = raoInput.getCrac();
+        RaoData.RaoDataBuilder raoDataBuilder;
+        if (raoInput.getBaseCracVariantId() != null) {
+            raoDataBuilder = RaoData.builderFromExistingCracVariant(crac, raoInput.getBaseCracVariantId());
+        } else {
+            raoDataBuilder = RaoData.builderFromCrac(crac);
+        }
+        return raoDataBuilder.withRaoInput(raoInput).build();
     }
 
     public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
