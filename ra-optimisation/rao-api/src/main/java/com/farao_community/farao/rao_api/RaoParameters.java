@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -14,9 +15,10 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 
-import java.util.Objects;
+import java.util.*;
 
 import static java.lang.Math.max;
 
@@ -76,6 +78,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double loopFlowViolationCost = DEFAULT_LOOP_FLOW_VIOLATION_COST;
+    private Set<Country> loopflowCountries = new HashSet<>(); //Empty by default
     private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
@@ -83,6 +86,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private SensitivityComputationParameters defaultSensitivityComputationParameters = new SensitivityComputationParameters();
     private SensitivityComputationParameters fallbackSensitivityComputationParameters; // Must be null by default
+    private String test = "auih";
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -222,6 +226,26 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
+    public Set<Country> getLoopflowCountries() {
+        return loopflowCountries;
+    }
+
+    public void setLoopflowCountries(Set<Country> loopflowCountries) {
+        this.loopflowCountries = loopflowCountries;
+    }
+
+    public void setLoopflowCountries(List<String> countryStrings) {
+        this.loopflowCountries = convertToCountrySet(countryStrings);
+    }
+
+    public String getTest() {
+        return test;
+    }
+
+    public void setTest(String s) {
+        test = s;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -270,6 +294,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setLoopFlowApproximation(config.getBooleanProperty("loop-flow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
                 parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loop-flow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 parameters.setLoopFlowViolationCost(config.getDoubleProperty("loop-flow-violation-cost", DEFAULT_LOOP_FLOW_VIOLATION_COST));
+                parameters.setLoopflowCountries(convertToCountrySet(config.getStringListProperty("loop-flow-countries", new ArrayList<>())));
                 parameters.setMnecAcceptableMarginDiminution(config.getDoubleProperty("mnec-acceptable-margin-diminution", DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION));
                 parameters.setMnecViolationCost(config.getDoubleProperty("mnec-violation-cost", DEFAULT_MNEC_VIOLATION_COST));
                 parameters.setMnecConstraintAdjustmentCoefficient(config.getDoubleProperty("mnec-constraint-adjustment-coefficient", DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
@@ -279,6 +304,18 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
         parameters.setDefaultSensitivityComputationParameters(SensitivityComputationParameters.load(platformConfig));
+    }
+
+    private static Set<Country> convertToCountrySet(List<String> countryStringList) {
+        Set<Country> countryList = new HashSet<>();
+        for (String countryString : countryStringList) {
+            try {
+                countryList.add(Country.valueOf(countryString));
+            } catch (Exception e) {
+                throw new FaraoException(String.format("[%s] in loopflow countries could not be recognized as a country", countryString));
+            }
+        }
+        return countryList;
     }
 
     private void readExtensions(PlatformConfig platformConfig) {

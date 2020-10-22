@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -40,20 +41,22 @@ public class RaoData {
     private RaoDataManager raoDataManager;
     private ReferenceProgram referenceProgram;
     private GlskProvider glskProvider;
+    private Set<Country> loopflowCountries;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
      * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
      * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
      *
-     * @param network:          Network object.
-     * @param crac:             CRAC object.
-     * @param optimizedState:   State in which the remedial actions are optimized
-     * @param perimeter:        set of State for which the Cnecs are monitored
-     * @param referenceProgram: ReferenceProgram object (needed only for loopflows and relative margin)
-     * @param glskProvider:     GLSK provider (needed only for loopflows)
+     * @param network:           Network object.
+     * @param crac:              CRAC object.
+     * @param optimizedState:    State in which the remedial actions are optimized
+     * @param perimeter:         set of State for which the Cnecs are monitored
+     * @param referenceProgram:  ReferenceProgram object (needed only for loopflows and relative margin)
+     * @param glskProvider:      GLSK provider (needed only for loopflows)
+     * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, Set<Country> loopflowCountries) {
         this.network = network;
         this.crac = crac;
         this.optimizedState = optimizedState;
@@ -62,6 +65,7 @@ public class RaoData {
         this.systematicSensitivityResultMap = new HashMap<>();
         this.referenceProgram = referenceProgram;
         this.glskProvider = glskProvider;
+        this.loopflowCountries = loopflowCountries;
 
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager == null) {
@@ -86,7 +90,7 @@ public class RaoData {
      * @param perimeter:        set of State for which the Cnecs are monitored
      */
     public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
-        this(network, crac, optimizedState, perimeter, null, null);
+        this(network, crac, optimizedState, perimeter, null, null, new HashSet<>());
     }
 
     public List<String> getVariantIds() {
@@ -128,6 +132,10 @@ public class RaoData {
 
     public GlskProvider getGlskProvider() {
         return glskProvider;
+    }
+
+    public Set<Country> getLoopflowCountries() {
+        return loopflowCountries;
     }
 
     public Set<Cnec> getCnecs() {

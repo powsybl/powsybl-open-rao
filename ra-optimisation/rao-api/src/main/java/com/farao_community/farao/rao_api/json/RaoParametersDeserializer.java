@@ -11,13 +11,16 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,6 +81,15 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "loop-flow-violation-cost":
                     parser.nextToken();
                     parameters.setLoopFlowViolationCost(parser.getDoubleValue());
+                    break;
+                case "loop-flow-countries":
+                    parser.nextToken();
+                    List<String> countryStrings = new ArrayList<>();
+                    ArrayNode node = (new ObjectMapper()).readTree(parser);
+                    for (Object o : node) {
+                        countryStrings.add(o.toString().replaceAll("\"", ""));
+                    }
+                    parameters.setLoopflowCountries(countryStrings);
                     break;
                 case "mnec-acceptable-margin-diminution":
                     parser.nextToken();

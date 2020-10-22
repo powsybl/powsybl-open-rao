@@ -9,6 +9,7 @@
   "loop-flow-approximation" : true,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
   "loop-flow-violation-cost" : 0.0,
+  "loop-flow-countries" : [ ],
   "mnec-acceptable-margin-diminution" : 50.0,
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,

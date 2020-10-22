@@ -7,11 +7,15 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.HashSet;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -31,8 +35,15 @@ public class LoopFlowComputationTest {
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(network, crac, glskProvider);
 
+        CnecLoopFlowExtension loopFlowExtensionMock = Mockito.mock(CnecLoopFlowExtension.class);
+        crac.getCnec("FR-BE1").addExtension(CnecLoopFlowExtension.class, loopFlowExtensionMock);
+        crac.getCnec("BE1-BE2").addExtension(CnecLoopFlowExtension.class, loopFlowExtensionMock);
+        crac.getCnec("BE2-NL").addExtension(CnecLoopFlowExtension.class, loopFlowExtensionMock);
+        crac.getCnec("FR-DE").addExtension(CnecLoopFlowExtension.class, loopFlowExtensionMock);
+        crac.getCnec("DE-NL").addExtension(CnecLoopFlowExtension.class, loopFlowExtensionMock);
+
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(crac, glskProvider, referenceProgram);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, network);
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, network, new HashSet<>());
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getCnec("FR-BE1")), DOUBLE_TOLERANCE);
         assertEquals(200., loopFlowResult.getLoopFlow(crac.getCnec("BE1-BE2")), DOUBLE_TOLERANCE);
