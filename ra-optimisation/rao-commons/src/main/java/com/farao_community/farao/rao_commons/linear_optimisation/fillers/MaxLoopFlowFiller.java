@@ -15,7 +15,7 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 
@@ -36,13 +36,13 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private boolean isLoopFlowApproximation;
     private double loopFlowConstraintAdjustmentCoefficient;
     private double loopFlowViolationCost;
-    private SensitivityComputationParameters sensitivityComputationParameters;
+    private SensitivityAnalysisParameters sensitivityAnalysisParameters;
 
-    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityComputationParameters sensitivityComputationParameters) {
+    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         this.isLoopFlowApproximation = isLoopFlowApproximation;
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
         this.loopFlowViolationCost = loopFlowViolationCost;
-        this.sensitivityComputationParameters = sensitivityComputationParameters;
+        this.sensitivityAnalysisParameters = sensitivityAnalysisParameters;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         //todo : do not compute loopFlow from scratch here : not necessary
         if (!isLoopFlowApproximation) {
             loopFlowResult = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram())
-                .calculateLoopFlows(raoData.getNetwork(), sensitivityComputationParameters, raoData.getLoopflowCountries());
+                .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCountries());
         }
 
         for (Cnec cnec : LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries())) {

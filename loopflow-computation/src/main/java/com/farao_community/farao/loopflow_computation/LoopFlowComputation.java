@@ -12,13 +12,13 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class LoopFlowComputation {
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }
 
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityComputationParameters sensitivityComputationParameters, Set<Country> loopflowCountries) {
+    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<Country> loopflowCountries) {
 
         Set<Cnec> cnecs = getLoopflowCnecsForCountries(crac, network, loopflowCountries);
 
@@ -56,7 +56,7 @@ public class LoopFlowComputation {
         //  required : loop-flows can be computed for N-1 states
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(sensitivityComputationParameters)
+            .withDefaultParameters(sensitivityAnalysisParameters)
             .withPtdfSensitivities(glskProvider, cnecs)
             .build();
 

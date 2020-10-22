@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-sensitivity-api</artifactId>
+            <artifactId>powsybl-sensitivity-analysis-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.threeten</groupId>

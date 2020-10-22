@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -113,14 +113,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "sensitivity-parameters":
                     parser.nextToken();
-                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());
+                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
                     break;
                 case "fallback-sensitivity-parameters":
                     parser.nextToken();
-                    if (parameters.getFallbackSensitivityComputationParameters() == null) {
-                        parameters.setFallbackSensitivityComputationParameters(new SensitivityComputationParameters());
+                    if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
+                        parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
                     }
-                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityComputationParameters());
+                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
                 case "extensions":
                     parser.nextToken();

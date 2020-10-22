@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,6 +33,15 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     public void roundTripDefault() throws IOException {
         RaoParameters parameters = new RaoParameters();
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters.json");
+    }
+
+    @Test
+    public void roundTripWithFallback() throws IOException {
+        RaoParameters parameters = new RaoParameters();
+        SensitivityAnalysisParameters fallbackParameters = new SensitivityAnalysisParameters();
+        fallbackParameters.getLoadFlowParameters().setDc(true);
+        parameters.setFallbackSensitivityAnalysisParameters(fallbackParameters);
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersWithFallback.json");
     }
 
     @Test
