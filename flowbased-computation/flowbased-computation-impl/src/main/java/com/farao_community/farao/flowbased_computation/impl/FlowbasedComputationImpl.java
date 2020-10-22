@@ -72,7 +72,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .sourceFormat("code")
                 .dataPreContingency(buildDataPreContingency(network, crac, glskProvider, result))
                 .dataPostContingency(buildDataPostContingencies(network, crac, glskProvider, result))
+                .glskFactors(buildDataGlskFactors(network, glskProvider))
                 .build();
+    }
+
+    private Map<String, Float> buildDataGlskFactors(Network network, GlskProvider glskProvider) {
+        Map<String, Float> glskFactors = new HashMap<>();
+        glskProvider.getAllGlsk(network).forEach((s, linearGlsk) -> glskFactors.putAll(linearGlsk.getGLSKs()));
+        return glskFactors;
     }
 
     private List<DataPostContingency> buildDataPostContingencies(Network network, Crac crac, GlskProvider glskProvider, SystematicSensitivityResult result) {

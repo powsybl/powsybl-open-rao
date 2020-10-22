@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Business Object of the FlowBased DataDomain
@@ -36,15 +37,17 @@ public class DataDomain {
     @NotNull(message = "dataPostContingency.empty")
     @Valid
     private final List<DataPostContingency> dataPostContingency;
+    private final Map<String, Float> glskFactors;
 
-    @ConstructorProperties({"id", "name", "sourceFormat", "description", "dataPreContingency", "dataPostContingency"})
-    public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency, @NotNull(message = "dataPostContingency.empty") @Valid List<DataPostContingency> dataPostContingency) {
+    @ConstructorProperties({"id", "name", "sourceFormat", "description", "dataPreContingency", "dataPostContingency", "glskFactors"})
+    public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency, @NotNull(message = "dataPostContingency.empty") @Valid List<DataPostContingency> dataPostContingency, Map<String, Float> glskFactors) {
         this.id = id;
         this.name = name;
         this.sourceFormat = sourceFormat;
         this.description = description;
         this.dataPreContingency = dataPreContingency;
         this.dataPostContingency = dataPostContingency;
+        this.glskFactors = glskFactors;
     }
 
     public DataPostContingency findContingencyById(String contingencyId) {
