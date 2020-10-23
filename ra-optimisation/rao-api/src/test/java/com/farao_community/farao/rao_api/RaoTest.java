@@ -63,10 +63,10 @@ public class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoResult result = defaultRao.run(raoInput, computationManager, new RaoParameters());
+        RaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
-        RaoResult resultAsync = defaultRao.runAsync(raoInput, computationManager, new RaoParameters()).join();
+        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
         assertNotNull(resultAsync);
         assertEquals(RaoResult.Status.SUCCESS, resultAsync.getStatus());
     }

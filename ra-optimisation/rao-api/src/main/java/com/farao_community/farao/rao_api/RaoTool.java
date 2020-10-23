@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_api.json.JsonRaoResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.Command;
@@ -116,14 +115,13 @@ public class RaoTool implements Tool {
         RaoParameters raoParameters = RaoParameters.load(PlatformConfig.defaultConfig());
 
         //Run
-        ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
         context.getOutputStream().println("Running Rao computation");
         RaoInput raoInput = RaoInput.builder()
             .withNetwork(network)
             .withCrac(crac)
             .withVariantId(currentState)
             .build();
-        RaoResult raoResult = Rao.run(raoInput, computationManager, raoParameters);
+        RaoResult raoResult = Rao.run(raoInput, raoParameters);
 
         //Output
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
