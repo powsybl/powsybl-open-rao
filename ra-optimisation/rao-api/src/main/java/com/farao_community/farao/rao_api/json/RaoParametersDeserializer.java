@@ -87,7 +87,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     List<String> countryStrings = new ArrayList<>();
                     ArrayNode node = (new ObjectMapper()).readTree(parser);
                     for (Object o : node) {
-                        countryStrings.add(o.toString().replaceAll("\"", ""));
+                        countryStrings.add(o.toString().replace("\"", ""));
                     }
                     parameters.setLoopflowCountries(countryStrings);
                     break;
