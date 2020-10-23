@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +42,6 @@ public final class RoundTripUtil {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             SimpleModule module = new CracImplJsonModule();
             objectMapper.registerModule(module);
@@ -55,7 +53,6 @@ public final class RoundTripUtil {
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
             ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.registerModule(new Jdk8Module());
             SimpleModule module = new SimpleModule();
             module.addDeserializer(SimpleCrac.class, new SimpleCracDeserializer());
             objectMapper.registerModule(module);

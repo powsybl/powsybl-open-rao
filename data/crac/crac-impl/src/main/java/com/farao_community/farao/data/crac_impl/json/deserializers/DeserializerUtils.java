@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */

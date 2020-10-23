@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -42,7 +41,6 @@ public class JsonExport implements CracExporter {
 
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.registerModule(new Jdk8Module());
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             SimpleModule module = new CracImplJsonModule();
             objectMapper.registerModule(module);

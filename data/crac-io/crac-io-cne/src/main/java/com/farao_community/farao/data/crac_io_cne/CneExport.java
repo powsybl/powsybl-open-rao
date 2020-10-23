@@ -35,12 +35,6 @@ import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
  */
 @AutoService(CracExporter.class)
 public class CneExport implements CracExporter {
-
-    private static final String XSD_LOCATION = "src/main/resources/xsd/";
-    private static final String CNE_XSD_LOCATION = XSD_LOCATION + CNE_XSD_2_4;
-    private static final String LOCAL_EXTENSION_LOCATION = XSD_LOCATION + LOCALTYPES_XSD;
-    private static final String CODELISTS_LOCATION = XSD_LOCATION + CODELISTS_XSD;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(CneExport.class);
 
     @Override
@@ -86,19 +80,19 @@ public class CneExport implements CracExporter {
         }
     }
 
-    public static boolean validateCNESchema(String xmlContent) {
-        return validateXMLSchema(CNE_XSD_LOCATION, xmlContent);
+    private static File getSchemaFile(String schemaName) {
+        return new File(CneExport.class.getResource("/xsd/" + schemaName).getFile());
     }
 
-    private static boolean validateXMLSchema(String xsdPath, String xmlContent) {
+    public static boolean validateCNESchema(String xmlContent) {
 
         try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 
-            Source[] source = {new StreamSource(new File(xsdPath)),
-                new StreamSource(new File(CODELISTS_LOCATION)),
-                new StreamSource(new File(LOCAL_EXTENSION_LOCATION))};
+            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_4)),
+                               new StreamSource(getSchemaFile(CODELISTS_XSD)),
+                               new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
             Schema schema = factory.newSchema(source);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
