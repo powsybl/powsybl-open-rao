@@ -13,7 +13,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Business Object of the FlowBased DataDomain
@@ -37,10 +36,10 @@ public class DataDomain {
     @NotNull(message = "dataPostContingency.empty")
     @Valid
     private final List<DataPostContingency> dataPostContingency;
-    private final Map<String, Float> glskFactors;
+    private final List<DataGlskFactors> glskFactors;
 
     @ConstructorProperties({"id", "name", "sourceFormat", "description", "dataPreContingency", "dataPostContingency", "glskFactors"})
-    public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency, @NotNull(message = "dataPostContingency.empty") @Valid List<DataPostContingency> dataPostContingency, Map<String, Float> glskFactors) {
+    public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency, @NotNull(message = "dataPostContingency.empty") @Valid List<DataPostContingency> dataPostContingency, List<DataGlskFactors> glskFactors) {
         this.id = id;
         this.name = name;
         this.sourceFormat = sourceFormat;

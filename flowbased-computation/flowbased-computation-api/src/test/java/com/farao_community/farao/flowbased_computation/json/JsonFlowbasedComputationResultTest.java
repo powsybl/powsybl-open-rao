@@ -21,7 +21,7 @@ import java.util.Collections;
 public class JsonFlowbasedComputationResultTest extends AbstractConverterTest {
     @Test
     public void roundTripDefault() throws IOException {
-        FlowbasedComputationResult result = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, new DataDomain("id", "name", "format", "description", null, Collections.emptyList(), Collections.emptyMap()));
+        FlowbasedComputationResult result = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, new DataDomain("id", "name", "format", "description", null, Collections.emptyList(), Collections.emptyList()));
         roundTripTest(result, JsonFlowbasedComputationResult::write, JsonFlowbasedComputationResult::read, "/FlowbasedComputationResult.json");
     }
 }
