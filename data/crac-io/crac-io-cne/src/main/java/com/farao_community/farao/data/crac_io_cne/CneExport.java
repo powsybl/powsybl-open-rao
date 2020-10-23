@@ -80,8 +80,8 @@ public class CneExport implements CracExporter {
         }
     }
 
-    private static File getSchemaFile(String schemaName) {
-        return new File(CneExport.class.getResource("/xsd/" + schemaName).getFile());
+    private static InputStream getSchemaInputStream(String schemaName) {
+        return CneExport.class.getResourceAsStream("/xsd/" + schemaName);
     }
 
     public static boolean validateCNESchema(String xmlContent) {
@@ -90,9 +90,9 @@ public class CneExport implements CracExporter {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 
-            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_4)),
-                               new StreamSource(getSchemaFile(CODELISTS_XSD)),
-                               new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
+            Source[] source = {new StreamSource(getSchemaInputStream(CNE_XSD_2_4)),
+                               new StreamSource(getSchemaInputStream(CODELISTS_XSD)),
+                               new StreamSource(getSchemaInputStream(LOCALTYPES_XSD))};
             Schema schema = factory.newSchema(source);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
