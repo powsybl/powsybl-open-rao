@@ -76,9 +76,9 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .build();
     }
 
-    private Map<String, Float> buildDataGlskFactors(Network network, GlskProvider glskProvider) {
-        Map<String, Float> glskFactors = new HashMap<>();
-        glskProvider.getAllGlsk(network).forEach((s, linearGlsk) -> glskFactors.putAll(linearGlsk.getGLSKs()));
+    private List<DataGlskFactors> buildDataGlskFactors(Network network, GlskProvider glskProvider) {
+        List<DataGlskFactors> glskFactors = new ArrayList<>();
+        glskProvider.getAllGlsk(network).forEach((s, linearGlsk) -> glskFactors.add(new DataGlskFactors(s, linearGlsk.getGLSKs())));
         return glskFactors;
     }
 
