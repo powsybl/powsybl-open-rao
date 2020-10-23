@@ -84,7 +84,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
-    private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityComputationParameters();
+    private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
 
     public ObjectiveFunction getObjectiveFunction() {
