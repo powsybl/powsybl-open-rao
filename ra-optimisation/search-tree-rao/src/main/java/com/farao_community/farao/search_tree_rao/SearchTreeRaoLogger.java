@@ -48,7 +48,7 @@ final class SearchTreeRaoLogger {
                     .append(" , ");
         }
         String rangeActionsLog = rangeActionMsg.toString();
-        SearchTreeRao.LOGGER.info(rangeActionsLog);
+        Tree.LOGGER.info(rangeActionsLog);
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
@@ -65,7 +65,7 @@ final class SearchTreeRaoLogger {
             double cnecMargin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
+            Tree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
                 i + 1,
                 cnecNetworkElementName,
                 cnecStateId,

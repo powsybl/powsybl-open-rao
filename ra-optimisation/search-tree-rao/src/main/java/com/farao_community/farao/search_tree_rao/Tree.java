@@ -10,12 +10,10 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
-import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -43,9 +41,8 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@AutoService(RaoProvider.class)
-public class SearchTreeRao implements RaoProvider {
-    static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRao.class);
+public class Tree {
+    static final Logger LOGGER = LoggerFactory.getLogger(Tree.class);
 
     private RaoParameters raoParameters;
     private SearchTreeRaoParameters searchTreeRaoParameters;
@@ -53,16 +50,6 @@ public class SearchTreeRao implements RaoProvider {
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
     private boolean relativePositiveMargins;
-
-    @Override
-    public String getName() {
-        return "SearchTreeRao";
-    }
-
-    @Override
-    public String getVersion() {
-        return "1.0.0";
-    }
 
     void initData(RaoInput raoInput, RaoParameters raoParameters) {
         initParameters(raoParameters);
@@ -88,7 +75,6 @@ public class SearchTreeRao implements RaoProvider {
                 raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
     }
 
-    @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
         initData(raoInput, raoParameters);
         initLeaves(raoInput);

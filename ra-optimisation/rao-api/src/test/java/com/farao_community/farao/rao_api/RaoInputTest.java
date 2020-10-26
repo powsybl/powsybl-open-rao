@@ -45,23 +45,7 @@ public class RaoInputTest {
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn(INITIAL_VARIANT_ID);
         crac = Mockito.mock(Crac.class);
-        defaultBuilder = RaoInput.builder().withNetwork(network).withCrac(crac).withNetworkVariantId(VARIANT_ID);
-    }
-
-    @Test(expected = RaoInputException.class)
-    public void failWithoutNetwork() {
-        RaoInput.builder().withCrac(crac).withNetworkVariantId(VARIANT_ID).build();
-    }
-
-    @Test(expected = RaoInputException.class)
-    public void failWithoutCrac() {
-        RaoInput.builder().withNetwork(network).withNetworkVariantId(VARIANT_ID).build();
-    }
-
-    @Test
-    public void failWithoutVariantId() {
-        RaoInput raoInput = RaoInput.builder().withNetwork(network).withCrac(crac).build();
-        assertEquals(INITIAL_VARIANT_ID, raoInput.getNetworkVariantId());
+        defaultBuilder = RaoInput.create(network, crac).withNetworkVariantId(VARIANT_ID);
     }
 
     @Test

@@ -45,7 +45,7 @@ public class RaoTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        raoInput = RaoInput.builder().withNetwork(network).withCrac(crac).withNetworkVariantId("variant-id").build();
+        raoInput = RaoInput.create(network, crac).withNetworkVariantId("variant-id").build();
         computationManager = Mockito.mock(ComputationManager.class);
     }
 

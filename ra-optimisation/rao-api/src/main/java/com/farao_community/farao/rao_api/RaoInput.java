@@ -31,14 +31,19 @@ public final class RaoInput {
 
         private Crac crac;
         private String baseCracVariantId;
-        private State optimizedState;
-        private Set<State> perimeter;
         private Network network;
         private String networkVariantId;
+        private State optimizedState;
+        private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
         private GlskProvider glskProvider;
 
         private RaoInputBuilder() {
+        }
+
+        private RaoInputBuilder(State optimizedState, Set<State> perimeter) {
+            this.optimizedState = optimizedState;
+            this.perimeter = perimeter;
         }
 
         public RaoInputBuilder withCrac(Crac crac) {
@@ -51,16 +56,6 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withOptimizedState(State state) {
-            this.optimizedState = state;
-            return this;
-        }
-
-        public RaoInputBuilder withPerimeter(Set<State> states) {
-            this.perimeter = states;
-            return this;
-        }
-
         public RaoInputBuilder withNetwork(Network network) {
             this.network = network;
             return this;
@@ -68,6 +63,16 @@ public final class RaoInput {
 
         public RaoInputBuilder withNetworkVariantId(String variantId) {
             this.networkVariantId = variantId;
+            return this;
+        }
+
+        private RaoInputBuilder withOptimizedState(State state) {
+            this.optimizedState = state;
+            return this;
+        }
+
+        public RaoInputBuilder withPerimeter(Set<State> states) {
+            this.perimeter = states;
             return this;
         }
 
@@ -89,9 +94,9 @@ public final class RaoInput {
             raoInput.baseCracVariantId = baseCracVariantId;
 
             raoInput.network = Optional.ofNullable(network).orElseThrow(() -> requiredArgumentError("Network"));
-            raoInput.optimizedState = Optional.ofNullable(optimizedState).orElse(crac.getPreventiveState());
             raoInput.networkVariantId = networkVariantId != null ? networkVariantId : network.getVariantManager().getWorkingVariantId();
-            raoInput.perimeter = perimeter != null ? perimeter : Collections.singleton(raoInput.optimizedState);
+            raoInput.optimizedState = optimizedState;
+            raoInput.perimeter = perimeter;
             raoInput.referenceProgram = referenceProgram;
             raoInput.glskProvider = glskProvider;
             return raoInput;
@@ -130,8 +135,16 @@ public final class RaoInput {
     private RaoInput() {
     }
 
-    public static RaoInputBuilder builder() {
-        return new RaoInputBuilder();
+    public static RaoInputBuilder create(Network network, Crac crac) {
+        return new RaoInputBuilder().withNetwork(network).withCrac(crac);
+    }
+
+    public static RaoInputBuilder createOnState(Network network, Crac crac, State optimizedState) {
+        return create(network, crac).withOptimizedState(optimizedState).withPerimeter(Collections.singleton(optimizedState));
+    }
+
+    public static RaoInputBuilder createOnPreventiveState(Network network, Crac crac) {
+        return createOnState(network, crac, crac.getPreventiveState());
     }
 
     public Crac getCrac() {

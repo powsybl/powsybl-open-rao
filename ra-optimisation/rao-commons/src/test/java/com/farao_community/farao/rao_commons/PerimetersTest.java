@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.perimeter_rao;
+package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
@@ -19,12 +19,12 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PerimeterRaoProviderTest {
+public class PerimetersTest {
 
     private SimpleCrac crac;
     private Network network;
@@ -92,7 +92,7 @@ public class PerimeterRaoProviderTest {
 
     @Test
     public void testCreatePerimetersWithNoRemedialActions() {
-        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
         assertEquals(1, perimeters.size());
         assertEquals(7, perimeters.get(0).size());
     }
@@ -102,7 +102,7 @@ public class PerimeterRaoProviderTest {
         PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Outage")));
         crac.addRangeAction(pstRange);
-        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
         assertEquals(2, perimeters.size());
         assertEquals(5, perimeters.get(0).size());
         assertEquals(2, perimeters.get(1).size());
@@ -113,7 +113,7 @@ public class PerimeterRaoProviderTest {
         PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange);
-        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
         assertEquals(2, perimeters.size());
         assertEquals(6, perimeters.get(0).size());
         assertEquals(1, perimeters.get(1).size());
@@ -127,7 +127,7 @@ public class PerimeterRaoProviderTest {
         PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
-        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
         assertEquals(3, perimeters.size());
         assertEquals(4, perimeters.get(0).size());
     }
@@ -140,7 +140,7 @@ public class PerimeterRaoProviderTest {
         PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
-        List<List<State>> perimeters = PerimeterRaoProvider.createPerimeters(crac, network, crac.getPreventiveState());
+        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
         assertEquals(3, perimeters.size());
         assertEquals(5, perimeters.get(0).size());
     }

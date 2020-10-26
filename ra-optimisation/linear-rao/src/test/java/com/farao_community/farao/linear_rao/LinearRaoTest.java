@@ -84,6 +84,7 @@ public class LinearRaoTest {
         initialSensitivityAnalysis = Mockito.mock(InitialSensitivityAnalysis.class);
 
         raoInput = Mockito.mock(RaoInput.class);
+        Mockito.when(raoInput.getOptimizedState()).thenReturn(crac.getPreventiveState());
         mockRaoUtil();
     }
 

@@ -55,8 +55,18 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        RaoUtil.initData(raoInput, raoParameters);
-        RaoData raoData = RaoUtil.initRaoData(raoInput);
+        RaoInput updatedRaoInput;
+        if (raoInput.getOptimizedState() == null) {
+            updatedRaoInput = RaoInput.createOnPreventiveState(raoInput.getNetwork(), raoInput.getCrac())
+                .withPerimeter(raoInput.getCrac().getStates())
+                .withGlskProvider(raoInput.getGlskProvider())
+                .withRefProg(raoInput.getReferenceProgram())
+                .build();
+        } else {
+            updatedRaoInput = raoInput;
+        }
+        RaoUtil.initData(updatedRaoInput, raoParameters);
+        RaoData raoData = RaoUtil.initRaoData(updatedRaoInput);
 
         if (raoParameters.getExtension(LinearRaoParameters.class) == null) {
             String msg = "The configuration should contain a LinearRaoParameters extensions";

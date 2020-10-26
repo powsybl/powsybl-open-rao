@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.perimeter_rao;
+package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_api.*;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
@@ -29,15 +30,15 @@ import java.util.concurrent.TimeUnit;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
-public class PerimeterRaoProvider implements RaoProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PerimeterRaoProvider.class);
+public class SearchTreeRaoProvider implements RaoProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoProvider.class);
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_VARIANT = "preventive-variant";
     private static final String CURATIVE_VARIANT = "curative-variant";
 
     @Override
     public String getName() {
-        return "PerimeterRao";
+        return SEARCH_TREE_RAO;
     }
 
     @Override
@@ -47,22 +48,23 @@ public class PerimeterRaoProvider implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
+        if (raoInput.getOptimizedState() != null) {
+            return CompletableFuture.completedFuture(new Tree().run(raoInput, parameters).join());
+        }
+
         Network network = raoInput.getNetwork();
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_VARIANT);
 
-        List<List<State>> perimeters = createPerimeters(raoInput.getCrac(), network, raoInput.getCrac().getPreventiveState());
+        List<List<State>> perimeters = RaoUtil.createPerimeters(raoInput.getCrac(), network, raoInput.getCrac().getPreventiveState());
         List<State> preventivePerimeter = perimeters.remove(0);
 
-        RaoInput preventiveRaoInput = RaoInput.builder()
-            .withNetwork(raoInput.getNetwork())
-            .withCrac(raoInput.getCrac())
+        RaoInput preventiveRaoInput = RaoInput.createOnState(raoInput.getNetwork(), raoInput.getCrac(), preventivePerimeter.get(0))
             .withNetworkVariantId(PREVENTIVE_VARIANT)
-            .withOptimizedState(preventivePerimeter.get(0))
             .withPerimeter(new HashSet<>(preventivePerimeter))
             .withGlskProvider(raoInput.getGlskProvider())
             .withRefProg(raoInput.getReferenceProgram())
             .build();
-        RaoResult preventiveRaoResult = Rao.find(SEARCH_TREE_RAO).run(preventiveRaoInput, parameters);
+        RaoResult preventiveRaoResult = new Tree().run(preventiveRaoInput, parameters).join();
 
         applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(),
             preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()));
@@ -71,23 +73,21 @@ public class PerimeterRaoProvider implements RaoProvider {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_VARIANT);
         network.getVariantManager().cloneVariant(PREVENTIVE_VARIANT, CURATIVE_VARIANT);
         network.getVariantManager().setWorkingVariant(CURATIVE_VARIANT);
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_VARIANT, 5)) {
+        // For now only one curative computation at a time
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_VARIANT, 1)) {
             perimeters.forEach(perimeter ->
                 networkPool.submit(() -> {
                     try {
                         Network networkClone = networkPool.getAvailableNetwork();
-                        RaoInput curativeRaoInput = RaoInput.builder()
-                            .withNetwork(networkClone)
-                            .withCrac(raoInput.getCrac())
+                        RaoInput curativeRaoInput = RaoInput.createOnState(networkClone, raoInput.getCrac(), perimeter.get(0))
                             .withBaseCracVariantId(preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()))
                             .withNetworkVariantId(CURATIVE_VARIANT)
-                            .withOptimizedState(perimeter.get(0))
                             .withPerimeter(new HashSet<>(perimeter))
                             .withGlskProvider(raoInput.getGlskProvider())
                             .withRefProg(raoInput.getReferenceProgram())
                             .build();
 
-                        curativeResults.add(Rao.find(SEARCH_TREE_RAO).run(curativeRaoInput, parameters));
+                        curativeResults.add(new Tree().run(curativeRaoInput, parameters).join());
                         networkPool.releaseUsedNetwork(networkClone);
                     } catch (InterruptedException | NotImplementedException | FaraoException e) {
                         Thread.currentThread().interrupt();
@@ -100,33 +100,6 @@ public class PerimeterRaoProvider implements RaoProvider {
         }
 
         return CompletableFuture.completedFuture(mergeRaoResults(preventiveRaoResult, curativeResults));
-    }
-
-    static List<List<State>> createPerimeters(Crac crac, Network network, State startingState) {
-        List<List<State>> perimeters = new ArrayList<>();
-        State preventiveState = crac.getPreventiveState();
-
-        if (startingState.equals(preventiveState)) {
-            List<State> preventivePerimeter = new ArrayList<>();
-            preventivePerimeter.add(preventiveState);
-            perimeters.add(preventivePerimeter);
-
-            List<State> currentPerimeter;
-            for (Contingency contingency : crac.getContingencies()) {
-                currentPerimeter = preventivePerimeter;
-                for (State state : crac.getStates(contingency)) {
-                    if (anyAvailableRemedialAction(crac, network, state)) {
-                        currentPerimeter = new ArrayList<>();
-                        perimeters.add(currentPerimeter);
-                    }
-                    currentPerimeter.add(state);
-                }
-            }
-        } else {
-            throw new NotImplementedException("Cannot create perimeters if starting state is different from preventive state");
-        }
-
-        return perimeters;
     }
 
     private static void applyPreventiveRemedialActions(Network network, Crac crac, String cracVariantId) {
@@ -163,11 +136,6 @@ public class PerimeterRaoProvider implements RaoProvider {
                 LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, rangeAction.getId()));
             }
         }
-    }
-
-    private static boolean anyAvailableRemedialAction(Crac crac, Network network, State state) {
-        return !crac.getNetworkActions(network, state, UsageMethod.AVAILABLE).isEmpty() ||
-            !crac.getRangeActions(network, state, UsageMethod.AVAILABLE).isEmpty();
     }
 
     private RaoResult mergeRaoResults(RaoResult preventiveRaoResult, List<RaoResult> curativeRaoResults) {
