@@ -43,6 +43,12 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
+    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
+        checkParameters(raoParameters, raoInput);
+        initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        initCrac(raoInput.getCrac(), raoInput.getNetwork());
+    }
+
     public static void initNetwork(Network network, String networkVariantId) {
         network.getVariantManager().setWorkingVariant(networkVariantId);
         UcteAliasesCreation.createAliases(network);

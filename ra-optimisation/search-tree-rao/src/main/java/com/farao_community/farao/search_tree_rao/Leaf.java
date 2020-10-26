@@ -279,9 +279,9 @@ class Leaf {
      * @param variantId: The ID of the variant to update.
      */
     private void activateNetworkActionInCracResult(String variantId) {
-        String preventiveState = raoData.getCrac().getPreventiveState().getId();
+        String stateId = raoData.getOptimizedState().getId();
         for (NetworkAction networkAction : networkActions) {
-            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(preventiveState);
+            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(stateId);
         }
     }
 

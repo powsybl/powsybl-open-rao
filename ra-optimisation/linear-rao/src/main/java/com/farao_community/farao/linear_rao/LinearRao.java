@@ -55,8 +55,7 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        RaoUtil.initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
-        RaoUtil.initCrac(raoInput.getCrac(), raoInput.getNetwork());
+        RaoUtil.initData(raoInput, raoParameters);
         RaoData raoData = RaoUtil.initRaoData(raoInput);
 
         if (raoParameters.getExtension(LinearRaoParameters.class) == null) {
@@ -119,7 +118,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantId(postOptimVariantId);
+        raoResult.getPostOptimVariantIdPerStateId().put(raoData.getOptimizedState().getId(), postOptimVariantId);
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -144,7 +143,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantId(raoData.getInitialVariantId());
+        raoResult.getPostOptimVariantIdPerStateId().put(raoData.getOptimizedState().getId(), raoData.getInitialVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();

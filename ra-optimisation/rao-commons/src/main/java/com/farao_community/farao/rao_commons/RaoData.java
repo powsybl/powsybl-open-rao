@@ -86,6 +86,14 @@ public final class RaoData {
             return this;
         }
 
+        public RaoDataBuilder withRaoData(RaoData raoData) {
+            optimizedState = raoData.getOptimizedState();
+            perimeter = raoData.getPerimeter();
+            glskProvider = raoData.getGlskProvider();
+            referenceProgram = raoData.getReferenceProgram();
+            return this;
+        }
+
         public RaoData build() {
             RaoData raoData = new RaoData();
             raoData.crac = crac;

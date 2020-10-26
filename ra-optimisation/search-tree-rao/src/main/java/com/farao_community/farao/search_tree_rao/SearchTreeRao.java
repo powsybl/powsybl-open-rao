@@ -66,9 +66,7 @@ public class SearchTreeRao implements RaoProvider {
 
     void initData(RaoInput raoInput, RaoParameters raoParameters) {
         initParameters(raoParameters);
-        RaoUtil.checkParameters(raoParameters, raoInput);
-        RaoUtil.initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
-        RaoUtil.initCrac(raoInput.getCrac(), raoInput.getNetwork());
+        RaoUtil.initData(raoInput, raoParameters);
     }
 
     void initLeaves(RaoInput raoInput) {
@@ -247,7 +245,7 @@ public class SearchTreeRao implements RaoProvider {
     private RaoResult buildOutput() {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
-        raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
+        raoResult.getPostOptimVariantIdPerStateId().put(optimalLeaf.getRaoData().getOptimizedState().getId(), optimalLeaf.getBestVariantId());
         return raoResult;
     }
 }

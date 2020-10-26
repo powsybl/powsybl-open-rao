@@ -7,15 +7,19 @@
 
 package com.farao_community.farao.perimeter_rao;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult;
+import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_api.*;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 @AutoService(RaoProvider.class)
 public class PerimeterRaoProvider implements RaoProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PerimeterRaoProvider.class);
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_VARIANT = "preventive-variant";
     private static final String CURATIVE_VARIANT = "curative-variant";
@@ -59,8 +64,13 @@ public class PerimeterRaoProvider implements RaoProvider {
             .build();
         RaoResult preventiveRaoResult = Rao.find(SEARCH_TREE_RAO).run(preventiveRaoInput, parameters);
 
+        applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(),
+            preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()));
+
         List<RaoResult> curativeResults = new ArrayList<>();
         network.getVariantManager().setWorkingVariant(PREVENTIVE_VARIANT);
+        network.getVariantManager().cloneVariant(PREVENTIVE_VARIANT, CURATIVE_VARIANT);
+        network.getVariantManager().setWorkingVariant(CURATIVE_VARIANT);
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_VARIANT, 5)) {
             perimeters.forEach(perimeter ->
                 networkPool.submit(() -> {
@@ -69,6 +79,7 @@ public class PerimeterRaoProvider implements RaoProvider {
                         RaoInput curativeRaoInput = RaoInput.builder()
                             .withNetwork(networkClone)
                             .withCrac(raoInput.getCrac())
+                            .withBaseCracVariantId(preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()))
                             .withNetworkVariantId(CURATIVE_VARIANT)
                             .withOptimizedState(perimeter.get(0))
                             .withPerimeter(new HashSet<>(perimeter))
@@ -78,7 +89,7 @@ public class PerimeterRaoProvider implements RaoProvider {
 
                         curativeResults.add(Rao.find(SEARCH_TREE_RAO).run(curativeRaoInput, parameters));
                         networkPool.releaseUsedNetwork(networkClone);
-                    } catch (InterruptedException | NotImplementedException e) {
+                    } catch (InterruptedException | NotImplementedException | FaraoException e) {
                         Thread.currentThread().interrupt();
                     }
                 }));
@@ -118,12 +129,54 @@ public class PerimeterRaoProvider implements RaoProvider {
         return perimeters;
     }
 
+    private static void applyPreventiveRemedialActions(Network network, Crac crac, String cracVariantId) {
+        String preventiveStateId = crac.getPreventiveState().getId();
+        crac.getNetworkActions().forEach(na -> applyNetworkAction(na, network, cracVariantId, preventiveStateId));
+        crac.getRangeActions().forEach(ra -> applyRangeAction(ra, network, cracVariantId, preventiveStateId));
+    }
+
+    private static void applyNetworkAction(NetworkAction networkAction, Network network, String cracVariantId, String preventiveStateId) {
+        NetworkActionResultExtension resultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
+        if (resultExtension == null) {
+            LOGGER.error(String.format("Could not find results on network action %s", networkAction.getId()));
+        } else {
+            NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
+            if (networkActionResult != null) {
+                if (networkActionResult.isActivated(preventiveStateId)) {
+                    networkAction.apply(network);
+                }
+            } else {
+                LOGGER.error(String.format("Could not find results for variant %s on network action %s", cracVariantId, networkAction.getId()));
+            }
+        }
+    }
+
+    private static void applyRangeAction(RangeAction rangeAction, Network network, String cracVariantId, String preventiveStateId) {
+        RangeActionResultExtension resultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+        if (resultExtension == null) {
+            LOGGER.error(String.format("Could not find results on range action %s", rangeAction.getId()));
+        } else {
+            RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
+            if (rangeActionResult != null) {
+                rangeAction.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
+            } else {
+                LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, rangeAction.getId()));
+            }
+        }
+    }
+
     private static boolean anyAvailableRemedialAction(Crac crac, Network network, State state) {
         return !crac.getNetworkActions(network, state, UsageMethod.AVAILABLE).isEmpty() ||
             !crac.getRangeActions(network, state, UsageMethod.AVAILABLE).isEmpty();
     }
 
     private RaoResult mergeRaoResults(RaoResult preventiveRaoResult, List<RaoResult> curativeRaoResults) {
+        curativeRaoResults.forEach(curativeRaoResult -> {
+            if (curativeRaoResult.getStatus().equals(RaoResult.Status.FAILURE)) {
+                preventiveRaoResult.setStatus(RaoResult.Status.FAILURE);
+            }
+            curativeRaoResult.getPostOptimVariantIdPerStateId().forEach((k, v) -> preventiveRaoResult.getPostOptimVariantIdPerStateId().put(k, v));
+        });
         return preventiveRaoResult;
     }
 }
