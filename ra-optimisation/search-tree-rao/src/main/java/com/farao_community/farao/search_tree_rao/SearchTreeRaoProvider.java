@@ -57,12 +57,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         Network network = raoInput.getNetwork();
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_VARIANT);
+        network.getVariantManager().setWorkingVariant(PREVENTIVE_VARIANT);
 
         List<List<State>> perimeters = RaoUtil.createPerimeters(raoInput.getCrac(), network, raoInput.getCrac().getPreventiveState());
         List<State> preventivePerimeter = perimeters.remove(0);
 
         RaoInput preventiveRaoInput = RaoInput.createOnState(raoInput.getNetwork(), raoInput.getCrac(), preventivePerimeter.get(0))
-            .withNetworkVariantId(PREVENTIVE_VARIANT)
             .withPerimeter(new HashSet<>(preventivePerimeter))
             .withGlskProvider(raoInput.getGlskProvider())
             .withRefProg(raoInput.getReferenceProgram())
@@ -84,7 +84,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
                         Network networkClone = networkPool.getAvailableNetwork();
                         RaoInput curativeRaoInput = RaoInput.createOnState(networkClone, raoInput.getCrac(), perimeter.get(0))
                             .withBaseCracVariantId(preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()))
-                            .withNetworkVariantId(CURATIVE_VARIANT)
                             .withPerimeter(new HashSet<>(perimeter))
                             .withGlskProvider(raoInput.getGlskProvider())
                             .withRefProg(raoInput.getReferenceProgram())

@@ -154,8 +154,16 @@ public final class RaoInput {
         return optimizedState;
     }
 
+    public void setOptimizedState(State optimizedState) {
+        this.optimizedState = optimizedState;
+    }
+
     public Set<State> getPerimeter() {
         return perimeter;
+    }
+
+    public void setPerimeter(Set<State> perimeter) {
+        this.perimeter = perimeter;
     }
 
     public Network getNetwork() {

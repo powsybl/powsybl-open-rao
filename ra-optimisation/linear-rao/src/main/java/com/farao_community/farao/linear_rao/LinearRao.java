@@ -55,18 +55,12 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        RaoInput updatedRaoInput;
-        if (raoInput.getOptimizedState() == null) {
-            updatedRaoInput = RaoInput.createOnPreventiveState(raoInput.getNetwork(), raoInput.getCrac())
-                .withPerimeter(raoInput.getCrac().getStates())
-                .withGlskProvider(raoInput.getGlskProvider())
-                .withRefProg(raoInput.getReferenceProgram())
-                .build();
-        } else {
-            updatedRaoInput = raoInput;
-        }
-        RaoUtil.initData(updatedRaoInput, raoParameters);
-        RaoData raoData = RaoData.create(updatedRaoInput);
+        RaoUtil.initData(raoInput, raoParameters);
+        // We assume that linear RAO only handles optimization on preventive state taking all the CNECs present in
+        // the CRAC into account. So we artificially set these values here.
+        raoInput.setOptimizedState(raoInput.getCrac().getPreventiveState());
+        raoInput.setPerimeter(raoInput.getCrac().getStates());
+        RaoData raoData = RaoData.create(raoInput);
 
         return run(raoData, raoParameters);
     }
