@@ -99,7 +99,7 @@ class Leaf {
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
-        raoData = RaoData.fromNetworkAndPreviousRaoData(network, parentLeaf.getRaoData());
+        raoData = RaoData.create(network, parentLeaf.getRaoData());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
@@ -161,8 +161,8 @@ class Leaf {
                     }
 
                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
-                    raoData.getRaoDataManager().fillCnecResultWithFlows();
-                    raoData.getRaoDataManager().fillCracResultWithCosts(
+                    raoData.getCracResultManager().fillCnecResultWithFlows();
+                    raoData.getCracResultManager().fillCracResultWithCosts(
                             objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
                 }
 
@@ -224,7 +224,7 @@ class Leaf {
     void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
             copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
-            raoData.getVariantManager().deleteVariant(initialVariantId, false);
+            raoData.getCracVariantManager().deleteVariant(initialVariantId, false);
         }
     }
 
@@ -248,10 +248,10 @@ class Leaf {
      */
     void clearAllVariantsExceptInitialOne() {
         HashSet<String> variantIds = new HashSet<>();
-        variantIds.addAll(raoData.getVariantManager().getVariantIds());
+        variantIds.addAll(raoData.getCracVariantManager().getVariantIds());
         variantIds.remove(initialVariantId);
-        raoData.getVariantManager().setWorkingVariant(initialVariantId);
-        variantIds.forEach(variantId -> raoData.getVariantManager().deleteVariant(variantId, false));
+        raoData.getCracVariantManager().setWorkingVariant(initialVariantId);
+        variantIds.forEach(variantId -> raoData.getCracVariantManager().deleteVariant(variantId, false));
     }
 
     /**
@@ -260,7 +260,7 @@ class Leaf {
      * user.
      */
     void clearAllVariants() {
-        raoData.getVariantManager().clear();
+        raoData.getCracVariantManager().clear();
     }
 
     /**
@@ -268,8 +268,8 @@ class Leaf {
      * to avoid calling directly rao data as a leaf user.
      */
     void applyRangeActionResultsOnNetwork() {
-        getRaoData().getVariantManager().setWorkingVariant(getBestVariantId());
-        getRaoData().getRaoDataManager().applyRangeActionResultsOnNetwork();
+        getRaoData().getCracVariantManager().setWorkingVariant(getBestVariantId());
+        getRaoData().getCracResultManager().applyRangeActionResultsOnNetwork();
     }
 
     /**

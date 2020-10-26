@@ -19,11 +19,11 @@ public final class LoopFlowUtil {
 
     public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
         if (isLoopFlowApproximation) {
-            raoData.getRaoDataManager().fillCnecResultsWithApproximatedLoopFlows();
+            raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
         } else {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
             LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
-            raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
+            raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
         }
     }
 }

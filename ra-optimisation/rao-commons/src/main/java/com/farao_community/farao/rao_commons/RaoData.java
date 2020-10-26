@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
@@ -28,120 +27,75 @@ import java.util.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RaoData {
+    private final Network network;
+    private final Crac crac;
+    private final State optimizedState;
+    private final Set<State> perimeter;
+    private final ReferenceProgram referenceProgram;
+    private final GlskProvider glskProvider;
+    private final CracResultManager cracResultManager;
 
-    public static final class RaoDataBuilder {
-        private Network network;
-        private Crac crac;
-        private State optimizedState;
-        private Set<State> perimeter;
-        private ReferenceProgram referenceProgram;
-        private GlskProvider glskProvider;
-        private boolean basedOnExistingVariant;
+    private CracVariantManager cracVariantManager;
 
-        private RaoDataVariantManager raoDataVariantManager;
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, String cracVariantId) {
+        Objects.requireNonNull(network, "Unable to build RAO data without network.");
+        Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
+        Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
+        Objects.requireNonNull(crac, "Unable to build RAO data without perimeter.");
+        this.network = network;
+        this.crac = crac;
+        this.optimizedState = optimizedState;
+        this.perimeter = perimeter;
+        this.referenceProgram = referenceProgram;
+        this.glskProvider = glskProvider;
+        cracResultManager = new CracResultManager(this);
+        addRaoDataVariantManager(cracVariantId);
+    }
 
-        private RaoDataBuilder(Crac crac, String cracVariantId) {
-            this.crac = crac;
-            this.raoDataVariantManager = new RaoDataVariantManager(crac, cracVariantId);
-            basedOnExistingVariant = true;
-        }
-
-        private RaoDataBuilder(Crac crac) {
-            this.crac = crac;
-            this.raoDataVariantManager = new RaoDataVariantManager(crac);
-            basedOnExistingVariant = false;
-        }
-
-        public RaoDataBuilder withNetwork(Network network) {
-            this.network = network;
-            return this;
-        }
-
-        public RaoDataBuilder withOptimizedState(State state) {
-            this.optimizedState = state;
-            return this;
-        }
-
-        public RaoDataBuilder withPerimeter(Set<State> perimeter) {
-            this.perimeter = perimeter;
-            return this;
-        }
-
-        public RaoDataBuilder withGlskProvider(GlskProvider glskProvider) {
-            this.glskProvider = glskProvider;
-            return this;
-        }
-
-        public RaoDataBuilder withReferenceProgram(ReferenceProgram referenceProgram) {
-            this.referenceProgram = referenceProgram;
-            return this;
-        }
-
-        public RaoDataBuilder withRaoInput(RaoInput raoInput) {
-            network = raoInput.getNetwork();
-            optimizedState = raoInput.getOptimizedState();
-            perimeter = raoInput.getPerimeter();
-            glskProvider = raoInput.getGlskProvider();
-            referenceProgram = raoInput.getReferenceProgram();
-            return this;
-        }
-
-        public RaoDataBuilder withRaoData(RaoData raoData) {
-            optimizedState = raoData.getOptimizedState();
-            perimeter = raoData.getPerimeter();
-            glskProvider = raoData.getGlskProvider();
-            referenceProgram = raoData.getReferenceProgram();
-            return this;
-        }
-
-        public RaoData build() {
-            RaoData raoData = new RaoData();
-            raoData.crac = crac;
-            raoData.network = Optional.ofNullable(network).orElseThrow(() -> new FaraoException("Unable to build RAO data without network."));
-            raoData.optimizedState = Optional.ofNullable(optimizedState).orElseThrow(() -> new FaraoException("Unable to build RAO data without optimized state."));
-            raoData.perimeter = Optional.ofNullable(perimeter).orElseThrow(() -> new FaraoException("Unable to build RAO data without perimeter."));
-            raoData.glskProvider = glskProvider;
-            raoData.referenceProgram = referenceProgram;
-
-            raoData.raoDataVariantManager = raoDataVariantManager;
-            raoData.raoDataManager = new RaoDataManager(raoData);
-            if (!basedOnExistingVariant) {
-                raoData.raoDataManager.fillRangeActionResultsWithNetworkValues();
-            }
-            return raoData;
+    private void addRaoDataVariantManager(String cracVariantId) {
+        if (cracVariantId != null) {
+            cracVariantManager = new CracVariantManager(crac, cracVariantId);
+        } else {
+            cracVariantManager = new CracVariantManager(crac);
+            cracResultManager.fillRangeActionResultsWithNetworkValues();
         }
     }
 
-    private Network network;
-    private Crac crac;
-    private State optimizedState;
-    private Set<State> perimeter;
-    private ReferenceProgram referenceProgram;
-    private GlskProvider glskProvider;
-
-    private RaoDataVariantManager raoDataVariantManager;
-    private RaoDataManager raoDataManager;
-
-    private RaoData() {
-
+    public static RaoData createOnPreventiveState(Network network, Crac crac) {
+        return createOnPreventiveStateBasedOnExistingVariant(network, crac, null);
     }
 
-    public static RaoData fromNetworkAndPreviousRaoData(Network network, RaoData raoData) {
-        return RaoData.builderFromCrac(raoData.getCrac())
-            .withNetwork(network)
-            .withOptimizedState(raoData.optimizedState)
-            .withPerimeter(raoData.perimeter)
-            .withReferenceProgram(raoData.referenceProgram)
-            .withGlskProvider(raoData.glskProvider)
-            .build();
+    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId) {
+        return new RaoData(
+            network,
+            crac,
+            crac.getPreventiveState(),
+            Collections.singleton(crac.getPreventiveState()),
+            null,
+            null,
+            cracVariantId);
     }
 
-    public static RaoDataBuilder builderFromExistingCracVariant(Crac crac, String cracVariantId) {
-        return new RaoDataBuilder(crac, cracVariantId);
+    public static RaoData create(Network network, RaoData raoData) {
+        return new RaoData(
+            network,
+            raoData.getCrac(),
+            raoData.getOptimizedState(),
+            raoData.getPerimeter(),
+            raoData.getReferenceProgram(),
+            raoData.getGlskProvider(),
+            null);
     }
 
-    public static RaoDataBuilder builderFromCrac(Crac crac) {
-        return new RaoDataBuilder(crac);
+    public static RaoData create(RaoInput raoInput) {
+        return new RaoData(
+            raoInput.getNetwork(),
+            raoInput.getCrac(),
+            raoInput.getOptimizedState(),
+            raoInput.getPerimeter(),
+            raoInput.getReferenceProgram(),
+            raoInput.getGlskProvider(),
+            raoInput.getBaseCracVariantId());
     }
 
     public Network getNetwork() {
@@ -182,37 +136,37 @@ public final class RaoData {
         return perimeter;
     }
 
-    public RaoDataManager getRaoDataManager() {
-        return raoDataManager;
+    public CracResultManager getCracResultManager() {
+        return cracResultManager;
     }
 
-    public RaoDataVariantManager getVariantManager() {
-        return raoDataVariantManager;
+    public CracVariantManager getCracVariantManager() {
+        return cracVariantManager;
     }
 
     // Delegate methods of RaoDataVariantManager
     public String getWorkingVariantId() {
-        return getVariantManager().getWorkingVariantId();
+        return getCracVariantManager().getWorkingVariantId();
     }
 
     public String getInitialVariantId() {
-        return getVariantManager().getInitialVariantId();
+        return getCracVariantManager().getInitialVariantId();
     }
 
     public CracResult getCracResult(String variantId) {
-        return getVariantManager().getCracResult(variantId);
+        return getCracVariantManager().getCracResult(variantId);
     }
 
     public CracResult getCracResult() {
-        return getVariantManager().getCracResult();
+        return getCracVariantManager().getCracResult();
     }
 
     public SystematicSensitivityResult getSystematicSensitivityResult() {
-        return getVariantManager().getSystematicSensitivityResult();
+        return getCracVariantManager().getSystematicSensitivityResult();
     }
 
     public void setSystematicSensitivityResult(SystematicSensitivityResult systematicSensitivityResult) {
-        getVariantManager().setSystematicSensitivityResult(systematicSensitivityResult);
+        getCracVariantManager().setSystematicSensitivityResult(systematicSensitivityResult);
     }
 
     public boolean hasSensitivityValues() {

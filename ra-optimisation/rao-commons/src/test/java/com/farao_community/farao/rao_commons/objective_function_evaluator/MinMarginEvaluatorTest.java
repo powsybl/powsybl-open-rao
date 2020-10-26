@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -44,11 +42,7 @@ public class MinMarginEvaluatorTest {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = RaoData.builderFromCrac(crac)
-            .withNetwork(network)
-            .withOptimizedState(crac.getPreventiveState())
-            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
-            .build();
+        raoData = RaoData.createOnPreventiveState(network, crac);
 
         setPtdfSum("cnec1basecase", 0.5);
         setPtdfSum("cnec1stateCurativeContingency1", 0.95);

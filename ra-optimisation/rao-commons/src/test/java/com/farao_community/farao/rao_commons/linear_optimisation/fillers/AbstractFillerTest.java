@@ -115,14 +115,8 @@ abstract class AbstractFillerTest {
     }
 
     void initRaoData(State state) {
-        raoData = RaoData.builderFromCrac(crac)
-            .withNetwork(network)
-            .withOptimizedState(state)
-            .withPerimeter(Collections.singleton(state))
-            .withReferenceProgram(referenceProgram)
-            .withGlskProvider(glskProvider)
-            .build();
-        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider, null);
+        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }
 }

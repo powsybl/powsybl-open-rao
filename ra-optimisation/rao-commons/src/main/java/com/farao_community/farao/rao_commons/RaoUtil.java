@@ -92,17 +92,6 @@ public final class RaoUtil {
         }
     }
 
-    public static RaoData initRaoData(RaoInput raoInput) {
-        Crac crac = raoInput.getCrac();
-        RaoData.RaoDataBuilder raoDataBuilder;
-        if (raoInput.getBaseCracVariantId() != null) {
-            raoDataBuilder = RaoData.builderFromExistingCracVariant(crac, raoInput.getBaseCracVariantId());
-        } else {
-            raoDataBuilder = RaoData.builderFromCrac(crac);
-        }
-        return raoDataBuilder.withRaoInput(raoInput).build();
-    }
-
     public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface

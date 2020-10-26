@@ -8,11 +8,9 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -51,19 +49,7 @@ public class Tree {
     private Leaf previousDepthOptimalLeaf;
     private boolean relativePositiveMargins;
 
-    void initData(RaoInput raoInput, RaoParameters raoParameters) {
-        initParameters(raoParameters);
-        RaoUtil.initData(raoInput, raoParameters);
-    }
-
-    void initLeaves(RaoInput raoInput) {
-        RaoData rootRaoData = RaoUtil.initRaoData(raoInput);
-        rootLeaf = new Leaf(rootRaoData, raoParameters);
-        optimalLeaf = rootLeaf;
-        previousDepthOptimalLeaf = rootLeaf;
-    }
-
-    private void initParameters(RaoParameters raoParameters) {
+    void initParameters(RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
         if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
             searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
@@ -75,9 +61,15 @@ public class Tree {
                 raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
     }
 
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        initData(raoInput, raoParameters);
-        initLeaves(raoInput);
+    void initLeaves(RaoData raoData) {
+        rootLeaf = new Leaf(raoData, raoParameters);
+        optimalLeaf = rootLeaf;
+        previousDepthOptimalLeaf = rootLeaf;
+    }
+
+    public CompletableFuture<RaoResult> run(RaoData raoData, RaoParameters raoParameters) {
+        initParameters(raoParameters);
+        initLeaves(raoData);
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();

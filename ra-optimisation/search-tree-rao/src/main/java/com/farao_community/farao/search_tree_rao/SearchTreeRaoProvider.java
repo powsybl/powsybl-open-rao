@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_api.*;
+import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
@@ -48,8 +49,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
+        RaoUtil.initData(raoInput, parameters);
+
         if (raoInput.getOptimizedState() != null) {
-            return CompletableFuture.completedFuture(new Tree().run(raoInput, parameters).join());
+            return CompletableFuture.completedFuture(new Tree().run(RaoData.create(raoInput), parameters).join());
         }
 
         Network network = raoInput.getNetwork();
@@ -64,7 +67,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             .withGlskProvider(raoInput.getGlskProvider())
             .withRefProg(raoInput.getReferenceProgram())
             .build();
-        RaoResult preventiveRaoResult = new Tree().run(preventiveRaoInput, parameters).join();
+        RaoResult preventiveRaoResult = new Tree().run(RaoData.create(preventiveRaoInput), parameters).join();
 
         applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(),
             preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()));
@@ -87,7 +90,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             .withRefProg(raoInput.getReferenceProgram())
                             .build();
 
-                        curativeResults.add(new Tree().run(curativeRaoInput, parameters).join());
+                        curativeResults.add(new Tree().run(RaoData.create(curativeRaoInput), parameters).join());
                         networkPool.releaseUsedNetwork(networkClone);
                     } catch (InterruptedException | NotImplementedException | FaraoException e) {
                         Thread.currentThread().interrupt();

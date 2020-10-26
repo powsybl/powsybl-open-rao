@@ -41,11 +41,6 @@ public final class RaoInput {
         private RaoInputBuilder() {
         }
 
-        private RaoInputBuilder(State optimizedState, Set<State> perimeter) {
-            this.optimizedState = optimizedState;
-            this.perimeter = perimeter;
-        }
-
         public RaoInputBuilder withCrac(Crac crac) {
             this.crac = crac;
             return this;

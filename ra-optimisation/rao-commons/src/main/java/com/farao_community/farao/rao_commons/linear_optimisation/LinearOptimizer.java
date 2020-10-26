@@ -103,8 +103,8 @@ public class LinearOptimizer {
 
         solveProblem();
         if (getSolverResultStatusString().equals("OPTIMAL")) {
-            raoData.getRaoDataManager().fillRangeActionResultsWithLinearProblem(linearProblem);
-            raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
+            raoData.getCracResultManager().fillRangeActionResultsWithLinearProblem(linearProblem);
+            raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
         }
     }
 

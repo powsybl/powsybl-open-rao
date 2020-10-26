@@ -23,8 +23,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -100,12 +98,7 @@ public class MnecViolationCostEvaluatorTest {
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
-        raoData = RaoData.builderFromExistingCracVariant(crac, TEST_VARIANT)
-            .withNetwork(network)
-            .withOptimizedState(crac.getPreventiveState())
-            .withPerimeter(Collections.singleton(crac.getPreventiveState()))
-            .build();
-
+        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         raoData.setSystematicSensitivityResult(sensiResult);
     }

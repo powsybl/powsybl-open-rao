@@ -37,11 +37,7 @@ public class LoopFlowViolationCostEvaluatorTest {
         Crac crac = CommonCracCreation.create();
         State state = crac.getPreventiveState();
         Set<State> perimeter = Collections.singleton(crac.getPreventiveState());
-        raoData = RaoData.builderFromCrac(crac)
-            .withNetwork(network)
-            .withOptimizedState(state)
-            .withPerimeter(perimeter)
-            .build();
+        raoData = RaoData.createOnPreventiveState(network, crac);
     }
 
     @Test

@@ -28,12 +28,12 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RaoDataManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaoDataManager.class);
+public class CracResultManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CracResultManager.class);
 
     private RaoData raoData;
 
-    RaoDataManager(RaoData raoData) {
+    CracResultManager(RaoData raoData) {
         this.raoData = raoData;
     }
 

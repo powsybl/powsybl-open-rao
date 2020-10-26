@@ -162,7 +162,7 @@ public class RaoUtilTest {
     @Test
     public void testCreationOfSystematicSensitivityInterface() {
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoData = RaoUtil.initRaoData(raoInput);
+        raoData = RaoData.create(raoInput);
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         assertNotNull(systematicSensitivityInterface);
     }
@@ -202,7 +202,7 @@ public class RaoUtilTest {
         addPtdfParameters(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoData = RaoUtil.initRaoData(raoInput);
+        raoData = RaoData.create(raoInput);
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         assertNotNull(systematicSensitivityInterface);
     }

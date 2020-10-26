@@ -21,7 +21,7 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RaoDataVariantManager {
+public class CracVariantManager {
     private static final String NO_WORKING_VARIANT = "No working variant is defined.";
     private static final String UNKNOWN_VARIANT = "Unknown variant %s";
 
@@ -37,7 +37,7 @@ public class RaoDataVariantManager {
      *
      * @param crac:             CRAC object.
      */
-    public RaoDataVariantManager(Crac crac, String cracVariantId) {
+    public CracVariantManager(Crac crac, String cracVariantId) {
         this.crac = crac;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityResultMap = new HashMap<>();
@@ -74,7 +74,7 @@ public class RaoDataVariantManager {
      *
      * @param crac:             CRAC object.
      */
-    public RaoDataVariantManager(Crac crac) {
+    public CracVariantManager(Crac crac) {
         this(crac, null);
     }
 
@@ -168,7 +168,7 @@ public class RaoDataVariantManager {
      * @throws FaraoException if referenceVariantId is not an existing variant of the data.
      */
     public String cloneWorkingVariant() {
-        return createVariantFromWorkingVariant(RaoDataVariantManager.VariantType.POST_OPTIM);
+        return createVariantFromWorkingVariant(CracVariantManager.VariantType.POST_OPTIM);
     }
 
     /**
