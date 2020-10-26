@@ -22,9 +22,7 @@ import java.util.Map;
 @Builder
 @Data
 public class DataGlskFactors {
-    //@NotNull(message = "glskzone.id.empty")
     private String areaId;
-    //@NotNull(message = "contingency.dataMonitoredBranches.empty")
     @Valid
     private final Map<String, Float> glskFactors;
 
@@ -33,11 +31,4 @@ public class DataGlskFactors {
         this.areaId = areaId;
         this.glskFactors = Collections.unmodifiableMap(glskFactors);
     }
-
-    //public DataMonitoredBranch findMonitoredBranchById(String monitoredBranchId) {
-    //    return glskFactors.stream()
-    //            .filter(dataMonitoredBranch -> dataMonitoredBranch.getId().equals(monitoredBranchId))
-    //            .findAny()
-    //            .orElse(null);
-    //}
 }
