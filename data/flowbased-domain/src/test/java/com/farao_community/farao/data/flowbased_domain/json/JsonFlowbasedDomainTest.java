@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.flowbased_domain.json;
 
+import com.farao_community.farao.data.flowbased_domain.DataGlskFactors;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPostContingency;
 import com.powsybl.commons.AbstractConverterTest;
@@ -18,6 +19,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
@@ -109,5 +111,12 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertEquals(2300., curativeBranch.getFmax(), EPSILON);
         assertEquals(1234567., curativeBranch.getFref(), EPSILON);
         assertEquals(5, curativeBranch.getPtdfList().size());
+
+        assertEquals(3, flowbasedDomain.getGlskData().size());
+        DataGlskFactors dataGlskFactors = flowbasedDomain.getGlskData().get(0);
+        assertEquals("France", dataGlskFactors.getAreaId());
+        assertEquals(4, dataGlskFactors.getGlskFactors().size());
+        Map<String, Float> glskMap = dataGlskFactors.getGlskFactors();
+        assertEquals(0.2, glskMap.get("FR1 _generator"), 0.001);
     }
 }
