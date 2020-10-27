@@ -13,8 +13,6 @@ import com.farao_community.farao.flowbased_computation.FlowbasedComputationParam
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +31,6 @@ public class FlowbasedComputationImplTest {
     private Network network;
     private Crac crac;
     private GlskProvider glskProvider;
-    private ComputationManager computationManager;
     private FlowbasedComputationParameters parameters;
 
     @Before
@@ -42,7 +39,6 @@ public class FlowbasedComputationImplTest {
         network = ExampleGenerator.network();
         crac = ExampleGenerator.crac();
         glskProvider = ExampleGenerator.glskProvider();
-        computationManager = LocalComputationManager.getDefault();
         parameters = FlowbasedComputationParameters.load();
     }
 
@@ -58,7 +54,7 @@ public class FlowbasedComputationImplTest {
 
     @Test
     public void testRun() {
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glskProvider, computationManager, network.getVariantManager().getWorkingVariantId(), parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glskProvider, parameters).join();
         assertEquals(FlowbasedComputationResult.Status.SUCCESS, result.getStatus());
 
         assertEquals(50, getPreventiveFref(result, "FR-BE - N - preventive"), EPSILON);

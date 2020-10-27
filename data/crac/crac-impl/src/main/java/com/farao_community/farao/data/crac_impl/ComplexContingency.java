@@ -69,6 +69,8 @@ public class ComplexContingency extends AbstractIdentifiable implements Continge
                 contingency.addElement(new HvdcLineContingency(contingencyElement.getId()));
             } else if (element instanceof BusbarSection) {
                 contingency.addElement(new BusbarSectionContingency(contingencyElement.getId()));
+            } else if (element instanceof DanglingLine) {
+                contingency.addElement(new DanglingLineContingency(contingencyElement.getId()));
             } else {
                 throw new FaraoException("Unable to apply contingency element " + contingencyElement.getId());
             }

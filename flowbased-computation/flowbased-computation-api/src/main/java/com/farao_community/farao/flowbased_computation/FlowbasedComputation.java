@@ -13,15 +13,13 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * FlowBased main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -50,36 +48,24 @@ public final class FlowbasedComputation {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, String workingStateId, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-            Objects.requireNonNull(workingStateId);
-            Objects.requireNonNull(parameters);
-            return provider.run(network, crac, glskProvider, computationManager, workingStateId, parameters);
-        }
-
-        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-            return runAsync(network, crac, glskProvider, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
-        }
-
         public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, FlowbasedComputationParameters parameters) {
-            return runAsync(network, crac, glskProvider, LocalComputationManager.getDefault(), parameters);
+            Objects.requireNonNull(network);
+            Objects.requireNonNull(crac);
+            Objects.requireNonNull(glskProvider);
+            Objects.requireNonNull(parameters);
+            return provider.run(network, crac, glskProvider, parameters);
         }
 
         public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider) {
             return runAsync(network, crac, glskProvider, FlowbasedComputationParameters.load());
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider, String workingStateId, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-            Objects.requireNonNull(workingStateId);
-            Objects.requireNonNull(parameters);
-            return provider.run(network, crac, glskProvider, computationManager, workingStateId, parameters).join();
-        }
-
-        public FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-            return run(network, crac, glskProvider, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
-        }
-
         public FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider, FlowbasedComputationParameters parameters) {
-            return run(network, crac, glskProvider, LocalComputationManager.getDefault(), parameters);
+            Objects.requireNonNull(network);
+            Objects.requireNonNull(crac);
+            Objects.requireNonNull(glskProvider);
+            Objects.requireNonNull(parameters);
+            return provider.run(network, crac, glskProvider, parameters).join();
         }
 
         public FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider) {
@@ -105,7 +91,8 @@ public final class FlowbasedComputation {
      * @return a runner for flowbased implementation named {@code name}
      */
     public static Runner find(String name) {
-        return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+        return new Runner(PlatformConfigNamedProvider.Finder.find(name, "flowbased-computation", FlowbasedComputationProvider.class,
+                PlatformConfig.defaultConfig()));
     }
 
     /**
@@ -118,73 +105,12 @@ public final class FlowbasedComputation {
         return find(null);
     }
 
-    /**
-     * A variant of {@link FlowbasedComputation#find(String)} intended to be used for unit testing that allow passing
-     * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
-     * instead of global one.
-     *
-     * @param name name of the flowbased implementation, null if we want to use default one
-     * @param providers flowbased provider list
-     * @param platformConfig platform config to look for default flowbased implementation name
-     * @return a runner for flowbased implementation named {@code name}
-     */
-    public static Runner find(String name, List<FlowbasedComputationProvider> providers, PlatformConfig platformConfig) {
-        Objects.requireNonNull(providers);
-        Objects.requireNonNull(platformConfig);
-
-        if (providers.isEmpty()) {
-            throw new FaraoException("No flowbased providers found");
-        }
-
-        // if no flowbased implementation name is provided through the API we look for information
-        // in platform configuration
-        String flowbasedName = name != null ? name : platformConfig.getOptionalModuleConfig("flowbased-computation")
-                .flatMap(mc -> mc.getOptionalStringProperty("default"))
-                .orElse(null);
-        FlowbasedComputationProvider provider;
-        if (providers.size() == 1 && flowbasedName == null) {
-            // no information to select the implementation but only one provider, so we can use it by default
-            // (that is be the most common use case)
-            provider = providers.get(0);
-        } else {
-            if (providers.size() > 1 && flowbasedName == null) {
-                // several providers and no information to select which one to choose, we can only throw
-                // an exception
-                List<String> flowbasedNames = providers.stream().map(FlowbasedComputationProvider::getName).collect(Collectors.toList());
-                throw new FaraoException("Several flowbased implementations found (" + flowbasedNames
-                        + "), you must add configuration to select the implementation");
-            }
-            provider = providers.stream()
-                    .filter(p -> p.getName().equals(flowbasedName))
-                    .findFirst()
-                    .orElseThrow(() -> new FaraoException("FlowBased computation provider '" + flowbasedName + "' not found"));
-        }
-
-        return new Runner(provider);
-    }
-
-    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, String workingStateId, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-        return find().runAsync(network, crac, glskProvider, workingStateId, computationManager, parameters);
-    }
-
-    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-        return find().runAsync(network, crac, glskProvider, computationManager, parameters);
-    }
-
     public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider, FlowbasedComputationParameters parameters) {
         return find().runAsync(network, crac, glskProvider, parameters);
     }
 
     public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glskProvider) {
         return find().runAsync(network, crac, glskProvider);
-    }
-
-    public static FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider, String workingStateId, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-        return find().run(network, crac, glskProvider, workingStateId, computationManager, parameters);
-    }
-
-    public static FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, FlowbasedComputationParameters parameters) {
-        return find().run(network, crac, glskProvider, computationManager, parameters);
     }
 
     public static FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glskProvider, FlowbasedComputationParameters parameters) {

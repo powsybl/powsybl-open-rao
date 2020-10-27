@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-flowbased-domain-api</artifactId>
+            <artifactId>farao-flowbased-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
