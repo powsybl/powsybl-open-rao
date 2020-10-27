@@ -1,0 +1,29 @@
+{
+  "id" : "",
+  "name" : "",
+  "sourceFormat" : "",
+  "description" : "",
+  "dataPreContingency" : {
+    "dataMonitoredBranches" : [ {
+      "id" : "BBE1AA1  BBE3AA1  1",
+      "name" : "Belgium line 1-3",
+      "branchId" : "BBE1AA1  BBE3AA1  1",
+      "fmax" : 3000.0,
+      "fref" : -593.217529296875,
+      "ptdfList" : [ {
+        "country" : "10YBE----------2",
+        "ptdf" : -0.1546129733324051
+      } ]
+    }, {
+      "id" : "FFR2AA1  FFR3AA1  1",
+      "name" : "Belgium line 1-3",
+      "branchId" : "FFR2AA1  FFR3AA1  1",
+      "fmax" : 3001.0,
+      "fref" : -1642.841796875,
+      "ptdfList" : [ {
+        "country" : "10YBE----------2",
+        "ptdf" : -0.11502911150455475
+      } ]
+    } ]
+  }
+}

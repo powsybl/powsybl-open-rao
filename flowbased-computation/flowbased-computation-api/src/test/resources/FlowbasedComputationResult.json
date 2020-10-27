@@ -1,0 +1,11 @@
+{
+  "status" : "SUCCESS",
+  "flowBasedDomain" : {
+    "id" : "id",
+    "name" : "name",
+    "sourceFormat" : "format",
+    "description" : "description",
+    "dataPreContingency" : null,
+    "dataPostContingency" : [ ]
+  }
+}
