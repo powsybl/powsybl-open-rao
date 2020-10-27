@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit;
 public class SearchTreeRaoProvider implements RaoProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoProvider.class);
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
-    private static final String PREVENTIVE_VARIANT = "preventive-variant";
-    private static final String CURATIVE_VARIANT = "curative-variant";
+    private static final String PREVENTIVE_STATE = "PreventiveState";
+    private static final String CURATIVE_STATE = "CurativeState";
 
     @Override
     public String getName() {
@@ -56,8 +56,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
 
         Network network = raoInput.getNetwork();
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_VARIANT);
-        network.getVariantManager().setWorkingVariant(PREVENTIVE_VARIANT);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_STATE);
+        network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
 
         List<List<State>> perimeters = RaoUtil.createPerimeters(raoInput.getCrac(), network, raoInput.getCrac().getPreventiveState());
         List<State> preventivePerimeter = perimeters.remove(0);
@@ -73,11 +73,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
             preventiveRaoResult.getPostOptimVariantIdPerStateId().get(raoInput.getCrac().getPreventiveState().getId()));
 
         List<RaoResult> curativeResults = new ArrayList<>();
-        network.getVariantManager().setWorkingVariant(PREVENTIVE_VARIANT);
-        network.getVariantManager().cloneVariant(PREVENTIVE_VARIANT, CURATIVE_VARIANT);
-        network.getVariantManager().setWorkingVariant(CURATIVE_VARIANT);
+        network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
+        network.getVariantManager().cloneVariant(PREVENTIVE_STATE, CURATIVE_STATE);
+        network.getVariantManager().setWorkingVariant(CURATIVE_STATE);
         // For now only one curative computation at a time
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_VARIANT, 1)) {
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, 1)) {
             perimeters.forEach(perimeter ->
                 networkPool.submit(() -> {
                     try {

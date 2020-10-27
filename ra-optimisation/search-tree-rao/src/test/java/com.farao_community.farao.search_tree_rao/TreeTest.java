@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, Tree.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
-public class SearchTreeRaoUnitTest {
+public class TreeTest {
 
     private Tree tree;
     private RaoParameters raoParameters;
