@@ -33,9 +33,6 @@ public final class FlowbasedComputation {
         throw new AssertionError("Utility class should not been instantiated");
     }
 
-    private static final Supplier<List<FlowbasedComputationProvider>> PROVIDERS_SUPPLIERS
-            = Suppliers.memoize(() -> new ServiceLoaderCache<>(FlowbasedComputationProvider.class).getServices());
-
     /**
      * A FlowBased  computation runner is responsible for providing convenient methods on top of {@link FlowbasedComputationProvider}:
      * several variants of synchronous and asynchronous run with default parameters.
