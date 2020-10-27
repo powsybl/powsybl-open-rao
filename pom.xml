@@ -194,6 +194,7 @@
                                 <head>To do:</head>
                             </tag>
                         </tags>
+                        <excludePackageNames>xsd.*</excludePackageNames>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -492,6 +493,12 @@
                 <groupId>com.rte-france.powsybl</groupId>
                 <artifactId>powsybl-hades2-integration</artifactId>
                 <version>${powsybl.hades2.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
