@@ -54,5 +54,29 @@
       } ]
     } ]
   } ],
-  "glskFactors" : null
+  "glskData" : [ {
+    "areaId" : "France",
+    "glskFactors" : {
+      "FR1 _generator" : 0.2,
+      "FR2 _generator" : 0.5,
+      "FR3 _generator" : 0.1,
+      "FR4 _generator" : 0.2
+    }
+  }, {
+    "areaId" : "Germany",
+    "glskFactors" : {
+      "DE1 _generator" : 0.2,
+      "DE2 _generator" : 0.3,
+      "DE3 _generator" : 0.3,
+      "DE4 _generator" : 0.2
+    }
+  }, {
+    "areaId" : "Netherlands",
+    "glskFactors" : {
+      "NL1 _generator" : 0.1,
+      "NL2 _generator" : 0.1,
+      "NL3 _generator" : 0.7,
+      "NL4 _generator" : 0.1
+    }
+  } ]
 }

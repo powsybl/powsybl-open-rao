@@ -72,7 +72,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .sourceFormat("code")
                 .dataPreContingency(buildDataPreContingency(network, crac, glskProvider, result))
                 .dataPostContingency(buildDataPostContingencies(network, crac, glskProvider, result))
-                .glskFactors(buildDataGlskFactors(network, glskProvider))
+                .glskData(buildDataGlskFactors(network, glskProvider))
                 .build();
     }
 
