@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -33,6 +34,15 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void roundTripWithFallback() throws IOException {
+        RaoParameters parameters = new RaoParameters();
+        SensitivityAnalysisParameters fallbackParameters = new SensitivityAnalysisParameters();
+        fallbackParameters.getLoadFlowParameters().setDc(true);
+        parameters.setFallbackSensitivityAnalysisParameters(fallbackParameters);
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersWithFallback.json");
+    }
+
+    @Test
     public void roundTripSet() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
@@ -43,6 +53,11 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRaoWithLoopFlowLimitation(true);
         parameters.setLoopFlowApproximation(false);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
+        parameters.setMnecViolationCost(20);
+        parameters.setMnecAcceptableMarginDiminution(30);
+        parameters.setMnecConstraintAdjustmentCoefficient(3);
+        parameters.setNegativeMarginObjectiveCoefficient(100);
+        parameters.setPtdfSumLowerBound(0.05);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 

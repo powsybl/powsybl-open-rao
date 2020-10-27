@@ -7,20 +7,20 @@
 
 package com.farao_community.farao.linear_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.SystematicSensitivityComputation;
+import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.farao_community.farao.rao_api.RaoResult;
-import com.farao_community.farao.util.SensitivityComputationException;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,29 +54,28 @@ public class LinearRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
         RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
+
+        if (raoParameters.getExtension(LinearRaoParameters.class) == null) {
+            String msg = "The configuration should contain a LinearRaoParameters extensions";
+            LOGGER.error(msg);
+            return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, new FaraoException(msg)));
+        }
+
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityComputation systematicSensitivityComputation = new SystematicSensitivityComputation(
-            raoParameters.getDefaultSensitivityComputationParameters(), raoParameters.getFallbackSensitivityComputationParameters());
-
-        IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityComputation);
-
-        return run(raoData, systematicSensitivityComputation, iteratingLinearOptimizer, raoParameters);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
+        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
     }
 
-
     // This method is useful for testing to be able to mock systematicSensitivityComputation
-    CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityComputation systematicSensitivityComputation,
-                                     IteratingLinearOptimizer iteratingLinearOptimizer, RaoParameters raoParameters) {
+    CompletableFuture<RaoResult> run(RaoData raoData, SystematicSensitivityInterface systematicSensitivityInterface,
+                                     IteratingLinearOptimizer iteratingLinearOptimizer, InitialSensitivityAnalysis initialSensitivityAnalysis, RaoParameters raoParameters) {
+
         try {
-            LOGGER.info("Initial systematic analysis [start]");
-            systematicSensitivityComputation.run(raoData, unit);
-            raoData.getRaoDataManager().fillCracResultsWithSensis(
-                RaoUtil.createObjectiveFunction(raoParameters).getFunctionalCost(raoData),
-                systematicSensitivityComputation.isFallback() ? raoParameters.getFallbackOverCost() : 0);
-            LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getCost());
-        } catch (SensitivityComputationException e) {
+            initialSensitivityAnalysis.run();
+        } catch (SensitivityAnalysisException e) {
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
         }
 
@@ -84,12 +83,12 @@ public class LinearRao implements RaoProvider {
         StringBuilder skipReason = new StringBuilder();
         if (skipOptim(raoParameters, raoData, skipReason)) {
             LOGGER.warn(format("Linear optimization is skipped. Cause: %s", skipReason));
-            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityComputation));
+            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityInterface));
         }
 
         String bestVariantId = iteratingLinearOptimizer.optimize(raoData);
 
-        return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, bestVariantId, systematicSensitivityComputation));
+        return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, bestVariantId, systematicSensitivityInterface));
     }
 
     /**
@@ -114,7 +113,7 @@ public class LinearRao implements RaoProvider {
     /**
      * Build the RaoResult in case of optimisation success
      */
-    private RaoResult buildSuccessfulRaoResultAndClearVariants(RaoData raoData, String postOptimVariantId, SystematicSensitivityComputation systematicSensitivityComputation) {
+    private RaoResult buildSuccessfulRaoResultAndClearVariants(RaoData raoData, String postOptimVariantId, SystematicSensitivityInterface systematicSensitivityInterface) {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
@@ -122,7 +121,7 @@ public class LinearRao implements RaoProvider {
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
-        resultExtension.setSuccessfulSystematicSensitivityAnalysisStatus(systematicSensitivityComputation.isFallback());
+        resultExtension.setSuccessfulSystematicSensitivityAnalysisStatus(systematicSensitivityInterface.isFallback());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
         // log

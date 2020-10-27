@@ -97,9 +97,9 @@ public final class CneUtil {
 
     public static String findNodeInNetwork(String id, Network network, Branch.Side side) {
         try {
-            return network.getBranch(id).getTerminal(side).getBusView().getBus().getId();
+            return network.getBranch(id).getTerminal(side).getBusBreakerView().getBus().getId();
         } catch (NullPointerException e) {
-            return network.getBranch(id).getTerminal(side).getBusView().getConnectableBus().getId();
+            return network.getBranch(id).getTerminal(side).getBusBreakerView().getConnectableBus().getId();
         }
     }
 

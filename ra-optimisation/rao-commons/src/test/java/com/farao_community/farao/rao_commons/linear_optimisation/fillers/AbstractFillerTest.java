@@ -12,16 +12,18 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.flowbased_computation.glsk_provider.GlskProvider;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.Collections;
@@ -33,6 +35,7 @@ import static org.mockito.Mockito.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @PrepareForTest(MPSolver.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 abstract class AbstractFillerTest {
 
     static final double DOUBLE_TOLERANCE = 0.1;
@@ -68,7 +71,7 @@ abstract class AbstractFillerTest {
 
     CoreProblemFiller coreProblemFiller;
     LinearProblem linearProblem;
-    SystematicSensitivityAnalysisResult systematicSensitivityAnalysisResult;
+    SystematicSensitivityResult systematicSensitivityResult;
     RaoData raoData;
     Crac crac;
     Network network;
@@ -104,14 +107,14 @@ abstract class AbstractFillerTest {
         // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenReturn(Double.POSITIVE_INFINITY);
+        when(MPSolver.infinity()).thenAnswer((Answer<Double>) invocation -> Double.POSITIVE_INFINITY);
         linearProblem = new LinearProblem(solver);
 
-        systematicSensitivityAnalysisResult = Mockito.mock(SystematicSensitivityAnalysisResult.class);
-        when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(systematicSensitivityAnalysisResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
-        when(systematicSensitivityAnalysisResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
+        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
 
         // init RaoData
         initRaoData(crac.getPreventiveState());
@@ -121,6 +124,6 @@ abstract class AbstractFillerTest {
         raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider);
         resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
         raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
-        raoData.setSystematicSensitivityAnalysisResult(systematicSensitivityAnalysisResult);
+        raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }
 }

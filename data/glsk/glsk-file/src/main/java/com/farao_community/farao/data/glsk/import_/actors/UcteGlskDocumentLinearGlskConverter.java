@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Import and Convert a UCTE GLSK document to LinearGlsk
  * return a map :

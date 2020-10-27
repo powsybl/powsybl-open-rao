@@ -19,7 +19,7 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoDataManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
-import com.farao_community.farao.util.SystematicSensitivityAnalysisResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -41,6 +42,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LinearProblem.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LinearOptimizerTest {
     private static final double ANGLE_TAP_APPROX_TOLERANCE = 0.5;
 
@@ -80,16 +82,16 @@ public class LinearOptimizerTest {
         raoData = Mockito.spy(raoData);
         raoDataManager = raoData.getRaoDataManager();
 
-        SystematicSensitivityAnalysisResult result = createSystematicAnalysisResult();
-        raoData.setSystematicSensitivityAnalysisResult(result);
+        SystematicSensitivityResult result = createSystematicResult();
+        raoData.setSystematicSensitivityResult(result);
 
         rangeActionSetPoint = Mockito.mock(MPVariable.class);
         rangeActionAbsoluteVariation = Mockito.mock(MPVariable.class);
         absoluteRangeActionVariationConstraint = Mockito.mock(MPConstraint.class);
     }
 
-    private SystematicSensitivityAnalysisResult createSystematicAnalysisResult() {
-        SystematicSensitivityAnalysisResult result = Mockito.mock(SystematicSensitivityAnalysisResult.class);
+    private SystematicSensitivityResult createSystematicResult() {
+        SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(true);
         crac.getCnecs().forEach(cnec -> {
             Mockito.when(result.getReferenceFlow(cnec)).thenReturn(499.);

@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 import static java.lang.String.*;
 
 /**
@@ -58,7 +60,7 @@ public class LinearOptimizer {
 
     // Methods for tests
     LinearOptimizer() {
-        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller()));
+        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST)));
     }
 
     LinearProblem createLinearRaoProblem() {

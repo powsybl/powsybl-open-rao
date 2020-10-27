@@ -16,7 +16,6 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -53,6 +52,7 @@ public class SearchTreeRao implements RaoProvider {
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
+    private boolean relativePositiveMargins;
 
     @Override
     public String getName() {
@@ -75,10 +75,13 @@ public class SearchTreeRao implements RaoProvider {
         rootLeaf = new Leaf(rootRaoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
+        relativePositiveMargins =
+                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                        raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, ComputationManager computationManager, RaoParameters raoParameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
         init(raoInput, raoParameters);
 
         LOGGER.info("Evaluate root leaf");
@@ -89,7 +92,7 @@ public class SearchTreeRao implements RaoProvider {
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
         } else if (stopCriterionReached(rootLeaf)) {
-            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit());
+            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
             return CompletableFuture.completedFuture(buildOutput());
         }
         rootLeaf.optimize();
@@ -102,7 +105,7 @@ public class SearchTreeRao implements RaoProvider {
         iterateOnTree();
 
         //TODO: refactor output format
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit());
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         return CompletableFuture.completedFuture(buildOutput());
     }
 

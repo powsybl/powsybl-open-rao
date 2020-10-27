@@ -7,23 +7,29 @@
 
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFLowsParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
-
 import com.powsybl.ucte.util.UcteAliasesCreation;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 
@@ -34,7 +40,8 @@ public final class RaoUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RaoUtil.class);
 
-    private RaoUtil() { }
+    private RaoUtil() {
+    }
 
     public static RaoData initRaoData(RaoInput raoInput, RaoParameters raoParameters) {
         Network network = raoInput.getNetwork();
@@ -45,6 +52,17 @@ public final class RaoUtil {
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
+
+        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+            if (!raoInput.getGlskProvider().isPresent()) {
+                throw new FaraoException("Relative margin objective function requires a GLSK provider.");
+            }
+            if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
+                    || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
+                    || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
+                throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
+            }
+        }
 
         if ((raoParameters.isRaoWithLoopFlowLimitation()
                 || raoParameters.getObjectiveFunction().doesRequirePtdf())
@@ -57,33 +75,61 @@ public final class RaoUtil {
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            LoopFlowComputationService.checkDataConsistency(raoData);
-            LoopFlowComputationService.computeInitialLoopFlowsAndUpdateCnecLoopFlowConstraint(raoData, raoParameters.getLoopFlowViolationCost());
+            LoopFlowUtil.checkDataConsistency(raoData);
         }
 
         return raoData;
     }
 
-    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityComputation systematicSensitivityComputation) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
+
+        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
+            .builder()
+            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
+
+        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
+
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()));
+
+            // For now, we compute the PTDF for all the preventive states at the LoopFLowComputation API does not allow
+            // to compute the loopFlows only for a given set of cnecs
+            // todo : compute sensitivities for Cnec with loopFlowExtensions only
+
+            // We may also want to have a different interface for the first run and the successive runs if we do not wish to
+            // compute the PTDFs at every iteration.
+        }
+
+        return builder.build();
+    }
+
+    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
-            || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
+                || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
+            fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
+        } else if (raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
+            fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            // TO DO : add relative margins to IteratingLinearOptimizerWithLoopFlows
+            // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
-            return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityComputation,
-                createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
+            return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
+                    createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityComputation, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
         }
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
         return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost());
+            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityAnalysisParameters());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
@@ -92,15 +138,16 @@ public final class RaoUtil {
 
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-            raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
+                raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
     }
 
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
-                return new MinMarginObjectiveFunction(Unit.AMPERE, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
             case MAX_MIN_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(Unit.MEGAWATT, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
+            case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
+                return new MinMarginObjectiveFunction(raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
