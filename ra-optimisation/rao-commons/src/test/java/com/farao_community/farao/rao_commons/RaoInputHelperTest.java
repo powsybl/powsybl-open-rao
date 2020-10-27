@@ -170,32 +170,4 @@ public class RaoInputHelperTest {
         assertEquals(3, crac.getCnecs().size());
         assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
     }
-
-    @Test
-    public void testRemoveContingencyOnUnhandledElement() {
-
-        CracFactory factory = CracFactory.find("SimpleCracFactory");
-        Crac crac = factory.create("test-crac");
-        Instant inst = crac.newInstant().setId("inst1").setSeconds(10).add();
-        Contingency contingency1 = crac.newContingency().setId("contingency1").setName("on substation")
-            .newNetworkElement().setId("FFR3AA1").add().add();
-        Contingency contingency2 = crac.newContingency().setId("contingency2").setName("on classic line")
-            .newNetworkElement().setId("NNL1AA1  NNL3AA1  1").add().add();
-        crac.newCnec().setId("BBE1AA1  BBE2AA1  1").setOptimized(true).setMonitored(true)
-            .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
-            .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
-            .setInstant(inst).setContingency(contingency1)
-            .add();
-        crac.newCnec().setId("BBE1AA1  BBE3AA1  1").setOptimized(true).setMonitored(false)
-            .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
-            .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
-            .setInstant(inst).setContingency(contingency2)
-            .add();
-
-        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, network);
-        assertEquals(2, qualityReport.size());
-        assertEquals(1, crac.getContingencies().size());
-        assertEquals(1, crac.getCnecs().size());
-        assertNull(crac.getContingency("contingency1"));
-    }
 }

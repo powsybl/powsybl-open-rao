@@ -92,8 +92,7 @@ public final class RaoInputHelper {
                     absentFromNetworkContingencies.add(contingency);
                     report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
                 } else if (!(identifiable instanceof Branch || identifiable instanceof Generator || identifiable instanceof HvdcLine || identifiable instanceof BusbarSection || identifiable instanceof DanglingLine)) {
-                    absentFromNetworkContingencies.add(contingency);
-                    report.add(String.format("[REMOVED] Contingency %s cannot be defined due to the type [%s] of its network element [%s]. It is removed from the Crac", contingency.getId(), identifiable.getClass().toString(), networkElement.getId()));
+                    report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                 }
             });
         }
