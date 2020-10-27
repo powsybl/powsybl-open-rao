@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
@@ -14,7 +15,9 @@ import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.CracResultManager;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -35,13 +38,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, Tree.class})
