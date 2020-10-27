@@ -18,7 +18,6 @@ import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputa
 
 import com.google.auto.service.AutoService;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.Command;
@@ -154,13 +153,12 @@ public class FlowbasedComputationTool implements Tool {
         crac.synchronize(network);
         //TODO : handling also Ucte format
         GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
-        ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlskProvider, computationManager, parameters);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlskProvider, parameters);
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.getFlowBasedDomain(), Files.newOutputStream(outputFile));
         }

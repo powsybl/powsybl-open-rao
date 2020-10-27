@@ -18,7 +18,6 @@ import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
@@ -48,16 +47,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     @Override
-    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, ComputationManager computationManager, String workingVariantId, FlowbasedComputationParameters parameters) {
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, FlowbasedComputationParameters parameters) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(crac);
         Objects.requireNonNull(glskProvider);
-        Objects.requireNonNull(computationManager);
-        Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(parameters);
-
-        String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        network.getVariantManager().setWorkingVariant(workingVariantId);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
@@ -67,7 +61,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(network, crac, glskProvider, result));
 
-        network.getVariantManager().setWorkingVariant(initialVariantId);
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
@@ -108,11 +101,13 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     private DataMonitoredBranch buildDataMonitoredBranch(Network network, Cnec cnec, GlskProvider glskProvider, SystematicSensitivityResult result) {
+        double maxThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+        double minThreshold = cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
                 cnec.getId(),
                 cnec.getName(),
                 cnec.getNetworkElement().getId(),
-                cnec.getMaxThreshold(Unit.MEGAWATT).get(),
+                Math.min(maxThreshold, -minThreshold),
                 zeroIfNaN(result.getReferenceFlow(cnec)),
                 buildDataPtdfPerCountry(network, cnec, glskProvider, result)
         );
