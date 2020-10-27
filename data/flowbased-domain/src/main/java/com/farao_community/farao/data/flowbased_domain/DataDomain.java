@@ -36,15 +36,17 @@ public class DataDomain {
     @NotNull(message = "dataPostContingency.empty")
     @Valid
     private final List<DataPostContingency> dataPostContingency;
+    private final List<DataGlskFactors> glskData;
 
-    @ConstructorProperties({"id", "name", "sourceFormat", "description", "dataPreContingency", "dataPostContingency"})
-    public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency, @NotNull(message = "dataPostContingency.empty") @Valid List<DataPostContingency> dataPostContingency) {
+    @ConstructorProperties({"id", "name", "sourceFormat", "description", "dataPreContingency", "dataPostContingency", "glskData"})
+    public DataDomain(final String id, final String name, final String sourceFormat, final String description, final DataPreContingency dataPreContingency, @NotNull(message = "dataPostContingency.empty") @Valid List<DataPostContingency> dataPostContingency, List<DataGlskFactors> glskData) {
         this.id = id;
         this.name = name;
         this.sourceFormat = sourceFormat;
         this.description = description;
         this.dataPreContingency = dataPreContingency;
         this.dataPostContingency = dataPostContingency;
+        this.glskData = glskData;
     }
 
     public DataPostContingency findContingencyById(String contingencyId) {

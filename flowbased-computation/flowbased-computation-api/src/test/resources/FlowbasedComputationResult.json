@@ -6,6 +6,7 @@
     "sourceFormat" : "format",
     "description" : "description",
     "dataPreContingency" : null,
-    "dataPostContingency" : [ ]
+    "dataPostContingency" : [ ],
+    "glskData" : [ ]
   }
 }
