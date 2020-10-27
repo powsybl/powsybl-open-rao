@@ -79,8 +79,8 @@ public class CneGenerationTest {
             assertEquals(11, monitoredRegisteredResource.getMeasurements().size());
             assertEquals("FFR1AA1  FFR2AA1  1 - N - preventive", monitoredRegisteredResource.getMRID().getValue().substring(0, 36));
             assertEquals("Threshold12", monitoredRegisteredResource.getName());
-            assertEquals("FFR1AA1_0", monitoredRegisteredResource.getInAggregateNodeMRID().getValue());
-            assertEquals("FFR2AA1_0", monitoredRegisteredResource.getOutAggregateNodeMRID().getValue());
+            assertEquals("FFR1AA1 ", monitoredRegisteredResource.getInAggregateNodeMRID().getValue());
+            assertEquals("FFR2AA1 ", monitoredRegisteredResource.getOutAggregateNodeMRID().getValue());
 
             List<Analog> measurements = monitoredRegisteredResource.getMeasurements();
             // Measurement A01
