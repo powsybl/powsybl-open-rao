@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.CracResultManager;
-import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
@@ -60,7 +59,7 @@ public class LinearOptimizerTest {
         linearOptimizer = Mockito.spy(new LinearOptimizer());
 
         linearProblemMock = Mockito.mock(LinearProblem.class);
-        Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.OPTIMAL);
+        Mockito.when(linearProblemMock.solve()).thenReturn("OPTIMAL");
         Mockito.when(linearProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
         Mockito.when(linearProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
         Mockito.when(linearProblemMock.getFlowConstraint(Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
@@ -112,7 +111,7 @@ public class LinearOptimizerTest {
 
     @Test
     public void testNonOptimal() {
-        Mockito.when(linearProblemMock.solve()).thenReturn(MPSolverMock.ResultStatusMock.ABNORMAL);
+        Mockito.when(linearProblemMock.solve()).thenReturn("ABNORMAL");
         try {
             linearOptimizer.optimize(raoData);
         } catch (LinearOptimisationException e) {

@@ -130,10 +130,10 @@ public class LinearOptimizer {
 
     private void solveProblem() {
         try {
-            Enum solverResultStatus = linearProblem.solve();
-            setSolverResultStatusString(solverResultStatus.name());
+            String solverResultStatus = linearProblem.solve();
+            setSolverResultStatusString(solverResultStatus);
             if (!getSolverResultStatusString().equals("OPTIMAL")) {
-                LOGGER.warn(format("Solving of the linear problem failed with MPSolver status %s", getSolverResultStatusString()));
+                LOGGER.warn("Solving of the linear problem failed with MPSolver status {}", getSolverResultStatusString());
                 //Do not throw an exception is solver solution not "OPTIMAL". Handle the status in LinearRao.runLinearRao
             }
         } catch (Exception e) {

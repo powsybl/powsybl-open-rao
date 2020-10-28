@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.lang.String.format;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -86,8 +84,10 @@ public class CracResultManager {
     }
 
     public void fillRangeActionResultsWithLinearProblem(LinearProblem linearProblem) {
-        LOGGER.debug(format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
-        LOGGER.debug(format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
+            LOGGER.debug(String.format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
+        }
         for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
@@ -102,7 +102,7 @@ public class CracResultManager {
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(raoData.getOptimizedState().getId(), approximatedPostOptimAngle);
                 pstRangeResult.setTap(raoData.getOptimizedState().getId(), approximatedPostOptimTap);
-                LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
+                LOGGER.debug("Range action {} has been set to tap {}", pstRange.getName(), approximatedPostOptimTap);
             }
         }
     }

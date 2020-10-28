@@ -23,8 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.String.format;
-
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
  * It aims at finding a good combination of Network Actions.
@@ -73,7 +71,7 @@ public class Tree {
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
-        LOGGER.debug(rootLeaf.toString());
+        LOGGER.debug("{}", rootLeaf);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
@@ -83,7 +81,7 @@ public class Tree {
             return CompletableFuture.completedFuture(buildOutput());
         }
         rootLeaf.optimize();
-        LOGGER.info(rootLeaf.toString());
+        LOGGER.info("{}", rootLeaf);
         SearchTreeRaoLogger.logRangeActions(optimalLeaf);
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
@@ -100,7 +98,7 @@ public class Tree {
         int depth = 0;
         boolean hasImproved = true;
         while (depth < searchTreeRaoParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
-            LOGGER.info(format("Research depth: %d - [start]", depth));
+            LOGGER.info("Research depth: {} - [start]", depth);
             previousDepthOptimalLeaf = optimalLeaf;
             updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
@@ -111,7 +109,7 @@ public class Tree {
                     previousDepthOptimalLeaf.clearAllVariants();
                 }
             }
-            LOGGER.info(format("Optimal leaf - %s", optimalLeaf.toString()));
+            LOGGER.info("Optimal leaf - {}", optimalLeaf);
             SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
             depth += 1;
         }
@@ -125,11 +123,11 @@ public class Tree {
         if (networkActions.isEmpty()) {
             LOGGER.info("No new leaves to evaluate");
         } else {
-            LOGGER.info(format("Leaves to evaluate: %d", networkActions.size()));
+            LOGGER.info("Leaves to evaluate: {}", networkActions.size());
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
         Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
-        LOGGER.debug(format("Evaluating %d leaves in parallel", searchTreeRaoParameters.getLeavesInParallel()));
+        LOGGER.debug("Evaluating {} leaves in parallel", searchTreeRaoParameters.getLeavesInParallel());
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), searchTreeRaoParameters.getLeavesInParallel())) {
             networkActions.forEach(networkAction ->
                     networkPool.submit(() -> {
@@ -137,9 +135,9 @@ public class Tree {
                             Network networkClone = networkPool.getAvailableNetwork();
                             optimizeNextLeafAndUpdate(networkAction, networkClone, networkPool);
                             networkPool.releaseUsedNetwork(networkClone);
-                            LOGGER.info(format("Remaining leaves to evaluate: %d", remainingLeaves.decrementAndGet()));
+                            LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                         } catch (InterruptedException | NotImplementedException e) {
-                            LOGGER.error(format("Cannot apply remedial action %s", networkAction.getId()));
+                            LOGGER.error("Cannot apply remedial action {}", networkAction.getId());
                             Thread.currentThread().interrupt();
                         }
                     }));
@@ -160,13 +158,13 @@ public class Tree {
             throw e;
         }
         leaf.evaluate();
-        LOGGER.debug(leaf.toString());
+        LOGGER.debug("{}", leaf);
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
             leaf.clearAllVariants();
         } else {
             if (!stopCriterionReached(leaf)) {
                 leaf.optimize();
-                LOGGER.info(leaf.toString());
+                LOGGER.info("{}", leaf);
             }
             leaf.clearAllVariantsExceptOptimizedOne();
             updateOptimalLeafAndCleanVariants(leaf);

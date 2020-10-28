@@ -125,7 +125,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static void applyNetworkAction(NetworkAction networkAction, Network network, String cracVariantId, String preventiveStateId) {
         NetworkActionResultExtension resultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
         if (resultExtension == null) {
-            LOGGER.error(String.format("Could not find results on network action %s", networkAction.getId()));
+            LOGGER.error("Could not find results on network action {}", networkAction.getId());
         } else {
             NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
             if (networkActionResult != null) {
@@ -133,7 +133,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     networkAction.apply(network);
                 }
             } else {
-                LOGGER.error(String.format("Could not find results for variant %s on network action %s", cracVariantId, networkAction.getId()));
+                LOGGER.error("Could not find results for variant {} on network action {}", cracVariantId, networkAction.getId());
             }
         }
     }
@@ -141,13 +141,13 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static void applyRangeAction(RangeAction rangeAction, Network network, String cracVariantId, String preventiveStateId) {
         RangeActionResultExtension resultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
         if (resultExtension == null) {
-            LOGGER.error(String.format("Could not find results on range action %s", rangeAction.getId()));
+            LOGGER.error("Could not find results on range action {}", rangeAction.getId());
         } else {
             RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
             if (rangeActionResult != null) {
                 rangeAction.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
             } else {
-                LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, rangeAction.getId()));
+                LOGGER.error("Could not find results for variant {} on range action {}", cracVariantId, rangeAction.getId());
             }
         }
     }
@@ -157,7 +157,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             if (curativeRaoResult.getStatus().equals(RaoResult.Status.FAILURE)) {
                 preventiveRaoResult.setStatus(RaoResult.Status.FAILURE);
             }
-            curativeRaoResult.getPostOptimVariantIdPerStateId().forEach((k, v) -> preventiveRaoResult.setPostOptimVariantIdForStateId(k, v));
+            curativeRaoResult.getPostOptimVariantIdPerStateId().forEach(preventiveRaoResult::setPostOptimVariantIdForStateId);
         });
         return preventiveRaoResult;
     }

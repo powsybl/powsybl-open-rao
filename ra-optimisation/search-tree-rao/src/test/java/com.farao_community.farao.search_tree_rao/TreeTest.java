@@ -119,10 +119,4 @@ public class TreeTest {
         Mockito.doThrow(new NotImplementedException("")).when(networkAction).apply(network);
         tree.optimizeNextLeafAndUpdate(networkAction, network, faraoNetworkPool);
     }
-
-    @Test
-    public void testInitDefaultParameters() {
-        raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithoutSearchTreeParameters.json"));
-        tree.initParameters(raoParameters);
-    }
 }

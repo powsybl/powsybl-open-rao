@@ -197,9 +197,9 @@ class Leaf {
             }
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
-            LOGGER.warn(String.format("Impossible to optimize leaf: %s%n because evaluation failed", toString()));
+            LOGGER.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
         } else if (status.equals(Status.CREATED)) {
-            LOGGER.warn(String.format("Impossible to optimize leaf: %s%n because evaluation has not been performed", toString()));
+            LOGGER.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
         }
     }
 
