@@ -1,0 +1,187 @@
+{
+  "type": "simple-crac",
+  "id": "CracFlowbased",
+  "name": "Crac for flowbased tests",
+  "networkElements": [
+    {
+      "type": "NetworkElement",
+      "id": "FR-BE",
+      "name": "FR-BE"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "FR-DE",
+      "name": "FR-DE"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "BE-NL",
+      "name": "BE-NL"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "DE-NL",
+      "name": "DE-NL"
+    }
+  ],
+  "instants": [
+    {
+      "type": "Instant",
+      "id": "N",
+      "seconds": -1,
+      "name": "N"
+    },
+    {
+      "type": "Instant",
+      "id": "N-1",
+      "seconds": 60,
+      "name": "N-1"
+    }
+  ],
+  "contingencies": [
+    {
+      "type": "complex-contingency",
+      "id": "N-1 FR-BE",
+      "name": "N-1 FR-BE",
+      "networkElements": [
+        "FR-BE"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "type": "simple-state",
+      "id": "none-N",
+      "contingency": null,
+      "instant": "N"
+    },
+    {
+      "type": "simple-state",
+      "id": "N-1 FR-BE-N-1",
+      "contingency": "N-1 FR-BE",
+      "instant": "N-1"
+    }
+  ],
+  "cnecs": [
+    {
+      "type": "simple-cnec",
+      "id": "FR-BE - N-1 - N-1 FR-BE",
+      "name": "Tieline FR-BE in N-1",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "DIRECT",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "FR-DE - N-1 - N-1 FR-BE",
+      "name": "Tieline FR-DE in N-1",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "DIRECT",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "BE-NL - N-1 - N-1 FR-BE",
+      "name": "Tieline BE-NL in N-1",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "DIRECT",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "DE-NL - N-1 - N-1 FR-BE",
+      "name": "Tieline DE-NL in N-1",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "DIRECT",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "FR-BE - N - preventive",
+      "name": "Tieline FR-BE in N",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "BOTH",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "FR-DE - N - preventive",
+      "name": "Tieline FR-DE in N",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "BOTH",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "BE-NL - N - preventive",
+      "name": "Tieline BE-NL in N",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "BOTH",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "simple-cnec",
+      "id": "DE-NL - N - preventive",
+      "name": "Tieline DE-NL in N",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "absolute-flow-threshold",
+        "unit": "MW",
+        "side": "LEFT",
+        "direction": "BOTH",
+        "maxValue": 100
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    }
+  ]
+}
