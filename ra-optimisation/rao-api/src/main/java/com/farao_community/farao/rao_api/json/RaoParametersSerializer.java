@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
 
@@ -37,11 +37,16 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeBooleanField("loop-flow-approximation", parameters.isLoopFlowApproximation());
         jsonGenerator.writeNumberField("loop-flow-constraint-adjustment-coefficient", parameters.getLoopFlowConstraintAdjustmentCoefficient());
         jsonGenerator.writeNumberField("loop-flow-violation-cost", parameters.getLoopFlowViolationCost());
+        jsonGenerator.writeNumberField("mnec-acceptable-margin-diminution", parameters.getMnecAcceptableMarginDiminution());
+        jsonGenerator.writeNumberField("mnec-violation-cost", parameters.getMnecViolationCost());
+        jsonGenerator.writeNumberField("mnec-constraint-adjustment-coefficient", parameters.getMnecConstraintAdjustmentCoefficient());
+        jsonGenerator.writeNumberField("negative-margin-objective-coefficient", parameters.getNegativeMarginObjectiveCoefficient());
+        jsonGenerator.writeNumberField("ptdf-sum-lower-bound", parameters.getPtdfSumLowerBound());
         jsonGenerator.writeFieldName("sensitivity-parameters");
-        JsonSensitivityComputationParameters.serialize(parameters.getDefaultSensitivityComputationParameters(), jsonGenerator, serializerProvider);
-        if (parameters.getFallbackSensitivityComputationParameters() != null) {
+        JsonSensitivityAnalysisParameters.serialize(parameters.getDefaultSensitivityAnalysisParameters(), jsonGenerator, serializerProvider);
+        if (parameters.getFallbackSensitivityAnalysisParameters() != null) {
             jsonGenerator.writeFieldName("fallback-sensitivity-parameters");
-            JsonSensitivityComputationParameters.serialize(parameters.getFallbackSensitivityComputationParameters(), jsonGenerator, serializerProvider);
+            JsonSensitivityAnalysisParameters.serialize(parameters.getFallbackSensitivityAnalysisParameters(), jsonGenerator, serializerProvider);
         }
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();

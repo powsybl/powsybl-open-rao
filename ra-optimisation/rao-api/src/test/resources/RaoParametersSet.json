@@ -9,10 +9,15 @@
   "loop-flow-approximation" : false,
   "loop-flow-constraint-adjustment-coefficient" : 0.5,
   "loop-flow-violation-cost" : 0.0,
+  "mnec-acceptable-margin-diminution" : 30.0,
+  "mnec-violation-cost" : 20.0,
+  "mnec-constraint-adjustment-coefficient" : 3.0,
+  "negative-margin-objective-coefficient" : 100.0,
+  "ptdf-sum-lower-bound" : 0.05,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
-      "version" : "1.3",
+      "version" : "1.4",
       "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
@@ -20,7 +25,10 @@
       "twtSplitShuntAdmittance" : false,
       "simulShunt" : false,
       "readSlackBus" : false,
-      "writeSlackBus" : false
+      "writeSlackBus" : false,
+      "dc" : false,
+      "distributedSlack" : true,
+      "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX"
     }
   }
 }

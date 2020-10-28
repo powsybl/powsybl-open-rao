@@ -13,15 +13,15 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.*;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.sensitivity_computation.SensitivityComputationException;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,7 +46,7 @@ import static org.mockito.ArgumentMatchers.*;
 @PrepareForTest({RaoUtil.class, SystematicSensitivityInterface.class, InitialSensitivityAnalysis.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
-
+    private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
 
     private NetworkAction na1;
@@ -147,12 +148,16 @@ public class LeafTest {
 
     @Test
     public void testLeafDefinition() {
+        crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.5);
+        crac.getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.4);
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
+        assertEquals(0.5, leaf.getRaoData().getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
+        assertEquals(0.4, leaf.getRaoData().getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -203,7 +208,7 @@ public class LeafTest {
     @Test
     public void testEvaluateError() {
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
-        Mockito.doThrow(new SensitivityComputationException("mock")).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
+        Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         rootLeaf.evaluate();
