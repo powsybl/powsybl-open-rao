@@ -162,7 +162,14 @@ public class RaoUtilTest {
     @Test
     public void testCreationOfSystematicSensitivityInterface() {
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoData = RaoData.create(raoInput);
+        raoData =  new RaoData(
+                raoInput.getNetwork(),
+                raoInput.getCrac(),
+                raoInput.getOptimizedState(),
+                raoInput.getPerimeter(),
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                raoInput.getBaseCracVariantId());
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         assertNotNull(systematicSensitivityInterface);
     }
@@ -202,7 +209,14 @@ public class RaoUtilTest {
         addPtdfParameters(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoData = RaoData.create(raoInput);
+        raoData =  new RaoData(
+                raoInput.getNetwork(),
+                raoInput.getCrac(),
+                raoInput.getOptimizedState(),
+                raoInput.getPerimeter(),
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                raoInput.getBaseCracVariantId());
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
         assertNotNull(systematicSensitivityInterface);
     }

@@ -10,7 +10,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
@@ -85,17 +84,6 @@ public final class RaoData {
             raoData.getReferenceProgram(),
             raoData.getGlskProvider(),
             null);
-    }
-
-    public static RaoData create(RaoInput raoInput) {
-        return new RaoData(
-            raoInput.getNetwork(),
-            raoInput.getCrac(),
-            raoInput.getOptimizedState(),
-            raoInput.getPerimeter(),
-            raoInput.getReferenceProgram(),
-            raoInput.getGlskProvider(),
-            raoInput.getBaseCracVariantId());
     }
 
     public Network getNetwork() {

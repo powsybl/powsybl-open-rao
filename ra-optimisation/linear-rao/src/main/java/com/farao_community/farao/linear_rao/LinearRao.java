@@ -58,9 +58,14 @@ public class LinearRao implements RaoProvider {
         RaoUtil.initData(raoInput, raoParameters);
         // We assume that linear RAO only handles optimization on preventive state taking all the CNECs present in
         // the CRAC into account. So we artificially set these values here.
-        raoInput.setOptimizedState(raoInput.getCrac().getPreventiveState());
-        raoInput.setPerimeter(raoInput.getCrac().getStates());
-        RaoData raoData = RaoData.create(raoInput);
+        RaoData raoData = new RaoData(
+                raoInput.getNetwork(),
+                raoInput.getCrac(),
+                raoInput.getCrac().getPreventiveState(),
+                raoInput.getCrac().getStates(),
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                raoInput.getBaseCracVariantId());
 
         return run(raoData, raoParameters);
     }
@@ -126,7 +131,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.getPostOptimVariantIdPerStateId().put(raoData.getOptimizedState().getId(), postOptimVariantId);
+        raoResult.setPostOptimVariantIdForStateId(raoData.getOptimizedState().getId(), postOptimVariantId);
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -151,7 +156,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.getPostOptimVariantIdPerStateId().put(raoData.getOptimizedState().getId(), raoData.getInitialVariantId());
+        raoResult.setPostOptimVariantIdForStateId(raoData.getOptimizedState().getId(), raoData.getInitialVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();

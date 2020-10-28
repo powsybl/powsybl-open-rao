@@ -66,7 +66,15 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
         this.postOptimVariantIdPerStateId = postOptimVariantIdPerStateId;
     }
 
+    public void setPostOptimVariantIdForStateId(String stateId, String postOptimVariantId) {
+        this.postOptimVariantIdPerStateId.put(stateId, postOptimVariantId);
+    }
+
     public Map<String, String> getPostOptimVariantIdPerStateId() {
         return postOptimVariantIdPerStateId;
+    }
+
+    public String getPostOptimVariantIdForStateId(String stateId) {
+        return postOptimVariantIdPerStateId.get(stateId);
     }
 }

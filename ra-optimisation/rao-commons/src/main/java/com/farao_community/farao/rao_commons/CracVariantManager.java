@@ -42,12 +42,12 @@ public class CracVariantManager {
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityResultMap = new HashMap<>();
 
-        ResultVariantManager cracVariantManager = crac.getExtension(ResultVariantManager.class);
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (cracVariantId != null) {
-            if (cracVariantManager == null) {
+            if (resultVariantManager == null) {
                 throw new FaraoException(format("Rao data is based on an existing variant %s but CRAC variant manager does not exist.", cracVariantId));
             }
-            if (!cracVariantManager.getVariants().contains(cracVariantId)) {
+            if (!resultVariantManager.getVariants().contains(cracVariantId)) {
                 throw new FaraoException(format("Rao data is based on an existing variant %s but this variant does not exist.", cracVariantId));
             }
             variantIds.add(cracVariantId);
@@ -55,11 +55,11 @@ public class CracVariantManager {
             setWorkingVariant(cracVariantId);
         } else { // Case no base CRAC variant is defined so a new CRAC variant must be created
             String variantId;
-            if (cracVariantManager == null) {
-                cracVariantManager = new ResultVariantManager();
-                crac.addExtension(ResultVariantManager.class, cracVariantManager);
+            if (resultVariantManager == null) {
+                resultVariantManager = new ResultVariantManager();
+                crac.addExtension(ResultVariantManager.class, resultVariantManager);
                 variantId = createVariantFromWorkingVariant(VariantType.INITIAL);
-                cracVariantManager.setInitialVariantId(variantId);
+                resultVariantManager.setInitialVariantId(variantId);
             } else {
                 variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
             }
