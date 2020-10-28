@@ -10,16 +10,14 @@
         <version>2.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-data</artifactId>
+    <artifactId>farao-flowbased-computation</artifactId>
     <packaging>pom</packaging>
-    <name>Data</name>
-    <description>Business data classes (inputs and outputs) of FARAO core and associated converters</description>
+    <name>Flowbased computation</name>
+    <description>Flowbased computation feature</description>
 
     <modules>
-        <module>crac</module>
-        <module>crac-io</module>
-        <module>flowbased-domain</module>
-        <module>glsk</module>
-        <module>refprog</module>
+        <module>flowbased-computation-api</module>
+        <module>flowbased-computation-impl</module>
     </modules>
+
 </project>

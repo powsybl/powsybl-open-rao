@@ -59,6 +59,21 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-computation-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-computation-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-file</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -140,7 +155,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-scripting</artifactId>
+            <artifactId>powsybl-iidm-scripting</artifactId>
             <version>${powsybl.core.version}</version>
             <scope>runtime</scope>
         </dependency>
