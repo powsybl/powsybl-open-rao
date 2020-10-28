@@ -116,7 +116,7 @@ public class RaoTool implements Tool {
 
         //Run
         context.getOutputStream().println("Running Rao computation");
-        RaoInput raoInput = RaoInput.create(network, crac)
+        RaoInput raoInput = RaoInput.build(network, crac)
             .withNetworkVariantId(currentState)
             .build();
         RaoResult raoResult = Rao.run(raoInput, raoParameters);

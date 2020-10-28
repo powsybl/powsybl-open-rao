@@ -109,11 +109,5 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-result-extensions</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>

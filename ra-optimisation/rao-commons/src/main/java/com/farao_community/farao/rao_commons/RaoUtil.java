@@ -81,14 +81,12 @@ public final class RaoUtil {
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
         }
 
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            if (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider())) {
-                String msg = format(
-                    "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                    raoInput.getCrac().getId());
-                LOGGER.error(msg);
-                throw new FaraoException(msg);
-            }
+        if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
+            String msg = format(
+                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                raoInput.getCrac().getId());
+            LOGGER.error(msg);
+            throw new FaraoException(msg);
         }
     }
 

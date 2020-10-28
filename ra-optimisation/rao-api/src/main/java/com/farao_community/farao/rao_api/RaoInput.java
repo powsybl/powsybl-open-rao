@@ -130,16 +130,16 @@ public final class RaoInput {
     private RaoInput() {
     }
 
-    public static RaoInputBuilder create(Network network, Crac crac) {
+    public static RaoInputBuilder build(Network network, Crac crac) {
         return new RaoInputBuilder().withNetwork(network).withCrac(crac);
     }
 
-    public static RaoInputBuilder createOnState(Network network, Crac crac, State optimizedState) {
-        return create(network, crac).withOptimizedState(optimizedState).withPerimeter(Collections.singleton(optimizedState));
+    public static RaoInputBuilder buildWithState(Network network, Crac crac, State optimizedState) {
+        return build(network, crac).withOptimizedState(optimizedState).withPerimeter(Collections.singleton(optimizedState));
     }
 
-    public static RaoInputBuilder createOnPreventiveState(Network network, Crac crac) {
-        return createOnState(network, crac, crac.getPreventiveState());
+    public static RaoInputBuilder buildWithPreventiveState(Network network, Crac crac) {
+        return buildWithState(network, crac, crac.getPreventiveState());
     }
 
     public Crac getCrac() {

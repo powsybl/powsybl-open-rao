@@ -50,7 +50,7 @@ public class RaoUtilTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         variantId = network.getVariantManager().getWorkingVariantId();
-        raoInput = RaoInput.createOnPreventiveState(network, crac)
+        raoInput = RaoInput.buildWithPreventiveState(network, crac)
             .withNetworkVariantId(variantId)
             .build();
         raoParameters = new RaoParameters();
@@ -66,7 +66,7 @@ public class RaoUtilTest {
 
     private void addGlskProvider() {
         UcteGlskProvider glskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network);
-        raoInput = RaoInput.createOnPreventiveState(network, crac)
+        raoInput = RaoInput.buildWithPreventiveState(network, crac)
                 .withNetworkVariantId(variantId)
                 .withGlskProvider(glskProvider)
                 .build();

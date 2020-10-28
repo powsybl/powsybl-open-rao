@@ -45,7 +45,7 @@ public class RaoInputTest {
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn(INITIAL_VARIANT_ID);
         crac = Mockito.mock(Crac.class);
-        defaultBuilder = RaoInput.create(network, crac).withNetworkVariantId(VARIANT_ID);
+        defaultBuilder = RaoInput.build(network, crac).withNetworkVariantId(VARIANT_ID);
     }
 
     @Test
