@@ -13,13 +13,14 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
-
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
@@ -31,27 +32,28 @@ import static org.junit.Assert.*;
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private MaxMinMarginFiller maxMinMarginFiller;
+    static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     @Before
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
-        maxMinMarginFiller = new MaxMinMarginFiller();
+        maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST);
     }
 
-    private void fillProblemWithFiller() {
+    private void fillProblemWithCoreFiller() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
 
         // fill the problem : the core filler is required
         coreProblemFiller.fill(raoData, linearProblem);
-        maxMinMarginFiller.fill(raoData, linearProblem);
     }
 
     @Test
     public void fillWithMaxMinMarginInMegawatt() {
-        fillProblemWithFiller();
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -93,7 +95,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     @Test
     public void fillWithMaxMinMarginInAmpere() {
         maxMinMarginFiller.setUnit(Unit.AMPERE);
-        fillProblemWithFiller();
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -162,7 +165,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
                 .setInstant(crac.getInstant("N"))
                 .add();
         Cnec mnec = crac.getCnec("MNEC - N - preventive");
-        fillProblemWithFiller();
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
         MPConstraint mnecAboveThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         MPConstraint mnecBelowThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNull(mnecAboveThreshold);

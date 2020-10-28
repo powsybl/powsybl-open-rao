@@ -7,10 +7,12 @@
 
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.sensitivity_computation.SystematicSensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,17 +23,30 @@ import java.util.stream.Collectors;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
- * It enables to evaluate the absolute minimal margin as a cost
+ * It enables to evaluate the absolute or relative minimal margin as a cost
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MinMarginEvaluator.class);
 
     private Unit unit;
+    private boolean relative;
+    private double ptdfSumLowerBound;
 
-    public MinMarginEvaluator(Unit unit) {
+    public MinMarginEvaluator(Unit unit, boolean relative) {
         this.unit = unit;
+        this.relative = relative;
+        if (relative) {
+            throw new FaraoException("Please provide a PTDF sum lower bound for relative margins.");
+        }
+    }
+
+    public MinMarginEvaluator(Unit unit, boolean relative, double ptdfSumLowerBound) {
+        this.unit = unit;
+        this.relative = relative;
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
     @Override
@@ -48,16 +63,20 @@ public class MinMarginEvaluator implements CostEvaluator {
         }
     }
 
+    private double getRelativeCoef(Cnec cnec, RaoData raoData) {
+        return relative ? 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), ptdfSumLowerBound) : 1;
+    }
+
     private double getMinMarginInMegawatt(RaoData raoData) {
         return raoData.getCnecs().stream().filter(Cnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), MEGAWATT)).
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), MEGAWATT) * getRelativeCoef(cnec, raoData)).
             min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(Cnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Unit.AMPERE)
-            ).collect(Collectors.toList());
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Unit.AMPERE) * getRelativeCoef(cnec, raoData)
+        ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN) && raoData.getSystematicSensitivityResult().getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
             // in fallback, intensities can be missing as the fallback configuration does not necessarily
@@ -74,7 +93,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         return raoData.getCnecs().stream().filter(Cnec::isOptimized).map(cnec -> {
                 double flowInMW = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec);
                 double uNom = raoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV();
-                return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE);
+                return cnec.computeMargin(flowInMW * 1000 / (Math.sqrt(3) * uNom), Unit.AMPERE) * getRelativeCoef(cnec, raoData);
             }
         ).collect(Collectors.toList());
     }

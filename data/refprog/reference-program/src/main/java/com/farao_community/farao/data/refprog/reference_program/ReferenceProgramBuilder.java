@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.data.refprog.reference_program;
 
-import com.farao_community.farao.util.LoadFlowService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +34,7 @@ public final class ReferenceProgramBuilder {
         try {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
-            String initialVariantId = network.getVariantManager().getWorkingVariantId();
-            LoadFlowResult loadFlowResult = LoadFlowService.runLoadFlow(network, initialVariantId);
+            LoadFlowResult loadFlowResult = LoadFlow.run(network);
             if (!loadFlowResult.isOk()) {
                 LOGGER.warn(errorMsg);
             }

@@ -77,7 +77,8 @@
             "variant2" : {
               "type" : "cnec-result",
               "flowInA" : 750.0,
-              "flowInMW" : -450.0
+              "flowInMW" : -450.0,
+              "absolutePtdfSum" : 0.85
             },
             "variant1" : {
               "type" : "cnec-result",

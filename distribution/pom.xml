@@ -59,6 +59,21 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-computation-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-flowbased-computation-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-file</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -99,7 +114,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-sensitivity-computation</artifactId>
+            <artifactId>farao-sensitivity-analysis</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -140,6 +155,12 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-scripting</artifactId>
+            <version>${powsybl.core.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
             <version>${powsybl.core.version}</version>
             <scope>runtime</scope>
@@ -173,6 +194,11 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
             <scope>runtime</scope>
         </dependency>
 

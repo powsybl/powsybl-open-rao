@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -91,16 +91,24 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setMnecConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
+                case "negative-margin-objective-coefficient":
+                    parser.nextToken();
+                    parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
+                    break;
+                case "ptdf-sum-lower-bound":
+                    parser.nextToken();
+                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
+                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
-                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityComputationParameters());
+                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
                     break;
                 case "fallback-sensitivity-parameters":
                     parser.nextToken();
-                    if (parameters.getFallbackSensitivityComputationParameters() == null) {
-                        parameters.setFallbackSensitivityComputationParameters(new SensitivityComputationParameters());
+                    if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
+                        parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
                     }
-                    JsonSensitivityComputationParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityComputationParameters());
+                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
                 case "extensions":
                     parser.nextToken();

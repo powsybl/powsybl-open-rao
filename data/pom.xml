@@ -16,9 +16,10 @@
     <description>Business data classes (inputs and outputs) of FARAO core and associated converters</description>
 
     <modules>
-        <module>glsk</module>
         <module>crac</module>
         <module>crac-io</module>
+        <module>flowbased-domain</module>
+        <module>glsk</module>
         <module>refprog</module>
     </modules>
 </project>
