@@ -105,7 +105,7 @@ class Leaf {
             parentLeaf.getRaoData().getPerimeter(),
             parentLeaf.getRaoData().getReferenceProgram(),
             parentLeaf.getRaoData().getGlskProvider(),
-            raoParameters.getLoopflowCountries());
+            parentLeaf.getRaoData().getLoopflowCountries());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
