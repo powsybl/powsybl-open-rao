@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_commons.RaoData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double getCost(RaoData raoData) {
-        double cost = LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries())
+        double cost = raoData.getLoopflowCnecs()
             .stream()
             .mapToDouble(cnec -> getLoopFlowExcess(raoData, cnec) * violationCost)
             .sum();

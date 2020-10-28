@@ -83,10 +83,10 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         //todo : do not compute loopFlow from scratch here : not necessary
         if (!isLoopFlowApproximation) {
             loopFlowResult = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram())
-                .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCountries());
+                .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCnecs());
         }
 
-        for (Cnec cnec : LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries())) {
+        for (Cnec cnec : raoData.getLoopflowCnecs()) {
 
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();

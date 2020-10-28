@@ -9,14 +9,12 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -48,13 +46,7 @@ public class LoopFlowComputation {
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }
 
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<Country> loopflowCountries) {
-
-        Set<Cnec> cnecs = getLoopflowCnecsForCountries(crac, network, loopflowCountries);
-
-        // todo : add this Set of Cnecs in argument of the method calculateLoopFlows()
-        //  required : loop-flows can be computed for N-1 states
-
+    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<Cnec> cnecs) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(sensitivityAnalysisParameters)
             .withPtdfSensitivities(glskProvider, cnecs)
@@ -62,16 +54,10 @@ public class LoopFlowComputation {
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, network, loopflowCountries);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, network, cnecs);
     }
 
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Network network, Set<Country> loopflowCountries) {
-
-        Set<Cnec> cnecs = getLoopflowCnecsForCountries(crac, network, loopflowCountries);
-
-        // todo : add this Set of Cnecs in argument of the method calculateLoopFlows()
-        //  required : loop-flows can be computed for N-1 states
-
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Network network, Set<Cnec> cnecs) {
         List<LinearGlsk> glsks = getValidGlsks(network);
         LoopFlowResult results = new LoopFlowResult();
 
@@ -101,27 +87,6 @@ public class LoopFlowComputation {
             }
             return true;
         }).collect(Collectors.toList());
-    }
-
-    public static Set<Cnec> getLoopflowCnecsForCountries(Crac crac, Network network, Set<Country> loopflowCountries) {
-        //TODO: when we start computing loopflows for N-1 cnecs, adapt this part of code
-        if (!loopflowCountries.isEmpty()) {
-            return crac.getCnecs(crac.getPreventiveState()).stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
-                .collect(Collectors.toSet());
-        } else {
-            return crac.getCnecs().stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
-                .collect(Collectors.toSet());
-
-        }
-    }
-
-    private static boolean cnecIsInCountryList(Cnec cnec, Network network, Set<Country> loopflowCountries) {
-        Line line = (Line) network.getIdentifiable(cnec.getNetworkElement().getId());
-        Optional<Country> country1 = line.getTerminal1().getVoltageLevel().getSubstation().getCountry();
-        Optional<Country> country2 = line.getTerminal2().getVoltageLevel().getSubstation().getCountry();
-        return (!country1.isEmpty() && loopflowCountries.contains(country1.get())) || (!country2.isEmpty() && loopflowCountries.contains(country2.get()));
     }
 }
 

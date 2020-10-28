@@ -10,10 +10,11 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -84,11 +85,9 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "loop-flow-countries":
                     parser.nextToken();
-                    List<String> countryStrings = new ArrayList<>();
-                    ArrayNode node = (new ObjectMapper()).readTree(parser);
-                    for (Object o : node) {
-                        countryStrings.add(o.toString().replace("\"", ""));
-                    }
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode arrayNode = objectMapper.readTree(parser);
+                    List<String> countryStrings = objectMapper.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
                     parameters.setLoopflowCountries(countryStrings);
                     break;
                 case "mnec-acceptable-margin-diminution":

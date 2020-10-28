@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.powsybl.iidm.network.Network;
@@ -136,41 +135,38 @@ public class RaoDataManager {
     }
 
     public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
-        LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries())
-            .forEach(cnec -> {
-                CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
+        raoData.getLoopflowCnecs().forEach(cnec -> {
+            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
-                if (!Objects.isNull(cnecLoopFlowExtension)) {
-                    double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
-                    double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
+            if (!Objects.isNull(cnecLoopFlowExtension)) {
+                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
+                double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
-                    cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
-                    cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
-                }
-            });
+                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
+                cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
+            }
+        });
     }
 
     public void fillCnecResultsWithLoopFlows(LoopFlowResult loopFlowResult) {
-        LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries())
-            .forEach(cnec -> {
-                CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                    cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
-                    cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
-                }
-            });
+        raoData.getLoopflowCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+            }
+        });
     }
 
     public void fillCnecResultsWithApproximatedLoopFlows() {
-        LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries())
-            .forEach(cnec -> {
-                CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-                if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                    double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
-                    cnecResult.setLoopflowInMW(loopFLow);
-                    cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
-                }
-            });
+        raoData.getLoopflowCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
+                cnecResult.setLoopflowInMW(loopFLow);
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+            }
+        });
     }
 
     public void fillCnecResultsWithAbsolutePtdfSums(Map<Cnec, Double> ptdfSums) {

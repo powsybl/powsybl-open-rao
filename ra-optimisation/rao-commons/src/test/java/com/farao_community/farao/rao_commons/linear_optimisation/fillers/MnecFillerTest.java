@@ -62,6 +62,8 @@ public class MnecFillerTest extends AbstractFillerTest {
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
+        initRaoData(crac.getPreventiveState());
+
         String testVariant = "test-variant";
         crac.getExtension(ResultVariantManager.class).createVariant(testVariant);
         crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(testVariant);

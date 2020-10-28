@@ -73,7 +73,7 @@ public class InitialSensitivityAnalysis {
 
     private void fillReferenceLoopFlow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
-        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoParameters.getLoopflowCountries());
+        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoData.getLoopflowCnecs());
         raoData.getRaoDataManager().fillCnecLoopFlowExtensionsWithInitialResults(lfResults, raoData.getNetwork());
         raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
     }
@@ -87,8 +87,7 @@ public class InitialSensitivityAnalysis {
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs());
         } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            builder.withPtdfSensitivities(raoData.getGlskProvider(),
-                LoopFlowComputation.getLoopflowCnecsForCountries(raoData.getCrac(), raoData.getNetwork(), raoData.getLoopflowCountries()));
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
         }
 
         return builder.build();
