@@ -52,7 +52,7 @@ class Leaf {
         CREATED("Created"),
         ERROR("Error"),
         EVALUATED("Evaluated"),
-        OPTIMIZED("Optimzed");
+        OPTIMIZED("Optimized");
 
         private String message;
 
@@ -190,6 +190,7 @@ class Leaf {
                 IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
+                copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
                 activateNetworkActionInCracResult(optimizedVariantId);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");

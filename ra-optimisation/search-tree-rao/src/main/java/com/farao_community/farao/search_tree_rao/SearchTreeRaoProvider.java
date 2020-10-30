@@ -9,10 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult;
-import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResult;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.*;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -80,6 +77,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getBaseCracVariantId());
         RaoResult preventiveRaoResult = new Tree().run(preventiveRaoData, parameters).join();
 
+        LOGGER.info("Preventive perimeter has been optimized.");
+
         applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(),
             preventiveRaoResult.getPostOptimVariantIdForStateId(raoInput.getCrac().getPreventiveState().getId()));
 
@@ -92,6 +91,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             perimeters.forEach(perimeter ->
                 networkPool.submit(() -> {
                     try {
+                        LOGGER.info("Optimizing curative state {}.", perimeter.get(0).getId());
                         Network networkClone = networkPool.getAvailableNetwork();
                         RaoData curativeRaoData = new RaoData(
                                 networkClone,
@@ -101,7 +101,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                 raoInput.getReferenceProgram(),
                                 raoInput.getGlskProvider(),
                                 preventiveRaoResult.getPostOptimVariantIdForStateId(raoInput.getCrac().getPreventiveState().getId()));
-                        curativeResults.add(new Tree().run(curativeRaoData, parameters).join());
+                        RaoResult curativeResult = new Tree().run(curativeRaoData, parameters).join();
+                        curativeResults.add(curativeResult);
                         networkPool.releaseUsedNetwork(networkClone);
                     } catch (InterruptedException | NotImplementedException | FaraoException e) {
                         Thread.currentThread().interrupt();
@@ -113,7 +114,13 @@ public class SearchTreeRaoProvider implements RaoProvider {
             Thread.currentThread().interrupt();
         }
 
-        return CompletableFuture.completedFuture(mergeRaoResults(preventiveRaoResult, curativeResults));
+        LOGGER.info("Merging preventive and curative RAO results.");
+        RaoResult mergedRaoResults = mergeRaoResults(preventiveRaoResult, curativeResults);
+        boolean relativePositiveMargins =
+                parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                        parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getCnecs(), mergedRaoResults.getPostOptimVariantIdPerStateId(), parameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+        return CompletableFuture.completedFuture(mergedRaoResults);
     }
 
     private static void applyPreventiveRemedialActions(Network network, Crac crac, String cracVariantId) {
@@ -130,6 +137,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
             if (networkActionResult != null) {
                 if (networkActionResult.isActivated(preventiveStateId)) {
+                    LOGGER.debug("Applying network action {}", networkAction.getName());
                     networkAction.apply(network);
                 }
             } else {
@@ -145,6 +153,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         } else {
             RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
             if (rangeActionResult != null) {
+                if (!Double.isNaN(rangeActionResult.getSetPoint(preventiveStateId))) {
+                    LOGGER.debug("Applying range action {}: tap {}", rangeAction.getName(), ((PstRangeResult) rangeActionResult).getTap(preventiveStateId));
+                }
                 rangeAction.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
             } else {
                 LOGGER.error("Could not find results for variant {} on range action {}", cracVariantId, rangeAction.getId());
