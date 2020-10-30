@@ -27,6 +27,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.Collections;
+import java.util.HashSet;
 
 import static org.mockito.Mockito.*;
 
@@ -121,7 +122,7 @@ abstract class AbstractFillerTest {
     }
 
     void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider);
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider, new HashSet<>());
         resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
         raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);

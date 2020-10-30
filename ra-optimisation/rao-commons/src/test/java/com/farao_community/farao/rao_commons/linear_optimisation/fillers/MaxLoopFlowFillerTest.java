@@ -39,6 +39,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecLoopFlowExtension.setLoopFlowConstraintInMW(100.0);
         cnecLoopFlowExtension.setLoopflowShift(49.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        initRaoData(crac.getPreventiveState());
 
         boolean isLoopFlowApproximation = true; // currently cannot be tested without the loop-flow approximation, otherwise a sensitivity computation should be made
         double loopFlowConstraintAdjustmentCoefficient = 5.;

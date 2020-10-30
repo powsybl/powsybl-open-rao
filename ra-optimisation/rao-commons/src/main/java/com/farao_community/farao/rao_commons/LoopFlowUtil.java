@@ -30,8 +30,8 @@ public final class LoopFlowUtil {
         if (isLoopFlowApproximation) {
             raoData.getRaoDataManager().fillCnecResultsWithApproximatedLoopFlows();
         } else {
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram());
-            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork());
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
+            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoData.getLoopflowCnecs());
             raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
         }
     }
