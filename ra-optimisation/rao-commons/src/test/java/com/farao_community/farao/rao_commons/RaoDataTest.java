@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -41,6 +42,7 @@ public class RaoDataTest {
         crac = CommonCracCreation.createWithPstRange();
         crac.synchronize(network);
         crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
+        crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         initialVariantId  = raoData.getWorkingVariantId();
     }
@@ -151,6 +153,19 @@ public class RaoDataTest {
     public void loopflowCountries() {
         Set<Country> loopflowCountries = raoData.getLoopflowCountries();
         assertEquals(0, loopflowCountries.size());
+
+        Set<Cnec> loopflowCnecs = raoData.getLoopflowCnecs();
+        assertEquals(2, loopflowCnecs.size());
+    }
+
+    @Test
+    public void loopflowSingleCountry() {
+        Set<Country> countrySet = new HashSet<>();
+        countrySet.add(Country.DE);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, countrySet);
+
+        Set<Country> loopflowCountries = raoData.getLoopflowCountries();
+        assertEquals(1, loopflowCountries.size());
 
         Set<Cnec> loopflowCnecs = raoData.getLoopflowCnecs();
         assertEquals(1, loopflowCnecs.size());
