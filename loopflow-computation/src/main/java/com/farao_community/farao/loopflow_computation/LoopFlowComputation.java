@@ -8,7 +8,6 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -33,15 +32,13 @@ import static java.util.Objects.requireNonNull;
 public class LoopFlowComputation {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputation.class);
 
-    private Crac crac;
     private GlskProvider glskProvider;
     private ReferenceProgram referenceProgram;
 
     /**
      * @param crac             loop-flows will be computed for all the Cnecs of the Crac
      */
-    public LoopFlowComputation(Crac crac, GlskProvider glskProvider, ReferenceProgram referenceProgram) {
-        this.crac = requireNonNull(crac, "crac should not be null");
+    public LoopFlowComputation(GlskProvider glskProvider, ReferenceProgram referenceProgram) {
         this.glskProvider = requireNonNull(glskProvider, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }

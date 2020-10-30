@@ -82,7 +82,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         LoopFlowResult loopFlowResult = null;
         //todo : do not compute loopFlow from scratch here : not necessary
         if (!isLoopFlowApproximation) {
-            loopFlowResult = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram())
+            loopFlowResult = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram())
                 .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCnecs());
         }
 
