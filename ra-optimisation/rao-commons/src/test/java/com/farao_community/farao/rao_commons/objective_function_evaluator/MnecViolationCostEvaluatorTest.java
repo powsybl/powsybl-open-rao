@@ -87,13 +87,14 @@ public class MnecViolationCostEvaluatorTest {
 
         Crac crac = CommonCracCreation.create();
 
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
         mnec = crac.newCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
                 .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(MNEC_THRESHOLD).setUnit(unit).add()
                 .setOptimized(false).setMonitored(true)
                 .setInstant(crac.getInstant("initial"))
                 .add();
+
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
 
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);

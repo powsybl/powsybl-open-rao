@@ -30,20 +30,24 @@ public class LoopFlowViolationCostEvaluatorTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
     private RaoData raoData;
+    private Network network;
+    private Crac crac;
+    private State state;
+    private Set<State> perimeter;
 
     @Before
     public void setUp() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.create();
-        State state = crac.getPreventiveState();
-        Set<State> perimeter = Collections.singleton(crac.getPreventiveState());
-        raoData = new RaoData(network, crac, state, perimeter);
+        network = NetworkImportsUtil.import12NodesNetwork();
+        crac = CommonCracCreation.create();
+        state = crac.getPreventiveState();
+        perimeter = Collections.singleton(crac.getPreventiveState());
     }
 
     @Test
     public void testLoopFlowViolationCostEvaluator1() {
         // no loop-flow violation for both cnecs
-        addLoopFlowExtensions(raoData.getCrac());
+        addLoopFlowExtensions(crac);
+        raoData = new RaoData(network, crac, state, perimeter);
 
         String var = raoData.getWorkingVariantId();
         raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(0.);
@@ -60,7 +64,8 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator2() {
         // 90 MW loop-flow violation for cnec1
         // no loop-flow violation for cnec2
-        addLoopFlowExtensions(raoData.getCrac());
+        addLoopFlowExtensions(crac);
+        raoData = new RaoData(network, crac, state, perimeter);
 
         String var = raoData.getWorkingVariantId();
         raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(190.);
@@ -77,7 +82,8 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator3() {
         // no loop-flow violation for cnec1
         // 10 MW of loop-flow violation for cnec2
-        addLoopFlowExtensions(raoData.getCrac());
+        addLoopFlowExtensions(crac);
+        raoData = new RaoData(network, crac, state, perimeter);
 
         String var = raoData.getWorkingVariantId();
         raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(99.);
@@ -94,6 +100,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator4() {
         // no cnec with LF extension
         // assertEquals(0., new LoopFlowViolationCostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
+        raoData = new RaoData(network, crac, state, perimeter);
         assertEquals(0., new LoopFlowViolationCostEvaluator(15.).getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(0., new LoopFlowViolationCostEvaluator(95.).getCost(raoData), DOUBLE_TOLERANCE);
     }

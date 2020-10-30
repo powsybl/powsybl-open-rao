@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api.json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -37,6 +38,16 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeBooleanField("loop-flow-approximation", parameters.isLoopFlowApproximation());
         jsonGenerator.writeNumberField("loop-flow-constraint-adjustment-coefficient", parameters.getLoopFlowConstraintAdjustmentCoefficient());
         jsonGenerator.writeNumberField("loop-flow-violation-cost", parameters.getLoopFlowViolationCost());
+        jsonGenerator.writeFieldName("loop-flow-countries");
+        jsonGenerator.writeStartArray();
+        parameters.getLoopflowCountries().stream().map(country -> country.toString()).sorted().forEach(s -> {
+            try {
+                jsonGenerator.writeString(s);
+            } catch (IOException e) {
+                throw new FaraoException("error while serializing loopflow countries", e);
+            }
+        });
+        jsonGenerator.writeEndArray();
         jsonGenerator.writeNumberField("mnec-acceptable-margin-diminution", parameters.getMnecAcceptableMarginDiminution());
         jsonGenerator.writeNumberField("mnec-violation-cost", parameters.getMnecViolationCost());
         jsonGenerator.writeNumberField("mnec-constraint-adjustment-coefficient", parameters.getMnecConstraintAdjustmentCoefficient());

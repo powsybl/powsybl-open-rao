@@ -99,7 +99,13 @@ class Leaf {
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
-        raoData = new RaoData(network, parentLeaf.getRaoData().getCrac(), parentLeaf.getRaoData().getOptimizedState(), parentLeaf.getRaoData().getPerimeter(), parentLeaf.getRaoData().getReferenceProgram(), parentLeaf.getRaoData().getGlskProvider());
+        raoData = new RaoData(network,
+            parentLeaf.getRaoData().getCrac(),
+            parentLeaf.getRaoData().getOptimizedState(),
+            parentLeaf.getRaoData().getPerimeter(),
+            parentLeaf.getRaoData().getReferenceProgram(),
+            parentLeaf.getRaoData().getGlskProvider(),
+            parentLeaf.getRaoData().getLoopflowCountries());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);

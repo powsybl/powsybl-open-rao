@@ -18,6 +18,8 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
@@ -53,6 +55,10 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRaoWithLoopFlowLimitation(true);
         parameters.setLoopFlowApproximation(false);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
+        List<String> countries = new ArrayList<>();
+        countries.add("BE");
+        countries.add("FR");
+        parameters.setLoopflowCountries(countries);
         parameters.setMnecViolationCost(20);
         parameters.setMnecAcceptableMarginDiminution(30);
         parameters.setMnecConstraintAdjustmentCoefficient(3);
