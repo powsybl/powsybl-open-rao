@@ -66,6 +66,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         List<List<State>> perimeters = RaoUtil.createPerimeters(raoInput.getCrac(), network, raoInput.getCrac().getPreventiveState());
         List<State> preventivePerimeter = perimeters.remove(0);
+        Map<String, String> postOptimVariantIdPerStateId = new HashMap<>();
 
         RaoData preventiveRaoData = new RaoData(
                 raoInput.getNetwork(),
@@ -76,6 +77,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId());
         RaoResult preventiveRaoResult = new Tree().run(preventiveRaoData, parameters).join();
+        preventivePerimeter.forEach(state -> postOptimVariantIdPerStateId.put(state.getId(), preventiveRaoResult.getPostOptimVariantIdForStateId(preventivePerimeter.get(0).getId())));
 
         LOGGER.info("Preventive perimeter has been optimized.");
 
@@ -104,6 +106,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                         RaoResult curativeResult = new Tree().run(curativeRaoData, parameters).join();
                         curativeResults.add(curativeResult);
                         networkPool.releaseUsedNetwork(networkClone);
+                        perimeter.forEach(state -> postOptimVariantIdPerStateId.put(state.getId(), curativeResult.getPostOptimVariantIdForStateId(perimeter.get(0).getId())));
                     } catch (InterruptedException | NotImplementedException | FaraoException e) {
                         Thread.currentThread().interrupt();
                     }
@@ -116,10 +119,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         LOGGER.info("Merging preventive and curative RAO results.");
         RaoResult mergedRaoResults = mergeRaoResults(preventiveRaoResult, curativeResults);
-        boolean relativePositiveMargins =
-                parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
-                        parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getCnecs(), mergedRaoResults.getPostOptimVariantIdPerStateId(), parameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+        if (mergedRaoResults.isSuccessful()) {
+            boolean relativePositiveMargins =
+                    parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                            parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+            SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getCnecs(), postOptimVariantIdPerStateId, parameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+        }
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 

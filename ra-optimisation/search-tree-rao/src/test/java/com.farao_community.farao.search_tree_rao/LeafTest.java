@@ -238,13 +238,14 @@ public class LeafTest {
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addRangeAction(rangeAction);
 
-        Mockito.doAnswer(invocationOnMock -> "successful").when(iteratingLinearOptimizer).optimize(any());
+        String newVariant = raoData.getCracVariantManager().cloneWorkingVariant();
+        Mockito.doAnswer(invocationOnMock -> newVariant).when(iteratingLinearOptimizer).optimize(any());
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         Mockito.doAnswer(invocationOnMock -> systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
 
         rootLeaf.evaluate();
         rootLeaf.optimize();
-        assertEquals("successful", rootLeaf.getBestVariantId());
+        assertEquals(newVariant, rootLeaf.getBestVariantId());
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
 
