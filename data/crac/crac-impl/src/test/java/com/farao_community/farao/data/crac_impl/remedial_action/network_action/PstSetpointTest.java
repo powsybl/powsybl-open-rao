@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -20,7 +19,8 @@ import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -52,8 +52,6 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         pstSetpointStartsAtOne.setSetpoint(0);
         assertEquals(0, pstSetpointStartsAtOne.getSetpoint(), 0);
     }
-
-
 
     @Test
     public void getNetworkElements() {
