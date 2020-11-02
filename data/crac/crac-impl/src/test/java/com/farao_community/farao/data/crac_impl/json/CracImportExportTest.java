@@ -139,5 +139,7 @@ public class CracImportExportTest {
                 > crac.getCnec("cnec3prevId").getMaxThreshold(Unit.MEGAWATT).get());
         assertFalse(crac.getCnec("cnec3prevId").isOptimized());
         assertTrue(crac.getCnec("cnec4prevId").isMonitored());
+        assertTrue(crac.getNetworkAction("pstSetpointId") instanceof PstSetpoint);
+        assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());
     }
 }

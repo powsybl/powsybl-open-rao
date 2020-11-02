@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.PstSetPointSerializer;
+import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -33,7 +34,7 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
 @JsonSerialize(using = PstSetPointSerializer.class)
 public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
-    protected RangeDefinition rangeDefinition;
+    private RangeDefinition rangeDefinition;
 
     @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,
@@ -85,14 +86,15 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
         if (rangeDefinition.equals(CENTERED_ON_ZERO)
                 && setpoint > phaseTapChanger.getLowTapPosition() && setpoint < phaseTapChanger.getHighTapPosition()) {
-            phaseTapChanger.setTapPosition((int) setpoint);
+            phaseTapChanger.setTapPosition((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2 + (int) setpoint);
         } else if (rangeDefinition.equals(STARTS_AT_ONE)
                 && (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1)) {
             phaseTapChanger.setTapPosition(phaseTapChanger.getLowTapPosition() + (int) setpoint - 1);
         } else {
+            int tapPosition = (rangeDefinition == CENTERED_ON_ZERO) ? (int) setpoint : phaseTapChanger.getLowTapPosition() + (int) setpoint - 1;
             throw new FaraoException(String.format(
                     "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
-                    (int) setpoint,
+                    tapPosition,
                     phaseTapChanger.getLowTapPosition(),
                     phaseTapChanger.getHighTapPosition(),
                     networkElement.getId()));
