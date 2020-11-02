@@ -16,6 +16,7 @@ import com.farao_community.farao.data.glsk.import_.glsk_provider.CimGlskProvider
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
+import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.google.auto.service.AutoService;
 
 import com.powsybl.iidm.import_.Importers;
@@ -24,6 +25,7 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 
+import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -150,7 +152,9 @@ public class FlowbasedComputationTool implements Tool {
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
         Crac crac = CracImporters.importCrac(cracFile);
-        crac.synchronize(network);
+        UcteAliasesCreation.createAliases(network);
+        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.synchronize(crac, network);
         //TODO : handling also Ucte format
         GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
