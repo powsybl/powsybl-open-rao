@@ -84,6 +84,7 @@ public class MnecViolationCostEvaluatorTest {
         network.getVoltageLevels().forEach(v -> v.setNominalV(400.));
 
         Crac crac = CommonCracCreation.create();
+
         mnec = crac.newCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
                 .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(MNEC_THRESHOLD).setUnit(unit).add()
@@ -94,6 +95,8 @@ public class MnecViolationCostEvaluatorTest {
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
+
+        raoData = RaoData.createOnPreventiveState(network, crac);
 
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);

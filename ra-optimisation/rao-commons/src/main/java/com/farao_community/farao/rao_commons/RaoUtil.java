@@ -100,13 +100,9 @@ public final class RaoUtil {
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
 
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs(raoData.getCrac().getPreventiveState()));
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
 
-            // For now, we compute the PTDF for all the preventive states at the LoopFLowComputation API does not allow
-            // to compute the loopFlows only for a given set of cnecs
-            // todo : compute sensitivities for Cnec with loopFlowExtensions only
-
-            // We may also want to have a different interface for the first run and the successive runs if we do not wish to
+            // We may want to have a different interface for the first run and the successive runs if we do not wish to
             // compute the PTDFs at every iteration.
         }
 

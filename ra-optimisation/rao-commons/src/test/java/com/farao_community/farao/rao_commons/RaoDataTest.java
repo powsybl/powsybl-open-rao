@@ -10,13 +10,18 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 /**
@@ -36,6 +41,8 @@ public class RaoDataTest {
         initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
         crac = CommonCracCreation.createWithPstRange();
         crac.synchronize(network);
+        crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
+        crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
         raoData = RaoData.createOnPreventiveState(network, crac);
         initialVariantId  = raoData.getWorkingVariantId();
     }
@@ -139,5 +146,27 @@ public class RaoDataTest {
         assertTrue(raoData.getCracResultManager().sameRemedialActions(initialVariantId, sameVariantId));
         assertTrue(raoData.getCracResultManager().sameRemedialActions(sameVariantId, initialVariantId));
         assertFalse(raoData.getCracResultManager().sameRemedialActions(initialVariantId, differentVariantId));
+    }
+
+    @Test
+    public void loopflowCountries() {
+        Set<Country> loopflowCountries = raoData.getLoopflowCountries();
+        assertEquals(0, loopflowCountries.size());
+
+        Set<Cnec> loopflowCnecs = raoData.getLoopflowCnecs();
+        assertEquals(2, loopflowCnecs.size());
+    }
+
+    @Test
+    public void loopflowSingleCountry() {
+        Set<Country> countrySet = new HashSet<>();
+        countrySet.add(Country.DE);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, countrySet);
+
+        Set<Country> loopflowCountries = raoData.getLoopflowCountries();
+        assertEquals(1, loopflowCountries.size());
+
+        Set<Cnec> loopflowCnecs = raoData.getLoopflowCnecs();
+        assertEquals(1, loopflowCnecs.size());
     }
 }

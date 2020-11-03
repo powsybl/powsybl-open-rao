@@ -56,7 +56,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     raoInput.getPerimeter(),
                     raoInput.getReferenceProgram(),
                     raoInput.getGlskProvider(),
-                    raoInput.getBaseCracVariantId());
+                    raoInput.getBaseCracVariantId(),
+                    parameters.getLoopflowCountries());
             return CompletableFuture.completedFuture(new Tree().run(raoData, parameters).join());
         }
 
@@ -75,7 +76,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 new HashSet<>(preventivePerimeter),
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
-                raoInput.getBaseCracVariantId());
+                raoInput.getBaseCracVariantId(),
+                parameters.getLoopflowCountries());
         RaoResult preventiveRaoResult = new Tree().run(preventiveRaoData, parameters).join();
         preventivePerimeter.forEach(state -> postOptimVariantIdPerStateId.put(state.getId(), preventiveRaoResult.getPostOptimVariantIdForStateId(preventivePerimeter.get(0).getId())));
 
@@ -102,7 +104,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                 new HashSet<>(perimeter),
                                 raoInput.getReferenceProgram(),
                                 raoInput.getGlskProvider(),
-                                preventiveRaoResult.getPostOptimVariantIdForStateId(raoInput.getCrac().getPreventiveState().getId()));
+                                preventiveRaoResult.getPostOptimVariantIdForStateId(raoInput.getCrac().getPreventiveState().getId()),
+                                parameters.getLoopflowCountries());
                         RaoResult curativeResult = new Tree().run(curativeRaoData, parameters).join();
                         curativeResults.add(curativeResult);
                         networkPool.releaseUsedNetwork(networkClone);

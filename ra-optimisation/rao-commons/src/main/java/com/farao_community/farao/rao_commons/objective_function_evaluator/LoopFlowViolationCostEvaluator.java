@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -30,9 +29,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double getCost(RaoData raoData) {
-        double cost = raoData.getCnecs().stream()
-            .filter(cnec -> !cnec.getState().getContingency().isPresent()) // preventive state
-            .filter(cnec -> cnec.getExtension(CnecLoopFlowExtension.class) != null) // with loop-flow extension
+        double cost = raoData.getLoopflowCnecs()
+            .stream()
             .mapToDouble(cnec -> getLoopFlowExcess(raoData, cnec) * violationCost)
             .sum();
 

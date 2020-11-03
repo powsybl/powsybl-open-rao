@@ -18,7 +18,6 @@ import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Filler of loopflow constraint in linear rao problem.
@@ -83,13 +82,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         LoopFlowResult loopFlowResult = null;
         //todo : do not compute loopFlow from scratch here : not necessary
         if (!isLoopFlowApproximation) {
-            loopFlowResult = new LoopFlowComputation(raoData.getCrac(), raoData.getGlskProvider(), raoData.getReferenceProgram()).calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters);
+            loopFlowResult = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram())
+                .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCnecs());
         }
 
-        for (Cnec cnec : raoData.getCnecs().stream()
-                .filter(cnec -> !cnec.getState().getContingency().isPresent()) // preventive state
-                .filter(cnec -> cnec.getExtension(CnecLoopFlowExtension.class) != null) // with loop-flow extension
-                .collect(Collectors.toList())) {
+        for (Cnec cnec : raoData.getLoopflowCnecs()) {
 
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
