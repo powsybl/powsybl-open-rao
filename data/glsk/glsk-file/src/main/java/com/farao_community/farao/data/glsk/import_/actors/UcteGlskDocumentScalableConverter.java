@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class UcteGlskDocumentScalableConverter {
+public final class UcteGlskDocumentScalableConverter implements GlskDocumentScalableConverter {
     private static final String ERROR_MESSAGE = "Error while converting GLSK document to scalables";
 
     private UcteGlskDocumentScalableConverter() {

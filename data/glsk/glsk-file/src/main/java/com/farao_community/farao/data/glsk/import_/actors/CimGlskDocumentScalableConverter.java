@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class CimGlskDocumentScalableConverter {
+public final class CimGlskDocumentScalableConverter implements GlskDocumentScalableConverter {
     private static final String ERROR_MESSAGE = "Error while converting GLSK document to scalables";
 
     private CimGlskDocumentScalableConverter() {
