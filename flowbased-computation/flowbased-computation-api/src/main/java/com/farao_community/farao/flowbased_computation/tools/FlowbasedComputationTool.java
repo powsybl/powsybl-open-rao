@@ -136,7 +136,7 @@ public class FlowbasedComputationTool implements Tool {
     }
 
     /**
-     * @param line comman line
+     * @param line command line
      * @param context running environment
      */
     @Override
@@ -154,7 +154,7 @@ public class FlowbasedComputationTool implements Tool {
         Crac crac = CracImporters.importCrac(cracFile);
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
-        RaoInputHelper.synchronize(crac, network);
+        crac.synchronize(network);
         //TODO : handling also Ucte format
         GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
