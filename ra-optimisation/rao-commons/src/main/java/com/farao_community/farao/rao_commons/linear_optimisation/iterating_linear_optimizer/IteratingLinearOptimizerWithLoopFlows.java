@@ -39,8 +39,8 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
 
         LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, loopFlowApproximation);
 
-        raoData.getRaoDataManager().fillCnecResultWithFlows();
-        raoData.getRaoDataManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
+        raoData.getCracResultManager().fillCnecResultWithFlows();
+        raoData.getCracResultManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
 
     }
 }
