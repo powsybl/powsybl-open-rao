@@ -28,22 +28,16 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller(2.5);
-    }
-
-    private void fillProblemWithCoreFiller() {
         // arrange some additional data
-        raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
-
-        // fill the problem
-        coreProblemFiller.fill(raoData, linearProblem);
+        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        coreProblemFiller = new CoreProblemFiller(2.5);
     }
 
     @Test
     public void fillTestOnPreventive() {
         coreProblemFiller = new CoreProblemFiller(0);
-        fillProblemWithCoreFiller();
+        initRaoData(crac.getPreventiveState());
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
         final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
@@ -108,7 +102,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void fillTestOnPreventiveFiltered() {
         coreProblemFiller = new CoreProblemFiller(2.5);
-        fillProblemWithCoreFiller();
+        initRaoData(crac.getPreventiveState());
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
         final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
@@ -174,7 +169,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     public void fillTestOnCurative() {
         coreProblemFiller = new CoreProblemFiller(0);
         initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
-        fillProblemWithCoreFiller();
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
         final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
@@ -251,9 +246,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateTestOnPreventive() {
+        initRaoData(crac.getPreventiveState());
 
         // fill a first time the linearRaoProblem with some data
-        fillProblemWithCoreFiller();
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // update the problem with new data
         updateProblemWithCoreFiller();
@@ -300,7 +296,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     public void updateTestOnCurative() {
         initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
         // fill a first time the linearRaoProblem with some data
-        fillProblemWithCoreFiller();
+        coreProblemFiller.fill(raoData, linearProblem);
 
         // update the problem with new data
         updateProblemWithCoreFiller();
@@ -345,6 +341,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateWithoutFillingTest() {
+        initRaoData(crac.getPreventiveState());
         try {
             updateProblemWithCoreFiller();
             fail();
