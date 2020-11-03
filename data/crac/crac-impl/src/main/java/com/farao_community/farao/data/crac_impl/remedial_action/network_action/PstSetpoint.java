@@ -83,17 +83,20 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
     public void apply(Network network) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
 
-        if (rangeDefinition.equals(CENTERED_ON_ZERO)
-                && setpoint > phaseTapChanger.getLowTapPosition() && setpoint < phaseTapChanger.getHighTapPosition()) {
-            phaseTapChanger.setTapPosition((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2 + (int) setpoint);
-        } else if (rangeDefinition.equals(STARTS_AT_ONE)
-                && (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1)) {
-            phaseTapChanger.setTapPosition(phaseTapChanger.getLowTapPosition() + (int) setpoint - 1);
+        int normalizedSetPoint = 0;
+
+        if (rangeDefinition == CENTERED_ON_ZERO) {
+            normalizedSetPoint = ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + (int) setpoint;
+        } else if (rangeDefinition == STARTS_AT_ONE) {
+            normalizedSetPoint = phaseTapChanger.getLowTapPosition() + (int) setpoint - 1;
+        }
+
+        if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
+            phaseTapChanger.setTapPosition(normalizedSetPoint);
         } else {
-            int tapPosition = (rangeDefinition == CENTERED_ON_ZERO) ? (int) setpoint : phaseTapChanger.getLowTapPosition() + (int) setpoint - 1;
             throw new FaraoException(String.format(
                     "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
-                    tapPosition,
+                    normalizedSetPoint,
                     phaseTapChanger.getLowTapPosition(),
                     phaseTapChanger.getHighTapPosition(),
                     networkElement.getId()));

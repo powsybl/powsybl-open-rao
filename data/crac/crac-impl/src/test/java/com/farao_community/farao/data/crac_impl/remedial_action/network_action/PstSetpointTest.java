@@ -28,34 +28,28 @@ import static org.junit.Assert.fail;
 public class PstSetpointTest extends AbstractRemedialActionTest {
 
     private String networkElementId;
-    private PstSetpoint pstSetpointStartsAtOne;
-    private PstSetpoint pstSetpointCenteredOnZero;
+    private PstSetpoint pstSetpoint;
 
     @Before
     public void setUp() {
         networkElementId = "BBE2AA1  BBE3AA1  1";
-        pstSetpointStartsAtOne = new PstSetpoint(
+        pstSetpoint = new PstSetpoint(
                 "pstsetpoint_id",
                 new NetworkElement(networkElementId),
                 12,
                 STARTS_AT_ONE);
-        pstSetpointCenteredOnZero = new PstSetpoint(
-                "pstsetpoint_id",
-                new NetworkElement(networkElementId),
-                0,
-                CENTERED_ON_ZERO);
     }
 
     @Test
     public void basicMethods() {
-        assertEquals(12, pstSetpointStartsAtOne.getSetpoint(), 0);
-        pstSetpointStartsAtOne.setSetpoint(0);
-        assertEquals(0, pstSetpointStartsAtOne.getSetpoint(), 0);
+        assertEquals(12, pstSetpoint.getSetpoint(), 0);
+        pstSetpoint.setSetpoint(0);
+        assertEquals(0, pstSetpoint.getSetpoint(), 0);
     }
 
     @Test
     public void getNetworkElements() {
-        Set<NetworkElement> pstNetworkElements = pstSetpointStartsAtOne.getNetworkElements();
+        Set<NetworkElement> pstNetworkElements = pstSetpoint.getNetworkElements();
         assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
     }
 
@@ -63,16 +57,15 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     public void applyStartsAtOne() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().setLowTapPosition(1);
-        pstSetpointStartsAtOne.apply(network);
+        pstSetpoint.apply(network);
         assertEquals(12, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
     public void applycenteredOnZero() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().setLowTapPosition(-16);
-        pstSetpointCenteredOnZero.apply(network);
-        assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
+        pstSetpoint.apply(network);
+        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
