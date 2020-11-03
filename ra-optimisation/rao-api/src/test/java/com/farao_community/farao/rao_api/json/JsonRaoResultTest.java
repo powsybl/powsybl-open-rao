@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -26,7 +27,7 @@ public class JsonRaoResultTest extends AbstractConverterTest {
     public void setUp() throws IOException {
         raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId("variant1");
-        raoResult.setPostOptimVariantId("variant2");
+        raoResult.setPostOptimVariantIdPerStateId(Map.of("preventive", "variant2"));
         super.setUp();
     }
 
@@ -39,7 +40,7 @@ public class JsonRaoResultTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         raoResult.setStatus(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId("var1");
-        raoResult.setPostOptimVariantId("var2");
+        raoResult.setPostOptimVariantIdPerStateId(Map.of("preventive", "var2"));
         writeTest(raoResult, JsonRaoResult::write, AbstractConverterTest::compareTxt, "/RaoResultFailure.json");
     }
 
@@ -48,6 +49,6 @@ public class JsonRaoResultTest extends AbstractConverterTest {
         RaoResult raoResult = JsonRaoResult.read(getClass().getResourceAsStream("/RaoResultFailure.json"));
         assertFalse(raoResult.isSuccessful());
         assertEquals("var1", raoResult.getPreOptimVariantId());
-        assertNotNull("var2", raoResult.getPostOptimVariantId());
+        assertNotNull("var2", raoResult.getPostOptimVariantIdPerStateId());
     }
 }

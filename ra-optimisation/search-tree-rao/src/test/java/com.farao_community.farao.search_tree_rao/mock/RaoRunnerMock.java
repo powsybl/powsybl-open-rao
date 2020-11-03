@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_result_extensions.CracResultExtension
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.*;
 
+import java.util.Map;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -22,8 +24,8 @@ public class RaoRunnerMock extends Rao.Runner {
 
     @Override
     public RaoResult run(RaoInput raoInput, RaoParameters raoParameters) {
-        String preOpt = "preOpt-".concat(raoInput.getVariantId());
-        String postOpt = "postOpt-".concat(raoInput.getVariantId());
+        String preOpt = "preOpt-".concat(raoInput.getNetworkVariantId());
+        String postOpt = "postOpt-".concat(raoInput.getNetworkVariantId());
 
         ResultVariantManager resultVariantManager = raoInput.getCrac().getExtension(ResultVariantManager.class);
         resultVariantManager.createVariant(preOpt);
@@ -34,7 +36,7 @@ public class RaoRunnerMock extends Rao.Runner {
 
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOpt);
-        raoResult.setPostOptimVariantId(postOpt);
+        raoResult.setPostOptimVariantIdPerStateId(Map.of(raoInput.getOptimizedState().getId(), postOpt));
         return raoResult;
     }
 }

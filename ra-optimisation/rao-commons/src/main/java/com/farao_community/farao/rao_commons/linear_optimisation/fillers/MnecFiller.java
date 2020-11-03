@@ -51,7 +51,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     private void buildMnecMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
-        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
+        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
 
         raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec -> {
                 if (Objects.isNull(mnec.getExtension(CnecResultExtension.class))) {

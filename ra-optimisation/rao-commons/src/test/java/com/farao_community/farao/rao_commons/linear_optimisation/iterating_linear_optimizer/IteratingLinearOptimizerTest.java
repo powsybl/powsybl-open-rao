@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_result_extensions.RangeActionResultEx
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -33,7 +32,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -54,7 +52,6 @@ public class IteratingLinearOptimizerTest {
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private LinearOptimizer linearOptimizer;
     private ObjectiveFunctionEvaluator costEvaluator;
-    private CostEvaluator virtualCostEvaluator;
     private Crac crac;
     private RaoData raoData;
     private List<String> workingVariants;
@@ -71,7 +68,7 @@ public class IteratingLinearOptimizerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()));
+        raoData = RaoData.createOnPreventiveState(network, crac);
         parameters = new IteratingLinearOptimizerParameters(10, 0);
 
         workingVariants = new ArrayList<>();

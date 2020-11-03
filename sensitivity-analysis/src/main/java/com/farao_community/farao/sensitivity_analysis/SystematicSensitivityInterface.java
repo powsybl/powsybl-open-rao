@@ -115,7 +115,7 @@ public final class SystematicSensitivityInterface {
         return new SystematicSensitivityInterfaceBuilder();
     }
 
-    private SystematicSensitivityInterface() {
+    SystematicSensitivityInterface() {
 
     }
 

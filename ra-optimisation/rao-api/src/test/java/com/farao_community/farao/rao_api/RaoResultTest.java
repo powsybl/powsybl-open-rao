@@ -9,6 +9,8 @@ package com.farao_community.farao.rao_api;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 /**
@@ -22,14 +24,14 @@ public class RaoResultTest {
     public void setUp() {
         raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId("preOptimVariant");
-        raoResult.setPostOptimVariantId("postOptimVariant");
+        raoResult.setPostOptimVariantIdPerStateId(Map.of("preventive", "postOptimVariant"));
     }
 
     @Test
     public void testGetters() {
         assertTrue(raoResult.isSuccessful());
         assertEquals("preOptimVariant", raoResult.getPreOptimVariantId());
-        assertEquals("postOptimVariant", raoResult.getPostOptimVariantId());
+        assertEquals(Map.of("preventive", "postOptimVariant"), raoResult.getPostOptimVariantIdPerStateId());
     }
 
 }

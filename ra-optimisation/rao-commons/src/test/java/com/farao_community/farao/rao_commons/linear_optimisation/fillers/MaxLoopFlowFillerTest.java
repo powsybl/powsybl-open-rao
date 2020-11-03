@@ -30,6 +30,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
+        initRaoData(crac.getPreventiveState());
     }
 
     @Test
