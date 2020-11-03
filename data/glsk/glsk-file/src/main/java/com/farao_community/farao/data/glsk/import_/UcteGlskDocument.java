@@ -28,7 +28,7 @@ import java.util.*;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Amira Kahya {@literal <amira.kahya@rte-france.com>}
  */
-public class UcteGlskDocument {
+public class UcteGlskDocument implements GlskDocument {
     /**
      * list of GlskPoint in the give Glsk document
      */

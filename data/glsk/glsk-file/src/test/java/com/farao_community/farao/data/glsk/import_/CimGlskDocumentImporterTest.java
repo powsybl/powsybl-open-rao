@@ -49,7 +49,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFilePathString() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsPathString(GLSKB42COUNTRY));
+        CimGlskDocument cimGlskDocument = (CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsPathString(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
         assertFalse(cimGlskDocument.getCountries().isEmpty());
@@ -57,7 +57,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFilePath() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsPath(GLSKB42COUNTRY));
+        CimGlskDocument cimGlskDocument = (CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsPath(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
         assertFalse(cimGlskDocument.getCountries().isEmpty());
@@ -65,7 +65,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImportB45()  {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKB45TEST));
+        CimGlskDocument cimGlskDocument = (CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertTrue(!glskShiftKeys.isEmpty());
 //        for (GlskShiftKey glskShiftKey : glskShiftKeys) {
@@ -78,7 +78,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFileName() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKB42TEST));
+        CimGlskDocument cimGlskDocument = (CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKB42TEST));
 
         List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
         for (GlskPoint point : glskPointList) {
@@ -90,7 +90,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDoucmentImporterGlskMultiPoints() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
+        CimGlskDocument cimGlskDocument = (CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
         List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
         for (GlskPoint point : glskPointList) {

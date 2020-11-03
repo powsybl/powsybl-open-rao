@@ -70,7 +70,7 @@ public final class CimGlskDocumentScalableConverter implements GlskDocumentScala
      * @return A map associating a DataChronology of Scalable for each country
      */
     public static Map<String, DataChronology<Scalable>> convert(InputStream data, Network network) {
-        return convert(CimGlskDocumentImporter.importGlsk(data), network);
+        return convert((CimGlskDocument) CimGlskDocumentImporter.importGlsk(data), network);
     }
 
     /**

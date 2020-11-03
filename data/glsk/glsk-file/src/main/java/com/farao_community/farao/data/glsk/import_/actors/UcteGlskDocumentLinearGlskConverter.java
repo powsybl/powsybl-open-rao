@@ -70,7 +70,7 @@ public final class UcteGlskDocumentLinearGlskConverter implements GlskDocumentLi
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
     public static Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
-        return convert(UcteGlskDocumentImporter.importGlsk(data), network);
+        return convert((UcteGlskDocument) UcteGlskDocumentImporter.importGlsk(data), network);
     }
 
     /**

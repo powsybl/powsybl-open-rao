@@ -50,13 +50,13 @@ public class GlskPointScalableConverterTest {
     public void setUp() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        glskPointCountry = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
-        glskPointCountryGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYGSKLSK)).getGlskPoints().get(0);
-        glskPointExplicit = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITIIDM)).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
-        glskPointParticipationFactor = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43)).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
-        glskMeritOrder = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB45TEST)).getGlskPoints().get(0);
+        glskPointCountry = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM))).getGlskPoints().get(0);
+        glskPointCountryGskLsk = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYGSKLSK))).getGlskPoints().get(0);
+        glskPointExplicit = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITIIDM))).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK))).getGlskPoints().get(0);
+        glskPointParticipationFactor = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43))).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK))).getGlskPoints().get(0);
+        glskMeritOrder = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB45TEST))).getGlskPoints().get(0);
 
     }
 

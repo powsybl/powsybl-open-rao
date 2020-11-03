@@ -7,7 +7,9 @@
 package com.farao_community.farao.data.glsk.import_.actors;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.glsk.import_.GlskDocument;
 import com.farao_community.farao.data.glsk.import_.UcteGlskDocument;
+import com.farao_community.farao.data.glsk.import_.importer.GlskImporter;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,7 +25,7 @@ import java.nio.file.Path;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class UcteGlskDocumentImporter {
+public final class UcteGlskDocumentImporter implements GlskImporter {
     private static final String ERROR_MESSAGE = "Error while parsing GLSK document";
 
     private UcteGlskDocumentImporter() {
@@ -34,7 +36,7 @@ public final class UcteGlskDocumentImporter {
      * @param filepathstring file path in string
      * @return ucte glsk document
      */
-    public static UcteGlskDocument importGlsk(String filepathstring) {
+    public static GlskDocument importGlsk(String filepathstring) {
         try {
             InputStream data = new FileInputStream(filepathstring);
             return importGlsk(data);
@@ -47,7 +49,7 @@ public final class UcteGlskDocumentImporter {
      * @param filepath file path in java Path
      * @return ucte glsk document
      */
-    public static UcteGlskDocument importGlsk(Path filepath) {
+    public static GlskDocument importGlsk(Path filepath) {
         try {
             InputStream data = new FileInputStream(filepath.toFile());
             return importGlsk(data);
@@ -60,7 +62,7 @@ public final class UcteGlskDocumentImporter {
      * @param data InputStream
      * @return ucte glsk document
      */
-    public static UcteGlskDocument importGlsk(InputStream data) {
+    public static GlskDocument importGlsk(InputStream data) {
         try {
             return new UcteGlskDocument(data);
         } catch (IOException | ParserConfigurationException | SAXException  e) {

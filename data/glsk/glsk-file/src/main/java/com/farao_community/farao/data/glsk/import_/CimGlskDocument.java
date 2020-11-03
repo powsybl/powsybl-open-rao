@@ -29,7 +29,7 @@ import java.util.Map;
  * CIM type GlskDocument
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class CimGlskDocument {
+public class CimGlskDocument implements GlskDocument {
 
     /**
      * IIDM GlskDocument: map < CountryCode, all GlskTimeSeries of the country

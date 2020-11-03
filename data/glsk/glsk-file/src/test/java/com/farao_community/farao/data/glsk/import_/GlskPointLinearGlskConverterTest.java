@@ -49,10 +49,10 @@ public class GlskPointLinearGlskConverterTest {
     public void setUp() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        glskPointCountry = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
-        glskPointCountryQuantity = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
+        glskPointCountry = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM))).getGlskPoints().get(0);
+        glskPointCountryQuantity = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY))).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK))).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = ((CimGlskDocument) CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK))).getGlskPoints().get(0);
     }
 
     /**
