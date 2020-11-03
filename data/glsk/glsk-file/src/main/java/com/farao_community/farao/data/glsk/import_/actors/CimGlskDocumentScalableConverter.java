@@ -90,7 +90,7 @@ public final class CimGlskDocumentScalableConverter implements GlskDocumentScala
             //mapping with DataChronology
             List<GlskPoint> glskPointList = cimGlskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = CimGlskPointScalableConverter.convert(network, point, TypeGlskFile.CIM);
+                Scalable scalable = GlskPointScalableConverter.convert(network, point, TypeGlskFile.CIM);
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             countryScalableDataChronologyMap.put(country, dataChronology);

@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
  * Convert a single GlskPoint to LinearGlsk
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public final class CimGlskPointLinearGlskConverter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskPointLinearGlskConverter.class);
+public final class GlskPointLinearGlskConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverter.class);
 
-    private CimGlskPointLinearGlskConverter() {
+    private GlskPointLinearGlskConverter() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 

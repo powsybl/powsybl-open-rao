@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentImporter;
-import com.farao_community.farao.data.glsk.import_.actors.CimGlskPointScalableConverter;
+import com.farao_community.farao.data.glsk.import_.actors.GlskPointScalableConverter;
 import com.farao_community.farao.data.glsk.import_.actors.TypeGlskFile;
 import com.google.common.math.DoubleMath;
 import com.powsybl.action.util.Scalable;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class CimGlskPointScalableConverterTest {
+public class GlskPointScalableConverterTest {
     private static final String GLSKB45TEST = "/GlskB45test.xml";
     private static final String GLSKB42COUNTRYIIDM = "/GlskB42CountryIIDM.xml";
     private static final String GLSKB42COUNTRYGSKLSK = "/GlskB42CountryGskLsk.xml";
@@ -65,49 +65,49 @@ public class CimGlskPointScalableConverterTest {
      */
     @Test
     public void testConvertGlskPointToScalableB45MeritOrder() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskMeritOrder, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskMeritOrder, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(6, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42Country() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskPointCountry, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointCountry, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42CountryGskLsk() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskPointCountryGskLsk, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointCountryGskLsk, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42ExplicitGskLsk() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskPointExplicitGskLsk, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointExplicitGskLsk, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB43GskLsk() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskPointParticipationFactorGskLsk, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointParticipationFactorGskLsk, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42Explicit() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskPointExplicit, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointExplicit, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB43() {
-        Scalable scalable = CimGlskPointScalableConverter.convert(testNetwork, glskPointParticipationFactor, TypeGlskFile.CIM);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointParticipationFactor, TypeGlskFile.CIM);
         double done = scalable.scale(testNetwork, 100.0);
         assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }

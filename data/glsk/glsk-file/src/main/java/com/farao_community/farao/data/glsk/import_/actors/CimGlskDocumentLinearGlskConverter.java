@@ -89,7 +89,7 @@ public final class CimGlskDocumentLinearGlskConverter implements GlskDocumentLin
             //mapping with DataChronology
             List<GlskPoint> glskPointList = cimGlskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
-                LinearGlsk linearGlsk = CimGlskPointLinearGlskConverter.convert(network, point, TypeGlskFile.CIM);
+                LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(network, point, TypeGlskFile.CIM);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
             }
             countryLinearGlskDataChronologyMap.put(country, dataChronology);

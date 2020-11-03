@@ -88,7 +88,7 @@ public final class UcteGlskDocumentScalableConverter implements GlskDocumentScal
             DataChronology<Scalable> dataChronology = DataChronologyImpl.create();
             List<GlskPoint> glskPointList = ucteGlskDocument.getUcteGlskPointsByCountry().get(country);
             for (GlskPoint point : glskPointList) {
-                Scalable scalable = CimGlskPointScalableConverter.convert(network, point, TypeGlskFile.UCTE);
+                Scalable scalable = GlskPointScalableConverter.convert(network, point, TypeGlskFile.UCTE);
                 dataChronology.storeDataOnInterval(scalable, point.getPointInterval());
             }
             chronologyScalableMap.put(country, dataChronology);

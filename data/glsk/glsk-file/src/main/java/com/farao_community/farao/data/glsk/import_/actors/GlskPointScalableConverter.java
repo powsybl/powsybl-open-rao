@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
  * Convert a single GlskPoint to Scalable
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public final class CimGlskPointScalableConverter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskPointScalableConverter.class);
+public final class GlskPointScalableConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointScalableConverter.class);
 
-    private CimGlskPointScalableConverter() {
+    private GlskPointScalableConverter() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
