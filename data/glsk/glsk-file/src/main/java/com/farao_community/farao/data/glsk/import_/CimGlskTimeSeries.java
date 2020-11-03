@@ -18,7 +18,7 @@ import java.util.Objects;
  * CIM type GLSK internal object: contains a list of GlskPeriod
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskTimeSeries {
+public class CimGlskTimeSeries {
 
     /**
      * mrid of time series
@@ -35,12 +35,12 @@ public class GlskTimeSeries {
     /**
      * list of periods in the time series
      */
-    private List<GlskPeriod> glskPeriods;
+    private List<CimGlskPeriod> cimGlskPeriods;
 
     /**
      * @param element Time series element
      */
-    public GlskTimeSeries(Element element) {
+    public CimGlskTimeSeries(Element element) {
         Objects.requireNonNull(element);
         this.mRID = element.getElementsByTagName("mRID").item(0).getTextContent();
         this.subjectDomainmRID = Objects.requireNonNull(element)
@@ -53,10 +53,10 @@ public class GlskTimeSeries {
             throw new FaraoException("CurveType not supported: " + this.curveType);
         }
 
-        this.glskPeriods = new ArrayList<>();
+        this.cimGlskPeriods = new ArrayList<>();
         NodeList glskPeriodsElements = element.getElementsByTagName("Period");
         for (int i = 0; i < glskPeriodsElements.getLength(); i++) {
-            glskPeriods.add(new GlskPeriod((Element) glskPeriodsElements.item(i), subjectDomainmRID, this.curveType));
+            cimGlskPeriods.add(new CimGlskPeriod((Element) glskPeriodsElements.item(i), subjectDomainmRID, this.curveType));
         }
     }
 
@@ -65,7 +65,7 @@ public class GlskTimeSeries {
      */
     public List<GlskPoint> getGlskPointListInGlskTimeSeries() {
         List<GlskPoint> glskPointList = new ArrayList<>();
-        for (GlskPeriod p : getGlskPeriods()) {
+        for (CimGlskPeriod p : getGlskPeriods()) {
             List<GlskPoint> list = p.getGlskPoints();
             glskPointList.addAll(list);
         }
@@ -75,8 +75,8 @@ public class GlskTimeSeries {
     /**
      * @return get all glsk periods
      */
-    public List<GlskPeriod> getGlskPeriods() {
-        return glskPeriods;
+    public List<CimGlskPeriod> getGlskPeriods() {
+        return cimGlskPeriods;
     }
 
     /**

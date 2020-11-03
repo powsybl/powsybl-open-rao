@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.chronology.DataChronology;
-import com.farao_community.farao.data.glsk.import_.actors.GlskDocumentScalableConverter;
+import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentScalableConverter;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class GlskDocumentScalableConverterTest {
+public class CimGlskDocumentScalableConverterTest {
     private static final String GLSKB42COUNTRYIIDM = "/GlskB42CountryIIDM.xml";
 
     private Network testNetwork;
@@ -47,7 +47,7 @@ public class GlskDocumentScalableConverterTest {
 
     @Test
     public void testConvertGlskDocumentToScalableDataChronologyFromFilePathString() {
-        Map<String, DataChronology<Scalable>> mapGlskDocScalable = GlskDocumentScalableConverter.convert(getResourceAsPathString(GLSKB42COUNTRYIIDM), testNetwork);
+        Map<String, DataChronology<Scalable>> mapGlskDocScalable = CimGlskDocumentScalableConverter.convert(getResourceAsPathString(GLSKB42COUNTRYIIDM), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
 
         for (String country : mapGlskDocScalable.keySet()) {
@@ -59,7 +59,7 @@ public class GlskDocumentScalableConverterTest {
 
     @Test
     public void testConvertGlskDocumentToScalableDataChronologyFromFilePath() {
-        Map<String, DataChronology<Scalable>> mapGlskDocScalable = GlskDocumentScalableConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
+        Map<String, DataChronology<Scalable>> mapGlskDocScalable = CimGlskDocumentScalableConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
 
         for (String country : mapGlskDocScalable.keySet()) {

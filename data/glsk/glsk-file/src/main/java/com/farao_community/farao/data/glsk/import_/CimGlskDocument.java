@@ -29,12 +29,12 @@ import java.util.Map;
  * CIM type GlskDocument
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskDocument {
+public class CimGlskDocument {
 
     /**
      * IIDM GlskDocument: map < CountryCode, all GlskTimeSeries of the country
      */
-    private Map<String, GlskTimeSeries> mapGlskTimeSeries; //map<CountryCode, GlskTimesSeries of the Country>
+    private Map<String, CimGlskTimeSeries> mapGlskTimeSeries; //map<CountryCode, GlskTimesSeries of the Country>
     //We consider there are one timeSeries per country. Otherwise: Map<Country, List<GlskTimesSeries>>. but do we have a use case?
 
     /**
@@ -53,7 +53,7 @@ public class GlskDocument {
      * @throws IOException
      * @throws SAXException
      */
-    public GlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
+    public CimGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -81,7 +81,7 @@ public class GlskDocument {
 
             if (timeSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element timeSeriesElement = (Element) timeSeriesNodeList.item(i);
-                GlskTimeSeries timeSeries = new GlskTimeSeries(timeSeriesElement);
+                CimGlskTimeSeries timeSeries = new CimGlskTimeSeries(timeSeriesElement);
 
                 String countryMrid = timeSeriesElement.getElementsByTagName("subject_Domain.mRID").item(0).getTextContent();
                 mapGlskTimeSeries.put(countryMrid, timeSeries);
@@ -93,7 +93,7 @@ public class GlskDocument {
     /**
      * @return getter of all country's time series map
      */
-    public Map<String, GlskTimeSeries> getMapGlskTimeSeries() {
+    public Map<String, CimGlskTimeSeries> getMapGlskTimeSeries() {
         return mapGlskTimeSeries;
     }
 

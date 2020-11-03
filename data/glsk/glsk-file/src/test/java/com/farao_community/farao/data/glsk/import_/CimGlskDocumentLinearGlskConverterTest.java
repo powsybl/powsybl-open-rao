@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.chronology.DataChronology;
-import com.farao_community.farao.data.glsk.import_.actors.GlskDocumentLinearGlskConverter;
+import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -28,8 +28,8 @@ import static org.junit.Assert.*;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class GlskDocumentLinearGlskConverterTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlskDocumentLinearGlskConverterTest.class);
+public class CimGlskDocumentLinearGlskConverterTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskDocumentLinearGlskConverterTest.class);
 
     private static final String GLSKB42COUNTRYIIDM = "/GlskB42CountryIIDM.xml";
 
@@ -50,7 +50,7 @@ public class GlskDocumentLinearGlskConverterTest {
 
     @Test
     public void testConvertGlskDocumentToLinearGlskDataChronologyFromFilePathString() {
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = GlskDocumentLinearGlskConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = CimGlskDocumentLinearGlskConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
         assertFalse(mapGlskDocLinearGlsk.isEmpty());
         for (String country : mapGlskDocLinearGlsk.keySet()) {
             DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
@@ -63,6 +63,6 @@ public class GlskDocumentLinearGlskConverterTest {
     @Test
     public void testConvertGlskDocumentToLinearGlskDataChronologyFromFilePath() {
         Path pathtest = Paths.get("src/test/resources/GlskB42CountryIIDM.xml");
-        assertFalse(GlskDocumentLinearGlskConverter.convert(pathtest, testNetwork).isEmpty());
+        assertFalse(CimGlskDocumentLinearGlskConverter.convert(pathtest, testNetwork).isEmpty());
     }
 }
