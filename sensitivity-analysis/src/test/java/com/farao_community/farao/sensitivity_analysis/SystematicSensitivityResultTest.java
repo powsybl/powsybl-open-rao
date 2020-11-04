@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -57,12 +59,10 @@ public class SystematicSensitivityResultTest {
         glskProvider.selectInstant(Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
-        rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
-        rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Ptdf Provider
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
-        ptdfSensitivityProvider.addCnecs(crac.getCnecs());
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");

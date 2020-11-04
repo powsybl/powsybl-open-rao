@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -13,7 +14,6 @@ import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -25,24 +25,15 @@ import static org.junit.Assert.assertTrue;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class PtdfSensitivityProviderTest {
-    private static final double EPSILON = 1e-3;
-    private Network network;
-    private Crac crac;
-    private GlskProvider glskProviderMock;
-    private PtdfSensitivityProvider ptdfSensitivityProvider;
-
-    @Before
-    public void setUp() {
-        network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.create();
-
-        glskProviderMock = glskProvider();
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock);
-    }
 
     @Test
-    public void testGetFactors() {
-        ptdfSensitivityProvider.addCnecs(crac.getCnecs());
+    public void getFactorsOnCommonCrac() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.create();
+        GlskProvider glskProviderMock = glskProvider();
+
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT));
+
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getFactors(network);
 
         assertEquals(8, sensitivityFactors.size());
@@ -50,7 +41,7 @@ public class PtdfSensitivityProviderTest {
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
     }
 
-    static GlskProvider glskProvider() {
+    private static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
         glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));

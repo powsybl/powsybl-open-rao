@@ -78,22 +78,16 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glskProvider, Set<Cnec> cnecs) {
-            PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider);
-            ptdfSensitivityProvider.addCnecs(cnecs);
-            return this.withSensitivityProvider(ptdfSensitivityProvider);
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glskProvider, Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new PtdfSensitivityProvider(glskProvider, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
-            RangeActionSensitivityProvider rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
-            rangeActionSensitivityProvider.addSensitivityFactors(rangeActions, cnecs);
-            return this.withSensitivityProvider(rangeActionSensitivityProvider);
+        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<Cnec> cnecs) {
-            LoadflowProvider loadflowProvider = new LoadflowProvider();
-            loadflowProvider.addCnecs(cnecs);
-            return this.withSensitivityProvider(loadflowProvider);
+        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
         }
 
         public SystematicSensitivityInterface build() {

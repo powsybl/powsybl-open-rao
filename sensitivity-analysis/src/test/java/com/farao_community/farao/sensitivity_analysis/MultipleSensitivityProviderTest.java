@@ -6,78 +6,47 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
- * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MultipleSensitivityProviderTest {
-    private static final double EPSILON = 1e-3;
-    private Network network;
-    private Crac crac;
-    private GlskProvider glskProviderMock;
-    private PtdfSensitivityProvider ptdfSensitivityProvider;
-    private RangeActionSensitivityProvider rangeActionSensitivityProvider;
-    private MultipleSensitivityProvider multipleSensitivityProvider;
-
-    @Before
-    public void setUp() {
-        network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.createWithPstRange();
-
-        glskProviderMock = glskProvider();
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock);
-        rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
-        multipleSensitivityProvider = new MultipleSensitivityProvider();
-        multipleSensitivityProvider.addProvider(rangeActionSensitivityProvider);
-        multipleSensitivityProvider.addProvider(ptdfSensitivityProvider);
-    }
 
     @Test
-    public void testGetFactors() {
-        ptdfSensitivityProvider.addCnecs(crac.getCnecs());
-        rangeActionSensitivityProvider.addSensitivityFactors(crac.getRangeActions(), crac.getCnecs());
-        List<SensitivityFactor> sensitivityFactors = multipleSensitivityProvider.getFactors(network);
+    public void test() {
 
-        assertEquals(12, sensitivityFactors.size());
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
-                                                                          && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
-                                                                          && sensitivityFactor.getVariable().getId().contains("BBE2AA1  BBE3AA1  1")));
-    }
+        // mock network
+        Network network = Mockito.mock(Network.class);
 
-    static GlskProvider glskProvider() {
-        Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new GlskProvider() {
-            @Override
-            public Map<String, LinearGlsk> getAllGlsk(Network network) {
-                return glsks;
-            }
+        // mock providers
+        CnecSensitivityProvider provider1 = Mockito.mock(CnecSensitivityProvider.class);
+        CnecSensitivityProvider provider2 = Mockito.mock(CnecSensitivityProvider.class);
 
-            @Override
-            public LinearGlsk getGlsk(Network network, String area) {
-                return glsks.get(area);
-            }
-        };
+        // mock factors
+        SensitivityFactor factor1 = Mockito.mock(SensitivityFactor.class);
+        SensitivityFactor factor2 = Mockito.mock(SensitivityFactor.class);
+        SensitivityFactor factor3 = Mockito.mock(SensitivityFactor.class);
+
+        Mockito.when(provider1.getFactors(any())).thenReturn(Collections.singletonList(factor1));
+        Mockito.when(provider2.getFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
+
+        MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
+
+        // with one provider
+        multipleSensitivityProvider.addProvider(provider1);
+        assertEquals(1, multipleSensitivityProvider.getFactors(network).size());
+
+        // with two provider
+        multipleSensitivityProvider.addProvider(provider2);
+        assertEquals(3, multipleSensitivityProvider.getFactors(network).size());
     }
 }

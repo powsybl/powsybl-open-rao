@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.*;
@@ -13,6 +14,8 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -20,10 +23,21 @@ import java.util.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PtdfSensitivityProvider.class);
+
     private final GlskProvider glskProvider;
 
-    PtdfSensitivityProvider(GlskProvider glskProvider) {
-        super();
+    PtdfSensitivityProvider(GlskProvider glskProvider, Set<Cnec> cnecs, Set<Unit> units) {
+        super(cnecs, units);
+
+        // todo : handle PTDFs in AMPERE
+        if (factorsInAmpere || !factorsInMegawatt) {
+            LOGGER.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+            factorsInMegawatt = true;
+            factorsInAmpere = false;
+        }
+
         this.glskProvider = Objects.requireNonNull(glskProvider);
     }
 
