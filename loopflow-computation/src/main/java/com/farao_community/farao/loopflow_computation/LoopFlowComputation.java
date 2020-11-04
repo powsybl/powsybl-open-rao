@@ -35,9 +35,6 @@ public class LoopFlowComputation {
     private GlskProvider glskProvider;
     private ReferenceProgram referenceProgram;
 
-    /**
-     * @param crac             loop-flows will be computed for all the Cnecs of the Crac
-     */
     public LoopFlowComputation(GlskProvider glskProvider, ReferenceProgram referenceProgram) {
         this.glskProvider = requireNonNull(glskProvider, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
@@ -46,10 +43,10 @@ public class LoopFlowComputation {
     public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<Cnec> cnecs) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glskProvider, cnecs)
+            .withPtdfSensitivities(glskProvider, cnecs, Collections.singleton(Unit.MEGAWATT))
             .build();
 
-        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
+        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
         return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, network, cnecs);
     }

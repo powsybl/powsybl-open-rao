@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
@@ -29,9 +30,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 import static java.lang.String.format;
@@ -63,14 +62,20 @@ public final class RaoUtil {
     }
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+
+        if (raoParameters.getObjectiveFunction().getUnit().equals(Unit.AMPERE)
+            && raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+            throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunction().toString()));
+        }
+
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             if (raoInput.getGlskProvider() == null) {
-                throw new FaraoException("Relative margin objective function requires a GLSK provider.");
+                throw new FaraoException(format("Objective function %s requires a GLSK provider", raoParameters.getObjectiveFunction()));
             }
             if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
                 || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
                 || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
-                throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
+                throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunction()));
             }
         }
 
@@ -83,7 +88,7 @@ public final class RaoUtil {
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                "Loopflow computation cannot be performed %s because the RaoInput lacks a ReferenceProgram or a GlskProvider",
                 raoInput.getCrac().getId());
             LOGGER.error(msg);
             throw new FaraoException(msg);
@@ -92,16 +97,21 @@ public final class RaoUtil {
 
     public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
 
+        Set<Unit> flowUnits = new HashSet<>();
+        flowUnits.add(Unit.MEGAWATT);
+        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+            flowUnits.add(Unit.AMPERE);
+        }
+
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
             .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
-            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs(), flowUnits);
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
 
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
-
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs(), Collections.singleton(Unit.MEGAWATT));
             // We may want to have a different interface for the first run and the successive runs if we do not wish to
             // compute the PTDFs at every iteration.
         }

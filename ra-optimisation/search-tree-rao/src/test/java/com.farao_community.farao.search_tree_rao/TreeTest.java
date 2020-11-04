@@ -91,7 +91,7 @@ public class TreeTest {
         Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();
 
         PowerMockito.whenNew(SystematicSensitivityInterface.class).withAnyArguments().thenReturn(systematicSensitivityInterface);
-        Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any(), any());
+        Mockito.doReturn(Mockito.mock(SystematicSensitivityResult.class)).when(systematicSensitivityInterface).run(any());
 
         CracResult cracResult = Mockito.mock(CracResult.class);
         Mockito.doReturn(cracResult).when(raoData).getCracResult();
