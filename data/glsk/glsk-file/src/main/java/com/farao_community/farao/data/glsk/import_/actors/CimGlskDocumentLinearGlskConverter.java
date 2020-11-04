@@ -28,19 +28,17 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class CimGlskDocumentLinearGlskConverter implements GlskDocumentLinearGlskConverter {
+public class CimGlskDocumentLinearGlskConverter implements GlskDocumentLinearGlskConverter {
     private static final String ERROR_MESSAGE = "Error while converting GLSK document to LinearGlsk sensitivity computation input";
 
-    private CimGlskDocumentLinearGlskConverter() {
-        throw new AssertionError("Utility class should not be instantiated");
-    }
+    public CimGlskDocumentLinearGlskConverter() { }
 
     /**
      * @param filepath file path in Path
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network) {
+    public Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network) {
         try {
             InputStream data = new FileInputStream(filepath.toFile());
             return convert(data, network);
@@ -54,7 +52,7 @@ public final class CimGlskDocumentLinearGlskConverter implements GlskDocumentLin
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network) {
+    public Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network) {
         try {
             InputStream data = new FileInputStream(filepathstring);
             return convert(data, network);
@@ -68,7 +66,7 @@ public final class CimGlskDocumentLinearGlskConverter implements GlskDocumentLin
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
+    public Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
         return convert((CimGlskDocument) CimGlskDocumentImporter.importGlsk(data), network);
     }
 

@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.data.glsk.import_.actors.GlskDocumentLinearGlskConverter;
+import com.farao_community.farao.data.glsk.import_.actors.UcteGlskDocumentLinearGlskConverter;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.ChronologyGlskProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
@@ -156,7 +157,9 @@ public class FlowbasedComputationTool implements Tool {
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
         crac.synchronize(network);
-        GlskProvider glskProvider = new ChronologyGlskProvider(GlskDocumentLinearGlskConverter.convert(new FileInputStream(glskFile.toFile()), network), instant);
+        // TODO: problem here: Cim or Ucte ??
+        GlskDocumentLinearGlskConverter converter = new UcteGlskDocumentLinearGlskConverter();
+        GlskProvider glskProvider = new ChronologyGlskProvider(converter.convert(new FileInputStream(glskFile.toFile()), network), instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));

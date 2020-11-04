@@ -50,7 +50,8 @@ public class CimGlskDocumentLinearGlskConverterTest {
 
     @Test
     public void testConvertGlskDocumentToLinearGlskDataChronologyFromFilePathString() {
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = CimGlskDocumentLinearGlskConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
+        CimGlskDocumentLinearGlskConverter converter = new CimGlskDocumentLinearGlskConverter();
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = converter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
         assertFalse(mapGlskDocLinearGlsk.isEmpty());
         for (String country : mapGlskDocLinearGlsk.keySet()) {
             DataChronology<LinearGlsk> dataChronology = mapGlskDocLinearGlsk.get(country);
@@ -63,6 +64,7 @@ public class CimGlskDocumentLinearGlskConverterTest {
     @Test
     public void testConvertGlskDocumentToLinearGlskDataChronologyFromFilePath() {
         Path pathtest = Paths.get("src/test/resources/GlskB42CountryIIDM.xml");
-        assertFalse(CimGlskDocumentLinearGlskConverter.convert(pathtest, testNetwork).isEmpty());
+        CimGlskDocumentLinearGlskConverter converter = new CimGlskDocumentLinearGlskConverter();
+        assertFalse(converter.convert(pathtest, testNetwork).isEmpty());
     }
 }

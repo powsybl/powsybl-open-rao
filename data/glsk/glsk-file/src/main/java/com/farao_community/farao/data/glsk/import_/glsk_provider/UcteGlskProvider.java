@@ -18,7 +18,7 @@ import java.time.Instant;
 public class UcteGlskProvider extends ChronologyGlskProvider {
 
     public UcteGlskProvider(InputStream ucteGlskInputStream, Network network, Instant instant) {
-        super(UcteGlskDocumentLinearGlskConverter.convert(ucteGlskInputStream, network), instant);
+        super(new UcteGlskDocumentLinearGlskConverter().convert(ucteGlskInputStream, network), instant);
     }
 
     public UcteGlskProvider(InputStream ucteGlskInputStream, Network network) {

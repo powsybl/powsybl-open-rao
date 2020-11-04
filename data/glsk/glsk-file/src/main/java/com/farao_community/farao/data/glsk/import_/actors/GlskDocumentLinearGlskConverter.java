@@ -25,26 +25,20 @@ public interface GlskDocumentLinearGlskConverter {
      * @param network  iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    static Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network) {
-        return null;
-    }
+    Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network);
 
     /**
      * @param filepathstring file full path in string
      * @param network        iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    static Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network) {
-        return null;
-    }
+    Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network);
 
     /**
      * @param data    InputStream
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    static Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
-        return null;
-    }
+    Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network);
 }
 

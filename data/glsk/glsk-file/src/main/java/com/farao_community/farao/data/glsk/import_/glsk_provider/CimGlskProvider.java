@@ -18,7 +18,7 @@ import java.time.Instant;
 public class CimGlskProvider extends ChronologyGlskProvider {
 
     public CimGlskProvider(InputStream cimGlskInputStream, Network network, Instant instant) {
-        super(CimGlskDocumentLinearGlskConverter.convert(cimGlskInputStream, network), instant);
+        super(new CimGlskDocumentLinearGlskConverter().convert(cimGlskInputStream, network), instant);
     }
 
     public CimGlskProvider(InputStream cimGlskInputStream, Network network) {

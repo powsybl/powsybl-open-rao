@@ -47,7 +47,8 @@ public class UcteGlskDocumentLinearGlskConverterTest {
 
     @Test
     public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePathString() {
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = UcteGlskDocumentLinearGlskConverter.convert(getResourceAsPathString(UCTETEST), testNetwork);
+        UcteGlskDocumentLinearGlskConverter converter = new UcteGlskDocumentLinearGlskConverter();
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = converter.convert(getResourceAsPathString(UCTETEST), testNetwork);
         assertFalse(mapGlskDocLinearGlsk.isEmpty());
 
         for (String country : mapGlskDocLinearGlsk.keySet()) {
@@ -59,7 +60,8 @@ public class UcteGlskDocumentLinearGlskConverterTest {
 
     @Test
     public void testConvertUcteGlskDocumentToLinearGlskDataChronologyFromFilePath() {
-        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = UcteGlskDocumentLinearGlskConverter.convert(getResourceAsPath(UCTETEST), testNetwork);
+        UcteGlskDocumentLinearGlskConverter converter = new UcteGlskDocumentLinearGlskConverter();
+        Map<String, DataChronology<LinearGlsk>> mapGlskDocLinearGlsk = converter.convert(getResourceAsPath(UCTETEST), testNetwork);
         assertFalse(mapGlskDocLinearGlsk.isEmpty());
 
         for (String country : mapGlskDocLinearGlsk.keySet()) {

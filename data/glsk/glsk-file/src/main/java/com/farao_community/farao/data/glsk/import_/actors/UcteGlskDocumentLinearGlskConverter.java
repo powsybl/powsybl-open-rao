@@ -29,19 +29,17 @@ import java.util.Map;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class UcteGlskDocumentLinearGlskConverter implements GlskDocumentLinearGlskConverter {
+public class UcteGlskDocumentLinearGlskConverter implements GlskDocumentLinearGlskConverter {
     private static final String ERROR_MESSAGE = "Error while converting GLSK document to LinearGlsk sensitivity computation input";
 
-    private UcteGlskDocumentLinearGlskConverter() {
-        throw new AssertionError("Utility class should not be instantiated");
-    }
+    public UcteGlskDocumentLinearGlskConverter() { }
 
     /**
      * @param filepath file path as Path
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network) {
+    public Map<String, DataChronology<LinearGlsk>> convert(Path filepath, Network network) {
         try {
             InputStream data = new FileInputStream(filepath.toFile());
             return convert(data, network);
@@ -55,7 +53,7 @@ public final class UcteGlskDocumentLinearGlskConverter implements GlskDocumentLi
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network) {
+    public Map<String, DataChronology<LinearGlsk>> convert(String filepathstring, Network network) {
         try {
             InputStream data = new FileInputStream(filepathstring);
             return convert(data, network);
@@ -69,7 +67,7 @@ public final class UcteGlskDocumentLinearGlskConverter implements GlskDocumentLi
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
+    public Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
         return convert((UcteGlskDocument) UcteGlskDocumentImporter.importGlsk(data), network);
     }
 
