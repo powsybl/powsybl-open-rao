@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.PstRange;
@@ -24,18 +23,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.farao_community.farao.rao_commons.RaoData.NO_WORKING_VARIANT;
-import static java.lang.String.format;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RaoDataManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaoDataManager.class);
+public class CracResultManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CracResultManager.class);
 
     private RaoData raoData;
 
-    RaoDataManager(RaoData raoData) {
+    CracResultManager(RaoData raoData) {
         this.raoData = raoData;
     }
 
@@ -44,9 +40,6 @@ public class RaoDataManager {
      * with values in network of the working variant.
      */
     public void fillRangeActionResultsWithNetworkValues() {
-        if (raoData.getWorkingVariantId() == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
         for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             double valueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
@@ -63,9 +56,6 @@ public class RaoDataManager {
      * according to the values present in the CRAC result extension of the working variant.
      */
     public void applyRangeActionResultsOnNetwork() {
-        if (raoData.getWorkingVariantId() == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
         for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             rangeAction.apply(raoData.getNetwork(),
@@ -94,8 +84,10 @@ public class RaoDataManager {
     }
 
     public void fillRangeActionResultsWithLinearProblem(LinearProblem linearProblem) {
-        LOGGER.debug(format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
-        LOGGER.debug(format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
+            LOGGER.debug(String.format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
+        }
         for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
@@ -110,7 +102,7 @@ public class RaoDataManager {
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(raoData.getOptimizedState().getId(), approximatedPostOptimAngle);
                 pstRangeResult.setTap(raoData.getOptimizedState().getId(), approximatedPostOptimTap);
-                LOGGER.debug(format("Range action %s has been set to tap %d", pstRange.getName(), approximatedPostOptimTap));
+                LOGGER.debug("Range action {} has been set to tap {}", pstRange.getName(), approximatedPostOptimTap);
             }
         }
     }
@@ -123,9 +115,6 @@ public class RaoDataManager {
     }
 
     public void fillCnecResultWithFlows() {
-        if (raoData.getWorkingVariantId() == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
         raoData.getCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             cnecResult.setFlowInMW(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec));

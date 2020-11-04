@@ -11,11 +11,13 @@ import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 
 import java.text.DecimalFormat;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -26,7 +28,8 @@ import static java.lang.String.format;
 final class SearchTreeRaoLogger {
     private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
 
-    private SearchTreeRaoLogger() { }
+    private SearchTreeRaoLogger() {
+    }
 
     static void logRangeActions(Leaf leaf) {
         logRangeActions(leaf, null);
@@ -48,30 +51,35 @@ final class SearchTreeRaoLogger {
                     .append(" , ");
         }
         String rangeActionsLog = rangeActionMsg.toString();
-        SearchTreeRao.LOGGER.info(rangeActionsLog);
+        Tree.LOGGER.info(rangeActionsLog);
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
-        List<Cnec> sortedCnecs = leaf.getRaoData().getCnecs().stream().
-            filter(Cnec::isOptimized).
-            sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins))).
-            collect(Collectors.toList());
+        Map<String, String> variantIdPerStatedId = new HashMap<>();
+        leaf.getRaoData().getCnecs().forEach(cnec -> variantIdPerStatedId.putIfAbsent(cnec.getState().getId(), leaf.getBestVariantId()));
+        logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), variantIdPerStatedId, unit, relativePositiveMargins);
+    }
+
+    static void logMostLimitingElementsResults(Set<Cnec> cnecs, Map<String, String> variantIdPerStatedId, Unit unit, boolean relativePositiveMargins) {
+        List<Cnec> sortedCnecs = cnecs.stream().
+                filter(Cnec::isOptimized).
+                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantIdPerStatedId.get(cnec.getState().getId()), unit, relativePositiveMargins))).
+                collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
             Cnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            leaf.getRaoData().setWorkingVariant(leaf.getBestVariantId());
-            double cnecMargin = computeCnecMargin(cnec, leaf.getBestVariantId(), unit, relativePositiveMargins);
+            double cnecMargin = computeCnecMargin(cnec, variantIdPerStatedId.get(cnec.getState().getId()), unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            SearchTreeRao.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
-                i + 1,
-                cnecNetworkElementName,
-                cnecStateId,
-                isRelativeMargin,
-                margin,
-                unit);
+            Tree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
+                    i + 1,
+                    cnecNetworkElementName,
+                    cnecStateId,
+                    isRelativeMargin,
+                    margin,
+                    unit);
         }
     }
 
