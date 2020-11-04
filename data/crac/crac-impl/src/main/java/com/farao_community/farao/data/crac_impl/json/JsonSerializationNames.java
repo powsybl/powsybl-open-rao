@@ -51,6 +51,7 @@ public final class JsonSerializationNames {
     public static final String ID = "id";
     public static final String NAME = "name";
     public static final String EXTENSIONS = "extensions";
+    public static final String RANGE_DEFINITION = "rangeDefinition";
 
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
