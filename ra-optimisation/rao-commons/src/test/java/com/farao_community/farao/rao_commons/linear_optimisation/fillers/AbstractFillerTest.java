@@ -102,9 +102,6 @@ abstract class AbstractFillerTest {
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", "Défaut")));
 
-        resultVariantManager = new ResultVariantManager();
-        crac.addExtension(ResultVariantManager.class, resultVariantManager);
-
         // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
@@ -116,15 +113,11 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
         when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
         when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
-
-        // init RaoData
-        initRaoData(crac.getPreventiveState());
     }
 
     void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider, new HashSet<>());
-        resultVariantManager.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoData.getRaoDataManager().fillRangeActionResultsWithNetworkValues();
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider, null, new HashSet<>());
+        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }
 }

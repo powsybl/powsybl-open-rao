@@ -39,12 +39,13 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         init();
         coreProblemFiller = new CoreProblemFiller();
         maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST);
+        initRaoData(crac.getPreventiveState());
     }
 
     private void fillProblemWithCoreFiller() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        raoData.getRaoDataManager().applyRangeActionResultsOnNetwork();
+        raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
 
         // fill the problem : the core filler is required
         coreProblemFiller.fill(raoData, linearProblem);
