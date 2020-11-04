@@ -221,7 +221,7 @@ public class Tree {
     private RaoResult buildOutput() {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
-        raoResult.setPostOptimVariantIdForStateId(optimalLeaf.getRaoData().getOptimizedState().getId(), optimalLeaf.getBestVariantId());
+        raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }
 }
