@@ -61,7 +61,7 @@ public class LoopFlowComputation {
         for (Cnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
             double commercialFLow = glsks.stream()
-                .mapToDouble(glsk -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glsk, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glsk)))
+                .mapToDouble(glskElement -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glskElement, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glskElement)))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }

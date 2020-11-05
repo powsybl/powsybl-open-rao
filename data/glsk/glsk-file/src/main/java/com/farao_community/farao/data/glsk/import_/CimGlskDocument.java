@@ -29,7 +29,7 @@ import java.util.Map;
  * CIM type GlskDocument
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskDocument {
+public class CimGlskDocument {
 
     /**
      * IIDM GlskDocument: map < CountryCode, all GlskTimeSeries of the country
@@ -53,7 +53,7 @@ public class GlskDocument {
      * @throws IOException
      * @throws SAXException
      */
-    public GlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
+    public CimGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");

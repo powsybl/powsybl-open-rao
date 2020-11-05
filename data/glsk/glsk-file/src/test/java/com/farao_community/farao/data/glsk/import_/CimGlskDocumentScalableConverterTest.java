@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class GlskDocumentScalableConverterTest {
+public class CimGlskDocumentScalableConverterTest {
     private static final String GLSKB42COUNTRYIIDM = "/GlskB42CountryIIDM.xml";
 
     private Network testNetwork;

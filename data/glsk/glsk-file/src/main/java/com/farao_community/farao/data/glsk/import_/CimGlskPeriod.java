@@ -19,7 +19,7 @@ import java.util.Objects;
  * CIM type glsk internal object: a period contains a list of GlskPoint
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskPeriod {
+public class CimGlskPeriod {
 
     /**
      * Interval of Period
@@ -43,7 +43,7 @@ public class GlskPeriod {
      * @param subjectDomainmRID Country mRID
      * @param curveType curveType
      */
-    public GlskPeriod(Element element, String subjectDomainmRID, String curveType) {
+    public CimGlskPeriod(Element element, String subjectDomainmRID, String curveType) {
         Objects.requireNonNull(element);
         String intervalStart = element.getElementsByTagName("start").item(0).getTextContent();
         String intervalEnd = element.getElementsByTagName("end").item(0).getTextContent();

@@ -9,7 +9,7 @@ package com.farao_community.farao.data.glsk.import_.actors;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.chronology.DataChronology;
 import com.farao_community.farao.commons.chronology.DataChronologyImpl;
-import com.farao_community.farao.data.glsk.import_.GlskDocument;
+import com.farao_community.farao.data.glsk.import_.CimGlskDocument;
 import com.farao_community.farao.data.glsk.import_.GlskPoint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -73,13 +73,13 @@ public final class GlskDocumentLinearGlskConverter {
     }
 
     /**
-     * @param glskDocument glsk document object
+     * @param cimGlskDocument glsk document object
      * @param network iidm network
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
-    public static Map<String, DataChronology<LinearGlsk>> convert(GlskDocument glskDocument, Network network) {
+    public static Map<String, DataChronology<LinearGlsk>> convert(CimGlskDocument cimGlskDocument, Network network) {
 
-        List<String> countries = glskDocument.getCountries();
+        List<String> countries = cimGlskDocument.getCountries();
 
         Map<String, DataChronology<LinearGlsk>> countryLinearGlskDataChronologyMap = new HashMap<>();
 
@@ -87,7 +87,7 @@ public final class GlskDocumentLinearGlskConverter {
             DataChronology<LinearGlsk> dataChronology = DataChronologyImpl.create();
 
             //mapping with DataChronology
-            List<GlskPoint> glskPointList = glskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
+            List<GlskPoint> glskPointList = cimGlskDocument.getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
             for (GlskPoint point : glskPointList) {
                 LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(network, point, TypeGlskFile.CIM);
                 dataChronology.storeDataOnInterval(linearGlsk, point.getPointInterval());
