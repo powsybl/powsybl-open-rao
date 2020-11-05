@@ -34,7 +34,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String PREVENTIVE_STATE = "PreventiveState";
     private static final String CURATIVE_STATE = "CurativeState";
 
-    private static StateTree stateTree;
+    private StateTree stateTree;
 
     @Override
     public String getName() {
@@ -173,11 +173,22 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     private RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+        mergeRaoResultStatus(preventiveRaoResult, curativeRaoResults);
+        mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
+        mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
+        deleteCurativeVariants(crac, curativeRaoResults);
+        return preventiveRaoResult;
+    }
+    
+    private void mergeRaoResultStatus(RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
         curativeRaoResults.values().forEach(curativeRaoResult -> {
             if (curativeRaoResult.getStatus().equals(RaoResult.Status.FAILURE)) {
                 preventiveRaoResult.setStatus(RaoResult.Status.FAILURE);
             }
         });
+    }
+
+    private void mergeCnecResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
         crac.getCnecs().forEach(cnec -> {
             State optimizedState = stateTree.getOptimizedState(cnec.getState());
             if (!optimizedState.equals(crac.getPreventiveState())) {
@@ -195,7 +206,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 targetResult.setMinThresholdInMW(optimizedCnecResult.getMinThresholdInMW());
             }
         });
+    }
 
+    private void mergeRemedialActionsResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
         stateTree.getOptimizedStates().forEach(optimizedState -> {
             if (!optimizedState.equals(crac.getPreventiveState())) {
                 String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();
@@ -219,6 +232,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 });
             }
         });
-        return preventiveRaoResult;
+    }
+
+    private void deleteCurativeVariants(Crac crac, Map<State, RaoResult> curativeRaoResults) {
+        curativeRaoResults.values().stream().map(RaoResult::getPostOptimVariantId).forEach(variantId ->
+            crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
     }
 }
