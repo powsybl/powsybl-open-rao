@@ -25,7 +25,7 @@ import java.nio.file.Path;
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
 public final class CimGlskDocumentImporter {
-    private static final String ERROR_MESSAGE = "Error while parsing GLSK document";
+    private static final String ERROR_WHILE_PARSING_GLSK_DOCUMENT = "Error while parsing GLSK document";
 
     private CimGlskDocumentImporter() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -40,7 +40,7 @@ public final class CimGlskDocumentImporter {
             InputStream data = new FileInputStream(filepathstring);
             return importGlsk(data);
         } catch (FileNotFoundException e) {
-            throw new FaraoException(ERROR_MESSAGE, e);
+            throw new FaraoException(ERROR_WHILE_PARSING_GLSK_DOCUMENT, e);
         }
     }
 
@@ -53,7 +53,7 @@ public final class CimGlskDocumentImporter {
             InputStream data = new FileInputStream(filepath.toFile());
             return importGlsk(data);
         } catch (FileNotFoundException e) {
-            throw new FaraoException(ERROR_MESSAGE, e);
+            throw new FaraoException(ERROR_WHILE_PARSING_GLSK_DOCUMENT, e);
         }
     }
 
@@ -65,7 +65,7 @@ public final class CimGlskDocumentImporter {
         try {
             return new CimGlskDocument(data);
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            throw new FaraoException(ERROR_MESSAGE, e);
+            throw new FaraoException(ERROR_WHILE_PARSING_GLSK_DOCUMENT, e);
         }
     }
 }

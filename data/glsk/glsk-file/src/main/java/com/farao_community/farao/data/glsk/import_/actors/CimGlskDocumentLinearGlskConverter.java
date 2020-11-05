@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
 public class CimGlskDocumentLinearGlskConverter implements GlskDocumentLinearGlskConverter {
-    private static final String ERROR_MESSAGE = "Error while converting GLSK document to LinearGlsk sensitivity computation input";
+    private static final String ERROR_CONVERSION_MESSAGE = "Error while converting GLSK document to LinearGlsk sensitivity computation input";
 
     public CimGlskDocumentLinearGlskConverter() { }
 
@@ -43,7 +43,7 @@ public class CimGlskDocumentLinearGlskConverter implements GlskDocumentLinearGls
             InputStream data = new FileInputStream(filepath.toFile());
             return convert(data, network);
         } catch (FileNotFoundException e) {
-            throw new FaraoException(ERROR_MESSAGE, e);
+            throw new FaraoException(ERROR_CONVERSION_MESSAGE, e);
         }
     }
 
@@ -57,7 +57,7 @@ public class CimGlskDocumentLinearGlskConverter implements GlskDocumentLinearGls
             InputStream data = new FileInputStream(filepathstring);
             return convert(data, network);
         } catch (FileNotFoundException e) {
-            throw new FaraoException(ERROR_MESSAGE, e);
+            throw new FaraoException(ERROR_CONVERSION_MESSAGE, e);
         }
     }
 
