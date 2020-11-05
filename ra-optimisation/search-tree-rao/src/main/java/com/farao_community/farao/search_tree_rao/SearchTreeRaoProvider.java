@@ -179,13 +179,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         deleteCurativeVariants(crac, curativeRaoResults);
         return preventiveRaoResult;
     }
-    
+
     private void mergeRaoResultStatus(RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
-        curativeRaoResults.values().forEach(curativeRaoResult -> {
-            if (curativeRaoResult.getStatus().equals(RaoResult.Status.FAILURE)) {
-                preventiveRaoResult.setStatus(RaoResult.Status.FAILURE);
-            }
-        });
+        if (curativeRaoResults.values().stream().anyMatch(curativeRaoResult -> curativeRaoResult.getStatus().equals(RaoResult.Status.FAILURE))) {
+            preventiveRaoResult.setStatus(RaoResult.Status.FAILURE);
+        }
     }
 
     private void mergeCnecResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
