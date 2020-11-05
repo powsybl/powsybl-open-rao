@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -31,7 +31,7 @@ public class MultipleSensitivityProviderTest {
     private static final double EPSILON = 1e-3;
     private Network network;
     private Crac crac;
-    private GlskProvider glskProviderMock;
+    private Glsk glskMock;
     private PtdfSensitivityProvider ptdfSensitivityProvider;
     private RangeActionSensitivityProvider rangeActionSensitivityProvider;
     private MultipleSensitivityProvider multipleSensitivityProvider;
@@ -41,8 +41,8 @@ public class MultipleSensitivityProviderTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPstRange();
 
-        glskProviderMock = glskProvider();
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock);
+        glskMock = glskProvider();
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock);
         rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
         multipleSensitivityProvider = new MultipleSensitivityProvider();
         multipleSensitivityProvider.addProvider(rangeActionSensitivityProvider);
@@ -62,13 +62,13 @@ public class MultipleSensitivityProviderTest {
                                                                           && sensitivityFactor.getVariable().getId().contains("BBE2AA1  BBE3AA1  1")));
     }
 
-    static GlskProvider glskProvider() {
+    static Glsk glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
         glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
         glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new GlskProvider() {
+        return new Glsk() {
             @Override
             public Map<String, LinearGlsk> getAllGlsk(Network network) {
                 return glsks;

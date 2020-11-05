@@ -12,8 +12,8 @@ import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.CimGlskProvider;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.CimGlsk;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
 import com.farao_community.farao.rao_commons.RaoInputHelper;
@@ -156,13 +156,13 @@ public class FlowbasedComputationTool implements Tool {
         RaoInputHelper.cleanCrac(crac, network);
         crac.synchronize(network);
         //TODO : handling also Ucte format
-        GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
+        Glsk cimGlsk = new CimGlsk(new FileInputStream(glskFile.toFile()), network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlskProvider, parameters);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlsk, parameters);
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.getFlowBasedDomain(), Files.newOutputStream(outputFile));
         }

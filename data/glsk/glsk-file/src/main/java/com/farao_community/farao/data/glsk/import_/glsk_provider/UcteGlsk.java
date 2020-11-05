@@ -15,13 +15,13 @@ import java.time.Instant;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class UcteGlskProvider extends ChronologyGlskProvider {
+public class UcteGlsk extends ChronologyGlsk {
 
-    public UcteGlskProvider(InputStream ucteGlskInputStream, Network network, Instant instant) {
+    public UcteGlsk(InputStream ucteGlskInputStream, Network network, Instant instant) {
         super(UcteGlskDocumentLinearGlskConverter.convert(ucteGlskInputStream, network), instant);
     }
 
-    public UcteGlskProvider(InputStream ucteGlskInputStream, Network network) {
+    public UcteGlsk(InputStream ucteGlskInputStream, Network network) {
         this(ucteGlskInputStream, network, Instant.now());
     }
 }

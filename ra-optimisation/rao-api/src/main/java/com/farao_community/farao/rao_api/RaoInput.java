@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_api;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
 
@@ -36,7 +36,7 @@ public final class RaoInput {
         private State optimizedState;
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
-        private GlskProvider glskProvider;
+        private Glsk glsk;
 
         private RaoInputBuilder() {
         }
@@ -76,8 +76,8 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withGlskProvider(GlskProvider glskProvider) {
-            this.glskProvider = glskProvider;
+        public RaoInputBuilder withGlskProvider(Glsk glsk) {
+            this.glsk = glsk;
             return this;
         }
 
@@ -93,7 +93,7 @@ public final class RaoInput {
             raoInput.optimizedState = optimizedState;
             raoInput.perimeter = perimeter;
             raoInput.referenceProgram = referenceProgram;
-            raoInput.glskProvider = glskProvider;
+            raoInput.glsk = glsk;
             return raoInput;
         }
 
@@ -125,7 +125,7 @@ public final class RaoInput {
     private Network network;
     private String networkVariantId;
     private ReferenceProgram referenceProgram;
-    private GlskProvider glskProvider;
+    private Glsk glsk;
 
     private RaoInput() {
     }
@@ -175,7 +175,7 @@ public final class RaoInput {
         this.referenceProgram = referenceProgram;
     }
 
-    public GlskProvider getGlskProvider() {
-        return glskProvider;
+    public Glsk getGlskProvider() {
+        return glsk;
     }
 }

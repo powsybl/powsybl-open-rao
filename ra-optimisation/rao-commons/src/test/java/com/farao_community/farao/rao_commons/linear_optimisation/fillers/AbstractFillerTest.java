@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
@@ -79,20 +79,20 @@ abstract class AbstractFillerTest {
     ResultVariantManager resultVariantManager;
 
     private ReferenceProgram referenceProgram;
-    private GlskProvider glskProvider;
+    private Glsk glsk;
 
     void init() {
         init(null, null);
     }
 
-    void init(ReferenceProgram referenceProgram, GlskProvider glskProvider) {
+    void init(ReferenceProgram referenceProgram, Glsk glsk) {
 
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        this.glskProvider = glskProvider;
+        this.glsk = glsk;
         this.referenceProgram = referenceProgram;
 
         // get cnec and rangeAction
@@ -116,7 +116,7 @@ abstract class AbstractFillerTest {
     }
 
     void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glskProvider, null, new HashSet<>());
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glsk, null, new HashSet<>());
         raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }

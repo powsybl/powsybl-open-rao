@@ -24,9 +24,9 @@ import static org.junit.Assert.assertNull;
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
-public class CimGlskProviderTest {
+public class CimGlskTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskProviderTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskTest.class);
 
     private Network testNetwork;
     private Instant instant;
@@ -35,7 +35,7 @@ public class CimGlskProviderTest {
     public void run() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2018-08-28T22:00:00Z");
-        CimGlskProvider cimGlskProvider = new CimGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), testNetwork);
+        CimGlsk cimGlskProvider = new CimGlsk(getClass().getResourceAsStream("/GlskCountry.xml"), testNetwork);
         Map<String, LinearGlsk> map = cimGlskProvider.selectInstant(instant).getAllGlsk(testNetwork);
         assertFalse(map.isEmpty());
 
@@ -47,7 +47,7 @@ public class CimGlskProviderTest {
     public void runWithInvalidCountry() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2020-08-28T22:00:00Z");
-        CimGlskProvider cimGlskProvider = new CimGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), testNetwork, instant);
+        CimGlsk cimGlskProvider = new CimGlsk(getClass().getResourceAsStream("/GlskCountry.xml"), testNetwork, instant);
         assertNull(cimGlskProvider.getGlsk(testNetwork, "10YBE----------2"));
     }
 }

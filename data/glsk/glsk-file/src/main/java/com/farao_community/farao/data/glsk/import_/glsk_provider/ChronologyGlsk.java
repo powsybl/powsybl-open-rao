@@ -18,20 +18,20 @@ import java.util.stream.Collectors;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class ChronologyGlskProvider implements GlskProvider {
+public class ChronologyGlsk implements Glsk {
     private Map<String, DataChronology<LinearGlsk>> chronologyGlskMap;
     private Instant selectedInstant;
 
-    public ChronologyGlskProvider(Map<String, DataChronology<LinearGlsk>> chronologyGlskMap, Instant selectedInstant) {
+    public ChronologyGlsk(Map<String, DataChronology<LinearGlsk>> chronologyGlskMap, Instant selectedInstant) {
         this.chronologyGlskMap = Objects.requireNonNull(chronologyGlskMap);
         this.selectedInstant = Objects.requireNonNull(selectedInstant);
     }
 
-    public ChronologyGlskProvider(Map<String, DataChronology<LinearGlsk>> chronologyGlskMap) {
+    public ChronologyGlsk(Map<String, DataChronology<LinearGlsk>> chronologyGlskMap) {
         this(chronologyGlskMap, Instant.now());
     }
 
-    public ChronologyGlskProvider selectInstant(Instant newInstant) {
+    public ChronologyGlsk selectInstant(Instant newInstant) {
         this.selectedInstant = Objects.requireNonNull(newInstant);
         return this;
     }

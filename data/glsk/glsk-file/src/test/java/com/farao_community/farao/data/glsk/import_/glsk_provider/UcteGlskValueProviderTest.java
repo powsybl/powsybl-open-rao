@@ -30,7 +30,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
-        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"), network, instant);
+        UcteGlsk ucteGlskProvider = new UcteGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"), network, instant);
         assertEquals(3, ucteGlskProvider.getGlsk(network, "10YFR-RTE------C").getGLSKs().size());
         assertEquals(0.3, ucteGlskProvider.getGlsk(network, "10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
     }
@@ -40,7 +40,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2020-07-29T10:00:00Z");
 
-        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"), network, instant);
+        UcteGlsk ucteGlskProvider = new UcteGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"), network, instant);
 
         assertTrue(ucteGlskProvider.getAllGlsk(network).isEmpty());
     }
@@ -50,7 +50,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
-        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"), network);
+        UcteGlsk ucteGlskProvider = new UcteGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"), network);
 
         assertNull(ucteGlskProvider.selectInstant(instant).getGlsk(network, "unknowncountry"));
     }
@@ -59,7 +59,7 @@ public class UcteGlskValueProviderTest {
     public void testProvideUcteGlskWithWrongFormat() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
-        UcteGlskProvider ucteGlskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network, instant);
+        UcteGlsk ucteGlskProvider = new UcteGlsk(getClass().getResourceAsStream("/GlskCountry.xml"), network, instant);
         assertTrue(ucteGlskProvider.getAllGlsk(network).isEmpty());
     }
 

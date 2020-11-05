@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.UcteGlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.UcteGlsk;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -65,7 +65,7 @@ public class RaoUtilTest {
     }
 
     private void addGlskProvider() {
-        UcteGlskProvider glskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/GlskCountry.xml"), network);
+        UcteGlsk glskProvider = new UcteGlsk(getClass().getResourceAsStream("/GlskCountry.xml"), network);
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
                 .withNetworkVariantId(variantId)
                 .withGlskProvider(glskProvider)

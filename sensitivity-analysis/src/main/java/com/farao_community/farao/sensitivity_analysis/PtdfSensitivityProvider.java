@@ -7,7 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
@@ -20,17 +20,17 @@ import java.util.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
-    private final GlskProvider glskProvider;
+    private final Glsk glsk;
 
-    PtdfSensitivityProvider(GlskProvider glskProvider) {
+    PtdfSensitivityProvider(Glsk glsk) {
         super();
-        this.glskProvider = Objects.requireNonNull(glskProvider);
+        this.glsk = Objects.requireNonNull(glsk);
     }
 
     @Override
     public List<SensitivityFactor> getFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getAllGlsk(network);
 
         cnecs.stream().map(Cnec::getNetworkElement)
             .distinct()

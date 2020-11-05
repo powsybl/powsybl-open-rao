@@ -10,7 +10,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.UcteGlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.UcteGlsk;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -36,7 +36,7 @@ public class AbsolutePtdfSumsComputationTest {
 
     Crac crac;
     Network network;
-    UcteGlskProvider glskProvider;
+    UcteGlsk glskProvider;
     List<Pair<Country, Country>> boundaries;
     SystematicSensitivityResult systematicSensitivityResult;
 
@@ -44,7 +44,7 @@ public class AbsolutePtdfSumsComputationTest {
     public void setUp() {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
-        glskProvider = new UcteGlskProvider(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"), network);
+        glskProvider = new UcteGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"), network);
         glskProvider.selectInstant(Instant.parse("2016-07-28T22:30:00Z"));
         boundaries = Arrays.asList(new ImmutablePair<>(Country.FR, Country.BE),
                 new ImmutablePair<>(Country.FR, Country.DE),

@@ -15,13 +15,13 @@ import java.time.Instant;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class CimGlskProvider extends ChronologyGlskProvider {
+public class CimGlsk extends ChronologyGlsk {
 
-    public CimGlskProvider(InputStream cimGlskInputStream, Network network, Instant instant) {
+    public CimGlsk(InputStream cimGlskInputStream, Network network, Instant instant) {
         super(GlskDocumentLinearGlskConverter.convert(cimGlskInputStream, network), instant);
     }
 
-    public CimGlskProvider(InputStream cimGlskInputStream, Network network) {
+    public CimGlsk(InputStream cimGlskInputStream, Network network) {
         this(cimGlskInputStream, network, Instant.now());
     }
 }

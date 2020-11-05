@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
@@ -29,9 +29,9 @@ import java.util.Set;
 public final class AbsolutePtdfSumsComputation {
     private AbsolutePtdfSumsComputation() { }
 
-    public static Map<Cnec, Double> computeAbsolutePtdfSums(Set<Cnec> cnecs, Network network, GlskProvider glskProvider, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
+    public static Map<Cnec, Double> computeAbsolutePtdfSums(Set<Cnec> cnecs, Network network, Glsk glsk, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
         Map<Cnec, Double> ptdfSums = new HashMap<>();
-        Map<String, Map<Country, Double>> ptdfMap = computePtdf(cnecs, network, glskProvider, sensitivityResult);
+        Map<String, Map<Country, Double>> ptdfMap = computePtdf(cnecs, network, glsk, sensitivityResult);
         cnecs.forEach(cnec -> {
             double ptdfSum = 0;
             for (Pair<Country, Country> countryPair : boundaries) {
@@ -44,9 +44,9 @@ public final class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private static Map<String, Map<Country, Double>> computePtdf(Set<Cnec> cnecs, Network network, GlskProvider glskProvider, SystematicSensitivityResult sensitivityResult) {
+    private static Map<String, Map<Country, Double>> computePtdf(Set<Cnec> cnecs, Network network, Glsk glsk, SystematicSensitivityResult sensitivityResult) {
         Map<String, Map<Country, Double>> ptdfs = new HashMap<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getAllGlsk(network);
         for (Cnec cnec : cnecs) {
             for (LinearGlsk linearGlsk: mapCountryLinearGlsk.values()) {
                 double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
