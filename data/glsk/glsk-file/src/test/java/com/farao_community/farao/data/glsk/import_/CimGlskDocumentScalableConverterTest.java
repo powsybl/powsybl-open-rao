@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.chronology.DataChronology;
-import com.farao_community.farao.data.glsk.import_.actors.GlskDocumentScalableConverter;
+import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentScalableConverter;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -47,7 +47,7 @@ public class CimGlskDocumentScalableConverterTest {
 
     @Test
     public void testConvertGlskDocumentToScalableDataChronologyFromFilePathString() {
-        Map<String, DataChronology<Scalable>> mapGlskDocScalable = GlskDocumentScalableConverter.convert(getResourceAsPathString(GLSKB42COUNTRYIIDM), testNetwork);
+        Map<String, DataChronology<Scalable>> mapGlskDocScalable = CimGlskDocumentScalableConverter.convert(getResourceAsPathString(GLSKB42COUNTRYIIDM), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
 
         for (String country : mapGlskDocScalable.keySet()) {
@@ -59,7 +59,7 @@ public class CimGlskDocumentScalableConverterTest {
 
     @Test
     public void testConvertGlskDocumentToScalableDataChronologyFromFilePath() {
-        Map<String, DataChronology<Scalable>> mapGlskDocScalable = GlskDocumentScalableConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
+        Map<String, DataChronology<Scalable>> mapGlskDocScalable = CimGlskDocumentScalableConverter.convert(getResourceAsPath(GLSKB42COUNTRYIIDM), testNetwork);
         assertFalse(mapGlskDocScalable.isEmpty());
 
         for (String country : mapGlskDocScalable.keySet()) {

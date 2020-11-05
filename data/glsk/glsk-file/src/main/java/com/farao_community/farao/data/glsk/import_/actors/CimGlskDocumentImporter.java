@@ -23,10 +23,10 @@ import java.nio.file.Path;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class GlskDocumentImporter {
+public final class CimGlskDocumentImporter {
     private static final String ERROR_MESSAGE = "Error while parsing GLSK document";
 
-    private GlskDocumentImporter() {
+    private CimGlskDocumentImporter() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 

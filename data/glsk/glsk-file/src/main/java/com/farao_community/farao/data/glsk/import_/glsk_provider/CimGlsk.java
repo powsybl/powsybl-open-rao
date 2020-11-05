@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.import_.glsk_provider;
 
-import com.farao_community.farao.data.glsk.import_.actors.GlskDocumentLinearGlskConverter;
+import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentLinearGlskConverter;
 import com.powsybl.iidm.network.Network;
 
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import java.time.Instant;
 public class CimGlsk extends ChronologyGlsk {
 
     public CimGlsk(InputStream cimGlskInputStream, Network network, Instant instant) {
-        super(GlskDocumentLinearGlskConverter.convert(cimGlskInputStream, network), instant);
+        super(CimGlskDocumentLinearGlskConverter.convert(cimGlskInputStream, network), instant);
     }
 
     public CimGlsk(InputStream cimGlskInputStream, Network network) {
