@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentImporter;
+import com.farao_community.farao.data.glsk.import_.actors.CimGlskImporter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +26,8 @@ import static org.junit.Assert.*;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class CimGlskDocumentImporterTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskDocumentImporterTest.class);
+public class CimGlskImporterTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskImporterTest.class);
 
     private static final String GLSKB42TEST = "/GlskB42test.xml";
     private static final String GLSKB42COUNTRY = "/GlskB42CountryIIDM.xml";
@@ -49,7 +49,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFilePathString() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsPathString(GLSKB42COUNTRY));
+        CimGlskDocument cimGlskDocument = CimGlskImporter.importGlsk(getResourceAsPathString(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
         assertFalse(cimGlskDocument.getCountries().isEmpty());
@@ -57,7 +57,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFilePath() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsPath(GLSKB42COUNTRY));
+        CimGlskDocument cimGlskDocument = CimGlskImporter.importGlsk(getResourceAsPath(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
         assertFalse(cimGlskDocument.getCountries().isEmpty());
@@ -65,7 +65,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImportB45()  {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKB45TEST));
+        CimGlskDocument cimGlskDocument = CimGlskImporter.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
 //        for (GlskShiftKey glskShiftKey : glskShiftKeys) {
@@ -78,7 +78,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFileName() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKB42TEST));
+        CimGlskDocument cimGlskDocument = CimGlskImporter.importGlsk(getResourceAsInputStream(GLSKB42TEST));
 
         List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
         for (GlskPoint point : glskPointList) {
@@ -90,7 +90,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterGlskMultiPoints() {
-        CimGlskDocument cimGlskDocument = CimGlskDocumentImporter.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
+        CimGlskDocument cimGlskDocument = CimGlskImporter.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
         List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
         for (GlskPoint point : glskPointList) {
@@ -102,14 +102,14 @@ public class CimGlskDocumentImporterTest {
     @Test
     public void testExceptionCases() {
         try {
-            CimGlskDocumentImporter.importGlsk("/nonExistingFile.xml");
+            CimGlskImporter.importGlsk("/nonExistingFile.xml");
             fail();
         } catch (FaraoException e) {
             LOGGER.info("Should throw FaraoException");
         }
 
         try {
-            CimGlskDocumentImporter.importGlsk(Paths.get("/nonExistingFile.xml"));
+            CimGlskImporter.importGlsk(Paths.get("/nonExistingFile.xml"));
             fail();
         } catch (FaraoException e) {
             LOGGER.info("Should throw FaraoException");
@@ -117,7 +117,7 @@ public class CimGlskDocumentImporterTest {
 
         try {
             byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-            CimGlskDocumentImporter.importGlsk(new ByteArrayInputStream(nonXmlBytes));
+            CimGlskImporter.importGlsk(new ByteArrayInputStream(nonXmlBytes));
             fail();
         } catch (FaraoException e) {
             LOGGER.info("Should throw FaraoException");

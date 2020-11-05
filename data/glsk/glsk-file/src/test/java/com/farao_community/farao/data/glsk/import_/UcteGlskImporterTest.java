@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.glsk.import_.actors.UcteGlskDocumentImporter;
+import com.farao_community.farao.data.glsk.import_.actors.UcteGlskImporter;
 import com.google.common.math.DoubleMath;
 import org.junit.Test;
 import org.threeten.extra.Interval;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 /**
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class UcteGlskDocumentImporterTest {
+public class UcteGlskImporterTest {
 
     private static final String COUNTRYFULL = "/20160729_0000_GSK_allday_full.xml";
     private static final String COUNTRYTEST = "/20160729_0000_GSK_allday_test.xml";
@@ -45,7 +45,7 @@ public class UcteGlskDocumentImporterTest {
 
     @Test
     public void testUcteGlskDocumentImporterTest() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
 
         List<UcteGlskSeries> list = ucteGlskDocument.getListGlskSeries();
         assertFalse(list.isEmpty());
@@ -56,17 +56,17 @@ public class UcteGlskDocumentImporterTest {
 
     @Test
     public void testImportUcteGlskDocumentWithFilePathString() {
-        assertFalse(UcteGlskDocumentImporter.importGlsk(getResourceAsPathString(COUNTRYTEST)).getListGlskSeries().isEmpty());
+        assertFalse(UcteGlskImporter.importGlsk(getResourceAsPathString(COUNTRYTEST)).getListGlskSeries().isEmpty());
     }
 
     @Test
     public void testImportUcteGlskDocumentWithFilePath() {
-        assertFalse(UcteGlskDocumentImporter.importGlsk(getResourceAsPath(COUNTRYTEST)).getListGlskSeries().isEmpty());
+        assertFalse(UcteGlskImporter.importGlsk(getResourceAsPath(COUNTRYTEST)).getListGlskSeries().isEmpty());
     }
 
     @Test
     public void testUcteGlskDocumentImporterFull() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
+        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
 
         //test Merged List GlskSeries
         assertEquals(12, ucteGlskDocument.getListGlskSeries().size());
@@ -101,14 +101,14 @@ public class UcteGlskDocumentImporterTest {
     @Test
     public void testExceptionCases() {
         try {
-            UcteGlskDocumentImporter.importGlsk("/nonExistingFile.xml");
+            UcteGlskImporter.importGlsk("/nonExistingFile.xml");
             fail();
         } catch (FaraoException e) {
             // Should throw FaraoException
         }
 
         try {
-            UcteGlskDocumentImporter.importGlsk(Paths.get("/nonExistingFile.xml"));
+            UcteGlskImporter.importGlsk(Paths.get("/nonExistingFile.xml"));
             fail();
         } catch (FaraoException e) {
             // Should throw FaraoException
@@ -116,7 +116,7 @@ public class UcteGlskDocumentImporterTest {
 
         try {
             byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-            UcteGlskDocumentImporter.importGlsk(new ByteArrayInputStream(nonXmlBytes));
+            UcteGlskImporter.importGlsk(new ByteArrayInputStream(nonXmlBytes));
             fail();
         } catch (FaraoException e) {
             // Should throw FaraoException
@@ -125,7 +125,7 @@ public class UcteGlskDocumentImporterTest {
 
     @Test
     public void testGetGlskPointForInstant() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
+        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
         Map<String, GlskPoint> result = ucteGlskDocument.getGlskPointsForInstant(Instant.parse("2016-07-28T23:30:00Z"));
         Instant instant = Instant.parse("2016-07-28T23:30:00Z");
         assertTrue(result.get("10YNL----------L").getPointInterval().getStart().isBefore(instant));
@@ -145,7 +145,7 @@ public class UcteGlskDocumentImporterTest {
 
     @Test
     public void testGetGlskPointForIncorrectInstant() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocumentImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
+        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYFULL));
         try {
             ucteGlskDocument.getGlskPointsForInstant(Instant.parse("2016-07-29T22:00:00Z"));
             fail();

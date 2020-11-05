@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.import_;
 
-import com.farao_community.farao.data.glsk.import_.actors.CimGlskDocumentImporter;
+import com.farao_community.farao.data.glsk.import_.actors.CimGlskImporter;
 import com.farao_community.farao.data.glsk.import_.actors.GlskPointLinearGlskConverter;
 import com.farao_community.farao.data.glsk.import_.actors.TypeGlskFile;
 import com.google.common.math.DoubleMath;
@@ -49,10 +49,10 @@ public class GlskPointLinearGlskConverterTest {
     public void setUp() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        glskPointCountry = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
-        glskPointCountryQuantity = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = CimGlskDocumentImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
+        glskPointCountry = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
+        glskPointCountryQuantity = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
     }
 
     /**

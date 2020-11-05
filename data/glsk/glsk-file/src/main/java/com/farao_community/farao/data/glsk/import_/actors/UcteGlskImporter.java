@@ -23,10 +23,10 @@ import java.nio.file.Path;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public final class UcteGlskDocumentImporter {
+public final class UcteGlskImporter {
     private static final String ERROR_MESSAGE = "Error while parsing GLSK document";
 
-    private UcteGlskDocumentImporter() {
+    private UcteGlskImporter() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 

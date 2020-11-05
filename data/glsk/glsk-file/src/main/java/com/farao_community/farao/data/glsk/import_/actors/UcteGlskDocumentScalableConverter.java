@@ -71,7 +71,7 @@ public final class UcteGlskDocumentScalableConverter {
      * @return A map associating a DataChronology of Scalable for each country
      */
     public static Map<String, DataChronology<Scalable>> convert(InputStream data, Network network) {
-        return convert(UcteGlskDocumentImporter.importGlsk(data), network);
+        return convert(UcteGlskImporter.importGlsk(data), network);
     }
 
     /**

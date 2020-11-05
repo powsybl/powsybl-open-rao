@@ -69,7 +69,7 @@ public final class CimGlskDocumentLinearGlskConverter {
      * @return A map associating a DataChronology of LinearGlsk for each country
      */
     public static Map<String, DataChronology<LinearGlsk>> convert(InputStream data, Network network) {
-        return convert(CimGlskDocumentImporter.importGlsk(data), network);
+        return convert(CimGlskImporter.importGlsk(data), network);
     }
 
     /**
