@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.glsk.quality_check.ucte;
 
-import com.farao_community.farao.data.glsk.import_.actors.TypeGlskFile;
-import com.farao_community.farao.data.glsk.import_.GlskPoint;
-import com.farao_community.farao.data.glsk.import_.GlskRegisteredResource;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskRegisteredResource;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 

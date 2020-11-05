@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.quality_check.ucte;
 
-import com.farao_community.farao.data.glsk.import_.UcteGlskDocument;
+import com.farao_community.farao.data.glsk.import_.ucte_glsk_document.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.xml.sax.SAXException;

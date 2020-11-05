@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.chronology.DataChronology;
-import com.farao_community.farao.data.glsk.import_.actors.UcteGlskDocumentScalableConverter;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;

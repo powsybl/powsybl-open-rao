@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.glsk.import_;
 
-import com.farao_community.farao.data.glsk.import_.actors.CimGlskImporter;
-import com.farao_community.farao.data.glsk.import_.actors.GlskPointScalableConverter;
-import com.farao_community.farao.data.glsk.import_.actors.TypeGlskFile;
+import com.farao_community.farao.data.glsk.import_.converters.GlskPointScalableConverter;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
 import com.google.common.math.DoubleMath;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;

@@ -7,7 +7,7 @@
 package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.Glsk;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.providers.Glsk;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.iidm.network.Network;
