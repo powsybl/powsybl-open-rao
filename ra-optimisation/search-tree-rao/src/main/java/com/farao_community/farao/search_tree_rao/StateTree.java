@@ -24,19 +24,7 @@ public class StateTree {
     Map<State, State> optimizedStatePerState = new HashMap<>();
     Map<State, Set<State>> perimeterPerOptimizedState = new HashMap<>();
 
-    public State getOptimizedState(State state) {
-        return optimizedStatePerState.get(state);
-    }
-
-    public Set<State> getOptimizedStates() {
-        return new HashSet<>(optimizedStatePerState.values());
-    }
-
-    public Set<State> getPerimeter(State optimizedState) {
-        return perimeterPerOptimizedState.get(optimizedState);
-    }
-
-    public void createPerimeters(Crac crac, Network network, State startingState) {
+    public StateTree(Crac crac, Network network, State startingState) {
         List<List<State>> perimeters = new ArrayList<>();
 
         if (startingState.equals(crac.getPreventiveState())) {
@@ -63,6 +51,18 @@ public class StateTree {
             perimeterPerOptimizedState.put(states.get(0), new HashSet<>(states));
             states.forEach(state -> optimizedStatePerState.put(state, states.get(0)));
         });
+    }
+
+    public State getOptimizedState(State state) {
+        return optimizedStatePerState.get(state);
+    }
+
+    public Set<State> getOptimizedStates() {
+        return new HashSet<>(optimizedStatePerState.values());
+    }
+
+    public Set<State> getPerimeter(State optimizedState) {
+        return perimeterPerOptimizedState.get(optimizedState);
     }
 
     private static boolean anyAvailableRemedialAction(Crac crac, Network network, State state) {

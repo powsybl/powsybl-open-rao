@@ -87,13 +87,11 @@ public class PerimetersTest {
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(200.).setDirection(Direction.BOTH).add()
             .add();
-
-        stateTree = new StateTree();
     }
 
     @Test
     public void testCreatePerimetersWithNoRemedialActions() {
-        stateTree.createPerimeters(crac, network, crac.getPreventiveState());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
         assertEquals(1, stateTree.getOptimizedStates().size());
         assertEquals(7, stateTree.getPerimeter(crac.getPreventiveState()).size());
     }
@@ -103,7 +101,7 @@ public class PerimetersTest {
         PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Outage")));
         crac.addRangeAction(pstRange);
-        stateTree.createPerimeters(crac, network, crac.getPreventiveState());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
         assertEquals(2, stateTree.getOptimizedStates().size());
         assertEquals(5, stateTree.getPerimeter(crac.getPreventiveState()).size());
         assertEquals(2, stateTree.getPerimeter(crac.getState("contingency-1", "Outage")).size());
@@ -114,7 +112,7 @@ public class PerimetersTest {
         PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange);
-        stateTree.createPerimeters(crac, network, crac.getPreventiveState());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
         assertEquals(2, stateTree.getOptimizedStates().size());
         assertEquals(6, stateTree.getPerimeter(crac.getPreventiveState()).size());
         assertEquals(1, stateTree.getPerimeter(crac.getState("contingency-1", "Curative")).size());
@@ -128,7 +126,7 @@ public class PerimetersTest {
         PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
-        stateTree.createPerimeters(crac, network, crac.getPreventiveState());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
         assertEquals(3, stateTree.getOptimizedStates().size());
         assertEquals(4, stateTree.getPerimeter(crac.getPreventiveState()).size());
     }
@@ -141,7 +139,7 @@ public class PerimetersTest {
         PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
-        stateTree.createPerimeters(crac, network, crac.getPreventiveState());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
         assertEquals(3, stateTree.getOptimizedStates().size());
         assertEquals(5, stateTree.getPerimeter(crac.getPreventiveState()).size());
     }
