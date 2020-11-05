@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.glsk.import_.glsk_document_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskRegisteredResource;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

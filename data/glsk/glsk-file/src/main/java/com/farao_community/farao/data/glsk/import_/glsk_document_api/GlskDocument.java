@@ -7,7 +7,10 @@
 
 package com.farao_community.farao.data.glsk.import_.glsk_document_api;
 
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.providers.*;
+import com.farao_community.farao.data.glsk.import_.ChronologyGlsk;
+import com.farao_community.farao.data.glsk.import_.ChronologyScalable;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.ScalableProvider;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;

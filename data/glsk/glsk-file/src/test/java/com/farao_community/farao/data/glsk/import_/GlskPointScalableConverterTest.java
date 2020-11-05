@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.import_;
 
+import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskDocument;
 import com.farao_community.farao.data.glsk.import_.converters.GlskPointScalableConverter;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
@@ -15,7 +16,10 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.Assert.assertTrue;
@@ -47,16 +51,16 @@ public class GlskPointScalableConverterTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException, SAXException, ParserConfigurationException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        glskPointCountry = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
-        glskPointCountryGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYGSKLSK)).getGlskPoints().get(0);
-        glskPointExplicit = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITIIDM)).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
-        glskPointParticipationFactor = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB43)).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
-        glskMeritOrder = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB45TEST)).getGlskPoints().get(0);
+        glskPointCountry = new CimGlskDocument(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
+        glskPointCountryGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB42COUNTRYGSKLSK)).getGlskPoints().get(0);
+        glskPointExplicit = new CimGlskDocument(getResourceAsStream(GLSKB42EXPLICITIIDM)).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
+        glskPointParticipationFactor = new CimGlskDocument(getResourceAsStream(GLSKB43)).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
+        glskMeritOrder = new CimGlskDocument(getResourceAsStream(GLSKB45TEST)).getGlskPoints().get(0);
 
     }
 

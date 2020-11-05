@@ -12,7 +12,7 @@ import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.providers.Glsk;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;

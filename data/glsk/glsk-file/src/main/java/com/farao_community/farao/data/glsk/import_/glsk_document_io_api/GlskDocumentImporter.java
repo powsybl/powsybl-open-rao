@@ -24,12 +24,12 @@ import java.nio.file.Path;
 
 public interface GlskDocumentImporter {
 
-    default GlskDocument convert(Path filepath) throws IOException, ParserConfigurationException, SAXException {
+    default GlskDocument importGlsk(Path filepath) throws IOException, ParserConfigurationException, SAXException {
         InputStream data = new FileInputStream(filepath.toFile());
         return importGlsk(data);
     }
 
-    default GlskDocument convert(String filePath) throws IOException, ParserConfigurationException, SAXException {
+    default GlskDocument importGlsk(String filePath) throws IOException, ParserConfigurationException, SAXException {
         InputStream data = new FileInputStream(filePath);
         return importGlsk(data);
     }

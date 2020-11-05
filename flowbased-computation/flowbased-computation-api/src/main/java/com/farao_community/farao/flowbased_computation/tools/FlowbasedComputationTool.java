@@ -12,7 +12,7 @@ import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.providers.Glsk;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
 import com.farao_community.farao.rao_commons.RaoInputHelper;

@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.providers.Glsk;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;

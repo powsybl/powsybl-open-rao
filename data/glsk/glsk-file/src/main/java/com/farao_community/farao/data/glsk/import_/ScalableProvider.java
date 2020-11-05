@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.import_.glsk_document_api.providers;
+package com.farao_community.farao.data.glsk.import_;
 
 import com.powsybl.action.util.Scalable;
 

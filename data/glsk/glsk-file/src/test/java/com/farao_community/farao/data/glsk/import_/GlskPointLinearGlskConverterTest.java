@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.import_;
 
+import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskDocument;
 import com.farao_community.farao.data.glsk.import_.converters.GlskPointLinearGlskConverter;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
@@ -17,7 +18,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.Assert.assertTrue;
@@ -46,13 +50,13 @@ public class GlskPointLinearGlskConverterTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException, SAXException, ParserConfigurationException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        glskPointCountry = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
-        glskPointCountryQuantity = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = CimGlskImporter.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
+        glskPointCountry = new CimGlskDocument(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
+        glskPointCountryQuantity = new CimGlskDocument(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
     }
 
     /**
