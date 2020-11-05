@@ -211,7 +211,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     RangeActionResult targetRaResult = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
                     STATE_TREE.getPerimeter(optimizedState).forEach(state -> {
                         targetRaResult.setSetPoint(state.getId(), raResult.getSetPoint(state.getId()));
-                        if (raResult instanceof PstRangeResult && targetRaResult instanceof PstRangeResult) {
+                        if (raResult instanceof PstRangeResult && targetRaResult instanceof PstRangeResult
+                            && ((PstRangeResult) raResult).getTap(state.getId()) != null) {
                             ((PstRangeResult) targetRaResult).setTap(state.getId(), ((PstRangeResult) raResult).getTap(state.getId()));
                         }
                     });
