@@ -7,8 +7,11 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -34,12 +37,14 @@ import java.util.Objects;
 public class MaxLoopFlowFiller implements ProblemFiller {
 
     private boolean isLoopFlowApproximation;
+    private double loopFlowAcceptableAugmentation;
     private double loopFlowConstraintAdjustmentCoefficient;
     private double loopFlowViolationCost;
     private SensitivityAnalysisParameters sensitivityAnalysisParameters;
 
-    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
+    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowAcceptableAugmentation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         this.isLoopFlowApproximation = isLoopFlowApproximation;
+        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
         this.loopFlowViolationCost = loopFlowViolationCost;
         this.sensitivityAnalysisParameters = sensitivityAnalysisParameters;
@@ -85,16 +90,27 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             loopFlowResult = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram())
                 .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCnecs());
         }
-
+        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         for (Cnec cnec : raoData.getLoopflowCnecs()) {
 
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
+            Double initialLoopFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW();
+            double inputThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, raoData.getNetwork());
             if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
                 continue;
             }
+            if (initialLoopFlow != null){
+                if(initialLoopFlow.isNaN()){
+                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA : " + initialLoopFlow);
+                }else{
+                    System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB : " + initialLoopFlow);
+                }
+            }else{
+                System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+            }
 
-            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
+            maxLoopFlowLimit = Math.max(inputThreshold, initialLoopFlow + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient;
 
             double commercialFlow;
             //get commercial flow
