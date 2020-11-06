@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
@@ -17,8 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -28,6 +26,7 @@ public class PerimetersTest {
 
     private SimpleCrac crac;
     private Network network;
+    private StateTree stateTree;
 
     @Before
     public void setUp() {
@@ -92,9 +91,9 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithNoRemedialActions() {
-        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
-        assertEquals(1, perimeters.size());
-        assertEquals(7, perimeters.get(0).size());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
+        assertEquals(1, stateTree.getOptimizedStates().size());
+        assertEquals(7, stateTree.getPerimeter(crac.getPreventiveState()).size());
     }
 
     @Test
@@ -102,10 +101,10 @@ public class PerimetersTest {
         PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Outage")));
         crac.addRangeAction(pstRange);
-        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
-        assertEquals(2, perimeters.size());
-        assertEquals(5, perimeters.get(0).size());
-        assertEquals(2, perimeters.get(1).size());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
+        assertEquals(2, stateTree.getOptimizedStates().size());
+        assertEquals(5, stateTree.getPerimeter(crac.getPreventiveState()).size());
+        assertEquals(2, stateTree.getPerimeter(crac.getState("contingency-1", "Outage")).size());
     }
 
     @Test
@@ -113,10 +112,10 @@ public class PerimetersTest {
         PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange);
-        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
-        assertEquals(2, perimeters.size());
-        assertEquals(6, perimeters.get(0).size());
-        assertEquals(1, perimeters.get(1).size());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
+        assertEquals(2, stateTree.getOptimizedStates().size());
+        assertEquals(6, stateTree.getPerimeter(crac.getPreventiveState()).size());
+        assertEquals(1, stateTree.getPerimeter(crac.getState("contingency-1", "Curative")).size());
     }
 
     @Test
@@ -127,9 +126,9 @@ public class PerimetersTest {
         PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
-        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
-        assertEquals(3, perimeters.size());
-        assertEquals(4, perimeters.get(0).size());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
+        assertEquals(3, stateTree.getOptimizedStates().size());
+        assertEquals(4, stateTree.getPerimeter(crac.getPreventiveState()).size());
     }
 
     @Test
@@ -140,8 +139,8 @@ public class PerimetersTest {
         PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
         pstRange2.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
-        List<List<State>> perimeters = RaoUtil.createPerimeters(crac, network, crac.getPreventiveState());
-        assertEquals(3, perimeters.size());
-        assertEquals(5, perimeters.get(0).size());
+        stateTree = new StateTree(crac, network, crac.getPreventiveState());
+        assertEquals(3, stateTree.getOptimizedStates().size());
+        assertEquals(5, stateTree.getPerimeter(crac.getPreventiveState()).size());
     }
 }

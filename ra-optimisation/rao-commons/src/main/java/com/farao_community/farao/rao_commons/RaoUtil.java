@@ -8,10 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -156,36 +153,5 @@ public final class RaoUtil {
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
-    }
-
-    public static List<List<State>> createPerimeters(Crac crac, Network network, State startingState) {
-        List<List<State>> perimeters = new ArrayList<>();
-
-        if (startingState.equals(crac.getPreventiveState())) {
-            List<State> preventivePerimeter = new ArrayList<>();
-            preventivePerimeter.add(startingState);
-            perimeters.add(preventivePerimeter);
-
-            List<State> currentPerimeter;
-            for (Contingency contingency : crac.getContingencies()) {
-                currentPerimeter = preventivePerimeter;
-                for (State state : crac.getStates(contingency)) {
-                    if (anyAvailableRemedialAction(crac, network, state)) {
-                        currentPerimeter = new ArrayList<>();
-                        perimeters.add(currentPerimeter);
-                    }
-                    currentPerimeter.add(state);
-                }
-            }
-        } else {
-            throw new NotImplementedException("Cannot create perimeters if starting state is different from preventive state");
-        }
-
-        return perimeters;
-    }
-
-    private static boolean anyAvailableRemedialAction(Crac crac, Network network, State state) {
-        return !crac.getNetworkActions(network, state, UsageMethod.AVAILABLE).isEmpty() ||
-            !crac.getRangeActions(network, state, UsageMethod.AVAILABLE).isEmpty();
     }
 }

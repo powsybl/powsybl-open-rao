@@ -95,8 +95,8 @@ public class JsonResultTest {
         RangeActionResultExtension rangeActionResultExtension = simpleCrac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
         double pstRangeSetPointVariant1 = 4.0;
         double pstRangeSetPointVariant2 = 14.0;
-        int pstRangeTapVariant1 = 2;
-        int pstRangeTapVariant2 = 6;
+        Integer pstRangeTapVariant1 = 2;
+        Integer pstRangeTapVariant2 = 6;
         rangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant1);
         ((PstRangeResult) rangeActionResultExtension.getVariant("variant1")).setTap(preventiveState.getId(), pstRangeTapVariant1);
         rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant2);

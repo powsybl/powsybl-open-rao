@@ -37,6 +37,6 @@ public class PstRangeResultTest {
         pstRangeResult.setTap(state.getId(), 5);
 
         assertEquals(3.2, pstRangeResult.getSetPoint(state.getId()), EPSILON);
-        assertEquals(5, pstRangeResult.getTap(state.getId()));
+        assertEquals(Integer.valueOf(5), pstRangeResult.getTap(state.getId()));
     }
 }

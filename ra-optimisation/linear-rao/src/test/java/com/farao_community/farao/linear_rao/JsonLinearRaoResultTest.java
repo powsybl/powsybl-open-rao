@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -27,7 +26,7 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
     public void setUp() throws IOException {
         raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId("variant1");
-        raoResult.setPostOptimVariantIdPerStateId(Map.of("preventive", "variant2"));
+        raoResult.setPostOptimVariantId("variant2");
         super.setUp();
     }
 

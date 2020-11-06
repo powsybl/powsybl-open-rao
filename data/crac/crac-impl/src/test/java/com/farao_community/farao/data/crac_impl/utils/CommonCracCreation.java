@@ -46,8 +46,8 @@ public final class CommonCracCreation {
         Instant curative = new Instant("curative", 1200);
 
         //NetworkElement
-        NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1 name");
-        NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1 name");
+        NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1");
+        NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1");
 
         // State
         State stateBasecase = new SimpleState(Optional.empty(), basecase);

@@ -1,7 +1,5 @@
 {
   "status" : "FAILURE",
   "preOptimVariantId" : "var1",
-  "postOptimVariantIdPerStateId" : {
-    "preventive" : "var2"
-  }
+  "postOptimVariantId" : "var2"
 }

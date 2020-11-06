@@ -25,10 +25,10 @@ public class CracVariantManager {
     private static final String NO_WORKING_VARIANT = "No working variant is defined.";
     private static final String UNKNOWN_VARIANT = "Unknown variant %s";
 
-    private List<String> variantIds;
+    private final List<String> variantIds;
     private String workingVariantId;
-    private Crac crac;
-    private Map<String, SystematicSensitivityResult> systematicSensitivityResultMap;
+    private final Crac crac;
+    private final Map<String, SystematicSensitivityResult> systematicSensitivityResultMap;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.

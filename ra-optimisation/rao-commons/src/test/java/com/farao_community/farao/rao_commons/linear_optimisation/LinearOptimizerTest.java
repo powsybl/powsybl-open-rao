@@ -181,7 +181,7 @@ public class LinearOptimizerTest {
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
         PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-        Assert.assertEquals(-12, pstRangeResult.getTap(preventiveState));
+        Assert.assertEquals(Integer.valueOf(-12), pstRangeResult.getTap(preventiveState));
         Assert.assertEquals(0.39 - 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
     }
 
@@ -197,7 +197,7 @@ public class LinearOptimizerTest {
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
         RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
         PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-        Assert.assertEquals(14, pstRangeResult.getTap(preventiveState));
+        Assert.assertEquals(Integer.valueOf(14), pstRangeResult.getTap(preventiveState));
         Assert.assertEquals(0.39 + 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
     }
 

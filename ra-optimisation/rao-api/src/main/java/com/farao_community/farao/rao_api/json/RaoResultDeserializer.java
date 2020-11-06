@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
@@ -20,7 +19,6 @@ import com.powsybl.commons.json.JsonUtil;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -53,10 +51,9 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
                     raoResult.setPreOptimVariantId(parser.getValueAsString());
                     break;
 
-                case "postOptimVariantIdPerStateId":
+                case "postOptimVariantId":
                     parser.nextToken();
-                    raoResult.setPostOptimVariantIdPerStateId(parser.readValueAs(new TypeReference<Map<String, String>>() {
-                    }));
+                    raoResult.setPostOptimVariantId(parser.getValueAsString());
                     break;
 
                 case "extensions":

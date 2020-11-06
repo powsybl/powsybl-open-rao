@@ -38,8 +38,8 @@ public class PstRangeResult extends RangeActionResult {
         stateIds.forEach(state -> tapPerStates.put(state, null));
     }
 
-    public int getTap(String stateId) {
-        return tapPerStates.getOrDefault(stateId, null);
+    public Integer getTap(String stateId) {
+        return tapPerStates.get(stateId);
     }
 
     public void setTap(String stateId, int tap) {

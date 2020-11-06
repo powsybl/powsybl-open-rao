@@ -51,29 +51,27 @@ final class SearchTreeRaoLogger {
                     .append(" , ");
         }
         String rangeActionsLog = rangeActionMsg.toString();
-        Tree.LOGGER.info(rangeActionsLog);
+        SearchTree.LOGGER.info(rangeActionsLog);
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
-        Map<String, String> variantIdPerStatedId = new HashMap<>();
-        leaf.getRaoData().getCnecs().forEach(cnec -> variantIdPerStatedId.putIfAbsent(cnec.getState().getId(), leaf.getBestVariantId()));
-        logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), variantIdPerStatedId, unit, relativePositiveMargins);
+        logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), leaf.getBestVariantId(), unit, relativePositiveMargins);
     }
 
-    static void logMostLimitingElementsResults(Set<Cnec> cnecs, Map<String, String> variantIdPerStatedId, Unit unit, boolean relativePositiveMargins) {
+    static void logMostLimitingElementsResults(Set<Cnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
         List<Cnec> sortedCnecs = cnecs.stream().
                 filter(Cnec::isOptimized).
-                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantIdPerStatedId.get(cnec.getState().getId()), unit, relativePositiveMargins))).
+                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
             Cnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            double cnecMargin = computeCnecMargin(cnec, variantIdPerStatedId.get(cnec.getState().getId()), unit, relativePositiveMargins);
+            double cnecMargin = computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            Tree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
+            SearchTree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
                     i + 1,
                     cnecNetworkElementName,
                     cnecStateId,
