@@ -46,6 +46,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return "1.0.0";
     }
 
+    public SearchTreeRaoProvider() {
+    }
+
     // Useful for tests
     SearchTreeRaoProvider(StateTree stateTree) {
         this.stateTree = stateTree;
