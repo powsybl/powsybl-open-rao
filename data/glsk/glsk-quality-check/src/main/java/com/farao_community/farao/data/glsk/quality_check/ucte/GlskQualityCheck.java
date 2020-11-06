@@ -40,10 +40,10 @@ class GlskQualityCheck {
         glskPoint.getGlskShiftKeys().forEach(glskShiftKey -> {
             if (glskShiftKey.getPsrType().equals(GENERATOR)) {
                 glskShiftKey.getRegisteredResourceArrayList()
-                        .forEach(resource -> checkResource(resource, network.getGenerator(resource.getGeneratorId(TypeGlskFile.UCTE)), "Generator", network, tso));
+                        .forEach(resource -> checkResource(resource, network.getGenerator(resource.getGeneratorId()), "Generator", network, tso));
             } else if (glskShiftKey.getPsrType().equals(LOAD)) {
                 glskShiftKey.getRegisteredResourceArrayList()
-                        .forEach(resource -> checkResource(resource, network.getLoad(resource.getLoadId(TypeGlskFile.UCTE)), "Load", network, tso));
+                        .forEach(resource -> checkResource(resource, network.getLoad(resource.getLoadId()), "Load", network, tso));
             }
         });
     }

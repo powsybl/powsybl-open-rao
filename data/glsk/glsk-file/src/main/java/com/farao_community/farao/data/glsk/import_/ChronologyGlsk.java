@@ -17,21 +17,19 @@ import java.util.Map;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class ChronologyGlsk implements GlskProvider {
-
-    private final ChronologyLinearData<LinearGlsk> chronologyLinearData;
+public class ChronologyGlsk extends ChronologyLinearData<LinearGlsk> implements GlskProvider {
 
     public ChronologyGlsk(GlskDocument glskDocument, Network network) {
-        chronologyLinearData = new ChronologyLinearData<>(glskDocument, network, GlskPointLinearGlskConverter::convert);
+        super(glskDocument, network, GlskPointLinearGlskConverter::convert);
     }
 
     @Override
     public Map<String, LinearGlsk> getLinearGlskPerCountry(Instant instant) {
-        return chronologyLinearData.getLinearData(instant);
+        return getLinearData(instant);
     }
 
     @Override
     public LinearGlsk getLinearGlsk(Instant instant, String area) {
-        return chronologyLinearData.getLinearData(instant, area);
+        return getLinearData(instant, area);
     }
 }

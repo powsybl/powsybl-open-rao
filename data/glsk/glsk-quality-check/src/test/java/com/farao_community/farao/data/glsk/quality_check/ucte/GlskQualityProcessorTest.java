@@ -52,8 +52,8 @@ public class GlskQualityProcessorTest {
     }
 
     @Test
-    public void qualityCheckWithError1() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(FIRST_ERROR));
+    public void qualityCheckWithError1() throws ParserConfigurationException, SAXException, IOException {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(FIRST_ERROR));
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
@@ -67,8 +67,8 @@ public class GlskQualityProcessorTest {
     }
 
     @Test
-    public void qualityCheckWithError2() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+    public void qualityCheckWithError2() throws ParserConfigurationException, SAXException, IOException {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
@@ -79,8 +79,8 @@ public class GlskQualityProcessorTest {
     }
 
     @Test
-    public void qualityCheckWithError3() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+    public void qualityCheckWithError3() throws ParserConfigurationException, SAXException, IOException {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase_error_3.xiidm", getClass().getResourceAsStream("/testCase_error_3.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 
@@ -91,8 +91,8 @@ public class GlskQualityProcessorTest {
     }
 
     @Test
-    public void qualityCheckLoadNotConnected() {
-        UcteGlskDocument ucteGlskDocument = UcteGlskImporter.importGlsk(getResourceAsInputStream(COUNTRYTEST));
+    public void qualityCheckLoadNotConnected() throws ParserConfigurationException, SAXException, IOException {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase_error_load_not_connected.xiidm", getClass().getResourceAsStream("/testCase_error_load_not_connected.xiidm"));
         QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
 

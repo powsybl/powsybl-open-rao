@@ -18,21 +18,19 @@ import java.util.Map;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ChronologyScalable implements ScalableProvider {
-
-    private final ChronologyLinearData<Scalable> chronologyLinearData;
+public class ChronologyScalable extends ChronologyLinearData<Scalable> implements ScalableProvider {
 
     public ChronologyScalable(GlskDocument glskDocument, Network network) {
-        chronologyLinearData = new ChronologyLinearData<>(glskDocument, network, GlskPointScalableConverter::convert);
+        super(glskDocument, network, GlskPointScalableConverter::convert);
     }
 
     @Override
     public Map<String, Scalable> getScalablePerCountry(Instant instant) {
-        return chronologyLinearData.getLinearData(instant);
+        return getLinearData(instant);
     }
 
     @Override
     public Scalable getScalable(Instant instant, String area) {
-        return chronologyLinearData.getLinearData(instant, area);
+        return getLinearData(instant, area);
     }
 }
