@@ -13,6 +13,7 @@ import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.farao_community.farao.data.glsk.import_.ScalableProvider;
 import com.powsybl.iidm.network.Network;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -25,10 +26,18 @@ public interface GlskDocument {
     List<AbstractGlskPoint> getGlskPoints(String country);
 
     default GlskProvider getGlskProvider(Network network) {
-        return new ChronologyGlsk(this, network);
+        return getGlskProvider(network, null);
+    }
+
+    default GlskProvider getGlskProvider(Network network, Instant instant) {
+        return new ChronologyGlsk(this, network, instant);
     }
 
     default ScalableProvider getScalableProvider(Network network) {
-        return new ChronologyScalable(this, network);
+        return getScalableProvider(network, null);
+    }
+
+    default ScalableProvider getScalableProvider(Network network, Instant instant) {
+        return new ChronologyScalable(this, network, instant);
     }
 }

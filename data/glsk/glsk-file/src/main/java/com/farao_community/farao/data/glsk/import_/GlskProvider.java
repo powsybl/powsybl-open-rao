@@ -9,7 +9,6 @@ package com.farao_community.farao.data.glsk.import_;
 
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 public interface GlskProvider {
 
-    Map<String, LinearGlsk> getLinearGlskPerCountry(Instant instant);
+    Map<String, LinearGlsk> getLinearGlskPerCountry();
 
-    LinearGlsk getLinearGlsk(Instant instant, String area);
+    LinearGlsk getLinearGlsk(String area);
 }

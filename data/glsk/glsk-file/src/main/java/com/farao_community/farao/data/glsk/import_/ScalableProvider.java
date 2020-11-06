@@ -9,7 +9,6 @@ package com.farao_community.farao.data.glsk.import_;
 
 import com.powsybl.action.util.Scalable;
 
-import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 public interface ScalableProvider {
 
-    Map<String, Scalable> getScalablePerCountry(Instant instant);
+    Map<String, Scalable> getScalablePerCountry();
 
-    Scalable getScalable(Instant instant, String area);
+    Scalable getScalable(String area);
 }

@@ -40,11 +40,11 @@ public class CimGlskTest {
     public void run() throws IOException, SAXException, ParserConfigurationException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2018-08-28T22:00:00Z");
-        GlskProvider cimGlskProvider = new CimGlskDocument(getClass().getResourceAsStream("/GlskCountry.xml")).getGlskProvider(testNetwork);
-        Map<String, LinearGlsk> map = cimGlskProvider.getLinearGlskPerCountry(instant);
+        GlskProvider cimGlskProvider = new CimGlskDocument(getClass().getResourceAsStream("/GlskCountry.xml")).getGlskProvider(testNetwork, instant);
+        Map<String, LinearGlsk> map = cimGlskProvider.getLinearGlskPerCountry();
         assertFalse(map.isEmpty());
 
-        LinearGlsk linearGlsk = cimGlskProvider.getLinearGlsk(instant, "10YBE----------2");
+        LinearGlsk linearGlsk = cimGlskProvider.getLinearGlsk("10YBE----------2");
         assertFalse(linearGlsk.getGLSKs().isEmpty());
     }
 
@@ -52,7 +52,7 @@ public class CimGlskTest {
     public void runWithInvalidCountry() throws IOException, SAXException, ParserConfigurationException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2020-08-28T22:00:00Z");
-        GlskProvider cimGlskProvider = new CimGlskDocument(getClass().getResourceAsStream("/GlskCountry.xml")).getGlskProvider(testNetwork);
-        assertNull(cimGlskProvider.getLinearGlsk(instant, "10YBE----------2"));
+        GlskProvider cimGlskProvider = new CimGlskDocument(getClass().getResourceAsStream("/GlskCountry.xml")).getGlskProvider(testNetwork, instant);
+        assertNull(cimGlskProvider.getLinearGlsk("10YBE----------2"));
     }
 }

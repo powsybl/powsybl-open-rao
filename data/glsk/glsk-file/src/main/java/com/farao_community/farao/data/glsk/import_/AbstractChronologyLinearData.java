@@ -24,11 +24,13 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ChronologyLinearData<I> {
+public abstract class AbstractChronologyLinearData<I> {
 
     private final Map<String, DataChronology<I>> chronologyLinearDataMap;
+    private Instant instant;
 
-    public ChronologyLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
+    protected AbstractChronologyLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
+        this.instant = instant == null ? Instant.now() : instant;
         chronologyLinearDataMap = new HashMap<>();
 
         for (String country : glskDocument.getCountries()) {
@@ -44,7 +46,11 @@ public class ChronologyLinearData<I> {
         }
     }
 
-    public Map<String, I> getLinearData(Instant instant) {
+    public void setInstant(Instant instant) {
+        this.instant = instant;
+    }
+
+    protected Map<String, I> getLinearData() {
         return chronologyLinearDataMap.entrySet().stream()
             .filter(entry -> entry.getValue().getDataForInstant(instant).isPresent())
             .collect(Collectors.toMap(
@@ -53,7 +59,7 @@ public class ChronologyLinearData<I> {
             ));
     }
 
-    public I getLinearData(Instant instant, String area) {
+    protected I getLinearData(String area) {
         Objects.requireNonNull(area);
         if (!chronologyLinearDataMap.containsKey(area)) {
             return null;
