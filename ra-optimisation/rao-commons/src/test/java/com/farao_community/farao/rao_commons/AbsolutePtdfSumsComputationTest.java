@@ -10,6 +10,8 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.ucte_glsk_document.UcteGlskDocumentImporter;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -19,7 +21,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -35,16 +40,15 @@ public class AbsolutePtdfSumsComputationTest {
 
     Crac crac;
     Network network;
-    UcteGlsk glskProvider;
+    GlskProvider glskProvider;
     List<Pair<Country, Country>> boundaries;
     SystematicSensitivityResult systematicSensitivityResult;
 
     @Before
-    public void setUp() {
+    public void setUp() throws ParserConfigurationException, SAXException, IOException {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
-        glskProvider = new UcteGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"), network);
-        glskProvider.selectInstant(Instant.parse("2016-07-28T22:30:00Z"));
+        GlskProvider glskProvider = new UcteGlskDocumentImporter().importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml")).getGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
         boundaries = Arrays.asList(new ImmutablePair<>(Country.FR, Country.BE),
                 new ImmutablePair<>(Country.FR, Country.DE),
                 new ImmutablePair<>(Country.NL, Country.BE),
@@ -58,7 +62,7 @@ public class AbsolutePtdfSumsComputationTest {
 
     @Test
     public void testComputation() {
-        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getCnecs(), network, glskProvider, boundaries, systematicSensitivityResult);
+        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getCnecs(), glskProvider, boundaries, systematicSensitivityResult);
         assertEquals(0.8, ptdfSums.get(crac.getCnec("cnec1basecase")), DOUBLE_TOLERANCE);
         assertEquals(0.6, ptdfSums.get(crac.getCnec("cnec2basecase")), DOUBLE_TOLERANCE);
         assertEquals(0, ptdfSums.get(crac.getCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);

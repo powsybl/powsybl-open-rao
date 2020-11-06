@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_api;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.glsk.import_.providers.Glsk;
 import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
@@ -37,7 +36,7 @@ public final class RaoInput {
         private State optimizedState;
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
-        private Glsk glsk;
+        private GlskProvider glsk;
 
         private RaoInputBuilder() {
         }
@@ -77,7 +76,7 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withGlskProvider(Glsk glsk) {
+        public RaoInputBuilder withGlskProvider(GlskProvider glsk) {
             this.glsk = glsk;
             return this;
         }
@@ -126,7 +125,7 @@ public final class RaoInput {
     private Network network;
     private String networkVariantId;
     private ReferenceProgram referenceProgram;
-    private Glsk glsk;
+    private GlskProvider glsk;
 
     private RaoInput() {
     }

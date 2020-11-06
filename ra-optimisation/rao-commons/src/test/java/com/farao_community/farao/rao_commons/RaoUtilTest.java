@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.ucte_glsk_document.UcteGlskDocumentImporter;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -22,7 +24,10 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,8 +68,9 @@ public class RaoUtilTest {
         raoParameters.addExtension(RaoPtdfParameters.class, raoPtdfParameters);
     }
 
-    private void addGlskProvider() {
-        UcteGlsk glskProvider = new UcteGlsk(getClass().getResourceAsStream("/GlskCountry.xml"), network);
+    private void addGlskProvider() throws ParserConfigurationException, SAXException, IOException {
+
+        GlskProvider glskProvider = new UcteGlskDocumentImporter().importGlsk(getClass().getResourceAsStream("/GlskCountry.xml")).getGlskProvider(network);
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
                 .withNetworkVariantId(variantId)
                 .withGlskProvider(glskProvider)
@@ -182,14 +188,14 @@ public class RaoUtilTest {
     }
 
     @Test(expected = FaraoException.class)
-    public void testExceptionForNoPtdfParametersOnRelativeMargin() {
+    public void testExceptionForNoPtdfParametersOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
-    public void testExceptionForNullBoundariesOnRelativeMargin() {
+    public void testExceptionForNullBoundariesOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
         addGlskProvider();
         addPtdfParameters(null);
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
@@ -197,7 +203,7 @@ public class RaoUtilTest {
     }
 
     @Test(expected = FaraoException.class)
-    public void testExceptionForEmptyBoundariesOnRelativeMargin() {
+    public void testExceptionForEmptyBoundariesOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
         addGlskProvider();
         addPtdfParameters(new ArrayList<>());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
@@ -205,7 +211,7 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() {
+    public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
         addPtdfParameters(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
