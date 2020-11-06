@@ -9,7 +9,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
-import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;

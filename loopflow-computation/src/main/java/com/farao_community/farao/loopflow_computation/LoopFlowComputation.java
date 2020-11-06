@@ -8,7 +8,7 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;

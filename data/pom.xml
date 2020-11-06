@@ -21,5 +21,6 @@
         <module>flowbased-domain</module>
         <module>glsk</module>
         <module>refprog</module>
+        <module>glsk/glsk-document-io-api</module>
     </modules>
 </project>
