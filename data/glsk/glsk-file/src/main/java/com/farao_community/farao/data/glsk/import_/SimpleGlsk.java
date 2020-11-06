@@ -12,6 +12,7 @@ import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocumen
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -21,6 +22,10 @@ public class SimpleGlsk extends AbstractSimpleLinearData<LinearGlsk> implements 
 
     public SimpleGlsk(GlskDocument glskDocument, Network network) {
         super(glskDocument, network, GlskPointLinearGlskConverter::convert);
+    }
+
+    public SimpleGlsk(GlskDocument glskDocument, Network network, Instant instant) {
+        super(glskDocument, network, GlskPointLinearGlskConverter::convert, instant);
     }
 
     @Override

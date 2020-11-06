@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.glsk.import_.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
@@ -79,13 +79,13 @@ abstract class AbstractFillerTest {
     ResultVariantManager resultVariantManager;
 
     private ReferenceProgram referenceProgram;
-    private Glsk glsk;
+    private GlskProvider glsk;
 
     void init() {
         init(null, null);
     }
 
-    void init(ReferenceProgram referenceProgram, Glsk glsk) {
+    void init(ReferenceProgram referenceProgram, GlskProvider glsk) {
 
         // arrange some data for all fillers test
         // crac and network

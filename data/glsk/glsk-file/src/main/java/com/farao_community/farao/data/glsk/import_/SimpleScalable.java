@@ -12,6 +12,7 @@ import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocumen
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -21,6 +22,10 @@ public class SimpleScalable extends AbstractSimpleLinearData<Scalable> implement
 
     public SimpleScalable(GlskDocument glskDocument, Network network) {
         super(glskDocument, network, GlskPointScalableConverter::convert);
+    }
+
+    public SimpleScalable(GlskDocument glskDocument, Network network, Instant instant) {
+        super(glskDocument, network, GlskPointScalableConverter::convert, instant);
     }
 
     @Override

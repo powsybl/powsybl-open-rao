@@ -26,6 +26,10 @@ public interface GlskDocument {
         return new SimpleGlsk(this, network);
     }
 
+    default GlskProvider getGlskProvider(Network network, Instant instant) {
+        return new SimpleGlsk(this, network, instant);
+    }
+
     default ChronologyGlskProvider getChronologyGlskProvider(Network network, Instant instant) {
         return new ChronologyGlsk(this, network, instant);
     }
@@ -34,7 +38,11 @@ public interface GlskDocument {
         return new SimpleScalable(this, network);
     }
 
-    default ChronologyScalableProvider getScalableProvider(Network network, Instant instant) {
+    default ScalableProvider getScalableProvider(Network network, Instant instant) {
+        return new SimpleScalable(this, network, instant);
+    }
+
+    default ChronologyScalableProvider getChronologyScalableProvider(Network network, Instant instant) {
         return new ChronologyScalable(this, network, instant);
     }
 }

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.import_.GlskProvider;
-import com.farao_community.farao.data.glsk.import_.glsk_document_io_api.GlskDocumentImporters;
+import com.farao_community.farao.data.glsk.import_.ucte_glsk_document.UcteGlskDocument;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -53,10 +54,11 @@ public class SystematicSensitivityResultTest {
     private PtdfSensitivityProvider ptdfSensitivityProvider;
 
     @Before
-    public void setUp() throws SAXException, ParserConfigurationException {
+    public void setUp() throws SAXException, ParserConfigurationException, IOException {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
-        GlskProvider glskProvider = GlskDocumentImporters.importGlsk("/glsk_proportional_12nodes.xml", getClass().getResourceAsStream("/glsk_proportional_12nodes.xml")).getGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
+        GlskProvider glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
+            .getChronologyGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
         rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
