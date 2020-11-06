@@ -7,30 +7,29 @@
 
 package com.farao_community.farao.data.glsk.import_;
 
+import com.farao_community.farao.data.glsk.import_.converters.GlskPointLinearGlskConverter;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocument;
-import com.farao_community.farao.data.glsk.import_.converters.GlskPointScalableConverter;
-import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.time.Instant;
 import java.util.Map;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ChronologyScalable extends AbstractChronologyLinearData<Scalable> implements ChronologyScalableProvider {
+public class SimpleGlsk extends AbstractSimpleLinearData<LinearGlsk> implements GlskProvider {
 
-    public ChronologyScalable(GlskDocument glskDocument, Network network, Instant instant) {
-        super(glskDocument, network, GlskPointScalableConverter::convert, instant);
+    public SimpleGlsk(GlskDocument glskDocument, Network network) {
+        super(glskDocument, network, GlskPointLinearGlskConverter::convert);
     }
 
     @Override
-    public Map<String, Scalable> getScalablePerCountry() {
+    public Map<String, LinearGlsk> getLinearGlskPerCountry() {
         return getLinearData();
     }
 
     @Override
-    public Scalable getScalable(String area) {
+    public LinearGlsk getLinearGlsk(String area) {
         return getLinearData(area);
     }
 }

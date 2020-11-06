@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.farao_community.farao.data.glsk.import_.providers.Glsk;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -127,7 +128,7 @@ public final class RaoData {
         return referenceProgram;
     }
 
-    public Glsk getGlskProvider() {
+    public GlskProvider getGlskProvider() {
         return glsk;
     }
 
