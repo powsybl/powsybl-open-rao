@@ -37,8 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class Tree {
-    static final Logger LOGGER = LoggerFactory.getLogger(Tree.class);
+public class SearchTree {
+    static final Logger LOGGER = LoggerFactory.getLogger(SearchTree.class);
 
     private RaoParameters raoParameters;
     private SearchTreeRaoParameters searchTreeRaoParameters;
@@ -221,7 +221,7 @@ public class Tree {
     private RaoResult buildOutput() {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
-        raoResult.setPostOptimVariantIdForStateId(optimalLeaf.getRaoData().getOptimizedState().getId(), optimalLeaf.getBestVariantId());
+        raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }
 }

@@ -29,7 +29,7 @@ import java.util.Objects;
 public class CracResultManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(CracResultManager.class);
 
-    private RaoData raoData;
+    private final RaoData raoData;
 
     CracResultManager(RaoData raoData) {
         this.raoData = raoData;
