@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.glsk.import_.glsk_document_api;
+package com.farao_community.farao.data.glsk.import_.cim_glsk_document;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskPeriod;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
  * CIM type GLSK internal object: contains a list of GlskPeriod
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskTimeSeries {
+public class CimGlskTimeSeries {
 
     /**
      * mrid of time series
@@ -41,7 +41,7 @@ public class GlskTimeSeries {
     /**
      * @param element Time series element
      */
-    public GlskTimeSeries(Element element) {
+    public CimGlskTimeSeries(Element element) {
         Objects.requireNonNull(element);
         this.mRID = element.getElementsByTagName("mRID").item(0).getTextContent();
         this.subjectDomainmRID = Objects.requireNonNull(element)
@@ -64,10 +64,10 @@ public class GlskTimeSeries {
     /**
      * @return get all glsk point in a time series
      */
-    public List<GlskPoint> getGlskPointListInGlskTimeSeries() {
-        List<GlskPoint> glskPointList = new ArrayList<>();
+    public List<AbstractGlskPoint> getGlskPointListInGlskTimeSeries() {
+        List<AbstractGlskPoint> glskPointList = new ArrayList<>();
         for (CimGlskPeriod p : getGlskPeriods()) {
-            List<GlskPoint> list = p.getGlskPoints();
+            List<AbstractGlskPoint> list = p.getGlskPoints();
             glskPointList.addAll(list);
         }
         return glskPointList;

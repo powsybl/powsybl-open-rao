@@ -6,10 +6,8 @@
  */
 package com.farao_community.farao.data.glsk.import_.cim_glsk_document;
 
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocument;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskTimeSeries;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,7 +36,7 @@ public class CimGlskDocument implements GlskDocument {
     /**
      * IIDM GlskDocument: map < CountryCode, all GlskTimeSeries of the country
      */
-    private Map<String, GlskTimeSeries> mapGlskTimeSeries; //map<CountryCode, GlskTimesSeries of the Country>
+    private Map<String, CimGlskTimeSeries> mapGlskTimeSeries; //map<CountryCode, GlskTimesSeries of the Country>
     //We consider there are one timeSeries per country. Otherwise: Map<Country, List<GlskTimesSeries>>. but do we have a use case?
 
     /**
@@ -85,7 +83,7 @@ public class CimGlskDocument implements GlskDocument {
 
             if (timeSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element timeSeriesElement = (Element) timeSeriesNodeList.item(i);
-                GlskTimeSeries timeSeries = new GlskTimeSeries(timeSeriesElement);
+                CimGlskTimeSeries timeSeries = new CimGlskTimeSeries(timeSeriesElement);
 
                 String countryMrid = timeSeriesElement.getElementsByTagName("subject_Domain.mRID").item(0).getTextContent();
                 mapGlskTimeSeries.put(countryMrid, timeSeries);
@@ -97,25 +95,20 @@ public class CimGlskDocument implements GlskDocument {
     /**
      * @return getter of all country's time series map
      */
-    public Map<String, GlskTimeSeries> getMapGlskTimeSeries() {
+    public Map<String, CimGlskTimeSeries> getMapGlskTimeSeries() {
         return mapGlskTimeSeries;
     }
 
     /**
      * @return getter of all GlskPoint in document
      */
-    public List<GlskPoint> getGlskPoints() {
-        List<GlskPoint> glskPointList = new ArrayList<>();
+    public List<AbstractGlskPoint> getGlskPoints() {
+        List<AbstractGlskPoint> glskPointList = new ArrayList<>();
         for (String s : getMapGlskTimeSeries().keySet()) {
-            List<GlskPoint> list = getMapGlskTimeSeries().get(s).getGlskPointListInGlskTimeSeries();
+            List<AbstractGlskPoint> list = getMapGlskTimeSeries().get(s).getGlskPointListInGlskTimeSeries();
             glskPointList.addAll(list);
         }
         return glskPointList;
-    }
-
-    @Override
-    public TypeGlskFile getType() {
-        return TypeGlskFile.CIM;
     }
 
     /**
@@ -127,7 +120,7 @@ public class CimGlskDocument implements GlskDocument {
     }
 
     @Override
-    public List<GlskPoint> getGlskPoints(String country) {
+    public List<AbstractGlskPoint> getGlskPoints(String country) {
         return getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
     }
 

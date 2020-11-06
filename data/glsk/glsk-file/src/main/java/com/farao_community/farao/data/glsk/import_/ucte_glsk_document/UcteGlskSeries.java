@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.import_.ucte_glsk_document;
 
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,7 +44,7 @@ public class UcteGlskSeries {
     /**
      * List of block in time series
      */
-    private List<GlskPoint> ucteGlskBlocks;
+    private List<AbstractGlskPoint> ucteGlskBlocks;
     /**
      * Constant business type
      */
@@ -78,7 +78,7 @@ public class UcteGlskSeries {
         NodeList ucteGlskBlockNodes = Objects.requireNonNull(element).getElementsByTagName(this.ucteGlskBlockType);
         for (int i = 0; i < ucteGlskBlockNodes.getLength(); i++) {
             boolean ucteformat = true;
-            GlskPoint glskPoint = new GlskPoint(ucteformat, (Element) ucteGlskBlockNodes.item(i), this.ucteGlskBlockType, this.area, this.ucteBusinessType, this.shareFactor);
+            AbstractGlskPoint glskPoint = new UcteGlskPoint((Element) ucteGlskBlockNodes.item(i), this.ucteGlskBlockType, this.area, this.ucteBusinessType, this.shareFactor);
             ucteGlskBlocks.add(glskPoint);
         }
 
@@ -101,7 +101,7 @@ public class UcteGlskSeries {
     /**
      * @return getter list of block in time series
      */
-    public List<GlskPoint> getUcteGlskBlocks() {
+    public List<AbstractGlskPoint> getUcteGlskBlocks() {
         return ucteGlskBlocks;
     }
 

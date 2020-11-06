@@ -8,8 +8,15 @@
 package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.commons.chronology.DataChronology;
+import com.farao_community.farao.commons.chronology.DataChronologyImpl;
+import com.farao_community.farao.data.glsk.import_.converters.GlskPointToLinearDataConverter;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocument;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
+import com.powsybl.iidm.network.Network;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,8 +28,20 @@ public class ChronologyLinearData<I> {
 
     private final Map<String, DataChronology<I>> chronologyLinearDataMap;
 
-    public ChronologyLinearData(Map<String, DataChronology<I>> chronologyLinearDataMap) {
-        this.chronologyLinearDataMap = chronologyLinearDataMap;
+    public ChronologyLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
+        chronologyLinearDataMap = new HashMap<>();
+
+        for (String country : glskDocument.getCountries()) {
+            DataChronology<I> dataChronology = DataChronologyImpl.create();
+
+            //mapping with DataChronology
+            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(country);
+            for (AbstractGlskPoint point : glskPointList) {
+                I linearData = converter.convert(network, point);
+                dataChronology.storeDataOnInterval(linearData, point.getPointInterval());
+            }
+            chronologyLinearDataMap.put(country, dataChronology);
+        }
     }
 
     public Map<String, I> getLinearData(Instant instant) {

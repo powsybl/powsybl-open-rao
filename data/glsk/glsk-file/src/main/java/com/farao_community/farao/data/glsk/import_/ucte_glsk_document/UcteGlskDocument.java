@@ -7,9 +7,8 @@
 package com.farao_community.farao.data.glsk.import_.ucte_glsk_document;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocument;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,19 +30,19 @@ import java.util.*;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Amira Kahya {@literal <amira.kahya@rte-france.com>}
  */
-public class UcteGlskDocument implements GlskDocument {
+public final class UcteGlskDocument implements GlskDocument {
     /**
      * list of GlskPoint in the give Glsk document
      */
-    private List<GlskPoint> listUcteGlskBlocks;
+    private final List<AbstractGlskPoint> listUcteGlskBlocks;
     /**
      * map of Country EIC and time series
      */
-    private Map<String, UcteGlskSeries> ucteGlskSeriesByCountry; //map<countryEICode, UcteGlskSeries>
+    private final Map<String, UcteGlskSeries> ucteGlskSeriesByCountry; //map<countryEICode, UcteGlskSeries>
     /**
      * List of Glsk point by country code
      */
-    private Map<String, List<GlskPoint>> ucteGlskPointsByCountry; //map <CountryID, List<GlskPoint>>
+    private final Map<String, List<AbstractGlskPoint>> ucteGlskPointsByCountry; //map <CountryID, List<GlskPoint>>
     /**
      * document GSKTimeInterval
      */
@@ -59,7 +58,7 @@ public class UcteGlskDocument implements GlskDocument {
      * @throws IOException
      * @throws SAXException
      */
-    public UcteGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
+    private UcteGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -106,10 +105,10 @@ public class UcteGlskDocument implements GlskDocument {
         ucteGlskSeriesByCountry.keySet().forEach(id -> {
             String country = ucteGlskSeriesByCountry.get(id).getArea();
             if (!ucteGlskPointsByCountry.containsKey(country)) {
-                List<GlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
+                List<AbstractGlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
                 ucteGlskPointsByCountry.put(country, glskPointList);
             } else {
-                List<GlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
+                List<AbstractGlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
                 glskPointList.addAll(ucteGlskPointsByCountry.get(country));
                 ucteGlskPointsByCountry.put(country, glskPointList);
             }
@@ -124,12 +123,12 @@ public class UcteGlskDocument implements GlskDocument {
      * @return
      */
     private UcteGlskSeries calculateUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
-        List<GlskPoint> glskPointListTobeAdded = new ArrayList();
+        List<AbstractGlskPoint> glskPointListTobeAdded = new ArrayList();
         List<Interval> oldPointsIntervalsList = new ArrayList<>();
-        List<GlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
-        List<GlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
-        for (GlskPoint oldPoint : oldPoints) {
-            for (GlskPoint incomingPoint : incomingPoints) {
+        List<AbstractGlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
+        List<AbstractGlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
+        for (AbstractGlskPoint oldPoint : oldPoints) {
+            for (AbstractGlskPoint incomingPoint : incomingPoints) {
                 if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
                     oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
                 } else {
@@ -150,7 +149,7 @@ public class UcteGlskDocument implements GlskDocument {
     /**
      * @return getter list of glsk point in the document
      */
-    public List<GlskPoint> getListUcteGlskBlocks() {
+    public List<AbstractGlskPoint> getListUcteGlskBlocks() {
         return listUcteGlskBlocks;
     }
 
@@ -164,13 +163,8 @@ public class UcteGlskDocument implements GlskDocument {
     /**
      * @return getter map of list glsk point
      */
-    public Map<String, List<GlskPoint>> getUcteGlskPointsByCountry() {
+    public Map<String, List<AbstractGlskPoint>> getUcteGlskPointsByCountry() {
         return ucteGlskPointsByCountry;
-    }
-
-    @Override
-    public TypeGlskFile getType() {
-        return TypeGlskFile.UCTE;
     }
 
     /**
@@ -182,14 +176,14 @@ public class UcteGlskDocument implements GlskDocument {
     }
 
     @Override
-    public List<GlskPoint> getGlskPoints(String country) {
+    public List<AbstractGlskPoint> getGlskPoints(String country) {
         return getUcteGlskPointsByCountry().get(country);
     }
 
-    public Map<String, GlskPoint> getGlskPointsForInstant(Instant instant) {
-        Map<String, GlskPoint> glskPointInstant = new HashMap<>();
+    public Map<String, AbstractGlskPoint> getGlskPointsForInstant(Instant instant) {
+        Map<String, AbstractGlskPoint> glskPointInstant = new HashMap<>();
         ucteGlskPointsByCountry.forEach((key, glskPoints) -> {
-            GlskPoint glskPoint = glskPoints.stream()
+            AbstractGlskPoint glskPoint = glskPoints.stream()
                     .filter(p -> p.containsInstant(instant))
                     .findAny().orElseThrow(() -> new FaraoException("Error during get glsk point by instant for " + key + " country"));
             glskPointInstant.put(key, glskPoint);

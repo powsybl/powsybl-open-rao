@@ -6,9 +6,8 @@
  */
 package com.farao_community.farao.data.glsk.quality_check.ucte;
 
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskRegisteredResource;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskRegisteredResource;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
@@ -30,14 +29,14 @@ class GlskQualityCheck {
     }
 
     private QualityReport generateReport(GlskQualityCheckInput input) {
-        Map<String, GlskPoint> glskPointMap = input.getUcteGlskDocument().getGlskPointsForInstant(input.getInstant());
+        Map<String, AbstractGlskPoint> glskPointMap = input.getUcteGlskDocument().getGlskPointsForInstant(input.getInstant());
         glskPointMap.forEach((country, glskPoint) -> {
             checkGlskPoint(glskPoint, input.getNetwork(), country);
         });
         return qualityReport;
     }
 
-    private void checkGlskPoint(GlskPoint glskPoint, Network network, String tso) {
+    private void checkGlskPoint(AbstractGlskPoint glskPoint, Network network, String tso) {
         glskPoint.getGlskShiftKeys().forEach(glskShiftKey -> {
             if (glskShiftKey.getPsrType().equals(GENERATOR)) {
                 glskShiftKey.getRegisteredResourceArrayList()
@@ -49,7 +48,7 @@ class GlskQualityCheck {
         });
     }
 
-    private void checkResource(GlskRegisteredResource registeredResource, Injection injection, String type, Network network, String tso) {
+    private void checkResource(AbstractGlskRegisteredResource registeredResource, Injection injection, String type, Network network, String tso) {
         if (injection == null) {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {

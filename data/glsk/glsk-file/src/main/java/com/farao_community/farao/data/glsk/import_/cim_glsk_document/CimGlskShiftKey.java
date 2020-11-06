@@ -4,9 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.glsk.import_.glsk_document_api;
+package com.farao_community.farao.data.glsk.import_.cim_glsk_document;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskRegisteredResource;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -20,7 +21,7 @@ import java.util.Objects;
  * Shift Key
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class GlskShiftKey {
+public class CimGlskShiftKey {
 
     /**
      * business type of shift key. B42, B43, B45
@@ -37,7 +38,7 @@ public class GlskShiftKey {
     /**
      * list of registered resources
      */
-    private List<GlskRegisteredResource> registeredResourceArrayList;
+    private List<AbstractGlskRegisteredResource> registeredResourceArrayList;
 
     /**
      * time interval of shift key
@@ -61,7 +62,7 @@ public class GlskShiftKey {
      * @param pointInterval interval of point
      * @param subjectDomainmRID country mrid
      */
-    public GlskShiftKey(Element element, Interval pointInterval, String subjectDomainmRID) {
+    public CimGlskShiftKey(Element element, Interval pointInterval, String subjectDomainmRID) {
         Objects.requireNonNull(element);
         this.businessType = element.getElementsByTagName("businessType").item(0).getTextContent();
         List<String> supportedBusinessType = Arrays.asList("B42", "B43", "B45");
@@ -83,7 +84,7 @@ public class GlskShiftKey {
         this.registeredResourceArrayList = new ArrayList<>();
         NodeList glskRegisteredResourcesElements = element.getElementsByTagName("RegisteredResource");
         for (int i = 0; i < glskRegisteredResourcesElements.getLength(); i++) {
-            registeredResourceArrayList.add(new GlskRegisteredResource((Element) glskRegisteredResourcesElements.item(i)));
+            registeredResourceArrayList.add(new CimGlskRegisteredResource((Element) glskRegisteredResourcesElements.item(i)));
         }
 
         this.glskShiftKeyInterval = pointInterval;
@@ -96,7 +97,7 @@ public class GlskShiftKey {
      * @param pointInterval interval
      * @param shareFactor shareFactor between load and generator
      */
-    public GlskShiftKey(String businessType, String ucteBusinessType, String subjectDomainmRID, Interval pointInterval, Double shareFactor) {
+    public CimGlskShiftKey(String businessType, String ucteBusinessType, String subjectDomainmRID, Interval pointInterval, Double shareFactor) {
         //for ucte format country gsk
         this.businessType = businessType;
         if (ucteBusinessType.equals("Z02")) {
@@ -163,14 +164,14 @@ public class GlskShiftKey {
     /**
      * @return get list of registered resources
      */
-    public List<GlskRegisteredResource> getRegisteredResourceArrayList() {
+    public List<AbstractGlskRegisteredResource> getRegisteredResourceArrayList() {
         return registeredResourceArrayList;
     }
 
     /**
      * @param registeredResourceArrayList setter registered resources
      */
-    public void setRegisteredResourceArrayList(List<GlskRegisteredResource> registeredResourceArrayList) {
+    public void setRegisteredResourceArrayList(List<AbstractGlskRegisteredResource> registeredResourceArrayList) {
         this.registeredResourceArrayList = registeredResourceArrayList;
     }
 

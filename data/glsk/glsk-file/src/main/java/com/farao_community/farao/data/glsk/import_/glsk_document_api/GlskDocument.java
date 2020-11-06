@@ -20,11 +20,9 @@ import java.util.List;
  */
 public interface GlskDocument {
 
-    TypeGlskFile getType();
-
     List<String> getCountries();
 
-    List<GlskPoint> getGlskPoints(String country);
+    List<AbstractGlskPoint> getGlskPoints(String country);
 
     default GlskProvider getGlskProvider(Network network) {
         return new ChronologyGlsk(this, network);

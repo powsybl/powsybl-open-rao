@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.import_.cim_glsk_document;
 
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -37,7 +37,7 @@ public class CimGlskPeriod {
     /**
      * List of GlskPoint in the Period
      */
-    private List<GlskPoint> glskPoints;
+    private List<AbstractGlskPoint> glskPoints;
 
     /**
      * @param element Dom element
@@ -54,7 +54,7 @@ public class CimGlskPeriod {
         this.glskPoints = new ArrayList<>();
         NodeList glskPointsNodes = element.getElementsByTagName("Point");
         for (int i = 0; i < glskPointsNodes.getLength(); i++) {
-            GlskPoint glskPoint = new GlskPoint((Element) glskPointsNodes.item(i), this.periodInterval, this.resolution, subjectDomainmRID, curveType);
+            AbstractGlskPoint glskPoint = new CimGlskPoint((Element) glskPointsNodes.item(i), this.periodInterval, this.resolution, subjectDomainmRID, curveType);
             glskPoints.add(glskPoint);
         }
         resetGlskPointsIntervalAccordingToCurveType();
@@ -72,7 +72,7 @@ public class CimGlskPeriod {
             //curveType.equals("A03")
             Instant nextPointStart = getPeriodInterval().getEnd();
             for (int i = glskPoints.size() - 1; i >= 0; --i) {
-                GlskPoint point = glskPoints.get(i);
+                AbstractGlskPoint point = glskPoints.get(i);
                 Interval newInterval = Interval.of(point.getPointInterval().getStart(), nextPointStart);
                 point.setPointInterval(newInterval);
                 nextPointStart = point.getPointInterval().getStart();
@@ -90,7 +90,7 @@ public class CimGlskPeriod {
     /**
      * @return getter all glsk points in period
      */
-    public List<GlskPoint> getGlskPoints() {
+    public List<AbstractGlskPoint> getGlskPoints() {
         return glskPoints;
     }
 

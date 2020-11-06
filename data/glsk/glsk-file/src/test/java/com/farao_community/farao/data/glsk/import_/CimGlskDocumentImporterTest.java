@@ -6,11 +6,10 @@
  */
 package com.farao_community.farao.data.glsk.import_;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskDocument;
 import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskDocumentImporter;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskShiftKey;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
+import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskShiftKey;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,7 @@ public class CimGlskDocumentImporterTest {
     @Test
     public void testGlskDocumentImportB45() throws ParserConfigurationException, SAXException, IOException {
         CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKB45TEST));
-        List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
+        List<CimGlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
 //        for (GlskShiftKey glskShiftKey : glskShiftKeys) {
 //            LOGGER.info("Flow direction:" + glskShiftKey.getFlowDirection());
@@ -86,8 +85,8 @@ public class CimGlskDocumentImporterTest {
     public void testGlskDocumentImporterWithFileName() throws IOException, SAXException, ParserConfigurationException {
         CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKB42TEST));
 
-        List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
-        for (GlskPoint point : glskPointList) {
+        List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
+        for (AbstractGlskPoint point : glskPointList) {
             assertEquals(Interval.parse("2018-08-28T22:00:00Z/2018-08-29T22:00:00Z"), point.getPointInterval());
             assertEquals(Integer.valueOf(1), point.getPosition());
         }
@@ -98,8 +97,8 @@ public class CimGlskDocumentImporterTest {
     public void testGlskDocumentImporterGlskMultiPoints() throws IOException, SAXException, ParserConfigurationException {
         CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
-        List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
-        for (GlskPoint point : glskPointList) {
+        List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
+        for (AbstractGlskPoint point : glskPointList) {
             LOGGER.info("Position: " + point.getPosition() + "; PointInterval: " + point.getPointInterval().toString());
         }
         assertFalse(glskPointList.isEmpty());
@@ -110,23 +109,16 @@ public class CimGlskDocumentImporterTest {
         try {
             new CimGlskDocumentImporter().importGlsk("/nonExistingFile.xml");
             fail();
-        } catch (FaraoException e) {
-            LOGGER.info("Should throw FaraoException");
-        }
-
-        try {
-            new CimGlskDocumentImporter().importGlsk(Paths.get("/nonExistingFile.xml"));
-            fail();
-        } catch (FaraoException e) {
-            LOGGER.info("Should throw FaraoException");
+        } catch (IOException e) {
+            LOGGER.info("Should throw IOException");
         }
 
         try {
             byte[] nonXmlBytes = "{ should not be imported }".getBytes();
             new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes));
             fail();
-        } catch (FaraoException e) {
-            LOGGER.info("Should throw FaraoException");
+        } catch (SAXException e) {
+            LOGGER.info("Should throw SAXException");
         }
     }
 }

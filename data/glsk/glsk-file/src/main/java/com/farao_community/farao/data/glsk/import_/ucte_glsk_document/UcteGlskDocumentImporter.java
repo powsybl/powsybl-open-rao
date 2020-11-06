@@ -9,6 +9,7 @@ package com.farao_community.farao.data.glsk.import_.ucte_glsk_document;
 
 import com.farao_community.farao.data.glsk.import_.glsk_document_io_api.GlskDocumentImporter;
 import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskDocument;
+import com.google.auto.service.AutoService;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,10 +19,11 @@ import java.io.InputStream;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@AutoService(GlskDocumentImporter.class)
 public class UcteGlskDocumentImporter implements GlskDocumentImporter {
     @Override
     public GlskDocument importGlsk(InputStream inputStream) throws IOException, SAXException, ParserConfigurationException {
-        return new UcteGlskDocument(inputStream);
+        return UcteGlskDocument.importGlsk(inputStream);
     }
 
     @Override

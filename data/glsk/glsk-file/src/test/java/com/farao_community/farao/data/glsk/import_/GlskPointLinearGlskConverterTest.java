@@ -8,8 +8,7 @@ package com.farao_community.farao.data.glsk.import_;
 
 import com.farao_community.farao.data.glsk.import_.cim_glsk_document.CimGlskDocument;
 import com.farao_community.farao.data.glsk.import_.converters.GlskPointLinearGlskConverter;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.TypeGlskFile;
-import com.farao_community.farao.data.glsk.import_.glsk_document_api.GlskPoint;
+import com.farao_community.farao.data.glsk.import_.glsk_document_api.AbstractGlskPoint;
 import com.google.common.math.DoubleMath;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -40,10 +39,10 @@ public class GlskPointLinearGlskConverterTest {
     private static final String GLSKB43GSKLSK = "/GlskB43ParticipationFactorGskLsk.xml";
 
     private Network testNetwork;
-    private GlskPoint glskPointCountry;
-    private GlskPoint glskPointCountryQuantity;
-    private GlskPoint glskPointExplicitGskLsk;
-    private GlskPoint glskPointParticipationFactorGskLsk;
+    private AbstractGlskPoint glskPointCountry;
+    private AbstractGlskPoint glskPointCountryQuantity;
+    private AbstractGlskPoint glskPointExplicitGskLsk;
+    private AbstractGlskPoint glskPointParticipationFactorGskLsk;
 
     private InputStream getResourceAsStream(String resource) {
         return getClass().getResourceAsStream(resource);
@@ -65,7 +64,7 @@ public class GlskPointLinearGlskConverterTest {
     @Test
     public void testConvertGlskPointToLinearGlskB42Country() {
 
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("GenCountry: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
@@ -74,7 +73,7 @@ public class GlskPointLinearGlskConverterTest {
     @Test
     public void testConvertGlskPointToLinearGlskB42CountryQuantity() {
 
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Country: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
@@ -82,7 +81,7 @@ public class GlskPointLinearGlskConverterTest {
 
     @Test
     public void testConvertGlskPointToLinearGlskB42Explicit() {
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Explicit: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
@@ -90,7 +89,7 @@ public class GlskPointLinearGlskConverterTest {
 
     @Test
     public void testConvertGlskPointToLinearGlskB43() {
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk, TypeGlskFile.CIM);
+        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk);
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Factor: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
