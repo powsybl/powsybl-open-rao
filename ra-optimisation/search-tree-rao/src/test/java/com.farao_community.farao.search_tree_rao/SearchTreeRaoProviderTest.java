@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +45,7 @@ public class SearchTreeRaoProviderTest {
 
         crac.addNetworkAction(new Topology("open BE2-FR3", "open BE2-FR3", "FR",
             List.of(new OnState(UsageMethod.AVAILABLE, curativeState)),
-            crac.addNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN));
+            crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN));
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
