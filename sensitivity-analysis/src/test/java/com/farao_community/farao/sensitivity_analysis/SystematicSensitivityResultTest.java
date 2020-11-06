@@ -57,8 +57,9 @@ public class SystematicSensitivityResultTest {
     public void setUp() throws SAXException, ParserConfigurationException, IOException {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
+
         GlskProvider glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
-            .getChronologyGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
+            .getGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
         rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
