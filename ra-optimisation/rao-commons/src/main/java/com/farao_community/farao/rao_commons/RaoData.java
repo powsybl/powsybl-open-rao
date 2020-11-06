@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.glsk.import_.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
@@ -35,7 +35,7 @@ public final class RaoData {
     private final State optimizedState;
     private final Set<State> perimeter;
     private final ReferenceProgram referenceProgram;
-    private final Glsk glsk;
+    private final GlskProvider glsk;
     private final CracResultManager cracResultManager;
     private final Set<Country> loopflowCountries;
 
@@ -58,7 +58,7 @@ public final class RaoData {
      * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, Glsk glsk, String cracVariantId, Set<Country> loopflowCountries) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glsk, String cracVariantId, Set<Country> loopflowCountries) {
         Objects.requireNonNull(network, "Unable to build RAO data without network.");
         Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
         Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
@@ -127,7 +127,7 @@ public final class RaoData {
         return referenceProgram;
     }
 
-    public Glsk getGlskProvider() {
+    public GlskProvider getGlskProvider() {
         return glsk;
     }
 

@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_document_io_api.GlskDocumentImporters;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -23,7 +25,9 @@ import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -49,11 +53,10 @@ public class SystematicSensitivityResultTest {
     private PtdfSensitivityProvider ptdfSensitivityProvider;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SAXException, ParserConfigurationException {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
-        UcteGlsk glskProvider = new UcteGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"), network);
-        glskProvider.selectInstant(Instant.parse("2016-07-28T22:30:00Z"));
+        GlskProvider glskProvider = GlskDocumentImporters.importGlsk("/glsk_proportional_12nodes.xml", getClass().getResourceAsStream("/glsk_proportional_12nodes.xml")).getGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
         rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
@@ -66,7 +69,7 @@ public class SystematicSensitivityResultTest {
         nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
         contingencyCnec = crac.getCnec("cnec1stateCurativeContingency1");
-        linearGlsk = glskProvider.getGlsk(network, "10YFR-RTE------C");
+        linearGlsk = glskProvider.getLinearGlsk("10YFR-RTE------C");
     }
 
     @Test

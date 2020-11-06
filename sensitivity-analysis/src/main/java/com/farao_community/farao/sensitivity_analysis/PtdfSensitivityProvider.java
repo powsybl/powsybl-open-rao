@@ -14,7 +14,6 @@ import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -31,7 +30,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     @Override
     public List<SensitivityFactor> getFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getLinearGlskPerCountry(Instant.now());
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getLinearGlskPerCountry();
 
         cnecs.stream().map(Cnec::getNetworkElement)
             .distinct()

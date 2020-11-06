@@ -9,10 +9,11 @@ package com.farao_community.farao.flowbased_computation.tools;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
+import com.farao_community.farao.data.glsk.import_.glsk_document_io_api.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
-import com.farao_community.farao.data.glsk.import_.providers.Glsk;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
 import com.farao_community.farao.rao_commons.RaoInputHelper;
@@ -28,8 +29,9 @@ import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.xml.sax.SAXException;
 
-import java.io.FileInputStream;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -139,7 +141,7 @@ public class FlowbasedComputationTool implements Tool {
      * @param context running environment
      */
     @Override
-    public void run(CommandLine line, ToolRunningContext context) throws IOException {
+    public void run(CommandLine line, ToolRunningContext context) throws IOException, ParserConfigurationException, SAXException {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path cracFile = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
         Path glskFile = context.getFileSystem().getPath(line.getOptionValue(GLSK_FILE_OPTION));
@@ -154,8 +156,7 @@ public class FlowbasedComputationTool implements Tool {
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
         crac.synchronize(network);
-        //TODO : handling also Ucte format
-        Glsk cimGlsk = new CimGlsk(new FileInputStream(glskFile.toFile()), network, instant);
+        GlskProvider cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getGlskProvider(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
