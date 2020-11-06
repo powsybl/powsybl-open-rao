@@ -30,7 +30,7 @@ public abstract class AbstractChronologyLinearData<I> {
     private Instant instant;
 
     protected AbstractChronologyLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
-        this.instant = instant == null ? Instant.now() : instant;
+        this.instant = Objects.requireNonNull(instant);
         chronologyLinearDataMap = new HashMap<>();
 
         for (String country : glskDocument.getCountries()) {
@@ -46,7 +46,7 @@ public abstract class AbstractChronologyLinearData<I> {
         }
     }
 
-    public void setInstant(Instant instant) {
+    public void selectInstant(Instant instant) {
         this.instant = instant;
     }
 
@@ -55,7 +55,7 @@ public abstract class AbstractChronologyLinearData<I> {
             .filter(entry -> entry.getValue().getDataForInstant(instant).isPresent())
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
-                entry -> entry.getValue().getDataForInstant(instant).<AssertionError>orElseThrow(() -> new AssertionError("Data should be available at that instant"))
+                entry -> entry.getValue().getDataForInstant(instant).orElseThrow(() -> new AssertionError("Data should be available at that instant"))
             ));
     }
 

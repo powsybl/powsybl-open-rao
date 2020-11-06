@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class ChronologyGlsk extends AbstractChronologyLinearData<LinearGlsk> implements GlskProvider {
+public class ChronologyGlsk extends AbstractChronologyLinearData<LinearGlsk> implements ChronologyGlskProvider {
 
     public ChronologyGlsk(GlskDocument glskDocument, Network network, Instant instant) {
         super(glskDocument, network, GlskPointLinearGlskConverter::convert, instant);
