@@ -46,6 +46,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return "1.0.0";
     }
 
+    // Useful for tests
+    SearchTreeRaoProvider(StateTree stateTree) {
+        this.stateTree = stateTree;
+    }
+
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
@@ -172,7 +177,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
     }
 
-    private RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+    RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
         mergeRaoResultStatus(preventiveRaoResult, curativeRaoResults);
         mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
         mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
