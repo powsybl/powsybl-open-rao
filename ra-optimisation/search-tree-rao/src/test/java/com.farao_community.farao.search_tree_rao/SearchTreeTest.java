@@ -46,11 +46,11 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, Tree.class})
+@PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, SearchTree.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
-public class TreeTest {
+public class SearchTreeTest {
 
-    private Tree tree;
+    private SearchTree searchTree;
     private RaoParameters raoParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
@@ -59,7 +59,7 @@ public class TreeTest {
 
     @Before
     public void setUp() {
-        tree = new Tree();
+        searchTree = new SearchTree();
         network = NetworkImportsUtil.import12NodesNetwork();
         String variantId = network.getVariantManager().getWorkingVariantId();
         RaoUtil.initNetwork(network, variantId);
@@ -105,7 +105,7 @@ public class TreeTest {
         when(mockLeaf.getBestCost()).thenReturn(0.);
         PowerMockito.doNothing().when(mockLeaf).evaluate();
 
-        RaoResult result = tree.run(raoData, raoParameters).join();
+        RaoResult result = searchTree.run(raoData, raoParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
     }
@@ -114,9 +114,9 @@ public class TreeTest {
     public void optimizeNextLeafAndUpdate() throws Exception {
         NetworkAction networkAction = Mockito.mock(NetworkAction.class);
         FaraoNetworkPool faraoNetworkPool = Mockito.mock(FaraoNetworkPool.class);
-        tree.initParameters(raoParameters);
-        tree.initLeaves(raoData);
+        searchTree.initParameters(raoParameters);
+        searchTree.initLeaves(raoData);
         Mockito.doThrow(new NotImplementedException("")).when(networkAction).apply(network);
-        tree.optimizeNextLeafAndUpdate(networkAction, network, faraoNetworkPool);
+        searchTree.optimizeNextLeafAndUpdate(networkAction, network, faraoNetworkPool);
     }
 }

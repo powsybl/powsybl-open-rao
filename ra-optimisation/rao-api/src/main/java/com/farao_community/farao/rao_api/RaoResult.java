@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtendable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * RAO result API. This class will contain information about the RAO computation (computation status, logs, etc).
  *
@@ -33,12 +30,11 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
 
     private String preOptimVariantId;
 
-    private Map<String, String> postOptimVariantIdPerStateId;
+    private String postOptimVariantId;
 
     @JsonCreator
     public RaoResult(@JsonProperty("status") Status status) {
         this.status = status;
-        postOptimVariantIdPerStateId = new HashMap<>();
     }
 
     public Status getStatus() {
@@ -62,19 +58,11 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
         return preOptimVariantId;
     }
 
-    public void setPostOptimVariantIdPerStateId(Map<String, String> postOptimVariantIdPerStateId) {
-        this.postOptimVariantIdPerStateId = postOptimVariantIdPerStateId;
+    public String getPostOptimVariantId() {
+        return postOptimVariantId;
     }
 
-    public void setPostOptimVariantIdForStateId(String stateId, String postOptimVariantId) {
-        this.postOptimVariantIdPerStateId.put(stateId, postOptimVariantId);
-    }
-
-    public Map<String, String> getPostOptimVariantIdPerStateId() {
-        return postOptimVariantIdPerStateId;
-    }
-
-    public String getPostOptimVariantIdForStateId(String stateId) {
-        return postOptimVariantIdPerStateId.get(stateId);
+    public void setPostOptimVariantId(String postOptimVariantId) {
+        this.postOptimVariantId = postOptimVariantId;
     }
 }
