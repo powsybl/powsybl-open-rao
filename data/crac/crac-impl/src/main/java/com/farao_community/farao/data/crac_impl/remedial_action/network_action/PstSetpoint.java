@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.UsageRule;
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.PstSetPointSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -20,6 +21,9 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 
 import java.util.List;
 
+import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
+import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
+
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
  *
@@ -29,30 +33,45 @@ import java.util.List;
 @JsonSerialize(using = PstSetPointSerializer.class)
 public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
+    private RangeDefinition rangeDefinition;
+
     @JsonCreator
     public PstSetpoint(@JsonProperty("id") String id,
                        @JsonProperty("name") String name,
                        @JsonProperty("operator") String operator,
                        @JsonProperty("usageRules") List<UsageRule> usageRules,
                        @JsonProperty("networkElement") NetworkElement networkElement,
-                       @JsonProperty("setpoint") double setpoint) {
+                       @JsonProperty("setpoint") double setpoint,
+                       @JsonProperty("rangeDefinition") RangeDefinition rangeDefinition) {
         super(id, name, operator, usageRules, networkElement, setpoint);
+        this.rangeDefinition = rangeDefinition;
     }
 
-    public PstSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint) {
+    public PstSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
         super(id, name, operator, networkElement, setpoint);
+        this.rangeDefinition = rangeDefinition;
     }
 
     /**
-     * Constructor of a remedial action on a PST to fix a tap
-     *
-     * @param id value used for id, name and operator
-     * @param networkElement PST element to modify
-     * @param setpoint value of the tap. That should be an int value, if not it will be truncated. The convention is in
-     *                 "starts at 1" meaning we have to put a set point as if the lowest position of the PST tap is 1
+     * @param id              value used for id, name and operator
+     * @param networkElement  PST element to modify
+     * @param setpoint        value of the tap. That should be an int value, if not it will be truncated. The convention depends
+     *                        on the rangeDefinition value
+     * @param rangeDefinition value used to define which convention type is used for the setpoint value,
+     *                        "starts at 1" means we have to put a set point as if the lowest position of the PST tap is 1
+     *                        "centered on zero" means that there is no conversion of the setpoint, this is the real value
      */
-    public PstSetpoint(String id, NetworkElement networkElement, double setpoint) {
+    public PstSetpoint(String id, NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
         super(id, networkElement, setpoint);
+        this.rangeDefinition = rangeDefinition;
+    }
+
+    public RangeDefinition getRangeDefinition() {
+        return this.rangeDefinition;
+    }
+
+    public void setRangeDefinition(RangeDefinition rangeDefinition) {
+        this.rangeDefinition = rangeDefinition;
     }
 
     /**
@@ -63,15 +82,24 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
     @Override
     public void apply(Network network) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
-        if (phaseTapChanger.getHighTapPosition() - phaseTapChanger.getLowTapPosition() + 1 >= setpoint && setpoint >= 1) {
-            phaseTapChanger.setTapPosition(phaseTapChanger.getLowTapPosition() + (int) setpoint - 1);
+
+        int normalizedSetPoint = 0;
+
+        if (rangeDefinition == CENTERED_ON_ZERO) {
+            normalizedSetPoint = ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + (int) setpoint;
+        } else if (rangeDefinition == STARTS_AT_ONE) {
+            normalizedSetPoint = phaseTapChanger.getLowTapPosition() + (int) setpoint - 1;
+        }
+
+        if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
+            phaseTapChanger.setTapPosition(normalizedSetPoint);
         } else {
             throw new FaraoException(String.format(
-                "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
-                phaseTapChanger.getLowTapPosition() + (int) setpoint - 1,
-                phaseTapChanger.getLowTapPosition(),
-                phaseTapChanger.getHighTapPosition(),
-                networkElement.getId()));
+                    "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
+                    normalizedSetPoint,
+                    phaseTapChanger.getLowTapPosition(),
+                    phaseTapChanger.getHighTapPosition(),
+                    networkElement.getId()));
         }
     }
 }

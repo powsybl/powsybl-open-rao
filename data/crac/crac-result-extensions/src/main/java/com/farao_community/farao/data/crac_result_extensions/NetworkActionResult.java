@@ -35,7 +35,7 @@ public class NetworkActionResult implements Result {
     }
 
     public boolean isActivated(String stateId) {
-        return activationMap.getOrDefault(stateId, false);
+        return activationMap.get(stateId);
     }
 
     public void activate(String stateId) {

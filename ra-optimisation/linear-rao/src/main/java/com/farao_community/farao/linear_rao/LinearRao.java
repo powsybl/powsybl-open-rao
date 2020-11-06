@@ -132,7 +132,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantIdForStateId(raoData.getOptimizedState().getId(), postOptimVariantId);
+        raoResult.setPostOptimVariantId(postOptimVariantId);
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -157,7 +157,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantIdForStateId(raoData.getOptimizedState().getId(), raoData.getInitialVariantId());
+        raoResult.setPostOptimVariantId(raoData.getInitialVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
