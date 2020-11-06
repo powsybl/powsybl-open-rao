@@ -8,7 +8,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.glsk.import_.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -259,20 +259,20 @@ final class ExampleGenerator {
         return CracImporters.importCrac("crac.json", ExampleGenerator.class.getResourceAsStream("/crac.json"));
     }
 
-    static Glsk glskProvider() {
+    static GlskProvider glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
         glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
         glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new Glsk() {
+        return new GlskProvider() {
             @Override
-            public Map<String, LinearGlsk> getAllGlsk(Network network) {
+            public Map<String, LinearGlsk> getLinearGlskPerCountry() {
                 return glsks;
             }
 
             @Override
-            public LinearGlsk getGlsk(Network network, String area) {
+            public LinearGlsk getLinearGlsk(String area) {
                 return glsks.get(area);
             }
         };

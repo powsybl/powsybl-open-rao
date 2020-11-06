@@ -8,7 +8,7 @@ package com.farao_community.farao.flowbased_computation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.glsk.import_.providers.Glsk;
+import com.farao_community.farao.data.glsk.import_.GlskProvider;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
@@ -41,7 +41,7 @@ public final class FlowbasedComputation {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, Glsk glsk, FlowbasedComputationParameters parameters) {
+        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glsk, FlowbasedComputationParameters parameters) {
             Objects.requireNonNull(network);
             Objects.requireNonNull(crac);
             Objects.requireNonNull(glsk);
@@ -49,11 +49,11 @@ public final class FlowbasedComputation {
             return provider.run(network, crac, glsk, parameters);
         }
 
-        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, Glsk glsk) {
+        public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glsk) {
             return runAsync(network, crac, glsk, FlowbasedComputationParameters.load());
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, Glsk glsk, FlowbasedComputationParameters parameters) {
+        public FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glsk, FlowbasedComputationParameters parameters) {
             Objects.requireNonNull(network);
             Objects.requireNonNull(crac);
             Objects.requireNonNull(glsk);
@@ -61,7 +61,7 @@ public final class FlowbasedComputation {
             return provider.run(network, crac, glsk, parameters).join();
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, Glsk glsk) {
+        public FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glsk) {
             return run(network, crac, glsk, FlowbasedComputationParameters.load());
         }
 
@@ -98,19 +98,19 @@ public final class FlowbasedComputation {
         return find(null);
     }
 
-    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, Glsk glsk, FlowbasedComputationParameters parameters) {
+    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glsk, FlowbasedComputationParameters parameters) {
         return find().runAsync(network, crac, glsk, parameters);
     }
 
-    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, Glsk glsk) {
+    public static CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, GlskProvider glsk) {
         return find().runAsync(network, crac, glsk);
     }
 
-    public static FlowbasedComputationResult run(Network network, Crac crac, Glsk glsk, FlowbasedComputationParameters parameters) {
+    public static FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glsk, FlowbasedComputationParameters parameters) {
         return find().run(network, crac, glsk, parameters);
     }
 
-    public static FlowbasedComputationResult run(Network network, Crac crac, Glsk glsk) {
+    public static FlowbasedComputationResult run(Network network, Crac crac, GlskProvider glsk) {
         return find().run(network, crac, glsk);
     }
 }
