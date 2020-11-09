@@ -100,15 +100,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
                 continue;
             }
-            if (initialLoopFlow != null){
-                if(initialLoopFlow.isNaN()){
-                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA : " + initialLoopFlow);
-                }else{
-                    System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB : " + initialLoopFlow);
-                }
-            }else{
-                System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
-            }
 
             maxLoopFlowLimit = Math.max(inputThreshold, initialLoopFlow + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient;
 

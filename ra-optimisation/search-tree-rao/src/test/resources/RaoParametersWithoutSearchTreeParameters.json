@@ -7,6 +7,7 @@
   "sensitivity-fallback-over-cost" : 0.0,
   "rao-with-loop-flow-limitation" : false,
   "loop-flow-approximation" : true,
+  "loop-flow-acceptable-augmentation" : 0.0,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
   "sensitivity-parameters": {
     "version": "1.0",
