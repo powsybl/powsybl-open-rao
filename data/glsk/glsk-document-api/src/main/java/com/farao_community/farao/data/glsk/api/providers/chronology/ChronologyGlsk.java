@@ -7,8 +7,8 @@
 package com.farao_community.farao.data.glsk.api.providers.chronology;
 
 import com.farao_community.farao.data.glsk.api.GlskDocument;
-import com.farao_community.farao.data.glsk.api.converters.GlskPointLinearGlskConverter;
-import com.farao_community.farao.data.glsk.api.providers.ChronologyGlskProvider;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointLinearGlskConverter;
+import com.farao_community.farao.data.glsk.api.ChronologyGlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -20,17 +20,23 @@ import java.util.Map;
  */
 public class ChronologyGlsk extends AbstractChronologyLinearData<LinearGlsk> implements ChronologyGlskProvider {
 
-    public ChronologyGlsk(GlskDocument glskDocument, Network network, Instant instant) {
-        super(glskDocument, network, GlskPointLinearGlskConverter::convert, instant);
+    public ChronologyGlsk(GlskDocument glskDocument, Network network) {
+        super(glskDocument, network, GlskPointLinearGlskConverter::convert);
     }
 
     @Override
-    public Map<String, LinearGlsk> getLinearGlskPerCountry() {
+    public Map<String, LinearGlsk> getLinearGlskPerArea() {
         return getLinearData();
     }
 
     @Override
     public LinearGlsk getLinearGlsk(String area) {
         return getLinearData(area);
+    }
+
+    @Override
+    public ChronologyGlskProvider selectInstant(Instant instant) {
+        setInstant(instant);
+        return this;
     }
 }

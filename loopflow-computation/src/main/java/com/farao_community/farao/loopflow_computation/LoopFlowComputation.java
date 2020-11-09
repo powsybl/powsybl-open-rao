@@ -8,7 +8,7 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -77,7 +77,7 @@ public class LoopFlowComputation {
     }
 
     private List<LinearGlsk> getValidGlsks() {
-        return glsk.getLinearGlskPerCountry().values().stream().filter(linearGlsk -> {
+        return glsk.getLinearGlskPerArea().values().stream().filter(linearGlsk -> {
             if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
                 LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
                 return false;

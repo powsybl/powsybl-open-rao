@@ -7,7 +7,7 @@
 package converters;
 
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
-import com.farao_community.farao.data.glsk.api.converters.GlskPointScalableConverter;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointScalableConverter;
 import com.farao_community.farao.data.glsk.cim.CimGlskDocument;
 import com.google.common.math.DoubleMath;
 import com.powsybl.action.util.Scalable;
@@ -51,13 +51,13 @@ public class GlskPointScalableConverterTest {
     public void setUp() throws IOException, SAXException, ParserConfigurationException {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
-        glskPointCountry = new CimGlskDocument(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
-        glskPointCountryGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB42COUNTRYGSKLSK)).getGlskPoints().get(0);
-        glskPointExplicit = new CimGlskDocument(getResourceAsStream(GLSKB42EXPLICITIIDM)).getGlskPoints().get(0);
-        glskPointExplicitGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
-        glskPointParticipationFactor = new CimGlskDocument(getResourceAsStream(GLSKB43)).getGlskPoints().get(0);
-        glskPointParticipationFactorGskLsk = new CimGlskDocument(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
-        glskMeritOrder = new CimGlskDocument(getResourceAsStream(GLSKB45TEST)).getGlskPoints().get(0);
+        glskPointCountry = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
+        glskPointCountryGskLsk = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYGSKLSK)).getGlskPoints().get(0);
+        glskPointExplicit = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42EXPLICITIIDM)).getGlskPoints().get(0);
+        glskPointExplicitGskLsk = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
+        glskPointParticipationFactor = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB43)).getGlskPoints().get(0);
+        glskPointParticipationFactorGskLsk = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
+        glskMeritOrder = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB45TEST)).getGlskPoints().get(0);
 
     }
 

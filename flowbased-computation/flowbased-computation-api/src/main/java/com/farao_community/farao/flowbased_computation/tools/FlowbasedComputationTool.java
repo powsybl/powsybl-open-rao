@@ -10,7 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;

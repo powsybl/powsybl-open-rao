@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.glsk.api.providers.simple;
 
 import com.farao_community.farao.data.glsk.api.GlskDocument;
-import com.farao_community.farao.data.glsk.api.converters.GlskPointScalableConverter;
-import com.farao_community.farao.data.glsk.api.providers.ScalableProvider;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointScalableConverter;
+import com.farao_community.farao.data.glsk.api.ScalableProvider;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
 
@@ -30,7 +30,7 @@ public class SimpleScalable extends AbstractSimpleLinearData<Scalable> implement
     }
 
     @Override
-    public Map<String, Scalable> getScalablePerCountry() {
+    public Map<String, Scalable> getScalablePerArea() {
         return getLinearData();
     }
 

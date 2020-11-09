@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.ucte;
 
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class UcteGlskValueProviderTest {
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
         GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-            .getChronologyGlskProvider(network, instant);
+            .getGlskProvider(network, instant);
         assertEquals(3, ucteGlskProvider.getLinearGlsk("10YFR-RTE------C").getGLSKs().size());
         assertEquals(0.3, ucteGlskProvider.getLinearGlsk("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
     }
@@ -44,9 +44,9 @@ public class UcteGlskValueProviderTest {
         Instant instant = Instant.parse("2020-07-29T10:00:00Z");
 
         GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-            .getChronologyGlskProvider(network, instant);
+            .getGlskProvider(network, instant);
 
-        assertTrue(ucteGlskProvider.getLinearGlskPerCountry().isEmpty());
+        assertTrue(ucteGlskProvider.getLinearGlskPerArea().isEmpty());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class UcteGlskValueProviderTest {
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
         GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-            .getChronologyGlskProvider(network, instant);
+            .getGlskProvider(network, instant);
 
         assertNull(ucteGlskProvider.getLinearGlsk("unknowncountry"));
     }
@@ -65,7 +65,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
-            .getChronologyGlskProvider(network, instant);
-        assertTrue(ucteGlskProvider.getLinearGlskPerCountry().isEmpty());
+            .getGlskProvider(network, instant);
+        assertTrue(ucteGlskProvider.getLinearGlskPerArea().isEmpty());
     }
 }

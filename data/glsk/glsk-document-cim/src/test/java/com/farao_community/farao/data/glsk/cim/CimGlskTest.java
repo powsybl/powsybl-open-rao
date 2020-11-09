@@ -6,11 +6,12 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -29,12 +30,17 @@ public class CimGlskTest {
     private Network testNetwork;
     private Instant instant;
 
-    @Test
-    public void run() throws IOException, SAXException, ParserConfigurationException {
+    @Before
+    public void setUp() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         instant = Instant.parse("2018-08-28T22:00:00Z");
-        GlskProvider cimGlskProvider = new CimGlskDocument(getClass().getResourceAsStream("/GlskCountry.xml")).getChronologyGlskProvider(testNetwork, instant);
-        Map<String, LinearGlsk> map = cimGlskProvider.getLinearGlskPerCountry();
+    }
+
+    @Test
+    public void run() throws IOException, SAXException, ParserConfigurationException {
+        GlskProvider cimGlskProvider = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+            .getGlskProvider(testNetwork, instant);
+        Map<String, LinearGlsk> map = cimGlskProvider.getLinearGlskPerArea();
         Assert.assertFalse(map.isEmpty());
 
         LinearGlsk linearGlsk = cimGlskProvider.getLinearGlsk("10YBE----------2");
@@ -43,9 +49,8 @@ public class CimGlskTest {
 
     @Test
     public void runWithInvalidCountry() throws IOException, SAXException, ParserConfigurationException {
-        testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        instant = Instant.parse("2020-08-28T22:00:00Z");
-        GlskProvider cimGlskProvider = new CimGlskDocument(getClass().getResourceAsStream("/GlskCountry.xml")).getChronologyGlskProvider(testNetwork, instant);
-        Assert.assertNull(cimGlskProvider.getLinearGlsk("10YBE----------2"));
+        GlskProvider cimGlskProvider = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+            .getGlskProvider(testNetwork, instant);
+        Assert.assertNull(cimGlskProvider.getLinearGlsk("fake-area"));
     }
 }

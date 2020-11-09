@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers;
+package com.farao_community.farao.data.glsk.api;
 
 import java.time.Instant;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Chronology {
+public interface Chronology<I> {
 
-    void selectInstant(Instant instant);
+    I selectInstant(Instant instant);
 }

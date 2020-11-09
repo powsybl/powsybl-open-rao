@@ -29,11 +29,10 @@ public abstract class AbstractChronologyLinearData<I> {
     private final Map<String, DataChronology<I>> chronologyLinearDataMap;
     private Instant instant;
 
-    protected AbstractChronologyLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
-        this.instant = Objects.requireNonNull(instant);
+    protected AbstractChronologyLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
         chronologyLinearDataMap = new HashMap<>();
 
-        for (String country : glskDocument.getCountries()) {
+        for (String country : glskDocument.getAreas()) {
             DataChronology<I> dataChronology = DataChronologyImpl.create();
 
             //mapping with DataChronology
@@ -46,11 +45,14 @@ public abstract class AbstractChronologyLinearData<I> {
         }
     }
 
-    public void selectInstant(Instant instant) {
+    protected void setInstant(Instant instant) {
         this.instant = instant;
     }
 
     protected Map<String, I> getLinearData() {
+        if (instant == null) {
+            throw new ChronologyLinearDataException("Unable to return data if no instant are selected.");
+        }
         return chronologyLinearDataMap.entrySet().stream()
             .filter(entry -> entry.getValue().getDataForInstant(instant).isPresent())
             .collect(Collectors.toMap(
@@ -61,6 +63,9 @@ public abstract class AbstractChronologyLinearData<I> {
 
     protected I getLinearData(String area) {
         Objects.requireNonNull(area);
+        if (instant == null) {
+            throw new ChronologyLinearDataException("Unable to return data if no instant are selected.");
+        }
         if (!chronologyLinearDataMap.containsKey(area)) {
             return null;
         }

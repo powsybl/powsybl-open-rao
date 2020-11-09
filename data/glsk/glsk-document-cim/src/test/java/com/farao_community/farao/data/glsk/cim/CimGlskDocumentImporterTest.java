@@ -40,23 +40,23 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFilePathString() throws ParserConfigurationException, SAXException, IOException {
-        CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKB42COUNTRY));
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
-        assertFalse(cimGlskDocument.getCountries().isEmpty());
+        assertFalse(cimGlskDocument.getAreas().isEmpty());
     }
 
     @Test
     public void testGlskDocumentImporterWithFilePath() throws ParserConfigurationException, SAXException, IOException {
-        CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKB42COUNTRY));
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
-        assertFalse(cimGlskDocument.getCountries().isEmpty());
+        assertFalse(cimGlskDocument.getAreas().isEmpty());
     }
 
     @Test
     public void testGlskDocumentImportB45() throws ParserConfigurationException, SAXException, IOException {
-        CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKB45TEST));
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<AbstractGlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
 //        for (GlskShiftKey glskShiftKey : glskShiftKeys) {
@@ -69,7 +69,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterWithFileName() throws IOException, SAXException, ParserConfigurationException {
-        CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKB42TEST));
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42TEST));
 
         List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
         for (AbstractGlskPoint point : glskPointList) {
@@ -81,7 +81,7 @@ public class CimGlskDocumentImporterTest {
 
     @Test
     public void testGlskDocumentImporterGlskMultiPoints() throws IOException, SAXException, ParserConfigurationException {
-        CimGlskDocument cimGlskDocument = new CimGlskDocument(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
         List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
         for (AbstractGlskPoint point : glskPointList) {

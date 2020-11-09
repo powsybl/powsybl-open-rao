@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -58,7 +58,7 @@ public class PtdfSensitivityProviderTest {
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
             @Override
-            public Map<String, LinearGlsk> getLinearGlskPerCountry() {
+            public Map<String, LinearGlsk> getLinearGlskPerArea() {
                 return glsks;
             }
 

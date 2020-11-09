@@ -8,7 +8,7 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -267,7 +267,7 @@ final class ExampleGenerator {
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new GlskProvider() {
             @Override
-            public Map<String, LinearGlsk> getLinearGlskPerCountry() {
+            public Map<String, LinearGlsk> getLinearGlskPerArea() {
                 return glsks;
             }
 

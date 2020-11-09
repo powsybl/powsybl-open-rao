@@ -10,7 +10,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
@@ -49,7 +49,7 @@ public class AbsolutePtdfSumsComputationTest {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
-            .getChronologyGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
+            .getGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
         boundaries = Arrays.asList(new ImmutablePair<>(Country.FR, Country.BE),
                 new ImmutablePair<>(Country.FR, Country.DE),
                 new ImmutablePair<>(Country.NL, Country.BE),

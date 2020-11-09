@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers;
+package com.farao_community.farao.data.glsk.api;
 
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface GlskProvider {
 
-    Map<String, LinearGlsk> getLinearGlskPerCountry();
+    Map<String, LinearGlsk> getLinearGlskPerArea();
 
     LinearGlsk getLinearGlsk(String area);
 }

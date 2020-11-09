@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.glsk.api;
 
-import com.farao_community.farao.data.glsk.api.providers.*;
 import com.farao_community.farao.data.glsk.api.providers.chronology.ChronologyGlsk;
 import com.farao_community.farao.data.glsk.api.providers.chronology.ChronologyScalable;
 import com.farao_community.farao.data.glsk.api.providers.simple.SimpleGlsk;
@@ -22,31 +21,75 @@ import java.util.List;
  */
 public interface GlskDocument {
 
-    List<String> getCountries();
+    List<String> getAreas();
 
-    List<AbstractGlskPoint> getGlskPoints(String country);
+    List<AbstractGlskPoint> getGlskPoints(String area);
 
+    /**
+     * This method will produce a GLSK provider which is not time-specific. It is not guarantee that all GLSK document
+     * can handle this method because all time-specific data should be extracted. To implement only if GLSK document
+     * is not time-specific.
+     *
+     * @param network: Network on which to map GLSK document information.
+     * @return A {@link GlskProvider} extracted from the GLSK document.
+     */
     default GlskProvider getGlskProvider(Network network) {
         return new SimpleGlsk(this, network);
     }
 
+    /**
+     * This method will produce a GLSK provider which is not time-specific. Only data that is available at the
+     * specified {@param instant} will be extracted.
+     *
+     * @param network: Network on which to map GLSK document information.
+     * @param instant: Instant at which extracted data will be available.
+     * @return A {@link GlskProvider} extracted from the GLSK document.
+     */
     default GlskProvider getGlskProvider(Network network, Instant instant) {
         return new SimpleGlsk(this, network, instant);
     }
 
-    default ChronologyGlskProvider getChronologyGlskProvider(Network network, Instant instant) {
-        return new ChronologyGlsk(this, network, instant);
+    /**
+     * This method will produce a time-specific GLSK provider. All time-related data will be extracted.
+     *
+     * @param network: Network on which to map GLSK document information.
+     * @return A {@link GlskProvider} extracted from the GLSK document.
+     */
+    default ChronologyGlskProvider getChronologyGlskProvider(Network network) {
+        return new ChronologyGlsk(this, network);
     }
 
+    /**
+     * This method will produce a scalable provider which is not time-specific. It is not guarantee that all GLSK
+     * document can handle this method because all time-specific data should be extracted. To implement only if GLSK
+     * document is not time-specific.
+     *
+     * @param network: Network on which to map GLSK document information.
+     * @return A {@link ScalableProvider} extracted from the GLSK document.
+     */
     default ScalableProvider getScalableProvider(Network network) {
         return new SimpleScalable(this, network);
     }
 
+    /**
+     * This method will produce a scalable provider which is not time-specific. Only data that is available at the
+     * specified {@param instant} will be extracted.
+     *
+     * @param network: Network on which to map GLSK document information.
+     * @param instant: Instant at which extracted data will be available.
+     * @return A {@link ScalableProvider} extracted from the GLSK document.
+     */
     default ScalableProvider getScalableProvider(Network network, Instant instant) {
         return new SimpleScalable(this, network, instant);
     }
 
-    default ChronologyScalableProvider getChronologyScalableProvider(Network network, Instant instant) {
-        return new ChronologyScalable(this, network, instant);
+    /**
+     * This method will produce a time-specific scalable provider. All time-related data will be extracted.
+     *
+     * @param network: Network on which to map GLSK document information.
+     * @return A {@link ScalableProvider} extracted from the GLSK document.
+     */
+    default ChronologyScalableProvider getChronologyScalableProvider(Network network) {
+        return new ChronologyScalable(this, network);
     }
 }

@@ -94,7 +94,7 @@ public class UcteGlskDocumentImporterTest {
         assertEquals(67, sum);
 
         //test countries list
-        List<String> countries = ucteGlskDocument.getCountries();
+        List<String> countries = ucteGlskDocument.getAreas();
         assertEquals(12, countries.size());
 
         Interval documentGSKTimeInterval = ucteGlskDocument.getGSKTimeInterval(); // <GSKTimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>

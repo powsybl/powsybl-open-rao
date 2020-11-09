@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.glsk.api.providers.simple;
 
 import com.farao_community.farao.data.glsk.api.GlskDocument;
-import com.farao_community.farao.data.glsk.api.converters.GlskPointLinearGlskConverter;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointLinearGlskConverter;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -30,7 +30,7 @@ public class SimpleGlsk extends AbstractSimpleLinearData<LinearGlsk> implements 
     }
 
     @Override
-    public Map<String, LinearGlsk> getLinearGlskPerCountry() {
+    public Map<String, LinearGlsk> getLinearGlskPerArea() {
         return getLinearData();
     }
 

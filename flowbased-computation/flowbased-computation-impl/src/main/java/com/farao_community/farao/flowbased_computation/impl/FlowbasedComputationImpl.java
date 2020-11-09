@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.flowbased_domain.*;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -78,7 +78,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private List<DataGlskFactors> buildDataGlskFactors(Network network, GlskProvider glsk) {
         List<DataGlskFactors> glskFactors = new ArrayList<>();
-        glsk.getLinearGlskPerCountry().forEach((s, linearGlsk) -> glskFactors.add(new DataGlskFactors(s, linearGlsk.getGLSKs())));
+        glsk.getLinearGlskPerArea().forEach((s, linearGlsk) -> glskFactors.add(new DataGlskFactors(s, linearGlsk.getGLSKs())));
         return glskFactors;
     }
 
@@ -121,7 +121,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     private List<DataPtdfPerCountry> buildDataPtdfPerCountry(Network network, Cnec cnec, GlskProvider glskProvider, SystematicSensitivityResult result) {
-        Map<String, LinearGlsk> glsks = glskProvider.getLinearGlskPerCountry();
+        Map<String, LinearGlsk> glsks = glskProvider.getLinearGlskPerArea();
         return glsks.values().stream()
                 .map(glsk ->
                         new DataPtdfPerCountry(

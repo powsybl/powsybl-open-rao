@@ -5,18 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers;
-
-import com.powsybl.action.util.Scalable;
-
-import java.util.Map;
+package com.farao_community.farao.data.glsk.api;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface ScalableProvider {
+public interface ChronologyScalableProvider extends Chronology<ChronologyScalableProvider>, ScalableProvider {
 
-    Map<String, Scalable> getScalablePerCountry();
-
-    Scalable getScalable(String area);
 }

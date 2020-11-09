@@ -31,7 +31,7 @@ import java.util.Map;
  * CIM type GlskDocument
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public class CimGlskDocument implements GlskDocument {
+public final class CimGlskDocument implements GlskDocument {
 
     /**
      * IIDM GlskDocument: map < CountryCode, all GlskTimeSeries of the country
@@ -49,13 +49,17 @@ public class CimGlskDocument implements GlskDocument {
      */
     private Instant instantEnd;
 
+    public static CimGlskDocument importGlsk(InputStream data) throws IOException, SAXException, ParserConfigurationException {
+        return new CimGlskDocument(data);
+    }
+
     /**
      * @param data input file stream
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws SAXException
      */
-    public CimGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
+    private CimGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -115,13 +119,13 @@ public class CimGlskDocument implements GlskDocument {
      * @return getter of all countries in document
      */
     @Override
-    public List<String> getCountries() {
+    public List<String> getAreas() {
         return new ArrayList<>(getMapGlskTimeSeries().keySet());
     }
 
     @Override
-    public List<AbstractGlskPoint> getGlskPoints(String country) {
-        return getMapGlskTimeSeries().get(country).getGlskPointListInGlskTimeSeries();
+    public List<AbstractGlskPoint> getGlskPoints(String area) {
+        return getMapGlskTimeSeries().get(area).getGlskPointListInGlskTimeSeries();
     }
 
     /**

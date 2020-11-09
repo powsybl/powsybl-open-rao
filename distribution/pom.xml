@@ -89,11 +89,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-quality-check</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-linear-rao</artifactId>
             <version>${project.version}</version>
         </dependency>

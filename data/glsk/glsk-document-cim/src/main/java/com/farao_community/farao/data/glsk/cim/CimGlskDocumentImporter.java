@@ -24,7 +24,7 @@ public class CimGlskDocumentImporter implements GlskDocumentImporter {
 
     @Override
     public GlskDocument importGlsk(InputStream inputStream) throws IOException, SAXException, ParserConfigurationException {
-        return new CimGlskDocument(inputStream);
+        return CimGlskDocument.importGlsk(inputStream);
     }
 
     @Override

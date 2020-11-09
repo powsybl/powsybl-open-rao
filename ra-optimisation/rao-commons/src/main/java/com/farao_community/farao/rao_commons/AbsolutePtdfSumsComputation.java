@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.api.providers.GlskProvider;
+import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
@@ -45,7 +45,7 @@ public final class AbsolutePtdfSumsComputation {
 
     private static Map<String, Map<Country, Double>> computePtdf(Set<Cnec> cnecs, GlskProvider glsk, SystematicSensitivityResult sensitivityResult) {
         Map<String, Map<Country, Double>> ptdfs = new HashMap<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getLinearGlskPerCountry();
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getLinearGlskPerArea();
         for (Cnec cnec : cnecs) {
             for (LinearGlsk linearGlsk: mapCountryLinearGlsk.values()) {
                 double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
