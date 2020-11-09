@@ -56,8 +56,6 @@ public class CracResultManagerTest {
         raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
         assertEquals(252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
         assertEquals(100., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
-        assertEquals(128., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopflowShift(), DOUBLE_TOLERANCE);
-        assertEquals(45., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecLoopFlowExtension.class).getLoopflowShift(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -70,6 +68,8 @@ public class CracResultManagerTest {
         assertEquals(24, raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
         assertEquals(252., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
         assertEquals(100., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(128., raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(45., raoData.getCrac().getCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -80,6 +80,7 @@ public class CracResultManagerTest {
         Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getCnec("cnec2basecase"))).thenReturn(47.);
 
         raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, raoData.getNetwork());
+        raoData.getCracResultManager().fillCnecResultsWithLoopFlows(loopFlowResult);
         raoData.setSystematicSensitivityResult(sensiResults);
         raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
         String var = raoData.getWorkingVariantId();

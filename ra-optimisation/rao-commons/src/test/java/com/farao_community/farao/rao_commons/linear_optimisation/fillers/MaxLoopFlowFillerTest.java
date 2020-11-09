@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -35,19 +36,16 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFill() {
-
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(0.0, Unit.PERCENT_IMAX);
         cnecLoopFlowExtension.setLoopFlowConstraintInMW(100.0);
-        cnecLoopFlowExtension.setLoopflowShift(49.0);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
         initRaoData(crac.getPreventiveState());
+        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
 
-        boolean isLoopFlowApproximation = true; // currently cannot be tested without the loop-flow approximation, otherwise a sensitivity computation should be made
         double loopFlowConstraintAdjustmentCoefficient = 5.;
         double loopFlowViolationCost = 10.;
-        SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
 
-        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(isLoopFlowApproximation, loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, sensitivityAnalysisParameters);
+        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost);
 
         // build problem
         coreProblemFiller.fill(raoData, linearProblem);

@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.rao_api.RaoParameters;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -19,22 +21,22 @@ public class IteratingLinearOptimizerWithLoopFLowsParameters extends IteratingLi
      *  if "loopflowApproximation" is set to "true", loopflow computation tries to use previous saved ptdf and netposition.
      *  note: Loopflow = reference flow - ptdf * net position
      */
-    private boolean loopFlowApproximation;
+    private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
 
     private double loopFlowViolationCost;
 
-    public IteratingLinearOptimizerWithLoopFLowsParameters(int maxIterations, double fallbackOverCost, boolean loopFlowApproximation, double loopFlowViolationCost) {
+    public IteratingLinearOptimizerWithLoopFLowsParameters(int maxIterations, double fallbackOverCost, RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel, double loopFlowViolationCost) {
         super(maxIterations, fallbackOverCost);
-        this.loopFlowApproximation = loopFlowApproximation;
+        this.loopFlowApproximationLevel = loopFlowApproximationLevel;
         this.loopFlowViolationCost = loopFlowViolationCost;
     }
 
-    public boolean isLoopflowApproximation() {
-        return loopFlowApproximation;
+    public RaoParameters.LoopFlowApproximationLevel getLoopflowApproximationLevel() {
+        return loopFlowApproximationLevel;
     }
 
-    public void setLoopFlowApproximation(boolean loopFlowApproximation) {
-        this.loopFlowApproximation = loopFlowApproximation;
+    public void setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel loopFlowApproximation) {
+        this.loopFlowApproximationLevel = loopFlowApproximation;
     }
 
     public double getLoopFlowViolationCost() {
