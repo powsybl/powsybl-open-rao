@@ -41,4 +41,20 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         return factors;
     }
 
+    @Override
+    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
+
+        cnecs.stream()
+            .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+            .map(Cnec::getNetworkElement)
+            .distinct()
+            .forEach(ne -> mapCountryLinearGlsk.values().stream()
+                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
+                .forEach(factors::add));
+
+        return factors;
+    }
+
 }

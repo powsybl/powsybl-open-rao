@@ -77,4 +77,30 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         sensitivityFunctions.forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
         return factors;
     }
+
+    @Override
+    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
+            .map(ra -> rangeActionToSensitivityVariables(network, ra))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        // Case no RangeAction is provided, we still want to get reference flows
+        if (sensitivityVariables.isEmpty()) {
+            sensitivityVariables.add(defaultSensitivityVariable(network));
+        }
+
+        Set<NetworkElement> networkElements = cnecs.stream()
+            .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+            .map(cnec -> cnec.getNetworkElement())
+            .collect(Collectors.toSet());
+        List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
+            .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        sensitivityFunctions.forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
+        return factors;
+    }
 }

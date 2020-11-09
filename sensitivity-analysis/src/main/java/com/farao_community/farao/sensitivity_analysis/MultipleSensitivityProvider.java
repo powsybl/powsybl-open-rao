@@ -55,4 +55,14 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
         }
         return new ArrayList<>(factors);
     }
+
+    @Override
+    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+        //using a set to avoid duplicates
+        Set<SensitivityFactor> factors = new HashSet<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            factors.addAll(cnecSensitivityProvider.getFactors(network, contingencyId));
+        }
+        return new ArrayList<>(factors);
+    }
 }
