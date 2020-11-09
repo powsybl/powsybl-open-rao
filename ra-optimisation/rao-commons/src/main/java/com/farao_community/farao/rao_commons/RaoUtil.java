@@ -87,7 +87,7 @@ public final class RaoUtil {
         }
     }
 
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, Boolean withPtdfSensitivities) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, boolean withPtdfSensitivities) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
@@ -96,11 +96,7 @@ public final class RaoUtil {
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && withPtdfSensitivities) {
-
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
-
-            // We may want to have a different interface for the first run and the successive runs if we do not wish to
-            // compute the PTDFs at every iteration.
         }
 
         return builder.build();

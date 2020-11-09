@@ -165,9 +165,9 @@ public class CracResultManager {
     }
 
     public void copyCommercialFlowsBetweenVariants(String originVariant, String destinationVariant) {
-        raoData.getLoopflowCnecs().forEach(cnec -> {
-            cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant)
-                    .setCommercialFlowInMW(cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getCommercialFlowInMW());
-        });
+        raoData.getLoopflowCnecs().forEach(cnec ->
+                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant)
+                        .setCommercialFlowInMW(cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getCommercialFlowInMW())
+        );
     }
 }
