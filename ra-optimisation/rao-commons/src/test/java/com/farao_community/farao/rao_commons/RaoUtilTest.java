@@ -68,7 +68,7 @@ public class RaoUtilTest {
         raoParameters.addExtension(RaoPtdfParameters.class, raoPtdfParameters);
     }
 
-    private void addGlskProvider() throws ParserConfigurationException, SAXException, IOException {
+    private void addGlskProvider() {
         GlskProvider glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getGlskProvider(network);
         raoInput = RaoInput.buildWithPreventiveState(network, crac)

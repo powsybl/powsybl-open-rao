@@ -45,7 +45,7 @@ public class AbsolutePtdfSumsComputationTest {
     SystematicSensitivityResult systematicSensitivityResult;
 
     @Before
-    public void setUp() throws ParserConfigurationException, SAXException, IOException {
+    public void setUp() {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
