@@ -103,11 +103,8 @@ public final class UcteGlskDocument implements GlskDocument {
         ucteGlskSeriesByCountry.keySet().forEach(id -> {
             String country = ucteGlskSeriesByCountry.get(id).getArea();
             List<UcteGlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
-            if (!ucteGlskPointsByCountry.containsKey(country)) {
-
-            } else {
+            if (ucteGlskPointsByCountry.containsKey(country)) {
                 glskPointList.addAll(ucteGlskPointsByCountry.get(country));
-                ucteGlskPointsByCountry.put(country, glskPointList);
             }
             ucteGlskPointsByCountry.put(country, glskPointList);
         });

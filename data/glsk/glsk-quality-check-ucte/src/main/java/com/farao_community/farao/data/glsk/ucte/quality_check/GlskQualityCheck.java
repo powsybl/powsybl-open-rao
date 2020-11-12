@@ -23,7 +23,7 @@ class GlskQualityCheck {
 
     private static final String LOAD = "A05";
 
-    private QualityReport qualityReport = new QualityReport();
+    private final QualityReport qualityReport = new QualityReport();
 
     public static QualityReport gskQualityCheck(GlskQualityCheckInput input) {
         return new GlskQualityCheck().generateReport(input);
@@ -47,7 +47,7 @@ class GlskQualityCheck {
         });
     }
 
-    private void checkResource(AbstractGlskRegisteredResource registeredResource, Injection injection, String type, Network network, String tso) {
+    private void checkResource(AbstractGlskRegisteredResource registeredResource, Injection<?> injection, String type, Network network, String tso) {
         if (injection == null) {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
