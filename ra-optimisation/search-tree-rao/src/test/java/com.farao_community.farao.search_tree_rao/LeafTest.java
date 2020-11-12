@@ -32,12 +32,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -79,11 +77,11 @@ public class LeafTest {
 
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
-        raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState())));
-        RaoDataManager spiedRaoDataManager = Mockito.spy(raoData.getRaoDataManager());
-        Mockito.when(raoData.getRaoDataManager()).thenReturn(spiedRaoDataManager);
-        Mockito.doNothing().when(spiedRaoDataManager).fillCracResultWithCosts(anyDouble(), anyDouble());
-        Mockito.doNothing().when(spiedRaoDataManager).fillCnecResultWithFlows();
+        raoData = Mockito.spy(RaoData.createOnPreventiveState(network, crac));
+        CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
+        Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
+        Mockito.doNothing().when(spiedCracResultManager).fillCracResultWithCosts(anyDouble(), anyDouble());
+        Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
@@ -104,7 +102,7 @@ public class LeafTest {
             PowerMockito.when(SystematicSensitivityInterface.builder()).thenAnswer(invocationOnMock -> sensitivityBuilder);
             PowerMockito.mockStatic(RaoUtil.class);
             PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
-            PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
+            PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any(), anyBoolean())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,13 +237,14 @@ public class LeafTest {
         rangeAction.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addRangeAction(rangeAction);
 
-        Mockito.doAnswer(invocationOnMock -> "successful").when(iteratingLinearOptimizer).optimize(any());
+        String newVariant = raoData.getCracVariantManager().cloneWorkingVariant();
+        Mockito.doAnswer(invocationOnMock -> newVariant).when(iteratingLinearOptimizer).optimize(any());
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         Mockito.doAnswer(invocationOnMock -> systematicSensitivityResult).when(systematicSensitivityInterface).run(Mockito.any(), Mockito.any());
 
         rootLeaf.evaluate();
         rootLeaf.optimize();
-        assertEquals("successful", rootLeaf.getBestVariantId());
+        assertEquals(newVariant, rootLeaf.getBestVariantId());
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
 
@@ -253,11 +252,11 @@ public class LeafTest {
     public void testClearAllVariantsExceptInitialOne() {
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         String initialVariantId = rootLeaf.getInitialVariantId();
-        rootLeaf.getRaoData().cloneWorkingVariant();
-        rootLeaf.getRaoData().cloneWorkingVariant();
-        rootLeaf.getRaoData().cloneWorkingVariant();
+        rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
+        rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
+        rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
         rootLeaf.clearAllVariantsExceptInitialOne();
-        assertEquals(1, rootLeaf.getRaoData().getVariantIds().size());
-        assertEquals(initialVariantId, rootLeaf.getRaoData().getVariantIds().get(0));
+        assertEquals(1, rootLeaf.getRaoData().getCracVariantManager().getVariantIds().size());
+        assertEquals(initialVariantId, rootLeaf.getRaoData().getCracVariantManager().getVariantIds().get(0));
     }
 }

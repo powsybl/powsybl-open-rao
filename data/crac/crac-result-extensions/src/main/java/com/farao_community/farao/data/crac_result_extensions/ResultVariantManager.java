@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
-    private String preOptimVariantId;
+    private String initialVariantId;
 
     /**
      * Default constructor
@@ -62,12 +62,15 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         return variants;
     }
 
-    public String getPreOptimVariantId() {
-        return preOptimVariantId;
+    public String getInitialVariantId() {
+        return initialVariantId;
     }
 
-    public void setPreOptimVariantId(String preOptimVariantId) {
-        this.preOptimVariantId = preOptimVariantId;
+    public void setInitialVariantId(String initialVariantId) {
+        if (this.initialVariantId != null) {
+            throw new FaraoException("Impossible to set initial variant twice.");
+        }
+        this.initialVariantId = initialVariantId;
     }
 
     /**

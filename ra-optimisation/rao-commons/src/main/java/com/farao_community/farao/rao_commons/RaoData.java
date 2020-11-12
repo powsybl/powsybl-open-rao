@@ -6,8 +6,8 @@
  */
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
@@ -30,23 +30,20 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RaoData {
-    static final String NO_WORKING_VARIANT = "No working variant is defined.";
-    private static final String UNKNOWN_VARIANT = "Unknown variant %s";
+public final class RaoData {
+    private final Network network;
+    private final Crac crac;
+    private final State optimizedState;
+    private final Set<State> perimeter;
+    private final ReferenceProgram referenceProgram;
+    private final GlskProvider glskProvider;
+    private final CracResultManager cracResultManager;
+    private final Set<Country> loopflowCountries;
 
-    private List<String> variantIds;
-    private String workingVariantId;
-    private Network network;
-    private Crac crac;
-    private State optimizedState;
-    private Set<State> perimeter;
-    private Map<String, SystematicSensitivityResult> systematicSensitivityResultMap;
-    private RaoDataManager raoDataManager;
-    private ReferenceProgram referenceProgram;
-    private GlskProvider glskProvider;
-    private Set<Country> loopflowCountries;
     private Set<Cnec> perimeterCnecs;
     private Set<Cnec> loopflowCnecs;
+
+    private CracVariantManager cracVariantManager;
 
     /**
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
@@ -59,71 +56,64 @@ public class RaoData {
      * @param perimeter:         set of State for which the Cnecs are monitored
      * @param referenceProgram:  ReferenceProgram object (needed only for loopflows and relative margin)
      * @param glskProvider:      GLSK provider (needed only for loopflows)
+     * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, Set<Country> loopflowCountries) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, String cracVariantId, Set<Country> loopflowCountries) {
+        Objects.requireNonNull(network, "Unable to build RAO data without network.");
+        Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
+        Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
+        Objects.requireNonNull(crac, "Unable to build RAO data without perimeter.");
         this.network = network;
         this.crac = crac;
         this.optimizedState = optimizedState;
         this.perimeter = perimeter;
-        this.variantIds = new ArrayList<>();
-        this.systematicSensitivityResultMap = new HashMap<>();
         this.referenceProgram = referenceProgram;
         this.glskProvider = glskProvider;
         this.loopflowCountries = loopflowCountries;
 
+        cracResultManager = new CracResultManager(this);
+        addRaoDataVariantManager(cracVariantId);
+
         computePerimeterCnecs();
         computeLoopflowCnecs();
+    }
 
-        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager == null) {
-            resultVariantManager = new ResultVariantManager();
-            crac.addExtension(ResultVariantManager.class, resultVariantManager);
+    private void addRaoDataVariantManager(String cracVariantId) {
+        if (cracVariantId != null) {
+            cracVariantManager = new CracVariantManager(crac, cracVariantId);
+        } else {
+            cracVariantManager = new CracVariantManager(crac);
+            cracResultManager.fillRangeActionResultsWithNetworkValues();
         }
-
-        String variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
-        setWorkingVariant(variantId);
-        raoDataManager = new RaoDataManager(this);
-        raoDataManager.fillRangeActionResultsWithNetworkValues();
     }
 
-    /**
-     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
-     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
-     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
-     *
-     * @param network: Network object.
-     * @param crac:    CRAC object.
-     * @param optimizedState:   State in which the remedial actions are optimized
-     * @param perimeter:        set of State for which the Cnecs are monitored
-     */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter) {
-        this(network, crac, optimizedState, perimeter, null, null, new HashSet<>());
+    public static RaoData createOnPreventiveState(Network network, Crac crac) {
+        return createOnPreventiveStateBasedOnExistingVariant(network, crac, null);
     }
 
-    public List<String> getVariantIds() {
-        return variantIds;
+    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId) {
+        return new RaoData(
+            network,
+            crac,
+            crac.getPreventiveState(),
+            Collections.singleton(crac.getPreventiveState()),
+            null,
+            null,
+            cracVariantId,
+            new HashSet<>());
     }
 
-    public String getWorkingVariantId() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        return workingVariantId;
-    }
-
-    public String getInitialVariantId() {
-        if (variantIds.isEmpty()) {
-            throw new FaraoException("No variants are present in the data");
-        }
-        return variantIds.get(0);
-    }
-
-    public void setWorkingVariant(String variantId) {
-        if (!variantIds.contains(variantId)) {
-            throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
-        }
-        workingVariantId = variantId;
+    public static RaoData create(Network network, RaoData raoData) {
+        return new RaoData(
+            network,
+            raoData.getCrac(),
+            raoData.getOptimizedState(),
+            raoData.getPerimeter(),
+            raoData.getReferenceProgram(),
+            raoData.getGlskProvider(),
+            null,
+            raoData.getLoopflowCountries());
     }
 
     public Network getNetwork() {
@@ -163,11 +153,13 @@ public class RaoData {
     private void computeLoopflowCnecs() {
         //TODO: when we start computing loopflows for N-1 cnecs, adapt this part of code
         if (!loopflowCountries.isEmpty()) {
-            loopflowCnecs = crac.getCnecs(crac.getPreventiveState()).stream()
+            loopflowCnecs = perimeterCnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
                 .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
                 .collect(Collectors.toSet());
         } else {
-            loopflowCnecs = crac.getCnecs().stream()
+            loopflowCnecs = perimeterCnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
                 .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
                 .collect(Collectors.toSet());
         }
@@ -188,13 +180,6 @@ public class RaoData {
         return crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE);
     }
 
-    public CracResult getCracResult(String variantId) {
-        if (!variantIds.contains(variantId)) {
-            throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
-        }
-        return crac.getExtension(CracResultExtension.class).getVariant(variantId);
-    }
-
     public State getOptimizedState() {
         return optimizedState;
     }
@@ -203,25 +188,37 @@ public class RaoData {
         return perimeter;
     }
 
+    public CracResultManager getCracResultManager() {
+        return cracResultManager;
+    }
+
+    public CracVariantManager getCracVariantManager() {
+        return cracVariantManager;
+    }
+
+    // Delegate methods of RaoDataVariantManager
+    public String getWorkingVariantId() {
+        return getCracVariantManager().getWorkingVariantId();
+    }
+
+    public String getInitialVariantId() {
+        return getCracVariantManager().getInitialVariantId();
+    }
+
+    public CracResult getCracResult(String variantId) {
+        return getCracVariantManager().getCracResult(variantId);
+    }
+
     public CracResult getCracResult() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        return getCracResult(workingVariantId);
+        return getCracVariantManager().getCracResult();
     }
 
     public SystematicSensitivityResult getSystematicSensitivityResult() {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        return systematicSensitivityResultMap.get(workingVariantId);
+        return getCracVariantManager().getSystematicSensitivityResult();
     }
 
     public void setSystematicSensitivityResult(SystematicSensitivityResult systematicSensitivityResult) {
-        if (workingVariantId == null) {
-            throw new FaraoException(NO_WORKING_VARIANT);
-        }
-        systematicSensitivityResultMap.put(workingVariantId, systematicSensitivityResult);
+        getCracVariantManager().setSystematicSensitivityResult(systematicSensitivityResult);
     }
 
     public boolean hasSensitivityValues() {
@@ -234,90 +231,5 @@ public class RaoData {
 
     public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
         return getSystematicSensitivityResult().getSensitivityOnFlow(rangeAction, cnec);
-    }
-
-    public RaoDataManager getRaoDataManager() {
-        return raoDataManager;
-    }
-
-    // VARIANTS MANAGEMENT METHODS
-
-    public enum VariantType {
-        PRE_OPTIM,
-        POST_OPTIM
-    }
-
-    private String createVariantFromWorkingVariant(VariantType variantType) {
-        String prefix;
-        SystematicSensitivityResult systematicSensitivityResult;
-        if (variantType == VariantType.PRE_OPTIM) {
-            prefix = "preOptimisationResults";
-            systematicSensitivityResult = null;
-        } else {
-            prefix = "postOptimisationResults";
-            systematicSensitivityResult = getSystematicSensitivityResult();
-        }
-        String variantId = crac.getExtension(ResultVariantManager.class).createNewUniqueVariantId(prefix);
-        //TODO: Copy crac result in the copy ?
-        variantIds.add(variantId);
-        systematicSensitivityResultMap.put(variantId, systematicSensitivityResult);
-        return variantId;
-    }
-
-    /**
-     * This methods creates a variant from an already existing data variant. CRAC result variant will be
-     * created but empty and sensitivity computation results will be copied from the reference variant. The
-     * variant ID will contain a post optimisation prefix.
-     *
-     * @return The data variant ID of the newly created variant.
-     * @throws FaraoException if referenceVariantId is not an existing variant of the data.
-     */
-    public String cloneWorkingVariant() {
-        return createVariantFromWorkingVariant(VariantType.POST_OPTIM);
-    }
-
-    /**
-     * This method deletes a variant according to its ID. If the working variant is the variant to be deleted nothing
-     * would be done. CRAC result can be kept.
-     *
-     * @param variantId:      Variant ID that is required to delete.
-     * @param keepCracResult: If true it will delete the variant as data variant and the related network variant
-     *                        but it will keep the crac variant.
-     * @throws FaraoException if variantId is not an existing data variant.
-     */
-    public void deleteVariant(String variantId, boolean keepCracResult) {
-        if (!variantIds.contains(variantId)) {
-            throw new FaraoException(String.format(UNKNOWN_VARIANT, variantId));
-        }
-        if (!variantId.equals(workingVariantId)) {
-            systematicSensitivityResultMap.remove(variantId);
-            if (!keepCracResult) {
-                crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
-            }
-            variantIds.remove(variantId);
-        }
-    }
-
-    /**
-     * This method clears all the data variants with their related variants in the different data objects. It
-     * enables to keep some CRAC result variants as it is results of computation.
-     *
-     * @param remainingCracResults IDs of the variants we want to keep the results in CRAC
-     */
-    public void clearWithKeepingCracResults(List<String> remainingCracResults) {
-        workingVariantId = null;
-        String[] copiedIds = new String[variantIds.size()];
-        variantIds.toArray(copiedIds);
-        for (String variantId: copiedIds) {
-            deleteVariant(variantId, remainingCracResults.contains(variantId));
-        }
-        variantIds.clear();
-    }
-
-    /**
-     * This method clear all the data variants with their related variants in the different data objects.
-     */
-    public void clear() {
-        clearWithKeepingCracResults(Collections.emptyList());
     }
 }

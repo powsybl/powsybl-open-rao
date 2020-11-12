@@ -58,11 +58,11 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
         return preOptimVariantId;
     }
 
-    public void setPostOptimVariantId(String postOptimVariantId) {
-        this.postOptimVariantId = postOptimVariantId;
-    }
-
     public String getPostOptimVariantId() {
         return postOptimVariantId;
+    }
+
+    public void setPostOptimVariantId(String postOptimVariantId) {
+        this.postOptimVariantId = postOptimVariantId;
     }
 }

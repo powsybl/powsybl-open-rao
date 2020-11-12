@@ -66,16 +66,16 @@ public class InitialSensitivityAnalysis {
 
     private void fillReferenceFlowsAndObjectiveFunction() {
         ObjectiveFunctionEvaluator objectiveFunction = RaoUtil.createObjectiveFunction(raoParameters);
-        raoData.getRaoDataManager().fillCnecResultWithFlows();
-        raoData.getRaoDataManager().fillCracResultWithCosts(
+        raoData.getCracResultManager().fillCnecResultWithFlows();
+        raoData.getCracResultManager().fillCracResultWithCosts(
             objectiveFunction.getFunctionalCost(raoData), objectiveFunction.getVirtualCost(raoData));
     }
 
     private void fillReferenceLoopFlow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
         LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoData.getLoopflowCnecs());
-        raoData.getRaoDataManager().fillCnecLoopFlowExtensionsWithInitialResults(lfResults, raoData.getNetwork());
-        raoData.getRaoDataManager().fillCnecResultsWithLoopFlows(lfResults);
+        raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(lfResults, raoData.getNetwork());
+        raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
     }
 
     private SystematicSensitivityInterface getSystematicSensitivityInterface() {
@@ -85,7 +85,7 @@ public class InitialSensitivityAnalysis {
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs());
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCnecs());
         } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
         }
@@ -95,6 +95,6 @@ public class InitialSensitivityAnalysis {
 
     private static void fillAbsolutePtdfSums(RaoData raoData, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
         Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getNetwork(), raoData.getGlskProvider(), boundaries, sensitivityResult);
-        raoData.getRaoDataManager().fillCnecResultsWithAbsolutePtdfSums(ptdfSums);
+        raoData.getCracResultManager().fillCnecResultsWithAbsolutePtdfSums(ptdfSums);
     }
 }

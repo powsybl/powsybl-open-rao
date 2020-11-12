@@ -9,7 +9,6 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -43,45 +43,51 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static RaoData initRaoData(RaoInput raoInput, RaoParameters raoParameters) {
-        Network network = raoInput.getNetwork();
-        Crac crac = raoInput.getCrac();
-        String variantId = raoInput.getVariantId();
+    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
+        checkParameters(raoParameters, raoInput);
+        initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        initCrac(raoInput.getCrac(), raoInput.getNetwork());
+    }
 
-        network.getVariantManager().setWorkingVariant(variantId);
+    public static void initNetwork(Network network, String networkVariantId) {
+        network.getVariantManager().setWorkingVariant(networkVariantId);
         UcteAliasesCreation.createAliases(network);
+    }
+
+    public static void initCrac(Crac crac, Network network) {
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
+    }
 
+    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            if (!raoInput.getGlskProvider().isPresent()) {
+            if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException("Relative margin objective function requires a GLSK provider.");
             }
             if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
-                    || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
-                    || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
+                || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
+                || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
                 throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
             }
         }
 
         if ((raoParameters.isRaoWithLoopFlowLimitation()
-                || raoParameters.getObjectiveFunction().doesRequirePtdf())
-                && (!raoInput.getReferenceProgram().isPresent())) {
+            || raoParameters.getObjectiveFunction().doesRequirePtdf())
+            && (raoInput.getReferenceProgram() == null)) {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
         }
 
-        RaoData raoData = new RaoData(network, crac, raoInput.getOptimizedState(), raoInput.getPerimeter(), raoInput.getReferenceProgram().orElse(null), raoInput.getGlskProvider().orElse(null), raoParameters.getLoopflowCountries());
-        crac.getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
-
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            LoopFlowUtil.checkDataConsistency(raoData);
+        if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
+            String msg = format(
+                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                raoInput.getCrac().getId());
+            LOGGER.error(msg);
+            throw new FaraoException(msg);
         }
-
-        return raoData;
     }
 
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
@@ -89,12 +95,8 @@ public final class RaoUtil {
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
-        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
-
+        if (raoParameters.isRaoWithLoopFlowLimitation() && withPtdfSensitivitiesForLoopFlows) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
-
-            // We may want to have a different interface for the first run and the successive runs if we do not wish to
-            // compute the PTDFs at every iteration.
         }
 
         return builder.build();
@@ -124,8 +126,7 @@ public final class RaoUtil {
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
-        return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityAnalysisParameters());
+        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowApproximationLevel());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
@@ -134,7 +135,7 @@ public final class RaoUtil {
 
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-                raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
+                raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
     }
 
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {

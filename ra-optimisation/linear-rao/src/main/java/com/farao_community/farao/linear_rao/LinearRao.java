@@ -55,8 +55,23 @@ public class LinearRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters raoParameters) {
-        RaoData raoData = RaoUtil.initRaoData(raoInput, raoParameters);
+        RaoUtil.initData(raoInput, raoParameters);
+        // We assume that linear RAO only handles optimization on preventive state taking all the CNECs present in
+        // the CRAC into account. So we artificially set these values here.
+        RaoData raoData = new RaoData(
+                raoInput.getNetwork(),
+                raoInput.getCrac(),
+                raoInput.getCrac().getPreventiveState(),
+                raoInput.getCrac().getStates(),
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                raoInput.getBaseCracVariantId(),
+                raoParameters.getLoopflowCountries());
 
+        return run(raoData, raoParameters);
+    }
+
+    public CompletableFuture<RaoResult> run(RaoData raoData, RaoParameters raoParameters) {
         if (raoParameters.getExtension(LinearRaoParameters.class) == null) {
             String msg = "The configuration should contain a LinearRaoParameters extensions";
             LOGGER.error(msg);
@@ -64,7 +79,7 @@ public class LinearRao implements RaoProvider {
         }
 
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
         return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
     }
@@ -131,7 +146,7 @@ public class LinearRao implements RaoProvider {
             minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
             objFunctionValue));
 
-        raoData.clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
+        raoData.getCracVariantManager().clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;
     }
 
@@ -150,7 +165,7 @@ public class LinearRao implements RaoProvider {
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
-        raoData.clearWithKeepingCracResults(Collections.singletonList(raoData.getInitialVariantId()));
+        raoData.getCracVariantManager().clearWithKeepingCracResults(Collections.singletonList(raoData.getInitialVariantId()));
 
         return raoResult;
     }
