@@ -10,10 +10,7 @@ import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.time.Instant;
 
 import static org.junit.Assert.*;
@@ -28,7 +25,7 @@ public class UcteGlskValueProviderTest {
     private static final double EPSILON = 0.0001;
 
     @Test
-    public void testProvideOkUcteGlsk() throws IOException, SAXException, ParserConfigurationException {
+    public void testProvideOkUcteGlsk() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
@@ -39,7 +36,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testProvideUcteGlskEmptyInstant() throws IOException, SAXException, ParserConfigurationException {
+    public void testProvideUcteGlskEmptyInstant() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2020-07-29T10:00:00Z");
 
@@ -50,7 +47,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testProvideUcteGlskUnknownCountry() throws IOException, SAXException, ParserConfigurationException {
+    public void testProvideUcteGlskUnknownCountry() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
@@ -61,7 +58,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testProvideUcteGlskWithWrongFormat() throws IOException, SAXException, ParserConfigurationException {
+    public void testProvideUcteGlskWithWrongFormat() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))

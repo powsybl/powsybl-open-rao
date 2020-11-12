@@ -91,22 +91,15 @@ public class CimGlskDocumentImporterTest {
         assertFalse(glskPointList.isEmpty());
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void testExceptionCases() {
-        try {
-            GlskDocumentImporters.importGlsk("/nonExistingFile.xml");
-            fail();
-        } catch (FileNotFoundException e) {
-            LOGGER.info("Should throw FileNotFoundException");
-        }
+        byte[] nonXmlBytes = "{ should not be imported }".getBytes();
+        new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes));
+    }
 
-        try {
-            byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-            new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes));
-            fail();
-        } catch (FaraoException e) {
-            LOGGER.info("Should throw FaraoException");
-        }
+    @Test(expected = FileNotFoundException.class)
+    public void testFileNotFound() throws FileNotFoundException {
+        GlskDocumentImporters.importGlsk("/nonExistingFile.xml");
     }
 
     @Test

@@ -16,10 +16,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -48,7 +45,7 @@ public class GlskPointScalableConverterTest {
     }
 
     @Before
-    public void setUp() throws IOException, SAXException, ParserConfigurationException {
+    public void setUp() {
         testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
         glskPointCountry = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);

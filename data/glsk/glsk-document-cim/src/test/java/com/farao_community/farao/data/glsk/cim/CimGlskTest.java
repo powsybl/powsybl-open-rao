@@ -13,10 +13,7 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
@@ -37,7 +34,7 @@ public class CimGlskTest {
     }
 
     @Test
-    public void run() throws IOException, SAXException, ParserConfigurationException {
+    public void run() {
         GlskProvider cimGlskProvider = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getGlskProvider(testNetwork, instant);
         Map<String, LinearGlsk> map = cimGlskProvider.getLinearGlskPerArea();
@@ -48,7 +45,7 @@ public class CimGlskTest {
     }
 
     @Test
-    public void runWithInvalidCountry() throws IOException, SAXException, ParserConfigurationException {
+    public void runWithInvalidCountry() {
         GlskProvider cimGlskProvider = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getGlskProvider(testNetwork, instant);
         Assert.assertNull(cimGlskProvider.getLinearGlsk("fake-area"));

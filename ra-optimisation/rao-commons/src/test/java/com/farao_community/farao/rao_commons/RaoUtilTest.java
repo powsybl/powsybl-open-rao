@@ -24,10 +24,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -188,14 +185,14 @@ public class RaoUtilTest {
     }
 
     @Test(expected = FaraoException.class)
-    public void testExceptionForNoPtdfParametersOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
+    public void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
-    public void testExceptionForNullBoundariesOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
+    public void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
         addPtdfParameters(null);
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
@@ -203,7 +200,7 @@ public class RaoUtilTest {
     }
 
     @Test(expected = FaraoException.class)
-    public void testExceptionForEmptyBoundariesOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
+    public void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
         addPtdfParameters(new ArrayList<>());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
@@ -211,7 +208,7 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() throws IOException, SAXException, ParserConfigurationException {
+    public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() {
         addPtdfParameters(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);

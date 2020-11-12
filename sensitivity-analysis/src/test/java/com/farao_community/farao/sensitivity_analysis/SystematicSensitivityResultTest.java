@@ -25,10 +25,7 @@ import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +51,7 @@ public class SystematicSensitivityResultTest {
     private PtdfSensitivityProvider ptdfSensitivityProvider;
 
     @Before
-    public void setUp() throws SAXException, ParserConfigurationException, IOException {
+    public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
 

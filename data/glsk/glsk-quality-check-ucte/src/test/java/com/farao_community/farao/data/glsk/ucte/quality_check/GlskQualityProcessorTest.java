@@ -10,10 +10,7 @@ import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 

@@ -90,22 +90,15 @@ public class UcteGlskDocumentImporterTest {
         assertEquals("2016-07-28T22:00:00Z", documentGSKTimeInterval.getStart().toString());
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void testExceptionCases() {
-        try {
-            GlskDocumentImporters.importGlsk("/nonExistingFile.xml");
-            fail();
-        } catch (FileNotFoundException e) {
-            // Should throw FileNotFoundException
-        }
+        byte[] nonXmlBytes = "{ should not be imported }".getBytes();
+        UcteGlskDocument.importGlsk(new ByteArrayInputStream(nonXmlBytes));
+    }
 
-        try {
-            byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-            UcteGlskDocument.importGlsk(new ByteArrayInputStream(nonXmlBytes));
-            fail();
-        } catch (FaraoException e) {
-            // Should throw SAXException
-        }
+    @Test(expected = FileNotFoundException.class)
+    public void testFileNotFound() throws FileNotFoundException {
+        GlskDocumentImporters.importGlsk("/nonExistingFile.xml");
     }
 
     @Test
@@ -128,15 +121,11 @@ public class UcteGlskDocumentImporterTest {
         assertEquals(0.009878, factor, 0.);
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void testGetGlskPointForIncorrectInstant() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYFULL));
-        try {
-            ucteGlskDocument.getGlskPointsForInstant(Instant.parse("2016-07-29T22:00:00Z"));
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+        Instant instant = Instant.parse("2016-07-29T22:00:00Z");
+        ucteGlskDocument.getGlskPointsForInstant(instant);
     }
 
     @Test
