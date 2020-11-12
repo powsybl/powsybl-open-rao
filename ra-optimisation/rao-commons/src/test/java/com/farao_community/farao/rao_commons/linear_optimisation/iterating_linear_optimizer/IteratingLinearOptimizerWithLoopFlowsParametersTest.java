@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.rao_api.RaoParameters;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -14,23 +15,23 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class IteratingLinearOptimizerWithLoopFLowsParametersTest {
+public class IteratingLinearOptimizerWithLoopFlowsParametersTest {
 
     @Test
     public void isLoopflowApproximation() {
         IteratingLinearOptimizerWithLoopFLowsParameters parameters =
-            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, false, 1.0);
-        assertFalse(parameters.isLoopflowApproximation());
+            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO, 1.0);
+        assertEquals(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO, parameters.getLoopflowApproximationLevel());
         assertEquals(1.0, parameters.getLoopFlowViolationCost(), 0.1);
     }
 
     @Test
     public void setLoopFlowApproximation() {
         IteratingLinearOptimizerWithLoopFLowsParameters parameters =
-            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, false, 1.0);
-        parameters.setLoopFlowApproximation(true);
+            new IteratingLinearOptimizerWithLoopFLowsParameters(20, 12, RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF, 1.0);
+        parameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST);
         parameters.setLoopFlowViolationCost(10.0);
-        assertTrue(parameters.isLoopflowApproximation());
+        assertEquals(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST, parameters.getLoopflowApproximationLevel());
         assertEquals(10.0, parameters.getLoopFlowViolationCost(), 0.1);
     }
 }

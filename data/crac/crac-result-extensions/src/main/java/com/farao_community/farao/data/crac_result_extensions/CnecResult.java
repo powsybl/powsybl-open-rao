@@ -30,6 +30,7 @@ public class CnecResult implements Result {
 
     private double loopflowInMW; //loopflow value in MW
     private double loopflowThresholdInMW; //loopflow threshold in MW. Normally = max(Tso input, initial calculated lp)
+    private double commercialFlowInMW;
 
     private double absolutePtdfSum;
 
@@ -45,6 +46,7 @@ public class CnecResult implements Result {
         this.maxThresholdInA = Double.NaN;
         this.loopflowInMW = Double.NaN;
         this.loopflowThresholdInMW = Double.NaN;
+        this.commercialFlowInMW = Double.NaN;
         this.absolutePtdfSum = absolutePtdfSum;
     }
 
@@ -129,6 +131,14 @@ public class CnecResult implements Result {
 
     public void setLoopflowThresholdInMW(double loopflowThresholdInMW) {
         this.loopflowThresholdInMW = loopflowThresholdInMW;
+    }
+
+    public double getCommercialFlowInMW() {
+        return commercialFlowInMW;
+    }
+
+    public void setCommercialFlowInMW(double commercialFlowInMW) {
+        this.commercialFlowInMW = commercialFlowInMW;
     }
 
     public double getAbsolutePtdfSum() {
