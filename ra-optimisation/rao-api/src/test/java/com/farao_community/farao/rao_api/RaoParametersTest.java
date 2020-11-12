@@ -112,6 +112,35 @@ public class RaoParametersTest {
         assertEquals(0.005, parameters.getPtdfSumLowerBound(), 1e-6);
     }
 
+    @Test
+    public void checkLoopFlowConfig() {
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("loop-flow-approximation", "UPDATE_PTDF_WITH_TOPO");
+        moduleConfig.setStringProperty("loop-flow-constraint-adjustment-coefficient", Objects.toString(5.0));
+        moduleConfig.setStringProperty("loop-flow-violation-cost", Objects.toString(20.6));
+
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO, parameters.getLoopFlowApproximationLevel());
+        assertEquals(5, parameters.getLoopFlowConstraintAdjustmentCoefficient(), 1e-6);
+        assertEquals(20.6, parameters.getLoopFlowViolationCost(), 1e-6);
+    }
+
+    @Test
+    public void testUpdatePtdfWithTopo() {
+        assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
+        assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());
+        assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithTopologicalChange());
+    }
+
+    @Test
+    public void testUpdatePtdfWithPst() {
+        assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithPstChange());
+        assertFalse(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithPstChange());
+        assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithPstChange());
+    }
+
     private static class DummyExtension extends AbstractExtension<RaoParameters> {
 
         @Override

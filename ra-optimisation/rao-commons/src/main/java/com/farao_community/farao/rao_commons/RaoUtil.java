@@ -87,7 +87,7 @@ public final class RaoUtil {
         }
     }
 
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
@@ -95,12 +95,8 @@ public final class RaoUtil {
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
-        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
-
+        if (raoParameters.isRaoWithLoopFlowLimitation() && withPtdfSensitivitiesForLoopFlows) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
-
-            // We may want to have a different interface for the first run and the successive runs if we do not wish to
-            // compute the PTDFs at every iteration.
         }
 
         return builder.build();
@@ -130,8 +126,7 @@ public final class RaoUtil {
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
-        return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityAnalysisParameters());
+        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowApproximationLevel());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
@@ -140,7 +135,7 @@ public final class RaoUtil {
 
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-                raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
+                raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
     }
 
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
