@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import org.threeten.extra.Interval;
@@ -16,7 +17,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -49,28 +49,27 @@ public final class CimGlskDocument implements GlskDocument {
      */
     private Instant instantEnd;
 
-    public static CimGlskDocument importGlsk(InputStream data) throws IOException, SAXException, ParserConfigurationException {
-        return new CimGlskDocument(data);
+    public static CimGlskDocument importGlsk(InputStream data) {
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            documentBuilderFactory.setNamespaceAware(true);
+
+            Document document = documentBuilderFactory.newDocumentBuilder().parse(data);
+            document.getDocumentElement().normalize();
+            return new CimGlskDocument(document);
+        } catch (IOException | SAXException | ParserConfigurationException e) {
+            throw new FaraoException("Unable to import CIM GLSK file.", e);
+        }
     }
 
-    /**
-     * @param data input file stream
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
-     */
-    private CimGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-        documentBuilderFactory.setNamespaceAware(true);
+    public static CimGlskDocument importGlsk(Document document) {
+        return new CimGlskDocument(document);
+    }
 
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-        Document document = documentBuilder.parse(data);
-        document.getDocumentElement().normalize();
-
+    private CimGlskDocument(Document document) {
         //get interval start and end
         NodeList intervalNodeList = document.getElementsByTagName("time_Period.timeInterval");
         String intervalStart = ((Element) intervalNodeList.item(0)).getElementsByTagName("start").item(0).getTextContent();

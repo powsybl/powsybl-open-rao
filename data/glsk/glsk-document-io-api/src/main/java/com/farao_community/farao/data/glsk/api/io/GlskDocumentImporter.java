@@ -8,13 +8,8 @@
 package com.farao_community.farao.data.glsk.api.io;
 
 import com.farao_community.farao.data.glsk.api.GlskDocument;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 
 /**
  * Interface for GLSK object import
@@ -24,17 +19,7 @@ import java.nio.file.Path;
 
 public interface GlskDocumentImporter {
 
-    default GlskDocument importGlsk(Path filepath) throws IOException, ParserConfigurationException, SAXException {
-        InputStream data = new FileInputStream(filepath.toFile());
-        return importGlsk(data);
-    }
+    GlskDocument importGlsk(InputStream inputStream);
 
-    default GlskDocument importGlsk(String filePath) throws IOException, ParserConfigurationException, SAXException {
-        InputStream data = new FileInputStream(filePath);
-        return importGlsk(data);
-    }
-
-    GlskDocument importGlsk(InputStream inputStream) throws IOException, SAXException, ParserConfigurationException;
-
-    boolean exists(String fileName, InputStream inputStream);
+    boolean exists(InputStream inputStream);
 }

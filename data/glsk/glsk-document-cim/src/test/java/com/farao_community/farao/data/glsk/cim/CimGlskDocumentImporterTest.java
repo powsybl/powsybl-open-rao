@@ -6,17 +6,18 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
+import com.farao_community.farao.data.glsk.api.GlskDocument;
+import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterWithFilePathString() throws ParserConfigurationException, SAXException, IOException {
+    public void testGlskDocumentImporterWithFilePathString() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
@@ -47,7 +48,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterWithFilePath() throws ParserConfigurationException, SAXException, IOException {
+    public void testGlskDocumentImporterWithFilePath() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
@@ -55,7 +56,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImportB45() throws ParserConfigurationException, SAXException, IOException {
+    public void testGlskDocumentImportB45() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<AbstractGlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
@@ -68,7 +69,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterWithFileName() throws IOException, SAXException, ParserConfigurationException {
+    public void testGlskDocumentImporterWithFileName() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42TEST));
 
         List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
@@ -80,7 +81,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterGlskMultiPoints() throws IOException, SAXException, ParserConfigurationException {
+    public void testGlskDocumentImporterGlskMultiPoints() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
         List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
@@ -91,32 +92,38 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testExceptionCases() throws ParserConfigurationException, SAXException, IOException {
+    public void testExceptionCases() {
         try {
-            new CimGlskDocumentImporter().importGlsk("/nonExistingFile.xml");
+            GlskDocumentImporters.importGlsk("/nonExistingFile.xml");
             fail();
-        } catch (IOException e) {
-            LOGGER.info("Should throw IOException");
+        } catch (FileNotFoundException e) {
+            LOGGER.info("Should throw FileNotFoundException");
         }
 
         try {
             byte[] nonXmlBytes = "{ should not be imported }".getBytes();
             new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes));
             fail();
-        } catch (SAXException e) {
-            LOGGER.info("Should throw SAXException");
+        } catch (FaraoException e) {
+            LOGGER.info("Should throw FaraoException");
         }
     }
 
     @Test
     public void existsTrue() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
-        assertTrue(importer.exists(GLSKB45TEST.substring(1), getResourceAsInputStream(GLSKB45TEST)));
+        assertTrue(importer.exists(getResourceAsInputStream(GLSKB45TEST)));
     }
 
     @Test
     public void existsFalse() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
-        assertFalse(importer.exists("GlskB45wrong.xml", getResourceAsInputStream("/GlskB45wrong.xml")));
+        assertFalse(importer.exists(getResourceAsInputStream("/GlskB45wrong.xml")));
+    }
+
+    @Test
+    public void fullImport() {
+        GlskDocument document = GlskDocumentImporters.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
+        assertEquals(1, document.getAreas().size());
     }
 }

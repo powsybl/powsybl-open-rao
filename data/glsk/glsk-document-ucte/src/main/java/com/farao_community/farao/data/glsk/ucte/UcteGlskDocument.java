@@ -17,7 +17,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -48,28 +47,27 @@ public final class UcteGlskDocument implements GlskDocument {
      */
     private Interval gSKTimeInterval; // GSKTimeInterval. ex: <GSKTimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
 
-    public static UcteGlskDocument importGlsk(InputStream data) throws IOException, SAXException, ParserConfigurationException {
-        return new UcteGlskDocument(data);
+    public static UcteGlskDocument importGlsk(InputStream inputStream) {
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            documentBuilderFactory.setNamespaceAware(true);
+
+            Document document = documentBuilderFactory.newDocumentBuilder().parse(inputStream);
+            document.getDocumentElement().normalize();
+            return new UcteGlskDocument(document);
+        } catch (IOException | SAXException | ParserConfigurationException e) {
+            throw new FaraoException("Unable to import CIM GLSK file.", e);
+        }
     }
 
-    /**
-     * @param data input file as input stream
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
-     */
-    private UcteGlskDocument(InputStream data) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-        documentBuilderFactory.setNamespaceAware(true);
+    public static UcteGlskDocument importGlsk(Document document) {
+        return new UcteGlskDocument(document);
+    }
 
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-        Document document = documentBuilder.parse(data);
-        document.getDocumentElement().normalize();
-
+    private UcteGlskDocument(Document document) {
         if (document.getElementsByTagName("GSKTimeInterval").getLength() > 0) {
             this.gSKTimeInterval = Interval.parse(((Element) document.getElementsByTagName("GSKTimeInterval").item(0)).getAttribute("v"));
         }
@@ -104,14 +102,14 @@ public final class UcteGlskDocument implements GlskDocument {
         ucteGlskPointsByCountry = new HashMap<>();
         ucteGlskSeriesByCountry.keySet().forEach(id -> {
             String country = ucteGlskSeriesByCountry.get(id).getArea();
+            List<UcteGlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
             if (!ucteGlskPointsByCountry.containsKey(country)) {
-                List<UcteGlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
-                ucteGlskPointsByCountry.put(country, glskPointList);
+
             } else {
-                List<UcteGlskPoint> glskPointList = ucteGlskSeriesByCountry.get(id).getUcteGlskBlocks();
                 glskPointList.addAll(ucteGlskPointsByCountry.get(country));
                 ucteGlskPointsByCountry.put(country, glskPointList);
             }
+            ucteGlskPointsByCountry.put(country, glskPointList);
         });
     }
 
@@ -120,10 +118,10 @@ public final class UcteGlskDocument implements GlskDocument {
      * and add glsk Point for missed  intervals
      * @param incomingSeries incoming time series to be merged with old time series
      * @param oldSeries      current time series to be updated
-     * @return
+     * @return Glsk series
      */
     private UcteGlskSeries calculateUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
-        List<UcteGlskPoint> glskPointListTobeAdded = new ArrayList();
+        List<UcteGlskPoint> glskPointListTobeAdded = new ArrayList<>();
         List<Interval> oldPointsIntervalsList = new ArrayList<>();
         List<UcteGlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
         List<UcteGlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
