@@ -123,7 +123,7 @@ public final class UcteGlskDocument implements GlskDocument {
      * @return
      */
     private UcteGlskSeries calculateUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
-        List<UcteGlskPoint> glskPointListTobeAdded = new ArrayList();
+        List<UcteGlskPoint> glskPointListTobeAdded = new ArrayList<>();
         List<Interval> oldPointsIntervalsList = new ArrayList<>();
         List<UcteGlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
         List<UcteGlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
