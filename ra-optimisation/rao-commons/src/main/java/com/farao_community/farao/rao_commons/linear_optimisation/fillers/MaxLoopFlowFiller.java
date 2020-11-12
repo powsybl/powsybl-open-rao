@@ -100,7 +100,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 continue;
             }
 
-            double max = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
             maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
 
             double commercialFlow;
