@@ -79,7 +79,7 @@ public class LinearRao implements RaoProvider {
         }
 
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
         return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
     }

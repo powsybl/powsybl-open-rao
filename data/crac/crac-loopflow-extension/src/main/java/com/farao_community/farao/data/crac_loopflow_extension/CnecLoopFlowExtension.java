@@ -34,8 +34,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
 
     // ATTRIBUTES USED BY THE RAO to temporarily store some data about the loop-flows
     private double loopFlowConstraintInMW; // loop-flow upper bound, usually = max (Abs(inputThreshold), Abs(initial loopflow)) - frm
-    private double loopflowShift; // sum (ptdf * net position)
-    private boolean hasLoopflowShift; //has previous calculated loopflow shift value
 
     public CnecLoopFlowExtension(double inputThreshold, Unit inputThresholdUnit) {
         if (inputThresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
@@ -46,8 +44,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         this.inputThresholdUnit = inputThresholdUnit;
 
         this.loopFlowConstraintInMW = Double.NaN;
-        this.loopflowShift = Double.NaN;
-        this.hasLoopflowShift = false;
     }
 
     public double getInputThreshold() {
@@ -73,23 +69,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
      */
     public void setLoopFlowConstraintInMW(double loopFlowConstraint) {
         this.loopFlowConstraintInMW = loopFlowConstraint;
-    }
-
-    public double getLoopflowShift() {
-        return loopflowShift;
-    }
-
-    public void setLoopflowShift(double loopflowShift) {
-        this.loopflowShift = loopflowShift;
-        setHasLoopflowShift(true);
-    }
-
-    public boolean hasLoopflowShift() {
-        return hasLoopflowShift;
-    }
-
-    public void setHasLoopflowShift(boolean hasLoopflowShift) {
-        this.hasLoopflowShift = hasLoopflowShift;
     }
 
     public double getInputThreshold(Unit requestedUnit, Network network) {

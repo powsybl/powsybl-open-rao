@@ -85,7 +85,7 @@ public class InitialSensitivityAnalysis {
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs());
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCnecs());
         } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
         }

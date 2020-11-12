@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import static java.lang.Math.sqrt;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -51,11 +50,6 @@ public class CnecLoopFlowExtensionTest {
         Assert.assertEquals(200, cnecLoopFlowExtension.getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
         Assert.assertEquals(100, cnecLoopFlowExtension.getInputThreshold(), DOUBLE_TOLERANCE);
         Assert.assertEquals(Unit.PERCENT_IMAX, cnecLoopFlowExtension.getInputThresholdUnit());
-
-        cnecLoopFlowExtension.setHasLoopflowShift(true);
-        cnecLoopFlowExtension.setLoopflowShift(1);
-        assertTrue(cnecLoopFlowExtension.hasLoopflowShift());
-        Assert.assertEquals(1, cnecLoopFlowExtension.getLoopflowShift(), DOUBLE_TOLERANCE);
     }
 
     @Test

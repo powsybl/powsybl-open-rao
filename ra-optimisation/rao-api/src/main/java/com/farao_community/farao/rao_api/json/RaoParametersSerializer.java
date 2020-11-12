@@ -35,7 +35,7 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", parameters.getPstSensitivityThreshold());
         jsonGenerator.writeNumberField("sensitivity-fallback-over-cost", parameters.getFallbackOverCost());
         jsonGenerator.writeBooleanField("rao-with-loop-flow-limitation", parameters.isRaoWithLoopFlowLimitation());
-        jsonGenerator.writeBooleanField("loop-flow-approximation", parameters.isLoopFlowApproximation());
+        jsonGenerator.writeObjectField("loop-flow-approximation", parameters.getLoopFlowApproximationLevel());
         jsonGenerator.writeNumberField("loop-flow-constraint-adjustment-coefficient", parameters.getLoopFlowConstraintAdjustmentCoefficient());
         jsonGenerator.writeNumberField("loop-flow-violation-cost", parameters.getLoopFlowViolationCost());
         jsonGenerator.writeFieldName("loop-flow-countries");

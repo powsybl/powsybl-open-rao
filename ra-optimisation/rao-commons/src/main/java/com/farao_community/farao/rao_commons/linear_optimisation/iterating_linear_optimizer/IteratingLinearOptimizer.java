@@ -83,6 +83,8 @@ public class IteratingLinearOptimizer {
         String optimizedVariantId;
         for (int iteration = 1; iteration <= parameters.getMaxIterations(); iteration++) {
             optimizedVariantId = cracVariantManager.cloneWorkingVariant();
+            raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(cracVariantManager.getWorkingVariantId(), optimizedVariantId);
+            //TODO : copy crac results from one variant to the next in CracVariantManager.cloneWorkingVariant() ?
             cracVariantManager.setWorkingVariant(optimizedVariantId);
             if (!optimize(iteration)
                     || !hasRemedialActionsChanged(optimizedVariantId, iteration)

@@ -15,7 +15,8 @@ import com.farao_community.farao.loopflow_computation.LoopFlowResult;
  */
 public final class LoopFlowUtil {
 
-    private LoopFlowUtil() { }
+    private LoopFlowUtil() {
+    }
 
     public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
         if (isLoopFlowApproximation) {

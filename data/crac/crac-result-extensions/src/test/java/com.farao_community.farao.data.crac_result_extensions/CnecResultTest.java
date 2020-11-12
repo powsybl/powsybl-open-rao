@@ -69,5 +69,7 @@ public class CnecResultTest {
         assertEquals(2.0, cnecResult.getLoopflowInMW(), DOUBLE_TOLERANCE);
         cnecResult.setLoopflowThresholdInMW(2.0);
         assertEquals(2.0, cnecResult.getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        cnecResult.setCommercialFlowInMW(6.5);
+        assertEquals(6.5, cnecResult.getCommercialFlowInMW(), DOUBLE_TOLERANCE);
     }
 }

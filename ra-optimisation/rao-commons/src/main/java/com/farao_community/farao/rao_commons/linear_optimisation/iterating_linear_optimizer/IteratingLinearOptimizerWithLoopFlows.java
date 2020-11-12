@@ -7,10 +7,11 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 
 import java.util.List;
@@ -20,24 +21,21 @@ import java.util.List;
  */
 public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimizer {
 
-    private boolean loopFlowApproximation;
+    private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
 
     public IteratingLinearOptimizerWithLoopFlows(List<ProblemFiller> fillers,
                                                  SystematicSensitivityInterface systematicSensitivityInterface,
                                                  ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                                                  IteratingLinearOptimizerWithLoopFLowsParameters parameters) {
         super(fillers, systematicSensitivityInterface, objectiveFunctionEvaluator, parameters);
-        loopFlowApproximation = parameters.isLoopflowApproximation();
+        loopFlowApproximationLevel = parameters.getLoopflowApproximationLevel();
         linearOptimizer = new LinearOptimizer(fillers);
     }
 
     @Override
     void runSensitivityAndUpdateResults() {
-
-        raoData.setSystematicSensitivityResult(
-            systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
-
-        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, loopFlowApproximation);
+        raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
+        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, !loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange());
 
         raoData.getCracResultManager().fillCnecResultWithFlows();
         raoData.getCracResultManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
