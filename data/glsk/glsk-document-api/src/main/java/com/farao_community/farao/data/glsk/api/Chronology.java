@@ -12,7 +12,7 @@ import java.time.Instant;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Chronology<I> {
+public interface Chronology<I extends Chronology<I>> {
 
     I selectInstant(Instant instant);
 }
