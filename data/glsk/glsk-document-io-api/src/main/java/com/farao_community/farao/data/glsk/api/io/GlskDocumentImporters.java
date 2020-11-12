@@ -64,7 +64,7 @@ public final class GlskDocumentImporters {
 
         for (GlskDocumentImporter importer : GLSK_IMPORTERS.get()) {
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            if (importer.exists(bais)) {
+            if (importer.canImport(bais)) {
                 return importer;
             }
         }

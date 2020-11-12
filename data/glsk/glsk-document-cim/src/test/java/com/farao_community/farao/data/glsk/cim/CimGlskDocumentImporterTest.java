@@ -112,13 +112,13 @@ public class CimGlskDocumentImporterTest {
     @Test
     public void existsTrue() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
-        assertTrue(importer.exists(getResourceAsInputStream(GLSKB45TEST)));
+        assertTrue(importer.canImport(getResourceAsInputStream(GLSKB45TEST)));
     }
 
     @Test
     public void existsFalse() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
-        assertFalse(importer.exists(getResourceAsInputStream("/GlskB45wrong.xml")));
+        assertFalse(importer.canImport(getResourceAsInputStream("/GlskB45wrong.xml")));
     }
 
     @Test

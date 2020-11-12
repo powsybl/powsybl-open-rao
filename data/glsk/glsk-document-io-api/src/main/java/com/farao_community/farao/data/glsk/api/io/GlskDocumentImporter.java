@@ -21,5 +21,5 @@ public interface GlskDocumentImporter {
 
     GlskDocument importGlsk(InputStream inputStream);
 
-    boolean exists(InputStream inputStream);
+    boolean canImport(InputStream inputStream);
 }

@@ -36,7 +36,7 @@ public class CimGlskDocumentImporter implements GlskDocumentImporter {
     }
 
     @Override
-    public boolean exists(InputStream inputStream) {
+    public boolean canImport(InputStream inputStream) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
@@ -51,6 +51,11 @@ public class CimGlskDocumentImporter implements GlskDocumentImporter {
         }
         document.getDocumentElement().normalize();
 
-        return "GLSK_MarketDocument".equals(document.getDocumentElement().getTagName());
+        if ("GLSK_MarketDocument".equals(document.getDocumentElement().getTagName())) {
+            return true;
+        } else {
+            document = null; // As document is not recognized ensure document is null, in case import method is called afterwards
+            return false;
+        }
     }
 }
