@@ -95,13 +95,13 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
-            Double initialLoopFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW();
-            double inputThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT, raoData.getNetwork());
+
             if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
                 continue;
             }
 
-            maxLoopFlowLimit = Math.max(inputThreshold, initialLoopFlow + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient;
+            double max = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
+            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
 
             double commercialFlow;
             //get commercial flow

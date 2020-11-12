@@ -43,7 +43,7 @@ public class RaoDataTest {
         crac.synchronize(network);
         crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
         crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
         initialVariantId  = raoData.getWorkingVariantId();
     }
 
@@ -161,7 +161,7 @@ public class RaoDataTest {
     public void loopflowSingleCountry() {
         Set<Country> countrySet = new HashSet<>();
         countrySet.add(Country.DE);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, countrySet);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, countrySet, 0.0);
 
         Set<Country> loopflowCountries = raoData.getLoopflowCountries();
         assertEquals(1, loopflowCountries.size());

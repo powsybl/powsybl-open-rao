@@ -44,7 +44,7 @@ public class CracResultManagerTest {
         crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension1);
         crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension2);
 
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
 
         loopFlowResult = new LoopFlowResult();
         loopFlowResult.addCnecResult(crac.getCnec("cnec1basecase"), -252, 128., -124.);

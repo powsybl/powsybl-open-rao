@@ -38,7 +38,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator1() {
         // no loop-flow violation for both cnecs
         addLoopFlowExtensions(crac);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
+        RaoData raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
 
         String var = raoData.getWorkingVariantId();
         raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(0.);
@@ -56,7 +56,7 @@ public class LoopFlowViolationCostEvaluatorTest {
         // 90 MW loop-flow violation for cnec1
         // no loop-flow violation for cnec2
         addLoopFlowExtensions(crac);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
+        RaoData raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
 
         String var = raoData.getWorkingVariantId();
         raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(190.);
@@ -74,7 +74,7 @@ public class LoopFlowViolationCostEvaluatorTest {
         // no loop-flow violation for cnec1
         // 10 MW of loop-flow violation for cnec2
         addLoopFlowExtensions(crac);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
+        RaoData raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
 
         String var = raoData.getWorkingVariantId();
         raoData.getCrac().getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(99.);
@@ -91,7 +91,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator4() {
         // no cnec with LF extension
         // assertEquals(0., new LoopFlowViolationCostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
+        RaoData raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
         assertEquals(0., new LoopFlowViolationCostEvaluator(15.).getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(0., new LoopFlowViolationCostEvaluator(95.).getCost(raoData), DOUBLE_TOLERANCE);
     }

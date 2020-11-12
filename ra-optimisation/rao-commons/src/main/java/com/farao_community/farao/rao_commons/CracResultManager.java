@@ -131,7 +131,7 @@ public class CracResultManager {
                 double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
                 double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
+                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + raoData.getLoopFlowAcceptableAugmentation(), loopFlowThreshold - cnec.getFrm()));
                 cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
             }
         });
