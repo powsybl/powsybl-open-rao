@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.glsk.ucte;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.google.common.math.DoubleMath;
@@ -14,8 +15,8 @@ import org.junit.Test;
 import org.threeten.extra.Interval;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +30,6 @@ public class UcteGlskDocumentImporterTest {
 
     private static final String COUNTRYFULL = "/20160729_0000_GSK_allday_full.xml";
     private static final String COUNTRYTEST = "/20160729_0000_GSK_allday_test.xml";
-
-    private Path getResourceAsPath(String resource) {
-        return Paths.get(getResourceAsPathString(resource));
-    }
-
-    private String getResourceAsPathString(String resource) {
-        return new File(getClass().getResource(resource).getFile()).getAbsolutePath();
-    }
 
     private InputStream getResourceAsInputStream(String resource) {
         return getClass().getResourceAsStream(resource);
@@ -124,11 +117,11 @@ public class UcteGlskDocumentImporterTest {
         assertTrue(result.get("10YNL----------L").getPointInterval().getEnd().isAfter(instant));
         assertEquals(1, result.get("10YNL----------L").getGlskShiftKeys().size());
 
-        Double factor = result.get("10YNL----------L").getGlskShiftKeys().get(0)
+        double factor = result.get("10YNL----------L").getGlskShiftKeys().get(0)
                 .getRegisteredResourceArrayList()
                 .stream()
                 .filter(glskRegisteredResource -> glskRegisteredResource.getmRID().equals("N_EC-42 "))
-                .mapToDouble(glskRegisteredResource -> glskRegisteredResource.getParticipationFactor())
+                .mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Not good"));
 

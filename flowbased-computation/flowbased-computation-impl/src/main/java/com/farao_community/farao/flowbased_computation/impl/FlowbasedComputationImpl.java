@@ -59,55 +59,55 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .build();
 
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
-        FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(network, crac, glsk, result));
+        FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private DataDomain buildFlowbasedDomain(Network network, Crac crac, GlskProvider glsk, SystematicSensitivityResult result) {
+    private DataDomain buildFlowbasedDomain(Crac crac, GlskProvider glsk, SystematicSensitivityResult result) {
         return DataDomain.builder()
                 .id(RandomizedString.getRandomizedString())
                 .name("FlowBased results")
                 .description("")
                 .sourceFormat("code")
-                .dataPreContingency(buildDataPreContingency(network, crac, glsk, result))
-                .dataPostContingency(buildDataPostContingencies(network, crac, glsk, result))
-                .glskData(buildDataGlskFactors(network, glsk))
+                .dataPreContingency(buildDataPreContingency(crac, glsk, result))
+                .dataPostContingency(buildDataPostContingencies(crac, glsk, result))
+                .glskData(buildDataGlskFactors(glsk))
                 .build();
     }
 
-    private List<DataGlskFactors> buildDataGlskFactors(Network network, GlskProvider glsk) {
+    private List<DataGlskFactors> buildDataGlskFactors(GlskProvider glsk) {
         List<DataGlskFactors> glskFactors = new ArrayList<>();
         glsk.getLinearGlskPerArea().forEach((s, linearGlsk) -> glskFactors.add(new DataGlskFactors(s, linearGlsk.getGLSKs())));
         return glskFactors;
     }
 
-    private List<DataPostContingency> buildDataPostContingencies(Network network, Crac crac, GlskProvider glsk, SystematicSensitivityResult result) {
+    private List<DataPostContingency> buildDataPostContingencies(Crac crac, GlskProvider glsk, SystematicSensitivityResult result) {
         List<DataPostContingency> postContingencyList = new ArrayList<>();
-        crac.getContingencies().forEach(contingency -> postContingencyList.add(buildDataPostContingency(network, crac, contingency, glsk, result)));
+        crac.getContingencies().forEach(contingency -> postContingencyList.add(buildDataPostContingency(crac, contingency, glsk, result)));
         return postContingencyList;
     }
 
-    private DataPostContingency buildDataPostContingency(Network network, Crac crac, Contingency contingency, GlskProvider glsk, SystematicSensitivityResult result) {
+    private DataPostContingency buildDataPostContingency(Crac crac, Contingency contingency, GlskProvider glsk, SystematicSensitivityResult result) {
         return DataPostContingency.builder()
                 .contingencyId(contingency.getId())
-                .dataMonitoredBranches(buildDataMonitoredBranches(network, crac, crac.getStates(contingency), glsk, result))
+                .dataMonitoredBranches(buildDataMonitoredBranches(crac, crac.getStates(contingency), glsk, result))
                 .build();
     }
 
-    private DataPreContingency buildDataPreContingency(Network network, Crac crac, GlskProvider glsk, SystematicSensitivityResult result) {
+    private DataPreContingency buildDataPreContingency(Crac crac, GlskProvider glsk, SystematicSensitivityResult result) {
         return DataPreContingency.builder()
-                .dataMonitoredBranches(buildDataMonitoredBranches(network, crac, Set.of(crac.getPreventiveState()), glsk, result))
+                .dataMonitoredBranches(buildDataMonitoredBranches(crac, Set.of(crac.getPreventiveState()), glsk, result))
                 .build();
     }
 
-    private List<DataMonitoredBranch> buildDataMonitoredBranches(Network network, Crac crac, Set<State> states, GlskProvider glsk, SystematicSensitivityResult result) {
+    private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Set<State> states, GlskProvider glsk, SystematicSensitivityResult result) {
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
-        states.forEach(state -> crac.getCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(network, cnec, glsk, result))));
+        states.forEach(state -> crac.getCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, glsk, result))));
         return branchResultList;
     }
 
-    private DataMonitoredBranch buildDataMonitoredBranch(Network network, Cnec cnec, GlskProvider glsk, SystematicSensitivityResult result) {
+    private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, GlskProvider glsk, SystematicSensitivityResult result) {
         double maxThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
         double minThreshold = cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
@@ -116,11 +116,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 cnec.getNetworkElement().getId(),
                 Math.min(maxThreshold, -minThreshold),
                 zeroIfNaN(result.getReferenceFlow(cnec)),
-                buildDataPtdfPerCountry(network, cnec, glsk, result)
+                buildDataPtdfPerCountry(cnec, glsk, result)
         );
     }
 
-    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(Network network, Cnec cnec, GlskProvider glskProvider, SystematicSensitivityResult result) {
+    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(Cnec cnec, GlskProvider glskProvider, SystematicSensitivityResult result) {
         Map<String, LinearGlsk> glsks = glskProvider.getLinearGlskPerArea();
         return glsks.values().stream()
                 .map(glsk ->
