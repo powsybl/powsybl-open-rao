@@ -44,7 +44,7 @@ public class CimGlskDocumentImporter implements GlskDocumentImporter {
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             document = documentBuilder.parse(inputStream);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-           return false;
+            return false;
         }
         document.getDocumentElement().normalize();
 
