@@ -149,4 +149,16 @@ public class UcteGlskDocumentImporterTest {
             // should throw
         }
     }
+
+    @Test
+    public void existsTrue() {
+        UcteGlskDocumentImporter importer = new UcteGlskDocumentImporter();
+        assertTrue(importer.exists("20160729_0000_GSK_allday_full.xml", getResourceAsInputStream("/20160729_0000_GSK_allday_full.xml")));
+    }
+
+    @Test
+    public void existsFalse() {
+        UcteGlskDocumentImporter importer = new UcteGlskDocumentImporter();
+        assertFalse(importer.exists("20160729_0000_GSK_allday_wrong.xml", getResourceAsInputStream("/20160729_0000_GSK_allday_wrong.xml")));
+    }
 }

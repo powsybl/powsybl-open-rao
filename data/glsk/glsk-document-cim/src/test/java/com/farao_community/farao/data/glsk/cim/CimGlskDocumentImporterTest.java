@@ -107,4 +107,16 @@ public class CimGlskDocumentImporterTest {
             LOGGER.info("Should throw SAXException");
         }
     }
+
+    @Test
+    public void existsTrue() {
+        CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
+        assertTrue(importer.exists(GLSKB45TEST.substring(1), getResourceAsInputStream(GLSKB45TEST)));
+    }
+
+    @Test
+    public void existsFalse() {
+        CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
+        assertFalse(importer.exists("GlskB45wrong.xml", getResourceAsInputStream("/GlskB45wrong.xml")));
+    }
 }

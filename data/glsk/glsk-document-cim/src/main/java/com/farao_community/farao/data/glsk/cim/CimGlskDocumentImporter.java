@@ -10,8 +10,12 @@ package com.farao_community.farao.data.glsk.cim;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporter;
 import com.google.auto.service.AutoService;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +33,21 @@ public class CimGlskDocumentImporter implements GlskDocumentImporter {
 
     @Override
     public boolean exists(String fileName, InputStream inputStream) {
-        return false;
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+        documentBuilderFactory.setNamespaceAware(true);
+
+        Document document;
+        try {
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            document = documentBuilder.parse(inputStream);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+           return false;
+        }
+        document.getDocumentElement().normalize();
+
+        return "GLSK_MarketDocument".equals(document.getDocumentElement().getTagName());
     }
 }
