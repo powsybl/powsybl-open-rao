@@ -72,14 +72,9 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchById("FLOWBASED_DATA_DOMAIN_BRANCH_1").findPtdfByCountry("Austria"));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testExceptionCases() {
-        try {
-            JsonFlowbasedDomain.read(getClass().getResourceAsStream("/notExistingFile.json"));
-            fail();
-        } catch (Throwable e) {
-            // Should throw
-        }
+        JsonFlowbasedDomain.read(getClass().getResourceAsStream("/notExistingFile.json"));
     }
 
     @Test
