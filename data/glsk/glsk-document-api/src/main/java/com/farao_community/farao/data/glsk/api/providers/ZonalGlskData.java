@@ -5,12 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers.simple;
+package com.farao_community.farao.data.glsk.api.providers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
-import com.farao_community.farao.data.glsk.api.providers.GlskPointToLinearDataConverter;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointToLinearDataConverter;
 import com.powsybl.iidm.network.Network;
 
 import java.time.Instant;
@@ -20,11 +21,11 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractSimpleLinearData<I> {
+public class ZonalGlskData<I> implements ZonalData<I> {
 
     private final Map<String, I> linearDataMap = new HashMap<>();
 
-    protected AbstractSimpleLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
+    public ZonalGlskData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
         for (String area : glskDocument.getAreas()) {
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(area).stream()
                 .filter(glskPoint -> glskPoint.getPointInterval().contains(instant))
@@ -33,7 +34,7 @@ public abstract class AbstractSimpleLinearData<I> {
         }
     }
 
-    protected AbstractSimpleLinearData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
+    public ZonalGlskData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
         for (String area : glskDocument.getAreas()) {
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(area);
             addLinearDataFromList(network, converter, glskPointList, area);
@@ -49,12 +50,14 @@ public abstract class AbstractSimpleLinearData<I> {
         }
     }
 
-    protected final Map<String, I> getLinearData() {
+    @Override
+    public final Map<String, I> getDataPerZone() {
         return linearDataMap;
     }
 
-    protected I getLinearData(String area) {
-        Objects.requireNonNull(area);
-        return linearDataMap.get(area);
+    @Override
+    public I getData(String zone) {
+        Objects.requireNonNull(zone);
+        return linearDataMap.get(zone);
     }
 }

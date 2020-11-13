@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -324,7 +324,7 @@ final class ExampleGenerator {
         return crac;
     }
 
-    static GlskProvider glskProvider() {
+    static ZonalData<LinearGlsk> glskProvider() {
         HashMap<String, Float> glskBe = new HashMap<>();
         glskBe.put("Generator BE 1", 0.5f);
         glskBe.put("Generator BE 2", 0.5f);
@@ -334,14 +334,14 @@ final class ExampleGenerator {
         glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", glskBe));
         glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new GlskProvider() {
+        return new ZonalData<>() {
             @Override
-            public Map<String, LinearGlsk> getLinearGlskPerArea() {
+            public Map<String, LinearGlsk> getDataPerZone() {
                 return glsks;
             }
 
             @Override
-            public LinearGlsk getLinearGlsk(String area) {
+            public LinearGlsk getData(String area) {
                 return glsks.get(area);
             }
         };
@@ -356,7 +356,7 @@ final class ExampleGenerator {
         return new ReferenceProgram(exchangeDataList);
     }
 
-    static SystematicSensitivityResult systematicSensitivityResult(Crac crac, GlskProvider glsk) {
+    static SystematicSensitivityResult systematicSensitivityResult(Crac crac, ZonalData<LinearGlsk> glsk) {
         SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
 
         // flow results
@@ -367,10 +367,10 @@ final class ExampleGenerator {
         Mockito.when(sensisResults.getReferenceFlow(crac.getCnec("DE-NL"))).thenReturn(170.);
 
         // sensi results
-        LinearGlsk glskFr = glsk.getLinearGlsk("FR");
-        LinearGlsk glskBe = glsk.getLinearGlsk("BE");
-        LinearGlsk glskDe = glsk.getLinearGlsk("DE");
-        LinearGlsk glskNl = glsk.getLinearGlsk("NL");
+        LinearGlsk glskFr = glsk.getData("FR");
+        LinearGlsk glskBe = glsk.getData("BE");
+        LinearGlsk glskDe = glsk.getData("DE");
+        LinearGlsk glskNl = glsk.getData("NL");
 
         Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getCnec("FR-BE1"))).thenReturn(0.);
         Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getCnec("FR-BE1"))).thenReturn(-1.5);

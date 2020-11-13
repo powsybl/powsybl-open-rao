@@ -5,15 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers;
+package com.farao_community.farao.commons;
 
-import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
-import com.powsybl.iidm.network.Network;
+import java.util.Map;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface GlskPointToLinearDataConverter<I> {
+public interface ZonalData<I> {
 
-    I convert(Network network, AbstractGlskPoint glskPoint);
+    Map<String, I> getDataPerZone();
+
+    I getData(String zone);
 }

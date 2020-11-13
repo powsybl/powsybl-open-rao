@@ -13,20 +13,19 @@ import java.time.*;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @param <T> type of the objects stored in the data chronology
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class DataChronologyImpl<T extends Object> implements DataChronology<T> {
-    private Map<Interval, T> storedIntervals = new HashMap<>();
+public final class DataChronologyManagerImpl<T> implements DataChronologyManager<T> {
+    private final Map<Interval, T> storedIntervals = new HashMap<>();
 
-    public static <T> DataChronology<T> create() {
-        return new DataChronologyImpl<>();
+    public static <T> DataChronologyManager<T> create() {
+        return new DataChronologyManagerImpl<>();
     }
 
-    private DataChronologyImpl() {
+    private DataChronologyManagerImpl() {
     }
 
     private void store(T data, Interval intervalToStore) {
@@ -42,12 +41,12 @@ public final class DataChronologyImpl<T extends Object> implements DataChronolog
     }
 
     @Override
-    public void storeDataAtInstant(T data, Instant instant, Duration duration) throws FaraoException {
+    public void storeDataAtInstant(T data, Instant instant, Duration duration) {
         store(data, Interval.of(instant, duration));
     }
 
     @Override
-    public void storeDataAtInstant(T data, Instant instant, Period period) throws FaraoException {
+    public void storeDataAtInstant(T data, Instant instant, Period period) {
         Instant endInstant = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC).plus(period).toInstant();
         store(data, Interval.of(instant, endInstant));
     }
@@ -63,30 +62,33 @@ public final class DataChronologyImpl<T extends Object> implements DataChronolog
     }
 
     @Override
-    public Optional<T> getDataForInstant(Instant instant) {
+    public T getDataForInstant(Instant instant) {
         return getDataForInstant(instant, ReplacementStrategy.NO_REPLACEMENT);
     }
 
     @Override
-    public Optional<T> getDataForInstant(Instant instant, ReplacementStrategy replacementStrategy) {
+    public T getDataForInstant(Instant instant, ReplacementStrategy replacementStrategy) {
         switch (replacementStrategy) {
             case NO_REPLACEMENT:
                 return storedIntervals.entrySet().stream()
                         .filter(entry -> entry.getKey().contains(instant))
                         .map(Map.Entry::getValue)
-                        .findFirst();
+                        .findFirst()
+                        .orElse(null);
             case DATA_AT_PREVIOUS_INSTANT:
                 return storedIntervals.entrySet().stream()
                         .filter(entry -> entry.getKey().isBefore(instant))
                         .sorted((entry1, entry2) -> entry2.getKey().getStart().compareTo(entry1.getKey().getStart()))
                         .map(Map.Entry::getValue)
-                        .findFirst();
+                        .findFirst()
+                        .orElse(null);
             case DATA_AT_NEXT_INSTANT:
                 return storedIntervals.entrySet().stream()
                         .filter(entry -> entry.getKey().isAfter(instant))
                         .sorted(Comparator.comparing(entry -> entry.getKey().getStart()))
                         .map(Map.Entry::getValue)
-                        .findFirst();
+                        .findFirst()
+                        .orElse(null);
             default:
                 throw new AssertionError("Invalid replacement strategy");
         }

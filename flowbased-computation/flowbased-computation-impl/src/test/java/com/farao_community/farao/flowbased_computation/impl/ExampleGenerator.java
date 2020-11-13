@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -259,20 +259,20 @@ final class ExampleGenerator {
         return CracImporters.importCrac("crac.json", ExampleGenerator.class.getResourceAsStream("/crac.json"));
     }
 
-    static GlskProvider glskProvider() {
+    static ZonalData<LinearGlsk> glskProvider() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
         glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
         glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new GlskProvider() {
+        return new ZonalData<>() {
             @Override
-            public Map<String, LinearGlsk> getLinearGlskPerArea() {
+            public Map<String, LinearGlsk> getDataPerZone() {
                 return glsks;
             }
 
             @Override
-            public LinearGlsk getLinearGlsk(String area) {
+            public LinearGlsk getData(String area) {
                 return glsks.get(area);
             }
         };

@@ -7,11 +7,15 @@
 
 package com.farao_community.farao.data.glsk.api;
 
-import com.farao_community.farao.data.glsk.api.providers.chronology.ChronologyGlsk;
-import com.farao_community.farao.data.glsk.api.providers.chronology.ChronologyScalable;
-import com.farao_community.farao.data.glsk.api.providers.simple.SimpleGlsk;
-import com.farao_community.farao.data.glsk.api.providers.simple.SimpleScalable;
+import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.commons.ZonalDataChronology;
+import com.farao_community.farao.data.glsk.api.providers.ZonalGlskDataChronology;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointLinearGlskConverter;
+import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointScalableConverter;
+import com.farao_community.farao.data.glsk.api.providers.ZonalGlskData;
+import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.time.Instant;
 import java.util.List;
@@ -31,10 +35,10 @@ public interface GlskDocument {
      * is not time-specific.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link GlskProvider} extracted from the GLSK document.
+     * @return A {@link ZonalData<LinearGlsk>} extracted from the GLSK document.
      */
-    default GlskProvider getGlskProvider(Network network) {
-        return new SimpleGlsk(this, network);
+    default ZonalData<LinearGlsk> getZonalGlsks(Network network) {
+        return new ZonalGlskData<>(this, network, GlskPointLinearGlskConverter::convert);
     }
 
     /**
@@ -43,20 +47,20 @@ public interface GlskDocument {
      *
      * @param network: Network on which to map GLSK document information.
      * @param instant: Instant at which extracted data will be available.
-     * @return A {@link GlskProvider} extracted from the GLSK document.
+     * @return A {@link ZonalData<LinearGlsk>} extracted from the GLSK document.
      */
-    default GlskProvider getGlskProvider(Network network, Instant instant) {
-        return new SimpleGlsk(this, network, instant);
+    default ZonalData<LinearGlsk> getZonalGlsks(Network network, Instant instant) {
+        return new ZonalGlskData<>(this, network, GlskPointLinearGlskConverter::convert, instant);
     }
 
     /**
      * This method will produce a time-specific GLSK provider. All time-related data will be extracted.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link GlskProvider} extracted from the GLSK document.
+     * @return A {@link ZonalDataChronology<LinearGlsk>} extracted from the GLSK document.
      */
-    default ChronologyGlskProvider getChronologyGlskProvider(Network network) {
-        return new ChronologyGlsk(this, network);
+    default ZonalDataChronology<LinearGlsk> getZonalGlsksChronology(Network network) {
+        return new ZonalGlskDataChronology<>(this, network, GlskPointLinearGlskConverter::convert);
     }
 
     /**
@@ -65,10 +69,10 @@ public interface GlskDocument {
      * document is not time-specific.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link ScalableProvider} extracted from the GLSK document.
+     * @return A {@link ZonalData<Scalable>} extracted from the GLSK document.
      */
-    default ScalableProvider getScalableProvider(Network network) {
-        return new SimpleScalable(this, network);
+    default ZonalData<Scalable> getZonalScalable(Network network) {
+        return new ZonalGlskData<>(this, network, GlskPointScalableConverter::convert);
     }
 
     /**
@@ -77,19 +81,19 @@ public interface GlskDocument {
      *
      * @param network: Network on which to map GLSK document information.
      * @param instant: Instant at which extracted data will be available.
-     * @return A {@link ScalableProvider} extracted from the GLSK document.
+     * @return A {@link ZonalData<Scalable>} extracted from the GLSK document.
      */
-    default ScalableProvider getScalableProvider(Network network, Instant instant) {
-        return new SimpleScalable(this, network, instant);
+    default ZonalData<Scalable> getZonalScalable(Network network, Instant instant) {
+        return new ZonalGlskData<>(this, network, GlskPointScalableConverter::convert, instant);
     }
 
     /**
      * This method will produce a time-specific scalable provider. All time-related data will be extracted.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link ScalableProvider} extracted from the GLSK document.
+     * @return A {@link ZonalDataChronology<Scalable>} extracted from the GLSK document.
      */
-    default ChronologyScalableProvider getChronologyScalableProvider(Network network) {
-        return new ChronologyScalable(this, network);
+    default ZonalDataChronology<Scalable> getZonalScalableChronology(Network network) {
+        return new ZonalGlskDataChronology<>(this, network, GlskPointScalableConverter::convert);
     }
 }

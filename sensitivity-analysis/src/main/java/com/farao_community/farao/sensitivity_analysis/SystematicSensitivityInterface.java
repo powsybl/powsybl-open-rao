@@ -9,11 +9,12 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glsk, Set<Cnec> cnecs) {
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<Cnec> cnecs) {
             PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glsk);
             ptdfSensitivityProvider.addCnecs(cnecs);
             return this.withSensitivityProvider(ptdfSensitivityProvider);

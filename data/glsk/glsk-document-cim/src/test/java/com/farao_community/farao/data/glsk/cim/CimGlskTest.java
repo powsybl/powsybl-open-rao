@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.data.glsk.api.GlskProvider;
+import com.farao_community.farao.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -35,19 +35,19 @@ public class CimGlskTest {
 
     @Test
     public void run() {
-        GlskProvider cimGlskProvider = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
-            .getGlskProvider(testNetwork, instant);
-        Map<String, LinearGlsk> map = cimGlskProvider.getLinearGlskPerArea();
+        ZonalData<LinearGlsk> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+            .getZonalGlsks(testNetwork, instant);
+        Map<String, LinearGlsk> map = zonalGlsks.getDataPerZone();
         Assert.assertFalse(map.isEmpty());
 
-        LinearGlsk linearGlsk = cimGlskProvider.getLinearGlsk("10YBE----------2");
+        LinearGlsk linearGlsk = zonalGlsks.getData("10YBE----------2");
         Assert.assertFalse(linearGlsk.getGLSKs().isEmpty());
     }
 
     @Test
     public void runWithInvalidCountry() {
-        GlskProvider cimGlskProvider = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
-            .getGlskProvider(testNetwork, instant);
-        Assert.assertNull(cimGlskProvider.getLinearGlsk("fake-area"));
+        ZonalData<LinearGlsk> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+            .getZonalGlsks(testNetwork, instant);
+        Assert.assertNull(zonalGlsks.getData("fake-area"));
     }
 }

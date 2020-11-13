@@ -7,8 +7,8 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -32,13 +32,10 @@ import static java.util.Objects.requireNonNull;
 public class LoopFlowComputation {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputation.class);
 
-    private GlskProvider glsk;
+    private ZonalData<LinearGlsk> glsk;
     private ReferenceProgram referenceProgram;
 
-    /**
-     * @param crac loop-flows will be computed for all the Cnecs of the Crac
-     */
-    public LoopFlowComputation(GlskProvider glsk, ReferenceProgram referenceProgram) {
+    public LoopFlowComputation(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }
@@ -77,7 +74,7 @@ public class LoopFlowComputation {
     }
 
     private List<LinearGlsk> getValidGlsks() {
-        return glsk.getLinearGlskPerArea().values().stream().filter(linearGlsk -> {
+        return glsk.getDataPerZone().values().stream().filter(linearGlsk -> {
             if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
                 LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
                 return false;

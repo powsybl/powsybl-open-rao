@@ -5,18 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api;
+package com.farao_community.farao.commons;
 
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-
-import java.util.Map;
+import com.farao_community.farao.commons.chronology.DataChronology;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface GlskProvider {
-
-    Map<String, LinearGlsk> getLinearGlskPerArea();
-
-    LinearGlsk getLinearGlsk(String area);
+public interface ZonalDataChronology<I> extends DataChronology<ZonalData<I>>, ZonalData<I> {
 }

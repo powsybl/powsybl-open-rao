@@ -7,12 +7,12 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
@@ -20,6 +20,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
@@ -79,13 +80,13 @@ abstract class AbstractFillerTest {
     ResultVariantManager resultVariantManager;
 
     private ReferenceProgram referenceProgram;
-    private GlskProvider glsk;
+    private ZonalData<LinearGlsk> glsk;
 
     void init() {
         init(null, null);
     }
 
-    void init(ReferenceProgram referenceProgram, GlskProvider glsk) {
+    void init(ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk) {
 
         // arrange some data for all fillers test
         // crac and network

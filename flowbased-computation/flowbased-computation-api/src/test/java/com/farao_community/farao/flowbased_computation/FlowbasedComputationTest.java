@@ -6,12 +6,16 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -24,13 +28,13 @@ public class FlowbasedComputationTest {
 
     private Crac crac;
 
-    private GlskProvider glsk;
+    private ZonalData<LinearGlsk> glsk;
 
     @Before
     public void setUp() {
         network = Mockito.mock(Network.class);
         crac = Mockito.mock(Crac.class);
-        glsk = Mockito.mock(GlskProvider.class);
+        glsk = glskProvider();
     }
 
     @Test
@@ -43,5 +47,20 @@ public class FlowbasedComputationTest {
         assertNotNull(result);
         FlowbasedComputationResult resultAsync = FlowbasedComputation.runAsync(network, crac, glsk).join();
         assertNotNull(resultAsync);
+    }
+
+    static ZonalData<LinearGlsk> glskProvider() {
+        Map<String, LinearGlsk> glsks = new HashMap<>();
+        return new ZonalData<>() {
+            @Override
+            public Map<String, LinearGlsk> getDataPerZone() {
+                return glsks;
+            }
+
+            @Override
+            public LinearGlsk getData(String area) {
+                return glsks.get(area);
+            }
+        };
     }
 }

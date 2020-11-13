@@ -7,9 +7,14 @@
 
 package com.farao_community.farao.data.glsk.api;
 
+import com.farao_community.farao.commons.FaraoException;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface ChronologyGlskProvider extends Chronology<ChronologyGlskProvider>, GlskProvider {
+public class GlskException extends FaraoException {
 
+    public GlskException(String msg) {
+        super(msg);
+    }
 }

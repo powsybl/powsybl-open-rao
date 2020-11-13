@@ -6,12 +6,12 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.api.GlskProvider;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -55,8 +55,8 @@ public class SystematicSensitivityResultTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
 
-        GlskProvider glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
-            .getGlskProvider(network, Instant.parse("2016-07-28T22:30:00Z"));
+        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
+            .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
         rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
@@ -69,7 +69,7 @@ public class SystematicSensitivityResultTest {
         nStateCnec = crac.getCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
         contingencyCnec = crac.getCnec("cnec1stateCurativeContingency1");
-        linearGlsk = glskProvider.getLinearGlsk("10YFR-RTE------C");
+        linearGlsk = glskProvider.getData("10YFR-RTE------C");
     }
 
     @Test

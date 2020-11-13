@@ -6,9 +6,10 @@
  */
 package com.farao_community.farao.data.glsk.ucte;
 
-import com.farao_community.farao.data.glsk.api.GlskProvider;
+import com.farao_community.farao.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -29,10 +30,10 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
-        GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-            .getGlskProvider(network, instant);
-        assertEquals(3, ucteGlskProvider.getLinearGlsk("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3, ucteGlskProvider.getLinearGlsk("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
+        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
+            .getZonalGlsks(network, instant);
+        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
+        assertEquals(0.3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
     }
 
     @Test
@@ -40,10 +41,10 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2020-07-29T10:00:00Z");
 
-        GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-            .getGlskProvider(network, instant);
+        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
+            .getZonalGlsks(network, instant);
 
-        assertTrue(ucteGlskProvider.getLinearGlskPerArea().isEmpty());
+        assertTrue(ucteGlskProvider.getDataPerZone().isEmpty());
     }
 
     @Test
@@ -51,18 +52,18 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
-        GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-            .getGlskProvider(network, instant);
+        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
+            .getZonalGlsks(network, instant);
 
-        assertNull(ucteGlskProvider.getLinearGlsk("unknowncountry"));
+        assertNull(ucteGlskProvider.getData("unknowncountry"));
     }
 
     @Test
     public void testProvideUcteGlskWithWrongFormat() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
-        GlskProvider ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
-            .getGlskProvider(network, instant);
-        assertTrue(ucteGlskProvider.getLinearGlskPerArea().isEmpty());
+        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+            .getZonalGlsks(network, instant);
+        assertTrue(ucteGlskProvider.getDataPerZone().isEmpty());
     }
 }

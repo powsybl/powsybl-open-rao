@@ -5,18 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api;
+package com.farao_community.farao.data.glsk.api.providers.converters;
 
-import com.powsybl.action.util.Scalable;
-
-import java.util.Map;
+import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
+import com.powsybl.iidm.network.Network;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface ScalableProvider {
+public interface GlskPointToLinearDataConverter<I> {
 
-    Map<String, Scalable> getScalablePerArea();
-
-    Scalable getScalable(String area);
+    I convert(Network network, AbstractGlskPoint glskPoint);
 }
