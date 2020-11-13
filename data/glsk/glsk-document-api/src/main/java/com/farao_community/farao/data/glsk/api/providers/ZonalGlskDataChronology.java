@@ -26,23 +26,23 @@ import java.util.stream.Collectors;
  */
 public class ZonalGlskDataChronology<I> implements ZonalDataChronology<I> {
 
-    private final Map<String, DataChronologyManager<I>> chronologyLinearDataMap;
+    private final Map<String, DataChronologyManager<I>> dataChronologyPerZone;
     private Instant instant;
     private ReplacementStrategy replacementStrategy;
 
     public ZonalGlskDataChronology(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
-        chronologyLinearDataMap = new HashMap<>();
+        dataChronologyPerZone = new HashMap<>();
 
-        for (String country : glskDocument.getAreas()) {
+        for (String zone : glskDocument.getZones()) {
             DataChronologyManager<I> dataChronologyManager = DataChronologyManagerImpl.create();
 
             //mapping with DataChronology
-            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(country);
+            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
             for (AbstractGlskPoint point : glskPointList) {
                 I linearData = converter.convert(network, point);
                 dataChronologyManager.storeDataOnInterval(linearData, point.getPointInterval());
             }
-            chronologyLinearDataMap.put(country, dataChronologyManager);
+            dataChronologyPerZone.put(zone, dataChronologyManager);
         }
     }
 
@@ -59,7 +59,7 @@ public class ZonalGlskDataChronology<I> implements ZonalDataChronology<I> {
         if (instant == null) {
             throw new GlskException("Unable to return data if no instant are selected.");
         }
-        return chronologyLinearDataMap.entrySet().stream()
+        return dataChronologyPerZone.entrySet().stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> entry.getValue().getDataForInstant(instant, replacementStrategy)
@@ -67,15 +67,15 @@ public class ZonalGlskDataChronology<I> implements ZonalDataChronology<I> {
     }
 
     @Override
-    public I getData(String area) {
-        Objects.requireNonNull(area);
+    public I getData(String zone) {
+        Objects.requireNonNull(zone);
         if (instant == null) {
             throw new GlskException("Unable to return data if no instant are selected.");
         }
-        if (!chronologyLinearDataMap.containsKey(area)) {
+        if (!dataChronologyPerZone.containsKey(zone)) {
             return null;
         }
-        DataChronologyManager<I> chronologyGlsk = chronologyLinearDataMap.get(area);
+        DataChronologyManager<I> chronologyGlsk = dataChronologyPerZone.get(zone);
         return chronologyGlsk.getDataForInstant(instant, replacementStrategy);
     }
 

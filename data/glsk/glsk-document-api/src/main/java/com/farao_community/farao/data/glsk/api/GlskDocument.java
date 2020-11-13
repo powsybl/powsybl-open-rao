@@ -25,9 +25,9 @@ import java.util.List;
  */
 public interface GlskDocument {
 
-    List<String> getAreas();
+    List<String> getZones();
 
-    List<AbstractGlskPoint> getGlskPoints(String area);
+    List<AbstractGlskPoint> getGlskPoints(String zone);
 
     /**
      * This method will produce a GLSK provider which is not time-specific. It is not guarantee that all GLSK document

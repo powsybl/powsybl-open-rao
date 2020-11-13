@@ -166,13 +166,13 @@ public final class UcteGlskDocument implements GlskDocument {
      * @return getter list of country
      */
     @Override
-    public List<String> getAreas() {
+    public List<String> getZones() {
         return new ArrayList<>(ucteGlskPointsByCountry.keySet());
     }
 
     @Override
-    public List<AbstractGlskPoint> getGlskPoints(String area) {
-        return new ArrayList<>(getUcteGlskPointsByCountry().get(area));
+    public List<AbstractGlskPoint> getGlskPoints(String zone) {
+        return new ArrayList<>(getUcteGlskPointsByCountry().get(zone));
     }
 
     public Map<String, UcteGlskPoint> getGlskPointsForInstant(Instant instant) {

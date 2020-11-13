@@ -23,21 +23,21 @@ import java.util.stream.Collectors;
  */
 public class ZonalGlskData<I> implements ZonalData<I> {
 
-    private final Map<String, I> linearDataMap = new HashMap<>();
+    private final Map<String, I> dataPerZone = new HashMap<>();
 
     public ZonalGlskData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
-        for (String area : glskDocument.getAreas()) {
-            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(area).stream()
+        for (String zone : glskDocument.getZones()) {
+            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone).stream()
                 .filter(glskPoint -> glskPoint.getPointInterval().contains(instant))
                 .collect(Collectors.toList());
-            addLinearDataFromList(network, converter, glskPointList, area);
+            addLinearDataFromList(network, converter, glskPointList, zone);
         }
     }
 
     public ZonalGlskData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
-        for (String area : glskDocument.getAreas()) {
-            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(area);
-            addLinearDataFromList(network, converter, glskPointList, area);
+        for (String zone : glskDocument.getZones()) {
+            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
+            addLinearDataFromList(network, converter, glskPointList, zone);
         }
     }
 
@@ -46,18 +46,18 @@ public class ZonalGlskData<I> implements ZonalData<I> {
             throw new FaraoException("Cannot instantiate simple linear data because several glsk point match given instant");
         } else if (!glskPointList.isEmpty()) {
             I linearData = converter.convert(network, glskPointList.get(0));
-            linearDataMap.put(country, linearData);
+            dataPerZone.put(country, linearData);
         }
     }
 
     @Override
     public final Map<String, I> getDataPerZone() {
-        return linearDataMap;
+        return dataPerZone;
     }
 
     @Override
     public I getData(String zone) {
         Objects.requireNonNull(zone);
-        return linearDataMap.get(zone);
+        return dataPerZone.get(zone);
     }
 }

@@ -44,7 +44,7 @@ public class CimGlskDocumentImporterTest {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
-        assertFalse(cimGlskDocument.getAreas().isEmpty());
+        assertFalse(cimGlskDocument.getZones().isEmpty());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class CimGlskDocumentImporterTest {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
-        assertFalse(cimGlskDocument.getAreas().isEmpty());
+        assertFalse(cimGlskDocument.getZones().isEmpty());
     }
 
     @Test
@@ -117,6 +117,6 @@ public class CimGlskDocumentImporterTest {
     @Test
     public void fullImport() {
         GlskDocument document = GlskDocumentImporters.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
-        assertEquals(1, document.getAreas().size());
+        assertEquals(1, document.getZones().size());
     }
 }

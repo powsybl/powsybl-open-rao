@@ -118,13 +118,13 @@ public final class CimGlskDocument implements GlskDocument {
      * @return getter of all countries in document
      */
     @Override
-    public List<String> getAreas() {
+    public List<String> getZones() {
         return new ArrayList<>(getMapGlskTimeSeries().keySet());
     }
 
     @Override
-    public List<AbstractGlskPoint> getGlskPoints(String area) {
-        return getMapGlskTimeSeries().get(area).getGlskPointListInGlskTimeSeries();
+    public List<AbstractGlskPoint> getGlskPoints(String zone) {
+        return getMapGlskTimeSeries().get(zone).getGlskPointListInGlskTimeSeries();
     }
 
     /**
