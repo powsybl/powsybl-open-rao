@@ -54,10 +54,4 @@ public class ZonalGlskData<I> implements ZonalData<I> {
     public final Map<String, I> getDataPerZone() {
         return dataPerZone;
     }
-
-    @Override
-    public I getData(String zone) {
-        Objects.requireNonNull(zone);
-        return dataPerZone.get(zone);
-    }
 }

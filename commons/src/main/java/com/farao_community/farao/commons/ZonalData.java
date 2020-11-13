@@ -8,6 +8,7 @@
 package com.farao_community.farao.commons;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -16,5 +17,8 @@ public interface ZonalData<I> {
 
     Map<String, I> getDataPerZone();
 
-    I getData(String zone);
+    default I getData(String zone) {
+        Objects.requireNonNull(zone, "Zone has to be specified to query zonal data.");
+        return getDataPerZone().get(zone);
+    }
 }

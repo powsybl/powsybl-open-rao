@@ -72,9 +72,6 @@ public class ZonalGlskDataChronology<I> implements ZonalDataChronology<I> {
         if (instant == null) {
             throw new GlskException("Unable to return data if no instant are selected.");
         }
-        if (!dataChronologyPerZone.containsKey(zone)) {
-            return null;
-        }
         DataChronologyManager<I> chronologyGlsk = dataChronologyPerZone.get(zone);
         return chronologyGlsk.getDataForInstant(instant, replacementStrategy);
     }
