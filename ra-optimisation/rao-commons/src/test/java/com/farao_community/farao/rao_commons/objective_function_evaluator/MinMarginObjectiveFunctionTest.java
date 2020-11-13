@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
+import com.farao_community.farao.rao_commons.RaoPtdfParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -57,7 +58,8 @@ public class MinMarginObjectiveFunctionTest {
         raoParameters.setMnecAcceptableMarginDiminution(mnecAcceptableMarginDiminution);
         raoParameters.setMnecViolationCost(mnecViolationCost);
         raoParameters.setObjectiveFunction(objectiveFunction);
-        raoParameters.setPtdfSumLowerBound(ptdfSumLowerBound);
+        raoParameters.addExtension(RaoPtdfParameters.class, new RaoPtdfParameters());
+        raoParameters.getExtension(RaoPtdfParameters.class).setPtdfSumLowerBound(ptdfSumLowerBound);
 
         minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(raoParameters);
         crac.newCnec().setId("MNEC1 - initial-instant - preventive")

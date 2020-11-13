@@ -17,6 +17,8 @@ import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -39,5 +41,18 @@ public class JsonLinearRaoParametersTest extends AbstractConverterTest {
             // should throw
             assertTrue(e.getMessage().contains("Unexpected field"));
         }
+    }
+
+    @Test
+    public void readExtension() {
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithBoundaries.json"));
+        assertEquals(1, parameters.getExtensions().size());
+        assertNotNull(parameters.getExtension(RaoPtdfParameters.class));
+        assertNotNull(parameters.getExtensionByName("RaoPtdfParameters"));
+        RaoPtdfParameters extension = parameters.getExtension(RaoPtdfParameters.class);
+        assertEquals(0.07, extension.getPtdfSumLowerBound(), 1e-6);
+        assertEquals(2, extension.getBoundaries().size());
+        assertTrue(extension.getBoundariesAsString().contains("FR-ES"));
+        assertTrue(extension.getBoundariesAsString().contains("ES-PT"));
     }
 }
