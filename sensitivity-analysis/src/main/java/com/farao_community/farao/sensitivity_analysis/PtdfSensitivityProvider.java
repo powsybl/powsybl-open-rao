@@ -46,14 +46,23 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glskProvider.getAllGlsk(network);
 
-        cnecs.stream()
-            .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-            .map(Cnec::getNetworkElement)
-            .distinct()
-            .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
-                .forEach(factors::add));
-
+        if (Objects.isNull(contingencyId)) {
+            cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                .map(Cnec::getNetworkElement)
+                .distinct()
+                .forEach(ne -> mapCountryLinearGlsk.values().stream()
+                    .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
+                    .forEach(factors::add));
+        } else {
+            cnecs.stream()
+                .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                .map(Cnec::getNetworkElement)
+                .distinct()
+                .forEach(ne -> mapCountryLinearGlsk.values().stream()
+                    .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
+                    .forEach(factors::add));
+        }
         return factors;
     }
 

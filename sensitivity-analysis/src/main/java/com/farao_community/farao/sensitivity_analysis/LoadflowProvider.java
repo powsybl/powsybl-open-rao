@@ -131,11 +131,18 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         List<SensitivityFactor> factors = new ArrayList<>();
 
         SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
-
-        Set<NetworkElement> networkElements = cnecs.stream()
-            .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-            .map(cnec -> cnec.getNetworkElement())
-            .collect(Collectors.toSet());
+        Set<NetworkElement> networkElements;
+        if (Objects.isNull(contingencyId)) {
+            networkElements = cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                .map(cnec -> cnec.getNetworkElement())
+                .collect(Collectors.toSet());
+        } else {
+            networkElements = cnecs.stream()
+                .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                .map(cnec -> cnec.getNetworkElement())
+                .collect(Collectors.toSet());
+        }
         List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
             .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
             .flatMap(Collection::stream)

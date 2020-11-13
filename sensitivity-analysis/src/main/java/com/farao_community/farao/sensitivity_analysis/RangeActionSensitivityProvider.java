@@ -91,15 +91,26 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             sensitivityVariables.add(defaultSensitivityVariable(network));
         }
 
-        Set<NetworkElement> networkElements = cnecs.stream()
-            .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-            .map(cnec -> cnec.getNetworkElement())
-            .collect(Collectors.toSet());
-        List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
-            .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
-
+        List<SensitivityFunction> sensitivityFunctions;
+        if (Objects.isNull(contingencyId)) {
+            Set<NetworkElement> networkElements = cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                .map(cnec -> cnec.getNetworkElement())
+                .collect(Collectors.toSet());
+            sensitivityFunctions = networkElements.stream()
+                .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        } else {
+            Set<NetworkElement> networkElements = cnecs.stream()
+                .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                .map(cnec -> cnec.getNetworkElement())
+                .collect(Collectors.toSet());
+            sensitivityFunctions = networkElements.stream()
+                .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        }
         sensitivityFunctions.forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
         return factors;
     }
