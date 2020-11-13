@@ -33,23 +33,30 @@ public class JsonRaoPtdfParameters implements JsonRaoParameters.ExtensionSeriali
             jsonGenerator.writeString(countryPair);
         }
         jsonGenerator.writeEndArray();
+        jsonGenerator.writeNumberField("ptdf-sum-lower-bound", extension.getPtdfSumLowerBound());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public RaoPtdfParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public RaoPtdfParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         RaoPtdfParameters parameters = new RaoPtdfParameters();
-        while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals("boundaries")) {
-                if (jsonParser.getCurrentToken() == JsonToken.START_ARRAY) {
-                    List<String> boundaries = new ArrayList<>();
-                    while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                        boundaries.add(jsonParser.getValueAsString());
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "boundaries":
+                    if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
+                        List<String> boundaries = new ArrayList<>();
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            boundaries.add(parser.getValueAsString());
+                        }
+                        parameters.setBoundariesFromCountryCodes(boundaries);
                     }
-                    parameters.setBoundariesFromCountryCodes(boundaries);
-                }
-            } else {
-                throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    break;
+                case "ptdf-sum-lower-bound":
+                    parser.nextToken();
+                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
+                    break;
+                default:
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return parameters;

@@ -14,7 +14,6 @@
   "mnec-violation-cost" : 20.0,
   "mnec-constraint-adjustment-coefficient" : 3.0,
   "negative-margin-objective-coefficient" : 100.0,
-  "ptdf-sum-lower-bound" : 0.05,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {

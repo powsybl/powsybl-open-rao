@@ -65,9 +65,8 @@ public final class RaoUtil {
                 throw new FaraoException("Relative margin objective function requires a GLSK provider.");
             }
             if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
-                || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
                 || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
-                throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
+                throw new FaraoException("Relative margin objective function requires a RaoPtdfParameters extension with a list of pairs of country boundaries.");
             }
         }
 
@@ -111,7 +110,7 @@ public final class RaoUtil {
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         } else if (raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
                 || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
-            fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
+            fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getExtension(RaoPtdfParameters.class).getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {

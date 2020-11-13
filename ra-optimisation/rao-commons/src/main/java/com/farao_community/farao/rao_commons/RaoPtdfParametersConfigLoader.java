@@ -27,6 +27,7 @@ public class RaoPtdfParametersConfigLoader implements RaoParameters.ConfigLoader
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
             parameters.setBoundariesFromCountryCodes(config.getStringListProperty("boundaries"));
+            parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", RaoPtdfParameters.DEFAULT_PTDF_SUM_LOWER_BOUND));
         }
         return parameters;
     }

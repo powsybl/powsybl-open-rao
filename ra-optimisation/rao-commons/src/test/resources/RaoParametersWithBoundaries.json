@@ -28,7 +28,8 @@
       "boundaries" : [
         "FR-ES",
         "ES-PT"
-      ]
+      ],
+      "ptdf-sum-lower-bound" : 0.07
     }
   }
 }

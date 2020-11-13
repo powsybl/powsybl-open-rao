@@ -14,7 +14,6 @@
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,
   "negative-margin-objective-coefficient" : 1000.0,
-  "ptdf-sum-lower-bound" : 0.01,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
@@ -34,7 +33,8 @@
   },
   "extensions" : {
     "RaoPtdfParameters" : {
-      "boundaries" : [ "FR-ES", "ES-PT" ]
+      "boundaries" : [ "FR-ES", "ES-PT" ],
+      "ptdf-sum-lower-bound" : 0.05
     }
   }
 }

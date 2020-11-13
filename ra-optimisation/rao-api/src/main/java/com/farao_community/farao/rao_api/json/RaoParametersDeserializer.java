@@ -105,10 +105,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
                     break;
-                case "ptdf-sum-lower-bound":
-                    parser.nextToken();
-                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
-                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
@@ -125,7 +121,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

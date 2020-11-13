@@ -103,13 +103,11 @@ public class RaoParametersTest {
     public void checkRelativeMarginConfig() {
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
         moduleConfig.setStringProperty("negative-margin-objective-coefficient", Objects.toString(100.0));
-        moduleConfig.setStringProperty("ptdf-sum-lower-bound", Objects.toString(0.005));
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
         assertEquals(100, parameters.getNegativeMarginObjectiveCoefficient(), 1e-6);
-        assertEquals(0.005, parameters.getPtdfSumLowerBound(), 1e-6);
     }
 
     @Test

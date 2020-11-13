@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -64,7 +63,6 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setMnecAcceptableMarginDiminution(30);
         parameters.setMnecConstraintAdjustmentCoefficient(3);
         parameters.setNegativeMarginObjectiveCoefficient(100);
-        parameters.setPtdfSumLowerBound(0.05);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 
@@ -83,15 +81,9 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void readError() throws IOException {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError.json"));
-            fail();
-        } catch (AssertionError e) {
-            // should throw
-            assertTrue(e.getMessage().contains("Unexpected field"));
-        }
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError.json"));
     }
 
     @Test(expected = FaraoException.class)

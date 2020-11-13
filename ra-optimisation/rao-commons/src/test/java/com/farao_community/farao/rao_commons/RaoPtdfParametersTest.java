@@ -76,19 +76,4 @@ public class RaoPtdfParametersTest {
         assertTrue(ptdfParameters.getBoundariesAsString().contains("BE-FR"));
         assertTrue(ptdfParameters.getBoundariesAsString().contains("DE-AT"));
     }
-
-  /*  @Test
-    public void writeExtension() throws IOException {
-        RaoParameters parameters = new RaoParameters();
-        parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonRaoParameters::write, AbstractConverterTest::compareTxt, "/RaoParametersWithExtension.json");
-    }*/
-
-    /*@Test
-    public void readExtension() throws IOException {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithBoundaries.json"));
-        assertEquals(1, parameters.getExtensions().size());
-        assertNotNull(parameters.getExtension(RaoPtdfParameters.class));
-        assertNotNull(parameters.getExtensionByName("rao-ptdf-parameters"));
-    }*/
 }

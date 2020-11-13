@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -28,6 +30,7 @@ public class JsonRaoPtdfParametersTest extends AbstractConverterTest {
         parameters.addExtension(RaoPtdfParameters.class, new RaoPtdfParameters());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-ES", "ES-PT"));
         parameters.getExtension(RaoPtdfParameters.class).setBoundariesFromCountryCodes(stringBoundaries);
+        parameters.getExtension(RaoPtdfParameters.class).setPtdfSumLowerBound(0.05);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoPtdfParameters.json");
     }
 
@@ -35,5 +38,18 @@ public class JsonRaoPtdfParametersTest extends AbstractConverterTest {
     public void readUnknownField() throws IOException {
         InputStream is = getClass().getResourceAsStream("/RaoPtdfParametersUnknownField.json");
         JsonRaoParameters.read(is);
+    }
+
+    @Test
+    public void readExtension() {
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithBoundaries.json"));
+        assertEquals(1, parameters.getExtensions().size());
+        assertNotNull(parameters.getExtension(RaoPtdfParameters.class));
+        assertNotNull(parameters.getExtensionByName("RaoPtdfParameters"));
+        RaoPtdfParameters extension = parameters.getExtension(RaoPtdfParameters.class);
+        assertEquals(0.07, extension.getPtdfSumLowerBound(), 1e-6);
+        assertEquals(2, extension.getBoundaries().size());
+        assertTrue(extension.getBoundariesAsString().contains("FR-ES"));
+        assertTrue(extension.getBoundariesAsString().contains("ES-PT"));
     }
 }

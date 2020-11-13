@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Country;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,10 @@ import java.util.stream.Collectors;
 public class RaoPtdfParameters extends AbstractExtension<RaoParameters> {
 
     private static final String COUNTRY_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'XX-YY' where XX and YY are the 2-character country codes";
-    private List<Pair<Country, Country>> boundaries;
+    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
+
+    private List<Pair<Country, Country>> boundaries = new ArrayList<>();
+    private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
 
     @Override
     public String getName() {
@@ -63,4 +67,13 @@ public class RaoPtdfParameters extends AbstractExtension<RaoParameters> {
                 })
                 .collect(Collectors.toList());
     }
+
+    public double getPtdfSumLowerBound() {
+        return ptdfSumLowerBound;
+    }
+
+    public void setPtdfSumLowerBound(double ptdfSumLowerBound) {
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
+    }
+
 }

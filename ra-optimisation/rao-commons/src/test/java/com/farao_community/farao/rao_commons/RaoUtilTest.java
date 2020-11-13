@@ -88,6 +88,7 @@ public class RaoUtilTest {
     @Test
     public void createRelativeOptimizerMegawatt() {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        addPtdfParameters(null);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
@@ -99,6 +100,7 @@ public class RaoUtilTest {
     @Test
     public void createRelativeOptimizerAmpere() {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        addPtdfParameters(null);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
@@ -138,6 +140,7 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParametersRelativeMW() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(RaoPtdfParameters.class, new RaoPtdfParameters());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
@@ -147,6 +150,7 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParametersRelativeAmps() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(RaoPtdfParameters.class, new RaoPtdfParameters());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
