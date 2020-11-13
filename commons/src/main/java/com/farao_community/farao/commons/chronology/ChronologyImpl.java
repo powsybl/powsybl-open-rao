@@ -18,14 +18,14 @@ import java.util.Map;
  * @param <T> type of the objects stored in the data chronology
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class DataChronologyManagerImpl<T> implements DataChronologyManager<T> {
+public final class ChronologyImpl<T> implements Chronology<T> {
     private final Map<Interval, T> storedIntervals = new HashMap<>();
 
-    public static <T> DataChronologyManager<T> create() {
-        return new DataChronologyManagerImpl<>();
+    public static <T> Chronology<T> create() {
+        return new ChronologyImpl<>();
     }
 
-    private DataChronologyManagerImpl() {
+    private ChronologyImpl() {
     }
 
     private void store(T data, Interval intervalToStore) {
@@ -62,12 +62,12 @@ public final class DataChronologyManagerImpl<T> implements DataChronologyManager
     }
 
     @Override
-    public T getDataForInstant(Instant instant) {
-        return getDataForInstant(instant, ReplacementStrategy.NO_REPLACEMENT);
+    public T selectInstant(Instant instant) {
+        return selectInstant(instant, ReplacementStrategy.NO_REPLACEMENT);
     }
 
     @Override
-    public T getDataForInstant(Instant instant, ReplacementStrategy replacementStrategy) {
+    public T selectInstant(Instant instant, ReplacementStrategy replacementStrategy) {
         switch (replacementStrategy) {
             case NO_REPLACEMENT:
                 return storedIntervals.entrySet().stream()

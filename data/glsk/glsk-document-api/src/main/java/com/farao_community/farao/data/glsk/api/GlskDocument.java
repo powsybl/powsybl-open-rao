@@ -9,10 +9,10 @@ package com.farao_community.farao.data.glsk.api;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataChronology;
-import com.farao_community.farao.data.glsk.api.providers.ZonalGlskDataChronology;
+import com.farao_community.farao.data.glsk.api.providers.ZonalDataChronologyFromGlskDocument;
 import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointLinearGlskConverter;
 import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointScalableConverter;
-import com.farao_community.farao.data.glsk.api.providers.ZonalGlskData;
+import com.farao_community.farao.data.glsk.api.providers.ZonalDataFromGlskDocument;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -38,7 +38,7 @@ public interface GlskDocument {
      * @return A {@link ZonalData<LinearGlsk>} extracted from the GLSK document.
      */
     default ZonalData<LinearGlsk> getZonalGlsks(Network network) {
-        return new ZonalGlskData<>(this, network, GlskPointLinearGlskConverter::convert);
+        return new ZonalDataFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert);
     }
 
     /**
@@ -50,7 +50,7 @@ public interface GlskDocument {
      * @return A {@link ZonalData<LinearGlsk>} extracted from the GLSK document.
      */
     default ZonalData<LinearGlsk> getZonalGlsks(Network network, Instant instant) {
-        return new ZonalGlskData<>(this, network, GlskPointLinearGlskConverter::convert, instant);
+        return new ZonalDataFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert, instant);
     }
 
     /**
@@ -60,7 +60,7 @@ public interface GlskDocument {
      * @return A {@link ZonalDataChronology<LinearGlsk>} extracted from the GLSK document.
      */
     default ZonalDataChronology<LinearGlsk> getZonalGlsksChronology(Network network) {
-        return new ZonalGlskDataChronology<>(this, network, GlskPointLinearGlskConverter::convert);
+        return new ZonalDataChronologyFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert);
     }
 
     /**
@@ -72,7 +72,7 @@ public interface GlskDocument {
      * @return A {@link ZonalData<Scalable>} extracted from the GLSK document.
      */
     default ZonalData<Scalable> getZonalScalable(Network network) {
-        return new ZonalGlskData<>(this, network, GlskPointScalableConverter::convert);
+        return new ZonalDataFromGlskDocument<>(this, network, GlskPointScalableConverter::convert);
     }
 
     /**
@@ -84,7 +84,7 @@ public interface GlskDocument {
      * @return A {@link ZonalData<Scalable>} extracted from the GLSK document.
      */
     default ZonalData<Scalable> getZonalScalable(Network network, Instant instant) {
-        return new ZonalGlskData<>(this, network, GlskPointScalableConverter::convert, instant);
+        return new ZonalDataFromGlskDocument<>(this, network, GlskPointScalableConverter::convert, instant);
     }
 
     /**
@@ -94,6 +94,6 @@ public interface GlskDocument {
      * @return A {@link ZonalDataChronology<Scalable>} extracted from the GLSK document.
      */
     default ZonalDataChronology<Scalable> getZonalScalableChronology(Network network) {
-        return new ZonalGlskDataChronology<>(this, network, GlskPointScalableConverter::convert);
+        return new ZonalDataChronologyFromGlskDocument<>(this, network, GlskPointScalableConverter::convert);
     }
 }

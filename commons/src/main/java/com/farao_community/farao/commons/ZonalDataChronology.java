@@ -7,10 +7,20 @@
 
 package com.farao_community.farao.commons;
 
-import com.farao_community.farao.commons.chronology.DataChronology;
+import com.farao_community.farao.commons.chronology.Chronology;
+
+import java.time.Instant;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface ZonalDataChronology<I> extends DataChronology<ZonalData<I>>, ZonalData<I> {
+public interface ZonalDataChronology<I> extends Chronology<ZonalData<I>> {
+
+    default I getData(String zone, Instant instant) {
+        return selectInstant(instant).getData(zone);
+    }
+
+    default I getData(String zone, Instant instant, ReplacementStrategy replacementStrategy) {
+        return selectInstant(instant, replacementStrategy).getData(zone);
+    }
 }

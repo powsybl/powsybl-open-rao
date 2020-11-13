@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.glsk.api.providers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointToLinearDataConverter;
@@ -21,11 +21,10 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ZonalGlskData<I> implements ZonalData<I> {
+public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
 
-    private final Map<String, I> dataPerZone = new HashMap<>();
-
-    public ZonalGlskData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
+    public ZonalDataFromGlskDocument(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
+        super(new HashMap<>());
         for (String zone : glskDocument.getZones()) {
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone).stream()
                 .filter(glskPoint -> glskPoint.getPointInterval().contains(instant))
@@ -34,7 +33,8 @@ public class ZonalGlskData<I> implements ZonalData<I> {
         }
     }
 
-    public ZonalGlskData(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
+    public ZonalDataFromGlskDocument(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
+        super(new HashMap<>());
         for (String zone : glskDocument.getZones()) {
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
             addLinearDataFromList(network, converter, glskPointList, zone);
@@ -48,10 +48,5 @@ public class ZonalGlskData<I> implements ZonalData<I> {
             I linearData = converter.convert(network, glskPointList.get(0));
             dataPerZone.put(country, linearData);
         }
-    }
-
-    @Override
-    public final Map<String, I> getDataPerZone() {
-        return dataPerZone;
     }
 }

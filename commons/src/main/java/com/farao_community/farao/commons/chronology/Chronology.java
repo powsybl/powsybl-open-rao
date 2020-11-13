@@ -20,7 +20,42 @@ import java.time.Period;
  * @param <T> type of the objects stored in the data chronology
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public interface DataChronologyManager<T> extends DataChronology<T> {
+public interface Chronology<T> {
+
+    /**
+     * Replacement strategy for objects
+     */
+    enum ReplacementStrategy {
+        /**
+         * Do not replace unavailable object
+         */
+        NO_REPLACEMENT,
+        /**
+         * Use latest data
+         */
+        DATA_AT_PREVIOUS_INSTANT,
+        /**
+         * Use future data
+         */
+        DATA_AT_NEXT_INSTANT
+    }
+
+    /**
+     * Get data available at given instant in chronology.
+     * If no data is available at the given instant, returns null.
+     * @param instant an instant
+     * @return data associated at the instant
+     */
+    T selectInstant(Instant instant);
+
+    /**
+     * Get data available at given instant in chronology.
+     * If no data is available at the given instant, uses given replacement strategy.
+     * @param instant an instant
+     * @param replacementStrategy used replacement strategy
+     * @return data associated at the instant
+     */
+    T selectInstant(Instant instant, ReplacementStrategy replacementStrategy);
 
     /**
      * Stores data for a given instant.

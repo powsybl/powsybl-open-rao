@@ -30,9 +30,7 @@ import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,7 +140,7 @@ public class FlowbasedComputationTool implements Tool {
      * @param context running environment
      */
     @Override
-    public void run(CommandLine line, ToolRunningContext context) throws IOException, ParserConfigurationException, SAXException {
+    public void run(CommandLine line, ToolRunningContext context) throws IOException {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path cracFile = context.getFileSystem().getPath(line.getOptionValue(CRAC_FILE_OPTION));
         Path glskFile = context.getFileSystem().getPath(line.getOptionValue(GLSK_FILE_OPTION));
