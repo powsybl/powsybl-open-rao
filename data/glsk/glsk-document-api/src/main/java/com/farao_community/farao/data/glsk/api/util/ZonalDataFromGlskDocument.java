@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.data.glsk.api.util;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.data.glsk.api.util.converters.GlskPointToLinearDataConverter;
 import com.powsybl.iidm.network.Network;
 
@@ -43,7 +43,7 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
 
     private void addLinearDataFromList(Network network, GlskPointToLinearDataConverter<I> converter, List<AbstractGlskPoint> glskPointList, String country) {
         if (glskPointList.size() > 1) {
-            throw new FaraoException("Cannot instantiate simple linear data because several glsk point match given instant");
+            throw new GlskException("Cannot instantiate simple linear data because several glsk point match given instant");
         } else if (!glskPointList.isEmpty()) {
             I linearData = converter.convert(network, glskPointList.get(0));
             dataPerZone.put(country, linearData);

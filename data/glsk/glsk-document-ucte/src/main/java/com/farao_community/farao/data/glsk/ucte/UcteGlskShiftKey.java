@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.glsk.ucte;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import org.threeten.extra.Interval;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class UcteGlskShiftKey extends AbstractGlskShiftKey {
         } else if (ucteBusinessType.equals("Z05")) {
             this.psrType = "A05";
         } else {
-            throw new FaraoException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + ucteBusinessType);
+            throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + ucteBusinessType);
         }
 
         this.quantity = shareFactor / 100;

@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.data.glsk.api.util.converters;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Country;
@@ -43,7 +43,7 @@ public final class GlskPointScalableConverter {
         if (!glskPoint.getGlskShiftKeys().get(0).getBusinessType().equals("B45")) {
             //B42 and B43 proportional
             if (glskPoint.getGlskShiftKeys().size() > 2) {
-                throw new FaraoException("Multi shift keys not supported for proportional GLSK.");
+                throw new GlskException("Multi shift keys not supported for proportional GLSK.");
             }
 
             List<Float> percentages = new ArrayList<>();
@@ -60,7 +60,7 @@ public final class GlskPointScalableConverter {
                     //B43 participation factor
                     convertParticipationFactor(network, glskShiftKey, percentages, scalables);
                 } else {
-                    throw new FaraoException("In convert glskShiftKey business type not supported");
+                    throw new GlskException("In convert glskShiftKey business type not supported");
                 }
             }
             return Scalable.proportional(percentages, scalables, true);

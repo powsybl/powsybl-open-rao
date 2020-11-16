@@ -6,8 +6,8 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -51,7 +51,7 @@ public class CimGlskTimeSeries {
         this.curveType = element.getElementsByTagName("curveType").getLength() == 0 ? "A03" :
                 element.getElementsByTagName("curveType").item(0).getTextContent();
         if (!this.curveType.equals("A03") && !this.curveType.equals("A01")) {
-            throw new FaraoException("CurveType not supported: " + this.curveType);
+            throw new GlskException("CurveType not supported: " + this.curveType);
         }
 
         this.cimGlskPeriods = new ArrayList<>();

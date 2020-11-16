@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ public class CimGlskDocumentImporterTest {
         assertFalse(glskPointList.isEmpty());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test(expected = GlskException.class)
     public void testExceptionCases() {
         byte[] nonXmlBytes = "{ should not be imported }".getBytes();
         new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes));

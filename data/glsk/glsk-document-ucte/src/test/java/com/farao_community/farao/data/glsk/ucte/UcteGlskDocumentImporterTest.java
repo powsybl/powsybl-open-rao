@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.glsk.ucte;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.google.common.math.DoubleMath;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class UcteGlskDocumentImporterTest {
         assertEquals("2016-07-28T22:00:00Z", documentGSKTimeInterval.getStart().toString());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test(expected = GlskException.class)
     public void testExceptionCases() {
         byte[] nonXmlBytes = "{ should not be imported }".getBytes();
         UcteGlskDocument.importGlsk(new ByteArrayInputStream(nonXmlBytes));
@@ -121,7 +121,7 @@ public class UcteGlskDocumentImporterTest {
         assertEquals(0.009878, factor, 0.);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test(expected = GlskException.class)
     public void testGetGlskPointForIncorrectInstant() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYFULL));
         Instant instant = Instant.parse("2016-07-29T22:00:00Z");

@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.data.glsk.ucte;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -50,7 +50,7 @@ public class UcteGlskPoint extends AbstractGlskPoint {
                 caseAutoGskBlock(element, ucteBusinessType, shareFactor);
                 break;
             default:
-                throw new FaraoException("Unknown UCTE Block type");
+                throw new GlskException("Unknown UCTE Block type");
         }
     }
 

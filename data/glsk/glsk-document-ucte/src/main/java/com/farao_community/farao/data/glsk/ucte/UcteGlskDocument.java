@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.glsk.ucte;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,7 +59,7 @@ public final class UcteGlskDocument implements GlskDocument {
             document.getDocumentElement().normalize();
             return new UcteGlskDocument(document);
         } catch (IOException | SAXException | ParserConfigurationException e) {
-            throw new FaraoException("Unable to import CIM GLSK file.", e);
+            throw new GlskException("Unable to import CIM GLSK file.", e);
         }
     }
 
@@ -180,7 +180,7 @@ public final class UcteGlskDocument implements GlskDocument {
         ucteGlskPointsByCountry.forEach((key, glskPoints) -> {
             UcteGlskPoint glskPoint = glskPoints.stream()
                     .filter(p -> p.containsInstant(instant))
-                    .findAny().orElseThrow(() -> new FaraoException("Error during get glsk point by instant for " + key + " country"));
+                    .findAny().orElseThrow(() -> new GlskException("Error during get glsk point by instant for " + key + " country"));
             glskPointInstant.put(key, glskPoint);
         });
         return glskPointInstant;

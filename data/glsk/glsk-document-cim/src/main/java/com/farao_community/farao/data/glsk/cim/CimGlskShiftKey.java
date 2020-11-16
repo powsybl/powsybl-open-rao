@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -33,7 +33,7 @@ public class CimGlskShiftKey extends AbstractGlskShiftKey {
         this.businessType = element.getElementsByTagName("businessType").item(0).getTextContent();
         List<String> supportedBusinessType = Arrays.asList("B42", "B43", "B45");
         if (!supportedBusinessType.contains(businessType)) {
-            throw new FaraoException("BusinessType not supported: " + businessType);
+            throw new GlskException("BusinessType not supported: " + businessType);
         }
         this.psrType = element.getElementsByTagName("mktPSRType.psrType").item(0).getTextContent();
         if (element.getElementsByTagName("quantity.quantity").getLength() > 0) {

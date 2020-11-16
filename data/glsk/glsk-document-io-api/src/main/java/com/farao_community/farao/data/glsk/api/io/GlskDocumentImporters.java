@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.glsk.api.io;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
@@ -54,7 +54,7 @@ public final class GlskDocumentImporters {
 
         GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
         if (importer == null) {
-            throw new FaraoException("No importer found for this file");
+            throw new GlskException("No importer found for this file");
         }
         return importer.importGlsk(new ByteArrayInputStream(bytes));
     }

@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -61,7 +61,7 @@ public final class CimGlskDocument implements GlskDocument {
             document.getDocumentElement().normalize();
             return new CimGlskDocument(document);
         } catch (IOException | SAXException | ParserConfigurationException e) {
-            throw new FaraoException("Unable to import CIM GLSK file.", e);
+            throw new GlskException("Unable to import CIM GLSK file.", e);
         }
     }
 
