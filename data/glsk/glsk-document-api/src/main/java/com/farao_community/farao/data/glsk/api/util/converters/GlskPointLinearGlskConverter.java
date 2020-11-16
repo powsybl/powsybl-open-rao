@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.glsk.api.providers.converters;
+package com.farao_community.farao.data.glsk.api.util.converters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
@@ -46,13 +46,13 @@ public final class GlskPointLinearGlskConverter {
         Map<String, Float> linearGlskMap = new HashMap<>();
         String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
 
-        //LinearGlsk is used as SensitivityFactor.sensitivityVariable in FlowBasedComputation;
-        //When it is added into sensivitityFactors, we should be able to find out LinearGlsk's country or NetWorkArea;
-        //For the moment, LinearGlsk's name is used to trace LinearGlsk's country or NetworkArea.
-        //We could also added another attribute in LinearGlsk to mark this information,
-        //but this change need to be in Powsybl-core
-
-        String linearGlskName = glskPoint.getSubjectDomainmRID(); //name of LinearGlsk is country's EIC code; or NetworkArea's ID in the future
+        /* Linear GLSK is used as sensitivityVariable in FlowBasedComputation
+         * When it is added into sensivitityFactors, we should be able to find out LinearGlsk's country or NetWorkArea
+         * For the moment, LinearGlsk's name is used to trace LinearGlsk's country or NetworkArea.
+         * We could also added another attribute in LinearGlsk to mark this information,
+         * but this change need to be in Powsybl-core
+         */
+        String linearGlskName = glskPoint.getSubjectDomainmRID(); // Name of LinearGlsk is country's EIC code; or NetworkArea's ID in the future
 
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
 

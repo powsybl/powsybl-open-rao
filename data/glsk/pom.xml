@@ -18,6 +18,7 @@
     <modules>
         <module>glsk-document-api</module>
         <module>glsk-document-cim</module>
+        <module>glsk-document-io-api</module>
         <module>glsk-document-ucte</module>
         <module>glsk-quality-check-ucte</module>
     </modules>

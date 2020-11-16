@@ -17,4 +17,12 @@ public class GlskException extends FaraoException {
     public GlskException(String msg) {
         super(msg);
     }
+
+    public GlskException(final Throwable throwable) {
+        super(throwable);
+    }
+
+    public GlskException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }

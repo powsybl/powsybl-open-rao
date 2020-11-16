@@ -9,10 +9,10 @@ package com.farao_community.farao.data.glsk.api;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataChronology;
-import com.farao_community.farao.data.glsk.api.providers.ZonalDataChronologyFromGlskDocument;
-import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointLinearGlskConverter;
-import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointScalableConverter;
-import com.farao_community.farao.data.glsk.api.providers.ZonalDataFromGlskDocument;
+import com.farao_community.farao.data.glsk.api.util.ZonalDataChronologyFromGlskDocument;
+import com.farao_community.farao.data.glsk.api.util.converters.GlskPointLinearGlskConverter;
+import com.farao_community.farao.data.glsk.api.util.converters.GlskPointScalableConverter;
+import com.farao_community.farao.data.glsk.api.util.ZonalDataFromGlskDocument;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;

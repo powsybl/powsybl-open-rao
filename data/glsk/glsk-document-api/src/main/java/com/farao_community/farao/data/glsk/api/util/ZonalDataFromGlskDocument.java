@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers;
+package com.farao_community.farao.data.glsk.api.util;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
-import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointToLinearDataConverter;
+import com.farao_community.farao.data.glsk.api.util.converters.GlskPointToLinearDataConverter;
 import com.powsybl.iidm.network.Network;
 
 import java.time.Instant;

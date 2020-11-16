@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.glsk.api.providers;
+package com.farao_community.farao.data.glsk.api.util;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataChronology;
@@ -15,7 +15,7 @@ import com.farao_community.farao.commons.chronology.ChronologyImpl;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.GlskException;
-import com.farao_community.farao.data.glsk.api.providers.converters.GlskPointToLinearDataConverter;
+import com.farao_community.farao.data.glsk.api.util.converters.GlskPointToLinearDataConverter;
 import com.powsybl.iidm.network.Network;
 import org.threeten.extra.Interval;
 

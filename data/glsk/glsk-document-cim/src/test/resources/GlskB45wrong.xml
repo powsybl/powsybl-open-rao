@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (c) 2020, RTE (http://www.rte-france.com)
-  ~ This Source Code Form is subject to the terms of the Mozilla Public
-  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
-  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  -->
-
 <GLSK_MarketDocument_Fake xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1 ../../../../glsk-file/src/test/resources/iec62325-451-n-glsk_v2_1.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<mRID>10XES-REE------E-20170412-SWECCD2</mRID>
 	<revisionNumber>1</revisionNumber>

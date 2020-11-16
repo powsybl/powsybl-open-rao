@@ -60,12 +60,6 @@ public class CimGlskDocumentImporterTest {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<AbstractGlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
-//        for (GlskShiftKey glskShiftKey : glskShiftKeys) {
-//            LOGGER.info("Flow direction:" + glskShiftKey.getFlowDirection());
-//            LOGGER.info("Merit order position:" + glskShiftKey.getMeritOrderPosition());
-//            LOGGER.info("ID:" + glskShiftKey.getRegisteredResourceArrayList().get(0).getmRID());
-//            LOGGER.info("max min: " + glskShiftKey.getRegisteredResourceArrayList().get(0).getMaximumCapacity() + "; " + glskShiftKey.getRegisteredResourceArrayList().get(0).getMinimumCapacity());
-//        }
     }
 
     @Test
