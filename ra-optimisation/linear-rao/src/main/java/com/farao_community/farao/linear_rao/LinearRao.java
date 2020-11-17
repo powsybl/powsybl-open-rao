@@ -66,8 +66,7 @@ public class LinearRao implements RaoProvider {
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries(),
-                raoParameters.getLoopFlowAcceptableAugmentation());
+                raoParameters.getLoopflowCountries());
 
         return run(raoData, raoParameters);
     }

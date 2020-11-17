@@ -39,7 +39,6 @@ public final class RaoData {
     private final GlskProvider glskProvider;
     private final CracResultManager cracResultManager;
     private final Set<Country> loopflowCountries;
-    private final double loopFlowAcceptableAugmentation;
 
     private Set<Cnec> perimeterCnecs;
     private Set<Cnec> loopflowCnecs;
@@ -60,7 +59,7 @@ public final class RaoData {
      * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, String cracVariantId, Set<Country> loopflowCountries, double loopFlowAcceptableAugmentation) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, String cracVariantId, Set<Country> loopflowCountries) {
         Objects.requireNonNull(network, "Unable to build RAO data without network.");
         Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
         Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
@@ -72,7 +71,6 @@ public final class RaoData {
         this.referenceProgram = referenceProgram;
         this.glskProvider = glskProvider;
         this.loopflowCountries = loopflowCountries;
-        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
         cracResultManager = new CracResultManager(this);
         addRaoDataVariantManager(cracVariantId);
 
@@ -89,11 +87,11 @@ public final class RaoData {
         }
     }
 
-    public static RaoData createOnPreventiveState(Network network, Crac crac, Double loopFlowAcceptableAugmentation) {
-        return createOnPreventiveStateBasedOnExistingVariant(network, crac, null, loopFlowAcceptableAugmentation);
+    public static RaoData createOnPreventiveState(Network network, Crac crac) {
+        return createOnPreventiveStateBasedOnExistingVariant(network, crac, null);
     }
 
-    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId, double loopFlowAcceptableAugmentation) {
+    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId) {
         return new RaoData(
             network,
             crac,
@@ -102,8 +100,7 @@ public final class RaoData {
             null,
             null,
             cracVariantId,
-            new HashSet<>(),
-            loopFlowAcceptableAugmentation);
+            new HashSet<>());
     }
 
     public static RaoData create(Network network, RaoData raoData) {
@@ -115,8 +112,7 @@ public final class RaoData {
             raoData.getReferenceProgram(),
             raoData.getGlskProvider(),
             null,
-            raoData.getLoopflowCountries(),
-            raoData.getLoopFlowAcceptableAugmentation());
+            raoData.getLoopflowCountries());
     }
 
     public Network getNetwork() {
@@ -137,10 +133,6 @@ public final class RaoData {
 
     public Set<Country> getLoopflowCountries() {
         return loopflowCountries;
-    }
-
-    public double getLoopFlowAcceptableAugmentation() {
-        return loopFlowAcceptableAugmentation;
     }
 
     public Set<Cnec> getCnecs() {

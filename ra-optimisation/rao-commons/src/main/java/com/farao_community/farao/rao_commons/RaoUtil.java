@@ -130,7 +130,7 @@ public final class RaoUtil {
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
-        return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowAcceptableAugmentation(),
+        return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
             raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityAnalysisParameters());
     }
 

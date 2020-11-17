@@ -7,7 +7,7 @@
   "sensitivity-fallback-over-cost" : 10.0,
   "rao-with-loop-flow-limitation" : true,
   "loop-flow-approximation" : false,
-  "loop-flow-acceptable-augmentation" : 0.0,
+  "loop-flow-acceptable-augmentation" : 20.0,
   "loop-flow-constraint-adjustment-coefficient" : 0.5,
   "loop-flow-violation-cost" : 0.0,
   "loop-flow-countries" : [ "BE", "FR" ],

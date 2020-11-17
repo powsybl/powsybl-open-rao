@@ -54,7 +54,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setFallbackOverCost(10);
         parameters.setRaoWithLoopFlowLimitation(true);
         parameters.setLoopFlowApproximation(false);
-        parameters.setLoopFlowAcceptableAugmentation(0.0);
+        parameters.setLoopFlowAcceptableAugmentation(20.);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
         countries.add("BE");

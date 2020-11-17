@@ -96,12 +96,12 @@ public class MnecViolationCostEvaluatorTest {
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
 
-        raoData = RaoData.createOnPreventiveState(network, crac, 0.0);
+        raoData = RaoData.createOnPreventiveState(network, crac);
 
         RaoInputHelper.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
-        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT, 0.0);
+        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         raoData.setSystematicSensitivityResult(sensiResult);
     }

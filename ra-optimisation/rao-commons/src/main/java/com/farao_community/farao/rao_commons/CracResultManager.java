@@ -123,7 +123,7 @@ public class CracResultManager {
         });
     }
 
-    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
+    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network, double loopFlowAcceptableAugmentation) {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
@@ -131,7 +131,7 @@ public class CracResultManager {
                 double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
                 double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + raoData.getLoopFlowAcceptableAugmentation(), loopFlowThreshold - cnec.getFrm()));
+                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getFrm()));
                 cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
             }
         });

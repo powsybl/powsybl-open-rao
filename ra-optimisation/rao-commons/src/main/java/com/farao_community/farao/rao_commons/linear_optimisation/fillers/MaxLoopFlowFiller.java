@@ -7,11 +7,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -42,9 +39,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private double loopFlowViolationCost;
     private SensitivityAnalysisParameters sensitivityAnalysisParameters;
 
-    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowAcceptableAugmentation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
+    public MaxLoopFlowFiller(boolean isLoopFlowApproximation, double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         this.isLoopFlowApproximation = isLoopFlowApproximation;
-        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
         this.loopFlowViolationCost = loopFlowViolationCost;
         this.sensitivityAnalysisParameters = sensitivityAnalysisParameters;
@@ -90,7 +86,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             loopFlowResult = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram())
                 .calculateLoopFlows(raoData.getNetwork(), sensitivityAnalysisParameters, raoData.getLoopflowCnecs());
         }
-        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
+
         for (Cnec cnec : raoData.getLoopflowCnecs()) {
 
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient

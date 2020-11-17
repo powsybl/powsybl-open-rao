@@ -80,7 +80,7 @@ public class MinMarginObjectiveFunctionTest {
                 cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setAbsolutePtdfSum(rand.nextDouble())
         );
 
-        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT, 0.0);
+        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);
 
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(sensiResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
