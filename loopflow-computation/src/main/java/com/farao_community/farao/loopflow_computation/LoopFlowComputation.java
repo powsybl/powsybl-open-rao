@@ -7,8 +7,8 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -32,36 +32,33 @@ import static java.util.Objects.requireNonNull;
 public class LoopFlowComputation {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputation.class);
 
-    private GlskProvider glskProvider;
+    private ZonalData<LinearGlsk> glsk;
     private ReferenceProgram referenceProgram;
 
-    /**
-     * @param crac             loop-flows will be computed for all the Cnecs of the Crac
-     */
-    public LoopFlowComputation(GlskProvider glskProvider, ReferenceProgram referenceProgram) {
-        this.glskProvider = requireNonNull(glskProvider, "glskProvider should not be null");
+    public LoopFlowComputation(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram) {
+        this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
     }
 
     public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<Cnec> cnecs) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glskProvider, cnecs)
+            .withPtdfSensitivities(glsk, cnecs)
             .build();
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, network, cnecs);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, cnecs);
     }
 
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Network network, Set<Cnec> cnecs) {
-        List<LinearGlsk> glsks = getValidGlsks(network);
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<Cnec> cnecs) {
+        List<LinearGlsk> glsks = getValidGlsks();
         LoopFlowResult results = new LoopFlowResult();
 
         for (Cnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
             double commercialFLow = glsks.stream()
-                .mapToDouble(glsk -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glsk, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glsk)))
+                .mapToDouble(glskElement -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glskElement, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glskElement)))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
@@ -76,8 +73,8 @@ public class LoopFlowComputation {
         return eiCode.getCountry();
     }
 
-    private List<LinearGlsk> getValidGlsks(Network network) {
-        return glskProvider.getAllGlsk(network).values().stream().filter(linearGlsk -> {
+    private List<LinearGlsk> getValidGlsks() {
+        return glsk.getDataPerZone().values().stream().filter(linearGlsk -> {
             if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
                 LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
                 return false;

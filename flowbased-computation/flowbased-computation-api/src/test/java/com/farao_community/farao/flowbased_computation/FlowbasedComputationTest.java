@@ -6,12 +6,16 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
@@ -24,13 +28,13 @@ public class FlowbasedComputationTest {
 
     private Crac crac;
 
-    private GlskProvider glskProvider;
+    private ZonalData<LinearGlsk> glsk;
 
     @Before
     public void setUp() {
         network = Mockito.mock(Network.class);
         crac = Mockito.mock(Crac.class);
-        glskProvider = Mockito.mock(GlskProvider.class);
+        glsk = glskProvider();
     }
 
     @Test
@@ -39,9 +43,13 @@ public class FlowbasedComputationTest {
         FlowbasedComputation.Runner defaultFlowBased = FlowbasedComputation.find();
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());
         assertEquals("1.0", defaultFlowBased.getVersion());
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, glskProvider);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, glsk);
         assertNotNull(result);
-        FlowbasedComputationResult resultAsync = FlowbasedComputation.runAsync(network, crac, glskProvider).join();
+        FlowbasedComputationResult resultAsync = FlowbasedComputation.runAsync(network, crac, glsk).join();
         assertNotNull(resultAsync);
+    }
+
+    static ZonalData<LinearGlsk> glskProvider() {
+        return new ZonalDataImpl<>(new HashMap<>());
     }
 }

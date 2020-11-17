@@ -7,12 +7,13 @@
 
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -36,7 +37,7 @@ public final class RaoInput {
         private State optimizedState;
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
-        private GlskProvider glskProvider;
+        private ZonalData<LinearGlsk> glsk;
 
         private RaoInputBuilder() {
         }
@@ -76,8 +77,8 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withGlskProvider(GlskProvider glskProvider) {
-            this.glskProvider = glskProvider;
+        public RaoInputBuilder withGlskProvider(ZonalData<LinearGlsk> glsk) {
+            this.glsk = glsk;
             return this;
         }
 
@@ -93,7 +94,7 @@ public final class RaoInput {
             raoInput.optimizedState = optimizedState;
             raoInput.perimeter = perimeter;
             raoInput.referenceProgram = referenceProgram;
-            raoInput.glskProvider = glskProvider;
+            raoInput.glsk = glsk;
             return raoInput;
         }
 
@@ -125,7 +126,7 @@ public final class RaoInput {
     private Network network;
     private String networkVariantId;
     private ReferenceProgram referenceProgram;
-    private GlskProvider glskProvider;
+    private ZonalData<LinearGlsk> glsk;
 
     private RaoInput() {
     }
@@ -175,7 +176,7 @@ public final class RaoInput {
         this.referenceProgram = referenceProgram;
     }
 
-    public GlskProvider getGlskProvider() {
-        return glskProvider;
+    public ZonalData<LinearGlsk> getGlskProvider() {
+        return glsk;
     }
 }
