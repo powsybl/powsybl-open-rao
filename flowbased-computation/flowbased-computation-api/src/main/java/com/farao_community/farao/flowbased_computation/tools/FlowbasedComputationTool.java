@@ -6,14 +6,14 @@
  */
 package com.farao_community.farao.flowbased_computation.tools;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
+import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.CimGlskProvider;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
 import com.farao_community.farao.rao_commons.RaoInputHelper;
@@ -21,6 +21,7 @@ import com.google.auto.service.AutoService;
 
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -30,7 +31,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -155,14 +155,13 @@ public class FlowbasedComputationTool implements Tool {
         UcteAliasesCreation.createAliases(network);
         RaoInputHelper.cleanCrac(crac, network);
         crac.synchronize(network);
-        //TODO : handling also Ucte format
-        GlskProvider cimGlskProvider = new CimGlskProvider(new FileInputStream(glskFile.toFile()), network, instant);
+        ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlskProvider, parameters);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlsk, parameters);
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.getFlowBasedDomain(), Files.newOutputStream(outputFile));
         }

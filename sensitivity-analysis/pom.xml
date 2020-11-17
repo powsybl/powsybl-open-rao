@@ -23,11 +23,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-file</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-util</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -51,6 +46,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-result-extensions</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk-document-ucte</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
