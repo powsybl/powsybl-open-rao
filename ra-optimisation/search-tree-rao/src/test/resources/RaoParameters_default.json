@@ -18,64 +18,17 @@
     "version" : "1.0",
     "load-flow-parameters" : {
       "version" : "1.4",
-      "voltageInitMode" : "DC_VALUES",
+      "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
       "noGeneratorReactiveLimits" : false,
-      "twtSplitShuntAdmittance" : true,
+      "twtSplitShuntAdmittance" : false,
       "simulShunt" : false,
       "readSlackBus" : false,
       "writeSlackBus" : false,
       "dc" : false,
       "distributedSlack" : true,
-      "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
-      "extensions" : {
-        "ADNLoadFlowParameters" : {
-          "dcMode" : false,
-          "svcRegulationOn" : true,
-          "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
-          "countriesToBalance" : [ "FR", "CH", "AT", "ME", "PT", "GR", "SK", "BG", "RS", "UA", "IT", "MK", "ES", "BE", "HU", "TR", "AL", "NL", "DE", "HR", "RO", "BA", "SI", "CZ", "PL" ],
-          "dcVoltageInitMode" : "V_NORMALISE_NDC",
-          "dcApproxType" : "COURANT_CONTINU",
-          "dcCosphi" : 1.0,
-          "dcVoltageCoeff400" : 1.0,
-          "dcVoltageCoeff225" : 1.0,
-          "dcUseTransformerRatio" : false,
-          "transformerVoltageControlSimulationMode" : "SIMU_REG_HORS_NR",
-          "nbMaxIterations" : -1,
-          "nbMaxVoltageRegulationSwitch" : -1,
-          "logLevel" : "DEBUG",
-          "normEpsilon" : -1.0,
-          "balanceNormEpsilon" : -1.0,
-          "computedConnectedComponentNumber" : 1,
-          "minBusesNbInConnectedComponent" : 1,
-          "nbThreads" : 1,
-          "slackNodeDeterminationMode" : "BILAN_400",
-          "maxRealisticVoltage" : 150.0,
-          "minRealisticVoltage" : 50.0,
-          "detectPermanentLimitViolation" : false,
-          "writeState" : false,
-          "oldJacobianComputation" : false,
-          "debugMode" : "NO_DEBUG",
-          "luFactorizationMode" : "RLU",
-          "limitReductions" : [ ],
-          "hvdcAcEmulation" : true,
-          "anglePerte" : true,
-          "withMinimumReactance" : true,
-          "minimumReactancePerUnit" : 6.25E-4,
-          "remoteVoltageGenerators" : true
-        }
-      }
-    },
-    "extensions" : {
-      "ADNSensitivityComputationParameters" : {
-        "computeInitialLoadflow" : true,
-        "computeSensitivityToPsts" : true,
-        "computeSensitivityToInjections" : true,
-        "equationTypePST" : "ANGLE_SHIFT_EQ",
-        "resultsThreshold" : -1.0,
-        "hubPtdf" : -1
-      }
+      "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX"
     }
   },
   "extensions" : {
