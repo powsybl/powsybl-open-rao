@@ -259,9 +259,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public List<String> getPtdfBoundariesAsString() {
         return ptdfBoundaries.stream()
-                .map(countryPair -> {
-                    return countryPair.getLeft().toString() + "-" + countryPair.getRight().toString();
-                })
+                .map(countryPair -> countryPair.getLeft().toString() + "-" + countryPair.getRight().toString())
                 .collect(Collectors.toList());
     }
 
