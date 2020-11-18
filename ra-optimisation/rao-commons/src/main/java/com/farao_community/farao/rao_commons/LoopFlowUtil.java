@@ -23,7 +23,7 @@ public final class LoopFlowUtil {
             raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
         } else {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoData.getLoopflowCnecs());
+            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
             raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
         }
     }

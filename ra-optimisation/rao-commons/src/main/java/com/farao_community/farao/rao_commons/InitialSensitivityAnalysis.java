@@ -73,7 +73,7 @@ public class InitialSensitivityAnalysis {
 
     private void fillReferenceLoopFlow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoData.getLoopflowCnecs());
+        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
         raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(lfResults, raoData.getNetwork());
         raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
     }
@@ -94,7 +94,7 @@ public class InitialSensitivityAnalysis {
     }
 
     private static void fillAbsolutePtdfSums(RaoData raoData, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
-        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getNetwork(), raoData.getGlskProvider(), boundaries, sensitivityResult);
+        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getGlskProvider(), boundaries, sensitivityResult);
         raoData.getCracResultManager().fillCnecResultsWithAbsolutePtdfSums(ptdfSums);
     }
 }
