@@ -52,4 +52,16 @@ public class JsonRaoPtdfParametersTest extends AbstractConverterTest {
         assertTrue(extension.getBoundariesAsString().contains("FR-ES"));
         assertTrue(extension.getBoundariesAsString().contains("ES-PT"));
     }
+
+    @Test
+    public void update() {
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default.json"));
+        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_relMargin_ampere.json"));
+        RaoPtdfParameters extension = parameters.getExtension(RaoPtdfParameters.class);
+        assertNotNull(extension);
+        assertEquals(0.01, extension.getPtdfSumLowerBound(), 1e-6);
+        assertEquals(2, extension.getBoundaries().size());
+        assertTrue(extension.getBoundariesAsString().contains("FR-ES"));
+        assertTrue(extension.getBoundariesAsString().contains("ES-PT"));
+    }
 }

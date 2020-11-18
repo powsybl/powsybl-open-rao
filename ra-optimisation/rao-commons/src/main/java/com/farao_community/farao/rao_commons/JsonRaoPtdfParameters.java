@@ -39,7 +39,11 @@ public class JsonRaoPtdfParameters implements JsonRaoParameters.ExtensionSeriali
 
     @Override
     public RaoPtdfParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        RaoPtdfParameters parameters = new RaoPtdfParameters();
+        return deserializeAndUpdate(parser, deserializationContext, new RaoPtdfParameters());
+    }
+
+    @Override
+    public RaoPtdfParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, RaoPtdfParameters parameters) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "boundaries":
