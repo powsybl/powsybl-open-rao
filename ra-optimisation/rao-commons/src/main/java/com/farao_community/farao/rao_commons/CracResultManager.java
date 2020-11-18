@@ -132,7 +132,6 @@ public class CracResultManager {
                 double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
                 cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getFrm()));
-                cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
             }
         });
     }
