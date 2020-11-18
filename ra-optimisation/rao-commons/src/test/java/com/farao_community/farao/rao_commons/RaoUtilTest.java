@@ -57,11 +57,9 @@ public class RaoUtilTest {
     }
 
     private void addPtdfParameters(List<String> boundaries) {
-        RaoPtdfParameters raoPtdfParameters = new RaoPtdfParameters();
         if (boundaries != null) {
-            raoPtdfParameters.setBoundariesFromCountryCodes(boundaries);
+            raoParameters.setPtdfBoundariesFromCountryCodes(boundaries);
         }
-        raoParameters.addExtension(RaoPtdfParameters.class, raoPtdfParameters);
     }
 
     private void addGlskProvider() {
@@ -140,7 +138,6 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParametersRelativeMW() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(RaoPtdfParameters.class, new RaoPtdfParameters());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
@@ -150,7 +147,6 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParametersRelativeAmps() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(RaoPtdfParameters.class, new RaoPtdfParameters());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);

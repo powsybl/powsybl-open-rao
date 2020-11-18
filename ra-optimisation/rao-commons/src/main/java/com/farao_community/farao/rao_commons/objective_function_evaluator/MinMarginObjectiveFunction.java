@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoPtdfParameters;
 
 /**
  * Represents an objective function divided into:
@@ -52,9 +51,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
         }
 
         this.minMarginEvaluator = new MinMarginEvaluator(this.unit, false);
-        if (relativeMargin) {
-            this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, true, raoParameters.getExtension(RaoPtdfParameters.class).getPtdfSumLowerBound());
-        }
+        this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, true, raoParameters.getPtdfSumLowerBound());
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
         this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost());

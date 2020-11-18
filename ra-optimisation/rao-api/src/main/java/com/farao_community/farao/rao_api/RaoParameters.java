@@ -17,8 +17,11 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 
@@ -81,6 +84,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
     private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     private static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
+    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
+
+    private static final String COUNTRY_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'XX-YY' where XX and YY are the 2-character country codes";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -98,6 +104,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
+    private List<Pair<Country, Country>> ptdfBoundaries = new ArrayList<>();
+    private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -241,6 +249,47 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.loopflowCountries = convertToCountrySet(countryStrings);
     }
 
+    public List<Pair<Country, Country>> getPtdfBoundaries() {
+        return ptdfBoundaries;
+    }
+
+    public void setPtdfBoundaries(List<Pair<Country, Country>> boundaries) {
+        this.ptdfBoundaries = boundaries;
+    }
+
+    public List<String> getPtdfBoundariesAsString() {
+        return ptdfBoundaries.stream()
+                .map(countryPair -> {
+                    return countryPair.getLeft().toString() + "-" + countryPair.getRight().toString();
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void setPtdfBoundariesFromCountryCodes(List<String> boundaries) {
+        this.ptdfBoundaries = boundaries.stream()
+                .map(stringPair -> {
+                    if (stringPair.length() != 5) {
+                        throw new FaraoException(COUNTRY_CODES_FORMAT_EXCEPTION);
+                    }
+                    try {
+                        Country left = Country.valueOf(stringPair.substring(0, 2));
+                        Country right = Country.valueOf(stringPair.substring(3, 5));
+                        return new ImmutablePair<>(left, right);
+                    } catch (IllegalArgumentException e) {
+                        throw new FaraoException(COUNTRY_CODES_FORMAT_EXCEPTION);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public double getPtdfSumLowerBound() {
+        return ptdfSumLowerBound;
+    }
+
+    public void setPtdfSumLowerBound(double ptdfSumLowerBound) {
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -294,6 +343,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setMnecViolationCost(config.getDoubleProperty("mnec-violation-cost", DEFAULT_MNEC_VIOLATION_COST));
                 parameters.setMnecConstraintAdjustmentCoefficient(config.getDoubleProperty("mnec-constraint-adjustment-coefficient", DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 parameters.setNegativeMarginObjectiveCoefficient(config.getDoubleProperty("negative-margin-objective-coefficient", DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT));
+                parameters.setPtdfBoundariesFromCountryCodes(config.getStringListProperty("ptdf-boundaries", new ArrayList<>()));
+                parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

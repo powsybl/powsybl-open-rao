@@ -13,5 +13,7 @@
   "mnec-acceptable-margin-diminution" : 50.0,
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,
-  "negative-margin-objective-coefficient" : 1000.0
+  "negative-margin-objective-coefficient" : 1000.0,
+  "ptdf-boundaries" : [ ],
+  "ptdf-sum-lower-bound" : 0.01
 }

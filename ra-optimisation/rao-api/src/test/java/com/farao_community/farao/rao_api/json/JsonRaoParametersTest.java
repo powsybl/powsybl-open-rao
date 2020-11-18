@@ -20,9 +20,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -63,6 +65,9 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setMnecAcceptableMarginDiminution(30);
         parameters.setMnecConstraintAdjustmentCoefficient(3);
         parameters.setNegativeMarginObjectiveCoefficient(100);
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-ES", "ES-PT"));
+        parameters.setPtdfBoundariesFromCountryCodes(stringBoundaries);
+        parameters.setPtdfSumLowerBound(0.05);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 
@@ -132,5 +137,4 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
             return DummyExtension.class;
         }
     }
-
 }
