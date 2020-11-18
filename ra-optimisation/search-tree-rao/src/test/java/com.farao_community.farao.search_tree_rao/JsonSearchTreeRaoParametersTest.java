@@ -43,4 +43,17 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
             assertTrue(e.getMessage().contains("Unexpected field"));
         }
     }
+
+    @Test
+    public void update() {
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default.json"));
+        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_relMargin_ampere.json"));
+        SearchTreeRaoParameters extension = parameters.getExtension(SearchTreeRaoParameters.class);
+        assertNotNull(extension);
+        assertEquals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN, extension.getStopCriterion());
+        assertEquals(5, extension.getMaximumSearchDepth());
+        assertEquals(0, extension.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
+        assertEquals(1, extension.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
+        assertEquals(8, extension.getLeavesInParallel());
+    }
 }

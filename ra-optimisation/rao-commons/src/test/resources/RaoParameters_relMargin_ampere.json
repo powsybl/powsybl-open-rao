@@ -1,0 +1,32 @@
+{
+  "version" : "1.0",
+  "objective-function" : "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE",
+  "rao-with-loop-flow-limitation" : false,
+  "negative-margin-objective-coefficient" : 1000.0,
+  "sensitivity-parameters" : {
+    "version" : "1.0",
+    "load-flow-parameters" : {
+      "version" : "1.0",
+      "voltageInitMode" : "UNIFORM_VALUES",
+      "transformerVoltageControlOn" : false,
+      "phaseShifterRegulationOn" : false,
+      "noGeneratorReactiveLimits" : false,
+      "specificCompatibility" : false,
+      "extensions" : {
+        "ADNLoadFlowParameters" : {
+          "dcMode" : false,
+          "balanceType" : "PROPORTIONAL_TO_GENERATION_P"
+        }
+      }
+    }
+  },
+  "extensions" : {
+    "SearchTreeRaoParameters" : {
+      "stop-criterion" : "MAXIMUM_MARGIN",
+      "absolute-network-action-minimum-impact-threshold" : 1
+    },
+    "RaoPtdfParameters" : {
+      "boundaries" : [ "FR-ES", "ES-PT" ]
+    }
+  }
+}
