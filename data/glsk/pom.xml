@@ -16,7 +16,10 @@
     <description>Module that regroups all features related to GLSK file</description>
 
     <modules>
-        <module>glsk-file</module>
-        <module>glsk-quality-check</module>
+        <module>glsk-document-api</module>
+        <module>glsk-document-cim</module>
+        <module>glsk-document-io-api</module>
+        <module>glsk-document-ucte</module>
+        <module>glsk-quality-check-ucte</module>
     </modules>
 </project>

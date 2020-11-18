@@ -15,14 +15,15 @@ import com.farao_community.farao.loopflow_computation.LoopFlowResult;
  */
 public final class LoopFlowUtil {
 
-    private LoopFlowUtil() { }
+    private LoopFlowUtil() {
+    }
 
     public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
         if (isLoopFlowApproximation) {
             raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
         } else {
             LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getNetwork(), raoData.getLoopflowCnecs());
+            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
             raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
         }
     }

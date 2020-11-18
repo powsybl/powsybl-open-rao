@@ -85,7 +85,7 @@ public class InitialSensitivityAnalysis {
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
 
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCrac().getCnecs());
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getCnecs());
         } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
         }
@@ -94,7 +94,7 @@ public class InitialSensitivityAnalysis {
     }
 
     private static void fillAbsolutePtdfSums(RaoData raoData, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
-        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getNetwork(), raoData.getGlskProvider(), boundaries, sensitivityResult);
+        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getGlskProvider(), boundaries, sensitivityResult);
         raoData.getCracResultManager().fillCnecResultsWithAbsolutePtdfSums(ptdfSums);
     }
 }

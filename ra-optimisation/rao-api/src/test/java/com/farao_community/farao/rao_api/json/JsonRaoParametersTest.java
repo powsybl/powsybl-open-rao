@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api.json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -53,8 +54,8 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setPstSensitivityThreshold(0.2);
         parameters.setFallbackOverCost(10);
         parameters.setRaoWithLoopFlowLimitation(true);
-        parameters.setLoopFlowApproximation(false);
         parameters.setLoopFlowAcceptableAugmentation(20.);
+        parameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
         countries.add("BE");
@@ -92,6 +93,11 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
             // should throw
             assertTrue(e.getMessage().contains("Unexpected field"));
         }
+    }
+
+    @Test(expected = FaraoException.class)
+    public void loopFlowApproximationLevelError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError.json"));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

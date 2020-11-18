@@ -143,6 +143,7 @@ public class CracResultManager {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                cnecResult.setCommercialFlowInMW(loopFlowResult.getCommercialFlow(cnec));
             }
         });
     }
@@ -151,7 +152,7 @@ public class CracResultManager {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
+                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnecResult.getCommercialFlowInMW();
                 cnecResult.setLoopflowInMW(loopFLow);
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
             }
@@ -161,6 +162,13 @@ public class CracResultManager {
     public void fillCnecResultsWithAbsolutePtdfSums(Map<Cnec, Double> ptdfSums) {
         ptdfSums.entrySet().forEach(entry ->
                 entry.getKey().getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(entry.getValue())
+        );
+    }
+
+    public void copyCommercialFlowsBetweenVariants(String originVariant, String destinationVariant) {
+        raoData.getLoopflowCnecs().forEach(cnec ->
+                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant)
+                        .setCommercialFlowInMW(cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getCommercialFlowInMW())
         );
     }
 }

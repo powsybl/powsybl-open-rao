@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GLSK_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1 iec62325-451-n-glsk_v2_1.xsd">
+  <mRID>49V000000000017G-20180829-F717</mRID>
+  <revisionNumber>1</revisionNumber>
+  <type>B22</type>
+  <sender_MarketParticipant.mRID codingScheme="A01">49V000000000017G</sender_MarketParticipant.mRID>
+  <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+  <receiver_MarketParticipant.mRID codingScheme="A01">10XDE-RWENET---W</receiver_MarketParticipant.mRID>
+  <receiver_MarketParticipant.marketRole.type>A04</receiver_MarketParticipant.marketRole.type>
+  <createdDateTime>2018-10-02T12:21:00Z</createdDateTime>
+  <status>
+    <value>A42</value>
+  </status>
+  <time_Period.timeInterval>
+    <start>2018-08-28T22:00Z</start>
+    <end>2018-08-29T22:00Z</end>
+  </time_Period.timeInterval>
+  <domain.mRID codingScheme="A01">10YDOM-REGION-1V</domain.mRID>
+  <TimeSeries>
+    <mRID>GlskB43BE</mRID>
+    <subject_Domain.mRID codingScheme="A01">10YBE----------2</subject_Domain.mRID>
+    <curveType>A03</curveType>
+    <Period>
+      <timeInterval>
+        <start>2018-08-28T22:00Z</start>
+        <end>2018-08-29T22:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point>
+        <position>1</position>
+        <SKBlock_TimeSeries>
+          <businessType>B43</businessType>
+          <mktPSRType.psrType>A04</mktPSRType.psrType>
+          <RegisteredResource>
+            <mRID codingScheme="A02">BBE3AA1 _generator</mRID>
+            <name>BBE3AA1 _generator</name>
+            <sK_ResourceCapacity.defaultCapacity>0.618</sK_ResourceCapacity.defaultCapacity>
+          </RegisteredResource>
+        </SKBlock_TimeSeries>
+      </Point>
+    </Period>
+  </TimeSeries>
+</GLSK_MarketDocument>

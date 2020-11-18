@@ -76,8 +76,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parameters.setLoopFlowAcceptableAugmentation(parser.getDoubleValue());
                     break;
                 case "loop-flow-approximation":
-                    parser.nextToken();
-                    parameters.setLoopFlowApproximation(parser.getBooleanValue());
+                    parameters.setLoopFlowApproximationLevel(stringToLoopFlowApproximationLevel(parser.nextTextValue()));
                     break;
                 case "loop-flow-constraint-adjustment-coefficient":
                     parser.nextToken();
@@ -142,7 +141,15 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         try {
             return RaoParameters.ObjectiveFunction.valueOf(string);
         } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown objective function value : %s", string));
+            throw new FaraoException(String.format("Unknown objective function value: %s", string));
+        }
+    }
+
+    private RaoParameters.LoopFlowApproximationLevel stringToLoopFlowApproximationLevel(String string) {
+        try {
+            return RaoParameters.LoopFlowApproximationLevel.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown loopflow approximation level: %s", string));
         }
     }
 }

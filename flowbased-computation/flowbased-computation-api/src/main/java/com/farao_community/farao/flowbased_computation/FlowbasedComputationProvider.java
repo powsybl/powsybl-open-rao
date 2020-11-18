@@ -6,11 +6,12 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -18,5 +19,5 @@ import java.util.concurrent.CompletableFuture;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public interface FlowbasedComputationProvider extends Versionable, PlatformConfigNamedProvider {
-    CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, GlskProvider glskProvider, FlowbasedComputationParameters parameters);
+    CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, ZonalData<LinearGlsk> glsk, FlowbasedComputationParameters parameters);
 }

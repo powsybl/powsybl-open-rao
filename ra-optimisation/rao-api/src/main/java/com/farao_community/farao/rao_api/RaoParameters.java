@@ -53,14 +53,28 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
+    public enum LoopFlowApproximationLevel {
+        FIXED_PTDF, // compute PTDFs only once at beginning of RAO (best performance, worst accuracy)
+        UPDATE_PTDF_WITH_TOPO, // recompute PTDFs after every topological change in the network (worse performance, better accuracy for AC, best accuracy for DC)
+        UPDATE_PTDF_WITH_TOPO_AND_PST; // recompute PTDFs after every topological or PST change in the network (worst performance, best accuracy for AC)
+
+        public boolean shouldUpdatePtdfWithTopologicalChange() {
+            return !this.equals(FIXED_PTDF);
+        }
+
+        public boolean shouldUpdatePtdfWithPstChange() {
+            return this.equals(UPDATE_PTDF_WITH_TOPO_AND_PST);
+        }
+    }
+
     public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
     public static final int DEFAULT_MAX_ITERATIONS = 10;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
     public static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
-    public static final boolean DEFAULT_LOOP_FLOW_APPROXIMATION = true;
     public static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
+    public static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
     public static final double DEFAULT_PST_PENALTY_COST = 0.01;
@@ -76,8 +90,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     private double fallbackOverCost = DEFAULT_FALLBACK_OVER_COST;
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
-    private boolean loopFlowApproximation = DEFAULT_LOOP_FLOW_APPROXIMATION;
     private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
+    private LoopFlowApproximationLevel loopFlowApproximationLevel = DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double loopFlowViolationCost = DEFAULT_LOOP_FLOW_VIOLATION_COST;
     private Set<Country> loopflowCountries = new HashSet<>(); //Empty by default
@@ -143,12 +157,12 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
-    public boolean isLoopFlowApproximation() {
-        return loopFlowApproximation;
+    public LoopFlowApproximationLevel getLoopFlowApproximationLevel() {
+        return loopFlowApproximationLevel;
     }
 
-    public RaoParameters setLoopFlowApproximation(boolean loopFlowApproximation) {
-        this.loopFlowApproximation = loopFlowApproximation;
+    public RaoParameters setLoopFlowApproximationLevel(LoopFlowApproximationLevel loopFlowApproximation) {
+        this.loopFlowApproximationLevel = loopFlowApproximation;
         return this;
     }
 
@@ -292,8 +306,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
                 parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
-                parameters.setLoopFlowApproximation(config.getBooleanProperty("loop-flow-approximation", DEFAULT_LOOP_FLOW_APPROXIMATION));
                 parameters.setLoopFlowAcceptableAugmentation(config.getDoubleProperty("loop-flow-acceptable-augmentation", DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION));
+                parameters.setLoopFlowApproximationLevel(config.getEnumProperty("loop-flow-approximation", LoopFlowApproximationLevel.class, DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL));
                 parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loop-flow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 parameters.setLoopFlowViolationCost(config.getDoubleProperty("loop-flow-violation-cost", DEFAULT_LOOP_FLOW_VIOLATION_COST));
                 parameters.setLoopflowCountries(convertToCountrySet(config.getStringListProperty("loop-flow-countries", new ArrayList<>())));
