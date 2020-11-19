@@ -74,7 +74,7 @@ public class InitialSensitivityAnalysis {
     private void fillReferenceLoopFlow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
         LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
-        raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(lfResults, raoData.getNetwork());
+        raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(lfResults, raoData.getNetwork(), raoParameters.getLoopFlowAcceptableAugmentation());
         raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
     }
 
