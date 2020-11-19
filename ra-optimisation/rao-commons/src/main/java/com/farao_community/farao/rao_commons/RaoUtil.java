@@ -64,10 +64,8 @@ public final class RaoUtil {
             if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException("Relative margin objective function requires a GLSK provider.");
             }
-            if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
-                || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
-                || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
-                throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries.");
+            if (raoParameters.getPtdfBoundaries().isEmpty()) {
+                throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries to compute PTDF sums upon.");
             }
         }
 
