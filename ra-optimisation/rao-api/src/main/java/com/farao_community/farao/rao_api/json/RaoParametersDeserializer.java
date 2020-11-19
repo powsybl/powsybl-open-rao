@@ -130,6 +130,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parameters.setPtdfSumLowerBound(parser.getDoubleValue());
                     break;
                 case "extensions":
+                    parser.nextToken();
                     if (parameters.getExtensions().isEmpty()) {
                         extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
                     } else {
