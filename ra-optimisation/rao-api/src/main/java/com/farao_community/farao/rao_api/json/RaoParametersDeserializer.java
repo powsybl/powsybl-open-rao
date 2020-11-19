@@ -109,10 +109,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
                     break;
-                case "ptdf-sum-lower-bound":
-                    parser.nextToken();
-                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
-                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
@@ -124,12 +120,25 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     }
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
+                case "ptdf-boundaries":
+                    if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
+                        List<String> boundaries = new ArrayList<>();
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            boundaries.add(parser.getValueAsString());
+                        }
+                        parameters.setPtdfBoundariesFromCountryCodes(boundaries);
+                    }
+                    break;
+                case "ptdf-sum-lower-bound":
+                    parser.nextToken();
+                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
