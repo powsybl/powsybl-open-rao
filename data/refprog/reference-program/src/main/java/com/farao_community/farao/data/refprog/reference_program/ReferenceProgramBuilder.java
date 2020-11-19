@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,12 @@ public final class ReferenceProgramBuilder {
 
     }
 
-    private static void computeRefFlowOnCurrentNetwork(Network network) {
+    private static void computeRefFlowOnCurrentNetwork(Network network, LoadFlowParameters loadFlowParameters) {
         String errorMsg = "LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation";
         try {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
-            LoadFlowResult loadFlowResult = LoadFlow.run(network);
+            LoadFlowResult loadFlowResult = LoadFlow.run(network, loadFlowParameters);
             if (!loadFlowResult.isOk()) {
                 LOGGER.warn(errorMsg);
             }
@@ -43,8 +44,8 @@ public final class ReferenceProgramBuilder {
         }
     }
 
-    public static ReferenceProgram buildReferenceProgram(Network network) {
-        computeRefFlowOnCurrentNetwork(network);
+    public static ReferenceProgram buildReferenceProgram(Network network, LoadFlowParameters loadFlowParameters) {
+        computeRefFlowOnCurrentNetwork(network, loadFlowParameters);
         Map<Country, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         List<ReferenceExchangeData> referenceExchangeDataList = new ArrayList<>();
 
